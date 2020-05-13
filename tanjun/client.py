@@ -162,6 +162,8 @@ class Client(AbstractClient, _clusters.Cluster):
         This inherits from :class:`CommandCluster` and can act as an independent Command Cluster for small bots.
     """
 
+    _clusters_to_load: typing.MutableSequence[str]
+
     def __init__(
         self,
         components: _components.Components,
@@ -175,6 +177,7 @@ class Client(AbstractClient, _clusters.Cluster):
         AbstractClient.__init__(self, components=components)
         _clusters.Cluster.__init__(self, client=self, components=components, hooks=hooks)
         self.clusters = {}
+        self._clusters_to_load = []
         self.load_from_modules(*(modules or components.config.modules))
 
     async def load(self) -> None:
@@ -236,6 +239,13 @@ class Client(AbstractClient, _clusters.Cluster):
     @decorators.event(message_events.MessageCreateEvent)
     async def on_message_create(self, message: message_events.MessageCreateEvent) -> None:
         """Handles command triggering based on message creation."""
+        if self._clusters_to_load:
+            clusters = self._clusters_to_load
+            self._clusters_to_load = []
+            asyncio.create_task(
+                asyncio.gather(self.clusters[cluster].load() for cluster in clusters if cluster in self.clusters)
+            )
+
         prefix = await self.check_prefix(message)
         mention = None  # TODO: mention at end of message?
         if prefix or mention:
@@ -268,8 +278,7 @@ class Client(AbstractClient, _clusters.Cluster):
             cluster = cluster(self, self.components)
         #  TODO: bind client?
         self.clusters[cluster.__class__.__name__] = cluster
+        # If the bot has already started then we'll want to queue this cluster up to be loaded
+        # during the next message create event as to ensure this it's loaded within an event loop.
         if self.started:
-            # If this has started then we can assume this is in an event loop.
-            # If this hasn't been started then we can assume we'll be able to
-            # load the module later based on a discord event.
-            asyncio.ensure_future(cluster.load())
+            self._clusters_to_load.append(cluster.__class__.__name__)
