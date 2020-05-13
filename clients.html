@@ -1,0 +1,1162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>tanjun.clients API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>tanjun.clients</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python"># -*- coding: utf-8 -*-
+# cython: language_level=3
+# BSD 3-Clause License
+#
+# Copyright (c) 2020, Faster Speeding
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of the copyright holder nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &#34;AS IS&#34;
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+from __future__ import annotations
+
+__all__: typing.Sequence[str] = [&#34;as_loader&#34;, &#34;Client&#34;]
+
+import asyncio
+import importlib.util
+import inspect
+import itertools
+import typing
+
+from hikari import errors as hikari_errors
+from hikari import traits as hikari_traits
+from hikari.events import lifetime_events
+from hikari.events import message_events
+from yuyo import backoff
+
+from tanjun import context
+from tanjun import traits
+from tanjun import utilities
+
+if typing.TYPE_CHECKING:
+    import pathlib
+    import types
+
+
+class _LoadableDescriptor(traits.LoadableDescriptor):
+    __slots__: typing.Sequence[str] = (&#34;function&#34;,)
+
+    def __init__(self, function: traits.LoadableT, /) -&gt; None:
+        self._function = function
+        utilities.with_function_wrapping(self, &#34;load_function&#34;)
+
+    def __call__(self, client: traits.Client, /) -&gt; None:
+        self._function(client)
+
+    @property
+    def load_function(self) -&gt; traits.LoadableT:
+        return self._function
+
+
+def as_loader(function: traits.LoadableT) -&gt; traits.LoadableT:
+    &#34;&#34;&#34;Mark a function as being used to load Tanjun utilities from a module.
+
+    Parameters
+    ----------
+    function : traits.LoadableT
+        The function used to load Tanjun utilities from the a module. This
+        should take one argument of type `tanjun.traits.Client`, return nothing
+        and will be expected to initiate and add utilities such as components
+        to the provided client using it&#39;s protocol methods.
+
+    Returns
+    -------
+    traits.LoadableT
+        The decorated load function.
+    &#34;&#34;&#34;
+    return _LoadableDescriptor(function)
+
+
+class Client(traits.Client):
+    __slots__: typing.Sequence[str] = (
+        &#34;_cache&#34;,
+        &#34;_checks&#34;,
+        &#34;_components&#34;,
+        &#34;_dispatch&#34;,
+        &#34;_grab_mention_prefix&#34;,
+        &#34;hooks&#34;,
+        &#34;_metadata&#34;,
+        &#34;_prefixes&#34;,
+        &#34;_rest&#34;,
+        &#34;_shards&#34;,
+    )
+
+    def __init__(
+        self,
+        dispatch: hikari_traits.DispatcherAware,
+        rest: typing.Optional[hikari_traits.RESTAware] = None,
+        shard: typing.Optional[hikari_traits.ShardAware] = None,
+        cache: typing.Optional[hikari_traits.CacheAware] = None,
+        /,
+        *,
+        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
+        hooks: typing.Optional[traits.Hooks] = None,
+        mention_prefix: bool = True,
+        modules: typing.Optional[typing.Iterable[typing.Union[pathlib.Path, str]]] = None,
+        prefixes: typing.Optional[typing.Iterable[str]] = None,
+    ) -&gt; None:
+        if rest is not None:
+            pass
+
+        elif isinstance(cache, hikari_traits.RESTAware):
+            rest = cache
+
+        elif isinstance(dispatch, hikari_traits.RESTAware):
+            rest = dispatch
+
+        elif isinstance(shard, hikari_traits.RESTAware):
+            rest = shard  # type: ignore[unreachable]
+
+        else:
+            raise ValueError(&#34;Missing RESTAware client implementation.&#34;)
+
+        if shard is not None:
+            pass
+
+        elif isinstance(cache, hikari_traits.ShardAware):
+            shard = cache
+
+        elif isinstance(dispatch, hikari_traits.ShardAware):
+            shard = dispatch
+
+        elif isinstance(rest, hikari_traits.ShardAware):
+            shard = rest
+
+        else:
+            raise ValueError(&#34;Missing ShardAware client implementation.&#34;)
+
+        # Unlike `rest`, no provided Cache implementation just means this runs stateless.
+        if cache is not None:
+            pass
+
+        elif isinstance(dispatch, hikari_traits.CacheAware):
+            cache = dispatch
+
+        elif isinstance(rest, hikari_traits.CacheAware):
+            cache = rest
+
+        elif isinstance(shard, hikari_traits.CacheAware):  # type: ignore[unreachable]
+            cache = shard
+        # TODO: logging or something to indicate this is running statelessly rather than statefully.
+
+        self._checks: typing.MutableSet[traits.CheckT] = {self.check_human, *(checks or ())}
+        self._cache = cache
+        self._components: typing.MutableSet[traits.Component] = set()
+        self._dispatch = dispatch
+        self._grab_mention_prefix = mention_prefix
+        self.hooks = hooks
+        self._metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
+        self._prefixes = set(prefixes) if prefixes else set()
+        self._rest = rest
+        self._shards = shard
+        self._dispatch.dispatcher.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
+        self._dispatch.dispatcher.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
+
+        if modules:
+            self.load_from_modules(modules)
+
+    async def __aenter__(self) -&gt; Client:
+        await self.open()
+        return self
+
+    async def __aexit__(
+        self,
+        exception_type: typing.Optional[typing.Type[BaseException]],
+        exception: typing.Optional[BaseException],
+        exception_traceback: typing.Optional[types.TracebackType],
+    ) -&gt; None:
+        await self.close()
+
+    def __repr__(self) -&gt; str:
+        return f&#34;CommandClient &lt;{type(self).__name__!r}, {len(self._components)} components, {self._prefixes}&gt;&#34;
+
+    @property
+    def cache_service(self) -&gt; typing.Optional[hikari_traits.CacheAware]:
+        return self._cache
+
+    @property
+    def checks(self) -&gt; typing.AbstractSet[traits.CheckT]:
+        return frozenset(self._checks)
+
+    @property
+    def components(self) -&gt; typing.AbstractSet[traits.Component]:
+        return frozenset(self._components)
+
+    @property
+    def dispatch_service(self) -&gt; hikari_traits.DispatcherAware:
+        return self._dispatch
+
+    @property
+    def metadata(self) -&gt; typing.MutableMapping[typing.Any, typing.Any]:
+        return self._metadata
+
+    @property
+    def prefixes(self) -&gt; typing.AbstractSet[str]:
+        return frozenset(self._prefixes)
+
+    @property
+    def rest_service(self) -&gt; hikari_traits.RESTAware:
+        return self._rest
+
+    @property
+    def shard_service(self) -&gt; hikari_traits.ShardAware:
+        return self._shards
+
+    async def _on_starting_event(self, _: lifetime_events.StartingEvent, /) -&gt; None:
+        await self.open()
+
+    async def _on_stopping_event(self, _: lifetime_events.StoppingEvent, /) -&gt; None:
+        await self.close()
+
+    def add_check(self, check: traits.CheckT, /) -&gt; None:
+        self._checks.add(check)
+
+    def remove_check(self, check: traits.CheckT, /) -&gt; None:
+        self._checks.remove(check)
+
+    async def check(self, ctx: traits.Context, /) -&gt; bool:
+        return await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks)
+
+    def add_component(self, component: traits.Component, /) -&gt; None:
+        component.bind_client(self)
+        self._components.add(component)
+
+    def remove_component(self, component: traits.Component, /) -&gt; None:
+        self._components.remove(component)
+
+    def add_prefix(self, prefix: str, /) -&gt; None:
+        self._prefixes.add(prefix)
+
+    def remove_prefix(self, prefix: str, /) -&gt; None:
+        self._prefixes.remove(prefix)
+
+    async def check_context(self, ctx: traits.Context, /) -&gt; typing.AsyncIterator[traits.FoundCommand]:
+        async for value in utilities.async_chain(component.check_context(ctx) for component in self._components):
+            yield value
+
+    @staticmethod
+    def check_human(ctx: traits.Context, /) -&gt; bool:
+        return not ctx.message.author.is_bot and ctx.message.webhook_id is None
+
+    def check_name(self, name: str, /) -&gt; typing.Iterator[traits.FoundCommand]:
+        yield from itertools.chain.from_iterable(component.check_name(name) for component in self._components)
+
+    async def check_prefix(self, content: str, /) -&gt; typing.Optional[str]:
+        for prefix in self._prefixes:
+            if content.startswith(prefix):
+                return prefix
+
+        return None
+
+    async def close(self, *, deregister_listener: bool = True) -&gt; None:
+        self._dispatch.dispatcher.unsubscribe(message_events.MessageCreateEvent, self.on_message_create)
+
+        if deregister_listener:
+            await asyncio.gather(*(component.close() for component in self._components))
+
+    async def open(self, *, register_listener: bool = True) -&gt; None:
+        await asyncio.gather(*(component.open() for component in self._components))
+
+        if self._grab_mention_prefix:
+            retry = backoff.Backoff(max_retries=4, maximum=30)
+
+            async for _ in retry:
+                try:
+                    user = await self._rest.rest.fetch_my_user()
+                    break
+
+                except hikari_errors.RateLimitedError as exc:
+                    if exc.retry_after &gt; 30:
+                        raise
+
+                    retry.set_next_backoff(exc.retry_after)
+
+                except hikari_errors.InternalServerError:
+                    continue
+
+            else:
+                user = await self._rest.rest.fetch_my_user()
+
+            self._grab_mention_prefix = False
+            self._prefixes.add(f&#34;&lt;@{user.id}&gt;&#34;)
+            self._prefixes.add(f&#34;&lt;@!{user.id}&gt;&#34;)
+
+        if register_listener:
+            self._dispatch.dispatcher.subscribe(message_events.MessageCreateEvent, self.on_message_create)
+
+    def load_from_modules(self, modules: typing.Iterable[typing.Union[str, pathlib.Path]]) -&gt; None:
+        for module_path in modules:
+            if isinstance(module_path, str):
+                module = importlib.import_module(module_path)
+
+            else:
+                spec = importlib.util.spec_from_file_location(
+                    module_path.name.rsplit(&#34;.&#34;, 1)[0], str(module_path.absolute())
+                )
+                module = importlib.util.module_from_spec(spec)
+
+                if spec.loader is None:
+                    raise RuntimeError(f&#34;Invalid module provided {module_path}&#34;)
+
+                # The type shedding is wrong here
+                spec.loader.exec_module(module)  # type: ignore[attr-defined]
+
+            for _, member in inspect.getmembers(module):
+                if isinstance(member, traits.LoadableDescriptor):
+                    member.load_function(self)
+
+    async def on_message_create(self, event: message_events.MessageCreateEvent) -&gt; None:
+        if event.message.content is None:
+            return
+
+        if (prefix := await self.check_prefix(event.message.content)) is None:
+            return
+
+        content = event.message.content.lstrip()[len(prefix) :].lstrip()
+        ctx = context.Context(self, content=content, message=event.message, triggering_prefix=prefix)
+
+        if not await self.check(ctx):
+            return
+
+        hooks = {self.hooks,} if self.hooks else set()
+
+        for component in self._components:
+            if await component.execute(ctx, hooks=hooks):
+                break</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="tanjun.clients.as_loader"><code class="name flex">
+<span>def <span class="ident">as_loader</span></span>(<span>function: traits.LoadableT) ‑> Callable[[<a title="tanjun.clients.Client" href="#tanjun.clients.Client">Client</a>], NoneType]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Mark a function as being used to load Tanjun utilities from a module.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>function</code></strong> :&ensp;<code>traits.LoadableT</code></dt>
+<dd>The function used to load Tanjun utilities from the a module. This
+should take one argument of type <code><a title="tanjun.traits.Client" href="traits.html#tanjun.traits.Client">Client</a></code>, return nothing
+and will be expected to initiate and add utilities such as components
+to the provided client using it's protocol methods.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>traits.LoadableT</code></dt>
+<dd>The decorated load function.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def as_loader(function: traits.LoadableT) -&gt; traits.LoadableT:
+    &#34;&#34;&#34;Mark a function as being used to load Tanjun utilities from a module.
+
+    Parameters
+    ----------
+    function : traits.LoadableT
+        The function used to load Tanjun utilities from the a module. This
+        should take one argument of type `tanjun.traits.Client`, return nothing
+        and will be expected to initiate and add utilities such as components
+        to the provided client using it&#39;s protocol methods.
+
+    Returns
+    -------
+    traits.LoadableT
+        The decorated load function.
+    &#34;&#34;&#34;
+    return _LoadableDescriptor(function)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="tanjun.clients.Client"><code class="flex name class">
+<span>class <span class="ident">Client</span></span>
+<span>(</span><span>dispatch: hikari_traits.DispatcherAware, rest: typing.Optional[hikari_traits.RESTAware] = None, shard: typing.Optional[hikari_traits.ShardAware] = None, cache: typing.Optional[hikari_traits.CacheAware] = None, /, *, checks: typing.Optional[typing.Iterable[traits.CheckT]] = None, hooks: typing.Optional[traits.Hooks] = None, mention_prefix: bool = True, modules: typing.Optional[typing.Iterable[typing.Union[pathlib.Path, str]]] = None, prefixes: typing.Optional[typing.Iterable[str]] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for protocol classes.</p>
+<p>Protocol classes are defined as::</p>
+<pre><code>class Proto(Protocol):
+    def meth(self) -&gt; int:
+        ...
+</code></pre>
+<p>Such classes are primarily used with static type checkers that recognize
+structural subtyping (static duck-typing), for example::</p>
+<pre><code>class C:
+    def meth(self) -&gt; int:
+        return 0
+
+def func(x: Proto) -&gt; int:
+    return x.meth()
+
+func(C())  # Passes static type check
+</code></pre>
+<p>See PEP 544 for details. Protocol classes decorated with
+@typing.runtime_checkable act as simple-minded runtime protocols that check
+only the presence of given attributes, ignoring their type signatures.
+Protocol classes can be generic, they are defined as::</p>
+<pre><code>class GenProto(Protocol[T]):
+    def meth(self) -&gt; T:
+        ...
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Client(traits.Client):
+    __slots__: typing.Sequence[str] = (
+        &#34;_cache&#34;,
+        &#34;_checks&#34;,
+        &#34;_components&#34;,
+        &#34;_dispatch&#34;,
+        &#34;_grab_mention_prefix&#34;,
+        &#34;hooks&#34;,
+        &#34;_metadata&#34;,
+        &#34;_prefixes&#34;,
+        &#34;_rest&#34;,
+        &#34;_shards&#34;,
+    )
+
+    def __init__(
+        self,
+        dispatch: hikari_traits.DispatcherAware,
+        rest: typing.Optional[hikari_traits.RESTAware] = None,
+        shard: typing.Optional[hikari_traits.ShardAware] = None,
+        cache: typing.Optional[hikari_traits.CacheAware] = None,
+        /,
+        *,
+        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
+        hooks: typing.Optional[traits.Hooks] = None,
+        mention_prefix: bool = True,
+        modules: typing.Optional[typing.Iterable[typing.Union[pathlib.Path, str]]] = None,
+        prefixes: typing.Optional[typing.Iterable[str]] = None,
+    ) -&gt; None:
+        if rest is not None:
+            pass
+
+        elif isinstance(cache, hikari_traits.RESTAware):
+            rest = cache
+
+        elif isinstance(dispatch, hikari_traits.RESTAware):
+            rest = dispatch
+
+        elif isinstance(shard, hikari_traits.RESTAware):
+            rest = shard  # type: ignore[unreachable]
+
+        else:
+            raise ValueError(&#34;Missing RESTAware client implementation.&#34;)
+
+        if shard is not None:
+            pass
+
+        elif isinstance(cache, hikari_traits.ShardAware):
+            shard = cache
+
+        elif isinstance(dispatch, hikari_traits.ShardAware):
+            shard = dispatch
+
+        elif isinstance(rest, hikari_traits.ShardAware):
+            shard = rest
+
+        else:
+            raise ValueError(&#34;Missing ShardAware client implementation.&#34;)
+
+        # Unlike `rest`, no provided Cache implementation just means this runs stateless.
+        if cache is not None:
+            pass
+
+        elif isinstance(dispatch, hikari_traits.CacheAware):
+            cache = dispatch
+
+        elif isinstance(rest, hikari_traits.CacheAware):
+            cache = rest
+
+        elif isinstance(shard, hikari_traits.CacheAware):  # type: ignore[unreachable]
+            cache = shard
+        # TODO: logging or something to indicate this is running statelessly rather than statefully.
+
+        self._checks: typing.MutableSet[traits.CheckT] = {self.check_human, *(checks or ())}
+        self._cache = cache
+        self._components: typing.MutableSet[traits.Component] = set()
+        self._dispatch = dispatch
+        self._grab_mention_prefix = mention_prefix
+        self.hooks = hooks
+        self._metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
+        self._prefixes = set(prefixes) if prefixes else set()
+        self._rest = rest
+        self._shards = shard
+        self._dispatch.dispatcher.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
+        self._dispatch.dispatcher.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
+
+        if modules:
+            self.load_from_modules(modules)
+
+    async def __aenter__(self) -&gt; Client:
+        await self.open()
+        return self
+
+    async def __aexit__(
+        self,
+        exception_type: typing.Optional[typing.Type[BaseException]],
+        exception: typing.Optional[BaseException],
+        exception_traceback: typing.Optional[types.TracebackType],
+    ) -&gt; None:
+        await self.close()
+
+    def __repr__(self) -&gt; str:
+        return f&#34;CommandClient &lt;{type(self).__name__!r}, {len(self._components)} components, {self._prefixes}&gt;&#34;
+
+    @property
+    def cache_service(self) -&gt; typing.Optional[hikari_traits.CacheAware]:
+        return self._cache
+
+    @property
+    def checks(self) -&gt; typing.AbstractSet[traits.CheckT]:
+        return frozenset(self._checks)
+
+    @property
+    def components(self) -&gt; typing.AbstractSet[traits.Component]:
+        return frozenset(self._components)
+
+    @property
+    def dispatch_service(self) -&gt; hikari_traits.DispatcherAware:
+        return self._dispatch
+
+    @property
+    def metadata(self) -&gt; typing.MutableMapping[typing.Any, typing.Any]:
+        return self._metadata
+
+    @property
+    def prefixes(self) -&gt; typing.AbstractSet[str]:
+        return frozenset(self._prefixes)
+
+    @property
+    def rest_service(self) -&gt; hikari_traits.RESTAware:
+        return self._rest
+
+    @property
+    def shard_service(self) -&gt; hikari_traits.ShardAware:
+        return self._shards
+
+    async def _on_starting_event(self, _: lifetime_events.StartingEvent, /) -&gt; None:
+        await self.open()
+
+    async def _on_stopping_event(self, _: lifetime_events.StoppingEvent, /) -&gt; None:
+        await self.close()
+
+    def add_check(self, check: traits.CheckT, /) -&gt; None:
+        self._checks.add(check)
+
+    def remove_check(self, check: traits.CheckT, /) -&gt; None:
+        self._checks.remove(check)
+
+    async def check(self, ctx: traits.Context, /) -&gt; bool:
+        return await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks)
+
+    def add_component(self, component: traits.Component, /) -&gt; None:
+        component.bind_client(self)
+        self._components.add(component)
+
+    def remove_component(self, component: traits.Component, /) -&gt; None:
+        self._components.remove(component)
+
+    def add_prefix(self, prefix: str, /) -&gt; None:
+        self._prefixes.add(prefix)
+
+    def remove_prefix(self, prefix: str, /) -&gt; None:
+        self._prefixes.remove(prefix)
+
+    async def check_context(self, ctx: traits.Context, /) -&gt; typing.AsyncIterator[traits.FoundCommand]:
+        async for value in utilities.async_chain(component.check_context(ctx) for component in self._components):
+            yield value
+
+    @staticmethod
+    def check_human(ctx: traits.Context, /) -&gt; bool:
+        return not ctx.message.author.is_bot and ctx.message.webhook_id is None
+
+    def check_name(self, name: str, /) -&gt; typing.Iterator[traits.FoundCommand]:
+        yield from itertools.chain.from_iterable(component.check_name(name) for component in self._components)
+
+    async def check_prefix(self, content: str, /) -&gt; typing.Optional[str]:
+        for prefix in self._prefixes:
+            if content.startswith(prefix):
+                return prefix
+
+        return None
+
+    async def close(self, *, deregister_listener: bool = True) -&gt; None:
+        self._dispatch.dispatcher.unsubscribe(message_events.MessageCreateEvent, self.on_message_create)
+
+        if deregister_listener:
+            await asyncio.gather(*(component.close() for component in self._components))
+
+    async def open(self, *, register_listener: bool = True) -&gt; None:
+        await asyncio.gather(*(component.open() for component in self._components))
+
+        if self._grab_mention_prefix:
+            retry = backoff.Backoff(max_retries=4, maximum=30)
+
+            async for _ in retry:
+                try:
+                    user = await self._rest.rest.fetch_my_user()
+                    break
+
+                except hikari_errors.RateLimitedError as exc:
+                    if exc.retry_after &gt; 30:
+                        raise
+
+                    retry.set_next_backoff(exc.retry_after)
+
+                except hikari_errors.InternalServerError:
+                    continue
+
+            else:
+                user = await self._rest.rest.fetch_my_user()
+
+            self._grab_mention_prefix = False
+            self._prefixes.add(f&#34;&lt;@{user.id}&gt;&#34;)
+            self._prefixes.add(f&#34;&lt;@!{user.id}&gt;&#34;)
+
+        if register_listener:
+            self._dispatch.dispatcher.subscribe(message_events.MessageCreateEvent, self.on_message_create)
+
+    def load_from_modules(self, modules: typing.Iterable[typing.Union[str, pathlib.Path]]) -&gt; None:
+        for module_path in modules:
+            if isinstance(module_path, str):
+                module = importlib.import_module(module_path)
+
+            else:
+                spec = importlib.util.spec_from_file_location(
+                    module_path.name.rsplit(&#34;.&#34;, 1)[0], str(module_path.absolute())
+                )
+                module = importlib.util.module_from_spec(spec)
+
+                if spec.loader is None:
+                    raise RuntimeError(f&#34;Invalid module provided {module_path}&#34;)
+
+                # The type shedding is wrong here
+                spec.loader.exec_module(module)  # type: ignore[attr-defined]
+
+            for _, member in inspect.getmembers(module):
+                if isinstance(member, traits.LoadableDescriptor):
+                    member.load_function(self)
+
+    async def on_message_create(self, event: message_events.MessageCreateEvent) -&gt; None:
+        if event.message.content is None:
+            return
+
+        if (prefix := await self.check_prefix(event.message.content)) is None:
+            return
+
+        content = event.message.content.lstrip()[len(prefix) :].lstrip()
+        ctx = context.Context(self, content=content, message=event.message, triggering_prefix=prefix)
+
+        if not await self.check(ctx):
+            return
+
+        hooks = {self.hooks,} if self.hooks else set()
+
+        for component in self._components:
+            if await component.execute(ctx, hooks=hooks):
+                break</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="tanjun.traits.Client" href="traits.html#tanjun.traits.Client">Client</a></li>
+<li>typing.Protocol</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Static methods</h3>
+<dl>
+<dt id="tanjun.clients.Client.check_human"><code class="name flex">
+<span>def <span class="ident">check_human</span></span>(<span>ctx: traits.Context, /) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def check_human(ctx: traits.Context, /) -&gt; bool:
+    return not ctx.message.author.is_bot and ctx.message.webhook_id is None</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="tanjun.clients.Client.cache_service"><code class="name">var <span class="ident">cache_service</span> : Union[hikari.traits.CacheAware, NoneType]</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def cache_service(self) -&gt; typing.Optional[hikari_traits.CacheAware]:
+    return self._cache</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.checks"><code class="name">var <span class="ident">checks</span> : AbstractSet[Callable[[Context], Union[Coroutine[Any, Any, bool], bool]]]</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def checks(self) -&gt; typing.AbstractSet[traits.CheckT]:
+    return frozenset(self._checks)</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.components"><code class="name">var <span class="ident">components</span> : AbstractSet[<a title="tanjun.traits.Component" href="traits.html#tanjun.traits.Component">Component</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def components(self) -&gt; typing.AbstractSet[traits.Component]:
+    return frozenset(self._components)</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.dispatch_service"><code class="name">var <span class="ident">dispatch_service</span> : hikari.traits.DispatcherAware</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def dispatch_service(self) -&gt; hikari_traits.DispatcherAware:
+    return self._dispatch</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.hooks"><code class="name">var <span class="ident">hooks</span></code></dt>
+<dd>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+</dd>
+<dt id="tanjun.clients.Client.metadata"><code class="name">var <span class="ident">metadata</span> : MutableMapping[Any, Any]</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def metadata(self) -&gt; typing.MutableMapping[typing.Any, typing.Any]:
+    return self._metadata</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.prefixes"><code class="name">var <span class="ident">prefixes</span> : AbstractSet[str]</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def prefixes(self) -&gt; typing.AbstractSet[str]:
+    return frozenset(self._prefixes)</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.rest_service"><code class="name">var <span class="ident">rest_service</span> : hikari.traits.RESTAware</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def rest_service(self) -&gt; hikari_traits.RESTAware:
+    return self._rest</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.shard_service"><code class="name">var <span class="ident">shard_service</span> : hikari.traits.ShardAware</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def shard_service(self) -&gt; hikari_traits.ShardAware:
+    return self._shards</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="tanjun.clients.Client.add_check"><code class="name flex">
+<span>def <span class="ident">add_check</span></span>(<span>self, check: traits.CheckT, /) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_check(self, check: traits.CheckT, /) -&gt; None:
+    self._checks.add(check)</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.add_component"><code class="name flex">
+<span>def <span class="ident">add_component</span></span>(<span>self, component: traits.Component, /) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_component(self, component: traits.Component, /) -&gt; None:
+    component.bind_client(self)
+    self._components.add(component)</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.add_prefix"><code class="name flex">
+<span>def <span class="ident">add_prefix</span></span>(<span>self, prefix: str, /) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_prefix(self, prefix: str, /) -&gt; None:
+    self._prefixes.add(prefix)</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.check"><code class="name flex">
+<span>async def <span class="ident">check</span></span>(<span>self, ctx: traits.Context, /) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def check(self, ctx: traits.Context, /) -&gt; bool:
+    return await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks)</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.check_context"><code class="name flex">
+<span>async def <span class="ident">check_context</span></span>(<span>self, ctx: traits.Context, /) ‑> AsyncIterator[<a title="tanjun.traits.FoundCommand" href="traits.html#tanjun.traits.FoundCommand">FoundCommand</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def check_context(self, ctx: traits.Context, /) -&gt; typing.AsyncIterator[traits.FoundCommand]:
+    async for value in utilities.async_chain(component.check_context(ctx) for component in self._components):
+        yield value</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.check_name"><code class="name flex">
+<span>def <span class="ident">check_name</span></span>(<span>self, name: str, /) ‑> Iterator[<a title="tanjun.traits.FoundCommand" href="traits.html#tanjun.traits.FoundCommand">FoundCommand</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_name(self, name: str, /) -&gt; typing.Iterator[traits.FoundCommand]:
+    yield from itertools.chain.from_iterable(component.check_name(name) for component in self._components)</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.check_prefix"><code class="name flex">
+<span>async def <span class="ident">check_prefix</span></span>(<span>self, content: str, /) ‑> Union[str, NoneType]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def check_prefix(self, content: str, /) -&gt; typing.Optional[str]:
+    for prefix in self._prefixes:
+        if content.startswith(prefix):
+            return prefix
+
+    return None</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.close"><code class="name flex">
+<span>async def <span class="ident">close</span></span>(<span>self, *, deregister_listener: bool = True) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def close(self, *, deregister_listener: bool = True) -&gt; None:
+    self._dispatch.dispatcher.unsubscribe(message_events.MessageCreateEvent, self.on_message_create)
+
+    if deregister_listener:
+        await asyncio.gather(*(component.close() for component in self._components))</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.load_from_modules"><code class="name flex">
+<span>def <span class="ident">load_from_modules</span></span>(<span>self, modules: typing.Iterable[typing.Union[str, pathlib.Path]]) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_from_modules(self, modules: typing.Iterable[typing.Union[str, pathlib.Path]]) -&gt; None:
+    for module_path in modules:
+        if isinstance(module_path, str):
+            module = importlib.import_module(module_path)
+
+        else:
+            spec = importlib.util.spec_from_file_location(
+                module_path.name.rsplit(&#34;.&#34;, 1)[0], str(module_path.absolute())
+            )
+            module = importlib.util.module_from_spec(spec)
+
+            if spec.loader is None:
+                raise RuntimeError(f&#34;Invalid module provided {module_path}&#34;)
+
+            # The type shedding is wrong here
+            spec.loader.exec_module(module)  # type: ignore[attr-defined]
+
+        for _, member in inspect.getmembers(module):
+            if isinstance(member, traits.LoadableDescriptor):
+                member.load_function(self)</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.on_message_create"><code class="name flex">
+<span>async def <span class="ident">on_message_create</span></span>(<span>self, event: message_events.MessageCreateEvent) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def on_message_create(self, event: message_events.MessageCreateEvent) -&gt; None:
+    if event.message.content is None:
+        return
+
+    if (prefix := await self.check_prefix(event.message.content)) is None:
+        return
+
+    content = event.message.content.lstrip()[len(prefix) :].lstrip()
+    ctx = context.Context(self, content=content, message=event.message, triggering_prefix=prefix)
+
+    if not await self.check(ctx):
+        return
+
+    hooks = {self.hooks,} if self.hooks else set()
+
+    for component in self._components:
+        if await component.execute(ctx, hooks=hooks):
+            break</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.open"><code class="name flex">
+<span>async def <span class="ident">open</span></span>(<span>self, *, register_listener: bool = True) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">async def open(self, *, register_listener: bool = True) -&gt; None:
+    await asyncio.gather(*(component.open() for component in self._components))
+
+    if self._grab_mention_prefix:
+        retry = backoff.Backoff(max_retries=4, maximum=30)
+
+        async for _ in retry:
+            try:
+                user = await self._rest.rest.fetch_my_user()
+                break
+
+            except hikari_errors.RateLimitedError as exc:
+                if exc.retry_after &gt; 30:
+                    raise
+
+                retry.set_next_backoff(exc.retry_after)
+
+            except hikari_errors.InternalServerError:
+                continue
+
+        else:
+            user = await self._rest.rest.fetch_my_user()
+
+        self._grab_mention_prefix = False
+        self._prefixes.add(f&#34;&lt;@{user.id}&gt;&#34;)
+        self._prefixes.add(f&#34;&lt;@!{user.id}&gt;&#34;)
+
+    if register_listener:
+        self._dispatch.dispatcher.subscribe(message_events.MessageCreateEvent, self.on_message_create)</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.remove_check"><code class="name flex">
+<span>def <span class="ident">remove_check</span></span>(<span>self, check: traits.CheckT, /) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remove_check(self, check: traits.CheckT, /) -&gt; None:
+    self._checks.remove(check)</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.remove_component"><code class="name flex">
+<span>def <span class="ident">remove_component</span></span>(<span>self, component: traits.Component, /) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remove_component(self, component: traits.Component, /) -&gt; None:
+    self._components.remove(component)</code></pre>
+</details>
+</dd>
+<dt id="tanjun.clients.Client.remove_prefix"><code class="name flex">
+<span>def <span class="ident">remove_prefix</span></span>(<span>self, prefix: str, /) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remove_prefix(self, prefix: str, /) -&gt; None:
+    self._prefixes.remove(prefix)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="tanjun" href="index.html">tanjun</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="tanjun.clients.as_loader" href="#tanjun.clients.as_loader">as_loader</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="tanjun.clients.Client" href="#tanjun.clients.Client">Client</a></code></h4>
+<ul class="two-column">
+<li><code><a title="tanjun.clients.Client.add_check" href="#tanjun.clients.Client.add_check">add_check</a></code></li>
+<li><code><a title="tanjun.clients.Client.add_component" href="#tanjun.clients.Client.add_component">add_component</a></code></li>
+<li><code><a title="tanjun.clients.Client.add_prefix" href="#tanjun.clients.Client.add_prefix">add_prefix</a></code></li>
+<li><code><a title="tanjun.clients.Client.cache_service" href="#tanjun.clients.Client.cache_service">cache_service</a></code></li>
+<li><code><a title="tanjun.clients.Client.check" href="#tanjun.clients.Client.check">check</a></code></li>
+<li><code><a title="tanjun.clients.Client.check_context" href="#tanjun.clients.Client.check_context">check_context</a></code></li>
+<li><code><a title="tanjun.clients.Client.check_human" href="#tanjun.clients.Client.check_human">check_human</a></code></li>
+<li><code><a title="tanjun.clients.Client.check_name" href="#tanjun.clients.Client.check_name">check_name</a></code></li>
+<li><code><a title="tanjun.clients.Client.check_prefix" href="#tanjun.clients.Client.check_prefix">check_prefix</a></code></li>
+<li><code><a title="tanjun.clients.Client.checks" href="#tanjun.clients.Client.checks">checks</a></code></li>
+<li><code><a title="tanjun.clients.Client.close" href="#tanjun.clients.Client.close">close</a></code></li>
+<li><code><a title="tanjun.clients.Client.components" href="#tanjun.clients.Client.components">components</a></code></li>
+<li><code><a title="tanjun.clients.Client.dispatch_service" href="#tanjun.clients.Client.dispatch_service">dispatch_service</a></code></li>
+<li><code><a title="tanjun.clients.Client.hooks" href="#tanjun.clients.Client.hooks">hooks</a></code></li>
+<li><code><a title="tanjun.clients.Client.load_from_modules" href="#tanjun.clients.Client.load_from_modules">load_from_modules</a></code></li>
+<li><code><a title="tanjun.clients.Client.metadata" href="#tanjun.clients.Client.metadata">metadata</a></code></li>
+<li><code><a title="tanjun.clients.Client.on_message_create" href="#tanjun.clients.Client.on_message_create">on_message_create</a></code></li>
+<li><code><a title="tanjun.clients.Client.open" href="#tanjun.clients.Client.open">open</a></code></li>
+<li><code><a title="tanjun.clients.Client.prefixes" href="#tanjun.clients.Client.prefixes">prefixes</a></code></li>
+<li><code><a title="tanjun.clients.Client.remove_check" href="#tanjun.clients.Client.remove_check">remove_check</a></code></li>
+<li><code><a title="tanjun.clients.Client.remove_component" href="#tanjun.clients.Client.remove_component">remove_component</a></code></li>
+<li><code><a title="tanjun.clients.Client.remove_prefix" href="#tanjun.clients.Client.remove_prefix">remove_prefix</a></code></li>
+<li><code><a title="tanjun.clients.Client.rest_service" href="#tanjun.clients.Client.rest_service">rest_service</a></code></li>
+<li><code><a title="tanjun.clients.Client.shard_service" href="#tanjun.clients.Client.shard_service">shard_service</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>
