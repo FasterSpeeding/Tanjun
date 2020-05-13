@@ -2,14 +2,22 @@ from __future__ import annotations
 
 __all__ = []
 
+import json
 import logging
+import pathlib
+import sys
 import typing
+import yaml
 
 import click
 from hikari.internal import marshaller
 
 from tanjun import client
 from tanjun import configs
+
+
+CONFIG_PARSERS = {"yaml": yaml.safe_load, "json": json.load}
+sys.path.append(str(pathlib.Path().absolute()))
 
 
 @click.command()
@@ -51,15 +59,17 @@ def main(
         format="%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
-
-    if config is not None and any(value is not None for value in (bot_client, debug, modules, token)):
+    if config is not None and any(value for value in (bot_client, debug, modules, token)):
         raise RuntimeError("--config cannot be passed along with any other options other than `logger`.")
 
     if config is None and token is None:
         raise RuntimeError("Cannot startup a command client without a token or config.")
 
     if config is not None:
-        loaded_config = configs.ClientConfig.deserialize(config.read())
+        if not (parser := CONFIG_PARSERS.get(config.name.split(".")[-1])):
+            raise RuntimeError(f"Couldn't infer file decoder from type {config.name.split('.')[-1]}")
+
+        loaded_config = configs.ClientConfig.deserialize(parser(config))
         config.close()
         bot_client = loaded_config.bot_client(config=loaded_config)
     else:

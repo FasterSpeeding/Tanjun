@@ -2,7 +2,7 @@ import pathlib
 import runpy
 import sys
 
-sys.path.append(str(pathlib.Path()))
+sys.path.append(str(pathlib.Path().absolute()))
 
 
 root_dir = pathlib.Path("ci")

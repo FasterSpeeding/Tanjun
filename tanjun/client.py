@@ -6,6 +6,7 @@ __all__ = [
 ]
 
 import abc
+import asyncio
 import importlib.util
 import inspect
 import typing
@@ -140,7 +141,7 @@ class AbstractClient(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def register_cluster(
+    def register_cluster(
         self, cluster: typing.Union[_clusters.AbstractCluster, typing.Type[_clusters.AbstractCluster]]
     ) -> None:  # TODO: both type and initialised?
         """Register a cluster in this client.
@@ -229,7 +230,7 @@ class Client(AbstractClient, _clusters.Cluster):
 
     def load_from_modules(self, *modules: str) -> None:
         for module_path in modules:
-            module = importlib.util.spec_from_file_location(module_path)
+            module = importlib.import_module(module_path)
             module.setup(self)
 
     @decorators.event(message_events.MessageCreateEvent)
@@ -250,7 +251,9 @@ class Client(AbstractClient, _clusters.Cluster):
             trigger_type=commands.TriggerTypes.PREFIX if prefix else commands.TriggerTypes.MENTION,
         )
         for cluster in (self, *self.clusters.values()):
-            if await cluster.execute(ctx):
+            # Here `Cluster.started` essentially acts as a lock to avoid any errors that could occur from a cluster
+            # being executed before it's finished loading.
+            if cluster.started and await cluster.execute(ctx):
                 break
 
     @decorators.event(other_events.ReadyEvent)
@@ -258,11 +261,15 @@ class Client(AbstractClient, _clusters.Cluster):
         if not self.started:
             await self.load()
 
-    async def register_cluster(
+    def register_cluster(
         self, cluster: typing.Union[_clusters.AbstractCluster, typing.Type[_clusters.AbstractCluster]]
     ) -> None:
         if inspect.isclass(cluster):
             cluster = cluster(self, self.components)
         #  TODO: bind client?
-        await cluster.load()
         self.clusters[cluster.__class__.__name__] = cluster
+        if self.started:
+            # If this has started then we can assume this is in an event loop.
+            # If this hasn't been started then we can assume we'll be able to
+            # load the module later based on a discord event.
+            asyncio.ensure_future(cluster.load())

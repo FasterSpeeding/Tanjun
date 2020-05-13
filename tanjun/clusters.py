@@ -31,7 +31,7 @@ class AbstractCluster(bases.Executable):  # TODO: Executable  TODO: proper type 
 
     hooks: _commands.Hooks = attr.attrib(factory=_commands.Hooks)
 
-    started: bool = attr.attrib()
+    started: bool = attr.attrib()  # TODO: rename to loaded?
 
     @abc.abstractmethod
     async def load(self) -> None:
@@ -126,10 +126,10 @@ class Cluster(AbstractCluster):
         self.bind_listeners()
 
     async def load(self) -> None:
-        ...
+        self.started = True
 
     async def unload(self) -> None:
-        ...
+        self.started = False
 
     async def access_check(self, command: _commands.AbstractCommand, message: _messages.Message) -> bool:
         """

@@ -27,7 +27,7 @@ setuptools.setup(
     name=MAIN_MODULE_NAME,
     url=metadata.url,
     version=metadata.version,
-    packages=setuptools.find_namespace_packages(MAIN_MODULE_NAME + "*"),
+    packages=setuptools.find_namespace_packages(f"{MAIN_MODULE_NAME}*"),
     author=metadata.author,
     author_email=metadata.email,
     license=metadata.license,
@@ -52,4 +52,5 @@ setuptools.setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
     ],
+    entry_points={"console_scripts": [f"{MAIN_MODULE_NAME}={MAIN_MODULE_NAME}.__main__:main",]},
 )
