@@ -52,5 +52,5 @@ setuptools.setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
     ],
-    entry_points={"console_scripts": [f"{MAIN_MODULE_NAME}={MAIN_MODULE_NAME}.__main__:main",]},
+    entry_points={"console_scripts": [f"{MAIN_MODULE_NAME}={MAIN_MODULE_NAME}.__main__:main"]},
 )

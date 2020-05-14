@@ -66,8 +66,8 @@ def main(
         raise RuntimeError("Cannot startup a command client without a token or config.")
 
     if config is not None:
-        if not (parser := CONFIG_PARSERS.get(config.name.split(".")[-1])):
-            raise RuntimeError(f"Couldn't infer file decoder from type {config.name.split('.')[-1]}")
+        if not (parser := CONFIG_PARSERS.get(config.name.rsplit(".", 1)[-1])):
+            raise RuntimeError(f"Couldn't infer file decoder from type {config.name.rsplit('.', 1)[-1]}")
 
         loaded_config = configs.ClientConfig.deserialize(parser(config))
         config.close()

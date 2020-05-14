@@ -12,4 +12,10 @@ CI_PACKAGE = pathlib.Path("ci")
 ARTIFACT_DIRECTORY = pathlib.Path("public")
 DOCUMENTATION_DIRECTORY = pathlib.Path("docs")
 
+COVERAGE_CONFIG = pathlib.Path("coverage.ini")
 PYLINT_CONFIG = pathlib.Path("pylint.ini")
+PYTEST_CONFIG = pathlib.Path("pytest.ini")
+
+for item in tuple(globals().values()):
+    if isinstance(item, pathlib.Path) and not item.exists():
+        raise RuntimeError(f"Invalid path found in ci config `{item}`.")
