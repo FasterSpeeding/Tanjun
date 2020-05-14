@@ -89,27 +89,26 @@ class Context:
         return (self.message.guild_id >> 22) % self.components.shards[0].shard_count if self.message.guild_id else 0
 
 
-HookLikeT = typing.Callable[[Context], typing.Coroutine[typing.Any, typing.Any, None]]
+ConversionHookT = typing.Callable[  # TODO: are non-async hooks valid?
+    [Context, errors.ConversionError], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
+]
+ErrorHookT = typing.Callable[
+    [Context, BaseException], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
+]
+HookLikeT = typing.Callable[[Context], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]]
+PreExecutionHookT = typing.Callable[[Context, ...], typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]]
 
 
 @attr.attrs(init=True, kw_only=True, slots=True)
 class Hooks:  # TODO: this
-    pre_execution: typing.Callable[[Context, ...], typing.Coroutine[typing.Any, typing.Any, bool]] = attr.attrib(
-        default=None
-    )
+    pre_execution: PreExecutionHookT = attr.attrib(default=None)
     post_execution: HookLikeT = attr.attrib(default=None)
-    on_conversion_error: typing.Callable[
-        [Context, errors.ConversionError], typing.Coroutine[typing.Any, typing.Any, typing.Any]
-    ] = attr.attrib(default=None)
-    on_error: typing.Callable[[Context, BaseException], typing.Coroutine[typing.Any, typing.Any, None]] = attr.attrib(
-        default=None
-    )
+    on_conversion_error: ConversionHookT = attr.attrib(default=None)
+    on_error: ErrorHookT = attr.attrib(default=None)
     on_success: HookLikeT = attr.attrib(default=None)
     on_ratelimit: HookLikeT = attr.attrib(default=None)  # TODO: implement?
 
-    def set_pre_execution(
-        self, hook: typing.Callable[[Context, ...], typing.Coroutine[typing.Any, typing.Any, bool]]
-    ) -> typing.Callable[[Context, ...], typing.Coroutine[typing.Any, typing.Any, bool]]:
+    def set_pre_execution(self, hook: PreExecutionHookT) -> PreExecutionHookT:
         if self.pre_execution:
             raise ValueError("Pre-execution hook already set.")  # TODO: value error?
         self.pre_execution = hook
@@ -121,18 +120,13 @@ class Hooks:  # TODO: this
         self.post_execution = hook
         return hook
 
-    def set_on_conversion_error(
-        self,
-        hook: typing.Callable[[Context, errors.ConversionError], typing.Coroutine[typing.Any, typing.Any, typing.Any]],
-    ) -> typing.Callable[[Context, errors.ConversionError], typing.Coroutine[typing.Any, typing.Any, typing.Any]]:
+    def set_on_conversion_error(self, hook: ConversionHookT) -> ConversionHookT:
         if self.on_conversion_error:
             raise ValueError("On conversion error hook already set.")
         self.on_conversion_error = hook
         return hook
 
-    def set_on_error(
-        self, hook: typing.Callable[[Context, BaseException], typing.Coroutine[typing.Any, typing.Any, None]]
-    ) -> typing.Callable[[Context, BaseException], typing.Coroutine[typing.Any, typing.Any, None]]:
+    def set_on_error(self, hook: ErrorHookT) -> ErrorHookT:
         if self.on_error:
             raise ValueError("On error hook already set.")
         self.on_error = hook
@@ -149,12 +143,15 @@ class Hooks:  # TODO: this
     ) -> bool:
         result = True
         if self.pre_execution:
-            result = await self.pre_execution(ctx, *args, **kwargs)
+            result = self.pre_execution(ctx, *args, **kwargs)
+            if asyncio.iscoroutine(result):
+                result = await result
 
-        for hook in extra_hooks or more_collections.EMPTY_SEQUENCE:
-            if hook.pre_execution:  # TODO: does this matter?
-                result = result and await hook.pre_execution(ctx, *args, **kwargs)  # TODO: for consistency
-        return result
+        extra_hooks = extra_hooks or more_collections.EMPTY_SEQUENCE
+        external_results = await asyncio.gather(
+            *(hook.trigger_pre_execution_hooks(ctx, *args, **kwargs, extra_hooks=None) for hook in extra_hooks)
+        )
+        return result and all(external_results)
 
     async def trigger_on_conversion_error_hooks(
         self,
@@ -164,41 +161,48 @@ class Hooks:  # TODO: this
         extra_hooks: typing.Optional[typing.Sequence[Hooks]] = None,
     ) -> None:
         if self.on_conversion_error:
-            await self.on_conversion_error(ctx, exception)
+            result = self.on_conversion_error(ctx, exception)
+            if asyncio.iscoroutine(result):
+                asyncio.create_task(result)
 
         for hook in extra_hooks or more_collections.EMPTY_SEQUENCE:
             if hook.on_conversion_error:
-                await hook.on_conversion_error(ctx, exception)
+                asyncio.create_task(hook.trigger_on_conversion_error_hooks(ctx, exception))
 
     async def trigger_error_hooks(
         self, ctx: Context, exception: BaseException, *, extra_hooks: typing.Optional[typing.Sequence[Hooks]] = None,
     ) -> None:
         if self.on_error:
-            await self.on_error(ctx, exception)
+            result = self.on_error(ctx, exception)
+            if asyncio.iscoroutine(result):
+                asyncio.create_task(result)
 
         for hook in extra_hooks or more_collections.EMPTY_SEQUENCE:
             if hook.on_error:
-                await hook.on_error(ctx, exception)
+                asyncio.create_task(hook.trigger_error_hooks(ctx, exception))
 
     async def trigger_on_success_hooks(
         self, ctx: Context, *, extra_hooks: typing.Optional[typing.Sequence[Hooks]] = None,
     ) -> None:
         if self.on_success:
-            await self.on_success(ctx)
+            result = self.on_success(ctx)
+            if asyncio.iscoroutine(result):
+                asyncio.create_task(result)
 
         for hook in extra_hooks or more_collections.EMPTY_SEQUENCE:
-            if hook.on_success:
-                await hook.on_success(ctx)
+            asyncio.create_task(hook.trigger_on_success_hooks(ctx))
 
     async def trigger_post_execution_hooks(
         self, ctx: Context, *, extra_hooks: typing.Optional[typing.Sequence[Hooks]] = None,
     ) -> None:
         if self.post_execution:
-            await self.post_execution(ctx)
+            result = self.post_execution(ctx)
+            if asyncio.iscoroutine(result):
+                asyncio.create_task(result)
 
         for hook in extra_hooks or more_collections.EMPTY_SEQUENCE:
             if hook.post_execution:
-                await hook.post_execution(ctx)
+                asyncio.create_task(hook.trigger_post_execution_hooks(ctx))
 
 
 @attr.attrs(init=True, kw_only=True, slots=False)
