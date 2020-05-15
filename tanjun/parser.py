@@ -204,7 +204,7 @@ class EmojiIDConverter(BaseIDConverter):
         )
 
 
-class GuildEmojiConverter(EmojiIDConverter, types=(emojis.GuildEmoji,)):
+class GuildEmojiConverter(EmojiIDConverter, types=(emojis.KnownCustomEmoji,)):
     ...
 
 

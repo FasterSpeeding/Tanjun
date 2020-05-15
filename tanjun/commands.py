@@ -96,7 +96,7 @@ ErrorHookT = typing.Callable[
     [Context, BaseException], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
 ]
 HookLikeT = typing.Callable[[Context], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]]
-PreExecutionHookT = typing.Callable[[Context, ...], typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]]
+PreExecutionHookT = typing.Callable[..., typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]]
 
 
 @attr.attrs(init=True, kw_only=True, slots=True)
@@ -321,13 +321,14 @@ class Command(AbstractCommand):
 
     _cluster: typing.Optional[_clusters.AbstractCluster] = attr.attrib(default=None)
 
-    def __init__(
+    def __init__(  # TODO: **kwargs?
         self,
         func: typing.Optional[CommandFunctionT],
         trigger: typing.Optional[str] = None,
         /,
         *,
         aliases: typing.Optional[typing.Sequence[str]] = None,
+        checks: typing.Optional[typing.Sequence[CheckLikeT]] = None,
         hooks: typing.Optional[Hooks] = None,
         level: int = 0,
         meta: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
@@ -345,7 +346,7 @@ class Command(AbstractCommand):
             ),
         )
         self.logger = logging.getLogger(type(self).__qualname__)
-        self._checks = []
+        self._checks = checks or []
         self._func = func
         self.parser = self._create_parser(self._func, greedy=greedy)
         if cluster:
@@ -461,11 +462,12 @@ class CommandGroup(AbstractCommandGroup):
 
     logger: logging.Logger
 
-    def __init__(
+    def __init__(  # TODO: **kwargs?
         self,
         name: typing.Optional[str],
         *,
         # ? aliases: typing.Optional[typing.Sequence[str]] = None,
+        checks: typing.Optional[typing.Sequence[CheckLikeT]] = None,
         commands: typing.Sequence[Command] = None,
         hooks: typing.Optional[Hooks] = None,
         level: int = 0,
@@ -481,7 +483,7 @@ class CommandGroup(AbstractCommandGroup):
             level=level,
             master_command=master_command,
         )
-        self._checks = []
+        self._checks = checks or []
         self._cluster = cluster
         self.logger = logging.getLogger(type(self).__qualname__)
         self.master_command = master_command
