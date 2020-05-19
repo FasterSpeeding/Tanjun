@@ -217,6 +217,10 @@ class ExecutableCommand(bases.Executable, abc.ABC):
         ...
 
     @abc.abstractmethod
+    def bind_cluster(self, cluster: _clusters.AbstractCluster) -> None:
+        ...
+
+    @abc.abstractmethod
     async def check(self, ctx: Context) -> bool:
         """
         Used to check if this entity should be executed based on a Context.
@@ -263,7 +267,7 @@ class AbstractCommand(ExecutableCommand, abc.ABC):
     parser: typing.Optional[_parser.AbstractCommandParser]
 
     @abc.abstractmethod
-    def bind_cluster(self, cluster: _clusters.AbstractCluster) -> None:
+    def bind_group(self, group: AbstractCommandGroup) -> None:
         ...
 
     @property
@@ -311,7 +315,7 @@ async def _run_checks(ctx: Context, checks: typing.Sequence[CheckLikeT]) -> None
         raise errors.FailedCheck(tuple(failed))
 
 
-@attr.attrs(init=False, slots=True, repr=False)
+@attr.attrs(init=False, kw_only=True, slots=True, repr=False)
 class Command(AbstractCommand):
     _checks: typing.MutableSequence[CheckLikeT]
 
@@ -320,6 +324,8 @@ class Command(AbstractCommand):
     logger: logging.Logger
 
     _cluster: typing.Optional[_clusters.AbstractCluster] = attr.attrib(default=None)
+
+    _group: typing.Optional[AbstractCommandGroup]
 
     def __init__(  # TODO: **kwargs?
         self,
@@ -367,6 +373,16 @@ class Command(AbstractCommand):
         # Before the parser can be used, we need to resolve it's converters and check them against the bot's declared
         # gateway intents.
         self.parser.components_hook(cluster.components)
+
+    def bind_group(self, group: AbstractCommandGroup) -> None:
+        # This ensures that the group will always be passed-through as `self`.
+        self._func = types.MethodType(self._func, group)
+        self._group = group
+        # Now that we know self will automatically be passed, we need to trim the parameters again.
+        self.parser.trim_parameters(1)
+        # Before the parser can be used, we need to resolve it's converters and check them against the bot's declared
+        # gateway intents.
+        self.parser.components_hook(group.components)
 
     async def check(self, ctx: Context) -> None:
         return await _run_checks(ctx, self._checks)
@@ -444,6 +460,8 @@ class AbstractCommandGroup(
 ):  # TODO: use this for typing along sideor just executable command
     commands: typing.MutableSequence[AbstractCommand] = attr.attrib(factory=list)
 
+    components: typing.Optional[_components.Components] = attr.attrib(default=None)
+
     master_command: typing.Optional[AbstractCommand] = attr.attrib(default=None)
 
     @abc.abstractmethod
@@ -452,6 +470,11 @@ class AbstractCommandGroup(
 
     @abc.abstractmethod
     def set_master_command(self, command: AbstractCommand) -> AbstractCommand:
+        ...
+
+    @property
+    @abc.abstractmethod
+    def cluster(self) -> typing.Optional[_clusters.AbstractCluster]:
         ...
 
 
@@ -495,10 +518,11 @@ class CommandGroup(AbstractCommandGroup):
 
     def bind_cluster(self, cluster: _clusters.AbstractCluster) -> None:  # TODO: should this work like this?
         self._cluster = cluster
+        self.components = cluster.components
         if self.master_command:
-            self.master_command.bind_cluster(cluster)
+            self.master_command.bind_group(self)
         for command in self.commands:
-            command.bind_cluster(cluster)
+            command.bind_group(self)
 
     async def check(self, ctx: Context) -> None:
         return await _run_checks(ctx, self._checks)

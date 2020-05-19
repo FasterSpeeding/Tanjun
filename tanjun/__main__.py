@@ -22,7 +22,10 @@ sys.path.append(str(pathlib.Path().absolute()))
 
 @click.command()
 @click.option(
-    "--bot-client", envvar="BOT_CLIENT", help="The Hikari bot client to initiate with.",
+    "--bot-client",
+    envvar="BOT_CLIENT",
+    help="The Hikari bot client to initiate with.",
+    type=click.Choice(configs.VALID_CLIENTS),
 )
 @click.option(
     "--config", envvar="CONFIG", help="A path to the config to use for initiating the client.", type=click.File(),

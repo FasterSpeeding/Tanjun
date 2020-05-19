@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ["CommandConfig", "ParserConfig", "ClientConfig"]
+__all__ = ["CommandConfig", "ParserConfig", "ClientConfig", "VALID_CLIENTS"]
 
 import typing
 
@@ -10,6 +10,9 @@ from hikari.clients import bot_base
 from hikari.clients import configs
 from hikari.clients import stateless
 from hikari.internal import marshaller
+
+
+VALID_CLIENTS = ["hikari.clients.stateless.StatelessBot"]
 
 
 @marshaller.marshallable()
@@ -25,6 +28,12 @@ class CommandConfig:
         if_undefined=lambda: stateless.StatelessBot,
         default=stateless.StatelessBot,
     )
+
+    #   @bot_client.validator  # TODO: validation here
+    #   def _bot_client_validator(self, _, value):  # pylint:disable=unused-argument
+    #       if isinstance(value, str) and value not in VALID_CLIENTS:
+    #           raise ValueError(f"Invalid `bot_client` passed, must be one of {VALID_CLIENTS}")
+
     prefixes: typing.Sequence[str] = marshaller.attrib(
         deserializer=lambda prefixes: [str(prefix) for prefix in prefixes], if_undefined=list, factory=list
     )

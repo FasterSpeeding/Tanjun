@@ -52,11 +52,11 @@ class AbstractCluster(bases.Executable):  # TODO: Executable  TODO: proper type 
     @abc.abstractmethod
     async def get_command_from_context(
         self, ctx: _commands.Context
-    ) -> typing.AsyncIterator[typing.Tuple[_commands.AbstractCommand, str]]:
+    ) -> typing.AsyncIterator[typing.Tuple[_commands.ExecutableCommand, str]]:
         ...
 
     @abc.abstractmethod
-    def get_command_from_name(self, content: str) -> typing.Iterator[typing.Tuple[_commands.AbstractCommand, str]]:
+    def get_command_from_name(self, content: str) -> typing.Iterator[typing.Tuple[_commands.ExecutableCommand, str]]:
         """
         Get a command based on a message's content (minus prefix) from the loaded commands if any command triggers are
         found in the content.
@@ -66,12 +66,12 @@ class AbstractCluster(bases.Executable):  # TODO: Executable  TODO: proper type 
                 The string content to try and find a command for (minus the triggering prefix).
 
         Returns:
-            A :class:`typing.AsyncIterator` of a :class:`typing.Tuple` of a :class:`AbstractCommand`
+            A :class:`typing.AsyncIterator` of a :class:`typing.Tuple` of a :class:`ExecutableCommand`
             derived object and the :class:`str` trigger that was matched.
         """
 
     @abc.abstractmethod
-    def register_command(self, command: _commands.AbstractCommand, *, bind: bool = False) -> None:
+    def register_command(self, command: _commands.ExecutableCommand, *, bind: bool = False) -> None:
         """
         Register a command in this cluster.
 
@@ -88,7 +88,7 @@ class AbstractCluster(bases.Executable):  # TODO: Executable  TODO: proper type 
         """
 
     @abc.abstractmethod
-    def deregister_command(self, command: _commands.AbstractCommand) -> None:
+    def deregister_command(self, command: _commands.ExecutableCommand) -> None:
         """
         Unregister a command in this cluster.
 
@@ -104,7 +104,7 @@ class AbstractCluster(bases.Executable):  # TODO: Executable  TODO: proper type 
 
 class Cluster(AbstractCluster):
 
-    commands: typing.MutableSequence[_commands.AbstractCommand]
+    commands: typing.MutableSequence[_commands.ExecutableCommand]
     """A list of the commands that are loaded in this cluster."""
 
     logger: logging.Logger
@@ -131,13 +131,13 @@ class Cluster(AbstractCluster):
     async def unload(self) -> None:
         self.started = False
 
-    async def access_check(self, command: _commands.AbstractCommand, message: _messages.Message) -> bool:
+    async def access_check(self, command: _commands.ExecutableCommand, message: _messages.Message) -> bool:
         """
         Used to check if a command can be accessed by the calling user and in the calling channel/guild.
 
         Args:
             command:
-                The :class:`AbstractCommand` derived object to check access levels for.
+                The :class:`ExecutableCommand` derived object to check access levels for.
             message:
                 The :class:`_messages.Message` object to check access levels for.
 
@@ -160,7 +160,7 @@ class Cluster(AbstractCluster):
                 "Cannot bind commands in cluster '{self.__class__.__name__}' when commands have already been binded."
             )
         for name, command in inspect.getmembers(
-            self, predicate=lambda attribute: isinstance(attribute, _commands.AbstractCommand)
+            self, predicate=lambda attribute: isinstance(attribute, _commands.ExecutableCommand)
         ):
             self.register_command(command, bind=True)
             self.logger.debug(
@@ -192,7 +192,7 @@ class Cluster(AbstractCluster):
 
     async def get_command_from_context(
         self, ctx: _commands.Context
-    ) -> typing.AsyncIterator[typing.Tuple[_commands.AbstractCommand, str]]:
+    ) -> typing.AsyncIterator[typing.Tuple[_commands.ExecutableCommand, str]]:
         for command in self.commands:
             if (trigger := command.check_prefix_from_context(ctx)) is None:
                 continue
@@ -205,12 +205,12 @@ class Cluster(AbstractCluster):
                 if await self.access_check(command, ctx.message):
                     yield command, trigger
 
-    def get_command_from_name(self, content: str) -> typing.Iterator[typing.Tuple[_commands.AbstractCommand, str]]:
+    def get_command_from_name(self, content: str) -> typing.Iterator[typing.Tuple[_commands.ExecutableCommand, str]]:
         for command in self.commands:
             if prefix := command.check_prefix(content):
                 yield command, prefix
 
-    def register_command(self, command: _commands.AbstractCommand, *, bind: bool = False) -> None:  # TODO: decorator?
+    def register_command(self, command: _commands.ExecutableCommand, *, bind: bool = False) -> None:  # TODO: decorator?
         for trigger in command.triggers:
             if list(self.get_command_from_name(trigger)):
                 self.logger.warning(
@@ -220,7 +220,7 @@ class Cluster(AbstractCluster):
             command.bind_cluster(self)
         self.commands.append(command)
 
-    def deregister_command(self, command: _commands.AbstractCommand) -> None:
+    def deregister_command(self, command: _commands.ExecutableCommand) -> None:
         try:
             self.commands.remove(command)
         except ValueError:

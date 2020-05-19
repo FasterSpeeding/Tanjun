@@ -10,7 +10,6 @@ import typing
 import distutils.util
 
 import attr
-import click
 from hikari import bases
 from hikari import channels
 from hikari import colors
@@ -286,6 +285,7 @@ POSITIONAL_TYPES = (
 class AbstractParameter:
     converters: typing.Tuple[typing.Union[typing.Callable, AbstractConverter], ...] = attr.attr(factory=tuple)
     default: typing.Optional[typing.Any] = attr.attr(default=None)
+    empty_default: typing.Optional[typing.Any] = attr.attr(default=None)
     flags: typing.Mapping[str, typing.Any] = attr.attr(factory=dict)
     key: str = attr.attr()
     names: typing.Optional[typing.Tuple[str]] = attr.attr(default=None)
@@ -301,6 +301,8 @@ class AbstractParameter:
 
 NO_DEFAULT = object()
 
+EMPTY_FIELD = object()  # TODO: use this
+
 
 @attr.attrs(slots=True, init=False)
 class Parameter(AbstractParameter):
@@ -311,16 +313,22 @@ class Parameter(AbstractParameter):
         names: typing.Optional[typing.Tuple[str]] = None,
         converters: typing.Optional[typing.Tuple[typing.Union[typing.Callable, AbstractConverter], ...]] = None,
         default: typing.Any = NO_DEFAULT,
+        empty_default: typing.Any = NO_DEFAULT,
         **flags: typing.Any,
     ):
         super().__init__(
-            converters=converters or (), default=default, flags=flags, key=key, names=names,
+            converters=converters or (),
+            default=default,
+            empty_default=empty_default,
+            flags=flags,
+            key=key,
+            names=names,
         )
         # While it may be tempting to have validation here, parameter validation should be attached to the parser
         # implementation rather than the parameters themselves.
 
     def components_hook(self, components: _components.Components) -> None:
-        converters: typing.Sequence[typing.Union[typing.Callable, AbstractConverter]] = []
+        converters: typing.MutableSequence[typing.Union[typing.Callable, AbstractConverter]] = []
         for converter in self.converters:
             if custom_converter := AbstractConverter.get_converter_from_type(converter):
                 if custom_converter.verify_intents(components):
@@ -332,14 +340,16 @@ class Parameter(AbstractParameter):
         self.converters = tuple(converters)
 
     def convert(self, ctx: _commands.Context, value: str) -> typing.Any:
+        if value in (self.default, self.empty_default):
+            return value
+
         failed = []
         for converter in self.converters:
             try:
                 #  TODO: use the function signature to work out if it requires ctx or not?
                 if isinstance(converter, AbstractConverter):
                     return converter.convert(ctx, value)
-                else:
-                    return converter(value)  # TODO: converter.__expected_exceptions__?
+                return converter(value)  # TODO: converter.__expected_exceptions__?
             except ValueError as exc:  # TODO: more exceptions?
                 failed.append(exc)
         if failed:
@@ -348,16 +358,12 @@ class Parameter(AbstractParameter):
             ) from failed[0]
         return value
 
-    @property
-    def is_greedy(self) -> bool:
-        return self.flags.get("greedy", False)
 
-
-def parameter(key, *, cls: typing.Type[AbstractParameter] = Parameter, **kwargs):
+def parameter(cls: typing.Type[AbstractParameter] = Parameter, **kwargs: typing.Any):
     def decorator(func):
         if not hasattr(func, "__parameters__"):
-            func.__parameters__ = {}
-        func.__parameters__[key] = cls(**kwargs)
+            func.__parameters__ = []
+        func.__parameters__.append(cls(**kwargs))
         return func
 
     return decorator
@@ -373,7 +379,9 @@ class AbstractCommandParser(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def parse(self, ctx: _commands.Context) -> typing.MutableMapping[str, typing.Any]:
+    def parse(
+        self, ctx: _commands.Context
+    ) -> typing.Tuple[typing.Sequence[typing.Any], typing.MutableMapping[str, typing.Any]]:
         ...
 
     @abc.abstractmethod
@@ -406,7 +414,8 @@ class AbstractCommandParser(abc.ABC):
 
 @attr.attrs(init=False, slots=True)
 class CommandParser(AbstractCommandParser):
-    _option_parser: typing.Optional[click.OptionParser] = attr.attrib()
+    _parameter_arguments: typing.Mapping[str]
+    _parameter_options: typing.Sequence[str, AbstractParameter]  # TODO: consolidate the parse methods str to str?
     _shlex: shlex.shlex
     signature: inspect.Signature = attr.attrib()
 
@@ -414,7 +423,7 @@ class CommandParser(AbstractCommandParser):
         self, func: typing.Callable[[...], typing.Coroutine[typing.Any, typing.Any, typing.Any]], **flags: typing.Any,
     ) -> None:
         super().__init__(parameters={}, flags=flags)
-        self._option_parser = None
+        self._parameter_options = {}
         self._shlex = shlex.shlex("", posix=True)
         self._shlex.commenters = ""
         self._shlex.whitespace = "\t\r\n "
@@ -431,9 +440,61 @@ class CommandParser(AbstractCommandParser):
         for param in self.parameters:
             param.components_hook(components)
 
+    def low_level_parse(  # TODO: consilidate or separate, should this just return "Empty field objects"
+        self, args: typing.Sequence[str],  # TODO:  and raise ValueErrors while beings separate from the main parser
+    ) -> typing.Tuple[typing.Sequence[str], typing.Mapping[str, typing.Optional[typing.Sequence[str]]]]:
+        arguments = iter(self._parameter_arguments)
+        key = None
+        keyword_fields: typing.MutableMapping[str, typing.Optional[typing.MutableSequence[str]]] = {}
+        positional_fields: typing.MutableSequence[str] = []
+        for i, value in enumerate(args):
+            if value.startswith("-"):
+                if not key:
+                    key = value
+                    param = self._parameter_options.get(key)
+                    output_key = param.key if param else key
+                    continue
+
+                if output_key in keyword_fields:  # TODO: duplicated logic
+                    raise errors.ConversionError(
+                        msg="Cannot pass a a valueless parameter multiple times.", parameter=param
+                    )
+                if param.empty_default is NO_DEFAULT:
+                    raise errors.ConversionError(msg=f"Parameter {output_key} cannot be empty.", parameter=param)
+                keyword_fields[output_key] = [param.empty_default]
+                key = value
+                continue
+
+            if not key and arguments is not None:
+                try:
+                    key = output_key = next(arguments)
+                except StopIteration:
+                    arguments = None
+
+            if not key:
+                positional_fields.append(value)
+                continue
+
+            if output_key not in keyword_fields:
+                keyword_fields[output_key] = []
+            elif keyword_fields[output_key] is None:
+                raise errors.ConversionError(msg="Cannot pass a a valueless parameter multiple times.", parameter=param)
+
+            keyword_fields[output_key].append(value)
+            key = None
+
+        if key is not None:
+            if output_key in keyword_fields:  # TODO: duplicated logic
+                raise errors.ConversionError(msg="Cannot pass a a valueless parameter multiple times.", parameter=param)
+            if param.empty_default is NO_DEFAULT:
+                raise errors.ConversionError(f"Parameter {output_key} cannot be empty.", parameter=param)
+            keyword_fields[output_key] = [param.empty_default]
+
+        return positional_fields, keyword_fields
+
     def parse(
         self, ctx: _commands.Context
-    ) -> typing.Tuple[typing.Sequence[typing.Any], typing.MutableMapping[str, typing.Any]]:
+    ) -> typing.Tuple[typing.Sequence[typing.Any], typing.Mapping[str, typing.Any]]:
         args: typing.MutableSequence[typing.Any] = []
         kwargs: typing.MutableMapping[str, typing.Any] = {}
         # If we push an empty string to shlex then iterate over shlex, it'll try to get input from sys.stdin, causing
@@ -442,9 +503,8 @@ class CommandParser(AbstractCommandParser):
             self._shlex.push_source(ctx.content)
             self._shlex.state = " "
         try:
-            values, arguments, _ = self._option_parser.parse_args(list(self._shlex) if ctx.content else [])
-        # ValueError catches unclosed quote errors from shlex.
-        except (click.exceptions.BadOptionUsage, ValueError) as exc:  # TODO: more errors?
+            arguments, values = self.low_level_parse(list(self._shlex) if ctx.content else [])
+        except ValueError as exc:  # TODO: more errors?
             raise errors.ConversionError(msg=str(exc), origins=(exc,)) from exc  # TODO: better message?
 
         for param in self.parameters:
@@ -460,7 +520,7 @@ class CommandParser(AbstractCommandParser):
                 continue
 
             # If we reach a VAR_POSITIONAL parameter then we want to consume all of the positional arguments.
-            if kind is inspect.Parameter.VAR_POSITIONAL:
+            if kind is inspect.Parameter.VAR_POSITIONAL:  # TODO: is this overriding parameter defined behaviour?
                 args.extend(param.convert(ctx, value) for value in arguments)
                 continue
 
@@ -470,8 +530,18 @@ class CommandParser(AbstractCommandParser):
 
             if value is None:
                 value = param.default
+            # elif value and value[0] is EMPTY_FIELD:  # TODO: keep this?
+            #     if not param.empty_default:
+            #         raise errors.ConversionError(f"Parameter {param.key} cannot be empty.", parameter=param)
+
+            #     value = param.empty_default
             else:
-                value = param.convert(ctx, value)
+                value = [param.convert(ctx, v) for v in value]
+                multiple = param.flags.get("multiple", False)
+                if len(value) > 1 and not multiple:  # TODO: this lol
+                    raise errors.ConversionError(f"Cannot pass field {param.key} multiple times.", parameter=param)
+                if not multiple:
+                    value = value[0]
 
             if kind in POSITIONAL_TYPES:
                 args.append(value)
@@ -481,17 +551,17 @@ class CommandParser(AbstractCommandParser):
 
     def set_parameters(self, parameters: typing.Sequence[AbstractParameter]) -> None:
         self.parameters = tuple(parameters)
-        # We can't clear the parser so each time we have to just replace it.
-        option_parser = click.OptionParser()
-        # As this doesn't handle defaults, we have to do that ourselves.
-        option_parser.ignore_unknown_options = True
+        arguments = []
+        options = {}
         for param in parameters:
             self._validate_parameter(param)
-            if param.default is NO_DEFAULT and not param.flags.get("greedy"):
-                option_parser.add_argument(param.key)
+            if param.default is not NO_DEFAULT or param.flags.get("greedy"):
+                for name in param.names:
+                    options[name] = param
             else:
-                option_parser.add_option(param.names, param.key)
-        self._option_parser = option_parser
+                arguments.append(param.key)
+        self._parameter_arguments = tuple(arguments)
+        self._parameter_options = options
         self.validate_signature(self.signature)
 
     def set_parameters_from_annotations(self, signature: inspect.Signature) -> None:
@@ -503,11 +573,12 @@ class CommandParser(AbstractCommandParser):
         # We set the converter's bool flag to False until it gets resolved with components later on.
         for key, value in signature.parameters.items():
             if isinstance(value.annotation, str):
-                raise ValueError(f"Cannot get parameters from a signature that includes forward reference annotations.")
+                raise ValueError("Cannot get parameters from a signature that includes forward reference annotations.")
+
             converters = ()
             # typing.wraps should convert None to NoneType.
             if origin := typing.get_origin(value.annotation):
-                if origin not in SUPPORTED_TYPING_WRAPPERS:
+                if origin not in SUPPORTED_TYPING_WRAPPERS:  # TODO: support Sequence like for parameter.multiple
                     raise ValueError(f"Typing wrapper `{origin}` is not supported by this parser.")
                 converters = tuple(arg for arg in typing.get_args(value.annotation) if arg is not type(None))
             elif value.annotation not in (inspect.Parameter.empty, type(None)):
