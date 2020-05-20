@@ -12,8 +12,8 @@ import yaml
 import click
 from hikari.internal import marshaller
 
-from tanjun import client
-from tanjun import configs
+from . import client
+from . import configs
 
 
 CONFIG_PARSERS = {"yaml": yaml.safe_load, "json": json.load}
@@ -25,7 +25,7 @@ sys.path.append(str(pathlib.Path().absolute()))
     "--bot-client",
     envvar="BOT_CLIENT",
     help="The Hikari bot client to initiate with.",
-    type=click.Choice(configs.VALID_CLIENTS),
+    type=click.Choice(["hikari.clients.stateless#StatelessBot"]),
 )
 @click.option(
     "--config", envvar="CONFIG", help="A path to the config to use for initiating the client.", type=click.File(),
@@ -62,7 +62,7 @@ def main(
         format="%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
-    if config is not None and any(value for value in (bot_client, debug, modules, token)):
+    if config is not None and any(value is not None for value in (bot_client, debug, modules, token)):
         raise RuntimeError("--config cannot be passed along with any other options other than `logger`.")
 
     if config is None and token is None:
@@ -84,7 +84,7 @@ def main(
             # TODO:more options
         )
 
-    client.Client(bot_client, modules=modules)
+    client.Client(bot_client, modules=configs.modules_path_converter(modules))
     bot_client.run()
 
 

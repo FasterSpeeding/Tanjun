@@ -10,8 +10,8 @@ from hikari import errors as hikari_errors
 if typing.TYPE_CHECKING:
     from hikari import permissions as _permission
 
-    from tanjun import commands as _commands  # pylint: disable=cyclic-import
-    from tanjun import parser as _parser  # pylint: disable=cyclic-import
+    from . import commands as commands_  # pylint: disable=cyclic-import
+    from . import parser as parser_  # pylint: disable=cyclic-import
 
 
 class CommandClientError(hikari_errors.HikariError):
@@ -44,7 +44,7 @@ class CommandError(CommandClientError):
 @attr.attrs(init=True, repr=True, slots=True)
 class ConversionError(CommandClientError):
     msg: str = attr.attrib()
-    parameter: typing.Optional[_parser.AbstractParameter] = attr.attrib(default=None)
+    parameter: typing.Optional[parser_.AbstractParameter] = attr.attrib(default=None)
     origins: typing.Tuple[BaseException, ...] = attr.attrib(factory=list)
 
     def __str__(self) -> str:
@@ -53,4 +53,4 @@ class ConversionError(CommandClientError):
 
 @attr.attrs(init=True, slots=True)
 class FailedCheck(CommandClientError):
-    checks: typing.Tuple[typing.Tuple[_commands.CheckLikeT, typing.Optional[BaseException]], ...] = attr.attrib()
+    checks: typing.Tuple[typing.Tuple[commands_.CheckLikeT, typing.Optional[BaseException]], ...] = attr.attrib()

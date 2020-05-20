@@ -4,276 +4,30 @@ __all__ = []
 
 import abc
 import inspect
-import re
 import shlex
 import typing
 import distutils.util
 
 import attr
-from hikari import bases
-from hikari import channels
-from hikari import colors
-from hikari import emojis
-from hikari import errors as hikari_errors
-from hikari import guilds
-from hikari import intents
-from hikari import messages
-from hikari import users
 from hikari.internal import conversions
-from hikari.internal import helpers
-from hikari.internal import more_collections
 
-
-from tanjun import errors
+from . import converters as converters_
+from . import errors
 
 # pylint: disable=ungrouped-imports
 if typing.TYPE_CHECKING:
-    import enum as _enum
+    from hikari.clients import components as components_
 
-    from hikari.clients import components as _components
-
-    from tanjun import commands as _commands  # pylint: disable=cyclic-import
+    from . import commands as commands_  # pylint: disable=cyclic-import
 # pylint: enable=ungrouped-imports
-
-
-def calculate_missing_flags(value: _enum.IntFlag, required: _enum.IntFlag) -> _enum.IntFlag:
-    origin_enum = type(required)
-    missing = origin_enum(0)
-    for flag in origin_enum.__members__.values():
-        if (flag & required) == flag and (flag & value) != flag:
-            missing |= flag
-    return missing
-
-
-class AbstractConverter(abc.ABC):
-    _converter_implementations: typing.MutableSequence[typing.Tuple[AbstractConverter, typing.Tuple[typing.Type, ...]]]
-    inheritable: bool
-    missing_intents_default: typing.Optional[AbstractConverter]
-    _required_intents: intents.Intent
-
-    def __init_subclass__(cls, **kwargs):
-        types = kwargs.pop("types", more_collections.EMPTY_SEQUENCE)
-        super().__init_subclass__(**kwargs)
-        if not types:
-            return
-
-        if not hasattr(AbstractConverter, "_converter_implementations"):
-            AbstractConverter._converter_implementations = []
-
-        for base_type in types:
-            if AbstractConverter.get_converter_from_name(base_type.__name__):
-                #  get_from_name avoids it throwing errors on an inheritable overlapping with a non-inheritable
-                raise RuntimeError(f"Type {base_type} already registered.")
-            #  TODO: make sure no overlap between inheritables while allowing overlap between inheritable and non-inheritables
-        # TODO: ditch heritability?
-
-        AbstractConverter._converter_implementations.append((cls(), tuple(types)))
-        # Prioritize non-inheritable converters over inheritable ones.
-        AbstractConverter._converter_implementations.sort(key=lambda entry: entry[0].inheritable, reverse=False)
-
-    @abc.abstractmethod
-    def __init__(
-        self,
-        inheritable: bool,
-        missing_intents_default: typing.Optional[AbstractConverter],
-        required_intents: intents.Intent,
-    ) -> None:
-        self.inheritable = inheritable
-        self.missing_intents_default = missing_intents_default  # TODO: get_converter_from_type?
-        self._required_intents = required_intents
-
-    def __call__(self, *args, **kwargs) -> typing.Any:
-        return self.convert(*args, **kwargs)
-
-    @abc.abstractmethod  # These shouldn't be making requests therefore there is no need for async.
-    def convert(self, ctx: _commands.Context, argument: str) -> typing.Any:  # Cache only
-        ...
-
-    def verify_intents(self, components: _components.Components) -> bool:
-        failed = []
-        for shard in components.shards.values():
-            if shard.intents is not None and (self._required_intents & shard.intents) != self._required_intents:
-                failed[shard.shard_id] = calculate_missing_flags(self._required_intents, shard.intents)
-        if failed:
-            message = (
-                f"Missing intents required for {self.__class__.__name__} converter being used on shards. "
-                "This will default to pass-through or be ignored."
-            )
-            helpers.warning(message, category=hikari_errors.IntentWarning, stack_level=4)  # Todo: stack_level
-            return False
-        return True
-
-    @classmethod
-    def get_converter_from_type(cls, argument_type: typing.Type) -> typing.Optional[AbstractConverter]:
-        for converter, types in cls._converter_implementations:
-            if not converter.inheritable and argument_type not in types:
-                continue
-            if converter.inheritable and inspect.isclass(argument_type) and not issubclass(argument_type, types):
-                continue
-
-            return converter
-
-    @classmethod
-    def get_converter_from_name(cls, name: str) -> typing.Optional[AbstractConverter]:
-        for converter, types in cls._converter_implementations:
-            if any(base_type.__name__ == name for base_type in types):
-                return converter
-
-
-class ColorConverter(AbstractConverter, types=(colors.Color,)):
-    def __init__(self):
-        super().__init__(inheritable=False, missing_intents_default=None, required_intents=intents.Intent(0))
-
-    def convert(self, _: _commands.Context, argument: str) -> typing.Any:
-        values = argument.split(" ")
-        if all(value.isdigit() for value in values):
-            values = (int(value) for value in values)
-
-        return colors.Color.of(*values)
-
-
-class BaseIDConverter(AbstractConverter, abc.ABC):
-    _id_regex: re.Pattern
-
-    def __init__(
-        self,
-        compiled_regex: re.Pattern,
-        inheritable: bool = True,
-        missing_intents_default: typing.Optional[AbstractConverter] = None,
-        required_intents: intents.Intent = intents.Intent(0),
-    ) -> None:
-        super().__init__(
-            inheritable=inheritable, missing_intents_default=missing_intents_default, required_intents=required_intents
-        )
-        if not isinstance(compiled_regex, re.Pattern):
-            raise TypeError(f"Expected a compiled re.Pattern for `compiled_regex` but got {compiled_regex}")
-        self._id_regex = compiled_regex
-
-    def _match_id(self, value: str) -> bases.Snowflake:
-        if value.isdigit():
-            return bases.Snowflake(value)
-        if result := self._id_regex.findall(value):
-            return bases.Snowflake(result[0])
-        raise ValueError("Invalid mention or ID passed.")  # TODO: return None or raise ValueError here?
-
-
-class ChannelIDConverter(BaseIDConverter):
-    def __init__(
-        self,
-        compiled_regex: typing.Optional[re.Pattern] = None,
-        inheritable: bool = True,
-        missing_intents_default: typing.Optional[AbstractConverter] = None,
-        required_intents: intents.Intent = intents.Intent(0),
-    ) -> None:
-        super().__init__(
-            compiled_regex=compiled_regex if compiled_regex else re.compile(r"<#(\d+)>"),
-            inheritable=inheritable,
-            missing_intents_default=missing_intents_default,
-            required_intents=required_intents,
-        )
-
-    def convert(self, _: _commands.Context, argument: str) -> bases.Snowflake:
-        return self._match_id(argument)
-
-
-class ChannelConverter(ChannelIDConverter, types=(channels.PartialChannel,)):
-    def __init__(self):
-        super().__init__(
-            inheritable=True, missing_intents_default=ChannelIDConverter(), required_intents=intents.Intent.GUILDS,
-        )
-
-    def convert(self, ctx: _commands.Context, argument: str) -> channels.PartialChannel:
-        if match := self._match_id(argument):
-            return ctx.fabric.state_registry.get_mandatory_channel_by_id(match)  # TODO: cache
-
-
-class EmojiIDConverter(BaseIDConverter):
-    def __init__(
-        self,
-        compiled_regex: typing.Optional[re.Pattern] = None,
-        inheritable: bool = True,
-        missing_intents_default: typing.Optional[AbstractConverter] = None,
-        required_intents: intents.Intent = intents.Intent(0),
-    ) -> None:
-        super().__init__(
-            compiled_regex=compiled_regex if compiled_regex else re.compile(r"<a?:\w+:(\d+)>"),
-            inheritable=inheritable,
-            missing_intents_default=missing_intents_default,
-            required_intents=required_intents,
-        )
-
-
-class GuildEmojiConverter(EmojiIDConverter, types=(emojis.KnownCustomEmoji,)):
-    ...
-
-
-class SnowflakeConverter(BaseIDConverter, types=(bases.Snowflake,)):  # TODO: bases.Unique, ?
-    def __init__(
-        self,
-        compiled_regex: typing.Optional[re.Pattern] = None,
-        inheritable: bool = True,
-        missing_intents_default: typing.Optional[AbstractConverter] = None,
-        required_intents: intents.Intent = intents.Intent(0),
-    ) -> None:
-        super().__init__(
-            compiled_regex=compiled_regex if compiled_regex else re.compile(r"<[@&?!#]{1,3}(\d+)>"),
-            inheritable=inheritable,
-            missing_intents_default=missing_intents_default,
-            required_intents=required_intents,
-        )
-
-    def convert(self, ctx: _commands.Context, argument: str) -> bases.Snowflake:
-        if match := self._match_id(argument):
-            return match
-        raise ValueError("Invalid mention or ID supplied.")
-
-
-class UserConverter(BaseIDConverter, types=(users.User,)):
-    def __init__(
-        self,
-        compiled_regex: typing.Optional[re.Pattern] = None,
-        inheritable: bool = False,
-        missing_intents_default: typing.Optional[AbstractConverter] = None,
-        required_intents: intents.Intent = intents.Intent.GUILD_MEMBERS,
-    ) -> None:  # TODO: Intent.GUILD_MEMBERS and/or intents.GUILD_PRESENCES?
-        super().__init__(
-            compiled_regex=compiled_regex if compiled_regex else re.compile(r"<@!?(\d+)>"),
-            inheritable=inheritable,
-            missing_intents_default=missing_intents_default or SnowflakeConverter(),  # TODO: user ID converter?
-            required_intents=required_intents,
-        )
-
-    def convert(self, ctx: _commands.Context, argument: str) -> users.User:
-        if match := self._match_id(argument):
-            return ctx.fabric.state_registry.get_mandatory_user_by_id(match)
-
-
-class MemberConverter(UserConverter, types=(guilds.GuildMember,)):
-    def convert(self, ctx: _commands.Context, argument: str) -> guilds.GuildMember:
-        if not ctx.message.guild:
-            raise ValueError("Cannot get a member from a DM channel.")  # TODO: better error and error
-
-        if match := self._match_id(argument):
-            return ctx.fabric.state_registry.get_mandatory_member_by_id(match, ctx.message.guild_id)
-
-
-class MessageConverter(SnowflakeConverter, types=(messages.Message,)):
-    def __init__(self) -> None:  # TODO: message cache checks?
-        super().__init__(
-            inheritable=False, missing_intents_default=SnowflakeConverter(), required_intents=intents.Intent(0)
-        )
-
-    def convert(self, ctx: _commands.Context, argument: str) -> messages.Message:
-        message_id = super().convert(ctx, argument)
-        return ctx.fabric.state_registry.get_mandatory_message_by_id(message_id, ctx.message.channel_id)
-        #  TODO: state and error handling?
 
 
 # We override NoneType with None as typing wrappers will contain NoneType but generally we'll want to hand around the
 # None singleton.
 BUILTIN_OVERRIDES = {bool: distutils.util.strtobool, type(None): None}
 
-SUPPORTED_TYPING_WRAPPERS = (typing.Union,)  # typing.Optional just resolves to typing.Union[type, NoneType]
+# typing.Optional just resolves to typing.Union[type, NoneType]
+SUPPORTED_TYPING_WRAPPERS = (typing.Union,)  # TODO: support Sequence
 
 POSITIONAL_TYPES = (
     inspect.Parameter.VAR_POSITIONAL,
@@ -283,7 +37,9 @@ POSITIONAL_TYPES = (
 
 @attr.attrs(init=True, kw_only=True, slots=False)
 class AbstractParameter:
-    converters: typing.Tuple[typing.Union[typing.Callable, AbstractConverter], ...] = attr.attr(factory=tuple)
+    converters: typing.Tuple[typing.Union[typing.Callable, converters_.AbstractConverter], ...] = attr.attr(
+        factory=tuple
+    )
     default: typing.Optional[typing.Any] = attr.attr(default=None)
     empty_default: typing.Optional[typing.Any] = attr.attr(default=None)
     flags: typing.Mapping[str, typing.Any] = attr.attr(factory=dict)
@@ -291,11 +47,11 @@ class AbstractParameter:
     names: typing.Optional[typing.Tuple[str]] = attr.attr(default=None)
 
     @abc.abstractmethod
-    def components_hook(self, ctx: _components.Components) -> None:
+    def components_hook(self, ctx: components_.Components) -> None:
         ...
 
     @abc.abstractmethod
-    def convert(self, ctx: _commands.Context, value: str) -> typing.Any:
+    def convert(self, ctx: commands_.Context, value: str) -> typing.Any:
         ...
 
 
@@ -311,7 +67,9 @@ class Parameter(AbstractParameter):
         key: str,
         *,
         names: typing.Optional[typing.Tuple[str]] = None,
-        converters: typing.Optional[typing.Tuple[typing.Union[typing.Callable, AbstractConverter], ...]] = None,
+        converters: typing.Optional[
+            typing.Tuple[typing.Union[typing.Callable, converters_.AbstractConverter], ...]
+        ] = None,
         default: typing.Any = NO_DEFAULT,
         empty_default: typing.Any = NO_DEFAULT,
         **flags: typing.Any,
@@ -327,10 +85,10 @@ class Parameter(AbstractParameter):
         # While it may be tempting to have validation here, parameter validation should be attached to the parser
         # implementation rather than the parameters themselves.
 
-    def components_hook(self, components: _components.Components) -> None:
-        converters: typing.MutableSequence[typing.Union[typing.Callable, AbstractConverter]] = []
+    def components_hook(self, components: components_.Components) -> None:
+        converters: typing.MutableSequence[typing.Union[typing.Callable, converters_.AbstractConverter]] = []
         for converter in self.converters:
-            if custom_converter := AbstractConverter.get_converter_from_type(converter):
+            if custom_converter := converters_.AbstractConverter.get_converter_from_type(converter):
                 if custom_converter.verify_intents(components):
                     converters.append(custom_converter)
                 elif custom_converter.missing_intents_default:
@@ -339,7 +97,7 @@ class Parameter(AbstractParameter):
                 converters.append(BUILTIN_OVERRIDES.get(converter, converter))
         self.converters = tuple(converters)
 
-    def convert(self, ctx: _commands.Context, value: str) -> typing.Any:
+    def convert(self, ctx: commands_.Context, value: str) -> typing.Any:
         if value in (self.default, self.empty_default):
             return value
 
@@ -347,7 +105,7 @@ class Parameter(AbstractParameter):
         for converter in self.converters:
             try:
                 #  TODO: use the function signature to work out if it requires ctx or not?
-                if isinstance(converter, AbstractConverter):
+                if isinstance(converter, converters_.AbstractConverter):
                     return converter.convert(ctx, value)
                 return converter(value)  # TODO: converter.__expected_exceptions__?
             except ValueError as exc:  # TODO: more exceptions?
@@ -375,12 +133,12 @@ class AbstractCommandParser(abc.ABC):
     parameters: typing.Tuple[AbstractParameter, ...] = attr.attrib(factory=dict)
 
     @abc.abstractmethod
-    def components_hook(self, components: _components.Components) -> None:
+    def components_hook(self, components: components_.Components) -> None:
         ...
 
     @abc.abstractmethod
     def parse(
-        self, ctx: _commands.Context
+        self, ctx: commands_.Context
     ) -> typing.Tuple[typing.Sequence[typing.Any], typing.MutableMapping[str, typing.Any]]:
         ...
 
@@ -434,7 +192,7 @@ class CommandParser(AbstractCommandParser):
         if hasattr(func, "__parameters__"):
             self.set_parameters(func.__parameters__)
 
-    def components_hook(self, components: _components.Components) -> None:
+    def components_hook(self, components: components_.Components) -> None:
         if not self.parameters and components.config.set_parameters_from_annotations:
             self.set_parameters_from_annotations(self.signature)
         for param in self.parameters:
@@ -493,7 +251,7 @@ class CommandParser(AbstractCommandParser):
         return positional_fields, keyword_fields
 
     def parse(
-        self, ctx: _commands.Context
+        self, ctx: commands_.Context
     ) -> typing.Tuple[typing.Sequence[typing.Any], typing.Mapping[str, typing.Any]]:
         args: typing.MutableSequence[typing.Any] = []
         kwargs: typing.MutableMapping[str, typing.Any] = {}
@@ -625,7 +383,7 @@ class CommandParser(AbstractCommandParser):
 
     def validate_signature(self, signature: inspect.Signature) -> None:
         if sum(param.flags.get("greedy", False) for param in self.parameters) > 1:
-            raise ValueError(f"Too many greedy arguments set for {self.__class__.__name__}.")
+            raise ValueError(f"Too many greedy arguments set for {type(self).__name__}.")
             # TODO: better error message.
         contains_greedy = any(param.flags.get("greedy", False) for param in self.parameters)
         found_greedy = False

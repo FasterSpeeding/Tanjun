@@ -6,7 +6,7 @@ import abc
 import typing
 
 if typing.TYPE_CHECKING:
-    from tanjun import commands as _commands  # pylint: disable=cyclic-import
+    from . import commands as commands_  # pylint: disable=cyclic-import
 
 
 class Executable(abc.ABC):
@@ -18,7 +18,7 @@ class Executable(abc.ABC):
 
     @abc.abstractmethod
     async def execute(
-        self, ctx: _commands.Context, *, hooks: typing.Optional[typing.Sequence[_commands.Hooks]] = None
+        self, ctx: commands_.Context, *, hooks: typing.Optional[typing.Sequence[commands_.Hooks]] = None
     ) -> bool:
         """
         Used to execute an entity based on a `tanjun.commands.Context` object.

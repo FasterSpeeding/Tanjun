@@ -25,17 +25,17 @@ import attr
 from hikari import errors as hikari_errors
 from hikari.internal import more_collections
 
-from tanjun import bases
-from tanjun import parser as _parser
-from tanjun import errors
+from . import bases
+from . import parser as parser_
+from . import errors
 
 # pylint: disable=ungrouped-imports
 if typing.TYPE_CHECKING:
-    from hikari import messages as _messages
-    from hikari.clients import components as _components
-    from hikari.clients import shards as _shards
+    from hikari import messages as messages_
+    from hikari.clients import components as components_
+    from hikari.clients import shards as shards_
 
-    from tanjun import clusters as _clusters  # pylint: disable=cyclic-import
+    from . import clusters as _clusters  # pylint: disable=cyclic-import
 
     CheckLikeT = typing.Callable[["Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]]
     CommandFunctionT = typing.Callable[[...], typing.Coroutine[typing.Any, typing.Any, None]]
@@ -51,9 +51,9 @@ class TriggerTypes(enum.Enum):
 class Context:
     content: str = attr.attrib()
 
-    components: _components.Components = attr.attrib()
+    components: components_.Components = attr.attrib()
 
-    message: _messages.Message = attr.attrib()
+    message: messages_.Message = attr.attrib()
     """The message that triggered this command."""
 
     trigger: str = attr.attrib()
@@ -81,7 +81,7 @@ class Context:
         self.command = command
 
     @property
-    def shard(self) -> typing.Optional[_shards.ShardClient]:
+    def shard(self) -> typing.Optional[shards_.ShardClient]:
         return self.components.shards.get(self.shard_id, None)
 
     @property
@@ -264,7 +264,7 @@ class AbstractCommand(ExecutableCommand, abc.ABC):
     level: int = attr.attrib()
     """The user access level that'll be required to execute this command, defaults to 0."""
 
-    parser: typing.Optional[_parser.AbstractCommandParser]
+    parser: typing.Optional[parser_.AbstractCommandParser]
 
     @abc.abstractmethod
     def bind_group(self, group: AbstractCommandGroup) -> None:
@@ -288,7 +288,7 @@ class AbstractCommand(ExecutableCommand, abc.ABC):
     @abc.abstractmethod  # TODO: differentiate between command and command group.
     def _create_parser(
         self, func: typing.Callable[[...], typing.Coroutine[typing.Any, typing.Any, typing.Any]], **kwargs: typing.Any
-    ) -> typing.Optional[_parser.AbstractCommandParser]:
+    ) -> typing.Optional[parser_.AbstractCommandParser]:
         ...
 
 
@@ -450,8 +450,8 @@ class Command(AbstractCommand):
 
     def _create_parser(
         self, func: typing.Callable[[...], typing.Coroutine[typing.Any, typing.Any, typing.Any]], **kwargs: typing.Any
-    ) -> _parser.AbstractCommandParser:
-        return _parser.CommandParser(func=func, **kwargs)
+    ) -> parser_.AbstractCommandParser:
+        return parser_.CommandParser(func=func, **kwargs)
 
 
 @attr.attrs(init=True, kw_only=True, slots=False, repr=False)
@@ -460,7 +460,7 @@ class AbstractCommandGroup(
 ):  # TODO: use this for typing along sideor just executable command
     commands: typing.MutableSequence[AbstractCommand] = attr.attrib(factory=list)
 
-    components: typing.Optional[_components.Components] = attr.attrib(default=None)
+    components: typing.Optional[components_.Components] = attr.attrib(default=None)
 
     master_command: typing.Optional[AbstractCommand] = attr.attrib(default=None)
 

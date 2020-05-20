@@ -7,22 +7,24 @@ __all__ = [
 
 import abc
 import asyncio
+import importlib.machinery
 import importlib.util
 import inspect
+import pathlib
 import typing
 
 import attr
 from hikari.events import message as message_events
 from hikari.events import other as other_events
 
-from tanjun import clusters as _clusters
-from tanjun import commands
-from tanjun import decorators
+from . import clusters as clusters_
+from . import commands
+from . import decorators
 
 # pylint: disable=ungrouped-imports
 if typing.TYPE_CHECKING:
-    from hikari import messages as _messages
-    from hikari.clients import components as _components
+    from hikari import messages as messages_
+    from hikari.clients import components as components_
 # pylint: enable=ungrouped-imports
 
 
@@ -34,10 +36,10 @@ class AbstractClient(abc.ABC):
     on relevant events (e.g MESSAGE_CREATE and MESSAGE_EDIT).
     """
 
-    clusters: typing.MutableMapping[str, _clusters.AbstractCluster] = attr.attrib(factory=dict)
+    clusters: typing.MutableMapping[str, clusters_.AbstractCluster] = attr.attrib(factory=dict)
     """A mapping of strings to the clusters that this client has loaded."""
 
-    components: _components.Components = attr.attrib()
+    components: components_.Components = attr.attrib()
     """The bot components this client is bound by.
 
     Contains the master event listeners/dispatchers used for tracking Discord
@@ -45,7 +47,7 @@ class AbstractClient(abc.ABC):
     """
 
     @abc.abstractmethod
-    async def check_prefix(self, message: _messages.Message) -> typing.Optional[str]:
+    async def check_prefix(self, message: messages_.Message) -> typing.Optional[str]:
         """Get the prefixes for a message.
 
         !!! note
@@ -57,7 +59,7 @@ class AbstractClient(abc.ABC):
         """
 
     @abc.abstractmethod  # TODO: support string?
-    async def deregister_cluster(self, cluster: _clusters.AbstractCluster) -> _clusters.AbstractCluster:
+    async def deregister_cluster(self, cluster: clusters_.AbstractCluster) -> clusters_.AbstractCluster:
         """Remove a cluster from this client.
 
         Parameters
@@ -108,7 +110,7 @@ class AbstractClient(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def get_prefixes(self, message: _messages.Message) -> typing.Sequence[str]:
+    async def get_prefixes(self, message: messages_.Message) -> typing.Sequence[str]:
         """
         Used to get the registered global prefixes and the prefixes a message.
 
@@ -130,7 +132,7 @@ class AbstractClient(abc.ABC):
         """
 
     @abc.abstractmethod
-    def load_from_modules(self, *modules: str) -> None:
+    def load_from_modules(self, *modules: typing.Union[str, pathlib.Path]) -> None:
         """Load elements of a bot from a list of modules links.
 
         Parameters
@@ -142,7 +144,7 @@ class AbstractClient(abc.ABC):
 
     @abc.abstractmethod
     def register_cluster(
-        self, cluster: typing.Union[_clusters.AbstractCluster, typing.Type[_clusters.AbstractCluster]]
+        self, cluster: typing.Union[clusters_.AbstractCluster, typing.Type[clusters_.AbstractCluster]]
     ) -> None:  # TODO: both type and initialised?
         """Register a cluster in this client.
 
@@ -153,7 +155,8 @@ class AbstractClient(abc.ABC):
         """
 
 
-class Client(AbstractClient, _clusters.Cluster):
+# TODO: do we need to extend client for the standard impl?
+class Client(AbstractClient, clusters_.Cluster):
     """
     The central client that all command clusters will be binded to. This extends :class:`hikari.client.Client` and
     handles registering event listeners attached to the loaded clusters and the listener(s) required for commands.
@@ -166,31 +169,31 @@ class Client(AbstractClient, _clusters.Cluster):
 
     def __init__(
         self,
-        components: _components.Components,
+        components: components_.Components,
         *,
         hooks: typing.Optional[commands.Hooks] = None,
-        modules: typing.Sequence[str] = None,
+        modules: typing.Sequence[typing.Union[str, pathlib.Path]] = None,
     ) -> None:
         if modules and components.config.modules:
             raise RuntimeError("The `modules` kwarg cannot be passed with a components config that declares modules.")
 
         AbstractClient.__init__(self, components=components)
-        _clusters.Cluster.__init__(self, client=self, components=components, hooks=hooks)
+        clusters_.Cluster.__init__(self, client=self, components=components, hooks=hooks)
         self.clusters = {}
         self._clusters_to_load = []
         self.load_from_modules(*(modules or components.config.modules))
 
     async def load(self) -> None:
         if not self.started:
-            self.logger.debug("Starting up %s cluster.", self.__class__.__name__)
+            self.logger.debug("Starting up %s cluster.", type(self).__name__)
             await super().load()
         for cluster in self.clusters.values():
             if cluster.started:
                 continue
-            self.logger.debug("Starting up %s cluster.", cluster.__class__.__name__)
+            self.logger.debug("Starting up %s cluster.", type(cluster).__name__)
             await cluster.load()
 
-    async def check_prefix(self, message: _messages.Message) -> typing.Optional[str]:
+    async def check_prefix(self, message: messages_.Message) -> typing.Optional[str]:
         """
         Used to check if a message's content match any currently registered prefix (including any prefixes registered
         for the guild if this is being called from one.
@@ -209,8 +212,8 @@ class Client(AbstractClient, _clusters.Cluster):
                 break
         return trigger_prefix
 
-    async def deregister_cluster(self, cluster: _clusters.AbstractCluster) -> _clusters.AbstractCluster:
-        cluster = self.clusters.pop(cluster.__class__.__name__)
+    async def deregister_cluster(self, cluster: clusters_.AbstractCluster) -> clusters_.AbstractCluster:
+        cluster = self.clusters.pop(type(cluster).__name__)
         await cluster.unload()
         return cluster
 
@@ -228,12 +231,17 @@ class Client(AbstractClient, _clusters.Cluster):
         for cluster in (self, *self.clusters.values()):
             yield from cluster.get_command_from_name(content)
 
-    async def get_prefixes(self, message: _messages.Message) -> typing.Sequence[str]:
+    async def get_prefixes(self, message: messages_.Message) -> typing.Sequence[str]:
         return self.components.config.prefixes
 
-    def load_from_modules(self, *modules: str) -> None:
+    def load_from_modules(self, *modules: typing.Union[str, pathlib.Path]) -> None:
         for module_path in modules:
-            module = importlib.import_module(module_path)
+            if isinstance(module_path, pathlib.Path):  # TODO: is this worth supporting?
+                module = importlib.machinery.SourceFileLoader(
+                    module_path.name.rsplit(".", 1)[0], str(module_path.absolute())
+                )  # TODO: absolute.()?
+            else:
+                module = importlib.import_module(module_path)  # TODO: support absolute paths
             module.setup(self)
 
     @decorators.event(message_events.MessageCreateEvent)
@@ -272,13 +280,13 @@ class Client(AbstractClient, _clusters.Cluster):
             await self.load()
 
     def register_cluster(
-        self, cluster: typing.Union[_clusters.AbstractCluster, typing.Type[_clusters.AbstractCluster]]
+        self, cluster: typing.Union[clusters_.AbstractCluster, typing.Type[clusters_.AbstractCluster]]
     ) -> None:
         if inspect.isclass(cluster):
             cluster = cluster(self, self.components)
         #  TODO: bind client?
-        self.clusters[cluster.__class__.__name__] = cluster
+        self.clusters[type(cluster).__name__] = cluster
         # If the bot has already started then we'll want to queue this cluster up to be loaded
         # during the next message create event as to ensure this it's loaded within an event loop.
         if self.started:
-            self._clusters_to_load.append(cluster.__class__.__name__)
+            self._clusters_to_load.append(type(cluster).__name__)

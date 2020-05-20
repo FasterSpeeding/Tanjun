@@ -1,8 +1,8 @@
 import typing
 
-from hikari.events import base as _base_events
+from hikari.events import base as base_events
 
-from tanjun import commands as _commands
+from . import commands as commands
 
 
 # TODO: here or commands
@@ -11,8 +11,8 @@ from tanjun import commands as _commands
 def group(
     name: str,
     *,
-    group_class: typing.Type[_commands.AbstractCommandGroup] = _commands.CommandGroup,
-    command_class: typing.Type[_commands.AbstractCommand] = _commands.Command,
+    group_class: typing.Type[commands.AbstractCommandGroup] = commands.CommandGroup,
+    command_class: typing.Type[commands.AbstractCommand] = commands.Command,
     **kwargs,
 ):  # TODO: test this
     def decorator(coro_fn):
@@ -21,7 +21,7 @@ def group(
     return decorator
 
 
-def event(event_: _base_events.HikariEvent):  # TODO: typing annotation support
+def event(event_: base_events.HikariEvent):  # TODO: typing annotation support
     def decorator(coro_fn):
         coro_fn.__event__ = event_
         return coro_fn
@@ -29,7 +29,7 @@ def event(event_: _base_events.HikariEvent):  # TODO: typing annotation support
     return decorator
 
 
-def command(__arg=..., *, cls: typing.Type[_commands.AbstractCommand] = _commands.Command, **kwargs):
+def command(__arg=..., *, cls: typing.Type[commands.AbstractCommand] = commands.Command, **kwargs):
     def decorator(coro_fn):
         return cls(coro_fn, **kwargs)
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ["CommandConfig", "ParserConfig", "ClientConfig", "VALID_CLIENTS"]
+__all__ = ["CommandConfig", "ParserConfig", "ClientConfig", "modules_path_converter"]
 
 import typing
 
@@ -11,8 +11,14 @@ from hikari.clients import configs
 from hikari.clients import stateless
 from hikari.internal import marshaller
 
+if typing.TYPE_CHECKING:
+    import pathlib
 
-VALID_CLIENTS = ["hikari.clients.stateless.StatelessBot"]
+
+def modules_path_converter(module_paths):
+    for index, path in enumerate(module_paths):
+        if isinstance(path, str) and ("\\" in path or "/" in path):  # TODO: is this logic fine?
+            module_paths[index] = pathlib.Path(path)
 
 
 @marshaller.marshallable()
@@ -28,16 +34,12 @@ class CommandConfig:
         if_undefined=lambda: stateless.StatelessBot,
         default=stateless.StatelessBot,
     )
-
-    #   @bot_client.validator  # TODO: validation here
-    #   def _bot_client_validator(self, _, value):  # pylint:disable=unused-argument
-    #       if isinstance(value, str) and value not in VALID_CLIENTS:
-    #           raise ValueError(f"Invalid `bot_client` passed, must be one of {VALID_CLIENTS}")
-
     prefixes: typing.Sequence[str] = marshaller.attrib(
         deserializer=lambda prefixes: [str(prefix) for prefix in prefixes], if_undefined=list, factory=list
     )
-    modules: typing.Sequence[str] = marshaller.attrib(deserializer=list, if_undefined=list, factory=list)
+    modules: typing.Sequence[typing.Union[str, pathlib.Path]] = marshaller.attrib(
+        deserializer=modules_path_converter, if_undefined=list, factory=list
+    )
 
 
 @marshaller.marshallable()
