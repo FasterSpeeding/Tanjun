@@ -2,7 +2,7 @@ import typing
 
 from hikari.events import base as base_events
 
-from . import commands as commands
+from . import commands as _commands
 
 
 # TODO: here or commands
@@ -11,8 +11,8 @@ from . import commands as commands
 def group(
     name: str,
     *,
-    group_class: typing.Type[commands.AbstractCommandGroup] = commands.CommandGroup,
-    command_class: typing.Type[commands.AbstractCommand] = commands.Command,
+    group_class: typing.Type[_commands.AbstractCommandGroup] = _commands.CommandGroup,
+    command_class: typing.Type[_commands.AbstractCommand] = _commands.Command,
     **kwargs,
 ):  # TODO: test this
     def decorator(coro_fn):
@@ -29,7 +29,7 @@ def event(event_: base_events.HikariEvent):  # TODO: typing annotation support
     return decorator
 
 
-def command(__arg=..., *, cls: typing.Type[commands.AbstractCommand] = commands.Command, **kwargs):
+def command(__arg=..., *, cls: typing.Type[_commands.AbstractCommand] = _commands.Command, **kwargs):
     def decorator(coro_fn):
         return cls(coro_fn, **kwargs)
 

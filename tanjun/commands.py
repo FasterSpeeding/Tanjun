@@ -18,6 +18,7 @@ import contextlib
 import enum
 import inspect
 import logging
+import time
 import types
 import typing
 
@@ -412,6 +413,7 @@ class Command(AbstractCommand):
 
     async def execute(self, ctx: Context, *, hooks: typing.Optional[typing.Sequence[Hooks]] = None) -> bool:
         ctx.set_command(self)
+        start_time = time.perf_counter()
         if self.parser:
             try:
                 args, kwargs = self.parser.parse(ctx)
@@ -421,11 +423,19 @@ class Command(AbstractCommand):
                 return True
         else:
             args, kwargs = more_collections.EMPTY_SEQUENCE, more_collections.EMPTY_DICT
+        self.logger.debug(
+            "Argument parsing took %ss for %r command", time.perf_counter() - start_time, type(self).__name__
+        )
 
+        start_time = time.perf_counter()
         try:
             if await self.hooks.trigger_pre_execution_hooks(ctx, *args, **kwargs, extra_hooks=hooks) is False:
                 return True
+            func_start_time = time.perf_counter()
             await self._func(ctx, *args, **kwargs)
+            self.logger.debug(
+                "Command took %ss to execute for %r command", time.perf_counter() - func_start_time, type(self).__name__
+            )
         except errors.CommandError as exc:
             with contextlib.suppress(hikari_errors.HTTPError):  # TODO: better permission handling?
                 response = str(exc)
@@ -437,6 +447,12 @@ class Command(AbstractCommand):
             await self.hooks.trigger_on_success_hooks(ctx, extra_hooks=hooks)
         finally:
             await self.hooks.trigger_post_execution_hooks(ctx, extra_hooks=hooks)
+        self.logger.debug(
+            "Command and hooks took %ss to execute for %r command with %s hook objects",
+            time.perf_counter() - start_time,
+            type(self).__name__,
+            len(hooks),
+        )
 
         return True  # TODO: necessary?
 

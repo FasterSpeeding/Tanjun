@@ -11,6 +11,7 @@ import importlib.machinery
 import importlib.util
 import inspect
 import pathlib
+import time
 import typing
 
 import attr
@@ -275,10 +276,14 @@ class Client(AbstractClient, clusters_.Cluster):
             trigger_type=commands.TriggerTypes.PREFIX if prefix else commands.TriggerTypes.MENTION,
         )
         hooks = [self.global_hooks] if self.global_hooks else []
+        start_time = time.perf_counter()
         for cluster in (self, *self.clusters.values()):
             # Here `Cluster.started` essentially acts as a lock to avoid any errors that could occur from a cluster
             # being executed before it's finished loading.
             if cluster.started and await cluster.execute(ctx, hooks=hooks):
+                self.logger.debug(
+                    "Command lookup took %ss for %r cluster", time.perf_counter() - start_time, type(cluster).__name__
+                )
                 break
 
     @decorators.event(other_events.ReadyEvent)
