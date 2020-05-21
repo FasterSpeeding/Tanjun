@@ -46,6 +46,8 @@ class AbstractClient(abc.ABC):
     gateway events and the config that this client will be using.
     """
 
+    global_hooks: commands.Hooks = attr.attrib(default=None)  # TODO: global checks?
+
     @abc.abstractmethod
     async def check_prefix(self, message: messages_.Message) -> typing.Optional[str]:
         """Get the prefixes for a message.
@@ -155,6 +157,9 @@ class AbstractClient(abc.ABC):
         """
 
 
+# class Client(AbstractClient):  # TODO: remove cluster from main client impl
+
+
 # TODO: do we need to extend client for the standard impl?
 class Client(AbstractClient, clusters_.Cluster):
     """
@@ -171,13 +176,14 @@ class Client(AbstractClient, clusters_.Cluster):
         self,
         components: components_.Components,
         *,
+        global_hooks: typing.Optional[commands.Hooks] = None,
         hooks: typing.Optional[commands.Hooks] = None,
         modules: typing.Sequence[typing.Union[str, pathlib.Path]] = None,
     ) -> None:
         if modules and components.config.modules:
             raise RuntimeError("The `modules` kwarg cannot be passed with a components config that declares modules.")
 
-        AbstractClient.__init__(self, components=components)
+        AbstractClient.__init__(self, components=components, global_hooks=global_hooks)
         clusters_.Cluster.__init__(self, client=self, components=components, hooks=hooks)
         self.clusters = {}
         self._clusters_to_load = []
@@ -268,10 +274,11 @@ class Client(AbstractClient, clusters_.Cluster):
             trigger=prefix or mention,
             trigger_type=commands.TriggerTypes.PREFIX if prefix else commands.TriggerTypes.MENTION,
         )
+        hooks = [self.global_hooks] if self.global_hooks else []
         for cluster in (self, *self.clusters.values()):
             # Here `Cluster.started` essentially acts as a lock to avoid any errors that could occur from a cluster
             # being executed before it's finished loading.
-            if cluster.started and await cluster.execute(ctx):
+            if cluster.started and await cluster.execute(ctx, hooks=hooks):
                 break
 
     @decorators.event(other_events.ReadyEvent)

@@ -173,7 +173,7 @@ class AbstractCommandParser(abc.ABC):
 @attr.attrs(init=False, slots=True)
 class CommandParser(AbstractCommandParser):
     _parameter_arguments: typing.Mapping[str]
-    _parameter_options: typing.Sequence[str, AbstractParameter]  # TODO: consolidate the parse methods str to str?
+    _parameter_options: typing.MutableMapping[str, AbstractParameter]  # TODO: consolidate the parse methods str to str?
     _shlex: shlex.shlex
     signature: inspect.Signature = attr.attrib()
 
@@ -237,7 +237,6 @@ class CommandParser(AbstractCommandParser):
                 keyword_fields[output_key] = []
             elif keyword_fields[output_key] is None:
                 raise errors.ConversionError(msg="Cannot pass a a valueless parameter multiple times.", parameter=param)
-
             keyword_fields[output_key].append(value)
             key = None
 
@@ -326,7 +325,7 @@ class CommandParser(AbstractCommandParser):
         greedy_name = self.flags.get("greedy")
         parameters = []
         if greedy_name and greedy_name not in signature.parameters:
-            raise IndexError(f"Greedy name {greedy_name} not found in {signature}.")
+            raise IndexError(f"Greedy name {greedy_name!r} not found in {signature}.")
 
         # We set the converter's bool flag to False until it gets resolved with components later on.
         for key, value in signature.parameters.items():
