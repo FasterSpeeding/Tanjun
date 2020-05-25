@@ -194,11 +194,13 @@ class Client(AbstractClient, clusters_.Cluster):
         if not self.started:
             self.logger.debug("Starting up %s cluster.", type(self).__name__)
             await super().load()
+        tasks = []
         for cluster in self.clusters.values():
             if cluster.started:
                 continue
             self.logger.debug("Starting up %s cluster.", type(cluster).__name__)
-            await cluster.load()
+            tasks.append(asyncio.create_task(cluster.load()))
+        await asyncio.gather(*tasks)
 
     async def check_prefix(self, message: messages_.Message) -> typing.Optional[str]:
         """
@@ -289,7 +291,9 @@ class Client(AbstractClient, clusters_.Cluster):
     @decorators.event(other_events.ReadyEvent)
     async def on_ready(self, _: other_events.ReadyEvent) -> None:
         if not self.started:
+            start_time = time.perf_counter()
             await self.load()
+            self.logger.debug("Startup 'on_ready' hook took %ss.", start_time)
 
     def register_cluster(
         self, cluster: typing.Union[clusters_.AbstractCluster, typing.Type[clusters_.AbstractCluster]]

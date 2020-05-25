@@ -336,11 +336,12 @@ class Command(AbstractCommand):
         *,
         aliases: typing.Optional[typing.Sequence[str]] = None,
         checks: typing.Optional[typing.Sequence[CheckLikeT]] = None,
+        cluster: typing.Optional[_clusters.AbstractCluster] = None,
+        greedy: typing.Optional[str] = None,
         hooks: typing.Optional[Hooks] = None,
         level: int = 0,
         meta: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
-        cluster: typing.Optional[_clusters.AbstractCluster] = None,
-        greedy: typing.Optional[str] = None,
+        parser: typing.Optional[parser_.AbstractCommandParser] = ...,
     ) -> None:
         if trigger is None:
             trigger = _generate_trigger(func)
@@ -355,7 +356,7 @@ class Command(AbstractCommand):
         self.logger = logging.getLogger(type(self).__qualname__)
         self._checks = checks or []
         self._func = func
-        self.parser = self._create_parser(self._func, greedy=greedy)
+        self.parser = parser if parser is not ... else self._create_parser(self._func, greedy=greedy)
         if cluster:
             self.bind_cluster(cluster)
 
@@ -369,6 +370,8 @@ class Command(AbstractCommand):
         # This ensures that the cluster will always be passed-through as `self`.
         self._func = types.MethodType(self._func, cluster)
         self._cluster = cluster
+        if not self.parser:
+            return
         # Now that we know self will automatically be passed, we need to trim the parameters again.
         self.parser.trim_parameters(1)
         # Before the parser can be used, we need to resolve it's converters and check them against the bot's declared
@@ -379,6 +382,8 @@ class Command(AbstractCommand):
         # This ensures that the group will always be passed-through as `self`.
         self._func = types.MethodType(self._func, group)
         self._group = group
+        if not self.parser:
+            return
         # Now that we know self will automatically be passed, we need to trim the parameters again.
         self.parser.trim_parameters(1)
         # Before the parser can be used, we need to resolve it's converters and check them against the bot's declared
@@ -419,12 +424,12 @@ class Command(AbstractCommand):
                 args, kwargs = self.parser.parse(ctx)
             except errors.ConversionError as exc:
                 await self.hooks.trigger_on_conversion_error_hooks(ctx, exc, extra_hooks=hooks)
-                self.logger.debug("Command %s raised a Conversion Error: %s", self, exc)
+                self.logger.debug("Command %r raised a Conversion Error: %s", self.triggers[0], exc)
                 return True
         else:
             args, kwargs = more_collections.EMPTY_SEQUENCE, more_collections.EMPTY_DICT
         self.logger.debug(
-            "Argument parsing took %ss for %r command", time.perf_counter() - start_time, type(self).__name__
+            "Argument parsing took %ss for %r command", time.perf_counter() - start_time, self.triggers[0]
         )
 
         start_time = time.perf_counter()
@@ -434,7 +439,7 @@ class Command(AbstractCommand):
             func_start_time = time.perf_counter()
             await self._func(ctx, *args, **kwargs)
             self.logger.debug(
-                "Command took %ss to execute for %r command", time.perf_counter() - func_start_time, type(self).__name__
+                "Method took %ss to execute for %r command", time.perf_counter() - func_start_time, self.triggers[0]
             )
         except errors.CommandError as exc:
             with contextlib.suppress(hikari_errors.HTTPError):  # TODO: better permission handling?
@@ -448,9 +453,9 @@ class Command(AbstractCommand):
         finally:
             await self.hooks.trigger_post_execution_hooks(ctx, extra_hooks=hooks)
         self.logger.debug(
-            "Command and hooks took %ss to execute for %r command with %s hook objects",
+            "Method and hooks took %ss to execute for %r command with %s hook objects",
             time.perf_counter() - start_time,
-            type(self).__name__,
+            self.triggers[0],
             len(hooks),
         )
 
