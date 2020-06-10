@@ -39,7 +39,7 @@ def calculate_missing_flags(value: enum_.IntFlag, required: enum_.IntFlag) -> en
     return missing
 
 
-class AbstractConverter(abc.ABC):
+class AbstractConverter(abc.ABC):  # TODO: choices
     _converter_implementations: typing.MutableSequence[typing.Tuple[AbstractConverter, typing.Tuple[typing.Type, ...]]]
     inheritable: bool
     missing_intents_default: typing.Optional[AbstractConverter]

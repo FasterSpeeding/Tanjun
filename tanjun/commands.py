@@ -14,7 +14,7 @@ __all__ = [
 
 import abc
 import asyncio
-import contextlib
+import copy
 import enum
 import inspect
 import logging
@@ -71,6 +71,11 @@ class Context:
     @property
     def cluster(self) -> _clusters.AbstractCluster:
         return self.command.cluster
+
+    def copy(self) -> Context:
+        return Context(
+            **{key: copy.deepcopy(getattr(self, key)) for key in self.__slots__}
+        )
 
     def prune_content(self, length: int) -> None:
         self.content = self.content[length:]
@@ -395,7 +400,7 @@ class Command(AbstractCommand):
 
     def check_prefix(self, content: str) -> typing.Optional[str]:
         for trigger in self.triggers:
-            if content.startswith(trigger):
+            if content.startswith(trigger):  # More versatile prefix handling
                 return trigger
         return None
 
@@ -442,9 +447,11 @@ class Command(AbstractCommand):
                 "Method took %ss to execute for %r command", time.perf_counter() - func_start_time, self.triggers[0]
             )
         except errors.CommandError as exc:
-            with contextlib.suppress(hikari_errors.HTTPError):  # TODO: better permission handling?
-                response = str(exc)
-                await ctx.message.reply(content=response if len(response) <= 2000 else response[:1997] + "...")
+            if response := str(exc):
+                try:
+                    await ctx.message.reply(content=response if len(response) <= 2000 else response[:1997] + "...")
+                except hikari_errors.HTTPError:
+                    pass  # TODO: better permission handling?
         except Exception as exc:
             await self.hooks.trigger_error_hooks(ctx, exc, extra_hooks=hooks)
             raise exc

@@ -171,7 +171,7 @@ class AbstractCommandParser(abc.ABC):
 
 
 @attr.attrs(init=False, slots=True)
-class CommandParser(AbstractCommandParser):
+class CommandParser(AbstractCommandParser):  # TODO: choices
     _parameter_arguments: typing.Mapping[str]
     _parameter_options: typing.MutableMapping[str, AbstractParameter]  # TODO: consolidate the parse methods str to str?
     _shlex: shlex.shlex
@@ -240,10 +240,11 @@ class CommandParser(AbstractCommandParser):
             keyword_fields[output_key].append(value)
             key = None
 
-        if key is not None:
+        # This caches an ending key that matches with a param that's allowed to be empty.
+        if key is not None and param is not None:
             if output_key in keyword_fields:  # TODO: duplicated logic
                 raise errors.ConversionError(msg="Cannot pass a a valueless parameter multiple times.", parameter=param)
-            if param.empty_default is NO_DEFAULT:
+            if param is NO_DEFAULT:
                 raise errors.ConversionError(f"Parameter {output_key} cannot be empty.", parameter=param)
             keyword_fields[output_key] = [param.empty_default]
 
@@ -311,7 +312,6 @@ class CommandParser(AbstractCommandParser):
         arguments = []
         options = {}
         for param in parameters:
-            self._validate_parameter(param)
             if param.default is not NO_DEFAULT or param.flags.get("greedy"):
                 for name in param.names:
                     options[name] = param
@@ -340,6 +340,7 @@ class CommandParser(AbstractCommandParser):
                 converters = tuple(arg for arg in typing.get_args(value.annotation) if arg is not type(None))
             elif value.annotation not in (inspect.Parameter.empty, type(None)):
                 converters = (value.annotation,)
+
             default = NO_DEFAULT if value.default is inspect.Parameter.empty else value.default
             greedy = greedy_name == key
             parameters.append(
@@ -388,6 +389,7 @@ class CommandParser(AbstractCommandParser):
         found_greedy = False
 
         for value in self.parameters:
+            self._validate_parameter(value)  # TODO: should this be called by validate_signature?
             greedy = value.flags.get("greedy", False)
             if value.key not in signature.parameters:
                 raise ValueError(f"{value.key} parameter not found in {signature}")
