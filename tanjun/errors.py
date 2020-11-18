@@ -1,56 +1,51 @@
+# -*- coding: utf-8 -*-
+# cython: language_level=3
+# BSD 3-Clause License
+#
+# Copyright (c) 2020, Faster Speeding
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of the copyright holder nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__ = ["CommandClientError", "CommandError", "CommandPermissionError", "ConversionError", "FailedCheck"]
+__all__: typing.Sequence[str] = ["CommandError", "ConversionError", "TanjunError"]
 
 import typing
 
-import attr
-from hikari import errors as hikari_errors
 
-if typing.TYPE_CHECKING:
-    from hikari import permissions as _permission
-
-    from . import commands as commands_  # pylint: disable=cyclic-import
-    from . import parser as parser_  # pylint: disable=cyclic-import
+class TanjunError(Exception):
+    __slots__: typing.Sequence[str] = ()
 
 
-class CommandClientError(hikari_errors.HikariError):
-    """A base for all command client errors."""
+class CommandError(TanjunError):
+    __slots__: typing.Sequence[str] = ("message",)
+
+    def __init__(self, message: str, /) -> None:
+        self.message = message
 
 
-class CommandPermissionError(CommandClientError):  # TODO: better name and implement
-    __slots__ = ("missing_permissions",)
-
-    missing_permissions: _permission.Permission
-
-    def __init__(
-        self, required_permissions: _permission.Permission, actual_permissions: _permission.Permission
-    ) -> None:
-        pass
-        # self.missing_permissions =
-        # for permission in m
-
-
-@attr.attrs(init=True, slots=True)
-class CommandError(CommandClientError):
-
-    response: str = attr.attrib()
-    """The string response that the client should send in chat if it has send messages permission."""
-
-    def __str__(self) -> str:
-        return self.response
-
-
-@attr.attrs(init=True, repr=True, slots=True)
-class ConversionError(CommandClientError):
-    msg: str = attr.attrib()
-    parameter: typing.Optional[parser_.AbstractParameter] = attr.attrib(default=None)
-    origins: typing.Tuple[BaseException, ...] = attr.attrib(factory=list)
-
-    def __str__(self) -> str:
-        return self.msg
-
-
-@attr.attrs(init=True, slots=True)
-class FailedCheck(CommandClientError):
-    checks: typing.Tuple[typing.Tuple[commands_.CheckLikeT, typing.Optional[BaseException]], ...] = attr.attrib()
+class ConversionError(TanjunError, ValueError):
+    __slots__: typing.Sequence[str] = ()

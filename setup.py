@@ -8,7 +8,7 @@ MAIN_MODULE_NAME = "tanjun"
 
 def load_meta_data():
     pattern = re.compile(r"__(?P<key>\w+)__\s=\s\"(?P<value>.+)\"")
-    with open(os.path.join(MAIN_MODULE_NAME, "_about.py"), "r") as file:
+    with open(os.path.join(MAIN_MODULE_NAME, "about.py"), "r") as file:
         code = file.read()
 
     groups = dict(group.groups() for group in pattern.finditer(code))
@@ -32,7 +32,7 @@ setuptools.setup(
     author=metadata.author,
     author_email=metadata.email,
     license=metadata.license,
-    description="A Python lib for Privacy.com",
+    description="A flexible command client designed to extend Hikari",
     long_description=README,
     long_description_content_type="text/markdown",
     include_package_data=True,

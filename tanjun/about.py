@@ -29,51 +29,16 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-from __future__ import annotations
+"""Package metadata."""
 
-__all__: typing.Sequence[str] = [
-    # checks.py
-    "checks",
-    "IsApplicationOwner",
-    # clients.py
-    "clients",
-    "Client",
-    # command.py
-    "commands",
-    "Command",
-    # components.py
-    "components",
-    "command",
-    "Component",
-    "event",
-    # context.py
-    "context",
-    "Context",
-    # conversion.py
-    "conversion",
-    # errors.py
-    "errors",
-    "CommandError",
-    "ConversionError",
-    "TanjunError",
-    # hooks.py
-    "hooks",
-    "Hooks",
-    # parsing.py
-    "parsing",
-    # traits.py
-    "traits",
-]
-
-import typing
-
-from tanjun import traits
-from tanjun.checks import *
-from tanjun.clients import *
-from tanjun.commands import *
-from tanjun.components import *
-from tanjun.context import *
-from tanjun.conversion import *
-from tanjun.errors import *
-from tanjun.hooks import *
-from tanjun.parsing import *
+__author__ = "Faster Speeding"
+__ci__ = ""
+__copyright__ = "© 2020 Faster Speeding"
+__coverage__ = ""
+__docs__ = "https://fasterspeeding.github.io/Tanjun/"
+__email__ = "luke@lmbyrne.dev"
+__issue_tracker__ = "https://github.com/FasterSpeeding/Tanjun/issues"
+__license__ = "BSD"
+__url__ = "https://github.com/FasterSpeeding/Tanjun"
+__version__ = "1.0.1.a1"
+__git_sha1__ = "HEAD"

@@ -31,49 +31,67 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = [
-    # checks.py
-    "checks",
-    "IsApplicationOwner",
-    # clients.py
-    "clients",
-    "Client",
-    # command.py
-    "commands",
-    "Command",
-    # components.py
-    "components",
-    "command",
-    "Component",
-    "event",
-    # context.py
-    "context",
-    "Context",
-    # conversion.py
-    "conversion",
-    # errors.py
-    "errors",
-    "CommandError",
-    "ConversionError",
-    "TanjunError",
-    # hooks.py
-    "hooks",
-    "Hooks",
-    # parsing.py
-    "parsing",
-    # traits.py
-    "traits",
-]
+__all__: typing.Sequence[str] = ["Context"]
 
 import typing
 
 from tanjun import traits
-from tanjun.checks import *
-from tanjun.clients import *
-from tanjun.commands import *
-from tanjun.components import *
-from tanjun.context import *
-from tanjun.conversion import *
-from tanjun.errors import *
-from tanjun.hooks import *
-from tanjun.parsing import *
+
+if typing.TYPE_CHECKING:
+    from hikari import messages
+    from hikari import traits as hikari_traits
+
+
+class Context(traits.Context):
+    __slots__: typing.Sequence[str] = (
+        "_client",
+        "content",
+        "_message",
+        "_rest",
+        "triggering_name",
+        "triggering_prefix",
+        "_shard",
+    )
+
+    def __init__(
+        self,
+        client: traits.Client,
+        /,
+        content: str,
+        message: messages.Message,
+        *,
+        triggering_name: typing.Optional[str] = None,
+        triggering_prefix: typing.Optional[str] = None,
+    ) -> None:
+        if message.content is None:
+            raise ValueError("Cannot spawn context with a contentless message.")
+
+        self._client = client
+        self.content = content
+        self._message = message
+        self.triggering_name = triggering_name
+        self.triggering_prefix = triggering_prefix
+
+    @property
+    def client(self) -> traits.Client:
+        return self._client
+
+    @property
+    def cache(self) -> typing.Optional[hikari_traits.CacheAware]:
+        return self._client.cache
+
+    @property
+    def dispatcher(self) -> hikari_traits.DispatcherAware:
+        return self._client.dispatch
+
+    @property
+    def message(self) -> messages.Message:
+        return self._message
+
+    @property
+    def rest(self) -> hikari_traits.RESTAware:
+        return self._client.rest
+
+    # @property
+    # def shard(self) -> shard_.GatewayShard:
+    #     return self._shard

@@ -31,49 +31,22 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = [
-    # checks.py
-    "checks",
-    "IsApplicationOwner",
-    # clients.py
-    "clients",
-    "Client",
-    # command.py
-    "commands",
-    "Command",
-    # components.py
-    "components",
-    "command",
-    "Component",
-    "event",
-    # context.py
-    "context",
-    "Context",
-    # conversion.py
-    "conversion",
-    # errors.py
-    "errors",
-    "CommandError",
-    "ConversionError",
-    "TanjunError",
-    # hooks.py
-    "hooks",
-    "Hooks",
-    # parsing.py
-    "parsing",
-    # traits.py
-    "traits",
-]
+__all__: typing.Sequence[str] = []
 
 import typing
 
-from tanjun import traits
-from tanjun.checks import *
-from tanjun.clients import *
-from tanjun.commands import *
-from tanjun.components import *
-from tanjun.context import *
-from tanjun.conversion import *
-from tanjun.errors import *
-from tanjun.hooks import *
-from tanjun.parsing import *
+if typing.TYPE_CHECKING:
+    from hikari import intents as intents_
+
+    from tanjun import traits
+
+_ValueT = typing.TypeVar("_ValueT", covariant=True)
+
+
+@typing.runtime_checkable
+class AbstractConverter(typing.Protocol[_ValueT]):
+    async def convert(self, ctx: traits.Context, argument: str, /) -> _ValueT:
+        raise NotImplementedError
+
+    def check_intents(self, intents: intents_.Intents, /) -> bool:
+        raise NotImplementedError

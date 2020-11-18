@@ -1,613 +1,165 @@
+# -*- coding: utf-8 -*-
+# cython: language_level=3
+# BSD 3-Clause License
+#
+# Copyright (c) 2020, Faster Speeding
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of the copyright holder nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__ = [
-    "AbstractCommand",
-    "AbstractCommandGroup",
-    "Command",
-    "CommandGroup",
-    "Context",
-    "ExecutableCommand",
-    "HookLikeT",
-    "Hooks",
-    "TriggerTypes",
-]
+__all__: typing.Sequence[str] = ["Command"]
 
-import abc
-import asyncio
-import copy
-import enum
-import inspect
-import logging
-import time
 import types
 import typing
 
-import attr
 from hikari import errors as hikari_errors
-from hikari.internal import more_collections
+from yuyo import backoff
 
-from . import bases
-from . import parser as parser_
-from . import errors
+from tanjun import errors
+from tanjun import hooks as hooks_
+from tanjun import traits
+from tanjun import utilities
 
-# pylint: disable=ungrouped-imports
-if typing.TYPE_CHECKING:
-    from hikari import messages as messages_
-    from hikari.clients import components as components_
-    from hikari.clients import shards as shards_
-
-    from . import clusters as _clusters  # pylint: disable=cyclic-import
-
-    CheckLikeT = typing.Callable[["Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]]
-    CommandFunctionT = typing.Callable[[...], typing.Coroutine[typing.Any, typing.Any, None]]
-# pylint: enable=ungrouped-imports
+CommandFunctionT = typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, typing.Any]]
+CheckT = typing.Callable[[traits.Context], typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]]
 
 
-class TriggerTypes(enum.Enum):
-    PREFIX = enum.auto()
-    MENTION = enum.auto()  # TODO: trigger commands with a mention
+class FoundClass(traits.FoundCommand):
+    __slots__: typing.Sequence[str] = ("command", "name", "prefix")
+
+    def __init__(
+        self, command_: traits.ExecutableCommand, name: str, /, *, prefix: typing.Optional[str] = None
+    ) -> None:
+        self.command = command_
+        self.name = name
+        self.prefix = prefix
 
 
-@attr.attrs(init=True, kw_only=True, slots=True)
-class Context:
-    content: str = attr.attrib()
+class Command(traits.ExecutableCommand):
+    __slots__: typing.Sequence[str] = ("_checks", "_component", "_function", "hooks", "_meta", "_names")
 
-    components: components_.Components = attr.attrib()
-
-    message: messages_.Message = attr.attrib()
-    """The message that triggered this command."""
-
-    trigger: str = attr.attrib()
-    """The string prefix or mention that triggered this command."""
-
-    trigger_type: TriggerTypes = attr.attrib()
-    """The mention or prefix that triggered this event."""
-
-    triggering_name: str = attr.attrib(default=None)
-    """The command alias that triggered this command."""
-
-    command: AbstractCommand = attr.attrib(default=None)
-
-    @property
-    def cluster(self) -> _clusters.AbstractCluster:
-        return self.command.cluster
-
-    def copy(self) -> Context:
-        return Context(
-            **{key: copy.deepcopy(getattr(self, key)) for key in self.__slots__}
-        )
-
-    def prune_content(self, length: int) -> None:
-        self.content = self.content[length:]
-
-    def set_command_trigger(self, trigger: str) -> None:
-        self.triggering_name = trigger
-
-    def set_command(self, command: AbstractCommand) -> None:
-        self.command = command
-
-    @property
-    def shard(self) -> typing.Optional[shards_.ShardClient]:
-        return self.components.shards.get(self.shard_id, None)
-
-    @property
-    def shard_id(self) -> int:
-        return (self.message.guild_id >> 22) % self.components.shards[0].shard_count if self.message.guild_id else 0
-
-
-ConversionHookT = typing.Callable[  # TODO: are non-async hooks valid?
-    [Context, errors.ConversionError], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
-]
-ErrorHookT = typing.Callable[
-    [Context, BaseException], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
-]
-HookLikeT = typing.Callable[[Context], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]]
-PreExecutionHookT = typing.Callable[..., typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]]
-
-
-@attr.attrs(init=True, kw_only=True, slots=True)
-class Hooks:  # TODO: this
-    pre_execution: PreExecutionHookT = attr.attrib(default=None)
-    post_execution: HookLikeT = attr.attrib(default=None)
-    on_conversion_error: ConversionHookT = attr.attrib(default=None)
-    on_error: ErrorHookT = attr.attrib(default=None)
-    on_success: HookLikeT = attr.attrib(default=None)
-    on_ratelimit: HookLikeT = attr.attrib(default=None)  # TODO: implement?
-
-    def set_pre_execution(self, hook: PreExecutionHookT) -> PreExecutionHookT:
-        if self.pre_execution:
-            raise ValueError("Pre-execution hook already set.")  # TODO: value error?
-        self.pre_execution = hook
-        return hook
-
-    def set_post_execution(self, hook: HookLikeT) -> HookLikeT:  # TODO: better typing
-        if self.post_execution:
-            raise ValueError("Post-execution hook already set.")
-        self.post_execution = hook
-        return hook
-
-    def set_on_conversion_error(self, hook: ConversionHookT) -> ConversionHookT:
-        if self.on_conversion_error:
-            raise ValueError("On conversion error hook already set.")
-        self.on_conversion_error = hook
-        return hook
-
-    def set_on_error(self, hook: ErrorHookT) -> ErrorHookT:
-        if self.on_error:
-            raise ValueError("On error hook already set.")
-        self.on_error = hook
-        return hook
-
-    def set_on_success(self, hook: HookLikeT) -> HookLikeT:
-        if self.on_success:
-            raise ValueError("On success hook already set.")
-        self.on_success = hook
-        return hook
-
-    async def trigger_pre_execution_hooks(
-        self, ctx: Context, *args, extra_hooks: typing.Optional[typing.Sequence[Hooks]] = None, **kwargs,
-    ) -> bool:
-        result = True
-        if self.pre_execution:
-            result = self.pre_execution(ctx, *args, **kwargs)
-            if asyncio.iscoroutine(result):
-                result = await result
-
-        extra_hooks = extra_hooks or more_collections.EMPTY_SEQUENCE
-        external_results = await asyncio.gather(
-            *(hook.trigger_pre_execution_hooks(ctx, *args, **kwargs, extra_hooks=None) for hook in extra_hooks)
-        )
-        return result and all(external_results)
-
-    async def trigger_on_conversion_error_hooks(
+    def __init__(
         self,
-        ctx: Context,
-        exception: errors.ConversionError,
-        *,
-        extra_hooks: typing.Optional[typing.Sequence[Hooks]] = None,
+        function: CommandFunctionT,
+        name: str,
+        *names: str,
+        checks: typing.Optional[typing.Iterable[CheckT]] = None,
+        hooks: typing.Optional[traits.Hooks] = None,
     ) -> None:
-        if self.on_conversion_error:
-            result = self.on_conversion_error(ctx, exception)
-            if asyncio.iscoroutine(result):
-                asyncio.create_task(result)
+        self._checks = set(checks) if checks else set()
+        self._component: typing.Optional[traits.Component] = None
+        self.hooks: traits.Hooks = hooks or hooks_.Hooks()
+        self._function = function
+        self._meta: typing.MutableMapping[typing.Any, typing.Any] = {}
+        self._names = {name, *names}
 
-        for hook in extra_hooks or more_collections.EMPTY_SEQUENCE:
-            if hook.on_conversion_error:
-                asyncio.create_task(hook.trigger_on_conversion_error_hooks(ctx, exception))
-
-    async def trigger_error_hooks(
-        self, ctx: Context, exception: BaseException, *, extra_hooks: typing.Optional[typing.Sequence[Hooks]] = None,
-    ) -> None:
-        if self.on_error:
-            result = self.on_error(ctx, exception)
-            if asyncio.iscoroutine(result):
-                asyncio.create_task(result)
-
-        for hook in extra_hooks or more_collections.EMPTY_SEQUENCE:
-            if hook.on_error:
-                asyncio.create_task(hook.trigger_error_hooks(ctx, exception))
-
-    async def trigger_on_success_hooks(
-        self, ctx: Context, *, extra_hooks: typing.Optional[typing.Sequence[Hooks]] = None,
-    ) -> None:
-        if self.on_success:
-            result = self.on_success(ctx)
-            if asyncio.iscoroutine(result):
-                asyncio.create_task(result)
-
-        for hook in extra_hooks or more_collections.EMPTY_SEQUENCE:
-            asyncio.create_task(hook.trigger_on_success_hooks(ctx))
-
-    async def trigger_post_execution_hooks(
-        self, ctx: Context, *, extra_hooks: typing.Optional[typing.Sequence[Hooks]] = None,
-    ) -> None:
-        if self.post_execution:
-            result = self.post_execution(ctx)
-            if asyncio.iscoroutine(result):
-                asyncio.create_task(result)
-
-        for hook in extra_hooks or more_collections.EMPTY_SEQUENCE:
-            if hook.post_execution:
-                asyncio.create_task(hook.trigger_post_execution_hooks(ctx))
-
-
-@attr.attrs(init=True, kw_only=True, slots=False)
-class ExecutableCommand(bases.Executable, abc.ABC):
-    hooks: Hooks = attr.attrib(factory=Hooks)
-
-    triggers: typing.Tuple[str, ...] = attr.attrib()
-    """The triggers used to activate this command in chat along with a prefix."""
-
-    @abc.abstractmethod
-    def __call__(self, *args, **kwargs) -> typing.Coroutine[typing.Any, typing.Any, typing.Any]:
-        ...
-
-    @abc.abstractmethod
-    def bind_cluster(self, cluster: _clusters.AbstractCluster) -> None:
-        ...
-
-    @abc.abstractmethod
-    async def check(self, ctx: Context) -> bool:
-        """
-        Used to check if this entity should be executed based on a Context.
-
-        Args:
-            ctx:
-                The :class:`Context` object to check.
-
-        Returns:
-            The :class:`bool` of whether this executable is a match for the given context.
-        """
-
-    @abc.abstractmethod
-    def check_prefix(self, content: str) -> typing.Optional[str]:
-        ...
-
-    @abc.abstractmethod
-    def check_prefix_from_context(self, ctx: Context) -> typing.Optional[str]:
-        ...
-
-    @abc.abstractmethod
-    def deregister_check(self, check: CheckLikeT) -> None:
-        ...
-
-    @abc.abstractmethod
-    async def execute(
-        self, ctx: Context, *, hooks: typing.Optional[typing.Sequence[Hooks]] = None
-    ) -> typing.Literal[True]:
-        ...
-
-    @abc.abstractmethod
-    def register_check(self, check: CheckLikeT) -> None:
-        ...
-
-
-@attr.attrs(init=True, kw_only=True)
-class AbstractCommand(ExecutableCommand, abc.ABC):
-
-    meta: typing.MutableMapping[typing.Any, typing.Any] = attr.attrib(factory=dict)
-
-    level: int = attr.attrib()
-    """The user access level that'll be required to execute this command, defaults to 0."""
-
-    parser: typing.Optional[parser_.AbstractCommandParser]
-
-    @abc.abstractmethod
-    def bind_group(self, group: AbstractCommandGroup) -> None:
-        ...
+    async def __call__(self, ctx: traits.Context, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
+        return await self._function(ctx, *args, **kwargs)
 
     @property
-    @abc.abstractmethod
-    def cluster(self) -> typing.Optional[_clusters.AbstractCluster]:
-        ...
+    def component(self) -> typing.Optional[traits.Component]:
+        return self._component
 
     @property
-    @abc.abstractmethod
-    def docstring(self) -> str:
-        ...
+    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+        return self._meta
 
     @property
-    @abc.abstractmethod
-    def name(self) -> str:
-        ...
+    def names(self) -> typing.AbstractSet[str]:
+        return frozenset(self._names)
 
-    @abc.abstractmethod  # TODO: differentiate between command and command group.
-    def _create_parser(
-        self, func: typing.Callable[[...], typing.Coroutine[typing.Any, typing.Any, typing.Any]], **kwargs: typing.Any
-    ) -> typing.Optional[parser_.AbstractCommandParser]:
-        ...
+    def add_check(self, check: CheckT, /) -> CheckT:
+        self._checks.add(check)
+        return check
 
+    def remove_check(self, check: CheckT, /) -> None:
+        self._checks.remove(check)
 
-# TODO: be more consistent with "func", "function", etc etc  # TODO: does this have to be separate?
-def _generate_trigger(function: typing.Optional[CommandFunctionT] = None) -> str:
-    """Get a trigger for this command based on it's function's name."""
-    return function.__name__.replace("_", " ")
+    async def check_context(self, ctx: traits.Context, /) -> typing.AsyncIterator[traits.FoundCommand]:
+        found = next(self.check_name(ctx.content), None)
+        if found is not None and await utilities.gather_checks(
+            utilities.await_if_async(check(ctx)) for check in self._checks
+        ):
+            yield found
 
+    def add_name(self, name: str, /) -> None:
+        self._names.add(name)
 
-async def _run_checks(ctx: Context, checks: typing.Sequence[CheckLikeT]) -> None:
-    failed: typing.MutableSequence[typing.Tuple[CheckLikeT, typing.Optional[Exception]]] = []
-    for check in checks:
-        try:
-            result = check(ctx)
-            if asyncio.iscoroutine(result):
-                result = await result
-        except Exception as exc:
-            failed.append((check, exc))
-        else:
-            if not result:
-                failed.append((check, None))
-
-    if failed:
-        raise errors.FailedCheck(tuple(failed))
-
-
-@attr.attrs(init=False, kw_only=True, slots=True, repr=False)
-class Command(AbstractCommand):
-    _checks: typing.MutableSequence[CheckLikeT]
-
-    _func: CommandFunctionT = attr.attrib()
-
-    logger: logging.Logger
-
-    _cluster: typing.Optional[_clusters.AbstractCluster] = attr.attrib(default=None)
-
-    _group: typing.Optional[AbstractCommandGroup]
-
-    def __init__(  # TODO: **kwargs?
-        self,
-        func: typing.Optional[CommandFunctionT],
-        trigger: typing.Optional[str] = None,
-        /,
-        *,
-        aliases: typing.Optional[typing.Sequence[str]] = None,
-        checks: typing.Optional[typing.Sequence[CheckLikeT]] = None,
-        cluster: typing.Optional[_clusters.AbstractCluster] = None,
-        greedy: typing.Optional[str] = None,
-        hooks: typing.Optional[Hooks] = None,
-        level: int = 0,
-        meta: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
-        parser: typing.Optional[parser_.AbstractCommandParser] = ...,
-    ) -> None:
-        if trigger is None:
-            trigger = _generate_trigger(func)
-        super().__init__(
-            hooks=hooks or Hooks(),
-            level=level,
-            meta=meta or {},
-            triggers=tuple(
-                trig for trig in (trigger, *(aliases or more_collections.EMPTY_COLLECTION)) if trig is not None
-            ),
-        )
-        self.logger = logging.getLogger(type(self).__qualname__)
-        self._checks = checks or []
-        self._func = func
-        self.parser = parser if parser is not ... else self._create_parser(self._func, greedy=greedy)
-        if cluster:
-            self.bind_cluster(cluster)
-
-    def __call__(self, *args, **kwargs) -> typing.Coroutine[typing.Any, typing.Any, typing.Any]:
-        return self._func(*args, **kwargs)
-
-    def __repr__(self) -> str:
-        return f"Command({'|'.join(self.triggers)})"
-
-    def bind_cluster(self, cluster: _clusters.AbstractCluster) -> None:
-        # This ensures that the cluster will always be passed-through as `self`.
-        self._func = types.MethodType(self._func, cluster)
-        self._cluster = cluster
-        if not self.parser:
-            return
-        # Now that we know self will automatically be passed, we need to trim the parameters again.
-        self.parser.trim_parameters(1)
-        # Before the parser can be used, we need to resolve it's converters and check them against the bot's declared
-        # gateway intents.
-        self.parser.components_hook(cluster.components)
-
-    def bind_group(self, group: AbstractCommandGroup) -> None:
-        # This ensures that the group will always be passed-through as `self`.
-        self._func = types.MethodType(self._func, group)
-        self._group = group
-        if not self.parser:
-            return
-        # Now that we know self will automatically be passed, we need to trim the parameters again.
-        self.parser.trim_parameters(1)
-        # Before the parser can be used, we need to resolve it's converters and check them against the bot's declared
-        # gateway intents.
-        self.parser.components_hook(group.components)
-
-    async def check(self, ctx: Context) -> None:
-        return await _run_checks(ctx, self._checks)
-
-    def check_prefix(self, content: str) -> typing.Optional[str]:
-        for trigger in self.triggers:
-            if content.startswith(trigger):  # More versatile prefix handling
-                return trigger
-        return None
-
-    def check_prefix_from_context(self, ctx: Context) -> typing.Optional[str]:
-        return self.check_prefix(ctx.content)
-
-    @property
-    def cluster(self) -> typing.Optional[_clusters.AbstractCluster]:
-        return self._cluster
-
-    def deregister_check(self, check: CheckLikeT) -> None:
-        try:
-            self._checks.remove(check)
-        except ValueError:
-            raise ValueError("Command Check not found.")
-
-    @property
-    def docstring(self) -> str:
-        return inspect.getdoc(self._func)
-
-    async def execute(self, ctx: Context, *, hooks: typing.Optional[typing.Sequence[Hooks]] = None) -> bool:
-        ctx.set_command(self)
-        start_time = time.perf_counter()
-        if self.parser:
-            try:
-                args, kwargs = self.parser.parse(ctx)
-            except errors.ConversionError as exc:
-                await self.hooks.trigger_on_conversion_error_hooks(ctx, exc, extra_hooks=hooks)
-                self.logger.debug("Command %r raised a Conversion Error: %s", self.triggers[0], exc)
-                return True
-        else:
-            args, kwargs = more_collections.EMPTY_SEQUENCE, more_collections.EMPTY_DICT
-        self.logger.debug(
-            "Argument parsing took %ss for %r command", time.perf_counter() - start_time, self.triggers[0]
-        )
-
-        start_time = time.perf_counter()
-        try:
-            if await self.hooks.trigger_pre_execution_hooks(ctx, *args, **kwargs, extra_hooks=hooks) is False:
-                return True
-            func_start_time = time.perf_counter()
-            await self._func(ctx, *args, **kwargs)
-            self.logger.debug(
-                "Method took %ss to execute for %r command", time.perf_counter() - func_start_time, self.triggers[0]
-            )
-        except errors.CommandError as exc:
-            if response := str(exc):
-                try:
-                    await ctx.message.reply(content=response if len(response) <= 2000 else response[:1997] + "...")
-                except hikari_errors.HTTPError:
-                    pass  # TODO: better permission handling?
-        except Exception as exc:
-            await self.hooks.trigger_error_hooks(ctx, exc, extra_hooks=hooks)
-            raise exc
-        else:
-            await self.hooks.trigger_on_success_hooks(ctx, extra_hooks=hooks)
-        finally:
-            await self.hooks.trigger_post_execution_hooks(ctx, extra_hooks=hooks)
-        self.logger.debug(
-            "Method and hooks took %ss to execute for %r command with %s hook objects",
-            time.perf_counter() - start_time,
-            self.triggers[0],
-            len(hooks),
-        )
-
-        return True  # TODO: necessary?
-
-    @property
-    def name(self) -> str:
-        """Get the name of this command."""
-        return self._func.__name__
-
-    def register_check(self, check: CheckLikeT) -> None:
-        self._checks.append(check)
-
-    def _create_parser(
-        self, func: typing.Callable[[...], typing.Coroutine[typing.Any, typing.Any, typing.Any]], **kwargs: typing.Any
-    ) -> parser_.AbstractCommandParser:
-        return parser_.CommandParser(func=func, **kwargs)
-
-
-@attr.attrs(init=True, kw_only=True, slots=False, repr=False)
-class AbstractCommandGroup(
-    ExecutableCommand, abc.ABC
-):  # TODO: use this for typing along sideor just executable command
-    commands: typing.MutableSequence[AbstractCommand] = attr.attrib(factory=list)
-
-    components: typing.Optional[components_.Components] = attr.attrib(default=None)
-
-    master_command: typing.Optional[AbstractCommand] = attr.attrib(default=None)
-
-    @abc.abstractmethod
-    def register_command(self, command: AbstractCommand, *, hook: bool = True) -> AbstractCommand:
-        ...
-
-    @abc.abstractmethod
-    def set_master_command(self, command: AbstractCommand) -> AbstractCommand:
-        ...
-
-    @property
-    @abc.abstractmethod
-    def cluster(self) -> typing.Optional[_clusters.AbstractCluster]:
-        ...
-
-
-class CommandGroup(AbstractCommandGroup):
-    _cluster: typing.Optional[_clusters.AbstractCluster] = attr.attrib(default=None)
-
-    _checks: typing.MutableSequence[CheckLikeT]
-
-    logger: logging.Logger
-
-    def __init__(  # TODO: **kwargs?
-        self,
-        name: typing.Optional[str],
-        *,
-        # ? aliases: typing.Optional[typing.Sequence[str]] = None,
-        checks: typing.Optional[typing.Sequence[CheckLikeT]] = None,
-        commands: typing.Sequence[Command] = None,
-        hooks: typing.Optional[Hooks] = None,
-        level: int = 0,
-        master_command: typing.Optional[AbstractCommand] = None,
-        meta: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
-        cluster: typing.Optional[_clusters.AbstractCluster] = None,
-    ) -> None:
-        super().__init__(
-            commands=commands or [],
-            triggers=(name,),
-            meta=meta or {},
-            hooks=hooks or Hooks(),
-            level=level,
-            master_command=master_command,
-        )
-        self._checks = checks or []
-        self._cluster = cluster
-        self.logger = logging.getLogger(type(self).__qualname__)
-        self.master_command = master_command
-
-    def __call__(self, *args, **kwargs) -> typing.Coroutine[typing.Any, typing.Any, typing.Any]:
-        if self.master_command:
-            return self.master_command(*args, **kwargs)
-        raise TypeError("Command group without top-level command is not callable.")
-
-    def bind_cluster(self, cluster: _clusters.AbstractCluster) -> None:  # TODO: should this work like this?
-        self._cluster = cluster
-        self.components = cluster.components
-        if self.master_command:
-            self.master_command.bind_group(self)
-        for command in self.commands:
-            command.bind_group(self)
-
-    async def check(self, ctx: Context) -> None:
-        return await _run_checks(ctx, self._checks)
-
-    def check_prefix(self, content: str) -> typing.Optional[str]:
-        if content.startswith(self.name):
-            return self.name
-        return None
-
-    def check_prefix_from_context(self, ctx: Context) -> typing.Optional[str]:
-        return self.check_prefix(ctx.content)
-
-    @property
-    def cluster(self) -> typing.Optional[_clusters.AbstractCluster]:
-        return self._cluster
-
-    def deregister_check(self, check: CheckLikeT) -> None:
-        try:
-            self._checks.remove(check)
-        except ValueError:
-            raise ValueError("Command Check not found.")
-
-    @property
-    def docstring(self) -> str:
-        return inspect.getdoc(self)
-
-    async def execute(
-        self, ctx: Context, *, hooks: typing.Optional[typing.Sequence[Hooks]] = None
-    ) -> typing.Literal[True]:
-        hooks = hooks or []
-        hooks.append(self.hooks)
-        for command in self.commands:
-            if await command.check(ctx):
-                await command.execute(ctx, hooks=hooks)
+    def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
+        for own_name in self.names:
+            if name.startswith(own_name):
+                yield FoundClass(self, own_name)
                 break
+
+    def remove_name(self, name: str, /) -> None:
+        self._names.remove(name)
+
+    def bind_component(self, component: traits.Component, /) -> None:
+        self._component = component
+        self._function = types.MethodType(self._function, component)
+
+    async def execute(
+        self, ctx: traits.Context, /, *, hooks: typing.Optional[typing.MutableSet[traits.Hooks]] = None
+    ) -> bool:
+        # TODO: parser
+        try:
+            if await self.hooks.trigger_pre_execution(ctx, args=[], kwargs={}, hooks=hooks) is False:
+                return True
+
+            await self._function(ctx)
+
+        except errors.CommandError as exc:
+            response = exc.message if len(exc.message) <= 2000 else exc.message[:1997] + "..."
+            retry = backoff.Backoff()
+            # TODO: preemptive cache based permission checks before throwing to the REST gods.
+            async for _ in retry:
+                try:
+                    await ctx.message.reply(content=response)
+
+                except hikari_errors.RateLimitedError as retry_error:
+                    retry.set_next_backoff(retry_error.retry_after)
+
+                except hikari_errors.InternalServerError:
+                    continue
+
+                except (hikari_errors.ForbiddenError, hikari_errors.NotFoundError):
+                    break
+
+                else:
+                    break
+
+        except Exception as exc:
+            await self.hooks.trigger_error(ctx, exc, hooks=hooks)
+            raise
+
         else:
-            if self.master_command and await self.master_command.check(ctx):
-                await self.master_command.execute(ctx, hooks=hooks)
+            await self.hooks.trigger_success(ctx, hooks=hooks)
+
+        finally:
+            await self.hooks.trigger_post_execution(ctx, hooks=hooks)
+
         return True
-
-    @property
-    def name(self) -> str:
-        return self.triggers[0]
-
-    def register_check(self, check: CheckLikeT) -> None:
-        self._checks.append(check)
-
-    def register_command(self, command: AbstractCommand, *, bind: bool = True) -> AbstractCommand:
-        for trigger in command.triggers:
-            for reg_command in self.commands:
-                if any(trigger == reg_trigger for reg_trigger in reg_command.triggers):
-                    raise ValueError(f"Command trigger {trigger} already registered in {reg_command}")
-        if bind:
-            command.bind_cluster(self._cluster)  # TODO: bind group instead, treat group as cluster?
-        self.commands.append(command)
-        return command
-
-    def set_master_command(self, command: AbstractCommand) -> AbstractCommand:
-        self.master_command = command
-        return command

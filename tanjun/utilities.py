@@ -31,49 +31,45 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = [
-    # checks.py
-    "checks",
-    "IsApplicationOwner",
-    # clients.py
-    "clients",
-    "Client",
-    # command.py
-    "commands",
-    "Command",
-    # components.py
-    "components",
-    "command",
-    "Component",
-    "event",
-    # context.py
-    "context",
-    "Context",
-    # conversion.py
-    "conversion",
-    # errors.py
-    "errors",
-    "CommandError",
-    "ConversionError",
-    "TanjunError",
-    # hooks.py
-    "hooks",
-    "Hooks",
-    # parsing.py
-    "parsing",
-    # traits.py
-    "traits",
-]
+__all__: typing.Sequence[str] = ["async_chain", "await_if_async", "gather_checks"]
 
+import asyncio
 import typing
 
-from tanjun import traits
-from tanjun.checks import *
-from tanjun.clients import *
-from tanjun.commands import *
-from tanjun.components import *
-from tanjun.context import *
-from tanjun.conversion import *
-from tanjun.errors import *
-from tanjun.hooks import *
-from tanjun.parsing import *
+_ValueT = typing.TypeVar("_ValueT")
+
+
+async def async_chain(iterable: typing.Iterable[typing.AsyncIterable[_ValueT]]) -> typing.AsyncIterator[_ValueT]:
+    for async_iterable in iterable:
+        async for value in async_iterable:
+            yield value
+
+
+async def await_if_async(value: typing.Union[_ValueT, typing.Awaitable[_ValueT]]) -> _ValueT:
+    if isinstance(value, typing.Awaitable):
+        # For some reason MYPY thinks this returns typing.Any
+        return typing.cast(_ValueT, await value)
+
+    return value
+
+
+class _FailedCheck(RuntimeError):
+    ...
+
+
+async def _wrap_check(check: typing.Awaitable[bool]) -> bool:
+    if not await check:
+        raise _FailedCheck
+
+    return True
+
+
+async def gather_checks(checks: typing.Iterable[typing.Awaitable[bool]]) -> bool:
+    try:
+        results = await asyncio.gather(*map(_wrap_check, checks))
+        # min can't take an empty sequence so we need to have a special case for if no-checks
+        # are passed.
+        return bool(min(results)) if results else True
+
+    except _FailedCheck:
+        return False

@@ -1,4 +1,2 @@
-attrs~=19.3.0
-click~=7.1.2
-hikari==1.0.1.dev146
-pyyaml==5.3
+hikari~=2.0.0.dev93
+hikari-yuyo~=0.0.2
