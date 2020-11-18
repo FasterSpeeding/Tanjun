@@ -70,14 +70,14 @@ class Hooks(traits.Hooks):
         self._error = hook
         return hook
 
+    def post_execution(self, hook: typing.Optional[traits.HookT], /) -> typing.Optional[traits.HookT]:
+        self._post_execution = hook
+        return hook
+
     def pre_execution(
         self, hook: typing.Optional[traits.PreExecutionHookT], /
     ) -> typing.Optional[traits.PreExecutionHookT]:
         self._pre_execution = hook
-        return hook
-
-    def post_execution(self, hook: typing.Optional[traits.HookT], /) -> typing.Optional[traits.HookT]:
-        self._post_execution = hook
         return hook
 
     def on_success(self, hook: typing.Optional[traits.HookT], /) -> typing.Optional[traits.HookT]:

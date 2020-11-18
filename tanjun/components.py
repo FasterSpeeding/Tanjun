@@ -53,21 +53,21 @@ def command(
     *names: str,
     checks: typing.Optional[typing.Iterable[commands.CheckT]] = None,
     hooks: typing.Optional[traits.Hooks] = None,
-) -> typing.Callable[..., commands.Command]:
-    def initiate(function: commands.CommandFunctionT) -> commands.Command:
+) -> typing.Callable[[commands.CommandFunctionT], commands.Command]:
+    def decorator(function: commands.CommandFunctionT, /) -> commands.Command:
         return commands.Command(function, name, *names, checks=checks, hooks=hooks)
 
-    return initiate
+    return decorator
 
 
 def event(
     cls: typing.Type[base_events.Event], /
-) -> typing.Callable[["event_dispatcher.CallbackT[typing.Any]"], "event_dispatcher.CallbackT[typing.Any]"]:
-    def wrapper(function: event_dispatcher.CallbackT[typing.Any]) -> event_dispatcher.CallbackT[typing.Any]:
+) -> typing.Callable[[event_dispatcher.CallbackT[typing.Any]], event_dispatcher.CallbackT[typing.Any]]:
+    def decorator(function: event_dispatcher.CallbackT[typing.Any], /) -> event_dispatcher.CallbackT[typing.Any]:
         setattr(function, "__event__", cls)
         return function
 
-    return wrapper
+    return decorator
 
 
 class Component(traits.Component):
@@ -187,8 +187,9 @@ class Component(traits.Component):
             ctx.triggering_name = command_.name
             ctx.triggering_prefix = command_.prefix
             ctx.content = ctx.content[len(command_.name) :].strip()
+            # Only add our hooks and set command if we're sure we'll be executing the command here.
+            ctx.command = command_
 
-            # Only add our hooks in if we're sure we'll be executing the command here.
             if self.hooks and hooks:
                 hooks.add(self.hooks)
 

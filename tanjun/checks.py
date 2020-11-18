@@ -111,8 +111,10 @@ class IsApplicationOwner:
     def close(self) -> None:
         if self._fetch_task is not None:
             self._fetch_task.cancel()
+            self._fetch_task = None
 
     async def open(self, client: traits.Client, /) -> None:
+        self.close()
         self._client = client
         self._fetch_task = asyncio.create_task(self._fetch_loop())
 

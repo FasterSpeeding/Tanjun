@@ -45,6 +45,7 @@ if typing.TYPE_CHECKING:
 class Context(traits.Context):
     __slots__: typing.Sequence[str] = (
         "_client",
+        "command",
         "content",
         "_message",
         "_rest",
@@ -60,6 +61,7 @@ class Context(traits.Context):
         content: str,
         message: messages.Message,
         *,
+        command: typing.Optional[traits.ExecutableCommand] = None,
         triggering_name: typing.Optional[str] = None,
         triggering_prefix: typing.Optional[str] = None,
     ) -> None:
@@ -67,6 +69,7 @@ class Context(traits.Context):
             raise ValueError("Cannot spawn context with a contentless message.")
 
         self._client = client
+        self.command = command
         self.content = content
         self._message = message
         self.triggering_name = triggering_name

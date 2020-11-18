@@ -54,6 +54,7 @@ ErrorHookT = typing.Callable[
 HookT = typing.Callable[["Context"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]]
 PreExecutionHookT = typing.Callable[..., typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]]
 CheckT = typing.Callable[["Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]]
+ValueT = typing.TypeVar("ValueT", covariant=True)
 
 
 @typing.runtime_checkable
@@ -62,6 +63,14 @@ class Context(typing.Protocol):
 
     @property
     def client(self) -> Client:
+        raise NotImplementedError
+
+    @property
+    def command(self) -> ExecutableCommand:
+        raise NotImplementedError
+
+    @command.setter
+    def command(self, command: ExecutableCommand, /) -> None:
         raise NotImplementedError
 
     @property
@@ -98,22 +107,19 @@ class Context(typing.Protocol):
 
 
 @typing.runtime_checkable
-class Hooks(typing.Protocol):
+class Converter(typing.Protocol[ValueT]):
     __slots__: typing.Sequence[str] = ()
 
-    def pre_execution(self, hook: typing.Optional[PreExecutionHookT], /) -> typing.Optional[PreExecutionHookT]:
+    async def convert(self, ctx: Context, argument: str, /) -> ValueT:
         raise NotImplementedError
 
-    async def trigger_pre_execution(
-        self,
-        ctx: Context,
-        /,
-        *,
-        args: typing.Sequence[str],
-        kwargs: typing.Mapping[str, typing.Any],
-        hooks: typing.Optional[typing.AbstractSet[Hooks]] = None,
-    ) -> bool:
+    def bind_component(cls, client: Client, component: Component, /) -> None:
         raise NotImplementedError
+
+
+@typing.runtime_checkable
+class Hooks(typing.Protocol):
+    __slots__: typing.Sequence[str] = ()
 
     def on_conversion_error(self, hook: typing.Optional[ConversionHookT], /) -> typing.Optional[ConversionHookT]:
         raise NotImplementedError
@@ -122,6 +128,9 @@ class Hooks(typing.Protocol):
         raise NotImplementedError
 
     def post_execution(self, hook: typing.Optional[HookT], /) -> typing.Optional[HookT]:
+        raise NotImplementedError
+
+    def pre_execution(self, hook: typing.Optional[PreExecutionHookT], /) -> typing.Optional[PreExecutionHookT]:
         raise NotImplementedError
 
     def on_success(self, hook: typing.Optional[HookT], /) -> typing.Optional[HookT]:
@@ -144,6 +153,17 @@ class Hooks(typing.Protocol):
     async def trigger_post_execution(
         self, ctx: Context, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None
     ) -> None:
+        raise NotImplementedError
+
+    async def trigger_pre_execution(
+        self,
+        ctx: Context,
+        /,
+        *,
+        args: typing.Sequence[str],
+        kwargs: typing.Mapping[str, typing.Any],
+        hooks: typing.Optional[typing.AbstractSet[Hooks]] = None,
+    ) -> bool:
         raise NotImplementedError
 
     async def trigger_success(
