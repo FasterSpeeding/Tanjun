@@ -43,7 +43,6 @@ if typing.TYPE_CHECKING:
     from hikari import applications
     from hikari import traits as hikari_traits
 
-    from tanjun import context
     from tanjun import traits
 
 
@@ -56,7 +55,7 @@ class IsApplicationOwner:
         self._fetch_task: typing.Optional[asyncio.Task[None]] = None
         self._lock = asyncio.Lock()
 
-    async def __call__(self, ctx: context.Context, /) -> bool:
+    async def __call__(self, ctx: traits.Context, /) -> bool:
         if ctx.client is not None:
             self._client = ctx.client
 
@@ -86,7 +85,7 @@ class IsApplicationOwner:
                 except errors.ForbiddenError:
                     pass
 
-    async def _get_application(self, ctx: context.Context, /) -> applications.Application:
+    async def _get_application(self, ctx: traits.Context, /) -> applications.Application:
         if self._application is None:
             async with self._lock:
                 # MYPY doesn't understand that a variable's scope might change during a yield.
@@ -100,7 +99,7 @@ class IsApplicationOwner:
 
         return self._application
 
-    async def check(self, ctx: context.Context, /) -> bool:
+    async def check(self, ctx: traits.Context, /) -> bool:
         application = await self._get_application(ctx)
 
         if not application.team and application.owner:

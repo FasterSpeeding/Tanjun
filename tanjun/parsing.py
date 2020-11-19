@@ -34,3 +34,5 @@ from __future__ import annotations
 __all__: typing.Sequence[str] = []
 
 import typing
+
+from tanjun import traits

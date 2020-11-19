@@ -38,8 +38,8 @@ import typing
 if typing.TYPE_CHECKING:
     from hikari import messages
     from hikari import traits
+    from hikari import undefined
     from hikari.api import event_dispatcher
-    from hikari.api import shard
     from hikari.events import base_events
 
     from tanjun import errors
@@ -66,7 +66,7 @@ class Context(typing.Protocol):
         raise NotImplementedError
 
     @property
-    def command(self) -> ExecutableCommand:
+    def command(self) -> typing.Optional[ExecutableCommand]:
         raise NotImplementedError
 
     @command.setter
@@ -277,16 +277,16 @@ class Component(Executable, typing.Protocol):
         raise NotImplementedError
 
     def add_listener(
-        self, event: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any]
+        self, event: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
     ) -> None:
         raise NotImplementedError
 
     def remove_listener(
-        self, event: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any]
+        self, event: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
     ) -> None:
         raise NotImplementedError
 
-    def bind_client(self, client: Client) -> None:
+    def bind_client(self, client: Client, /) -> None:
         raise NotImplementedError
 
     async def close(self) -> None:
@@ -350,4 +350,49 @@ class Client(typing.Protocol):
         raise NotImplementedError
 
     async def open(self) -> None:
+        raise NotImplementedError
+
+
+class Parameter(typing.Protocol):
+    @property
+    def default(self) -> typing.Any:
+        raise NotImplementedError
+
+    @property
+    def empty_value(self) -> undefined.UndefinedOr[typing.Any]:
+        raise NotImplementedError
+
+    @property
+    def flags(self) -> typing.MutableMapping[str, typing.Any]:
+        raise NotImplementedError
+
+    @property
+    def names(self) -> typing.Sequence[str]:
+        raise NotImplementedError
+
+    @names.setter
+    def names(self, names: typing.Sequence[str], /) -> None:
+        raise NotImplementedError
+
+    def bind_component(self, component: Component, /) -> None:
+        raise NotImplementedError
+
+    async def convert(self, ctx: Context, value: str) -> typing.Any:
+        raise NotImplementedError
+
+
+class Parser(typing.Protocol):
+    @property
+    def parameters(self) -> typing.Sequence[Parameter]:
+        raise NotImplementedError
+
+    def bind_component(self, component: Component, /) -> None:
+        raise NotImplementedError
+
+    async def parse(
+        self, ctx: Context, /
+    ) -> typing.Tuple[typing.Sequence[typing.Any], typing.Mapping[str, typing.Any]]:
+        raise NotImplementedError
+
+    async def set_parameters(self, parameters: typing.Sequence[Parameter]) -> None:
         raise NotImplementedError

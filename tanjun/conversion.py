@@ -303,6 +303,18 @@ class MemberConverter(BaseConverter[guilds.Member]):
 
         raise ValueError("Couldn't find member in this guild")
 
+    @classmethod
+    def intents(cls) -> intents_.Intents:
+        return intents_.Intents.GUILD_MEMBERS
+
+    @classmethod
+    def is_inheritable(cls) -> bool:
+        return False
+
+    @classmethod
+    def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
+        return (guilds.Member,)
+
 
 for cls in vars().copy().values():
     if inspect.isclass(cls) and issubclass(cls, BaseConverter):

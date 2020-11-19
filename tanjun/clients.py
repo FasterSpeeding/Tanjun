@@ -101,9 +101,9 @@ class Client(traits.Client):
 
     async def __aexit__(
         self,
-        exception_type: typing.Type[BaseException],
-        exception: BaseException,
-        exception_traceback: types.TracebackType,
+        exception_type: typing.Optional[typing.Type[BaseException]],
+        exception: typing.Optional[BaseException],
+        exception_traceback: typing.Optional[types.TracebackType],
     ) -> None:
         await self.close()
 

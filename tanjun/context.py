@@ -76,12 +76,12 @@ class Context(traits.Context):
         self.triggering_prefix = triggering_prefix
 
     @property
-    def client(self) -> traits.Client:
-        return self._client
-
-    @property
     def cache(self) -> typing.Optional[hikari_traits.CacheAware]:
         return self._client.cache
+
+    @property
+    def client(self) -> traits.Client:
+        return self._client
 
     @property
     def dispatcher(self) -> hikari_traits.DispatcherAware:

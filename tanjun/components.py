@@ -86,7 +86,7 @@ class Component(traits.Component):
         self._listeners: typing.MutableSet[
             typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]
         ] = set()
-        self.started: bool = False
+        self.started = False
 
         for name, member in inspect.getmembers(self):
             if isinstance(member, traits.ExecutableCommand):
@@ -122,7 +122,7 @@ class Component(traits.Component):
         self._commands.remove(command_)
 
     def add_listener(
-        self, event_: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any]
+        self, event_: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
     ) -> None:
         self._listeners.add((event_, listener))
 
@@ -130,14 +130,14 @@ class Component(traits.Component):
             self._client.dispatch.dispatcher.subscribe(event_, listener)
 
     def remove_listener(
-        self, event_: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any]
+        self, event_: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
     ) -> None:
         self._listeners.remove((event_, listener))
 
         if self.started and self._client:
             self._client.dispatch.dispatcher.unsubscribe(event_, listener)
 
-    def bind_client(self, client: traits.Client) -> None:
+    def bind_client(self, client: traits.Client, /) -> None:
         self._client = client
         for event_, listener in self._listeners:
             self._client.dispatch.dispatcher.subscribe(event_, listener)
@@ -153,11 +153,10 @@ class Component(traits.Component):
         if not self.started:
             return
 
+        self.started = False
         if self._client:
             for event_, listener in self._listeners:
                 self._client.dispatch.dispatcher.unsubscribe(event_, listener)
-
-        self.started = False
 
     async def open(self) -> None:
         if self.started:
@@ -170,7 +169,7 @@ class Component(traits.Component):
             for event_, listener in self._listeners:
                 try:
                     self._client.dispatch.dispatcher.unsubscribe(event_, listener)
-                except (KeyError, ValueError, LookupError):
+                except (KeyError, ValueError, LookupError):  # TODO: what does hikari raise?
                     continue
 
                 self._client.dispatch.dispatcher.subscribe(event_, listener)
@@ -188,7 +187,7 @@ class Component(traits.Component):
             ctx.triggering_prefix = command_.prefix
             ctx.content = ctx.content[len(command_.name) :].strip()
             # Only add our hooks and set command if we're sure we'll be executing the command here.
-            ctx.command = command_
+            ctx.command = command_.command
 
             if self.hooks and hooks:
                 hooks.add(self.hooks)

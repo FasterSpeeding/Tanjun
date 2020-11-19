@@ -134,14 +134,14 @@ class Command(traits.ExecutableCommand):
 
         except errors.CommandError as exc:
             response = exc.message if len(exc.message) <= 2000 else exc.message[:1997] + "..."
-            retry = backoff.Backoff()
+            retry = backoff.Backoff()  # TODO: max_retries
             # TODO: preemptive cache based permission checks before throwing to the REST gods.
             async for _ in retry:
                 try:
                     await ctx.message.reply(content=response)
 
                 except hikari_errors.RateLimitedError as retry_error:
-                    retry.set_next_backoff(retry_error.retry_after)
+                    retry.set_next_backoff(retry_error.retry_after)  # TODO: check if this is too large.
 
                 except hikari_errors.InternalServerError:
                     continue
