@@ -31,9 +31,12 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["CommandError", "ConversionError", "TanjunError"]
+__all__: typing.Sequence[str] = ["CommandError", "ConversionError", "ParserError", "TanjunError"]
 
 import typing
+
+if typing.TYPE_CHECKING:
+    from tanjun import traits
 
 
 class TanjunError(Exception):
@@ -48,4 +51,17 @@ class CommandError(TanjunError):
 
 
 class ConversionError(TanjunError, ValueError):
-    __slots__: typing.Sequence[str] = ()
+    __slots__: typing.Sequence[str] = ("errors",)
+
+    errors: typing.Set[ValueError]
+
+    def __init__(self, errors: typing.Iterable[ValueError]) -> None:
+        self.errors = set(errors)
+
+
+class ParserError(TanjunError, ValueError):
+    __slots__: typing.Sequence[str] = ("message", "parameter")
+
+    def __init__(self, message: str, parameter: traits.Parameter, /) -> None:
+        self.message = message
+        self.parameter = parameter

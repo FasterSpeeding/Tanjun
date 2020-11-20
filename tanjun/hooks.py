@@ -90,7 +90,7 @@ class Hooks(traits.Hooks):
         /,
         exception: errors.ConversionError,
         hooks: typing.Optional[typing.AbstractSet[traits.Hooks]] = None,
-    ) -> None:
+    ) -> None:  # TODO: return True to indicate "raise" else False or None to suppress
         if self._conversion_error:
             await utilities.await_if_async(self._conversion_error(ctx, exception))
 
@@ -104,7 +104,7 @@ class Hooks(traits.Hooks):
         exception: BaseException,
         *,
         hooks: typing.Optional[typing.AbstractSet[traits.Hooks]] = None,
-    ) -> None:
+    ) -> None:  # TODO: return True to indicate "raise" else False or None to suppress
         if self._error:
             await utilities.await_if_async(self._error(ctx, exception))
 

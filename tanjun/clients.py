@@ -54,7 +54,7 @@ ClientCheckT = typing.Callable[
 
 
 class Client(traits.Client):
-    __slots__: typing.Sequence[str] = ("hooks", "_cache", "_checks", "_components", "_dispatch", "_prefixes", "_rest")
+    __slots__: typing.Sequence[str] = ("_cache", "_checks", "_components", "_dispatch", "hooks", "_prefixes", "_rest")
 
     def __init__(
         self,

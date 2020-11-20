@@ -37,10 +37,12 @@ import types
 import typing
 
 from hikari import errors as hikari_errors
+from hikari import undefined
 from yuyo import backoff
 
 from tanjun import errors
 from tanjun import hooks as hooks_
+from tanjun import parsing
 from tanjun import traits
 from tanjun import utilities
 
@@ -60,7 +62,7 @@ class FoundClass(traits.FoundCommand):
 
 
 class Command(traits.ExecutableCommand):
-    __slots__: typing.Sequence[str] = ("_checks", "_component", "_function", "hooks", "_meta", "_names")
+    __slots__: typing.Sequence[str] = ("_checks", "_component", "_function", "hooks", "_meta", "_names", "parser")
 
     def __init__(
         self,
@@ -69,13 +71,15 @@ class Command(traits.ExecutableCommand):
         *names: str,
         checks: typing.Optional[typing.Iterable[CheckT]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
+        parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
     ) -> None:
         self._checks = set(checks) if checks else set()
         self._component: typing.Optional[traits.Component] = None
-        self.hooks: traits.Hooks = hooks or hooks_.Hooks()
         self._function = function
+        self.hooks: traits.Hooks = hooks or hooks_.Hooks()
         self._meta: typing.MutableMapping[typing.Any, typing.Any] = {}
         self._names = {name, *names}
+        self.parser = parser if parser is not undefined.UNDEFINED else parsing.ShlexParser()
 
     async def __call__(self, ctx: traits.Context, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
         return await self._function(ctx, *args, **kwargs)
@@ -125,22 +129,31 @@ class Command(traits.ExecutableCommand):
     async def execute(
         self, ctx: traits.Context, /, *, hooks: typing.Optional[typing.MutableSet[traits.Hooks]] = None
     ) -> bool:
-        # TODO: parser
         try:
-            if await self.hooks.trigger_pre_execution(ctx, args=[], kwargs={}, hooks=hooks) is False:
-                return True
+            if self.parser is not None:
+                args, kwargs = await self.parser.parse(ctx)
 
-            await self._function(ctx)
+            else:
+                args = []
+                kwargs = {}
+
+            if await self.hooks.trigger_pre_execution(ctx, args=[], kwargs={}, hooks=hooks) is False:
+                return True  # TODO: do this before parsing?
+
+            await self._function(ctx, *args, **kwargs)
 
         except errors.CommandError as exc:
             response = exc.message if len(exc.message) <= 2000 else exc.message[:1997] + "..."
-            retry = backoff.Backoff()  # TODO: max_retries
+            retry = backoff.Backoff(max_retries=5)
             # TODO: preemptive cache based permission checks before throwing to the REST gods.
             async for _ in retry:
                 try:
                     await ctx.message.reply(content=response)
 
                 except hikari_errors.RateLimitedError as retry_error:
+                    if retry_error.retry_after > 5:
+                        break
+
                     retry.set_next_backoff(retry_error.retry_after)  # TODO: check if this is too large.
 
                 except hikari_errors.InternalServerError:

@@ -37,6 +37,7 @@ import inspect
 import itertools
 import typing
 
+from hikari import undefined
 from hikari.events import base_events
 
 from tanjun import commands
@@ -53,9 +54,10 @@ def command(
     *names: str,
     checks: typing.Optional[typing.Iterable[commands.CheckT]] = None,
     hooks: typing.Optional[traits.Hooks] = None,
+    parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
 ) -> typing.Callable[[commands.CommandFunctionT], commands.Command]:
     def decorator(function: commands.CommandFunctionT, /) -> commands.Command:
-        return commands.Command(function, name, *names, checks=checks, hooks=hooks)
+        return commands.Command(function, name, *names, checks=checks, hooks=hooks, parser=parser)
 
     return decorator
 

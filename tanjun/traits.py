@@ -242,6 +242,14 @@ class ExecutableCommand(Executable, typing.Protocol):
     def names(self) -> typing.AbstractSet[str]:
         raise NotImplementedError
 
+    @property
+    def parser(self) -> typing.Optional[Parser]:
+        raise NotImplementedError
+
+    @parser.setter
+    def parser(self, parser: typing.Optional[Parser], /) -> None:
+        raise NotImplementedError
+
     def add_name(self, name: str, /) -> None:
         raise NotImplementedError
 
@@ -355,15 +363,39 @@ class Client(typing.Protocol):
 
 class Parameter(typing.Protocol):
     @property
-    def default(self) -> typing.Any:
+    def converters(self) -> typing.AbstractSet[typing.Union[typing.Callable[[str], typing.Any], Converter[typing.Any]]]:
+        raise NotImplementedError
+
+    @property
+    def default(self) -> undefined.UndefinedOr[typing.Any]:
+        raise NotImplementedError
+
+    @default.setter
+    def default(self, default: undefined.UndefinedOr[typing.Any], /) -> None:
         raise NotImplementedError
 
     @property
     def empty_value(self) -> undefined.UndefinedOr[typing.Any]:
         raise NotImplementedError
 
+    @empty_value.setter
+    def empty_value(self, empty_value: undefined.UndefinedOr[typing.Any], /) -> None:
+        raise NotImplementedError
+
     @property
     def flags(self) -> typing.MutableMapping[str, typing.Any]:
+        raise NotImplementedError
+
+    @property
+    def is_option(self) -> bool:
+        raise NotImplementedError  # TODO: separate option and parameter classes?
+
+    @property
+    def key(self) -> typing.Optional[str]:
+        raise NotImplementedError
+
+    @key.setter
+    def key(self, key: typing.Optional[str]) -> None:
         raise NotImplementedError
 
     @property
@@ -372,6 +404,16 @@ class Parameter(typing.Protocol):
 
     @names.setter
     def names(self, names: typing.Sequence[str], /) -> None:
+        raise NotImplementedError
+
+    def add_converter(
+        self, converter: typing.Union[typing.Callable[[str], typing.Any], Converter[typing.Any]], /
+    ) -> None:
+        raise NotImplementedError
+
+    def remove_converter(
+        self, converter: typing.Union[typing.Callable[[str], typing.Any], Converter[typing.Any]], /
+    ) -> None:
         raise NotImplementedError
 
     def bind_component(self, component: Component, /) -> None:
@@ -386,13 +428,19 @@ class Parser(typing.Protocol):
     def parameters(self) -> typing.Sequence[Parameter]:
         raise NotImplementedError
 
+    def add_parameter(self, parameter: Parameter, /) -> None:
+        raise NotImplementedError
+
+    def remove_parameter(self, parameter: Parameter, /) -> None:
+        raise NotImplementedError
+
+    def set_parameters(self, parameters: typing.Iterable[Parameter], /) -> None:
+        raise NotImplementedError
+
     def bind_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
     async def parse(
         self, ctx: Context, /
     ) -> typing.Tuple[typing.Sequence[typing.Any], typing.Mapping[str, typing.Any]]:
-        raise NotImplementedError
-
-    async def set_parameters(self, parameters: typing.Sequence[Parameter]) -> None:
         raise NotImplementedError

@@ -61,6 +61,10 @@ __all__: typing.Sequence[str] = [
     "Hooks",
     # parsing.py
     "parsing",
+    "argument",
+    "option",
+    "Parameter",
+    "ShlexParser",
     # traits.py
     "traits",
 ]
