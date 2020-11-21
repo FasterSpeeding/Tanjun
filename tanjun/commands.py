@@ -84,6 +84,9 @@ class Command(traits.ExecutableCommand):
     async def __call__(self, ctx: traits.Context, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
         return await self._function(ctx, *args, **kwargs)
 
+    def __repr__(self) -> str:
+        return f"Command <{self._names}>"
+
     @property
     def component(self) -> typing.Optional[traits.Component]:
         return self._component
@@ -114,7 +117,7 @@ class Command(traits.ExecutableCommand):
         self._names.add(name)
 
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
-        for own_name in self.names:
+        for own_name in self._names:
             if name.startswith(own_name):
                 yield FoundClass(self, own_name)
                 break

@@ -51,10 +51,22 @@ __all__: typing.Sequence[str] = [
     "Context",
     # conversion.py
     "conversion",
+    "ChannelConverter",
+    "ColorConverter",
+    "EmojiConverter",
+    "GuildConverter",
+    "InviteConverter",
+    "MemberConverter",
+    "PresenceConverter",
+    "RoleConverter",
+    "SnowflakeConverter",
+    "UserConverter",
+    "VoiceStateConverter",
     # errors.py
     "errors",
     "CommandError",
     "ConversionError",
+    "ParserError",
     "TanjunError",
     # hooks.py
     "hooks",
@@ -62,7 +74,10 @@ __all__: typing.Sequence[str] = [
     # parsing.py
     "parsing",
     "argument",
+    "greedy_argument",
+    "multi_argument",
     "option",
+    "multi_option",
     "Parameter",
     "ShlexParser",
     # traits.py

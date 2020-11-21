@@ -103,6 +103,9 @@ class Component(traits.Component):
 
                 self.add_listener(event_, member)
 
+    def __repr__(self) -> str:
+        return f"Component <{type(self).__name__}, {len(self._commands)} commands>"
+
     @property
     def client(self) -> typing.Optional[traits.Client]:
         return self._client

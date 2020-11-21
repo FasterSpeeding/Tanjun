@@ -35,11 +35,14 @@ __all__: typing.Sequence[str] = ["Context"]
 
 import typing
 
+from hikari import snowflakes
+
 from tanjun import traits
 
 if typing.TYPE_CHECKING:
     from hikari import messages
     from hikari import traits as hikari_traits
+    from hikari.api import shard as shard_
 
 
 class Context(traits.Context):
@@ -75,6 +78,9 @@ class Context(traits.Context):
         self.triggering_name = triggering_name
         self.triggering_prefix = triggering_prefix
 
+    def __repr__(self) -> str:
+        return f"Context <{self.message!r}, {self.command!r}>"
+
     @property
     def cache(self) -> typing.Optional[hikari_traits.CacheAware]:
         return self._client.cache
@@ -95,6 +101,16 @@ class Context(traits.Context):
     def rest(self) -> hikari_traits.RESTAware:
         return self._client.rest
 
-    # @property
-    # def shard(self) -> shard_.GatewayShard:
-    #     return self._shard
+    @property
+    def shards(self) -> hikari_traits.ShardAware:
+        return self._client.shards
+
+    @property
+    def shard(self) -> shard_.GatewayShard:
+        if self.message.guild_id is not None:
+            shard_id = snowflakes.calculate_shard_id(self.shards, self.message.guild_id)
+
+        else:
+            shard_id = 0
+
+        return self.shards.shards[shard_id]

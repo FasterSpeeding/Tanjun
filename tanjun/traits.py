@@ -31,15 +31,33 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = []
+__all__: typing.Sequence[str] = [
+    "ConversionHookT",
+    "ErrorHookT",
+    "HookT",
+    "PreExecutionHookT",
+    "CheckT",
+    "ValueT",
+    "Context",
+    "Converter",
+    "Hooks",
+    "Executable",
+    "FoundCommand",
+    "ExecutableCommand",
+    "Component",
+    "Client",
+    "UNDEFINED_DEFAULT",
+    "Parameter",
+    "Parser",
+]
 
 import typing
 
 if typing.TYPE_CHECKING:
     from hikari import messages
     from hikari import traits
-    from hikari import undefined
     from hikari.api import event_dispatcher
+    from hikari.api import shard as shard_
     from hikari.events import base_events
 
     from tanjun import errors
@@ -86,6 +104,10 @@ class Context(typing.Protocol):
         raise NotImplementedError
 
     @property
+    def shard(self) -> shard_.GatewayShard:
+        raise NotImplementedError
+
+    @property
     def triggering_prefix(self) -> typing.Optional[str]:
         raise NotImplementedError
 
@@ -101,10 +123,6 @@ class Context(typing.Protocol):
     def triggering_name(self, triggering_name: str, /) -> None:
         raise NotImplementedError
 
-    # @property
-    # def shard(self) -> shard.GatewayShard:
-    #     raise NotImplementedError
-
 
 @typing.runtime_checkable
 class Converter(typing.Protocol[ValueT]):
@@ -113,7 +131,7 @@ class Converter(typing.Protocol[ValueT]):
     async def convert(self, ctx: Context, argument: str, /) -> ValueT:
         raise NotImplementedError
 
-    def bind_component(cls, client: Client, component: Component, /) -> None:
+    def bind_component(self, client: Client, component: Component, /) -> None:
         raise NotImplementedError
 
 
@@ -319,19 +337,23 @@ class Client(typing.Protocol):
         raise NotImplementedError
 
     @property
-    def prefixes(self) -> typing.AbstractSet[str]:
-        raise NotImplementedError
-
-    @property  # TODO: keep this?
-    def rest(self) -> traits.RESTAware:
-        raise NotImplementedError
-
-    @property
     def hooks(self) -> typing.Optional[Hooks]:
         raise NotImplementedError
 
     @hooks.setter
     def hooks(self, hooks: typing.Optional[Hooks]) -> None:
+        raise NotImplementedError
+
+    @property
+    def prefixes(self) -> typing.AbstractSet[str]:
+        raise NotImplementedError
+
+    @property
+    def rest(self) -> traits.RESTAware:
+        raise NotImplementedError
+
+    @property
+    def shards(self) -> traits.ShardAware:
         raise NotImplementedError
 
     def add_component(self, component: Component, /) -> None:
@@ -361,25 +383,34 @@ class Client(typing.Protocol):
         raise NotImplementedError
 
 
+class UndefinedDefault:
+    __slots__: typing.Sequence[str] = ()
+
+
+UNDEFINED_DEFAULT = UndefinedDefault()
+"""A singleton used to represent no default for a parameter."""
+
+
+@typing.runtime_checkable
 class Parameter(typing.Protocol):
     @property
     def converters(self) -> typing.AbstractSet[typing.Union[typing.Callable[[str], typing.Any], Converter[typing.Any]]]:
         raise NotImplementedError
 
     @property
-    def default(self) -> undefined.UndefinedOr[typing.Any]:
+    def default(self) -> typing.Union[typing.Any, UndefinedDefault]:
         raise NotImplementedError
 
     @default.setter
-    def default(self, default: undefined.UndefinedOr[typing.Any], /) -> None:
+    def default(self, default: typing.Union[typing.Any, UndefinedDefault], /) -> None:
         raise NotImplementedError
 
     @property
-    def empty_value(self) -> undefined.UndefinedOr[typing.Any]:
+    def empty_value(self) -> typing.Union[typing.Any, UndefinedDefault]:
         raise NotImplementedError
 
     @empty_value.setter
-    def empty_value(self, empty_value: undefined.UndefinedOr[typing.Any], /) -> None:
+    def empty_value(self, empty_value: typing.Union[typing.Any, UndefinedDefault], /) -> None:
         raise NotImplementedError
 
     @property
@@ -423,6 +454,7 @@ class Parameter(typing.Protocol):
         raise NotImplementedError
 
 
+@typing.runtime_checkable
 class Parser(typing.Protocol):
     @property
     def parameters(self) -> typing.Sequence[Parameter]:

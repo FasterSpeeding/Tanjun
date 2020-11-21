@@ -53,27 +53,52 @@ ClientCheckT = typing.Callable[
 ]
 
 
-class Client(traits.Client):
-    __slots__: typing.Sequence[str] = ("_cache", "_checks", "_components", "_dispatch", "hooks", "_prefixes", "_rest")
+class Client(traits.Client):  # TODO: prefix mention
+    __slots__: typing.Sequence[str] = (
+        "_cache",
+        "_checks",
+        "_components",
+        "_dispatch",
+        "hooks",
+        "_prefixes",
+        "_rest",
+        "_shards",
+    )
 
     def __init__(
         self,
         dispatch: hikari_traits.DispatcherAware,
         rest: typing.Optional[hikari_traits.RESTAware] = None,
+        shard: typing.Optional[hikari_traits.ShardAware] = None,
         cache: typing.Optional[hikari_traits.CacheAware] = None,
         /,
         *,
         hooks: typing.Optional[traits.Hooks] = None,
         prefixes: typing.Optional[typing.Iterable[str]] = None,
     ) -> None:
-        if rest is None and isinstance(dispatch, hikari_traits.RESTAware):
+        if rest is None and isinstance(cache, hikari_traits.RESTAware):
+            rest = cache
+
+        elif rest is None and isinstance(dispatch, hikari_traits.RESTAware):
             rest = dispatch
 
-        elif rest is None and isinstance(cache, hikari_traits.RESTAware):
-            rest = cache
+        elif rest is None and isinstance(shard, hikari_traits.RESTAware):
+            rest = shard  # type: ignore[unreachable]
 
         else:
             raise ValueError("Missing RESTAware client implementation.")
+
+        if shard is None and isinstance(dispatch, hikari_traits.ShardAware):
+            shard = dispatch
+
+        elif shard is None and isinstance(cache, hikari_traits.ShardAware):
+            shard = cache
+
+        elif shard is None and isinstance(rest, hikari_traits.ShardAware):
+            shard = rest
+
+        else:
+            raise ValueError("Missing ShardAware client implementation.")
 
         # Unlike `rest`, no provided Cache implementation just means this runs stateless.
         if cache is None and isinstance(dispatch, hikari_traits.CacheAware):
@@ -81,6 +106,9 @@ class Client(traits.Client):
 
         elif cache is None and isinstance(rest, hikari_traits.CacheAware):
             cache = rest
+
+        elif cache is None and isinstance(shard, hikari_traits.CacheAware):  # type: ignore[unreachable]
+            cache = shard  # type: ignore[unreachable]
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
 
         self.hooks = hooks
@@ -92,6 +120,7 @@ class Client(traits.Client):
         self._dispatch = dispatch
         self._prefixes = set(prefixes) if prefixes else set()
         self._rest = rest
+        self._shards = shard
         self._dispatch.dispatcher.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
         self._dispatch.dispatcher.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
 
@@ -106,6 +135,9 @@ class Client(traits.Client):
         exception_traceback: typing.Optional[types.TracebackType],
     ) -> None:
         await self.close()
+
+    def __repr__(self) -> str:
+        return f"CommandClient <{type(self).__name__!r}, {len(self._components)}" f" components, {self._prefixes}>"
 
     @property
     def cache(self) -> typing.Optional[hikari_traits.CacheAware]:
@@ -126,6 +158,10 @@ class Client(traits.Client):
     @property
     def rest(self) -> hikari_traits.RESTAware:
         return self._rest
+
+    @property
+    def shards(self) -> hikari_traits.ShardAware:
+        return self._shards
 
     async def _on_starting_event(self, _: lifetime_events.StartingEvent, /) -> None:
         await self.open()

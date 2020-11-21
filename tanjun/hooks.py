@@ -60,6 +60,12 @@ class Hooks(traits.Hooks):
         self._error = error
         self._success = success
 
+    def __repr__(self) -> str:
+        return (
+            f"Hooks < {self._pre_execution!r}, {self._post_execution!r}, "
+            f"{self._conversion_error!r}, {self._error!r}, {self._success!r}>"
+        )
+
     def on_conversion_error(
         self, hook: typing.Optional[traits.ConversionHookT], /
     ) -> typing.Optional[traits.ConversionHookT]:

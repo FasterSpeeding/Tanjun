@@ -49,11 +49,14 @@ class CommandError(TanjunError):
     def __init__(self, message: str, /) -> None:
         self.message = message
 
+    def __repr__(self) -> str:
+        return f"{type(self).__name__} <{self.message}>"
+
 
 class ConversionError(TanjunError, ValueError):
     __slots__: typing.Sequence[str] = ("errors",)
 
-    errors: typing.Set[ValueError]
+    errors: typing.AbstractSet[ValueError]
 
     def __init__(self, errors: typing.Iterable[ValueError]) -> None:
         self.errors = set(errors)
