@@ -1,2 +1,2 @@
 hikari~=2.0.0.dev93
-hikari-yuyo~=0.0.2
+hikari-yuyo~=0.0.3.a0

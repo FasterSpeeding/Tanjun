@@ -67,6 +67,7 @@ _ValueT = typing.TypeVar("_ValueT", covariant=True)
 
 
 class BaseConverter(abc.ABC, typing.Generic[_ValueT], traits.Converter[_ValueT]):
+    __slots__: typing.Sequence[str] = ()
     __implementations: typing.MutableSet[typing.Type[BaseConverter[typing.Type[typing.Any]]]] = set()
 
     @classmethod
@@ -120,6 +121,8 @@ class BaseConverter(abc.ABC, typing.Generic[_ValueT], traits.Converter[_ValueT])
 
 
 class ChannelConverter(BaseConverter[channels.GuildChannel]):
+    __slots__: typing.Sequence[str] = ()
+
     @classmethod
     def cache_bound(cls) -> bool:
         return True
@@ -149,6 +152,8 @@ class ChannelConverter(BaseConverter[channels.GuildChannel]):
 
 
 class ColorConverter(BaseConverter[colors.Color]):
+    __slots__: typing.Sequence[str] = ()
+
     @classmethod
     def cache_bound(cls) -> bool:
         return False
@@ -175,6 +180,8 @@ class ColorConverter(BaseConverter[colors.Color]):
 
 
 class EmojiConverter(BaseConverter[emojis.KnownCustomEmoji]):
+    __slots__: typing.Sequence[str] = ()
+
     @classmethod
     def cache_bound(cls) -> bool:
         return True
@@ -204,6 +211,8 @@ class EmojiConverter(BaseConverter[emojis.KnownCustomEmoji]):
 
 
 class GuildConverter(BaseConverter[guilds.GatewayGuild]):
+    __slots__: typing.Sequence[str] = ()
+
     @classmethod
     def cache_bound(cls) -> bool:
         return True
@@ -233,6 +242,8 @@ class GuildConverter(BaseConverter[guilds.GatewayGuild]):
 
 
 class InviteConverter(BaseConverter[invites.InviteWithMetadata]):
+    __slots__: typing.Sequence[str] = ()
+
     @classmethod
     def cache_bound(cls) -> bool:
         return True
@@ -261,6 +272,8 @@ class InviteConverter(BaseConverter[invites.InviteWithMetadata]):
 
 
 class MemberConverter(BaseConverter[guilds.Member]):
+    __slots__: typing.Sequence[str] = ()
+
     @classmethod
     def cache_bound(cls) -> bool:
         return True
@@ -293,6 +306,8 @@ class MemberConverter(BaseConverter[guilds.Member]):
 
 
 class PresenceConverter(BaseConverter[presences.MemberPresence]):
+    __slots__: typing.Sequence[str] = ()
+
     @classmethod
     def cache_bound(cls) -> bool:
         return True
@@ -312,24 +327,9 @@ class PresenceConverter(BaseConverter[presences.MemberPresence]):
         raise ValueError("Couldn't find presence in current guild")
 
 
-class _BaseSnowflakeParser:
-    @classmethod
-    @abc.abstractmethod
-    def regex(cls) -> typing.Pattern[str]:
-        raise NotImplementedError
-
-    @classmethod
-    def match_id(cls, value: str) -> snowflakes.Snowflake:
-        if value.isdigit():
-            return snowflakes.Snowflake(value)
-
-        if results := cls.regex().findall(value):
-            return snowflakes.Snowflake(results[0])
-
-        raise ValueError("No valid mention or ID found")
-
-
 class RoleConverter(BaseConverter[guilds.Role]):
+    __slots__: typing.Sequence[str] = ()
+
     @classmethod
     def cache_bound(cls) -> bool:
         return True
@@ -358,7 +358,27 @@ class RoleConverter(BaseConverter[guilds.Role]):
         return (guilds.Role,)
 
 
+class _BaseSnowflakeParser:
+    __slots__: typing.Sequence[str] = ()
+
+    @classmethod
+    @abc.abstractmethod
+    def regex(cls) -> typing.Pattern[str]:
+        raise NotImplementedError
+
+    @classmethod
+    def match_id(cls, value: str) -> snowflakes.Snowflake:
+        if value.isdigit():
+            return snowflakes.Snowflake(value)
+
+        if results := cls.regex().findall(value):
+            return snowflakes.Snowflake(results[0])
+
+        raise ValueError("No valid mention or ID found")
+
+
 class _SnowflakeParser(_BaseSnowflakeParser):
+    __slots__: typing.Sequence[str] = ()
     _pattern = re.compile(r"<[@&?!#]{1,3}(\d+)>")
 
     @classmethod
@@ -367,6 +387,7 @@ class _SnowflakeParser(_BaseSnowflakeParser):
 
 
 class _ChannelIDParser(_BaseSnowflakeParser):
+    __slots__: typing.Sequence[str] = ()
     _pattern = re.compile(r"<#(\d+)>")
 
     @classmethod
@@ -375,6 +396,7 @@ class _ChannelIDParser(_BaseSnowflakeParser):
 
 
 class _EmojiIDParser(_BaseSnowflakeParser):
+    __slots__: typing.Sequence[str] = ()
     _pattern = re.compile(r"<a?:\w+:(\d+)>")
 
     @classmethod
@@ -383,6 +405,7 @@ class _EmojiIDParser(_BaseSnowflakeParser):
 
 
 class _UserIDParser(_BaseSnowflakeParser):
+    __slots__: typing.Sequence[str] = ()
     _pattern = re.compile(r"<@!?(\d+)>")
 
     @classmethod
@@ -391,6 +414,8 @@ class _UserIDParser(_BaseSnowflakeParser):
 
 
 class SnowflakeConverter(BaseConverter[snowflakes.Snowflake]):
+    __slots__: typing.Sequence[str] = ()
+
     @classmethod
     def cache_bound(cls) -> bool:
         return False
@@ -413,6 +438,8 @@ class SnowflakeConverter(BaseConverter[snowflakes.Snowflake]):
 
 
 class UserConverter(BaseConverter[users.User]):
+    __slots__: typing.Sequence[str] = ()
+
     @classmethod
     def cache_bound(cls) -> bool:
         return True
@@ -442,6 +469,8 @@ class UserConverter(BaseConverter[users.User]):
 
 
 class VoiceStateConverter(BaseConverter[voices.VoiceState]):
+    __slots__: typing.Sequence[str] = ()
+
     @classmethod
     def cache_bound(cls) -> bool:
         return True

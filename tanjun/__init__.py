@@ -78,8 +78,11 @@ __all__: typing.Sequence[str] = [
     "multi_argument",
     "option",
     "multi_option",
-    "Parameter",
+    "Argument",
+    "Option",
     "ShlexParser",
+    "generate_parameters",
+    "verify_parameters",
     # traits.py
     "traits",
 ]

@@ -92,6 +92,10 @@ class Command(traits.ExecutableCommand):
         return self._component
 
     @property
+    def function(self) -> CommandFunctionT:
+        return self._function
+
+    @property
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         return self._meta
 
@@ -133,15 +137,15 @@ class Command(traits.ExecutableCommand):
         self, ctx: traits.Context, /, *, hooks: typing.Optional[typing.MutableSet[traits.Hooks]] = None
     ) -> bool:
         try:
+            if await self.hooks.trigger_pre_execution(ctx, hooks=hooks) is False:
+                return True
+
             if self.parser is not None:
                 args, kwargs = await self.parser.parse(ctx)
 
             else:
                 args = []
                 kwargs = {}
-
-            if await self.hooks.trigger_pre_execution(ctx, args=[], kwargs={}, hooks=hooks) is False:
-                return True  # TODO: do this before parsing?
 
             await self._function(ctx, *args, **kwargs)
 

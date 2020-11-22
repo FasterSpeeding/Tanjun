@@ -137,7 +137,7 @@ class Client(traits.Client):  # TODO: prefix mention
         await self.close()
 
     def __repr__(self) -> str:
-        return f"CommandClient <{type(self).__name__!r}, {len(self._components)}" f" components, {self._prefixes}>"
+        return f"CommandClient <{type(self).__name__!r}, {len(self._components)} components, {self._prefixes}>"
 
     @property
     def cache(self) -> typing.Optional[hikari_traits.CacheAware]:

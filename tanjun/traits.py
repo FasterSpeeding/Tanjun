@@ -48,6 +48,8 @@ __all__: typing.Sequence[str] = [
     "Client",
     "UNDEFINED_DEFAULT",
     "Parameter",
+    "Argument",
+    "Option",
     "Parser",
 ]
 
@@ -70,7 +72,7 @@ ErrorHookT = typing.Callable[
     ["Context", BaseException], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
 ]
 HookT = typing.Callable[["Context"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]]
-PreExecutionHookT = typing.Callable[..., typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]]
+PreExecutionHookT = typing.Callable[["Context"], typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]]
 CheckT = typing.Callable[["Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]]
 ValueT = typing.TypeVar("ValueT", covariant=True)
 
@@ -174,13 +176,7 @@ class Hooks(typing.Protocol):
         raise NotImplementedError
 
     async def trigger_pre_execution(
-        self,
-        ctx: Context,
-        /,
-        *,
-        args: typing.Sequence[str],
-        kwargs: typing.Mapping[str, typing.Any],
-        hooks: typing.Optional[typing.AbstractSet[Hooks]] = None,
+        self, ctx: Context, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None,
     ) -> bool:
         raise NotImplementedError
 
@@ -250,6 +246,10 @@ class ExecutableCommand(Executable, typing.Protocol):
 
     @property
     def component(self) -> typing.Optional[Component]:
+        raise NotImplementedError
+
+    @property
+    def function(self) -> typing.Optional[typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, typing.Any]]]:
         raise NotImplementedError
 
     @property
@@ -324,6 +324,8 @@ class Component(Executable, typing.Protocol):
 
 @typing.runtime_checkable
 class Client(typing.Protocol):
+    __slots__: typing.Sequence[str] = ()
+
     @property
     def cache(self) -> typing.Optional[traits.CacheAware]:
         raise NotImplementedError
@@ -393,6 +395,8 @@ UNDEFINED_DEFAULT = UndefinedDefault()
 
 @typing.runtime_checkable
 class Parameter(typing.Protocol):
+    __slots__: typing.Sequence[str] = ()
+
     @property
     def converters(self) -> typing.AbstractSet[typing.Union[typing.Callable[[str], typing.Any], Converter[typing.Any]]]:
         raise NotImplementedError
@@ -406,35 +410,15 @@ class Parameter(typing.Protocol):
         raise NotImplementedError
 
     @property
-    def empty_value(self) -> typing.Union[typing.Any, UndefinedDefault]:
-        raise NotImplementedError
-
-    @empty_value.setter
-    def empty_value(self, empty_value: typing.Union[typing.Any, UndefinedDefault], /) -> None:
-        raise NotImplementedError
-
-    @property
     def flags(self) -> typing.MutableMapping[str, typing.Any]:
         raise NotImplementedError
 
     @property
-    def is_option(self) -> bool:
-        raise NotImplementedError  # TODO: separate option and parameter classes?
-
-    @property
-    def key(self) -> typing.Optional[str]:
+    def key(self) -> str:
         raise NotImplementedError
 
     @key.setter
-    def key(self, key: typing.Optional[str]) -> None:
-        raise NotImplementedError
-
-    @property
-    def names(self) -> typing.Sequence[str]:
-        raise NotImplementedError
-
-    @names.setter
-    def names(self, names: typing.Sequence[str], /) -> None:
+    def key(self, key: str) -> None:
         raise NotImplementedError
 
     def add_converter(
@@ -447,15 +431,40 @@ class Parameter(typing.Protocol):
     ) -> None:
         raise NotImplementedError
 
-    def bind_component(self, component: Component, /) -> None:
-        raise NotImplementedError
-
     async def convert(self, ctx: Context, value: str) -> typing.Any:
         raise NotImplementedError
 
 
 @typing.runtime_checkable
+class Argument(Parameter, typing.Protocol):
+    __slots__: typing.Sequence[str] = ()
+
+
+@typing.runtime_checkable
+class Option(Parameter, typing.Protocol):
+    __slots__: typing.Sequence[str] = ()
+
+    @property
+    def empty_value(self) -> typing.Union[typing.Any, UndefinedDefault]:
+        raise NotImplementedError
+
+    @empty_value.setter
+    def empty_value(self, empty_value: typing.Union[typing.Any, UndefinedDefault], /) -> None:
+        raise NotImplementedError
+
+    @property
+    def names(self) -> typing.Sequence[str]:
+        raise NotImplementedError
+
+    @names.setter
+    def names(self, names: typing.Sequence[str], /) -> None:
+        raise NotImplementedError
+
+
+@typing.runtime_checkable
 class Parser(typing.Protocol):
+    __slots__: typing.Sequence[str] = ()
+
     @property
     def parameters(self) -> typing.Sequence[Parameter]:
         raise NotImplementedError
@@ -467,9 +476,6 @@ class Parser(typing.Protocol):
         raise NotImplementedError
 
     def set_parameters(self, parameters: typing.Iterable[Parameter], /) -> None:
-        raise NotImplementedError
-
-    def bind_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
     async def parse(

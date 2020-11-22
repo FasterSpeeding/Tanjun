@@ -37,8 +37,11 @@ __all__: typing.Sequence[str] = [
     "multi_argument",
     "option",
     "multi_option",
-    "Parameter",
+    "Argument",
+    "Option",
     "ShlexParser",
+    "generate_parameters",
+    "verify_parameters",
 ]
 
 import asyncio
@@ -142,7 +145,7 @@ class ShlexTokenizer:
 
 
 async def _covert_option_or_empty(
-    ctx: traits.Context, option_: traits.Parameter, value: typing.Optional[typing.Any], /
+    ctx: traits.Context, option_: traits.Option, value: typing.Optional[typing.Any], /
 ) -> typing.Any:
     if value is not None:
         return await option_.convert(ctx, value)
@@ -150,7 +153,7 @@ async def _covert_option_or_empty(
     if option_.empty_value is not traits.UNDEFINED_DEFAULT:
         return option_.empty_value
 
-    raise errors.ParserError(f"Option '{option_.names[0]} cannot be empty.", option_)
+    raise errors.ParserError(f"Option '{option_.key} cannot be empty.", option_)
 
 
 class SemanticShlex(ShlexTokenizer):
@@ -160,7 +163,7 @@ class SemanticShlex(ShlexTokenizer):
         super().__init__(ctx.content)
         self.__ctx = ctx
 
-    async def get_arguments(self, arguments: typing.Sequence[traits.Parameter], /) -> typing.Sequence[typing.Any]:
+    async def get_arguments(self, arguments: typing.Sequence[traits.Argument], /) -> typing.MutableSequence[typing.Any]:
         results: typing.MutableSequence[typing.Any] = []
         for argument_ in arguments:
             results.append(await self.__process_argument(argument_))
@@ -170,29 +173,11 @@ class SemanticShlex(ShlexTokenizer):
 
         return results
 
-    async def get_options(self, options: typing.Sequence[traits.Parameter], /) -> typing.Mapping[str, typing.Any]:
+    async def get_options(self, options: typing.Sequence[traits.Option], /) -> typing.MutableMapping[str, typing.Any]:
         results: typing.MutableMapping[str, typing.Any] = {}
         raw_options = self.collect_raw_options()
         for option_ in options:
-            key = option_.key
-            assert key is not None  # This shouldn't ever be None for options
-            values_iter = itertools.chain.from_iterable(
-                raw_options[name] for name in option_.names if name in raw_options
-            )
-            is_multi = option_.flags.get(MULTI, False)
-            if is_multi and (values := list(values_iter)):
-                results[key] = asyncio.gather(
-                    *(_covert_option_or_empty(self.__ctx, option_, value) for value in values)
-                )
-
-            elif not is_multi and (value := next(values_iter, None)) is not None:
-                if next(values_iter, None) is not None:
-                    raise ValueError(f"Option `{option_.key}` can only take a single value")
-
-                results[key] = await _covert_option_or_empty(self.__ctx, option_, value)
-
-            else:
-                results[key] = option_.default  # This shouldn't ever be UNDEFINED for options.
+            results[option_.key] = await self.__process_option(option_, raw_options)
 
         return results
 
@@ -208,14 +193,35 @@ class SemanticShlex(ShlexTokenizer):
             return await argument_.convert(self.__ctx, optional_value)
 
         if argument_.default is not traits.UNDEFINED_DEFAULT:
-            return argument_.default  # TODO: do we want to allow a default for arguments?
+            return argument_.default
 
         # If this is reached then no value was found.
-        raise errors.ParserError(f"Missing value for required argument '{argument_.names[0]}'", argument_)
+        raise errors.ParserError(f"Missing value for required argument '{argument_.key}'", argument_)
+
+    async def __process_option(
+        self, option_: traits.Option, raw_options: typing.Mapping[str, typing.Sequence[typing.Optional[str]]]
+    ) -> typing.Any:
+        values_iter = itertools.chain.from_iterable(raw_options[name] for name in option_.names if name in raw_options)
+        is_multi = option_.flags.get(MULTI, False)
+        if is_multi and (values := list(values_iter)):
+            return asyncio.gather(*(_covert_option_or_empty(self.__ctx, option_, value) for value in values))
+
+        if not is_multi and (value := next(values_iter, None)) is not None:
+            if next(values_iter, None) is not None:
+                raise ValueError(f"Option `{option_.key}` can only take a single value")
+
+            return await _covert_option_or_empty(self.__ctx, option_, value)
+
+        if option_.default is not traits.UNDEFINED_DEFAULT:
+            return option_.default
+
+        # If this is reached then no value was found.
+        raise errors.ParserError(f"Missing required option `{option_.key}`", option_)
 
 
 def argument(
-    name: str,
+    key: str,
+    /,
     converters: typing.Iterable[typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]]],
     *,
     default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
@@ -225,7 +231,7 @@ def argument(
         if command.parser is None:
             raise ValueError("Cannot add a parameter to a command client without a parser.")
 
-        argument_ = Parameter(name, converters=converters, is_option=False, default=default, flags=flags)
+        argument_ = Argument(key, converters=converters, default=default, flags=flags)
         command.parser.add_parameter(argument_)
         return command
 
@@ -233,7 +239,8 @@ def argument(
 
 
 def greedy_argument(
-    name: str,
+    key: str,
+    /,
     converters: typing.Iterable[typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]]],
     *,
     default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
@@ -243,11 +250,12 @@ def greedy_argument(
         flags = {}
 
     flags[GREEDY] = True
-    return argument(name=name, converters=converters, default=default, flags=flags)
+    return argument(key, converters=converters, default=default, flags=flags)
 
 
 def multi_argument(
-    name: str,
+    key: str,
+    /,
     converters: typing.Iterable[typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]]],
     *,
     default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
@@ -257,12 +265,13 @@ def multi_argument(
         flags = {}
 
     flags[MULTI] = True
-    return argument(name=name, converters=converters, default=default, flags=flags)
+    return argument(key, converters=converters, default=default, flags=flags)
 
 
 def option(
     key: str,
     name: str,
+    /,
     *names: str,
     converters: typing.Iterable[typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]]],
     default: typing.Any,
@@ -273,15 +282,8 @@ def option(
         if command.parser is None:
             raise ValueError("Cannot add an option to a command client without a parser.")
 
-        option_ = Parameter(
-            name,
-            *names,
-            converters=converters,
-            is_option=True,
-            default=default,
-            empty_value=empty_value,
-            flags=flags,
-            key=key,
+        option_ = Option(
+            key, name, *names, converters=converters, default=default, empty_value=empty_value, flags=flags,
         )
         command.parser.add_parameter(option_)
         return command
@@ -292,6 +294,7 @@ def option(
 def multi_option(
     key: str,
     name: str,
+    /,
     *names: str,
     converters: typing.Iterable[typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]]],
     default: typing.Any,
@@ -305,36 +308,28 @@ def multi_option(
     return option(key, name, *names, converters=converters, default=default, empty_value=empty_value, flags=flags)
 
 
-class Parameter(traits.Parameter):  # TODO: some logic confirming for optional vs non-optional fields.
-    __slots__: typing.Sequence[str] = ("_converters", "default", "empty_value", "_flags", "_is_option", "key", "names")
+class _Parameter(traits.Parameter):
+    __slots__: typing.Sequence[str] = ("_converters", "default", "_flags", "key")
 
     def __init__(
         self,
-        name: str,
-        *names: str,
+        key: str,
+        /,
+        *,
         converters: typing.Iterable[typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]]],
-        is_option: bool,
         default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
-        empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
-        key: typing.Optional[str] = None,
-    ) -> None:  # TODO: verify signature
-        if not is_option and empty_value is not traits.UNDEFINED_DEFAULT:
-            raise ValueError("empty_value cannot be specified for a required argument")
-
-        if not is_option and key is not None:
-            raise ValueError("key cannot be specified for a required argument")
-
-        if is_option and key is None:
-            raise ValueError("key must be specified for a optional argument")
-
+    ) -> None:
         self._converters = set(converters)
         self.default = default
-        self.empty_value = empty_value
         self._flags = dict(flags) if flags else {}
-        self._is_option = is_option
         self.key = key
-        self.names = [name, *names]
+
+        if key.startswith("-"):
+            raise ValueError("parameter key cannot start with `-`")
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__} <{self.key}>"
 
     @property
     def converters(
@@ -346,10 +341,6 @@ class Parameter(traits.Parameter):  # TODO: some logic confirming for optional v
     def flags(self) -> typing.MutableMapping[str, typing.Any]:
         return self._flags
 
-    @property
-    def is_option(self) -> bool:
-        return self._is_option
-
     def add_converter(
         self, converter: typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]], /
     ) -> None:
@@ -359,9 +350,6 @@ class Parameter(traits.Parameter):  # TODO: some logic confirming for optional v
         self, converter: typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]], /
     ) -> None:
         self._converters.remove(converter)
-
-    def bind_component(self, component: traits.Component, /) -> None:
-        pass
 
     async def convert(self, ctx: traits.Context, value: str) -> typing.Any:
         sources: typing.MutableSequence[ValueError] = []
@@ -378,12 +366,59 @@ class Parameter(traits.Parameter):  # TODO: some logic confirming for optional v
         raise errors.ConversionError(sources)
 
 
+class Argument(_Parameter, traits.Argument):
+    __slots__: typing.Sequence[str] = ()
+
+    def __init__(
+        self,
+        key: str,
+        /,
+        *,
+        converters: typing.Iterable[typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]]],
+        default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+        flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
+    ) -> None:
+        if flags and MULTI in flags and GREEDY in flags:
+            raise ValueError("Argument cannot be both greed and multi.")
+
+        super().__init__(key, converters=converters, default=default, flags=flags)
+
+
+class Option(_Parameter, traits.Option):
+    __slots__: typing.Sequence[str] = ("empty_value", "names")
+
+    def __init__(
+        self,
+        key: str,
+        name: str,
+        *names: str,
+        converters: typing.Iterable[typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]]],
+        default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+        flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
+        empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+    ) -> None:
+        names = [name, *names]
+
+        if not all(n.startswith("-") for n in names):
+            raise ValueError("All option names must start with `-`")
+
+        if flags and GREEDY in flags:
+            raise ValueError("Option cannot be greedy")
+
+        self.empty_value = empty_value
+        self.names = names
+        super().__init__(key, converters=converters, default=default, flags=flags)
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__} <{self.key}, {self.names}>"
+
+
 class ShlexParser(traits.Parser):
     __slots__: typing.Sequence[str] = ("_arguments", "_options")
 
     def __init__(self, *, parameters: typing.Optional[typing.Iterable[traits.Parameter]] = None) -> None:
-        self._arguments: typing.MutableSequence[traits.Parameter] = []
-        self._options: typing.MutableSequence[traits.Parameter] = []
+        self._arguments: typing.MutableSequence[traits.Argument] = []
+        self._options: typing.MutableSequence[traits.Option] = []
 
         if parameters is not None:
             self.set_parameters(parameters)
@@ -393,26 +428,33 @@ class ShlexParser(traits.Parser):
         return (*self._arguments, *self._options)
 
     def add_parameter(self, parameter_: traits.Parameter, /) -> None:
-        if parameter_.is_option:
+        if isinstance(parameter_, traits.Option):
             self._options.append(parameter_)
 
         else:
-            self._arguments.append(parameter_)  # TODO: verify the signature
+            self._arguments.append(parameter_)
+            found_final_argument = False
+
+            for argument_ in self._arguments:
+                if found_final_argument:
+                    del self._arguments[-1]
+                    raise ValueError("Multi or greedy argument must be the last argument")
+
+                found_final_argument = MULTI in argument_.flags or GREEDY in argument_.flags
 
     def remove_parameter(self, parameter_: traits.Parameter, /) -> None:
-        if parameter_.is_option:
+        if isinstance(parameter_, traits.Option):
             self._options.remove(parameter_)
 
         else:
-            self._arguments.remove(parameter_)  # TODO: verify the signature
+            self._arguments.remove(parameter_)
 
     def set_parameters(self, parameters: typing.Iterable[traits.Parameter], /) -> None:
-        self._arguments = [parameter_ for parameter_ in parameters if not parameter_.is_option]
-        self._options = [parameter_ for parameter_ in parameters if parameter_.is_option]
-        # TODO: verify the signature
+        self._arguments = []
+        self._options = []
 
-    def bind_component(self, component: traits.Component, /) -> None:
-        pass
+        for parameter_ in parameters:
+            self.add_parameter(parameter_)
 
     async def parse(
         self, ctx: traits.Context, /
@@ -421,3 +463,19 @@ class ShlexParser(traits.Parser):
         arguments = await parser.get_arguments(self._arguments)
         options = await parser.get_options(self._options)
         return arguments, options
+
+
+def generate_parameters(command: _CommandT, /, *, ignore_self: bool = True) -> _CommandT:
+    # TODO: implement this to enable generating parameters from a function's signature.
+    if command.parser is None:
+        raise RuntimeError("Cannot generate parameters for a command with no parser")
+
+    if command.function is None:
+        raise RuntimeError("Cannot generate parameters for a command with no function")
+
+    raise NotImplementedError
+
+
+def verify_parameters(command: _CommandT, /) -> _CommandT:
+    # TODO: implement this to verify the parameters of a command against the function signature
+    return command
