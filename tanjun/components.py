@@ -73,7 +73,7 @@ def event(
 
 
 class Component(traits.Component):
-    __slots__: typing.Sequence[str] = ("_client", "_commands", "hooks", "_listeners", "started")
+    __slots__: typing.Sequence[str] = ("_client", "_commands", "hooks", "_listeners", "_metadata", "started")
 
     started: bool
     """Whether this component has been "started" yet.
@@ -88,6 +88,7 @@ class Component(traits.Component):
         self._listeners: typing.MutableSet[
             typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]
         ] = set()
+        self._metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
         self.started = False
 
         for name, member in inspect.getmembers(self):
@@ -119,6 +120,10 @@ class Component(traits.Component):
         self,
     ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]]:
         return frozenset(self._listeners)
+
+    @property
+    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+        return self._metadata
 
     def add_command(self, command_: traits.ExecutableCommand, /) -> None:
         self._commands.add(command_)

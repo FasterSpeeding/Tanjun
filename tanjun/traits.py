@@ -32,6 +32,7 @@
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
+    "ConverterT",
     "ConversionHookT",
     "ErrorHookT",
     "HookT",
@@ -65,6 +66,7 @@ if typing.TYPE_CHECKING:
     from tanjun import errors
 
 
+ConverterT = typing.Union[typing.Callable[[str], typing.Any], "Converter[typing.Any]"]
 ConversionHookT = typing.Callable[
     ["Context", "errors.ConversionError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
 ]
@@ -296,6 +298,10 @@ class Component(Executable, typing.Protocol):
     ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]]:
         raise NotImplementedError
 
+    @property
+    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+        raise NotImplementedError
+
     def add_command(self, command: ExecutableCommand, /) -> None:
         raise NotImplementedError
 
@@ -344,6 +350,10 @@ class Client(typing.Protocol):
 
     @hooks.setter
     def hooks(self, hooks: typing.Optional[Hooks]) -> None:
+        raise NotImplementedError
+
+    @property
+    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         raise NotImplementedError
 
     @property
@@ -398,7 +408,7 @@ class Parameter(typing.Protocol):
     __slots__: typing.Sequence[str] = ()
 
     @property
-    def converters(self) -> typing.AbstractSet[typing.Union[typing.Callable[[str], typing.Any], Converter[typing.Any]]]:
+    def converters(self,) -> typing.Optional[typing.AbstractSet[ConverterT]]:
         raise NotImplementedError
 
     @property
@@ -421,14 +431,10 @@ class Parameter(typing.Protocol):
     def key(self, key: str) -> None:
         raise NotImplementedError
 
-    def add_converter(
-        self, converter: typing.Union[typing.Callable[[str], typing.Any], Converter[typing.Any]], /
-    ) -> None:
+    def add_converter(self, converter: ConverterT, /) -> None:
         raise NotImplementedError
 
-    def remove_converter(
-        self, converter: typing.Union[typing.Callable[[str], typing.Any], Converter[typing.Any]], /
-    ) -> None:
+    def remove_converter(self, converter: ConverterT, /) -> None:
         raise NotImplementedError
 
     async def convert(self, ctx: Context, value: str) -> typing.Any:

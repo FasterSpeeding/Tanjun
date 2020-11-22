@@ -60,6 +60,7 @@ class Client(traits.Client):  # TODO: prefix mention
         "_components",
         "_dispatch",
         "hooks",
+        "_metadata",
         "_prefixes",
         "_rest",
         "_shards",
@@ -111,13 +112,14 @@ class Client(traits.Client):  # TODO: prefix mention
             cache = shard  # type: ignore[unreachable]
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
 
-        self.hooks = hooks
         self._checks: typing.MutableSet[ClientCheckT] = {
             self.check_human,
         }
         self._cache = cache
         self._components: typing.MutableSet[traits.Component] = set()
         self._dispatch = dispatch
+        self.hooks = hooks
+        self._metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
         self._prefixes = set(prefixes) if prefixes else set()
         self._rest = rest
         self._shards = shard
@@ -150,6 +152,10 @@ class Client(traits.Client):  # TODO: prefix mention
     @property
     def dispatch(self) -> hikari_traits.DispatcherAware:
         return self._dispatch
+
+    @property
+    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+        return self._metadata
 
     @property
     def prefixes(self) -> typing.AbstractSet[str]:

@@ -222,7 +222,7 @@ class SemanticShlex(ShlexTokenizer):
 def argument(
     key: str,
     /,
-    converters: typing.Iterable[typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]]],
+    converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
     *,
     default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
@@ -241,7 +241,7 @@ def argument(
 def greedy_argument(
     key: str,
     /,
-    converters: typing.Iterable[typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]]],
+    converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
     *,
     default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
@@ -256,7 +256,7 @@ def greedy_argument(
 def multi_argument(
     key: str,
     /,
-    converters: typing.Iterable[typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]]],
+    converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
     *,
     default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
@@ -273,7 +273,7 @@ def option(
     name: str,
     /,
     *names: str,
-    converters: typing.Iterable[typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]]],
+    converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
     default: typing.Any,
     empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
@@ -296,7 +296,7 @@ def multi_option(
     name: str,
     /,
     *names: str,
-    converters: typing.Iterable[typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]]],
+    converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
     default: typing.Any,
     empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
@@ -316,11 +316,11 @@ class _Parameter(traits.Parameter):
         key: str,
         /,
         *,
-        converters: typing.Iterable[typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]]],
+        converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
         default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
     ) -> None:
-        self._converters = set(converters)
+        self._converters = set(converters) if converters is not None else None
         self.default = default
         self._flags = dict(flags) if flags else {}
         self.key = key
@@ -332,26 +332,32 @@ class _Parameter(traits.Parameter):
         return f"{type(self).__name__} <{self.key}>"
 
     @property
-    def converters(
-        self,
-    ) -> typing.AbstractSet[typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]]]:
-        return frozenset(self._converters)
+    def converters(self,) -> typing.Optional[typing.AbstractSet[traits.ConverterT]]:
+        return frozenset(self._converters) if self._converters is not None else None
 
     @property
     def flags(self) -> typing.MutableMapping[str, typing.Any]:
         return self._flags
 
-    def add_converter(
-        self, converter: typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]], /
-    ) -> None:
+    def add_converter(self, converter: traits.ConverterT, /) -> None:
+        if self._converters is None:
+            self._converters = set()
+
         self._converters.add(converter)
 
-    def remove_converter(
-        self, converter: typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]], /
-    ) -> None:
+    def remove_converter(self, converter: traits.ConverterT, /) -> None:
+        if self._converters is None:
+            raise ValueError("No converters set")
+
         self._converters.remove(converter)
 
+        if not self._converters:
+            self._converters = None
+
     async def convert(self, ctx: traits.Context, value: str) -> typing.Any:
+        if self._converters is None:
+            return value
+
         sources: typing.MutableSequence[ValueError] = []
         for converter in self._converters:
             try:
@@ -374,7 +380,7 @@ class Argument(_Parameter, traits.Argument):
         key: str,
         /,
         *,
-        converters: typing.Iterable[typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]]],
+        converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
         default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
     ) -> None:
@@ -392,7 +398,7 @@ class Option(_Parameter, traits.Option):
         key: str,
         name: str,
         *names: str,
-        converters: typing.Iterable[typing.Union[typing.Callable[[str], typing.Any], traits.Converter[typing.Any]]],
+        converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
         default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
         empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
