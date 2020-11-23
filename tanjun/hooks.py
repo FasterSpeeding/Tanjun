@@ -43,37 +43,35 @@ from tanjun.traits import Context
 
 
 class Hooks(traits.Hooks):
-    __slots__: typing.Sequence[str] = ("_pre_execution", "_post_execution", "_conversion_error", "_error", "_success")
+    __slots__: typing.Sequence[str] = ("_error", "_parser_error", "_pre_execution", "_post_execution", "_success")
 
     def __init__(
         self,
         *,
+        error: typing.Optional[traits.ErrorHookT] = None,
+        parser_error: typing.Optional[traits.ParserHookT] = None,
         pre_execution: typing.Optional[traits.PreExecutionHookT] = None,
         post_execution: typing.Optional[traits.HookT] = None,
-        conversion_error: typing.Optional[traits.ConversionHookT] = None,
-        error: typing.Optional[traits.ErrorHookT] = None,
         success: typing.Optional[traits.HookT] = None,
     ) -> None:
+        self._error = error
+        self._parser_error = parser_error
         self._pre_execution = pre_execution
         self._post_execution = post_execution
-        self._conversion_error = conversion_error
-        self._error = error
         self._success = success
 
     def __repr__(self) -> str:
         return (
-            f"Hooks < {self._pre_execution!r}, {self._post_execution!r}, "
-            f"{self._conversion_error!r}, {self._error!r}, {self._success!r}>"
+            f"Hooks < {self._error!r}, {self._parser_error!r}, {self._pre_execution!r}, "
+            f"{self._post_execution!r}, {self._success!r}>"
         )
-
-    def on_conversion_error(
-        self, hook: typing.Optional[traits.ConversionHookT], /
-    ) -> typing.Optional[traits.ConversionHookT]:
-        self._conversion_error = hook
-        return hook
 
     def on_error(self, hook: typing.Optional[traits.ErrorHookT], /) -> typing.Optional[traits.ErrorHookT]:
         self._error = hook
+        return hook
+
+    def on_parser_error(self, hook: typing.Optional[traits.ParserHookT], /) -> typing.Optional[traits.ParserHookT]:
+        self._parser_error = hook
         return hook
 
     def post_execution(self, hook: typing.Optional[traits.HookT], /) -> typing.Optional[traits.HookT]:
@@ -90,19 +88,6 @@ class Hooks(traits.Hooks):
         self._success = hook
         return hook
 
-    async def trigger_conversion_error(
-        self,
-        ctx: Context,
-        /,
-        exception: errors.ConversionError,
-        hooks: typing.Optional[typing.AbstractSet[traits.Hooks]] = None,
-    ) -> None:  # TODO: return True to indicate "raise" else False or None to suppress
-        if self._conversion_error:
-            await utilities.await_if_async(self._conversion_error(ctx, exception))
-
-        if hooks:
-            await asyncio.gather(*(hook.trigger_conversion_error(ctx, exception) for hook in hooks))
-
     async def trigger_error(
         self,
         ctx: Context,
@@ -116,6 +101,19 @@ class Hooks(traits.Hooks):
 
         if hooks:
             await asyncio.gather(*(hook.trigger_error(ctx, exception) for hook in hooks))
+
+    async def trigger_parser_error(
+        self,
+        ctx: Context,
+        /,
+        exception: errors.ParserError,
+        hooks: typing.Optional[typing.AbstractSet[traits.Hooks]] = None,
+    ) -> None:
+        if self._parser_error:
+            await utilities.await_if_async(self._parser_error(ctx, exception))
+
+        if hooks:
+            await asyncio.gather(*(hook.trigger_parser_error(ctx, exception) for hook in hooks))
 
     async def trigger_post_execution(
         self, ctx: Context, /, *, hooks: typing.Optional[typing.AbstractSet[traits.Hooks]] = None

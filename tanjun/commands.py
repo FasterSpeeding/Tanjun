@@ -172,6 +172,9 @@ class Command(traits.ExecutableCommand):
                 else:
                     break
 
+        except errors.ParserError as exc:
+            await self.hooks.trigger_parser_error(ctx, exc, hooks=hooks)
+
         except Exception as exc:
             await self.hooks.trigger_error(ctx, exc, hooks=hooks)
             raise

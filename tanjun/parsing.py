@@ -153,7 +153,7 @@ async def _covert_option_or_empty(
     if option_.empty_value is not traits.UNDEFINED_DEFAULT:
         return option_.empty_value
 
-    raise errors.ParserError(f"Option '{option_.key} cannot be empty.", option_)
+    raise errors.MissingArgumentError(f"Option '{option_.key} cannot be empty.", option_)
 
 
 class SemanticShlex(ShlexTokenizer):
@@ -196,7 +196,7 @@ class SemanticShlex(ShlexTokenizer):
             return argument_.default
 
         # If this is reached then no value was found.
-        raise errors.ParserError(f"Missing value for required argument '{argument_.key}'", argument_)
+        raise errors.MissingArgumentError(f"Missing value for required argument '{argument_.key}'", argument_)
 
     async def __process_option(
         self, option_: traits.Option, raw_options: typing.Mapping[str, typing.Sequence[typing.Optional[str]]]
@@ -216,7 +216,7 @@ class SemanticShlex(ShlexTokenizer):
             return option_.default
 
         # If this is reached then no value was found.
-        raise errors.ParserError(f"Missing required option `{option_.key}`", option_)
+        raise errors.MissingArgumentError(f"Missing required option `{option_.key}`", option_)
 
 
 def argument(
@@ -369,7 +369,7 @@ class _Parameter(traits.Parameter):
             except ValueError as exc:
                 sources.append(exc)
 
-        raise errors.ConversionError(sources)
+        raise errors.ConversionError(self, sources)
 
 
 class Argument(_Parameter, traits.Argument):

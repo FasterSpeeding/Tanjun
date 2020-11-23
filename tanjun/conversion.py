@@ -505,3 +505,5 @@ class VoiceStateConverter(BaseConverter[voices.VoiceState]):
 for cls in vars().copy().values():
     if inspect.isclass(cls) and issubclass(cls, BaseConverter):
         BaseConverter.implementations().add(cls)
+
+del cls

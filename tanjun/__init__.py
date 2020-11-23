@@ -66,6 +66,7 @@ __all__: typing.Sequence[str] = [
     "errors",
     "CommandError",
     "ConversionError",
+    "MissingArgumentError",
     "ParserError",
     "TanjunError",
     # hooks.py

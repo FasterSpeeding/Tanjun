@@ -33,7 +33,7 @@ from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
     "ConverterT",
-    "ConversionHookT",
+    "ParserHookT",
     "ErrorHookT",
     "HookT",
     "PreExecutionHookT",
@@ -67,8 +67,8 @@ if typing.TYPE_CHECKING:
 
 
 ConverterT = typing.Union[typing.Callable[[str], typing.Any], "Converter[typing.Any]"]
-ConversionHookT = typing.Callable[
-    ["Context", "errors.ConversionError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
+ParserHookT = typing.Callable[
+    ["Context", "errors.ParserError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
 ]
 ErrorHookT = typing.Callable[
     ["Context", BaseException], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
@@ -143,10 +143,10 @@ class Converter(typing.Protocol[ValueT]):
 class Hooks(typing.Protocol):
     __slots__: typing.Sequence[str] = ()
 
-    def on_conversion_error(self, hook: typing.Optional[ConversionHookT], /) -> typing.Optional[ConversionHookT]:
+    def on_error(self, hook: typing.Optional[ErrorHookT], /) -> typing.Optional[ErrorHookT]:
         raise NotImplementedError
 
-    def on_error(self, hook: typing.Optional[ErrorHookT], /) -> typing.Optional[ErrorHookT]:
+    def on_parser_error(self, hook: typing.Optional[ParserHookT], /) -> typing.Optional[ParserHookT]:
         raise NotImplementedError
 
     def post_execution(self, hook: typing.Optional[HookT], /) -> typing.Optional[HookT]:
@@ -158,17 +158,13 @@ class Hooks(typing.Protocol):
     def on_success(self, hook: typing.Optional[HookT], /) -> typing.Optional[HookT]:
         raise NotImplementedError
 
-    async def trigger_conversion_error(
-        self,
-        ctx: Context,
-        /,
-        exception: errors.ConversionError,
-        hooks: typing.Optional[typing.AbstractSet[Hooks]] = None,
+    async def trigger_error(
+        self, ctx: Context, /, exception: BaseException, *, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None
     ) -> None:
         raise NotImplementedError
 
-    async def trigger_error(
-        self, ctx: Context, /, exception: BaseException, *, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None
+    async def trigger_parser_error(
+        self, ctx: Context, /, exception: errors.ParserError, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None,
     ) -> None:
         raise NotImplementedError
 

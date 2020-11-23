@@ -31,12 +31,17 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["CommandError", "ConversionError", "ParserError", "TanjunError"]
+__all__: typing.Sequence[str] = [
+    "CommandError",
+    "ConversionError",
+    "MissingArgumentError",
+    "ParserError",
+    "TanjunError",
+]
 
 import typing
 
-if typing.TYPE_CHECKING:
-    from tanjun import traits
+from tanjun import traits
 
 
 class TanjunError(Exception):
@@ -52,14 +57,8 @@ class CommandError(TanjunError):
     def __repr__(self) -> str:
         return f"{type(self).__name__} <{self.message}>"
 
-
-class ConversionError(TanjunError, ValueError):
-    __slots__: typing.Sequence[str] = ("errors",)
-
-    errors: typing.AbstractSet[ValueError]
-
-    def __init__(self, errors: typing.Iterable[ValueError]) -> None:
-        self.errors = set(errors)
+    def __str__(self) -> str:
+        return self.message
 
 
 class ParserError(TanjunError, ValueError):
@@ -68,3 +67,21 @@ class ParserError(TanjunError, ValueError):
     def __init__(self, message: str, parameter: traits.Parameter, /) -> None:
         self.message = message
         self.parameter = parameter
+
+    def __str__(self) -> str:
+        return self.message
+
+
+class MissingArgumentError(ParserError):
+    __slots__: typing.Sequence[str] = ()
+
+
+class ConversionError(ParserError):
+    __slots__: typing.Sequence[str] = ("errors",)
+
+    errors: typing.AbstractSet[ValueError]
+
+    def __init__(self, parameter: traits.Parameter, errors: typing.Iterable[ValueError], /) -> None:
+        option_or_argument = "option" if isinstance(parameter, traits.Option) else "argument"
+        super().__init__(f"Couldn't convert {option_or_argument} '{parameter.key}'", parameter)
+        self.errors = set(errors)
