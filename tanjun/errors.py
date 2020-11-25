@@ -31,9 +31,18 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["CommandError", "ConversionError", "TanjunError"]
+__all__: typing.Sequence[str] = [
+    "CommandError",
+    "ConversionError",
+    "NotEnoughArgumentsError",
+    "TooManyArgumentsError",
+    "ParserError",
+    "TanjunError",
+]
 
 import typing
+
+from tanjun import traits
 
 
 class TanjunError(Exception):
@@ -43,9 +52,58 @@ class TanjunError(Exception):
 class CommandError(TanjunError):
     __slots__: typing.Sequence[str] = ("message",)
 
-    def __init__(self, message: str, /) -> None:
+    # None or empty string == no response
+    message: typing.Optional[str]
+
+    def __init__(self, message: typing.Optional[str], /) -> None:
         self.message = message
 
+    def __repr__(self) -> str:
+        return f"{type(self).__name__} <{self.message}>"
 
-class ConversionError(TanjunError, ValueError):
+    def __str__(self) -> str:
+        return self.message or ""
+
+
+class ParserError(TanjunError, ValueError):
+    __slots__: typing.Sequence[str] = ("message", "parameter")
+
+    message: str
+    parameter: typing.Optional[traits.Parameter]
+
+    def __init__(self, message: str, parameter: typing.Optional[traits.Parameter], /) -> None:
+        self.message = message
+        self.parameter = parameter
+
+    def __str__(self) -> str:
+        return self.message
+
+
+class ConversionError(ParserError):
+    __slots__: typing.Sequence[str] = ("errors",)
+
+    errors: typing.Sequence[ValueError]
+    parameter: traits.Parameter
+
+    def __init__(self, parameter: traits.Parameter, errors: typing.Iterable[ValueError], /) -> None:
+        option_or_argument = "option" if isinstance(parameter, traits.Option) else "argument"
+        super().__init__(f"Couldn't convert {option_or_argument} '{parameter.key}'", parameter)
+        self.errors = tuple(errors)
+
+
+class NotEnoughArgumentsError(ParserError):
     __slots__: typing.Sequence[str] = ()
+
+    parameter: traits.Parameter
+
+    def __init__(self, message: str, parameter: traits.Parameter, /) -> None:
+        super().__init__(message, parameter)
+
+
+class TooManyArgumentsError(ParserError):
+    __slots__: typing.Sequence[str] = ()
+
+    parameter: traits.Parameter
+
+    def __init__(self, message: str, parameter: traits.Parameter, /) -> None:
+        super().__init__(message, parameter)

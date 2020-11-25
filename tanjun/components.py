@@ -37,6 +37,7 @@ import inspect
 import itertools
 import typing
 
+from hikari import undefined
 from hikari.events import base_events
 
 from tanjun import commands
@@ -53,9 +54,10 @@ def command(
     *names: str,
     checks: typing.Optional[typing.Iterable[commands.CheckT]] = None,
     hooks: typing.Optional[traits.Hooks] = None,
+    parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
 ) -> typing.Callable[[commands.CommandFunctionT], commands.Command]:
     def decorator(function: commands.CommandFunctionT, /) -> commands.Command:
-        return commands.Command(function, name, *names, checks=checks, hooks=hooks)
+        return commands.Command(function, name, *names, checks=checks, hooks=hooks, parser=parser)
 
     return decorator
 
@@ -71,7 +73,7 @@ def event(
 
 
 class Component(traits.Component):
-    __slots__: typing.Sequence[str] = ("_client", "_commands", "hooks", "_listeners", "started")
+    __slots__: typing.Sequence[str] = ("_client", "_commands", "hooks", "_listeners", "_metadata", "started")
 
     started: bool
     """Whether this component has been "started" yet.
@@ -86,6 +88,7 @@ class Component(traits.Component):
         self._listeners: typing.MutableSet[
             typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]
         ] = set()
+        self._metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
         self.started = False
 
         for name, member in inspect.getmembers(self):
@@ -101,6 +104,9 @@ class Component(traits.Component):
 
                 self.add_listener(event_, member)
 
+    def __repr__(self) -> str:
+        return f"Component <{type(self).__name__}, {len(self._commands)} commands>"
+
     @property
     def client(self) -> typing.Optional[traits.Client]:
         return self._client
@@ -115,6 +121,10 @@ class Component(traits.Component):
     ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]]:
         return frozenset(self._listeners)
 
+    @property
+    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+        return self._metadata
+
     def add_command(self, command_: traits.ExecutableCommand, /) -> None:
         self._commands.add(command_)
 
@@ -127,7 +137,7 @@ class Component(traits.Component):
         self._listeners.add((event_, listener))
 
         if self.started and self._client:
-            self._client.dispatch.dispatcher.subscribe(event_, listener)
+            self._client.dispatch_service.dispatcher.subscribe(event_, listener)
 
     def remove_listener(
         self, event_: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
@@ -135,12 +145,12 @@ class Component(traits.Component):
         self._listeners.remove((event_, listener))
 
         if self.started and self._client:
-            self._client.dispatch.dispatcher.unsubscribe(event_, listener)
+            self._client.dispatch_service.dispatcher.unsubscribe(event_, listener)
 
     def bind_client(self, client: traits.Client, /) -> None:
         self._client = client
         for event_, listener in self._listeners:
-            self._client.dispatch.dispatcher.subscribe(event_, listener)
+            self._client.dispatch_service.dispatcher.subscribe(event_, listener)
 
     async def check_context(self, ctx: traits.Context, /) -> typing.AsyncIterator[traits.FoundCommand]:
         async for value in utilities.async_chain(command_.check_context(ctx) for command_ in self._commands):
@@ -156,7 +166,7 @@ class Component(traits.Component):
         self.started = False
         if self._client:
             for event_, listener in self._listeners:
-                self._client.dispatch.dispatcher.unsubscribe(event_, listener)
+                self._client.dispatch_service.dispatcher.unsubscribe(event_, listener)
 
     async def open(self) -> None:
         if self.started:
@@ -168,11 +178,11 @@ class Component(traits.Component):
         if self._client:
             for event_, listener in self._listeners:
                 try:
-                    self._client.dispatch.dispatcher.unsubscribe(event_, listener)
+                    self._client.dispatch_service.dispatcher.unsubscribe(event_, listener)
                 except (KeyError, ValueError, LookupError):  # TODO: what does hikari raise?
                     continue
 
-                self._client.dispatch.dispatcher.subscribe(event_, listener)
+                self._client.dispatch_service.dispatcher.subscribe(event_, listener)
 
         self.started = True
 

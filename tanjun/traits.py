@@ -31,28 +31,56 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = []
+__all__: typing.Sequence[str] = [
+    "ConverterT",
+    "ParserHookT",
+    "ErrorHookT",
+    "HookT",
+    "PreExecutionHookT",
+    "CheckT",
+    "ValueT",
+    "Context",
+    "Converter",
+    "StatelessConverter",
+    "Hooks",
+    "Executable",
+    "FoundCommand",
+    "ExecutableCommand",
+    "Component",
+    "Client",
+    "UNDEFINED_DEFAULT",
+    "Parameter",
+    "Argument",
+    "Option",
+    "Parser",
+]
 
 import typing
 
 if typing.TYPE_CHECKING:
     from hikari import messages
     from hikari import traits
-    from hikari import undefined
     from hikari.api import event_dispatcher
+    from hikari.api import shard as shard_
     from hikari.events import base_events
 
     from tanjun import errors
 
 
-ConversionHookT = typing.Callable[
-    ["Context", "errors.ConversionError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
+# To allow for stateless converters we accept both "Converter[...]" and "Type[StatelessConverter[...]]" where all the
+# methods on "Type[StatelessConverter[...]]" need to be classmethods as it will not be initialised before calls are made
+# to it.
+ConverterT = typing.Union[
+    typing.Callable[[str], typing.Any], "Converter[typing.Any]", "typing.Type[StatelessConverter[typing.Any]]"
+]
+ParserHookT = typing.Callable[
+    ["Context", "errors.ParserError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
 ]
 ErrorHookT = typing.Callable[
     ["Context", BaseException], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
 ]
 HookT = typing.Callable[["Context"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]]
-PreExecutionHookT = typing.Callable[..., typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]]
+PreExecutionHookT = typing.Callable[["Context"], typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]]
 CheckT = typing.Callable[["Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]]
 ValueT = typing.TypeVar("ValueT", covariant=True)
 
@@ -86,6 +114,10 @@ class Context(typing.Protocol):
         raise NotImplementedError
 
     @property
+    def shard(self) -> shard_.GatewayShard:
+        raise NotImplementedError
+
+    @property
     def triggering_prefix(self) -> typing.Optional[str]:
         raise NotImplementedError
 
@@ -101,10 +133,6 @@ class Context(typing.Protocol):
     def triggering_name(self, triggering_name: str, /) -> None:
         raise NotImplementedError
 
-    # @property
-    # def shard(self) -> shard.GatewayShard:
-    #     raise NotImplementedError
-
 
 @typing.runtime_checkable
 class Converter(typing.Protocol[ValueT]):
@@ -113,6 +141,19 @@ class Converter(typing.Protocol[ValueT]):
     async def convert(self, ctx: Context, argument: str, /) -> ValueT:
         raise NotImplementedError
 
+    def bind_component(self, client: Client, component: Component, /) -> None:
+        raise NotImplementedError
+
+
+@typing.runtime_checkable
+class StatelessConverter(typing.Protocol[ValueT]):
+    __slots__: typing.Sequence[str] = ()
+
+    @classmethod
+    async def convert(cls, ctx: Context, argument: str, /) -> ValueT:
+        raise NotImplementedError
+
+    @classmethod
     def bind_component(cls, client: Client, component: Component, /) -> None:
         raise NotImplementedError
 
@@ -121,10 +162,10 @@ class Converter(typing.Protocol[ValueT]):
 class Hooks(typing.Protocol):
     __slots__: typing.Sequence[str] = ()
 
-    def on_conversion_error(self, hook: typing.Optional[ConversionHookT], /) -> typing.Optional[ConversionHookT]:
+    def on_error(self, hook: typing.Optional[ErrorHookT], /) -> typing.Optional[ErrorHookT]:
         raise NotImplementedError
 
-    def on_error(self, hook: typing.Optional[ErrorHookT], /) -> typing.Optional[ErrorHookT]:
+    def on_parser_error(self, hook: typing.Optional[ParserHookT], /) -> typing.Optional[ParserHookT]:
         raise NotImplementedError
 
     def post_execution(self, hook: typing.Optional[HookT], /) -> typing.Optional[HookT]:
@@ -136,17 +177,13 @@ class Hooks(typing.Protocol):
     def on_success(self, hook: typing.Optional[HookT], /) -> typing.Optional[HookT]:
         raise NotImplementedError
 
-    async def trigger_conversion_error(
-        self,
-        ctx: Context,
-        /,
-        exception: errors.ConversionError,
-        hooks: typing.Optional[typing.AbstractSet[Hooks]] = None,
+    async def trigger_error(
+        self, ctx: Context, /, exception: BaseException, *, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None
     ) -> None:
         raise NotImplementedError
 
-    async def trigger_error(
-        self, ctx: Context, /, exception: BaseException, *, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None
+    async def trigger_parser_error(
+        self, ctx: Context, /, exception: errors.ParserError, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None,
     ) -> None:
         raise NotImplementedError
 
@@ -156,13 +193,7 @@ class Hooks(typing.Protocol):
         raise NotImplementedError
 
     async def trigger_pre_execution(
-        self,
-        ctx: Context,
-        /,
-        *,
-        args: typing.Sequence[str],
-        kwargs: typing.Mapping[str, typing.Any],
-        hooks: typing.Optional[typing.AbstractSet[Hooks]] = None,
+        self, ctx: Context, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None,
     ) -> bool:
         raise NotImplementedError
 
@@ -192,7 +223,6 @@ class Executable(typing.Protocol):
     def check_name(self, name: str, /) -> typing.Iterator[FoundCommand]:
         raise NotImplementedError
 
-    # TODO: raise here?
     async def execute(self, ctx: Context, /, *, hooks: typing.Optional[typing.MutableSet[Hooks]] = None) -> bool:
         raise NotImplementedError
 
@@ -235,11 +265,23 @@ class ExecutableCommand(Executable, typing.Protocol):
         raise NotImplementedError
 
     @property
+    def function(self) -> typing.Optional[typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, typing.Any]]]:
+        raise NotImplementedError
+
+    @property
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         raise NotImplementedError
 
     @property
     def names(self) -> typing.AbstractSet[str]:
+        raise NotImplementedError
+
+    @property
+    def parser(self) -> typing.Optional[Parser]:
+        raise NotImplementedError
+
+    @parser.setter
+    def parser(self, parser: typing.Optional[Parser], /) -> None:
         raise NotImplementedError
 
     def add_name(self, name: str, /) -> None:
@@ -270,6 +312,10 @@ class Component(Executable, typing.Protocol):
     ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]]:
         raise NotImplementedError
 
+    @property
+    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+        raise NotImplementedError
+
     def add_command(self, command: ExecutableCommand, /) -> None:
         raise NotImplementedError
 
@@ -298,8 +344,10 @@ class Component(Executable, typing.Protocol):
 
 @typing.runtime_checkable
 class Client(typing.Protocol):
+    __slots__: typing.Sequence[str] = ()
+
     @property
-    def cache(self) -> typing.Optional[traits.CacheAware]:
+    def cache_service(self) -> typing.Optional[traits.CacheAware]:
         raise NotImplementedError
 
     @property
@@ -307,15 +355,7 @@ class Client(typing.Protocol):
         raise NotImplementedError
 
     @property
-    def dispatch(self) -> traits.DispatcherAware:
-        raise NotImplementedError
-
-    @property
-    def prefixes(self) -> typing.AbstractSet[str]:
-        raise NotImplementedError
-
-    @property  # TODO: keep this?
-    def rest(self) -> traits.RESTAware:
+    def dispatch_service(self) -> traits.DispatcherAware:
         raise NotImplementedError
 
     @property
@@ -324,6 +364,18 @@ class Client(typing.Protocol):
 
     @hooks.setter
     def hooks(self, hooks: typing.Optional[Hooks]) -> None:
+        raise NotImplementedError
+
+    @property
+    def prefixes(self) -> typing.AbstractSet[str]:
+        raise NotImplementedError
+
+    @property
+    def rest_service(self) -> traits.RESTAware:
+        raise NotImplementedError
+
+    @property
+    def shard_service(self) -> traits.ShardAware:
         raise NotImplementedError
 
     def add_component(self, component: Component, /) -> None:
@@ -352,18 +404,72 @@ class Client(typing.Protocol):
     async def open(self) -> None:
         raise NotImplementedError
 
+    @classmethod
+    def metadata(cls) -> typing.MutableMapping[typing.Any, typing.Any]:
+        raise NotImplementedError
 
+
+class UndefinedDefault:
+    __slots__: typing.Sequence[str] = ()
+
+
+UNDEFINED_DEFAULT = UndefinedDefault()
+"""A singleton used to represent no default for a parameter."""
+
+
+@typing.runtime_checkable
 class Parameter(typing.Protocol):
+    __slots__: typing.Sequence[str] = ()
+
     @property
-    def default(self) -> typing.Any:
+    def converters(self) -> typing.Optional[typing.Sequence[ConverterT]]:
         raise NotImplementedError
 
     @property
-    def empty_value(self) -> undefined.UndefinedOr[typing.Any]:
+    def default(self) -> typing.Union[typing.Any, UndefinedDefault]:
+        raise NotImplementedError
+
+    @default.setter
+    def default(self, default: typing.Union[typing.Any, UndefinedDefault], /) -> None:
         raise NotImplementedError
 
     @property
     def flags(self) -> typing.MutableMapping[str, typing.Any]:
+        raise NotImplementedError
+
+    @property
+    def key(self) -> str:
+        raise NotImplementedError
+
+    @key.setter
+    def key(self, key: str) -> None:
+        raise NotImplementedError
+
+    def add_converter(self, converter: ConverterT, /) -> None:
+        raise NotImplementedError
+
+    def remove_converter(self, converter: ConverterT, /) -> None:
+        raise NotImplementedError
+
+    async def convert(self, ctx: Context, value: str) -> typing.Any:
+        raise NotImplementedError
+
+
+@typing.runtime_checkable
+class Argument(Parameter, typing.Protocol):
+    __slots__: typing.Sequence[str] = ()
+
+
+@typing.runtime_checkable
+class Option(Parameter, typing.Protocol):
+    __slots__: typing.Sequence[str] = ()
+
+    @property
+    def empty_value(self) -> typing.Union[typing.Any, UndefinedDefault]:
+        raise NotImplementedError
+
+    @empty_value.setter
+    def empty_value(self, empty_value: typing.Union[typing.Any, UndefinedDefault], /) -> None:
         raise NotImplementedError
 
     @property
@@ -374,25 +480,25 @@ class Parameter(typing.Protocol):
     def names(self, names: typing.Sequence[str], /) -> None:
         raise NotImplementedError
 
-    def bind_component(self, component: Component, /) -> None:
-        raise NotImplementedError
 
-    async def convert(self, ctx: Context, value: str) -> typing.Any:
-        raise NotImplementedError
-
-
+@typing.runtime_checkable
 class Parser(typing.Protocol):
+    __slots__: typing.Sequence[str] = ()
+
     @property
     def parameters(self) -> typing.Sequence[Parameter]:
         raise NotImplementedError
 
-    def bind_component(self, component: Component, /) -> None:
+    def add_parameter(self, parameter: Parameter, /) -> None:
+        raise NotImplementedError
+
+    def remove_parameter(self, parameter: Parameter, /) -> None:
+        raise NotImplementedError
+
+    def set_parameters(self, parameters: typing.Iterable[Parameter], /) -> None:
         raise NotImplementedError
 
     async def parse(
         self, ctx: Context, /
     ) -> typing.Tuple[typing.Sequence[typing.Any], typing.Mapping[str, typing.Any]]:
-        raise NotImplementedError
-
-    async def set_parameters(self, parameters: typing.Sequence[Parameter]) -> None:
         raise NotImplementedError
