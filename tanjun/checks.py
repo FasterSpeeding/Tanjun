@@ -80,7 +80,7 @@ class IsApplicationOwner:
             await asyncio.sleep(1_800)
             if self._client is not None:
                 try:
-                    self._application = await self._fetch_application(self._client.rest)
+                    self._application = await self._fetch_application(self._client.rest_service)
 
                 except errors.ForbiddenError:
                     pass
@@ -92,7 +92,7 @@ class IsApplicationOwner:
                 if self._application:
                     return self._application  # type: ignore[unreachable]
 
-                self._application = await self._fetch_application(ctx.client.rest)
+                self._application = await self._fetch_application(ctx.client.rest_service)
 
                 if self._fetch_task is None:
                     self._fetch_task = asyncio.create_task(self._fetch_loop())
@@ -119,7 +119,7 @@ class IsApplicationOwner:
 
     async def update(self, *, rest: typing.Optional[hikari_traits.RESTAware] = None) -> None:
         if not rest and self._client:
-            rest = self._client.rest
+            rest = self._client.rest_service
 
         elif not rest:
             raise ValueError("REST client must be provided when trying to update a closed application owner check.")

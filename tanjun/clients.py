@@ -151,7 +151,7 @@ class Client(traits.Client):
         return f"CommandClient <{type(self).__name__!r}, {len(self._components)} components, {self._prefixes}>"
 
     @property
-    def cache(self) -> typing.Optional[hikari_traits.CacheAware]:
+    def cache_service(self) -> typing.Optional[hikari_traits.CacheAware]:
         return self._cache
 
     @property
@@ -159,7 +159,7 @@ class Client(traits.Client):
         return frozenset(self._components)
 
     @property
-    def dispatch(self) -> hikari_traits.DispatcherAware:
+    def dispatch_service(self) -> hikari_traits.DispatcherAware:
         return self._dispatch
 
     @property
@@ -167,11 +167,11 @@ class Client(traits.Client):
         return frozenset(self._prefixes)
 
     @property
-    def rest(self) -> hikari_traits.RESTAware:
+    def rest_service(self) -> hikari_traits.RESTAware:
         return self._rest
 
     @property
-    def shards(self) -> hikari_traits.ShardAware:
+    def shard_service(self) -> hikari_traits.ShardAware:
         return self._shards
 
     async def _on_starting_event(self, _: lifetime_events.StartingEvent, /) -> None:

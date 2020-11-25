@@ -223,7 +223,6 @@ class Executable(typing.Protocol):
     def check_name(self, name: str, /) -> typing.Iterator[FoundCommand]:
         raise NotImplementedError
 
-    # TODO: raise here?
     async def execute(self, ctx: Context, /, *, hooks: typing.Optional[typing.MutableSet[Hooks]] = None) -> bool:
         raise NotImplementedError
 
@@ -348,7 +347,7 @@ class Client(typing.Protocol):
     __slots__: typing.Sequence[str] = ()
 
     @property
-    def cache(self) -> typing.Optional[traits.CacheAware]:
+    def cache_service(self) -> typing.Optional[traits.CacheAware]:
         raise NotImplementedError
 
     @property
@@ -356,7 +355,7 @@ class Client(typing.Protocol):
         raise NotImplementedError
 
     @property
-    def dispatch(self) -> traits.DispatcherAware:
+    def dispatch_service(self) -> traits.DispatcherAware:
         raise NotImplementedError
 
     @property
@@ -372,11 +371,11 @@ class Client(typing.Protocol):
         raise NotImplementedError
 
     @property
-    def rest(self) -> traits.RESTAware:
+    def rest_service(self) -> traits.RESTAware:
         raise NotImplementedError
 
     @property
-    def shards(self) -> traits.ShardAware:
+    def shard_service(self) -> traits.ShardAware:
         raise NotImplementedError
 
     def add_component(self, component: Component, /) -> None:

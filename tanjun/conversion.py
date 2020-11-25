@@ -73,7 +73,7 @@ class BaseConverter(abc.ABC, typing.Generic[_ValueT], traits.StatelessConverter[
 
     @classmethod
     def bind_component(cls, client: traits.Client, _: traits.Component, /) -> None:
-        if cls.cache_bound() and not client.cache:
+        if cls.cache_bound() and not client.cache_service:
             raise ValueError("Cache bound converter cannot be used with a cache-less client")
 
         # TODO: intents checks.
@@ -130,11 +130,11 @@ class ChannelConverter(BaseConverter[channels.GuildChannel]):
 
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> channels.GuildChannel:
-        if ctx.client.cache is None:
+        if ctx.client.cache_service is None:
             raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
 
         channel_id = ChannelIDParser.match_id(argument, message="No valid channel mention or ID  found")
-        if channel := ctx.client.cache.cache.get_guild_channel(channel_id):
+        if channel := ctx.client.cache_service.cache.get_guild_channel(channel_id):
             return channel
 
         raise ValueError("Couldn't find channel")
@@ -189,11 +189,11 @@ class EmojiConverter(BaseConverter[emojis.KnownCustomEmoji]):
 
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> emojis.KnownCustomEmoji:
-        if ctx.client.cache is None:
+        if ctx.client.cache_service is None:
             raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
 
         emoji_id = EmojiIDParser.match_id(argument, message="No valid emoji or emoji ID found")
-        if emoji := ctx.client.cache.cache.get_emoji(emoji_id):
+        if emoji := ctx.client.cache_service.cache.get_emoji(emoji_id):
             return emoji
 
         raise ValueError("Couldn't find emoji")
@@ -220,11 +220,11 @@ class GuildConverter(BaseConverter[guilds.GatewayGuild]):
 
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> guilds.GatewayGuild:
-        if ctx.client.cache is None:
+        if ctx.client.cache_service is None:
             raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
 
         guild_id = SnowflakeParser.match_id(argument, message="No valid guild ID found")
-        if guild := ctx.client.cache.cache.get_guild(guild_id):
+        if guild := ctx.client.cache_service.cache.get_guild(guild_id):
             return guild
 
         raise ValueError("Couldn't find guild")
@@ -251,10 +251,10 @@ class InviteConverter(BaseConverter[invites.InviteWithMetadata]):
 
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> invites.InviteWithMetadata:
-        if ctx.client.cache is None:
+        if ctx.client.cache_service is None:
             raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
 
-        if invite := ctx.client.cache.cache.get_invite(argument):
+        if invite := ctx.client.cache_service.cache.get_invite(argument):
             return invite
 
         raise ValueError("Couldn't find invite")
@@ -281,14 +281,14 @@ class MemberConverter(BaseConverter[guilds.Member]):
 
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> guilds.Member:
-        if ctx.client.cache is None:
+        if ctx.client.cache_service is None:
             raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
 
         if ctx.message.guild_id is None:
             raise ValueError("Cannot get a member from a DM channel")
 
         member_id = UserIDParser.match_id(argument, message="No valid user mention or ID found")
-        if member := ctx.client.cache.cache.get_member(ctx.message.guild_id, member_id):
+        if member := ctx.client.cache_service.cache.get_member(ctx.message.guild_id, member_id):
             return member
 
         raise ValueError("Couldn't find member in this guild")
@@ -315,14 +315,14 @@ class PresenceConverter(BaseConverter[presences.MemberPresence]):
 
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> presences.MemberPresence:
-        if ctx.client.cache is None:
+        if ctx.client.cache_service is None:
             raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
 
         if ctx.message.guild_id is None:
             raise ValueError("Cannot get a presence from a DM channel")
 
         user_id = UserIDParser.match_id(argument, message="No valid member mention or ID  found")
-        if user := ctx.client.cache.cache.get_presence(ctx.message.guild_id, user_id):
+        if user := ctx.client.cache_service.cache.get_presence(ctx.message.guild_id, user_id):
             return user
 
         raise ValueError("Couldn't find presence in current guild")
@@ -337,11 +337,11 @@ class RoleConverter(BaseConverter[guilds.Role]):
 
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> guilds.Role:
-        if ctx.client.cache is None:
+        if ctx.client.cache_service is None:
             raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
 
         role_id = SnowflakeParser.match_id(argument, message="No valid role mention or ID  found")
-        if role := ctx.client.cache.cache.get_role(role_id):
+        if role := ctx.client.cache_service.cache.get_role(role_id):
             return role
 
         raise ValueError("Couldn't find role")
@@ -457,11 +457,11 @@ class UserConverter(BaseConverter[users.User]):
 
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> users.User:
-        if ctx.client.cache is None:
+        if ctx.client.cache_service is None:
             raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
 
         user_id = UserIDParser.match_id(argument, message="No valid user mention or ID  found")
-        if user := ctx.client.cache.cache.get_user(user_id):
+        if user := ctx.client.cache_service.cache.get_user(user_id):
             return user
 
         raise ValueError("Couldn't find user")
@@ -488,14 +488,14 @@ class VoiceStateConverter(BaseConverter[voices.VoiceState]):
 
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> voices.VoiceState:
-        if ctx.client.cache is None:
+        if ctx.client.cache_service is None:
             raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
 
         if ctx.message.guild_id is None:
             raise ValueError("Cannot get a voice state from a DM channel")
 
         user_id = UserIDParser.match_id(argument, message="No valid user mention or ID  found")
-        if user := ctx.client.cache.cache.get_voice_state(ctx.message.guild_id, user_id):
+        if user := ctx.client.cache_service.cache.get_voice_state(ctx.message.guild_id, user_id):
             return user
 
         raise ValueError("Voice state couldn't be found for current guild")

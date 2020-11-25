@@ -137,7 +137,7 @@ class Component(traits.Component):
         self._listeners.add((event_, listener))
 
         if self.started and self._client:
-            self._client.dispatch.dispatcher.subscribe(event_, listener)
+            self._client.dispatch_service.dispatcher.subscribe(event_, listener)
 
     def remove_listener(
         self, event_: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
@@ -145,12 +145,12 @@ class Component(traits.Component):
         self._listeners.remove((event_, listener))
 
         if self.started and self._client:
-            self._client.dispatch.dispatcher.unsubscribe(event_, listener)
+            self._client.dispatch_service.dispatcher.unsubscribe(event_, listener)
 
     def bind_client(self, client: traits.Client, /) -> None:
         self._client = client
         for event_, listener in self._listeners:
-            self._client.dispatch.dispatcher.subscribe(event_, listener)
+            self._client.dispatch_service.dispatcher.subscribe(event_, listener)
 
     async def check_context(self, ctx: traits.Context, /) -> typing.AsyncIterator[traits.FoundCommand]:
         async for value in utilities.async_chain(command_.check_context(ctx) for command_ in self._commands):
@@ -166,7 +166,7 @@ class Component(traits.Component):
         self.started = False
         if self._client:
             for event_, listener in self._listeners:
-                self._client.dispatch.dispatcher.unsubscribe(event_, listener)
+                self._client.dispatch_service.dispatcher.unsubscribe(event_, listener)
 
     async def open(self) -> None:
         if self.started:
@@ -178,11 +178,11 @@ class Component(traits.Component):
         if self._client:
             for event_, listener in self._listeners:
                 try:
-                    self._client.dispatch.dispatcher.unsubscribe(event_, listener)
+                    self._client.dispatch_service.dispatcher.unsubscribe(event_, listener)
                 except (KeyError, ValueError, LookupError):  # TODO: what does hikari raise?
                     continue
 
-                self._client.dispatch.dispatcher.subscribe(event_, listener)
+                self._client.dispatch_service.dispatcher.subscribe(event_, listener)
 
         self.started = True
 
