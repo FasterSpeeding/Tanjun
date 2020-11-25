@@ -37,9 +37,11 @@ import asyncio
 import itertools
 import typing
 
+from hikari import errors as hikari_errors
 from hikari import traits as hikari_traits
 from hikari.events import lifetime_events
 from hikari.events import message_events
+from yuyo import backoff
 
 from tanjun import context
 from tanjun import traits
@@ -53,14 +55,16 @@ ClientCheckT = typing.Callable[
 ]
 
 
-class Client(traits.Client):  # TODO: prefix mention
+class Client(traits.Client):
+    __metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
+
     __slots__: typing.Sequence[str] = (
         "_cache",
         "_checks",
         "_components",
         "_dispatch",
+        "_grab_mention_prefix",
         "hooks",
-        "_metadata",
         "_prefixes",
         "_rest",
         "_shards",
@@ -75,6 +79,7 @@ class Client(traits.Client):  # TODO: prefix mention
         /,
         *,
         hooks: typing.Optional[traits.Hooks] = None,
+        mention_prefix: bool = True,
         prefixes: typing.Optional[typing.Iterable[str]] = None,
     ) -> None:
         if rest is None and isinstance(cache, hikari_traits.RESTAware):
@@ -89,11 +94,11 @@ class Client(traits.Client):  # TODO: prefix mention
         else:
             raise ValueError("Missing RESTAware client implementation.")
 
-        if shard is None and isinstance(dispatch, hikari_traits.ShardAware):
-            shard = dispatch
-
-        elif shard is None and isinstance(cache, hikari_traits.ShardAware):
+        if shard is None and isinstance(cache, hikari_traits.ShardAware):
             shard = cache
+
+        elif shard is None and isinstance(dispatch, hikari_traits.ShardAware):
+            shard = dispatch
 
         elif shard is None and isinstance(rest, hikari_traits.ShardAware):
             shard = rest
@@ -118,13 +123,17 @@ class Client(traits.Client):  # TODO: prefix mention
         self._cache = cache
         self._components: typing.MutableSet[traits.Component] = set()
         self._dispatch = dispatch
+        self._grab_mention_prefix = mention_prefix
         self.hooks = hooks
-        self._metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
         self._prefixes = set(prefixes) if prefixes else set()
         self._rest = rest
         self._shards = shard
         self._dispatch.dispatcher.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
         self._dispatch.dispatcher.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
+
+    def __init_subclass__(cls) -> None:
+        cls.__metadata = {}
+        super().__init_subclass__()
 
     async def __aenter__(self) -> Client:
         await self.open()
@@ -152,10 +161,6 @@ class Client(traits.Client):  # TODO: prefix mention
     @property
     def dispatch(self) -> hikari_traits.DispatcherAware:
         return self._dispatch
-
-    @property
-    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
-        return self._metadata
 
     @property
     def prefixes(self) -> typing.AbstractSet[str]:
@@ -224,8 +229,37 @@ class Client(traits.Client):  # TODO: prefix mention
     async def open(self, *, register_listener: bool = True) -> None:
         await asyncio.gather(*(component.open() for component in self._components))
 
+        if self._grab_mention_prefix:
+            retry = backoff.Backoff(max_retries=4, maximum=30)
+
+            async for _ in retry:
+                try:
+                    user = await self._rest.rest.fetch_my_user()
+                    break
+
+                except hikari_errors.RateLimitedError as exc:
+                    if exc.retry_after > 30:
+                        raise
+
+                    retry.set_next_backoff(exc.retry_after)
+
+                except hikari_errors.InternalServerError:
+                    continue
+
+            else:
+                user = await self._rest.rest.fetch_my_user()
+
+            self._grab_mention_prefix = False
+
+            self._prefixes.add(f"<@{user.id}>")
+            self._prefixes.add(f"<@!{user.id}>")
+
         if register_listener:
             self._dispatch.dispatcher.subscribe(message_events.MessageCreateEvent, self.on_message_create)
+
+    @classmethod
+    def metadata(cls) -> typing.MutableMapping[typing.Any, typing.Any]:
+        return cls.__metadata
 
     async def on_message_create(self, event: message_events.MessageCreateEvent) -> None:
         if event.message.content is None:
@@ -234,7 +268,7 @@ class Client(traits.Client):  # TODO: prefix mention
         if (prefix := await self.check_prefix(event.message.content)) is None or not await self.check(event):
             return
 
-        content = event.message.content[len(prefix) :]
+        content = event.message.content[len(prefix) :].strip()
         ctx = context.Context(self, content=content, message=event.message, triggering_prefix=prefix)
 
         hooks = {self.hooks,} if self.hooks else set()

@@ -45,10 +45,14 @@ __all__: typing.Sequence[str] = [
 ]
 
 import asyncio
+import inspect
 import itertools
 import shlex
 import typing
 
+from hikari import undefined
+
+from tanjun import conversion
 from tanjun import errors
 from tanjun import traits
 
@@ -122,17 +126,24 @@ class ShlexTokenizer:
 
     def __seek_shlex(self) -> typing.Union[str, typing.Tuple[str, typing.Optional[str]], None]:
         option_name = self.__last_name
-        for value in self.__shlex:
+
+        try:
+            value = next(self.__shlex, None)
+        except ValueError as exc:
+            raise errors.ParserError(str(exc), None) from exc
+
+        if value is not None:
             is_option = value.startswith("-")
             if is_option and option_name is not None:
                 self.__last_name = value
                 return (option_name, None)
 
             if is_option:
-                option_name = value
-                continue
+                self.__last_name = value
+                return self.__seek_shlex()
 
             if option_name:
+                self.__last_name = None
                 return (option_name, value)
 
             return value
@@ -153,7 +164,7 @@ async def _covert_option_or_empty(
     if option_.empty_value is not traits.UNDEFINED_DEFAULT:
         return option_.empty_value
 
-    raise errors.MissingArgumentError(f"Option '{option_.key} cannot be empty.", option_)
+    raise errors.NotEnoughArgumentsError(f"Option '{option_.key} cannot be empty.", option_)
 
 
 class SemanticShlex(ShlexTokenizer):
@@ -196,7 +207,7 @@ class SemanticShlex(ShlexTokenizer):
             return argument_.default
 
         # If this is reached then no value was found.
-        raise errors.MissingArgumentError(f"Missing value for required argument '{argument_.key}'", argument_)
+        raise errors.NotEnoughArgumentsError(f"Missing value for required argument '{argument_.key}'", argument_)
 
     async def __process_option(
         self, option_: traits.Option, raw_options: typing.Mapping[str, typing.Sequence[typing.Optional[str]]]
@@ -206,9 +217,9 @@ class SemanticShlex(ShlexTokenizer):
         if is_multi and (values := list(values_iter)):
             return asyncio.gather(*(_covert_option_or_empty(self.__ctx, option_, value) for value in values))
 
-        if not is_multi and (value := next(values_iter, None)) is not None:
+        if not is_multi and (value := next(values_iter, undefined.UNDEFINED)) is not undefined.UNDEFINED:
             if next(values_iter, None) is not None:
-                raise ValueError(f"Option `{option_.key}` can only take a single value")
+                raise errors.TooManyArgumentsError(f"Option `{option_.key}` can only take a single value", option_)
 
             return await _covert_option_or_empty(self.__ctx, option_, value)
 
@@ -216,7 +227,7 @@ class SemanticShlex(ShlexTokenizer):
             return option_.default
 
         # If this is reached then no value was found.
-        raise errors.MissingArgumentError(f"Missing required option `{option_.key}`", option_)
+        raise errors.NotEnoughArgumentsError(f"Missing required option `{option_.key}`", option_)
 
 
 def argument(
@@ -320,7 +331,7 @@ class _Parameter(traits.Parameter):
         default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
     ) -> None:
-        self._converters = set(converters) if converters is not None else None
+        self._converters: typing.Optional[typing.MutableSequence[traits.ConverterT]] = None
         self.default = default
         self._flags = dict(flags) if flags else {}
         self.key = key
@@ -328,12 +339,16 @@ class _Parameter(traits.Parameter):
         if key.startswith("-"):
             raise ValueError("parameter key cannot start with `-`")
 
+        if converters is not None:
+            for converter in converters:
+                self.add_converter(converter)
+
     def __repr__(self) -> str:
         return f"{type(self).__name__} <{self.key}>"
 
     @property
-    def converters(self,) -> typing.Optional[typing.AbstractSet[traits.ConverterT]]:
-        return frozenset(self._converters) if self._converters is not None else None
+    def converters(self) -> typing.Optional[typing.Sequence[traits.ConverterT]]:
+        return tuple(self._converters) if self._converters is not None else None
 
     @property
     def flags(self) -> typing.MutableMapping[str, typing.Any]:
@@ -341,9 +356,10 @@ class _Parameter(traits.Parameter):
 
     def add_converter(self, converter: traits.ConverterT, /) -> None:
         if self._converters is None:
-            self._converters = set()
+            self._converters = []
 
-        self._converters.add(converter)
+        # Some builtin types like `bool` and `bytes` are overridden here for the sake of convenience.
+        self._converters.append(conversion.override_builtin_type(converter))
 
     def remove_converter(self, converter: traits.ConverterT, /) -> None:
         if self._converters is None:
@@ -361,9 +377,12 @@ class _Parameter(traits.Parameter):
         sources: typing.MutableSequence[ValueError] = []
         for converter in self._converters:
             try:
-                if isinstance(converter, traits.Converter):
-                    return await converter.convert(ctx, value)
+                if hasattr(converter, "convert"):
+                    converter = typing.cast("traits.Converter[typing.Any]", converter)
+                    result = await converter.convert(ctx, value)
+                    return result
 
+                converter = typing.cast("typing.Callable[[str], typing.Any]", converter)
                 return converter(value)
 
             except ValueError as exc:

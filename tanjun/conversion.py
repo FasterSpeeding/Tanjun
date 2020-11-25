@@ -46,6 +46,7 @@ __all__: typing.Sequence[str] = [
 ]
 
 import abc
+import distutils.util
 import inspect
 import re
 import typing
@@ -66,7 +67,7 @@ from tanjun import traits
 _ValueT = typing.TypeVar("_ValueT", covariant=True)
 
 
-class BaseConverter(abc.ABC, typing.Generic[_ValueT], traits.Converter[_ValueT]):
+class BaseConverter(abc.ABC, typing.Generic[_ValueT], traits.StatelessConverter[_ValueT]):
     __slots__: typing.Sequence[str] = ()
     __implementations: typing.MutableSet[typing.Type[BaseConverter[typing.Type[typing.Any]]]] = set()
 
@@ -132,7 +133,7 @@ class ChannelConverter(BaseConverter[channels.GuildChannel]):
         if ctx.client.cache is None:
             raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
 
-        channel_id = _ChannelIDParser.match_id(argument)
+        channel_id = ChannelIDParser.match_id(argument, message="No valid channel mention or ID  found")
         if channel := ctx.client.cache.cache.get_guild_channel(channel_id):
             return channel
 
@@ -191,7 +192,7 @@ class EmojiConverter(BaseConverter[emojis.KnownCustomEmoji]):
         if ctx.client.cache is None:
             raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
 
-        emoji_id = _EmojiIDParser.match_id(argument)
+        emoji_id = EmojiIDParser.match_id(argument, message="No valid emoji or emoji ID found")
         if emoji := ctx.client.cache.cache.get_emoji(emoji_id):
             return emoji
 
@@ -222,7 +223,7 @@ class GuildConverter(BaseConverter[guilds.GatewayGuild]):
         if ctx.client.cache is None:
             raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
 
-        guild_id = _SnowflakeParser.match_id(argument)
+        guild_id = SnowflakeParser.match_id(argument, message="No valid guild ID found")
         if guild := ctx.client.cache.cache.get_guild(guild_id):
             return guild
 
@@ -286,7 +287,7 @@ class MemberConverter(BaseConverter[guilds.Member]):
         if ctx.message.guild_id is None:
             raise ValueError("Cannot get a member from a DM channel")
 
-        member_id = _UserIDParser.match_id(argument)
+        member_id = UserIDParser.match_id(argument, message="No valid user mention or ID found")
         if member := ctx.client.cache.cache.get_member(ctx.message.guild_id, member_id):
             return member
 
@@ -320,7 +321,7 @@ class PresenceConverter(BaseConverter[presences.MemberPresence]):
         if ctx.message.guild_id is None:
             raise ValueError("Cannot get a presence from a DM channel")
 
-        user_id = _UserIDParser.match_id(argument)
+        user_id = UserIDParser.match_id(argument, message="No valid member mention or ID  found")
         if user := ctx.client.cache.cache.get_presence(ctx.message.guild_id, user_id):
             return user
 
@@ -339,7 +340,7 @@ class RoleConverter(BaseConverter[guilds.Role]):
         if ctx.client.cache is None:
             raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
 
-        role_id = _SnowflakeParser.match_id(argument)
+        role_id = SnowflakeParser.match_id(argument, message="No valid role mention or ID  found")
         if role := ctx.client.cache.cache.get_role(role_id):
             return role
 
@@ -358,7 +359,7 @@ class RoleConverter(BaseConverter[guilds.Role]):
         return (guilds.Role,)
 
 
-class _BaseSnowflakeParser:
+class BaseSnowflakeParser:
     __slots__: typing.Sequence[str] = ()
 
     @classmethod
@@ -367,26 +368,36 @@ class _BaseSnowflakeParser:
         raise NotImplementedError
 
     @classmethod
-    def match_id(cls, value: str) -> snowflakes.Snowflake:
+    def match_id(cls, value: str, *, message: str = "No valid mention or ID found") -> snowflakes.Snowflake:
+        result: typing.Optional[snowflakes.Snowflake] = None
+        value = value.strip()
         if value.isdigit():
-            return snowflakes.Snowflake(value)
+            result = snowflakes.Snowflake(value)
 
-        if results := cls.regex().findall(value):
-            return snowflakes.Snowflake(results[0])
+        else:
+            try:
+                result = snowflakes.Snowflake(next(cls.regex().finditer(value)).groups()[0])
 
-        raise ValueError("No valid mention or ID found")
+            except StopIteration:
+                pass
+
+        # We should also range check the provided ID.
+        if result is not None and snowflakes.Snowflake.min() <= result <= snowflakes.Snowflake.max():
+            return result
+
+        raise ValueError(message) from None
 
 
-class _SnowflakeParser(_BaseSnowflakeParser):
+class SnowflakeParser(BaseSnowflakeParser):
     __slots__: typing.Sequence[str] = ()
-    _pattern = re.compile(r"<[@&?!#]{1,3}(\d+)>")
+    _pattern = re.compile(r"<[@&?!#a]{0,3}(?::\w+:)?(\d+)>")
 
     @classmethod
     def regex(cls) -> typing.Pattern[str]:
         return cls._pattern
 
 
-class _ChannelIDParser(_BaseSnowflakeParser):
+class ChannelIDParser(BaseSnowflakeParser):
     __slots__: typing.Sequence[str] = ()
     _pattern = re.compile(r"<#(\d+)>")
 
@@ -395,7 +406,7 @@ class _ChannelIDParser(_BaseSnowflakeParser):
         return cls._pattern
 
 
-class _EmojiIDParser(_BaseSnowflakeParser):
+class EmojiIDParser(BaseSnowflakeParser):
     __slots__: typing.Sequence[str] = ()
     _pattern = re.compile(r"<a?:\w+:(\d+)>")
 
@@ -404,7 +415,7 @@ class _EmojiIDParser(_BaseSnowflakeParser):
         return cls._pattern
 
 
-class _UserIDParser(_BaseSnowflakeParser):
+class UserIDParser(BaseSnowflakeParser):
     __slots__: typing.Sequence[str] = ()
     _pattern = re.compile(r"<@!?(\d+)>")
 
@@ -422,7 +433,7 @@ class SnowflakeConverter(BaseConverter[snowflakes.Snowflake]):
 
     @classmethod
     async def convert(cls, _: traits.Context, argument: str, /) -> snowflakes.Snowflake:
-        return _SnowflakeParser.match_id(argument)
+        return SnowflakeParser.match_id(argument, message="No valid ID found")
 
     @classmethod
     def intents(cls) -> intents_.Intents:
@@ -449,7 +460,7 @@ class UserConverter(BaseConverter[users.User]):
         if ctx.client.cache is None:
             raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
 
-        user_id = _UserIDParser.match_id(argument)
+        user_id = UserIDParser.match_id(argument, message="No valid user mention or ID  found")
         if user := ctx.client.cache.cache.get_user(user_id):
             return user
 
@@ -483,7 +494,7 @@ class VoiceStateConverter(BaseConverter[voices.VoiceState]):
         if ctx.message.guild_id is None:
             raise ValueError("Cannot get a voice state from a DM channel")
 
-        user_id = _UserIDParser.match_id(argument)
+        user_id = UserIDParser.match_id(argument, message="No valid user mention or ID  found")
         if user := ctx.client.cache.cache.get_voice_state(ctx.message.guild_id, user_id):
             return user
 
@@ -502,8 +513,22 @@ class VoiceStateConverter(BaseConverter[voices.VoiceState]):
         return (voices.VoiceState,)
 
 
-for cls in vars().copy().values():
-    if inspect.isclass(cls) and issubclass(cls, BaseConverter):
-        BaseConverter.implementations().add(cls)
+for _cls in vars().copy().values():
+    if inspect.isclass(_cls) and issubclass(_cls, BaseConverter):
+        BaseConverter.implementations().add(_cls)
 
-del cls
+del _cls
+
+
+_BUILTIN_TYPE_OVERRIDES: typing.Mapping[typing.Callable[..., typing.Any], typing.Callable[[str], typing.Any]] = {
+    bool: distutils.util.strtobool,
+    bytes: lambda d: bytes(d, "utf-8"),
+    bytearray: lambda d: bytearray(d, "utf-8"),
+}
+
+
+def override_builtin_type(cls: traits.ConverterT) -> traits.ConverterT:
+    if callable(cls):
+        return _BUILTIN_TYPE_OVERRIDES.get(cls, cls)
+
+    return cls

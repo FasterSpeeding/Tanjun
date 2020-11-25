@@ -150,6 +150,9 @@ class Command(traits.ExecutableCommand):
             await self._function(ctx, *args, **kwargs)
 
         except errors.CommandError as exc:
+            if not exc.message:
+                return True
+
             response = exc.message if len(exc.message) <= 2000 else exc.message[:1997] + "..."
             retry = backoff.Backoff(max_retries=5, maximum=2)
             # TODO: preemptive cache based permission checks before throwing to the REST gods.
@@ -180,6 +183,7 @@ class Command(traits.ExecutableCommand):
             raise
 
         else:
+            # TODO: how should this be handled around CommandError?
             await self.hooks.trigger_success(ctx, hooks=hooks)
 
         finally:

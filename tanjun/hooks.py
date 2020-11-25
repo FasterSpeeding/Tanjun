@@ -62,7 +62,7 @@ class Hooks(traits.Hooks):
 
     def __repr__(self) -> str:
         return (
-            f"Hooks < {self._error!r}, {self._parser_error!r}, {self._pre_execution!r}, "
+            f"Hooks <{self._error!r}, {self._parser_error!r}, {self._pre_execution!r}, "
             f"{self._post_execution!r}, {self._success!r}>"
         )
 

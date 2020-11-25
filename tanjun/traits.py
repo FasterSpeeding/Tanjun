@@ -41,6 +41,7 @@ __all__: typing.Sequence[str] = [
     "ValueT",
     "Context",
     "Converter",
+    "StatelessConverter",
     "Hooks",
     "Executable",
     "FoundCommand",
@@ -66,7 +67,12 @@ if typing.TYPE_CHECKING:
     from tanjun import errors
 
 
-ConverterT = typing.Union[typing.Callable[[str], typing.Any], "Converter[typing.Any]"]
+# To allow for stateless converters we accept both "Converter[...]" and "Type[StatelessConverter[...]]" where all the
+# methods on "Type[StatelessConverter[...]]" need to be classmethods as it will not be initialised before calls are made
+# to it.
+ConverterT = typing.Union[
+    typing.Callable[[str], typing.Any], "Converter[typing.Any]", "typing.Type[StatelessConverter[typing.Any]]"
+]
 ParserHookT = typing.Callable[
     ["Context", "errors.ParserError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
 ]
@@ -136,6 +142,19 @@ class Converter(typing.Protocol[ValueT]):
         raise NotImplementedError
 
     def bind_component(self, client: Client, component: Component, /) -> None:
+        raise NotImplementedError
+
+
+@typing.runtime_checkable
+class StatelessConverter(typing.Protocol[ValueT]):
+    __slots__: typing.Sequence[str] = ()
+
+    @classmethod
+    async def convert(cls, ctx: Context, argument: str, /) -> ValueT:
+        raise NotImplementedError
+
+    @classmethod
+    def bind_component(cls, client: Client, component: Component, /) -> None:
         raise NotImplementedError
 
 
@@ -349,10 +368,6 @@ class Client(typing.Protocol):
         raise NotImplementedError
 
     @property
-    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
-        raise NotImplementedError
-
-    @property
     def prefixes(self) -> typing.AbstractSet[str]:
         raise NotImplementedError
 
@@ -390,6 +405,10 @@ class Client(typing.Protocol):
     async def open(self) -> None:
         raise NotImplementedError
 
+    @classmethod
+    def metadata(cls) -> typing.MutableMapping[typing.Any, typing.Any]:
+        raise NotImplementedError
+
 
 class UndefinedDefault:
     __slots__: typing.Sequence[str] = ()
@@ -404,7 +423,7 @@ class Parameter(typing.Protocol):
     __slots__: typing.Sequence[str] = ()
 
     @property
-    def converters(self,) -> typing.Optional[typing.AbstractSet[ConverterT]]:
+    def converters(self) -> typing.Optional[typing.Sequence[ConverterT]]:
         raise NotImplementedError
 
     @property
