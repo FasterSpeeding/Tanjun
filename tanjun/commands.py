@@ -88,6 +88,10 @@ class Command(traits.ExecutableCommand):
         return f"Command <{self._names}>"
 
     @property
+    def checks(self) -> typing.AbstractSet[traits.CheckT]:
+        return frozenset(self._checks)
+
+    @property
     def component(self) -> typing.Optional[traits.Component]:
         return self._component
 

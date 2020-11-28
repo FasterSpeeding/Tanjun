@@ -214,11 +214,21 @@ class Executable(typing.Protocol):
     __slots__: typing.Sequence[str] = ()
 
     @property
+    def checks(self) -> typing.AbstractSet[CheckT]:
+        raise NotImplementedError
+
+    @property
     def hooks(self) -> typing.Optional[Hooks]:
         raise NotImplementedError
 
     @hooks.setter
     def hooks(self, hooks: typing.Optional[Hooks]) -> None:
+        raise NotImplementedError
+
+    def add_check(self, check: CheckT, /) -> CheckT:
+        raise NotImplementedError
+
+    def remove_check(self, check: CheckT, /) -> None:
         raise NotImplementedError
 
     # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
