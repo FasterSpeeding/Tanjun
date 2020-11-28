@@ -141,7 +141,10 @@ class Converter(typing.Protocol[ValueT]):
     async def convert(self, ctx: Context, argument: str, /) -> ValueT:
         raise NotImplementedError
 
-    def bind_component(self, client: Client, component: Component, /) -> None:
+    def bind_client(self, client: Client, /) -> None:
+        raise NotImplementedError
+
+    def bind_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
 
@@ -154,7 +157,10 @@ class StatelessConverter(typing.Protocol[ValueT]):
         raise NotImplementedError
 
     @classmethod
-    def bind_component(cls, client: Client, component: Component, /) -> None:
+    def bind_client(cls, client: Client, /) -> None:
+        raise NotImplementedError
+
+    def bind_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
 
@@ -288,6 +294,9 @@ class ExecutableCommand(Executable, typing.Protocol):
         raise NotImplementedError
 
     def remove_name(self, name: str, /) -> None:
+        raise NotImplementedError
+
+    def bind_client(self, client: Client, /) -> None:
         raise NotImplementedError
 
     def bind_component(self, component: Component, /) -> None:
@@ -451,6 +460,12 @@ class Parameter(typing.Protocol):
     def remove_converter(self, converter: ConverterT, /) -> None:
         raise NotImplementedError
 
+    def bind_client(self, client: Client, /) -> None:
+        raise NotImplementedError
+
+    def bind_component(self, component: Component, /) -> None:
+        raise NotImplementedError
+
     async def convert(self, ctx: Context, value: str) -> typing.Any:
         raise NotImplementedError
 
@@ -496,6 +511,12 @@ class Parser(typing.Protocol):
         raise NotImplementedError
 
     def set_parameters(self, parameters: typing.Iterable[Parameter], /) -> None:
+        raise NotImplementedError
+
+    def bind_client(self, client: Client, /) -> None:
+        raise NotImplementedError
+
+    def bind_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
     async def parse(

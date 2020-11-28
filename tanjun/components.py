@@ -126,6 +126,7 @@ class Component(traits.Component):
         return self._metadata
 
     def add_command(self, command_: traits.ExecutableCommand, /) -> None:
+        command_.bind_component(self)
         self._commands.add(command_)
 
     def remove_command(self, command_: traits.ExecutableCommand, /) -> None:
@@ -151,6 +152,9 @@ class Component(traits.Component):
         self._client = client
         for event_, listener in self._listeners:
             self._client.dispatch_service.dispatcher.subscribe(event_, listener)
+
+        for command_ in self._commands:
+            command_.bind_client(client)
 
     async def check_context(self, ctx: traits.Context, /) -> typing.AsyncIterator[traits.FoundCommand]:
         async for value in utilities.async_chain(command_.check_context(ctx) for command_ in self._commands):

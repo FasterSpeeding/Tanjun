@@ -45,7 +45,6 @@ __all__: typing.Sequence[str] = [
 ]
 
 import asyncio
-import inspect
 import itertools
 import shlex
 import typing
@@ -73,7 +72,7 @@ MULTI = "multi"
 This will result in the parameter always receiving an array of results.
 
 !!! note
-    This cannot be used in conjunction with "greedy" and can applie to both
+    This cannot be used in conjunction with "greedy" and can apply to both
     options and arguments.
 """
 
@@ -128,31 +127,32 @@ class ShlexTokenizer:
         option_name = self.__last_name
 
         try:
-            value = next(self.__shlex, None)
+            value = next(self.__shlex)
+
+        except StopIteration:
+            if option_name is not None:
+                self.__last_name = None
+                return (option_name, None)
+
+            return None
+
         except ValueError as exc:
             raise errors.ParserError(str(exc), None) from exc
 
-        if value is not None:
-            is_option = value.startswith("-")
-            if is_option and option_name is not None:
-                self.__last_name = value
-                return (option_name, None)
-
-            if is_option:
-                self.__last_name = value
-                return self.__seek_shlex()
-
-            if option_name:
-                self.__last_name = None
-                return (option_name, value)
-
-            return value
-
-        if option_name is not None:
-            self.__last_name = None
+        is_option = value.startswith("-")
+        if is_option and option_name is not None:
+            self.__last_name = value
             return (option_name, None)
 
-        return None
+        if is_option:
+            self.__last_name = value
+            return self.__seek_shlex()
+
+        if option_name:
+            self.__last_name = None
+            return (option_name, value)
+
+        return value
 
 
 async def _covert_option_or_empty(
@@ -185,12 +185,9 @@ class SemanticShlex(ShlexTokenizer):
         return results
 
     async def get_options(self, options: typing.Sequence[traits.Option], /) -> typing.MutableMapping[str, typing.Any]:
-        results: typing.MutableMapping[str, typing.Any] = {}
         raw_options = self.collect_raw_options()
-        for option_ in options:
-            results[option_.key] = await self.__process_option(option_, raw_options)
-
-        return results
+        results = asyncio.gather(*map(lambda option_: self.__process_option(option_, raw_options), options))
+        return dict(zip((option_.key for option_ in options), await results))
 
     async def __process_argument(self, argument_: traits.Parameter) -> typing.Any:
         if argument_.flags.get(GREEDY) and (value := " ".join(self.iter_raw_arguments())):
@@ -199,7 +196,7 @@ class SemanticShlex(ShlexTokenizer):
         if argument_.flags.get(MULTI) and (values := list(self.iter_raw_arguments())):
             return await asyncio.gather(*(argument_.convert(self.__ctx, value) for value in values))
 
-        # If the previous two statements don't lead to anything being returned then this won't either.
+        # If the previous two statements failed on getting raw arguments then this will as well.
         if (optional_value := self.next_raw_argument()) is not None:
             return await argument_.convert(self.__ctx, optional_value)
 
@@ -218,7 +215,7 @@ class SemanticShlex(ShlexTokenizer):
             return asyncio.gather(*(_covert_option_or_empty(self.__ctx, option_, value) for value in values))
 
         if not is_multi and (value := next(values_iter, undefined.UNDEFINED)) is not undefined.UNDEFINED:
-            if next(values_iter, None) is not None:
+            if next(values_iter, undefined.UNDEFINED) is not undefined.UNDEFINED:
                 raise errors.TooManyArgumentsError(f"Option `{option_.key}` can only take a single value", option_)
 
             return await _covert_option_or_empty(self.__ctx, option_, value)
@@ -370,6 +367,22 @@ class _Parameter(traits.Parameter):
         if not self._converters:
             self._converters = None
 
+    def bind_client(self, client: traits.Client, /) -> None:
+        if not self._converters:
+            return
+
+        for converter in self._converters:
+            if isinstance(converter, (traits.Converter, traits.StatelessConverter)):
+                converter.bind_client(client)
+
+    def bind_component(self, component: traits.Component, /) -> None:
+        if not self._converters:
+            return
+
+        for converter in self._converters:
+            if isinstance(converter, (traits.Converter, traits.StatelessConverter)):
+                converter.bind_component(component)
+
     async def convert(self, ctx: traits.Context, value: str) -> typing.Any:
         if self._converters is None:
             return value
@@ -481,6 +494,14 @@ class ShlexParser(traits.Parser):
         for parameter_ in parameters:
             self.add_parameter(parameter_)
 
+    def bind_client(self, client: traits.Client, /) -> None:
+        for parameter in itertools.chain(self._options, self._arguments):
+            parameter.bind_client(client)
+
+    def bind_component(self, component: traits.Component, /) -> None:
+        for parameter in itertools.chain(self._options, self._arguments):
+            parameter.bind_component(component)
+
     async def parse(
         self, ctx: traits.Context, /
     ) -> typing.Tuple[typing.Sequence[typing.Any], typing.Mapping[str, typing.Any]]:
@@ -490,7 +511,7 @@ class ShlexParser(traits.Parser):
         return arguments, options
 
 
-def generate_parameters(command: _CommandT, /, *, ignore_self: bool = True) -> _CommandT:
+def generate_parameters(command: _CommandT, /, *, ignore_self: bool) -> _CommandT:
     # TODO: implement this to enable generating parameters from a function's signature.
     if command.parser is None:
         raise RuntimeError("Cannot generate parameters for a command with no parser")

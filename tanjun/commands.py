@@ -50,7 +50,7 @@ CommandFunctionT = typing.Callable[..., typing.Coroutine[typing.Any, typing.Any,
 CheckT = typing.Callable[[traits.Context], typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]]
 
 
-class FoundClass(traits.FoundCommand):
+class FoundCommand(traits.FoundCommand):
     __slots__: typing.Sequence[str] = ("command", "name", "prefix")
 
     def __init__(
@@ -123,15 +123,22 @@ class Command(traits.ExecutableCommand):
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
         for own_name in self._names:
             if name.startswith(own_name):
-                yield FoundClass(self, own_name)
+                yield FoundCommand(self, own_name)
                 break
 
     def remove_name(self, name: str, /) -> None:
         self._names.remove(name)
 
+    def bind_client(self, client: traits.Client, /) -> None:
+        if self.parser:
+            self.parser.bind_client(client)
+
     def bind_component(self, component: traits.Component, /) -> None:
         self._component = component
         self._function = types.MethodType(self._function, component)
+
+        if self.parser:
+            self.parser.bind_component(component)
 
     async def execute(
         self, ctx: traits.Context, /, *, hooks: typing.Optional[typing.MutableSet[traits.Hooks]] = None

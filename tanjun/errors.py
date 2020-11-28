@@ -38,6 +38,8 @@ __all__: typing.Sequence[str] = [
     "TooManyArgumentsError",
     "ParserError",
     "TanjunError",
+    "TanjunWarning",
+    "StateWarning",
 ]
 
 import typing
@@ -46,6 +48,10 @@ from tanjun import traits
 
 
 class TanjunError(Exception):
+    __slots__: typing.Sequence[str] = ()
+
+
+class TanjunWarning(RuntimeWarning):
     __slots__: typing.Sequence[str] = ()
 
 
@@ -107,3 +113,7 @@ class TooManyArgumentsError(ParserError):
 
     def __init__(self, message: str, parameter: traits.Parameter, /) -> None:
         super().__init__(message, parameter)
+
+
+class StateWarning(RuntimeWarning):
+    __slots__: typing.Sequence[str] = ()

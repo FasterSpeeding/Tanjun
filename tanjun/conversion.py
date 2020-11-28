@@ -50,6 +50,7 @@ import distutils.util
 import inspect
 import re
 import typing
+import warnings
 
 from hikari import channels
 from hikari import colors
@@ -62,6 +63,7 @@ from hikari import snowflakes
 from hikari import users
 from hikari import voices
 
+from tanjun import errors
 from tanjun import traits
 
 _ValueT = typing.TypeVar("_ValueT", covariant=True)
@@ -72,21 +74,37 @@ class BaseConverter(abc.ABC, typing.Generic[_ValueT], traits.StatelessConverter[
     __implementations: typing.MutableSet[typing.Type[BaseConverter[typing.Type[typing.Any]]]] = set()
 
     @classmethod
-    def bind_component(cls, client: traits.Client, _: traits.Component, /) -> None:
-        if cls.cache_bound() and not client.cache_service:
-            raise ValueError("Cache bound converter cannot be used with a cache-less client")
+    def bind_client(cls, client: traits.Client, /) -> None:
+        cache_bound = cls.cache_bound()
+        if cache_bound and not client.cache_service:
+            warnings.warn(
+                f"Registered converter {cls!r} will always fail with a stateless client.", category=errors.StateWarning
+            )
+            return
 
-        # TODO: intents checks.
+        elif cache_bound:
+            required_intents = cls.intents()
+            if (required_intents & client.shard_service.intents) != required_intents:
+                warnings.warn(
+                    f"Registered converter {cls.__name__!r} will not run as expected "
+                    f"when {required_intents!r} intent(s) are not declared",
+                    category=errors.StateWarning,
+                )
+
+    @classmethod
+    def bind_component(self, _: traits.Component, /) -> None:
+        pass
 
     @classmethod
     def get_from_type(
         cls, type_: typing.Type[_ValueT]
     ) -> typing.Optional[typing.Type[BaseConverter[typing.Type[_ValueT]]]]:
         for converter in cls.__implementations:
-            if converter.is_inheritable() and issubclass(type_, converter.types()):
+            is_inheritable = converter.is_inheritable()
+            if is_inheritable and issubclass(type_, converter.types()):
                 return converter
 
-            if not converter.is_inheritable() and type_ in converter.types():
+            if not is_inheritable and type_ in converter.types():
                 return converter
 
         return None
@@ -131,7 +149,7 @@ class ChannelConverter(BaseConverter[channels.GuildChannel]):
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> channels.GuildChannel:
         if ctx.client.cache_service is None:
-            raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
+            raise ValueError("Couldn't find channel")
 
         channel_id = ChannelIDParser.match_id(argument, message="No valid channel mention or ID  found")
         if channel := ctx.client.cache_service.cache.get_guild_channel(channel_id):
@@ -190,7 +208,7 @@ class EmojiConverter(BaseConverter[emojis.KnownCustomEmoji]):
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> emojis.KnownCustomEmoji:
         if ctx.client.cache_service is None:
-            raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
+            raise ValueError("Couldn't find emoji")
 
         emoji_id = EmojiIDParser.match_id(argument, message="No valid emoji or emoji ID found")
         if emoji := ctx.client.cache_service.cache.get_emoji(emoji_id):
@@ -221,7 +239,7 @@ class GuildConverter(BaseConverter[guilds.GatewayGuild]):
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> guilds.GatewayGuild:
         if ctx.client.cache_service is None:
-            raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
+            raise ValueError("Couldn't find guild")
 
         guild_id = SnowflakeParser.match_id(argument, message="No valid guild ID found")
         if guild := ctx.client.cache_service.cache.get_guild(guild_id):
@@ -252,7 +270,7 @@ class InviteConverter(BaseConverter[invites.InviteWithMetadata]):
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> invites.InviteWithMetadata:
         if ctx.client.cache_service is None:
-            raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
+            raise ValueError("Couldn't find invite")
 
         if invite := ctx.client.cache_service.cache.get_invite(argument):
             return invite
@@ -282,7 +300,7 @@ class MemberConverter(BaseConverter[guilds.Member]):
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> guilds.Member:
         if ctx.client.cache_service is None:
-            raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
+            raise ValueError("Couldn't find member in this guild")
 
         if ctx.message.guild_id is None:
             raise ValueError("Cannot get a member from a DM channel")
@@ -316,7 +334,7 @@ class PresenceConverter(BaseConverter[presences.MemberPresence]):
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> presences.MemberPresence:
         if ctx.client.cache_service is None:
-            raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
+            raise ValueError("Couldn't find presence in current guild")
 
         if ctx.message.guild_id is None:
             raise ValueError("Cannot get a presence from a DM channel")
@@ -338,7 +356,7 @@ class RoleConverter(BaseConverter[guilds.Role]):
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> guilds.Role:
         if ctx.client.cache_service is None:
-            raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
+            raise ValueError("Couldn't find role")
 
         role_id = SnowflakeParser.match_id(argument, message="No valid role mention or ID  found")
         if role := ctx.client.cache_service.cache.get_role(role_id):
@@ -458,7 +476,7 @@ class UserConverter(BaseConverter[users.User]):
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> users.User:
         if ctx.client.cache_service is None:
-            raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
+            raise ValueError("Couldn't find user")
 
         user_id = UserIDParser.match_id(argument, message="No valid user mention or ID  found")
         if user := ctx.client.cache_service.cache.get_user(user_id):
@@ -489,7 +507,7 @@ class VoiceStateConverter(BaseConverter[voices.VoiceState]):
     @classmethod
     async def convert(cls, ctx: traits.Context, argument: str, /) -> voices.VoiceState:
         if ctx.client.cache_service is None:
-            raise RuntimeError("Cache bound converter cannot be used with a cache-less client.")
+            raise ValueError("Voice state couldn't be found for current guild")
 
         if ctx.message.guild_id is None:
             raise ValueError("Cannot get a voice state from a DM channel")

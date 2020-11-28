@@ -250,7 +250,6 @@ class Client(traits.Client):
                 user = await self._rest.rest.fetch_my_user()
 
             self._grab_mention_prefix = False
-
             self._prefixes.add(f"<@{user.id}>")
             self._prefixes.add(f"<@!{user.id}>")
 

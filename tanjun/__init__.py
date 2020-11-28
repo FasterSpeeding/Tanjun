@@ -70,6 +70,8 @@ __all__: typing.Sequence[str] = [
     "TooManyArgumentsError",
     "ParserError",
     "TanjunError",
+    "TanjunWarning",
+    "StateWarning",
     # hooks.py
     "hooks",
     "Hooks",
