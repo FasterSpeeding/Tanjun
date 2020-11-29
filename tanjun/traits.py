@@ -82,6 +82,7 @@ ErrorHookT = typing.Callable[
 HookT = typing.Callable[["Context"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]]
 PreExecutionHookT = typing.Callable[["Context"], typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]]
 CheckT = typing.Callable[["Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]]
+EventT = typing.TypeVar("EventT", bound="base_events.Event")
 ValueT = typing.TypeVar("ValueT", covariant=True)
 
 
@@ -244,6 +245,27 @@ class Executable(typing.Protocol):
 
 
 @typing.runtime_checkable
+class Listener(typing.Protocol[EventT]):
+    __slots__: typing.Sequence[str] = ()
+
+    @property
+    def event(self) -> typing.Type[EventT]:
+        raise NotImplementedError
+
+    @event.setter
+    def event(self, event: typing.Type[EventT], /) -> None:
+        raise NotImplementedError
+
+    @property
+    def listener(self) -> event_dispatcher.CallbackT[EventT]:
+        raise NotImplementedError
+
+    @listener.setter
+    def listener(self, listener: event_dispatcher.CallbackT[EventT], /) -> None:
+        raise NotImplementedError
+
+
+@typing.runtime_checkable
 class FoundCommand(typing.Protocol):
     __slots__: typing.Sequence[str] = ()
 
@@ -386,6 +408,10 @@ class Client(typing.Protocol):
         raise NotImplementedError
 
     @property
+    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+        raise NotImplementedError
+
+    @property
     def prefixes(self) -> typing.AbstractSet[str]:
         raise NotImplementedError
 
@@ -421,10 +447,6 @@ class Client(typing.Protocol):
         raise NotImplementedError
 
     async def open(self) -> None:
-        raise NotImplementedError
-
-    @classmethod
-    def metadata(cls) -> typing.MutableMapping[typing.Any, typing.Any]:
         raise NotImplementedError
 
 

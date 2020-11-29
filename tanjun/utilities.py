@@ -115,7 +115,11 @@ async def fetch_resource(
         return await call(*args)
 
 
-ALL_PERMISSIONS = permissions_.Permissions(sum(permissions_.Permissions))
+ALL_PERMISSIONS = permissions_.Permissions.NONE
+for _permission in permissions_.Permissions:
+    ALL_PERMISSIONS |= _permission
+
+del _permission
 
 
 def _calculate_channel_overwrites(
@@ -129,8 +133,8 @@ def _calculate_channel_overwrites(
     allow = permissions_.Permissions.NONE
 
     for overwrite in filter(None, map(channel.permission_overwrites.get, member.role_ids)):
-        deny |= overwrite.deny if overwrite.deny else 0
-        allow |= overwrite.allow if overwrite.deny else 0
+        deny |= overwrite.deny
+        allow |= overwrite.allow
 
     permissions &= ~deny
     permissions |= allow

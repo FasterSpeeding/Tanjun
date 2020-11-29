@@ -82,7 +82,7 @@ class BaseConverter(abc.ABC, typing.Generic[_ValueT], traits.StatelessConverter[
             )
             return
 
-        elif cache_bound:
+        if cache_bound:
             required_intents = cls.intents()
             if (required_intents & client.shard_service.intents) != required_intents:
                 warnings.warn(
