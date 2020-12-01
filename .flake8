@@ -14,20 +14,13 @@ ignore =
     W503,      # line break before binary operator.
     W504,      # line break before binary operator (again, I guess).
     S101,      # Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+    E203,      # whitespace before ':'
+    E231       # missing whitespace after ','
 
-# F401: unused import.
 # F403: cannot detect unused vars if we use starred import
-# FS003: f-string missing prefix.
-# R102: unnecessary parenthesis on raised exception (raises false positives in places)
-# S106: posible hardcoded password (we dont care about this in the tests)
-# D106, D104, D103, D101, D100: Missing docstring in public function/class/module (ignore in tests)
+# F405: __all__ field may be undefined or defined from star imports
 per-file-ignores =
-    hikari/__init__.py:              F401,F403
-    hikari/events/__init__.py:       F401,F403
-    hikari/impl/stateless_cache.py:  R102
-    hikari/internal/routes.py:       FS003
-    hikari/internal/time.py:         FS003
-    tests/hikari/*:                  FS003,S106,D106,D104,D103,D101,D100
+    tanjun/__init__.py:  F403,F405
 
 max-complexity = 20
 max-function-length = 130

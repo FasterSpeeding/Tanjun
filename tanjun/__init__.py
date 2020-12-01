@@ -47,11 +47,13 @@ __all__: typing.Sequence[str] = [
     # command.py
     "commands",
     "Command",
+    "CommandGroup",
     # components.py
     "components",
     "command",
     "Component",
     "event",
+    "group",
     # context.py
     "context",
     "Context",

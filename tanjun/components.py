@@ -31,8 +31,9 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["command", "Component", "event"]
+__all__: typing.Sequence[str] = ["command", "Component", "event", "group"]
 
+import copy
 import inspect
 import itertools
 import typing
@@ -52,12 +53,26 @@ def command(
     name: str,
     /,
     *names: str,
-    checks: typing.Optional[typing.Iterable[commands.CheckT]] = None,
+    checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
     hooks: typing.Optional[traits.Hooks] = None,
     parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
-) -> typing.Callable[[commands.CommandFunctionT], commands.Command]:
-    def decorator(function: commands.CommandFunctionT, /) -> commands.Command:
+) -> typing.Callable[[traits.CommandFunctionT], commands.Command]:
+    def decorator(function: traits.CommandFunctionT, /) -> commands.Command:
         return commands.Command(function, name, *names, checks=checks, hooks=hooks, parser=parser)
+
+    return decorator
+
+
+def group(
+    name: str,
+    /,
+    *names: str,
+    checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
+    hooks: typing.Optional[traits.Hooks] = None,
+    parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
+) -> typing.Callable[[traits.CommandFunctionT], commands.CommandGroup]:
+    def decorator(function: traits.CommandFunctionT, /) -> commands.CommandGroup:
+        return commands.Command(function, name, *names, parser=parser).group(checks=checks, hooks=hooks)
 
     return decorator
 
@@ -135,12 +150,15 @@ class Component(traits.Component):
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         return self._metadata
 
-    def add_check(self, check: traits.CheckT, /) -> traits.CheckT:
+    def add_check(self, check: traits.CheckT, /) -> None:
         self._checks.add(check)
-        return check
 
     def remove_check(self, check: traits.CheckT, /) -> None:
         self._checks.remove(check)
+
+    def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
+        self.add_check(check)
+        return check
 
     def add_command(self, command_: traits.ExecutableCommand, /) -> None:
         command_.bind_component(self)
@@ -173,9 +191,13 @@ class Component(traits.Component):
         for command_ in self._commands:
             command_.bind_client(client)
 
-    async def check_context(self, ctx: traits.Context, /) -> typing.AsyncIterator[traits.FoundCommand]:
+    async def check_context(
+        self, ctx: traits.Context, /, *, name_prefix: str = ""
+    ) -> typing.AsyncIterator[traits.FoundCommand]:
         if await utilities.gather_checks(utilities.await_if_async(check(ctx)) for check in self._checks):
-            async for value in utilities.async_chain(command_.check_context(ctx) for command_ in self._commands):
+            async for value in utilities.async_chain(
+                command_.check_context(ctx, name_prefix=name_prefix) for command_ in self._commands
+            ):
                 yield value
 
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
@@ -216,8 +238,7 @@ class Component(traits.Component):
 
         async for command_ in self.check_context(ctx):
             ctx.triggering_name = command_.name
-            ctx.triggering_prefix = command_.prefix
-            ctx.content = ctx.content[len(command_.name) :].strip()
+            ctx.content = ctx.content[len(command_.name) :].lstrip()
             # Only add our hooks and set command if we're sure we'll be executing the command here.
             ctx.command = command_.command
 
@@ -235,7 +256,7 @@ class Component(traits.Component):
     def _load_from_properties(self) -> None:
         for name, member in inspect.getmembers(self):
             if isinstance(member, traits.ExecutableCommand):
-                self.add_command(member)
+                self.add_command(copy.deepcopy(member))
 
             elif isinstance(member, traits.Listener):
                 self.add_listener(member.event, member.listener)

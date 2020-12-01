@@ -269,7 +269,7 @@ class Client(traits.Client):
         if (prefix := await self.check_prefix(event.message.content)) is None or not await self.check(event):
             return
 
-        content = event.message.content[len(prefix) :].strip()
+        content = event.message.content.lstrip()[len(prefix) :].lstrip()
         ctx = context.Context(self, content=content, message=event.message, triggering_prefix=prefix)
 
         hooks = {self.hooks,} if self.hooks else set()

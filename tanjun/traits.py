@@ -46,6 +46,7 @@ __all__: typing.Sequence[str] = [
     "Executable",
     "FoundCommand",
     "ExecutableCommand",
+    "ExecutableCommandGroup",
     "Component",
     "Client",
     "UNDEFINED_DEFAULT",
@@ -56,6 +57,8 @@ __all__: typing.Sequence[str] = [
 ]
 
 import typing
+
+from hikari import undefined
 
 if typing.TYPE_CHECKING:
     from hikari import messages
@@ -73,6 +76,8 @@ if typing.TYPE_CHECKING:
 ConverterT = typing.Union[
     typing.Callable[[str], typing.Any], "Converter[typing.Any]", "typing.Type[StatelessConverter[typing.Any]]"
 ]
+# TODO: be more specific about the structure of command functions using a callable protocol
+CommandFunctionT = typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, typing.Any]]
 ParserHookT = typing.Callable[
     ["Context", "errors.ParserError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
 ]
@@ -226,15 +231,18 @@ class Executable(typing.Protocol):
     def hooks(self, hooks: typing.Optional[Hooks]) -> None:
         raise NotImplementedError
 
-    def add_check(self, check: CheckT, /) -> CheckT:
+    def add_check(self, check: CheckT, /) -> None:
         raise NotImplementedError
 
     def remove_check(self, check: CheckT, /) -> None:
         raise NotImplementedError
 
+    def with_check(self, check: CheckT, /) -> CheckT:
+        raise NotImplementedError
+
     # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
     # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
-    def check_context(self, ctx: Context, /) -> typing.AsyncIterator[FoundCommand]:
+    def check_context(self, ctx: Context, /, *, name_prefix: str = "") -> typing.AsyncIterator[FoundCommand]:
         raise NotImplementedError
 
     def check_name(self, name: str, /) -> typing.Iterator[FoundCommand]:
@@ -285,14 +293,6 @@ class FoundCommand(typing.Protocol):
     def name(self, name: typing.Optional[str], /) -> None:
         raise NotImplementedError
 
-    @property
-    def prefix(self) -> typing.Optional[str]:
-        raise NotImplementedError
-
-    @prefix.setter
-    def prefix(self, prefix: typing.Optional[str], /) -> None:
-        raise NotImplementedError
-
 
 @typing.runtime_checkable
 class ExecutableCommand(Executable, typing.Protocol):
@@ -303,7 +303,7 @@ class ExecutableCommand(Executable, typing.Protocol):
         raise NotImplementedError
 
     @property
-    def function(self) -> typing.Optional[typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, typing.Any]]]:
+    def function(self) -> typing.Optional[CommandFunctionT]:
         raise NotImplementedError
 
     @property
@@ -312,6 +312,14 @@ class ExecutableCommand(Executable, typing.Protocol):
 
     @property
     def names(self) -> typing.AbstractSet[str]:
+        raise NotImplementedError
+
+    @property
+    def parent(self) -> typing.Optional[ExecutableCommandGroup]:
+        raise NotImplementedError
+
+    @parent.setter
+    def parent(self, parent: typing.Optional[ExecutableCommand], /) -> None:
         raise NotImplementedError
 
     @property
@@ -332,6 +340,39 @@ class ExecutableCommand(Executable, typing.Protocol):
         raise NotImplementedError
 
     def bind_component(self, component: Component, /) -> None:
+        raise NotImplementedError
+
+
+class ExecutableCommandGroup(ExecutableCommand, typing.Protocol):
+    __slots__: typing.Sequence[str] = ()
+
+    @property
+    def commands(self) -> typing.AbstractSet[ExecutableCommand]:
+        raise NotImplementedError
+
+    @property
+    def top_command(self) -> typing.Optional[ExecutableCommand]:
+        raise NotImplementedError
+
+    @top_command.setter
+    def top_command(self, top_command: typing.Optional[ExecutableCommand], /) -> None:
+        raise NotImplementedError
+
+    def add_command(self, command: ExecutableCommand, /) -> None:
+        raise NotImplementedError
+
+    def remove_command(self, command: ExecutableCommand, /) -> None:
+        raise NotImplementedError
+
+    def with_command(
+        self,
+        name: str,
+        /,
+        *names: str,
+        checks: typing.Optional[typing.Iterable[CheckT]] = None,
+        hooks: typing.Optional[Hooks] = None,
+        parser: undefined.UndefinedNoneOr[Parser] = undefined.UNDEFINED,
+    ) -> typing.Callable[[CommandFunctionT], CommandFunctionT]:
         raise NotImplementedError
 
 
