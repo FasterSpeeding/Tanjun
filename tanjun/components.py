@@ -72,7 +72,7 @@ def group(
     parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
 ) -> typing.Callable[[traits.CommandFunctionT], commands.CommandGroup]:
     def decorator(function: traits.CommandFunctionT, /) -> commands.CommandGroup:
-        return commands.Command(function, name, *names, parser=parser).group(checks=checks, hooks=hooks)
+        return commands.CommandGroup(function, name, *names, parser=parser, checks=checks, hooks=hooks)
 
     return decorator
 
@@ -114,7 +114,7 @@ class Component(traits.Component):
         checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
     ) -> None:
-        self._checks: typing.MutableSet[traits.CheckT] = set(checks) if checks else set()
+        self._checks = set(checks) if checks else set()
         self._client: typing.Optional[traits.Client] = None
         self._commands: typing.MutableSet[traits.ExecutableCommand] = set()
         self.hooks = hooks
@@ -194,7 +194,7 @@ class Component(traits.Component):
     async def check_context(
         self, ctx: traits.Context, /, *, name_prefix: str = ""
     ) -> typing.AsyncIterator[traits.FoundCommand]:
-        if await utilities.gather_checks(utilities.await_if_async(check(ctx)) for check in self._checks):
+        if await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks):
             async for value in utilities.async_chain(
                 command_.check_context(ctx, name_prefix=name_prefix) for command_ in self._commands
             ):

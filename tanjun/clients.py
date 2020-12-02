@@ -188,7 +188,7 @@ class Client(traits.Client):
         self._checks.remove(check)
 
     async def check(self, ctx: traits.Context, /) -> bool:
-        return await utilities.gather_checks(utilities.await_if_async(check(ctx)) for check in self._checks)
+        return await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks)
 
     def add_component(self, component: traits.Component, /) -> None:
         component.bind_client(self)
@@ -208,7 +208,7 @@ class Client(traits.Client):
             yield value
 
     @staticmethod
-    def check_human(ctx: traits.Context) -> bool:
+    def check_human(ctx: traits.Context, /) -> bool:
         return not ctx.message.author.is_bot and ctx.message.webhook_id is None
 
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:

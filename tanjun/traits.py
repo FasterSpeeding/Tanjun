@@ -303,7 +303,7 @@ class ExecutableCommand(Executable, typing.Protocol):
         raise NotImplementedError
 
     @property
-    def function(self) -> typing.Optional[CommandFunctionT]:
+    def function(self) -> CommandFunctionT:
         raise NotImplementedError
 
     @property
@@ -319,7 +319,7 @@ class ExecutableCommand(Executable, typing.Protocol):
         raise NotImplementedError
 
     @parent.setter
-    def parent(self, parent: typing.Optional[ExecutableCommand], /) -> None:
+    def parent(self, parent: typing.Optional[ExecutableCommandGroup], /) -> None:
         raise NotImplementedError
 
     @property
@@ -348,14 +348,6 @@ class ExecutableCommandGroup(ExecutableCommand, typing.Protocol):
 
     @property
     def commands(self) -> typing.AbstractSet[ExecutableCommand]:
-        raise NotImplementedError
-
-    @property
-    def top_command(self) -> typing.Optional[ExecutableCommand]:
-        raise NotImplementedError
-
-    @top_command.setter
-    def top_command(self, top_command: typing.Optional[ExecutableCommand], /) -> None:
         raise NotImplementedError
 
     def add_command(self, command: ExecutableCommand, /) -> None:

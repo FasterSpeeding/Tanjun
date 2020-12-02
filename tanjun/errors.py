@@ -34,6 +34,7 @@ from __future__ import annotations
 __all__: typing.Sequence[str] = [
     "CommandError",
     "ConversionError",
+    "FailedCheck",
     "NotEnoughArgumentsError",
     "TooManyArgumentsError",
     "ParserError",
@@ -69,6 +70,10 @@ class CommandError(TanjunError):
 
     def __str__(self) -> str:
         return self.message or ""
+
+
+class FailedCheck(TanjunError, RuntimeError):
+    __slots__: typing.Sequence[str] = ()
 
 
 class ParserError(TanjunError, ValueError):

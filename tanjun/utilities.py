@@ -47,6 +47,8 @@ from hikari import errors as hikari_errors
 from hikari import permissions as permissions_
 from yuyo import backoff
 
+from tanjun import errors as tanjun_errors
+
 if typing.TYPE_CHECKING:
     from hikari import guilds
     from hikari import snowflakes
@@ -64,21 +66,21 @@ async def async_chain(iterable: typing.Iterable[typing.AsyncIterable[_ValueT]]) 
             yield value
 
 
-async def await_if_async(value: typing.Union[_ValueT, typing.Awaitable[_ValueT]]) -> _ValueT:
-    if isinstance(value, typing.Awaitable):
+async def await_if_async(
+    callback: typing.Callable[..., typing.Union[_ValueT, typing.Awaitable[_ValueT]]], *args: typing.Any
+) -> _ValueT:
+    result = callback(*args)
+
+    if isinstance(result, typing.Awaitable):
         # For some reason MYPY thinks this returns typing.Any
-        return typing.cast(_ValueT, await value)
+        return typing.cast(_ValueT, await result)
 
-    return value
-
-
-class _FailedCheck(RuntimeError):
-    ...
+    return result
 
 
 async def _wrap_check(check: typing.Awaitable[bool]) -> bool:
     if not await check:
-        raise _FailedCheck
+        raise tanjun_errors.FailedCheck()
 
     return True
 
@@ -90,7 +92,7 @@ async def gather_checks(checks: typing.Iterable[typing.Awaitable[bool]]) -> bool
         # are passed.
         return bool(min(results)) if results else True
 
-    except _FailedCheck:
+    except tanjun_errors.FailedCheck:
         return False
 
 

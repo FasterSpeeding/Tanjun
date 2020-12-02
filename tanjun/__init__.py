@@ -74,6 +74,7 @@ __all__: typing.Sequence[str] = [
     "errors",
     "CommandError",
     "ConversionError",
+    "FailedCheck",
     "NotEnoughArgumentsError",
     "TooManyArgumentsError",
     "ParserError",

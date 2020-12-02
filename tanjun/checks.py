@@ -180,14 +180,14 @@ class PermissionCheck(abc.ABC):
         return (self.permissions & await self.get_permissions(ctx)) == self.permissions
 
     @abc.abstractmethod
-    async def get_permissions(self, ctx: tanjun_traits.Context) -> permissions_.Permissions:
+    async def get_permissions(self, ctx: tanjun_traits.Context, /) -> permissions_.Permissions:
         raise NotImplementedError
 
 
 class AuthorPermissionCheck(PermissionCheck):
     __slots__: typing.Sequence[str] = ()
 
-    async def get_permissions(self, ctx: tanjun_traits.Context) -> permissions_.Permissions:
+    async def get_permissions(self, ctx: tanjun_traits.Context, /) -> permissions_.Permissions:
         if not ctx.message.member:
             return utilities.ALL_PERMISSIONS
 
@@ -203,7 +203,7 @@ class BotPermissionsCheck(PermissionCheck):
         self._me: typing.Optional[users.User] = None
         self._members: typing.MutableMapping[snowflakes.Snowflake, guilds.Member] = {}
 
-    async def on_member_event(self, event: member_events.MemberEvent) -> None:
+    async def on_member_event(self, event: member_events.MemberEvent, /) -> None:
         if event.user_id != (await self._get_user(event.app, event.app)):
             return
 
@@ -213,7 +213,7 @@ class BotPermissionsCheck(PermissionCheck):
         elif event.user_id in self._members:
             del self._members[event.user_id]
 
-    async def get_permissions(self, ctx: tanjun_traits.Context) -> permissions_.Permissions:
+    async def get_permissions(self, ctx: tanjun_traits.Context, /) -> permissions_.Permissions:
         if ctx.message.guild_id is None:
             return utilities.ALL_PERMISSIONS
 

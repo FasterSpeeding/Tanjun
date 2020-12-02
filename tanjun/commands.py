@@ -50,7 +50,7 @@ from tanjun import utilities
 class FoundCommand(traits.FoundCommand):
     __slots__: typing.Sequence[str] = ("command", "name", "prefix")
 
-    def __init__(self, command_: traits.ExecutableCommand, name: str) -> None:
+    def __init__(self, command_: traits.ExecutableCommand, name: str, /) -> None:
         self.command = command_
         self.name = name
 
@@ -126,7 +126,7 @@ class Command(traits.ExecutableCommand):
         self, ctx: traits.Context, /, *, name_prefix: str = ""
     ) -> typing.AsyncIterator[traits.FoundCommand]:
         if found := next(self.check_name(ctx.content[len(name_prefix) :].lstrip()), None):
-            if await utilities.gather_checks(utilities.await_if_async(check(ctx)) for check in self._checks):
+            if await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks):
                 yield found
 
     def add_name(self, name: str, /) -> None:
@@ -210,111 +210,29 @@ class Command(traits.ExecutableCommand):
 
         return True
 
-    def group(
-        self,
-        *,
-        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
-        hooks: typing.Optional[traits.Hooks] = None,
-    ) -> CommandGroup:
-        command_group = CommandGroup(*self._names, checks=checks, hooks=hooks, top_command=self)
-        self.parent = command_group
-        self._names.clear()
-        return command_group
 
-
-class CommandGroup(traits.ExecutableCommandGroup):
-    __slots__: typing.Sequence[str] = (
-        "_checks",
-        "_commands",
-        "_component",
-        "hooks",
-        "_meta",
-        "_names",
-        "parent",
-        "_top_command",
-    )
+class CommandGroup(Command, traits.ExecutableCommandGroup):
+    __slots__: typing.Sequence[str] = ("_commands",)
 
     def __init__(
         self,
+        function: traits.CommandFunctionT,
         name: str,
         /,
         *names: str,
         checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
-        top_command: typing.Optional[traits.ExecutableCommand] = None,
+        parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
     ) -> None:
-        self._checks = set(checks) if checks else set()
+        super().__init__(function, name, *names, checks=checks, hooks=hooks, parser=parser)
         self._commands: typing.MutableSet[traits.ExecutableCommand] = set()
-        self._component: typing.Optional[traits.Component] = None
-        self.hooks = hooks
-        self._meta: typing.MutableMapping[typing.Any, typing.Any] = {}
-        self._names = {name, *names}
-        self.parent: typing.Optional[traits.ExecutableCommandGroup] = None
-        self._top_command = top_command
-
-    async def __call__(self, ctx: traits.Context, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
-        if self._top_command is None or not self._top_command.function:
-            raise RuntimeError("Cannot call a command group without a top level command")
-
-        return await self._top_command.function(ctx, *args, **kwargs)
 
     def __repr__(self) -> str:
-        command_len = len(self._commands)
-
-        if self._top_command:
-            command_len += 1
-
-        return f"CommandGroup <{command_len}: {self._names}>"
-
-    @property
-    def checks(self) -> typing.AbstractSet[traits.CheckT]:
-        return frozenset(self._checks)
+        return f"CommandGroup <{len(self._commands)}: {self._names}>"
 
     @property
     def commands(self) -> typing.AbstractSet[traits.ExecutableCommand]:
         return frozenset(self._commands)
-
-    @property
-    def component(self) -> typing.Optional[traits.Component]:
-        return self._component
-
-    @property
-    def function(self) -> None:
-        return None
-
-    @property
-    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
-        return self._meta
-
-    @property
-    def top_command(self) -> typing.Optional[traits.ExecutableCommand]:
-        return self._top_command
-
-    @top_command.setter
-    def top_command(self, top_command: typing.Optional[traits.ExecutableCommand]) -> None:
-        raise NotImplementedError
-
-    @property
-    def names(self) -> typing.AbstractSet[str]:
-        return frozenset(self._names)
-
-    @property
-    def parser(self) -> None:
-        return None
-
-    @parser.setter
-    def parser(self, parser: typing.Optional[traits.Parser], /) -> typing.NoReturn:
-        raise ValueError("Cannot add set a parser on a command group")
-
-    def add_check(self, check: traits.CheckT, /) -> None:
-        self._checks.add(check)
-
-    def remove_check(self, check: traits.CheckT, /) -> None:
-        self._checks.remove(check)
-
-    def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
-        self.add_check(check)
-        return check
 
     def add_command(self, command: traits.ExecutableCommand, /) -> None:
         command.parent = self
@@ -334,46 +252,20 @@ class CommandGroup(traits.ExecutableCommandGroup):
         parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
     ) -> typing.Callable[[traits.CommandFunctionT], traits.CommandFunctionT]:
         def decorator(function: traits.CommandFunctionT, /) -> traits.CommandFunctionT:
-            command = Command(function, name, *names, checks=checks, hooks=hooks, parser=parser)
-            command.parent = self
-            self.add_command(command)
+            self.add_command(Command(function, name, *names, checks=checks, hooks=hooks, parser=parser))
             return function
 
         return decorator
 
-    def add_name(self, name: str, /) -> None:
-        self._names.add(name)
-
-    def remove_name(self, name: str, /) -> None:
-        self._names.remove(name)
-
     def bind_client(self, client: traits.Client, /) -> None:
-        if self._top_command:
-            self._top_command.bind_client(client)
-
+        super().bind_client(client)
         for command in self._commands:
             command.bind_client(client)
 
     def bind_component(self, component: traits.Component, /) -> None:
-        self._component = component
-        if self._top_command:
-            self._top_command.bind_component(component)
-
+        super().bind_component(component)
         for command in self._commands:
             command.bind_component(component)
-
-    async def check_context(
-        self, ctx: traits.Context, /, *, name_prefix: str = ""
-    ) -> typing.AsyncIterator[traits.FoundCommand]:
-        if result := next(self.check_name(ctx.content[len(name_prefix) :].lstrip()), None):
-            if await utilities.gather_checks(utilities.await_if_async(check(ctx)) for check in self._checks):
-                yield result
-
-    def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
-        for own_name in self._names:
-            if name.startswith(own_name):
-                yield FoundCommand(self, own_name)
-                break
 
     # I sure hope this plays well with command group recursion cause I am waaaaaaaaaaaaaay too lazy to test that myself.
     async def execute(
@@ -400,11 +292,4 @@ class CommandGroup(traits.ExecutableCommandGroup):
                 await result.command.execute(ctx, hooks=hooks)
                 return True
 
-        if self._top_command:
-            # Seeing as we don't care for the top command's own name(s) we specifically only run it's checks here.
-            if await utilities.gather_checks(
-                utilities.await_if_async(check(ctx)) for check in self._top_command.checks
-            ):
-                await self._top_command.execute(ctx, hooks=hooks)
-
-        return True
+        return await super().execute(ctx, hooks=hooks)

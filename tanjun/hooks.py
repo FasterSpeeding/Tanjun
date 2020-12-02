@@ -97,7 +97,7 @@ class Hooks(traits.Hooks):
         hooks: typing.Optional[typing.AbstractSet[traits.Hooks]] = None,
     ) -> None:  # TODO: return True to indicate "raise" else False or None to suppress
         if self._error:
-            await utilities.await_if_async(self._error(ctx, exception))
+            await utilities.await_if_async(self._error, ctx, exception)
 
         if hooks:
             await asyncio.gather(*(hook.trigger_error(ctx, exception) for hook in hooks))
@@ -110,7 +110,7 @@ class Hooks(traits.Hooks):
         hooks: typing.Optional[typing.AbstractSet[traits.Hooks]] = None,
     ) -> None:
         if self._parser_error:
-            await utilities.await_if_async(self._parser_error(ctx, exception))
+            await utilities.await_if_async(self._parser_error, ctx, exception)
 
         if hooks:
             await asyncio.gather(*(hook.trigger_parser_error(ctx, exception) for hook in hooks))
@@ -119,7 +119,7 @@ class Hooks(traits.Hooks):
         self, ctx: Context, /, *, hooks: typing.Optional[typing.AbstractSet[traits.Hooks]] = None
     ) -> None:
         if self._post_execution:
-            await utilities.await_if_async(self._post_execution(ctx))
+            await utilities.await_if_async(self._post_execution, ctx)
 
         if hooks:
             await asyncio.gather(*(hook.trigger_post_execution(ctx) for hook in hooks))
@@ -127,7 +127,7 @@ class Hooks(traits.Hooks):
     async def trigger_pre_execution(
         self, ctx: Context, /, *, hooks: typing.Optional[typing.AbstractSet[traits.Hooks]] = None,
     ) -> bool:
-        if self._pre_execution and await utilities.await_if_async(self._pre_execution(ctx)) is False:
+        if self._pre_execution and await utilities.await_if_async(self._pre_execution, ctx) is False:
             return False
 
         if hooks:
@@ -139,7 +139,7 @@ class Hooks(traits.Hooks):
         self, ctx: Context, /, *, hooks: typing.Optional[typing.AbstractSet[traits.Hooks]] = None
     ) -> None:
         if self._success:
-            await utilities.await_if_async(self._success(ctx))
+            await utilities.await_if_async(self._success, ctx)
 
         if hooks:
             await asyncio.gather(*(hook.trigger_success(ctx) for hook in hooks))
