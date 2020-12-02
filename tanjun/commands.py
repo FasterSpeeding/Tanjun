@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["Command"]
+__all__: typing.Sequence[str] = ["Command", "CommandGroup"]
 
 import types
 import typing
@@ -46,30 +46,34 @@ from tanjun import parsing
 from tanjun import traits
 from tanjun import utilities
 
-CommandFunctionT = typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, typing.Any]]
-CheckT = typing.Callable[[traits.Context], typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]]
 
-
-class FoundClass(traits.FoundCommand):
+class FoundCommand(traits.FoundCommand):
     __slots__: typing.Sequence[str] = ("command", "name", "prefix")
 
-    def __init__(
-        self, command_: traits.ExecutableCommand, name: str, /, *, prefix: typing.Optional[str] = None
-    ) -> None:
+    def __init__(self, command_: traits.ExecutableCommand, name: str, /) -> None:
         self.command = command_
         self.name = name
-        self.prefix = prefix
 
 
 class Command(traits.ExecutableCommand):
-    __slots__: typing.Sequence[str] = ("_checks", "_component", "_function", "hooks", "_meta", "_names", "parser")
+    __slots__: typing.Sequence[str] = (
+        "_checks",
+        "_component",
+        "_function",
+        "hooks",
+        "_meta",
+        "_names",
+        "parent",
+        "parser",
+    )
 
     def __init__(
         self,
-        function: CommandFunctionT,
+        function: traits.CommandFunctionT,
         name: str,
+        /,
         *names: str,
-        checks: typing.Optional[typing.Iterable[CheckT]] = None,
+        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
         parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
     ) -> None:
@@ -79,6 +83,7 @@ class Command(traits.ExecutableCommand):
         self.hooks: traits.Hooks = hooks or hooks_.Hooks()
         self._meta: typing.MutableMapping[typing.Any, typing.Any] = {}
         self._names = {name, *names}
+        self.parent: typing.Optional[traits.ExecutableCommandGroup] = None
         self.parser = parser if parser is not undefined.UNDEFINED else parsing.ShlexParser()
 
     async def __call__(self, ctx: traits.Context, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
@@ -88,11 +93,15 @@ class Command(traits.ExecutableCommand):
         return f"Command <{self._names}>"
 
     @property
+    def checks(self) -> typing.AbstractSet[traits.CheckT]:
+        return frozenset(self._checks)
+
+    @property
     def component(self) -> typing.Optional[traits.Component]:
         return self._component
 
     @property
-    def function(self) -> CommandFunctionT:
+    def function(self) -> traits.CommandFunctionT:
         return self._function
 
     @property
@@ -103,19 +112,22 @@ class Command(traits.ExecutableCommand):
     def names(self) -> typing.AbstractSet[str]:
         return frozenset(self._names)
 
-    def add_check(self, check: CheckT, /) -> CheckT:
+    def add_check(self, check: traits.CheckT, /) -> None:
         self._checks.add(check)
-        return check
 
-    def remove_check(self, check: CheckT, /) -> None:
+    def remove_check(self, check: traits.CheckT, /) -> None:
         self._checks.remove(check)
 
-    async def check_context(self, ctx: traits.Context, /) -> typing.AsyncIterator[traits.FoundCommand]:
-        found = next(self.check_name(ctx.content), None)
-        if found is not None and await utilities.gather_checks(
-            utilities.await_if_async(check(ctx)) for check in self._checks
-        ):
-            yield found
+    def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
+        self.add_check(check)
+        return check
+
+    async def check_context(
+        self, ctx: traits.Context, /, *, name_prefix: str = ""
+    ) -> typing.AsyncIterator[traits.FoundCommand]:
+        if found := next(self.check_name(ctx.content[len(name_prefix) :].lstrip()), None):
+            if await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks):
+                yield found
 
     def add_name(self, name: str, /) -> None:
         self._names.add(name)
@@ -123,15 +135,22 @@ class Command(traits.ExecutableCommand):
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
         for own_name in self._names:
             if name.startswith(own_name):
-                yield FoundClass(self, own_name)
+                yield FoundCommand(self, own_name)
                 break
 
     def remove_name(self, name: str, /) -> None:
         self._names.remove(name)
 
+    def bind_client(self, client: traits.Client, /) -> None:
+        if self.parser:
+            self.parser.bind_client(client)
+
     def bind_component(self, component: traits.Component, /) -> None:
         self._component = component
         self._function = types.MethodType(self._function, component)
+
+        if self.parser:
+            self.parser.bind_component(component)
 
     async def execute(
         self, ctx: traits.Context, /, *, hooks: typing.Optional[typing.MutableSet[traits.Hooks]] = None
@@ -190,3 +209,87 @@ class Command(traits.ExecutableCommand):
             await self.hooks.trigger_post_execution(ctx, hooks=hooks)
 
         return True
+
+
+class CommandGroup(Command, traits.ExecutableCommandGroup):
+    __slots__: typing.Sequence[str] = ("_commands",)
+
+    def __init__(
+        self,
+        function: traits.CommandFunctionT,
+        name: str,
+        /,
+        *names: str,
+        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
+        hooks: typing.Optional[traits.Hooks] = None,
+        parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
+    ) -> None:
+        super().__init__(function, name, *names, checks=checks, hooks=hooks, parser=parser)
+        self._commands: typing.MutableSet[traits.ExecutableCommand] = set()
+
+    def __repr__(self) -> str:
+        return f"CommandGroup <{len(self._commands)}: {self._names}>"
+
+    @property
+    def commands(self) -> typing.AbstractSet[traits.ExecutableCommand]:
+        return frozenset(self._commands)
+
+    def add_command(self, command: traits.ExecutableCommand, /) -> None:
+        command.parent = self
+        self._commands.add(command)
+
+    def remove_command(self, command: traits.ExecutableCommand, /) -> None:
+        command.parent = None
+        self._commands.remove(command)
+
+    def with_command(
+        self,
+        name: str,
+        /,
+        *names: str,
+        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
+        hooks: typing.Optional[traits.Hooks] = None,
+        parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
+    ) -> typing.Callable[[traits.CommandFunctionT], traits.CommandFunctionT]:
+        def decorator(function: traits.CommandFunctionT, /) -> traits.CommandFunctionT:
+            self.add_command(Command(function, name, *names, checks=checks, hooks=hooks, parser=parser))
+            return function
+
+        return decorator
+
+    def bind_client(self, client: traits.Client, /) -> None:
+        super().bind_client(client)
+        for command in self._commands:
+            command.bind_client(client)
+
+    def bind_component(self, component: traits.Component, /) -> None:
+        super().bind_component(component)
+        for command in self._commands:
+            command.bind_component(component)
+
+    # I sure hope this plays well with command group recursion cause I am waaaaaaaaaaaaaay too lazy to test that myself.
+    async def execute(
+        self, ctx: traits.Context, /, *, hooks: typing.Optional[typing.MutableSet[traits.Hooks]] = None
+    ) -> bool:
+        if self.hooks and hooks:
+            hooks.add(self.hooks)
+
+        elif self.hooks:
+            hooks = {self.hooks}
+
+        for command in self._commands:
+            async for result in command.check_context(ctx):
+                assert ctx.message.content is not None
+                # triggering_prefix should never be None here but for the sake of covering all cases if it is then we
+                # assume an empty string.
+                # If triggering_name is None then we assume an empty string for that as well.
+                content = ctx.message.content.lstrip()[len(ctx.triggering_prefix or "") :].lstrip()[
+                    len(ctx.triggering_name or "") :
+                ]
+                space_len = len(content) - len(content.lstrip())
+                ctx.triggering_name = (ctx.triggering_name or "") + (" " * space_len) + result.name
+                ctx.content = ctx.content[space_len + len(result.name) :].lstrip()
+                await result.command.execute(ctx, hooks=hooks)
+                return True
+
+        return await super().execute(ctx, hooks=hooks)

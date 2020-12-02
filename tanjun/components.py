@@ -31,8 +31,9 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["command", "Component", "event"]
+__all__: typing.Sequence[str] = ["command", "Component", "event", "group"]
 
+import copy
 import inspect
 import itertools
 import typing
@@ -52,28 +53,54 @@ def command(
     name: str,
     /,
     *names: str,
-    checks: typing.Optional[typing.Iterable[commands.CheckT]] = None,
+    checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
     hooks: typing.Optional[traits.Hooks] = None,
     parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
-) -> typing.Callable[[commands.CommandFunctionT], commands.Command]:
-    def decorator(function: commands.CommandFunctionT, /) -> commands.Command:
+) -> typing.Callable[[traits.CommandFunctionT], commands.Command]:
+    def decorator(function: traits.CommandFunctionT, /) -> commands.Command:
         return commands.Command(function, name, *names, checks=checks, hooks=hooks, parser=parser)
 
     return decorator
 
 
+def group(
+    name: str,
+    /,
+    *names: str,
+    checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
+    hooks: typing.Optional[traits.Hooks] = None,
+    parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
+) -> typing.Callable[[traits.CommandFunctionT], commands.CommandGroup]:
+    def decorator(function: traits.CommandFunctionT, /) -> commands.CommandGroup:
+        return commands.CommandGroup(function, name, *names, parser=parser, checks=checks, hooks=hooks)
+
+    return decorator
+
+
+class Listener(traits.Listener[traits.EventT], typing.Generic[traits.EventT]):
+    __slots__: typing.Sequence[str] = ("event", "listener")
+
+    def __init__(
+        self, event_: typing.Type[traits.EventT], listener: event_dispatcher.CallbackT[traits.EventT], /
+    ) -> None:
+        self.event = event_
+        self.listener = listener
+
+    async def __call__(self, event_: traits.EventT, /) -> None:
+        await self.listener(event_)
+
+
 def event(
-    cls: typing.Type[base_events.Event], /
-) -> typing.Callable[[event_dispatcher.CallbackT[typing.Any]], event_dispatcher.CallbackT[typing.Any]]:
-    def decorator(function: event_dispatcher.CallbackT[typing.Any], /) -> event_dispatcher.CallbackT[typing.Any]:
-        setattr(function, "__event__", cls)
-        return function
+    cls: typing.Type[traits.EventT], /
+) -> typing.Callable[[event_dispatcher.CallbackT[traits.EventT]], Listener[traits.EventT]]:
+    def decorator(function: event_dispatcher.CallbackT[traits.EventT], /) -> Listener[traits.EventT]:
+        return Listener(cls, function)
 
     return decorator
 
 
 class Component(traits.Component):
-    __slots__: typing.Sequence[str] = ("_client", "_commands", "hooks", "_listeners", "_metadata", "started")
+    __slots__: typing.Sequence[str] = ("_checks", "_client", "_commands", "hooks", "_listeners", "_metadata", "started")
 
     started: bool
     """Whether this component has been "started" yet.
@@ -81,7 +108,13 @@ class Component(traits.Component):
     When this is `builtins.False` executing the cluster will always do nothing.
     """
 
-    def __init__(self, *, hooks: typing.Optional[traits.Hooks] = None) -> None:
+    def __init__(
+        self,
+        *,
+        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
+        hooks: typing.Optional[traits.Hooks] = None,
+    ) -> None:
+        self._checks = set(checks) if checks else set()
         self._client: typing.Optional[traits.Client] = None
         self._commands: typing.MutableSet[traits.ExecutableCommand] = set()
         self.hooks = hooks
@@ -90,22 +123,14 @@ class Component(traits.Component):
         ] = set()
         self._metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
         self.started = False
-
-        for name, member in inspect.getmembers(self):
-            if isinstance(member, traits.ExecutableCommand):
-                member.bind_component(self)
-                self.add_command(member)
-
-            elif (event_ := getattr(member, "__event__", None)) is not None:
-                member = typing.cast("event_dispatcher.CallbackT[typing.Any]", member)
-
-                if not issubclass(event_, base_events.Event):
-                    raise RuntimeError(f"{event_} is not a valid event class.")
-
-                self.add_listener(event_, member)
+        self._load_from_properties()
 
     def __repr__(self) -> str:
         return f"Component <{type(self).__name__}, {len(self._commands)} commands>"
+
+    @property
+    def checks(self) -> typing.AbstractSet[traits.CheckT]:
+        return frozenset(self._checks)
 
     @property
     def client(self) -> typing.Optional[traits.Client]:
@@ -125,7 +150,18 @@ class Component(traits.Component):
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         return self._metadata
 
+    def add_check(self, check: traits.CheckT, /) -> None:
+        self._checks.add(check)
+
+    def remove_check(self, check: traits.CheckT, /) -> None:
+        self._checks.remove(check)
+
+    def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
+        self.add_check(check)
+        return check
+
     def add_command(self, command_: traits.ExecutableCommand, /) -> None:
+        command_.bind_component(self)
         self._commands.add(command_)
 
     def remove_command(self, command_: traits.ExecutableCommand, /) -> None:
@@ -152,9 +188,17 @@ class Component(traits.Component):
         for event_, listener in self._listeners:
             self._client.dispatch_service.dispatcher.subscribe(event_, listener)
 
-    async def check_context(self, ctx: traits.Context, /) -> typing.AsyncIterator[traits.FoundCommand]:
-        async for value in utilities.async_chain(command_.check_context(ctx) for command_ in self._commands):
-            yield value
+        for command_ in self._commands:
+            command_.bind_client(client)
+
+    async def check_context(
+        self, ctx: traits.Context, /, *, name_prefix: str = ""
+    ) -> typing.AsyncIterator[traits.FoundCommand]:
+        if await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks):
+            async for value in utilities.async_chain(
+                command_.check_context(ctx, name_prefix=name_prefix) for command_ in self._commands
+            ):
+                yield value
 
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
         yield from itertools.chain.from_iterable(command_.check_name(name) for command_ in self._commands)
@@ -194,8 +238,7 @@ class Component(traits.Component):
 
         async for command_ in self.check_context(ctx):
             ctx.triggering_name = command_.name
-            ctx.triggering_prefix = command_.prefix
-            ctx.content = ctx.content[len(command_.name) :].strip()
+            ctx.content = ctx.content[len(command_.name) :].lstrip()
             # Only add our hooks and set command if we're sure we'll be executing the command here.
             ctx.command = command_.command
 
@@ -209,3 +252,11 @@ class Component(traits.Component):
             return True
 
         return False
+
+    def _load_from_properties(self) -> None:
+        for name, member in inspect.getmembers(self):
+            if isinstance(member, traits.ExecutableCommand):
+                self.add_command(copy.deepcopy(member))
+
+            elif isinstance(member, traits.Listener):
+                self.add_listener(member.event, member.listener)

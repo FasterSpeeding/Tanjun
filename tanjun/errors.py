@@ -34,10 +34,13 @@ from __future__ import annotations
 __all__: typing.Sequence[str] = [
     "CommandError",
     "ConversionError",
+    "FailedCheck",
     "NotEnoughArgumentsError",
     "TooManyArgumentsError",
     "ParserError",
     "TanjunError",
+    "TanjunWarning",
+    "StateWarning",
 ]
 
 import typing
@@ -46,6 +49,10 @@ from tanjun import traits
 
 
 class TanjunError(Exception):
+    __slots__: typing.Sequence[str] = ()
+
+
+class TanjunWarning(RuntimeWarning):
     __slots__: typing.Sequence[str] = ()
 
 
@@ -63,6 +70,10 @@ class CommandError(TanjunError):
 
     def __str__(self) -> str:
         return self.message or ""
+
+
+class FailedCheck(TanjunError, RuntimeError):
+    __slots__: typing.Sequence[str] = ()
 
 
 class ParserError(TanjunError, ValueError):
@@ -107,3 +118,7 @@ class TooManyArgumentsError(ParserError):
 
     def __init__(self, message: str, parameter: traits.Parameter, /) -> None:
         super().__init__(message, parameter)
+
+
+class StateWarning(RuntimeWarning):
+    __slots__: typing.Sequence[str] = ()

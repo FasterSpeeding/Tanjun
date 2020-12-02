@@ -50,10 +50,6 @@ from tanjun import utilities
 if typing.TYPE_CHECKING:
     import types
 
-ClientCheckT = typing.Callable[
-    [message_events.MessageCreateEvent], typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]
-]
-
 
 class Client(traits.Client):
     __metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
@@ -65,6 +61,7 @@ class Client(traits.Client):
         "_dispatch",
         "_grab_mention_prefix",
         "hooks",
+        "_metadata",
         "_prefixes",
         "_rest",
         "_shards",
@@ -78,6 +75,7 @@ class Client(traits.Client):
         cache: typing.Optional[hikari_traits.CacheAware] = None,
         /,
         *,
+        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
         mention_prefix: bool = True,
         prefixes: typing.Optional[typing.Iterable[str]] = None,
@@ -117,23 +115,18 @@ class Client(traits.Client):
             cache = shard  # type: ignore[unreachable]
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
 
-        self._checks: typing.MutableSet[ClientCheckT] = {
-            self.check_human,
-        }
+        self._checks: typing.MutableSet[traits.CheckT] = {self.check_human, *(checks or ())}
         self._cache = cache
         self._components: typing.MutableSet[traits.Component] = set()
         self._dispatch = dispatch
         self._grab_mention_prefix = mention_prefix
         self.hooks = hooks
+        self._metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
         self._prefixes = set(prefixes) if prefixes else set()
         self._rest = rest
         self._shards = shard
         self._dispatch.dispatcher.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
         self._dispatch.dispatcher.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
-
-    def __init_subclass__(cls) -> None:
-        cls.__metadata = {}
-        super().__init_subclass__()
 
     async def __aenter__(self) -> Client:
         await self.open()
@@ -155,12 +148,20 @@ class Client(traits.Client):
         return self._cache
 
     @property
+    def checks(self) -> typing.AbstractSet[traits.CheckT]:
+        return frozenset(self._checks)
+
+    @property
     def components(self) -> typing.AbstractSet[traits.Component]:
         return frozenset(self._components)
 
     @property
     def dispatch_service(self) -> hikari_traits.DispatcherAware:
         return self._dispatch
+
+    @property
+    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+        return self._metadata
 
     @property
     def prefixes(self) -> typing.AbstractSet[str]:
@@ -180,14 +181,14 @@ class Client(traits.Client):
     async def _on_stopping_event(self, _: lifetime_events.StoppingEvent, /) -> None:
         await self.close()
 
-    def add_check(self, check: ClientCheckT, /) -> None:
+    def add_check(self, check: traits.CheckT, /) -> None:
         self._checks.add(check)
 
-    def remove_check(self, check: ClientCheckT, /) -> None:
+    def remove_check(self, check: traits.CheckT, /) -> None:
         self._checks.remove(check)
 
-    async def check(self, event: message_events.MessageCreateEvent, /) -> bool:
-        return await utilities.gather_checks(utilities.await_if_async(check(event)) for check in self._checks)
+    async def check(self, ctx: traits.Context, /) -> bool:
+        return await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks)
 
     def add_component(self, component: traits.Component, /) -> None:
         component.bind_client(self)
@@ -207,8 +208,8 @@ class Client(traits.Client):
             yield value
 
     @staticmethod
-    def check_human(event: message_events.MessageCreateEvent) -> bool:
-        return event.is_human
+    def check_human(ctx: traits.Context, /) -> bool:
+        return not ctx.message.author.is_bot and ctx.message.webhook_id is None
 
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
         yield from itertools.chain.from_iterable(component.check_name(name) for component in self._components)
@@ -250,26 +251,24 @@ class Client(traits.Client):
                 user = await self._rest.rest.fetch_my_user()
 
             self._grab_mention_prefix = False
-
             self._prefixes.add(f"<@{user.id}>")
             self._prefixes.add(f"<@!{user.id}>")
 
         if register_listener:
             self._dispatch.dispatcher.subscribe(message_events.MessageCreateEvent, self.on_message_create)
 
-    @classmethod
-    def metadata(cls) -> typing.MutableMapping[typing.Any, typing.Any]:
-        return cls.__metadata
-
     async def on_message_create(self, event: message_events.MessageCreateEvent) -> None:
         if event.message.content is None:
             return
 
-        if (prefix := await self.check_prefix(event.message.content)) is None or not await self.check(event):
+        if (prefix := await self.check_prefix(event.message.content)) is None:
             return
 
-        content = event.message.content[len(prefix) :].strip()
+        content = event.message.content.lstrip()[len(prefix) :].lstrip()
         ctx = context.Context(self, content=content, message=event.message, triggering_prefix=prefix)
+
+        if not await self.check(ctx):
+            return
 
         hooks = {self.hooks,} if self.hooks else set()
 

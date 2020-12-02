@@ -46,6 +46,7 @@ __all__: typing.Sequence[str] = [
     "Executable",
     "FoundCommand",
     "ExecutableCommand",
+    "ExecutableCommandGroup",
     "Component",
     "Client",
     "UNDEFINED_DEFAULT",
@@ -56,6 +57,8 @@ __all__: typing.Sequence[str] = [
 ]
 
 import typing
+
+from hikari import undefined
 
 if typing.TYPE_CHECKING:
     from hikari import messages
@@ -73,6 +76,8 @@ if typing.TYPE_CHECKING:
 ConverterT = typing.Union[
     typing.Callable[[str], typing.Any], "Converter[typing.Any]", "typing.Type[StatelessConverter[typing.Any]]"
 ]
+# TODO: be more specific about the structure of command functions using a callable protocol
+CommandFunctionT = typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, typing.Any]]
 ParserHookT = typing.Callable[
     ["Context", "errors.ParserError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
 ]
@@ -82,6 +87,7 @@ ErrorHookT = typing.Callable[
 HookT = typing.Callable[["Context"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]]
 PreExecutionHookT = typing.Callable[["Context"], typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]]
 CheckT = typing.Callable[["Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]]
+EventT = typing.TypeVar("EventT", bound="base_events.Event")
 ValueT = typing.TypeVar("ValueT", covariant=True)
 
 
@@ -141,7 +147,10 @@ class Converter(typing.Protocol[ValueT]):
     async def convert(self, ctx: Context, argument: str, /) -> ValueT:
         raise NotImplementedError
 
-    def bind_component(self, client: Client, component: Component, /) -> None:
+    def bind_client(self, client: Client, /) -> None:
+        raise NotImplementedError
+
+    def bind_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
 
@@ -154,7 +163,10 @@ class StatelessConverter(typing.Protocol[ValueT]):
         raise NotImplementedError
 
     @classmethod
-    def bind_component(cls, client: Client, component: Component, /) -> None:
+    def bind_client(cls, client: Client, /) -> None:
+        raise NotImplementedError
+
+    def bind_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
 
@@ -208,6 +220,10 @@ class Executable(typing.Protocol):
     __slots__: typing.Sequence[str] = ()
 
     @property
+    def checks(self) -> typing.AbstractSet[CheckT]:
+        raise NotImplementedError
+
+    @property
     def hooks(self) -> typing.Optional[Hooks]:
         raise NotImplementedError
 
@@ -215,15 +231,45 @@ class Executable(typing.Protocol):
     def hooks(self, hooks: typing.Optional[Hooks]) -> None:
         raise NotImplementedError
 
+    def add_check(self, check: CheckT, /) -> None:
+        raise NotImplementedError
+
+    def remove_check(self, check: CheckT, /) -> None:
+        raise NotImplementedError
+
+    def with_check(self, check: CheckT, /) -> CheckT:
+        raise NotImplementedError
+
     # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
     # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
-    def check_context(self, ctx: Context, /) -> typing.AsyncIterator[FoundCommand]:
+    def check_context(self, ctx: Context, /, *, name_prefix: str = "") -> typing.AsyncIterator[FoundCommand]:
         raise NotImplementedError
 
     def check_name(self, name: str, /) -> typing.Iterator[FoundCommand]:
         raise NotImplementedError
 
     async def execute(self, ctx: Context, /, *, hooks: typing.Optional[typing.MutableSet[Hooks]] = None) -> bool:
+        raise NotImplementedError
+
+
+@typing.runtime_checkable
+class Listener(typing.Protocol[EventT]):
+    __slots__: typing.Sequence[str] = ()
+
+    @property
+    def event(self) -> typing.Type[EventT]:
+        raise NotImplementedError
+
+    @event.setter
+    def event(self, event: typing.Type[EventT], /) -> None:
+        raise NotImplementedError
+
+    @property
+    def listener(self) -> event_dispatcher.CallbackT[EventT]:
+        raise NotImplementedError
+
+    @listener.setter
+    def listener(self, listener: event_dispatcher.CallbackT[EventT], /) -> None:
         raise NotImplementedError
 
 
@@ -247,14 +293,6 @@ class FoundCommand(typing.Protocol):
     def name(self, name: typing.Optional[str], /) -> None:
         raise NotImplementedError
 
-    @property
-    def prefix(self) -> typing.Optional[str]:
-        raise NotImplementedError
-
-    @prefix.setter
-    def prefix(self, prefix: typing.Optional[str], /) -> None:
-        raise NotImplementedError
-
 
 @typing.runtime_checkable
 class ExecutableCommand(Executable, typing.Protocol):
@@ -265,7 +303,7 @@ class ExecutableCommand(Executable, typing.Protocol):
         raise NotImplementedError
 
     @property
-    def function(self) -> typing.Optional[typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, typing.Any]]]:
+    def function(self) -> CommandFunctionT:
         raise NotImplementedError
 
     @property
@@ -274,6 +312,14 @@ class ExecutableCommand(Executable, typing.Protocol):
 
     @property
     def names(self) -> typing.AbstractSet[str]:
+        raise NotImplementedError
+
+    @property
+    def parent(self) -> typing.Optional[ExecutableCommandGroup]:
+        raise NotImplementedError
+
+    @parent.setter
+    def parent(self, parent: typing.Optional[ExecutableCommandGroup], /) -> None:
         raise NotImplementedError
 
     @property
@@ -290,7 +336,35 @@ class ExecutableCommand(Executable, typing.Protocol):
     def remove_name(self, name: str, /) -> None:
         raise NotImplementedError
 
+    def bind_client(self, client: Client, /) -> None:
+        raise NotImplementedError
+
     def bind_component(self, component: Component, /) -> None:
+        raise NotImplementedError
+
+
+class ExecutableCommandGroup(ExecutableCommand, typing.Protocol):
+    __slots__: typing.Sequence[str] = ()
+
+    @property
+    def commands(self) -> typing.AbstractSet[ExecutableCommand]:
+        raise NotImplementedError
+
+    def add_command(self, command: ExecutableCommand, /) -> None:
+        raise NotImplementedError
+
+    def remove_command(self, command: ExecutableCommand, /) -> None:
+        raise NotImplementedError
+
+    def with_command(
+        self,
+        name: str,
+        /,
+        *names: str,
+        checks: typing.Optional[typing.Iterable[CheckT]] = None,
+        hooks: typing.Optional[Hooks] = None,
+        parser: undefined.UndefinedNoneOr[Parser] = undefined.UNDEFINED,
+    ) -> typing.Callable[[CommandFunctionT], CommandFunctionT]:
         raise NotImplementedError
 
 
@@ -367,6 +441,10 @@ class Client(typing.Protocol):
         raise NotImplementedError
 
     @property
+    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+        raise NotImplementedError
+
+    @property
     def prefixes(self) -> typing.AbstractSet[str]:
         raise NotImplementedError
 
@@ -402,10 +480,6 @@ class Client(typing.Protocol):
         raise NotImplementedError
 
     async def open(self) -> None:
-        raise NotImplementedError
-
-    @classmethod
-    def metadata(cls) -> typing.MutableMapping[typing.Any, typing.Any]:
         raise NotImplementedError
 
 
@@ -449,6 +523,12 @@ class Parameter(typing.Protocol):
         raise NotImplementedError
 
     def remove_converter(self, converter: ConverterT, /) -> None:
+        raise NotImplementedError
+
+    def bind_client(self, client: Client, /) -> None:
+        raise NotImplementedError
+
+    def bind_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
     async def convert(self, ctx: Context, value: str) -> typing.Any:
@@ -496,6 +576,12 @@ class Parser(typing.Protocol):
         raise NotImplementedError
 
     def set_parameters(self, parameters: typing.Iterable[Parameter], /) -> None:
+        raise NotImplementedError
+
+    def bind_client(self, client: Client, /) -> None:
+        raise NotImplementedError
+
+    def bind_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
     async def parse(
