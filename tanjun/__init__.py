@@ -94,6 +94,8 @@ __all__: typing.Sequence[str] = [
     "Argument",
     "Option",
     "ShlexParser",
+    "parser_descriptor",
+    "with_parser",
     "generate_parameters",
     "verify_parameters",
     # traits.py

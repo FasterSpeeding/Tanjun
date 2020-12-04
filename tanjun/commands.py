@@ -33,16 +33,13 @@ from __future__ import annotations
 
 __all__: typing.Sequence[str] = ["Command", "CommandGroup"]
 
-import types
 import typing
 
 from hikari import errors as hikari_errors
-from hikari import undefined
 from yuyo import backoff
 
 from tanjun import errors
 from tanjun import hooks as hooks_
-from tanjun import parsing
 from tanjun import traits
 from tanjun import utilities
 
@@ -61,7 +58,7 @@ class Command(traits.ExecutableCommand):
         "_component",
         "_function",
         "hooks",
-        "_meta",
+        "_metadata",
         "_names",
         "parent",
         "parser",
@@ -75,19 +72,17 @@ class Command(traits.ExecutableCommand):
         *names: str,
         checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
-        parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
+        metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
+        parser: typing.Optional[traits.Parser] = None,
     ) -> None:
         self._checks = set(checks) if checks else set()
         self._component: typing.Optional[traits.Component] = None
         self._function = function
         self.hooks: traits.Hooks = hooks or hooks_.Hooks()
-        self._meta: typing.MutableMapping[typing.Any, typing.Any] = {}
+        self._metadata = metadata or {}
         self._names = {name, *names}
         self.parent: typing.Optional[traits.ExecutableCommandGroup] = None
-        self.parser = parser if parser is not undefined.UNDEFINED else parsing.ShlexParser()
-
-    async def __call__(self, ctx: traits.Context, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
-        return await self._function(ctx, *args, **kwargs)
+        self.parser = parser
 
     def __repr__(self) -> str:
         return f"Command <{self._names}>"
@@ -106,7 +101,7 @@ class Command(traits.ExecutableCommand):
 
     @property
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
-        return self._meta
+        return self._metadata
 
     @property
     def names(self) -> typing.AbstractSet[str]:
@@ -146,11 +141,7 @@ class Command(traits.ExecutableCommand):
             self.parser.bind_client(client)
 
     def bind_component(self, component: traits.Component, /) -> None:
-        self._component = component
-        self._function = types.MethodType(self._function, component)
-
-        if self.parser:
-            self.parser.bind_component(component)
+        pass
 
     async def execute(
         self, ctx: traits.Context, /, *, hooks: typing.Optional[typing.MutableSet[traits.Hooks]] = None
@@ -222,9 +213,10 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
         *names: str,
         checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
-        parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
+        metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
+        parser: typing.Optional[traits.Parser] = None,
     ) -> None:
-        super().__init__(function, name, *names, checks=checks, hooks=hooks, parser=parser)
+        super().__init__(function, name, *names, checks=checks, hooks=hooks, metadata=metadata, parser=parser)
         self._commands: typing.MutableSet[traits.ExecutableCommand] = set()
 
     def __repr__(self) -> str:
@@ -249,7 +241,7 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
         *names: str,
         checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
-        parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
+        parser: typing.Optional[traits.Parser] = None,
     ) -> typing.Callable[[traits.CommandFunctionT], traits.CommandFunctionT]:
         def decorator(function: traits.CommandFunctionT, /) -> traits.CommandFunctionT:
             self.add_command(Command(function, name, *names, checks=checks, hooks=hooks, parser=parser))
@@ -262,15 +254,13 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
         for command in self._commands:
             command.bind_client(client)
 
-    def bind_component(self, component: traits.Component, /) -> None:
-        super().bind_component(component)
-        for command in self._commands:
-            command.bind_component(component)
-
     # I sure hope this plays well with command group recursion cause I am waaaaaaaaaaaaaay too lazy to test that myself.
     async def execute(
         self, ctx: traits.Context, /, *, hooks: typing.Optional[typing.MutableSet[traits.Hooks]] = None
     ) -> bool:
+        if ctx.message.content is None:
+            raise ValueError("Cannot execute a command with a contentless message")
+
         if self.hooks and hooks:
             hooks.add(self.hooks)
 
@@ -279,7 +269,6 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
 
         for command in self._commands:
             async for result in command.check_context(ctx):
-                assert ctx.message.content is not None
                 # triggering_prefix should never be None here but for the sake of covering all cases if it is then we
                 # assume an empty string.
                 # If triggering_name is None then we assume an empty string for that as well.
