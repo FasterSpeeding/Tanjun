@@ -191,8 +191,8 @@ def command(
     checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
     hooks: typing.Optional[traits.Hooks] = None,
     parser: typing.Optional[traits.ParserDescriptor] = None,
-) -> typing.Callable[[traits.CommandFunctionT], traits.CommandFunctionT]:
-    def decorator(function: traits.CommandFunctionT, /) -> traits.CommandFunctionT:
+) -> typing.Callable[[traits.CommandFunctionT], _CommandDescriptor]:
+    def decorator(function: traits.CommandFunctionT, /) -> _CommandDescriptor:
         return _CommandDescriptor(checks, function, hooks, (name, *names), parser)
 
     return decorator
@@ -205,8 +205,8 @@ def group(
     checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
     hooks: typing.Optional[traits.Hooks] = None,
     parser: typing.Optional[traits.ParserDescriptor] = None,
-) -> typing.Callable[[traits.CommandFunctionT], traits.CommandFunctionT]:
-    def decorator(function: traits.CommandFunctionT, /) -> traits.CommandFunctionT:
+) -> typing.Callable[[traits.CommandFunctionT], _CommandGroupDescriptor]:
+    def decorator(function: traits.CommandFunctionT, /) -> _CommandGroupDescriptor:
         return _CommandGroupDescriptor(checks, function, hooks, (name, *names), parser)
 
     return decorator
