@@ -40,11 +40,14 @@ __all__: typing.Sequence[str] = [
     "Argument",
     "Option",
     "ShlexParser",
+    "parser_descriptor",
+    "with_parser",
     "generate_parameters",
     "verify_parameters",
 ]
 
 import asyncio
+import copy
 import itertools
 import shlex
 import typing
@@ -55,7 +58,7 @@ from tanjun import conversion
 from tanjun import errors
 from tanjun import traits
 
-_CommandT = typing.TypeVar("_CommandT", bound=traits.ExecutableCommand)
+_CommandT = typing.TypeVar("_CommandT", bound=traits.CommandDescriptor)
 GREEDY = "greedy"
 """Parameter flags key used for marking a parameter as "greedy".
 
@@ -421,6 +424,9 @@ class Argument(_Parameter, traits.Argument):
 
         super().__init__(key, converters=converters, default=default, flags=flags)
 
+    def __copy__(self) -> Argument:
+        return Argument(self.key, converters=self._converters, default=self.default, flags=dict(self._flags))
+
 
 class Option(_Parameter, traits.Option):
     __slots__: typing.Sequence[str] = ("empty_value", "names")
@@ -446,6 +452,17 @@ class Option(_Parameter, traits.Option):
         self.empty_value = empty_value
         self.names = names
         super().__init__(key, converters=converters, default=default, flags=flags)
+
+    def __copy__(self) -> Option:
+        # TODO: this will error if there's no set names.
+        return Option(
+            self.key,
+            *self.names,
+            converters=self._converters,
+            default=self.default,
+            flags=dict(self._flags),
+            empty_value=self.empty_value,
+        )
 
     def __repr__(self) -> str:
         return f"{type(self).__name__} <{self.key}, {self.names}>"
@@ -509,6 +526,33 @@ class ShlexParser(traits.Parser):
         arguments = await parser.get_arguments(self._arguments)
         options = await parser.get_options(self._options)
         return arguments, options
+
+
+class ParserDescriptor(traits.ParserDescriptor):
+    __slots__: typing.Sequence[str] = ("_parameters",)
+
+    def __init__(self, *, parameters: typing.Optional[typing.Iterable[traits.Parameter]] = None) -> None:
+        self._parameters = list(parameters) if parameters else []
+
+    def add_parameter(self, parameter: traits.Parameter, /) -> None:
+        self._parameters.append(parameter)
+
+    def set_parameters(self, parameters: typing.Iterable[traits.Parameter], /) -> None:
+        self._parameters = list(parameters)
+
+    def build_parser(self, component: traits.Component, /) -> ShlexParser:
+        parser = ShlexParser(parameters=map(copy.copy, self._parameters))
+        parser.bind_component(component)
+        return parser
+
+
+def parser_descriptor(*, parameters: typing.Optional[typing.Iterable[traits.Parameter]] = None) -> ParserDescriptor:
+    return ParserDescriptor(parameters=parameters)
+
+
+def with_parser(cls: _CommandT) -> _CommandT:
+    cls.parser = parser_descriptor()
+    return cls
 
 
 def generate_parameters(command: _CommandT, /, *, ignore_self: bool) -> _CommandT:

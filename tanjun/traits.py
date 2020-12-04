@@ -34,6 +34,7 @@ from __future__ import annotations
 __all__: typing.Sequence[str] = [
     "CommandDescriptor",
     "ListenerDescriptor",
+    "ParserDescriptor",
     "ConverterT",
     "ParserHookT",
     "ErrorHookT",
@@ -59,8 +60,6 @@ __all__: typing.Sequence[str] = [
 ]
 
 import typing
-
-from hikari import undefined
 
 if typing.TYPE_CHECKING:
     from hikari import messages
@@ -98,15 +97,19 @@ class CommandDescriptor(typing.Protocol):
     __slots__: typing.Sequence[str] = ()
 
     @property
+    def function(self) -> CommandFunctionT:
+        raise NotImplementedError
+
+    @property
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         raise NotImplementedError
 
     @property
-    def parser(self) -> typing.Optional[Parser]:
+    def parser(self) -> typing.Optional[ParserDescriptor]:
         raise NotImplementedError
 
     @parser.setter
-    def parser(self, parser: Parser, /) -> None:
+    def parser(self, parser: ParserDescriptor, /) -> None:
         raise NotImplementedError
 
     def add_check(self, check: CheckT, /) -> None:
@@ -129,6 +132,20 @@ class ListenerDescriptor(typing.Protocol):
     def build_listener(
         self, component: Component, /
     ) -> typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]:
+        raise NotImplementedError
+
+
+@typing.runtime_checkable
+class ParserDescriptor(typing.Protocol):
+    __slots__: typing.Sequence[str] = ()
+
+    def add_parameter(self, parameter: Parameter, /) -> None:
+        raise NotImplementedError
+
+    def set_parameters(self, parameters: typing.Iterable[Parameter], /) -> None:
+        raise NotImplementedError
+
+    def build_parser(self, component: Component, /) -> Parser:
         raise NotImplementedError
 
 
@@ -383,7 +400,7 @@ class ExecutableCommandGroup(ExecutableCommand, typing.Protocol):
         *names: str,
         checks: typing.Optional[typing.Iterable[CheckT]] = None,
         hooks: typing.Optional[Hooks] = None,
-        parser: undefined.UndefinedNoneOr[Parser] = undefined.UNDEFINED,
+        parser: typing.Optional[Parser] = None,
     ) -> typing.Callable[[CommandFunctionT], CommandFunctionT]:
         raise NotImplementedError
 

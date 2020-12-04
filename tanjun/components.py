@@ -33,16 +33,15 @@ from __future__ import annotations
 
 __all__: typing.Sequence[str] = ["command", "Component", "event", "group"]
 
+import copy
 import inspect
 import itertools
 import types
 import typing
 
-from hikari import undefined
 from hikari.events import base_events
 
 from tanjun import commands
-from tanjun import parsing
 from tanjun import traits
 from tanjun import utilities
 
@@ -50,7 +49,8 @@ if typing.TYPE_CHECKING:
     from hikari.api import event_dispatcher
 
 
-# This class is left unslotted as to allow "wrapping" the underlying function
+# This class is left unslotted as to allow it to "wrap" the underlying function
+# by overwriting class attributes.
 class _CommandDescriptor(traits.CommandDescriptor):
     def __init__(
         self,
@@ -58,15 +58,15 @@ class _CommandDescriptor(traits.CommandDescriptor):
         function: traits.CommandFunctionT,
         hooks: typing.Optional[traits.Hooks],
         names: typing.Sequence[str],
-        parser: undefined.UndefinedNoneOr[traits.Parser],
+        parser: typing.Optional[traits.ParserDescriptor],
     ) -> None:
         self._checks = list(checks) if checks else []
         self._function = function
         self._hooks = hooks
         self._metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
         self._names = list(names)
-        self._parser = parser if parser is not undefined.UNDEFINED else parsing.ShlexParser()
-        utilities.with_function_wrapping(self, "listener")
+        self._parser = parser
+        utilities.with_function_wrapping(self, "function")
 
     async def __call__(self, ctx: traits.Context, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
         return await self._function(ctx, *args, **kwargs)
@@ -75,16 +75,20 @@ class _CommandDescriptor(traits.CommandDescriptor):
         return f"CommandDescriptor <{self._function, self._names}>"
 
     @property
-    def parser(self) -> typing.Optional[traits.Parser]:
-        return self._parser
-
-    @parser.setter
-    def parser(self, parser_: typing.Optional[traits.Parser]) -> None:
-        self._parser = parser_
+    def function(self) -> traits.CommandFunctionT:
+        return self._function
 
     @property
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         return self._metadata
+
+    @property
+    def parser(self) -> typing.Optional[traits.ParserDescriptor]:
+        return self._parser
+
+    @parser.setter
+    def parser(self, parser_: typing.Optional[traits.ParserDescriptor]) -> None:
+        self._parser = parser_
 
     def add_check(self, check: traits.CheckT, /) -> None:
         self._checks.append(check)
@@ -100,17 +104,17 @@ class _CommandDescriptor(traits.CommandDescriptor):
         command_ = commands.Command(
             types.MethodType(self._function, component),
             *self._names,
-            checks=self._checks,
-            hooks=self._hooks,
-            metadata=self._metadata,
-            parser=self._parser,
+            checks=self._checks.copy(),
+            hooks=copy.copy(self._hooks),
+            metadata=dict(self._metadata),
+            parser=self.parser.build_parser(component) if self.parser else None,
         )
         command_.bind_component(component)
         return command_
 
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
-# by overwriting class attributes
+# by overwriting class attributes.
 class _CommandGroupDescriptor(_CommandDescriptor):
     def __init__(
         self,
@@ -118,7 +122,7 @@ class _CommandGroupDescriptor(_CommandDescriptor):
         function: traits.CommandFunctionT,
         hooks: typing.Optional[traits.Hooks],
         names: typing.Sequence[str],
-        parser: undefined.UndefinedNoneOr[traits.Parser],
+        parser: typing.Optional[traits.ParserDescriptor],
     ) -> None:
         super().__init__(checks, function, hooks, names, parser)
         self._commands: typing.MutableSequence[_CommandDescriptor] = []
@@ -130,10 +134,10 @@ class _CommandGroupDescriptor(_CommandDescriptor):
         group_ = commands.CommandGroup(
             types.MethodType(self._function, component),
             *self._names,
-            checks=self._checks,
-            hooks=self._hooks,
-            metadata=self._metadata,
-            parser=self.parser,
+            checks=self._checks.copy(),
+            hooks=copy.copy(self._hooks),
+            metadata=dict(self._metadata),
+            parser=self.parser.build_parser(component) if self.parser else None,
         )
         group_.bind_component(component)
 
@@ -149,7 +153,7 @@ class _CommandGroupDescriptor(_CommandDescriptor):
         *names: str,
         checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
-        parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
+        parser: typing.Optional[traits.ParserDescriptor] = None,
     ) -> typing.Callable[[traits.CommandFunctionT], traits.CommandFunctionT]:
         def decorator(function: traits.CommandFunctionT) -> traits.CommandFunctionT:
             self._commands.append(_CommandDescriptor(checks, function, hooks, (name, *names), parser))
@@ -158,8 +162,8 @@ class _CommandGroupDescriptor(_CommandDescriptor):
         return decorator
 
 
-# This class is left unslotted as to it to "wrap" the underlying function
-# by overwriting class attributes
+# This class is left unslotted as to allow it to "wrap" the underlying function
+# by overwriting class attributes.
 class _ListenerDescriptor(traits.ListenerDescriptor):
     def __init__(
         self, event_: typing.Type[base_events.Event], function: event_dispatcher.CallbackT[typing.Any], /
@@ -186,7 +190,7 @@ def command(
     *names: str,
     checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
     hooks: typing.Optional[traits.Hooks] = None,
-    parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
+    parser: typing.Optional[traits.ParserDescriptor] = None,
 ) -> typing.Callable[[traits.CommandFunctionT], traits.CommandFunctionT]:
     def decorator(function: traits.CommandFunctionT, /) -> traits.CommandFunctionT:
         return _CommandDescriptor(checks, function, hooks, (name, *names), parser)
@@ -200,7 +204,7 @@ def group(
     *names: str,
     checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
     hooks: typing.Optional[traits.Hooks] = None,
-    parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
+    parser: typing.Optional[traits.ParserDescriptor] = None,
 ) -> typing.Callable[[traits.CommandFunctionT], traits.CommandFunctionT]:
     def decorator(function: traits.CommandFunctionT, /) -> traits.CommandFunctionT:
         return _CommandGroupDescriptor(checks, function, hooks, (name, *names), parser)

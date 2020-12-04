@@ -41,6 +41,7 @@ __all__: typing.Sequence[str] = [
 ]
 
 import asyncio
+import types
 import typing
 
 from hikari import channels
@@ -210,6 +211,9 @@ async def calculate_permissions(
 
 def with_function_wrapping(obj: typing.Any, function_field: str, /) -> None:
     obj.__annotations__ = property(lambda self: getattr(self, function_field).__annotations__)
-    obj.__doc__ = property(lambda self: getattr(self, function_field).__doc__)
-    obj.__module__ = property(lambda self: getattr(self, function_field).__module__)
-    obj.__wrapped__ = property(lambda self: getattr(self, function_field).__wrapped__)
+    # For the sake of presenting as the right signature the objects this will be applied to should pre-define
+    # their own __call__ method which assumes "self" is already bound to the contained function.
+    obj.__call__ = types.MethodType(lambda self, *args, **kwargs: getattr(self, function_field)(*args, **kwargs), obj)
+    obj.__doc__ = getattr(obj, function_field).__doc__
+    obj.__module__ = getattr(obj, function_field).__module__
+    obj.__wrapped__ = getattr(obj, function_field)
