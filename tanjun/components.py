@@ -50,9 +50,8 @@ if typing.TYPE_CHECKING:
     from hikari.api import event_dispatcher
 
 
+# This class is left unslotted as to allow "wrapping" the underlying function
 class _CommandDescriptor(traits.CommandDescriptor):
-    __slots__: typing.Sequence[str] = ("_checks", "_function", "_hooks", "_metadata", "_names", "parser")
-
     def __init__(
         self,
         checks: typing.Optional[typing.Iterable[traits.CheckT]],
@@ -66,7 +65,8 @@ class _CommandDescriptor(traits.CommandDescriptor):
         self._hooks = hooks
         self._metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
         self._names = list(names)
-        self.parser = parser if parser is not undefined.UNDEFINED else parsing.ShlexParser()
+        self._parser = parser if parser is not undefined.UNDEFINED else parsing.ShlexParser()
+        utilities.with_function_wrapping(self, "listener")
 
     async def __call__(self, ctx: traits.Context, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
         return await self._function(ctx, *args, **kwargs)
@@ -75,20 +75,12 @@ class _CommandDescriptor(traits.CommandDescriptor):
         return f"CommandDescriptor <{self._function, self._names}>"
 
     @property
-    def __annotations__(self) -> typing.Dict[str, typing.Any]:  # type: ignore[override]
-        return self._function.__annotations__
+    def parser(self) -> typing.Optional[traits.Parser]:
+        return self._parser
 
-    @property
-    def __doc__(self) -> typing.Optional[str]:  # type: ignore[override]
-        return self._function.__doc__
-
-    @property  # IDK what MYPY expects here but it works so eh
-    def __module__(self) -> typing.Optional[str]:  # type: ignore[override]
-        return self._function.__module__
-
-    @property
-    def __wrapped__(self) -> traits.CommandFunctionT:
-        return self._function
+    @parser.setter
+    def parser(self, parser_: typing.Optional[traits.Parser]) -> None:
+        self._parser = parser_
 
     @property
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
@@ -111,15 +103,15 @@ class _CommandDescriptor(traits.CommandDescriptor):
             checks=self._checks,
             hooks=self._hooks,
             metadata=self._metadata,
-            parser=self.parser,
+            parser=self._parser,
         )
         command_.bind_component(component)
         return command_
 
 
+# This class is left unslotted as to allow it to "wrap" the underlying function
+# by overwriting class attributes
 class _CommandGroupDescriptor(_CommandDescriptor):
-    __slot__: typing.Sequence[str] = ("_commands",)
-
     def __init__(
         self,
         checks: typing.Optional[typing.Iterable[traits.CheckT]],
@@ -166,36 +158,21 @@ class _CommandGroupDescriptor(_CommandDescriptor):
         return decorator
 
 
+# This class is left unslotted as to it to "wrap" the underlying function
+# by overwriting class attributes
 class _ListenerDescriptor(traits.ListenerDescriptor):
-    __slots__: typing.Sequence[str] = ("event", "listener")
-
     def __init__(
         self, event_: typing.Type[base_events.Event], function: event_dispatcher.CallbackT[typing.Any], /
     ) -> None:
         self.event = event_
         self.listener = function
+        utilities.with_function_wrapping(self, "listener")
 
     async def __call__(self, event_: base_events.Event, /) -> None:
         return await self.listener(event)
 
     def __repr__(self) -> str:
         return f"ListenerDescriptor for {self.event.__name__}: {self.listener}>"
-
-    @property
-    def __annotations__(self) -> typing.Dict[str, typing.Any]:  # type: ignore[override]
-        return self.listener.__annotations__
-
-    @property
-    def __doc__(self) -> typing.Optional[str]:  # type: ignore[override]
-        return self.listener.__doc__
-
-    @property  # IDK what MYPY expects here but it works so eh
-    def __module__(self) -> typing.Optional[str]:  # type: ignore[override]
-        return self.listener.__module__
-
-    @property
-    def __wrapped__(self) -> event_dispatcher.CallbackT[typing.Any]:
-        return self.listener
 
     def build_listener(
         self, component: traits.Component, /

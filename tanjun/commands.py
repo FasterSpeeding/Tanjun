@@ -86,27 +86,8 @@ class Command(traits.ExecutableCommand):
         self.parent: typing.Optional[traits.ExecutableCommandGroup] = None
         self.parser = parser if parser is not undefined.UNDEFINED else parsing.ShlexParser()
 
-    async def __call__(self, ctx: traits.Context, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
-        return await self._function(ctx, *args, **kwargs)
-
     def __repr__(self) -> str:
         return f"Command <{self._names}>"
-
-    @property
-    def __annotations__(self) -> typing.Dict[str, typing.Any]:  # type: ignore[override]
-        return self.function.__annotations__
-
-    @property
-    def __doc__(self) -> typing.Optional[str]:  # type: ignore[override]
-        return self.function.__doc__
-
-    @property  # IDK what MYPY expects here but it works so eh
-    def __module__(self) -> typing.Optional[str]:  # type: ignore[override]
-        return self.function.__module__
-
-    @property
-    def __wrapped__(self) -> traits.CommandFunctionT:
-        return self.function
 
     @property
     def checks(self) -> typing.AbstractSet[traits.CheckT]:

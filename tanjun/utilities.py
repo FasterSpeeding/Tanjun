@@ -37,6 +37,7 @@ __all__: typing.Sequence[str] = [
     "gather_checks",
     "ALL_PERMISSIONS",
     "calculate_permissions",
+    "with_function_wrapping",
 ]
 
 import asyncio
@@ -205,3 +206,10 @@ async def calculate_permissions(
         found_channel = raw_channel
 
     return _calculate_channel_overwrites(found_channel, member, permissions)
+
+
+def with_function_wrapping(obj: typing.Any, function_field: str, /) -> None:
+    obj.__annotations__ = property(lambda self: getattr(self, function_field).__annotations__)
+    obj.__doc__ = property(lambda self: getattr(self, function_field).__doc__)
+    obj.__module__ = property(lambda self: getattr(self, function_field).__module__)
+    obj.__wrapped__ = property(lambda self: getattr(self, function_field).__wrapped__)
