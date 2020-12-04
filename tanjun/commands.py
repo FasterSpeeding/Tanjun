@@ -33,7 +33,6 @@ from __future__ import annotations
 
 __all__: typing.Sequence[str] = ["Command", "CommandGroup"]
 
-import types
 import typing
 
 from hikari import errors as hikari_errors
@@ -61,7 +60,7 @@ class Command(traits.ExecutableCommand):
         "_component",
         "_function",
         "hooks",
-        "_meta",
+        "_metadata",
         "_names",
         "parent",
         "parser",
@@ -75,13 +74,14 @@ class Command(traits.ExecutableCommand):
         *names: str,
         checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
+        metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
     ) -> None:
         self._checks = set(checks) if checks else set()
         self._component: typing.Optional[traits.Component] = None
         self._function = function
         self.hooks: traits.Hooks = hooks or hooks_.Hooks()
-        self._meta: typing.MutableMapping[typing.Any, typing.Any] = {}
+        self._metadata = metadata or {}
         self._names = {name, *names}
         self.parent: typing.Optional[traits.ExecutableCommandGroup] = None
         self.parser = parser if parser is not undefined.UNDEFINED else parsing.ShlexParser()
@@ -91,6 +91,22 @@ class Command(traits.ExecutableCommand):
 
     def __repr__(self) -> str:
         return f"Command <{self._names}>"
+
+    @property
+    def __annotations__(self) -> typing.Dict[str, typing.Any]:  # type: ignore[override]
+        return self.function.__annotations__
+
+    @property
+    def __doc__(self) -> typing.Optional[str]:  # type: ignore[override]
+        return self.function.__doc__
+
+    @property  # IDK what MYPY expects here but it works so eh
+    def __module__(self) -> typing.Optional[str]:  # type: ignore[override]
+        return self.function.__module__
+
+    @property
+    def __wrapped__(self) -> traits.CommandFunctionT:
+        return self.function
 
     @property
     def checks(self) -> typing.AbstractSet[traits.CheckT]:
@@ -106,7 +122,7 @@ class Command(traits.ExecutableCommand):
 
     @property
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
-        return self._meta
+        return self._metadata
 
     @property
     def names(self) -> typing.AbstractSet[str]:
@@ -146,8 +162,11 @@ class Command(traits.ExecutableCommand):
             self.parser.bind_client(client)
 
     def bind_component(self, component: traits.Component, /) -> None:
+        # TODO: do we want to bind the "self" argument here?
+        if self._component is not None:
+            raise TypeError("Cannot bind a command that's already bound to a component")
+
         self._component = component
-        self._function = types.MethodType(self._function, component)
 
         if self.parser:
             self.parser.bind_component(component)
@@ -222,9 +241,10 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
         *names: str,
         checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
+        metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
     ) -> None:
-        super().__init__(function, name, *names, checks=checks, hooks=hooks, parser=parser)
+        super().__init__(function, name, *names, checks=checks, hooks=hooks, metadata=metadata, parser=parser)
         self._commands: typing.MutableSet[traits.ExecutableCommand] = set()
 
     def __repr__(self) -> str:

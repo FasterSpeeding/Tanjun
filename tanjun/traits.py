@@ -32,6 +32,8 @@
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
+    "CommandDescriptor",
+    "ListenerDescriptor",
     "ConverterT",
     "ParserHookT",
     "ErrorHookT",
@@ -89,6 +91,45 @@ PreExecutionHookT = typing.Callable[["Context"], typing.Union[typing.Coroutine[t
 CheckT = typing.Callable[["Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]]
 EventT = typing.TypeVar("EventT", bound="base_events.Event")
 ValueT = typing.TypeVar("ValueT", covariant=True)
+
+
+@typing.runtime_checkable
+class CommandDescriptor(typing.Protocol):
+    __slots__: typing.Sequence[str] = ()
+
+    @property
+    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+        raise NotImplementedError
+
+    @property
+    def parser(self) -> typing.Optional[Parser]:
+        raise NotImplementedError
+
+    @parser.setter
+    def parser(self, parser: Parser, /) -> None:
+        raise NotImplementedError
+
+    def add_check(self, check: CheckT, /) -> None:
+        raise NotImplementedError
+
+    def with_check(self, check: CheckT, /) -> CheckT:
+        raise NotImplementedError
+
+    def add_name(self, name: str, /) -> None:
+        raise NotImplementedError
+
+    def build_command(self, component: Component, /) -> ExecutableCommand:
+        raise NotImplementedError
+
+
+@typing.runtime_checkable
+class ListenerDescriptor(typing.Protocol):
+    __slots__: typing.Sequence[str] = ()
+
+    def build_listener(
+        self, component: Component, /
+    ) -> typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]:
+        raise NotImplementedError
 
 
 @typing.runtime_checkable
@@ -249,27 +290,6 @@ class Executable(typing.Protocol):
         raise NotImplementedError
 
     async def execute(self, ctx: Context, /, *, hooks: typing.Optional[typing.MutableSet[Hooks]] = None) -> bool:
-        raise NotImplementedError
-
-
-@typing.runtime_checkable
-class Listener(typing.Protocol[EventT]):
-    __slots__: typing.Sequence[str] = ()
-
-    @property
-    def event(self) -> typing.Type[EventT]:
-        raise NotImplementedError
-
-    @event.setter
-    def event(self, event: typing.Type[EventT], /) -> None:
-        raise NotImplementedError
-
-    @property
-    def listener(self) -> event_dispatcher.CallbackT[EventT]:
-        raise NotImplementedError
-
-    @listener.setter
-    def listener(self, listener: event_dispatcher.CallbackT[EventT], /) -> None:
         raise NotImplementedError
 
 

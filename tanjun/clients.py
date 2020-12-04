@@ -52,8 +52,6 @@ if typing.TYPE_CHECKING:
 
 
 class Client(traits.Client):
-    __metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
-
     __slots__: typing.Sequence[str] = (
         "_cache",
         "_checks",

@@ -33,20 +33,174 @@ from __future__ import annotations
 
 __all__: typing.Sequence[str] = ["command", "Component", "event", "group"]
 
-import copy
 import inspect
 import itertools
+import types
 import typing
 
 from hikari import undefined
 from hikari.events import base_events
 
 from tanjun import commands
+from tanjun import parsing
 from tanjun import traits
 from tanjun import utilities
 
 if typing.TYPE_CHECKING:
     from hikari.api import event_dispatcher
+
+
+class _CommandDescriptor(traits.CommandDescriptor):
+    __slots__: typing.Sequence[str] = ("_checks", "_function", "_hooks", "_metadata", "_names", "parser")
+
+    def __init__(
+        self,
+        checks: typing.Optional[typing.Iterable[traits.CheckT]],
+        function: traits.CommandFunctionT,
+        hooks: typing.Optional[traits.Hooks],
+        names: typing.Sequence[str],
+        parser: undefined.UndefinedNoneOr[traits.Parser],
+    ) -> None:
+        self._checks = list(checks) if checks else []
+        self._function = function
+        self._hooks = hooks
+        self._metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
+        self._names = list(names)
+        self.parser = parser if parser is not undefined.UNDEFINED else parsing.ShlexParser()
+
+    async def __call__(self, ctx: traits.Context, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
+        return await self._function(ctx, *args, **kwargs)
+
+    def __repr__(self) -> str:
+        return f"CommandDescriptor <{self._function, self._names}>"
+
+    @property
+    def __annotations__(self) -> typing.Dict[str, typing.Any]:  # type: ignore[override]
+        return self._function.__annotations__
+
+    @property
+    def __doc__(self) -> typing.Optional[str]:  # type: ignore[override]
+        return self._function.__doc__
+
+    @property  # IDK what MYPY expects here but it works so eh
+    def __module__(self) -> typing.Optional[str]:  # type: ignore[override]
+        return self._function.__module__
+
+    @property
+    def __wrapped__(self) -> traits.CommandFunctionT:
+        return self._function
+
+    @property
+    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+        return self._metadata
+
+    def add_check(self, check: traits.CheckT, /) -> None:
+        self._checks.append(check)
+
+    def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
+        self.add_check(check)
+        return check
+
+    def add_name(self, name: str, /) -> None:
+        self._names.append(name)
+
+    def build_command(self, component: traits.Component, /) -> traits.ExecutableCommand:
+        command_ = commands.Command(
+            types.MethodType(self._function, component),
+            *self._names,
+            checks=self._checks,
+            hooks=self._hooks,
+            metadata=self._metadata,
+            parser=self.parser,
+        )
+        command_.bind_component(component)
+        return command_
+
+
+class _CommandGroupDescriptor(_CommandDescriptor):
+    __slot__: typing.Sequence[str] = ("_commands",)
+
+    def __init__(
+        self,
+        checks: typing.Optional[typing.Iterable[traits.CheckT]],
+        function: traits.CommandFunctionT,
+        hooks: typing.Optional[traits.Hooks],
+        names: typing.Sequence[str],
+        parser: undefined.UndefinedNoneOr[traits.Parser],
+    ) -> None:
+        super().__init__(checks, function, hooks, names, parser)
+        self._commands: typing.MutableSequence[_CommandDescriptor] = []
+
+    def __repr__(self) -> str:
+        return f"CommandGroupDescriptor <{self._function, self._names}, commands: {len(self._commands)}>"
+
+    def build_command(self, component: traits.Component, /) -> traits.ExecutableCommandGroup:
+        group_ = commands.CommandGroup(
+            types.MethodType(self._function, component),
+            *self._names,
+            checks=self._checks,
+            hooks=self._hooks,
+            metadata=self._metadata,
+            parser=self.parser,
+        )
+        group_.bind_component(component)
+
+        for descriptor in self._commands:
+            group_.add_command(descriptor.build_command(component))
+
+        return group_
+
+    def with_command(
+        self,
+        name: str,
+        /,
+        *names: str,
+        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
+        hooks: typing.Optional[traits.Hooks] = None,
+        parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
+    ) -> typing.Callable[[traits.CommandFunctionT], traits.CommandFunctionT]:
+        def decorator(function: traits.CommandFunctionT) -> traits.CommandFunctionT:
+            self._commands.append(_CommandDescriptor(checks, function, hooks, (name, *names), parser))
+            return function
+
+        return decorator
+
+
+class _ListenerDescriptor(traits.ListenerDescriptor):
+    __slots__: typing.Sequence[str] = ("event", "listener")
+
+    def __init__(
+        self, event_: typing.Type[base_events.Event], function: event_dispatcher.CallbackT[typing.Any], /
+    ) -> None:
+        self.event = event_
+        self.listener = function
+
+    async def __call__(self, event_: base_events.Event, /) -> None:
+        return await self.listener(event)
+
+    def __repr__(self) -> str:
+        return f"ListenerDescriptor for {self.event.__name__}: {self.listener}>"
+
+    @property
+    def __annotations__(self) -> typing.Dict[str, typing.Any]:  # type: ignore[override]
+        return self.listener.__annotations__
+
+    @property
+    def __doc__(self) -> typing.Optional[str]:  # type: ignore[override]
+        return self.listener.__doc__
+
+    @property  # IDK what MYPY expects here but it works so eh
+    def __module__(self) -> typing.Optional[str]:  # type: ignore[override]
+        return self.listener.__module__
+
+    @property
+    def __wrapped__(self) -> event_dispatcher.CallbackT[typing.Any]:
+        return self.listener
+
+    def build_listener(
+        self, component: traits.Component, /
+    ) -> typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]:
+        return self.event, types.MethodType(self.listener, component)
 
 
 def command(
@@ -56,9 +210,9 @@ def command(
     checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
     hooks: typing.Optional[traits.Hooks] = None,
     parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
-) -> typing.Callable[[traits.CommandFunctionT], commands.Command]:
-    def decorator(function: traits.CommandFunctionT, /) -> commands.Command:
-        return commands.Command(function, name, *names, checks=checks, hooks=hooks, parser=parser)
+) -> typing.Callable[[traits.CommandFunctionT], traits.CommandFunctionT]:
+    def decorator(function: traits.CommandFunctionT, /) -> traits.CommandFunctionT:
+        return _CommandDescriptor(checks, function, hooks, (name, *names), parser)
 
     return decorator
 
@@ -70,38 +224,25 @@ def group(
     checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
     hooks: typing.Optional[traits.Hooks] = None,
     parser: undefined.UndefinedNoneOr[traits.Parser] = undefined.UNDEFINED,
-) -> typing.Callable[[traits.CommandFunctionT], commands.CommandGroup]:
-    def decorator(function: traits.CommandFunctionT, /) -> commands.CommandGroup:
-        return commands.CommandGroup(function, name, *names, parser=parser, checks=checks, hooks=hooks)
+) -> typing.Callable[[traits.CommandFunctionT], traits.CommandFunctionT]:
+    def decorator(function: traits.CommandFunctionT, /) -> traits.CommandFunctionT:
+        return _CommandGroupDescriptor(checks, function, hooks, (name, *names), parser)
 
     return decorator
-
-
-class Listener(traits.Listener[traits.EventT], typing.Generic[traits.EventT]):
-    __slots__: typing.Sequence[str] = ("event", "listener")
-
-    def __init__(
-        self, event_: typing.Type[traits.EventT], listener: event_dispatcher.CallbackT[traits.EventT], /
-    ) -> None:
-        self.event = event_
-        self.listener = listener
-
-    async def __call__(self, event_: traits.EventT, /) -> None:
-        await self.listener(event_)
 
 
 def event(
     cls: typing.Type[traits.EventT], /
-) -> typing.Callable[[event_dispatcher.CallbackT[traits.EventT]], Listener[traits.EventT]]:
-    def decorator(function: event_dispatcher.CallbackT[traits.EventT], /) -> Listener[traits.EventT]:
-        return Listener(cls, function)
+) -> typing.Callable[[event_dispatcher.CallbackT[traits.EventT]], event_dispatcher.CallbackT[traits.EventT]]:
+    def decorator(function: event_dispatcher.CallbackT[traits.EventT], /) -> event_dispatcher.CallbackT[traits.EventT]:
+        return _ListenerDescriptor(cls, function)
 
     return decorator
 
 
+# This class isn't slotted to let us overwrite command and event methods during initialisation by making sure
+# class properties aren't read only
 class Component(traits.Component):
-    __slots__: typing.Sequence[str] = ("_checks", "_client", "_commands", "hooks", "_listeners", "_metadata", "started")
-
     started: bool
     """Whether this component has been "started" yet.
 
@@ -117,7 +258,7 @@ class Component(traits.Component):
         self._checks = set(checks) if checks else set()
         self._client: typing.Optional[traits.Client] = None
         self._commands: typing.MutableSet[traits.ExecutableCommand] = set()
-        self.hooks = hooks
+        self._hooks = hooks
         self._listeners: typing.MutableSet[
             typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]
         ] = set()
@@ -141,6 +282,15 @@ class Component(traits.Component):
         return frozenset(self._commands)
 
     @property
+    def hooks(self) -> typing.Optional[traits.Hooks]:
+        return self._hooks
+
+    # Seeing as this class isn't slotted we cannot overwrite settable properties with instance variables.
+    @hooks.setter
+    def hooks(self, hooks_: traits.Hooks, /) -> None:
+        self._hooks = hooks_
+
+    @property
     def listeners(
         self,
     ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]]:
@@ -161,7 +311,6 @@ class Component(traits.Component):
         return check
 
     def add_command(self, command_: traits.ExecutableCommand, /) -> None:
-        command_.bind_component(self)
         self._commands.add(command_)
 
     def remove_command(self, command_: traits.ExecutableCommand, /) -> None:
@@ -255,8 +404,12 @@ class Component(traits.Component):
 
     def _load_from_properties(self) -> None:
         for name, member in inspect.getmembers(self):
-            if isinstance(member, traits.ExecutableCommand):
-                self.add_command(copy.deepcopy(member))
+            if isinstance(member, traits.CommandDescriptor):
+                result = member.build_command(self)
+                self.add_command(result)
+                setattr(self, name, result.function)
 
-            elif isinstance(member, traits.Listener):
-                self.add_listener(member.event, member.listener)
+            elif isinstance(member, traits.ListenerDescriptor):
+                event_, listener = member.build_listener(self)
+                self.add_listener(event_, listener)
+                setattr(self, name, listener)
