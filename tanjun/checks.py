@@ -32,13 +32,13 @@
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
-    "dm_only",
-    "guild_only",
-    "nsfw_only",
-    "sfw_only",
-    "owner_only",
-    "requires_author_permissions",
-    "requires_bot_permissions",
+    "with_dm_only",
+    "with_guild_check",
+    "with_nsfw_check",
+    "with_sfw_check",
+    "with_owner_check",
+    "with_author_permission_check",
+    "with_bot_permission_check",
 ]
 
 import abc
@@ -63,7 +63,9 @@ if typing.TYPE_CHECKING:
     from tanjun import traits as tanjun_traits
 
 
-CommandT = typing.TypeVar("CommandT", bound="tanjun_traits.CommandDescriptor")
+CommandT = typing.TypeVar(
+    "CommandT", "tanjun_traits.CommandDescriptor", "tanjun_traits.ExecutableCommand", contravariant=True
+)
 
 
 class ApplicationOwnerCheck:
@@ -258,32 +260,32 @@ class BotPermissionsCheck(PermissionCheck):
         return self._me
 
 
-def dm_only(command: CommandT, /) -> CommandT:
+def with_dm_only(command: CommandT, /) -> CommandT:
     command.add_check(guild_check)
     return command
 
 
-def guild_only(command: CommandT, /) -> CommandT:
+def with_guild_check(command: CommandT, /) -> CommandT:
     command.add_check(dm_check)
     return command
 
 
-def nsfw_only(command: CommandT, /) -> CommandT:
+def with_nsfw_check(command: CommandT, /) -> CommandT:
     command.add_check(nsfw_check)
     return command
 
 
-def sfw_only(command: CommandT, /) -> CommandT:
+def with_sfw_check(command: CommandT, /) -> CommandT:
     command.add_check(sfw_check)
     return command
 
 
-def owner_only(command: CommandT, /) -> CommandT:
+def with_owner_check(command: CommandT, /) -> CommandT:
     command.add_check(ApplicationOwnerCheck())
     return command
 
 
-def requires_author_permissions(permissions: permissions_.Permissions, /) -> typing.Callable[[CommandT], CommandT]:
+def with_author_permission_check(permissions: permissions_.Permissions, /) -> typing.Callable[[CommandT], CommandT]:
     def decorator(command: CommandT, /) -> CommandT:
         command.add_check(AuthorPermissionCheck(permissions))
         return command
@@ -291,7 +293,7 @@ def requires_author_permissions(permissions: permissions_.Permissions, /) -> typ
     return decorator
 
 
-def requires_bot_permissions(permissions: permissions_.Permissions, /) -> typing.Callable[[CommandT], CommandT]:
+def with_bot_permission_check(permissions: permissions_.Permissions, /) -> typing.Callable[[CommandT], CommandT]:
     def decorator(command: CommandT, /) -> CommandT:
         command.add_check(BotPermissionsCheck(permissions))
         return command
