@@ -241,6 +241,12 @@ def with_argument(
 ) -> typing.Callable[[CommandT], CommandT]:
     """Add an argument to a command or command descriptor through a decorator call.
 
+    !!! info
+        Order matters for positional arguments and since decorator execution
+        starts at the decorator closest to the command and goes upwards this
+        will decide where a positional argument is located in a command's
+        signature.
+
     Parameters
     ----------
     key : str
@@ -302,6 +308,12 @@ def with_greedy_argument(
         that at least one more positional argument is remaining unless a
         default is set.
 
+    !!! info
+        Order matters for positional arguments and since decorator execution
+        starts at the decorator closest to the command and goes upwards this
+        will decide where a positional argument is located in a command's
+        signature.
+
     Parameters
     ----------
     key : str
@@ -361,6 +373,12 @@ def with_multi_argument(
         at least one more positional argument is remaining unless a default is
         set and passing through the results to the command's function as a
         sequence.
+
+    !!! info
+        Order matters for positional arguments and since decorator execution
+        starts at the decorator closest to the command and goes upwards this
+        will decide where a positional argument is located in a command's
+        signature.
 
     Parameters
     ----------
