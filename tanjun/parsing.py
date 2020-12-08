@@ -279,8 +279,8 @@ def with_argument(
         if command.parser is None:
             raise ValueError("Cannot add a parameter to a command client without a parser.")
 
-        argument_ = Argument(key, converters=converters, default=default, flags=flags)
-        command.parser.add_parameter(argument_)
+        argument = Argument(key, converters=converters, default=default, flags=flags)
+        command.parser.add_parameter(argument)
         return command
 
     return decorator
@@ -467,10 +467,10 @@ def with_option(
         if command.parser is None:
             raise ValueError("Cannot add an option to a command client without a parser.")
 
-        option_ = Option(
+        option = Option(
             key, name, *names, converters=converters, default=default, empty_value=empty_value, flags=flags,
         )
-        command.parser.add_parameter(option_)
+        command.parser.add_parameter(option)
         return command
 
     return decorator
@@ -717,13 +717,13 @@ class ShlexParser(traits.Parser):
         # <<inherited docstring from tanjun.traits.ShlexParser>>.
         return (*self._arguments, *self._options)
 
-    def add_parameter(self, parameter_: traits.Parameter, /) -> None:
+    def add_parameter(self, parameter: traits.Parameter, /) -> None:
         # <<inherited docstring from tanjun.traits.ShlexParser>>.
-        if isinstance(parameter_, traits.Option):
-            self._options.append(parameter_)
+        if isinstance(parameter, traits.Option):
+            self._options.append(parameter)
 
         else:
-            self._arguments.append(parameter_)
+            self._arguments.append(parameter)
             found_final_argument = False
 
             for argument_ in self._arguments:
@@ -733,13 +733,13 @@ class ShlexParser(traits.Parser):
 
                 found_final_argument = MULTI in argument_.flags or GREEDY in argument_.flags
 
-    def remove_parameter(self, parameter_: traits.Parameter, /) -> None:
+    def remove_parameter(self, parameter: traits.Parameter, /) -> None:
         # <<inherited docstring from tanjun.traits.ShlexParser>>.
-        if isinstance(parameter_, traits.Option):
-            self._options.remove(parameter_)
+        if isinstance(parameter, traits.Option):
+            self._options.remove(parameter)
 
         else:
-            self._arguments.remove(parameter_)
+            self._arguments.remove(parameter)
 
     def set_parameters(self, parameters: typing.Iterable[traits.Parameter], /) -> None:
         # <<inherited docstring from tanjun.traits.ShlexParser>>.
@@ -803,7 +803,7 @@ def parser_descriptor(*, parameters: typing.Optional[typing.Iterable[traits.Para
 
 # Unlike the other decorators in this module, this can only be applied to a command descriptor.
 def with_parser(command: CommandDescriptorT, /) -> CommandDescriptorT:
-    """Add a shelex parser descriptor to a command descriptor."""
+    """Add a shlex parser descriptor to a command descriptor."""
     command.parser = parser_descriptor()
     return command
 

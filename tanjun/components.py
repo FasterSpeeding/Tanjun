@@ -101,7 +101,7 @@ class _CommandDescriptor(traits.CommandDescriptor):
         self._names.append(name)
 
     def build_command(self, component: traits.Component, /) -> traits.ExecutableCommand:
-        command_ = commands.Command(
+        command = commands.Command(
             types.MethodType(self._function, component),
             *self._names,
             checks=self._checks.copy(),
@@ -109,8 +109,8 @@ class _CommandDescriptor(traits.CommandDescriptor):
             metadata=dict(self._metadata),
             parser=self.parser.build_parser(component) if self.parser else None,
         )
-        command_.bind_component(component)
-        return command_
+        command.bind_component(component)
+        return command
 
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
@@ -131,7 +131,7 @@ class CommandGroupDescriptor(_CommandDescriptor):
         return f"CommandGroupDescriptor <{self._function, self._names}, commands: {len(self._commands)}>"
 
     def build_command(self, component: traits.Component, /) -> traits.ExecutableCommandGroup:
-        group_ = commands.CommandGroup(
+        group = commands.CommandGroup(
             types.MethodType(self._function, component),
             *self._names,
             checks=self._checks.copy(),
@@ -139,12 +139,12 @@ class CommandGroupDescriptor(_CommandDescriptor):
             metadata=dict(self._metadata),
             parser=self.parser.build_parser(component) if self.parser else None,
         )
-        group_.bind_component(component)
+        group.bind_component(component)
 
         for descriptor in self._commands:
-            group_.add_command(descriptor.build_command(component))
+            group.add_command(descriptor.build_command(component))
 
-        return group_
+        return group
 
     def with_command(
         self,
@@ -166,14 +166,14 @@ class CommandGroupDescriptor(_CommandDescriptor):
 # by overwriting class attributes.
 class ListenerDescriptor(traits.ListenerDescriptor):
     def __init__(
-        self, event_: typing.Type[base_events.Event], function: event_dispatcher.CallbackT[typing.Any], /
+        self, event: typing.Type[base_events.Event], function: event_dispatcher.CallbackT[typing.Any], /
     ) -> None:
-        self.event = event_
+        self.event = event
         self.listener = function
         utilities.with_function_wrapping(self, "listener")
 
-    async def __call__(self, event_: base_events.Event, /) -> None:
-        return await self.listener(as_event)
+    async def __call__(self, event: base_events.Event, /) -> None:
+        return await self.listener(event)
 
     def __repr__(self) -> str:
         return f"ListenerDescriptor for {self.event.__name__}: {self.listener}>"
@@ -441,28 +441,28 @@ class Component(traits.Component):
         self.add_check(check)
         return check
 
-    def add_command(self, command_: typing.Union[traits.ExecutableCommand, traits.CommandDescriptor], /) -> None:
-        command_ = command_.build_command(self) if isinstance(command_, traits.CommandDescriptor) else command_
-        self._commands.add(command_)
+    def add_command(self, command: typing.Union[traits.ExecutableCommand, traits.CommandDescriptor], /) -> None:
+        command = command.build_command(self) if isinstance(command, traits.CommandDescriptor) else command
+        self._commands.add(command)
 
-    def remove_command(self, command_: traits.ExecutableCommand, /) -> None:
-        self._commands.remove(command_)
+    def remove_command(self, command: traits.ExecutableCommand, /) -> None:
+        self._commands.remove(command)
 
     def add_listener(
-        self, event_: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
+        self, event: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
     ) -> None:
-        self._listeners.add((event_, listener))
+        self._listeners.add((event, listener))
 
         if self.started and self._client:
-            self._client.dispatch_service.dispatcher.subscribe(event_, listener)
+            self._client.dispatch_service.dispatcher.subscribe(event, listener)
 
     def remove_listener(
-        self, event_: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
+        self, event: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
     ) -> None:
-        self._listeners.remove((event_, listener))
+        self._listeners.remove((event, listener))
 
         if self.started and self._client:
-            self._client.dispatch_service.dispatcher.unsubscribe(event_, listener)
+            self._client.dispatch_service.dispatcher.unsubscribe(event, listener)
 
     def bind_client(self, client: traits.Client, /) -> None:
         self._client = client

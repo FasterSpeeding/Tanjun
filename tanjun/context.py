@@ -46,6 +46,8 @@ if typing.TYPE_CHECKING:
 
 
 class Context(traits.Context):
+    """Standard implementation of a command context as used within Tanjun."""
+
     __slots__: typing.Sequence[str] = (
         "_client",
         "command",

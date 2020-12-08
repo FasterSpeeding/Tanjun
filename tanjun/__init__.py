@@ -34,7 +34,7 @@ from __future__ import annotations
 __all__: typing.Sequence[str] = [
     # checks.py
     "checks",
-    "with_dm_only",
+    "with_dm_check",
     "with_guild_check",
     "with_nsfw_check",
     "with_sfw_check",

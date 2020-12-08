@@ -78,39 +78,48 @@ class Client(traits.Client):
         mention_prefix: bool = True,
         prefixes: typing.Optional[typing.Iterable[str]] = None,
     ) -> None:
-        if rest is None and isinstance(cache, hikari_traits.RESTAware):
+        if rest is not None:
+            pass
+
+        elif isinstance(cache, hikari_traits.RESTAware):
             rest = cache
 
-        elif rest is None and isinstance(dispatch, hikari_traits.RESTAware):
+        elif isinstance(dispatch, hikari_traits.RESTAware):
             rest = dispatch
 
-        elif rest is None and isinstance(shard, hikari_traits.RESTAware):
+        elif isinstance(shard, hikari_traits.RESTAware):
             rest = shard  # type: ignore[unreachable]
 
         else:
             raise ValueError("Missing RESTAware client implementation.")
 
-        if shard is None and isinstance(cache, hikari_traits.ShardAware):
+        if shard is not None:
+            pass
+
+        elif isinstance(cache, hikari_traits.ShardAware):
             shard = cache
 
-        elif shard is None and isinstance(dispatch, hikari_traits.ShardAware):
+        elif isinstance(dispatch, hikari_traits.ShardAware):
             shard = dispatch
 
-        elif shard is None and isinstance(rest, hikari_traits.ShardAware):
+        elif isinstance(rest, hikari_traits.ShardAware):
             shard = rest
 
         else:
             raise ValueError("Missing ShardAware client implementation.")
 
         # Unlike `rest`, no provided Cache implementation just means this runs stateless.
-        if cache is None and isinstance(dispatch, hikari_traits.CacheAware):
+        if cache is not None:
+            pass
+
+        elif isinstance(dispatch, hikari_traits.CacheAware):
             cache = dispatch
 
-        elif cache is None and isinstance(rest, hikari_traits.CacheAware):
+        elif isinstance(rest, hikari_traits.CacheAware):
             cache = rest
 
-        elif cache is None and isinstance(shard, hikari_traits.CacheAware):  # type: ignore[unreachable]
-            cache = shard  # type: ignore[unreachable]
+        elif isinstance(shard, hikari_traits.CacheAware):  # type: ignore[unreachable]
+            cache = shard
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
 
         self._checks: typing.MutableSet[traits.CheckT] = {self.check_human, *(checks or ())}
