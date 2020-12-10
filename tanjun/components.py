@@ -51,7 +51,7 @@ if typing.TYPE_CHECKING:
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
-class _CommandDescriptor(traits.CommandDescriptor):
+class CommandDescriptor(traits.CommandDescriptor):
     def __init__(
         self,
         checks: typing.Optional[typing.Iterable[traits.CheckT]],
@@ -77,6 +77,10 @@ class _CommandDescriptor(traits.CommandDescriptor):
     @property
     def function(self) -> traits.CommandFunctionT:
         return self._function
+
+    @property
+    def is_owned(self) -> bool:
+        return False
 
     @property
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
@@ -115,7 +119,14 @@ class _CommandDescriptor(traits.CommandDescriptor):
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
-class CommandGroupDescriptor(_CommandDescriptor):
+class _OwnedCommandDescriptor(CommandDescriptor):
+    def is_owned(self) -> bool:
+        return True
+
+
+# This class is left unslotted as to allow it to "wrap" the underlying function
+# by overwriting class attributes.
+class CommandGroupDescriptor(CommandDescriptor):
     def __init__(
         self,
         checks: typing.Optional[typing.Iterable[traits.CheckT]],
@@ -125,7 +136,7 @@ class CommandGroupDescriptor(_CommandDescriptor):
         parser: typing.Optional[traits.ParserDescriptor],
     ) -> None:
         super().__init__(checks, function, hooks, names, parser)
-        self._commands: typing.MutableSequence[_CommandDescriptor] = []
+        self._commands: typing.MutableSequence[CommandDescriptor] = []
 
     def __repr__(self) -> str:
         return f"CommandGroupDescriptor <{self._function, self._names}, commands: {len(self._commands)}>"
@@ -154,10 +165,11 @@ class CommandGroupDescriptor(_CommandDescriptor):
         checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
         parser: typing.Optional[traits.ParserDescriptor] = None,
-    ) -> typing.Callable[[traits.CommandFunctionT], traits.CommandFunctionT]:
-        def decorator(function: traits.CommandFunctionT) -> traits.CommandFunctionT:
-            self._commands.append(_CommandDescriptor(checks, function, hooks, (name, *names), parser))
-            return function
+    ) -> typing.Callable[[traits.CommandFunctionT], CommandDescriptor]:
+        def decorator(function: traits.CommandFunctionT) -> CommandDescriptor:
+            descriptor = _OwnedCommandDescriptor(checks, function, hooks, (name, *names), parser)
+            self._commands.append(descriptor)
+            return descriptor
 
         return decorator
 
@@ -191,7 +203,7 @@ def as_command(
     checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
     hooks: typing.Optional[traits.Hooks] = None,
     parser: typing.Optional[traits.ParserDescriptor] = None,
-) -> typing.Callable[[traits.CommandFunctionT], _CommandDescriptor]:
+) -> typing.Callable[[traits.CommandFunctionT], CommandDescriptor]:
     """Declare a command descriptor on a component's class.
 
     The returned descriptor will be loaded into the component it's attached to
@@ -218,7 +230,7 @@ def as_command(
 
     Returns
     -------
-    typing.Callable[[traits.CommandFunctionT], _CommandDescriptor]
+    typing.Callable[[traits.CommandFunctionT], CommandDescriptor]
         A decorator function for a command function.
 
     Examples
@@ -240,8 +252,8 @@ def as_command(
     ```
     """
 
-    def decorator(function: traits.CommandFunctionT, /) -> _CommandDescriptor:
-        return _CommandDescriptor(checks, function, hooks, (name, *names), parser)
+    def decorator(function: traits.CommandFunctionT, /) -> CommandDescriptor:
+        return CommandDescriptor(checks, function, hooks, (name, *names), parser)
 
     return decorator
 
@@ -538,7 +550,11 @@ class Component(traits.Component):
         for name, member in inspect.getmembers(self):
             if isinstance(member, traits.CommandDescriptor):
                 result = member.build_command(self)
-                self.add_command(result)
+
+                # We don't want to load in commands which belong to a command group here.
+                if not member.is_owned:
+                    self.add_command(result)
+
                 setattr(self, name, result.function)
 
             elif isinstance(member, traits.ListenerDescriptor):

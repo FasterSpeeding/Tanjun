@@ -35,6 +35,7 @@ from __future__ import annotations
 __all__: typing.Sequence[str] = [
     "CommandDescriptor",
     "ListenerDescriptor",
+    "LoadableDescriptor",
     "ParserDescriptor",
     "ConverterT",
     "ParserHookT",
@@ -100,6 +101,14 @@ command if applicable.
 
 !!! note
     This will have to be asynchronous.
+"""
+
+LoadableT = typing.Callable[["Client"], None]
+"""Type hint of the function used to load resources into a Tanjun client.
+
+This should take one positional argument of type `Client` and return nothing.
+This will be expected to initiate and resources like components to the client
+through the use of it's protocol methods.
 """
 
 ParserHookT = typing.Callable[
@@ -179,6 +188,19 @@ class CommandDescriptor(typing.Protocol):
             The asynchronous function which should accept "self", and another
             positional argument of type `Context` along with the other accepted
             arguments being dependent on `CommandDescriptor.parser`.
+        """
+        raise NotImplementedError
+
+    @property
+    def is_owned(self) -> bool:
+        """Whether this command descriptor belongs to a command group.
+
+        Returns
+        -------
+        bool
+            Whether this command descriptor belongs to a command group.
+            If this is `builtins.True` then a component shouldn't try to load
+            this into it's own commands.
         """
         raise NotImplementedError
 
@@ -288,6 +310,25 @@ class ListenerDescriptor(typing.Protocol):
         typing.Tuple[typing.Type[hikari.events.base_events.Event], hikari.event_dispatcher.CallbackT[typing.Any]]
             A tuple of the event class this event listener should tbe registered
             for to the callable listener that should be registered.
+        """
+        raise NotImplementedError
+
+
+class LoadableDescriptor:
+    """Descriptor of a function used for loading a lib's resources into a Tanjun instance."""
+
+    __slots__: typing.Sequence[str] = ()
+
+    @property
+    def load_function(self) -> LoadableT:
+        """Function called to load these resources into a Tanjun client.
+
+        Returns
+        -------
+        LoadableT
+            The load function which should take one argument of type Client and
+            return nothing. This should call methods on `Client` in-order to
+            load it's pre-prepared resources.
         """
         raise NotImplementedError
 

@@ -31,9 +31,11 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["Client"]
+__all__: typing.Sequence[str] = ["as_loader", "Client"]
 
 import asyncio
+import importlib.util
+import inspect
 import itertools
 import typing
 
@@ -48,7 +50,42 @@ from tanjun import traits
 from tanjun import utilities
 
 if typing.TYPE_CHECKING:
+    import pathlib
     import types
+
+
+class _LoadableDescriptor(traits.LoadableDescriptor):
+    __slots__: typing.Sequence[str] = ("function",)
+
+    def __init__(self, function: traits.LoadableT, /) -> None:
+        self._function = function
+        utilities.with_function_wrapping(self, "load_function")
+
+    def __call__(self, client: traits.Client, /) -> None:
+        self._function(client)
+
+    @property
+    def load_function(self) -> traits.LoadableT:
+        return self._function
+
+
+def as_loader(function: traits.LoadableT) -> traits.LoadableT:
+    """Mark a function as being used to load Tanjun utilities from a module.
+
+    Parameters
+    ----------
+    function : traits.LoadableT
+        The function used to load Tanjun utilities from the a module. This
+        should take one argument of type `tanjun.traits.Client`, return nothing
+        and will be expected to initiate and add utilities such as components
+        to the provided client using it's protocol methods.
+
+    Returns
+    -------
+    traits.LoadableT
+        The decorated load function.
+    """
+    return _LoadableDescriptor(function)
 
 
 class Client(traits.Client):
@@ -76,6 +113,7 @@ class Client(traits.Client):
         checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
         mention_prefix: bool = True,
+        modules: typing.Optional[typing.Iterable[typing.Union[pathlib.Path, str]]] = None,
         prefixes: typing.Optional[typing.Iterable[str]] = None,
     ) -> None:
         if rest is not None:
@@ -134,6 +172,9 @@ class Client(traits.Client):
         self._shards = shard
         self._dispatch.dispatcher.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
         self._dispatch.dispatcher.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
+
+        if modules:
+            self.load_from_modules(modules)
 
     async def __aenter__(self) -> Client:
         await self.open()
@@ -263,6 +304,27 @@ class Client(traits.Client):
 
         if register_listener:
             self._dispatch.dispatcher.subscribe(message_events.MessageCreateEvent, self.on_message_create)
+
+    def load_from_modules(self, modules: typing.Iterable[typing.Union[str, pathlib.Path]]) -> None:
+        for module_path in modules:
+            if isinstance(module_path, str):
+                module = importlib.import_module(module_path)
+
+            else:
+                spec = importlib.util.spec_from_file_location(
+                    module_path.name.rsplit(".", 1)[0], str(module_path.absolute())
+                )
+                module = importlib.util.module_from_spec(spec)
+
+                if spec.loader is None:
+                    raise RuntimeError(f"Invalid module provided {module_path}")
+
+                # The type shedding is wrong here
+                spec.loader.exec_module(module)  # type: ignore[attr-defined]
+
+            for _, member in inspect.getmembers(module):
+                if isinstance(member, traits.LoadableDescriptor):
+                    member.load_function(self)
 
     async def on_message_create(self, event: message_events.MessageCreateEvent) -> None:
         if event.message.content is None:

@@ -43,6 +43,7 @@ __all__: typing.Sequence[str] = [
     "with_bot_permission_check",
     # clients.py
     "clients",
+    "as_loader",
     "Client",
     # command.py
     "commands",
