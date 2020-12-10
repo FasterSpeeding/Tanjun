@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["command", "Component", "event", "group"]
+__all__: typing.Sequence[str] = ["as_command", "as_event", "as_group", "Component"]
 
 import copy
 import inspect
@@ -51,7 +51,7 @@ if typing.TYPE_CHECKING:
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
-class _CommandDescriptor(traits.CommandDescriptor):
+class CommandDescriptor(traits.CommandDescriptor):
     def __init__(
         self,
         checks: typing.Optional[typing.Iterable[traits.CheckT]],
@@ -79,6 +79,10 @@ class _CommandDescriptor(traits.CommandDescriptor):
         return self._function
 
     @property
+    def is_owned(self) -> bool:
+        return False
+
+    @property
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         return self._metadata
 
@@ -101,7 +105,7 @@ class _CommandDescriptor(traits.CommandDescriptor):
         self._names.append(name)
 
     def build_command(self, component: traits.Component, /) -> traits.ExecutableCommand:
-        command_ = commands.Command(
+        command = commands.Command(
             types.MethodType(self._function, component),
             *self._names,
             checks=self._checks.copy(),
@@ -109,13 +113,20 @@ class _CommandDescriptor(traits.CommandDescriptor):
             metadata=dict(self._metadata),
             parser=self.parser.build_parser(component) if self.parser else None,
         )
-        command_.bind_component(component)
-        return command_
+        command.bind_component(component)
+        return command
 
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
-class _CommandGroupDescriptor(_CommandDescriptor):
+class _OwnedCommandDescriptor(CommandDescriptor):
+    def is_owned(self) -> bool:
+        return True
+
+
+# This class is left unslotted as to allow it to "wrap" the underlying function
+# by overwriting class attributes.
+class CommandGroupDescriptor(CommandDescriptor):
     def __init__(
         self,
         checks: typing.Optional[typing.Iterable[traits.CheckT]],
@@ -125,13 +136,13 @@ class _CommandGroupDescriptor(_CommandDescriptor):
         parser: typing.Optional[traits.ParserDescriptor],
     ) -> None:
         super().__init__(checks, function, hooks, names, parser)
-        self._commands: typing.MutableSequence[_CommandDescriptor] = []
+        self._commands: typing.MutableSequence[CommandDescriptor] = []
 
     def __repr__(self) -> str:
         return f"CommandGroupDescriptor <{self._function, self._names}, commands: {len(self._commands)}>"
 
     def build_command(self, component: traits.Component, /) -> traits.ExecutableCommandGroup:
-        group_ = commands.CommandGroup(
+        group = commands.CommandGroup(
             types.MethodType(self._function, component),
             *self._names,
             checks=self._checks.copy(),
@@ -139,12 +150,12 @@ class _CommandGroupDescriptor(_CommandDescriptor):
             metadata=dict(self._metadata),
             parser=self.parser.build_parser(component) if self.parser else None,
         )
-        group_.bind_component(component)
+        group.bind_component(component)
 
         for descriptor in self._commands:
-            group_.add_command(descriptor.build_command(component))
+            group.add_command(descriptor.build_command(component))
 
-        return group_
+        return group
 
     def with_command(
         self,
@@ -154,25 +165,26 @@ class _CommandGroupDescriptor(_CommandDescriptor):
         checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
         parser: typing.Optional[traits.ParserDescriptor] = None,
-    ) -> typing.Callable[[traits.CommandFunctionT], traits.CommandFunctionT]:
-        def decorator(function: traits.CommandFunctionT) -> traits.CommandFunctionT:
-            self._commands.append(_CommandDescriptor(checks, function, hooks, (name, *names), parser))
-            return function
+    ) -> typing.Callable[[traits.CommandFunctionT], CommandDescriptor]:
+        def decorator(function: traits.CommandFunctionT) -> CommandDescriptor:
+            descriptor = _OwnedCommandDescriptor(checks, function, hooks, (name, *names), parser)
+            self._commands.append(descriptor)
+            return descriptor
 
         return decorator
 
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
-class _ListenerDescriptor(traits.ListenerDescriptor):
+class ListenerDescriptor(traits.ListenerDescriptor):
     def __init__(
-        self, event_: typing.Type[base_events.Event], function: event_dispatcher.CallbackT[typing.Any], /
+        self, event: typing.Type[base_events.Event], function: event_dispatcher.CallbackT[typing.Any], /
     ) -> None:
-        self.event = event_
+        self.event = event
         self.listener = function
         utilities.with_function_wrapping(self, "listener")
 
-    async def __call__(self, event_: base_events.Event, /) -> None:
+    async def __call__(self, event: base_events.Event, /) -> None:
         return await self.listener(event)
 
     def __repr__(self) -> str:
@@ -184,39 +196,189 @@ class _ListenerDescriptor(traits.ListenerDescriptor):
         return self.event, types.MethodType(self.listener, component)
 
 
-def command(
+def as_command(
     name: str,
     /,
     *names: str,
     checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
     hooks: typing.Optional[traits.Hooks] = None,
     parser: typing.Optional[traits.ParserDescriptor] = None,
-) -> typing.Callable[[traits.CommandFunctionT], _CommandDescriptor]:
-    def decorator(function: traits.CommandFunctionT, /) -> _CommandDescriptor:
-        return _CommandDescriptor(checks, function, hooks, (name, *names), parser)
+) -> typing.Callable[[traits.CommandFunctionT], CommandDescriptor]:
+    """Declare a command descriptor on a component's class.
+
+    The returned descriptor will be loaded into the component it's attached to
+    during initialisation.
+
+    Parameters
+    ----------
+    name : str
+        The name for this command.
+
+    Other Parameters
+    ----------------
+    *names : str
+        Additional names for this command passed as variable positional arguments.
+    checks : typing.Optional[typing.Iterable[traits.CheckT]]
+        An iterable of async or non-async check functions which should take
+        one positional argument of type `Context` and return `builtins.bool`
+        or raise `tanjun.errors.FailedCheck` where `FailedCheck` or `False` will
+        prevent the command from being chosen for execution.
+    hooks : typing.Optional[traits.Hooks]
+        The execution hooks this command should be calling.
+    parser : typing.Optional[traits.ParserDescriptor]
+        A descriptor of the parser this command should use.
+
+    Returns
+    -------
+    typing.Callable[[traits.CommandFunctionT], CommandDescriptor]
+        A decorator function for a command function.
+
+    Examples
+    --------
+    Methods and attributes on the returned descriptor can be modified directly
+    or using decorators in-order to fine tune the behaviour of this command
+    (e.g. set a parser for the command) as shown below.
+
+    ```python
+    import tanjun
+
+    class MyComponent(tanjun.components.Component):
+        @tanjun.parsing.with_greedy_argument("content", converters=None)
+        @tanjun.parsing.with_parser
+        @tanjun.checks.with_owner_check
+        @tanjun.components.as_command("echo")
+        async def echo_command(self, ctx: tanjun.traits.Context, /, content: str) -> None:
+            await ctx.message.reply(content)
+    ```
+    """
+
+    def decorator(function: traits.CommandFunctionT, /) -> CommandDescriptor:
+        return CommandDescriptor(checks, function, hooks, (name, *names), parser)
 
     return decorator
 
 
-def group(
+def as_group(
     name: str,
     /,
     *names: str,
     checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
     hooks: typing.Optional[traits.Hooks] = None,
     parser: typing.Optional[traits.ParserDescriptor] = None,
-) -> typing.Callable[[traits.CommandFunctionT], _CommandGroupDescriptor]:
-    def decorator(function: traits.CommandFunctionT, /) -> _CommandGroupDescriptor:
-        return _CommandGroupDescriptor(checks, function, hooks, (name, *names), parser)
+) -> typing.Callable[[traits.CommandFunctionT], CommandGroupDescriptor]:
+    """Declare a command group descriptor on a component's class.
+
+    The returned descriptor will be loaded into the component it's attached to
+    during initialisation.
+
+    Parameters
+    ----------
+    name : str
+        The name for this command group.
+
+    Other Parameters
+    ----------------
+    *names : str
+        Additional names for this command group passed as variable positional arguments.
+    checks : typing.Optional[typing.Iterable[traits.CheckT]]
+        An iterable of async or non-async check functions which should take
+        one positional argument of type `Context` and return `builtins.bool`
+        or raise `tanjun.errors.FailedCheck` where `FailedCheck` or `False` will
+        prevent the command from being chosen for execution.
+    hooks : typing.Optional[traits.Hooks]
+        The execution hooks this command should be calling.
+    parser : typing.Optional[traits.ParserDescriptor]
+        A descriptor of the parser this command should use.
+
+    Returns
+    -------
+    typing.Callable[[traits.CommandFunctionT], CommandGroupDescriptor]
+        A decorator function for a command function.
+
+    Examples
+    --------
+    Methods and attributes on the returned descriptor can be modified directly
+    or using decorators in-order to fine tune the behaviour of this command
+    (e.g. set a parser for the command) as shown below.
+
+    ```python
+    import tanjun
+
+    class MyComponent(tanjun.components.Component):
+        @tanjun.parsing.with_greedy_argument("content", converters=None)
+        @tanjun.parsing.with_parser
+        @tanjun.checks.with_owner_check
+        @tanjun.components.as_group("help")
+        async def help(self, ctx: tanjun.traits.Context, /, content: str) -> None:
+            await ctx.message.reply(f"`{content}` is not a valid help command")
+    ```
+
+    The `CommandGroupDescriptor.with_command` can be called on the returned
+    descriptor in-order to add sub-commands to this group as shown below.
+
+    ```python
+    import tanjun
+
+    class MyComponent(tanjun.components.Component):
+        @tanjun.parsing.with_greedy_argument("content", converters=None)
+        @tanjun.parsing.with_parser
+        @tanjun.components.group("help")
+        async def help(self, ctx: tanjun.traits.Context, /, content: str) -> None:
+            await ctx.message.reply(f"`{content}` is not a valid help command")
+
+        @help.with_command("me")
+        async def help_me(self, ctx: tanjun.traits.Context) -> None:
+            await ctx.message.reply(f"There is no reset for you, {ctx.message.author}")
+    ```
+    """
+
+    def decorator(function: traits.CommandFunctionT, /) -> CommandGroupDescriptor:
+        return CommandGroupDescriptor(checks, function, hooks, (name, *names), parser)
 
     return decorator
 
 
-def event(
-    cls: typing.Type[traits.EventT], /
-) -> typing.Callable[[event_dispatcher.CallbackT[traits.EventT]], event_dispatcher.CallbackT[traits.EventT]]:
-    def decorator(function: event_dispatcher.CallbackT[traits.EventT], /) -> event_dispatcher.CallbackT[traits.EventT]:
-        return _ListenerDescriptor(cls, function)
+EventDecoratorT = typing.Callable[
+    ["event_dispatcher.CallbackT[event_dispatcher.EventT_inv]"],
+    "event_dispatcher.CallbackT[event_dispatcher.EventT_inv]",
+]
+
+
+def as_event(cls: typing.Type[event_dispatcher.EventT_inv], /) -> EventDecoratorT[event_dispatcher.EventT_inv]:
+    """Declare an event listener
+
+    The returned descriptor will be loaded into the component it's attached to
+    during initialisation.
+
+    Parameters
+    ----------
+    cls : typing.Type[hikari.api.event_dispatcher.EventT_inv]
+        The Hikari event class this listener should be called for.
+
+    Returns
+    -------
+    EventDecoratorT[event_dispatcher.EventT_inv]
+        The callable event decorator which takes the event's asynchronous
+        listener function (with signature {self, event, /}) as it's only
+        positional argument and returns a listener descriptor.
+
+    Examples
+    --------
+    ```python
+    from hikari import events
+    import tanjun
+
+    class MyComponent(tanjun.components.Component):
+        @tanjun.components.event(events.GuildVisibilityEvent):
+        async def on_guild_visibility_event(self, event: events.GuildVisibilityEvent) -> None:
+            ...
+    ```
+    """
+
+    def decorator(
+        function: event_dispatcher.CallbackT[event_dispatcher.EventT_inv], /
+    ) -> event_dispatcher.CallbackT[event_dispatcher.EventT_inv]:
+        return ListenerDescriptor(cls, function)
 
     return decorator
 
@@ -291,27 +453,28 @@ class Component(traits.Component):
         self.add_check(check)
         return check
 
-    def add_command(self, command_: traits.ExecutableCommand, /) -> None:
-        self._commands.add(command_)
+    def add_command(self, command: typing.Union[traits.ExecutableCommand, traits.CommandDescriptor], /) -> None:
+        command = command.build_command(self) if isinstance(command, traits.CommandDescriptor) else command
+        self._commands.add(command)
 
-    def remove_command(self, command_: traits.ExecutableCommand, /) -> None:
-        self._commands.remove(command_)
+    def remove_command(self, command: traits.ExecutableCommand, /) -> None:
+        self._commands.remove(command)
 
     def add_listener(
-        self, event_: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
+        self, event: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
     ) -> None:
-        self._listeners.add((event_, listener))
+        self._listeners.add((event, listener))
 
         if self.started and self._client:
-            self._client.dispatch_service.dispatcher.subscribe(event_, listener)
+            self._client.dispatch_service.dispatcher.subscribe(event, listener)
 
     def remove_listener(
-        self, event_: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
+        self, event: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
     ) -> None:
-        self._listeners.remove((event_, listener))
+        self._listeners.remove((event, listener))
 
         if self.started and self._client:
-            self._client.dispatch_service.dispatcher.unsubscribe(event_, listener)
+            self._client.dispatch_service.dispatcher.unsubscribe(event, listener)
 
     def bind_client(self, client: traits.Client, /) -> None:
         self._client = client
@@ -387,7 +550,11 @@ class Component(traits.Component):
         for name, member in inspect.getmembers(self):
             if isinstance(member, traits.CommandDescriptor):
                 result = member.build_command(self)
-                self.add_command(result)
+
+                # We don't want to load in commands which belong to a command group here.
+                if not member.is_owned:
+                    self.add_command(result)
+
                 setattr(self, name, result.function)
 
             elif isinstance(member, traits.ListenerDescriptor):

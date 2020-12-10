@@ -4,6 +4,7 @@ import setuptools
 import types
 
 MAIN_MODULE_NAME = "tanjun"
+TARGET_PROJECT_NAME = "hikari-tanjun"
 
 
 def load_meta_data():
@@ -25,7 +26,7 @@ with open("README.md") as f:
 
 
 setuptools.setup(
-    name=MAIN_MODULE_NAME,
+    name=TARGET_PROJECT_NAME,
     url=metadata.url,
     version=metadata.version,
     packages=setuptools.find_namespace_packages(include=[f"{MAIN_MODULE_NAME}*"]),
@@ -53,5 +54,6 @@ setuptools.setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
     ],
-    entry_points={"console_scripts": [f"{MAIN_MODULE_NAME}={MAIN_MODULE_NAME}.__main__:main"]},
+    # TODO: nice console entry point.
+    # entry_points={"console_scripts": [f"{MAIN_MODULE_NAME}={MAIN_MODULE_NAME}.__main__:main"]},
 )

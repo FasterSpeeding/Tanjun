@@ -48,17 +48,17 @@ class Hooks(traits.Hooks):
     def __init__(
         self,
         *,
-        error: typing.Optional[traits.ErrorHookT] = None,
+        on_error: typing.Optional[traits.ErrorHookT] = None,
         parser_error: typing.Optional[traits.ParserHookT] = None,
         pre_execution: typing.Optional[traits.PreExecutionHookT] = None,
         post_execution: typing.Optional[traits.HookT] = None,
-        success: typing.Optional[traits.HookT] = None,
+        on_success: typing.Optional[traits.HookT] = None,
     ) -> None:
-        self._error = error
+        self._error = on_error
         self._parser_error = parser_error
         self._pre_execution = pre_execution
         self._post_execution = post_execution
-        self._success = success
+        self._success = on_success
 
     def __repr__(self) -> str:
         return (
@@ -66,25 +66,25 @@ class Hooks(traits.Hooks):
             f"{self._post_execution!r}, {self._success!r}>"
         )
 
-    def on_error(self, hook: typing.Optional[traits.ErrorHookT], /) -> typing.Optional[traits.ErrorHookT]:
+    def with_on_error(self, hook: typing.Optional[traits.ErrorHookT], /) -> typing.Optional[traits.ErrorHookT]:
         self._error = hook
         return hook
 
-    def on_parser_error(self, hook: typing.Optional[traits.ParserHookT], /) -> typing.Optional[traits.ParserHookT]:
+    def with_on_parser_error(self, hook: typing.Optional[traits.ParserHookT], /) -> typing.Optional[traits.ParserHookT]:
         self._parser_error = hook
         return hook
 
-    def post_execution(self, hook: typing.Optional[traits.HookT], /) -> typing.Optional[traits.HookT]:
+    def with_post_execution(self, hook: typing.Optional[traits.HookT], /) -> typing.Optional[traits.HookT]:
         self._post_execution = hook
         return hook
 
-    def pre_execution(
+    def with_pre_execution(
         self, hook: typing.Optional[traits.PreExecutionHookT], /
     ) -> typing.Optional[traits.PreExecutionHookT]:
         self._pre_execution = hook
         return hook
 
-    def on_success(self, hook: typing.Optional[traits.HookT], /) -> typing.Optional[traits.HookT]:
+    def with_on_success(self, hook: typing.Optional[traits.HookT], /) -> typing.Optional[traits.HookT]:
         self._success = hook
         return hook
 

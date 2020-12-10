@@ -129,7 +129,11 @@ class Command(traits.ExecutableCommand):
 
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
         for own_name in self._names:
-            if name.startswith(own_name):
+            # Here we enforce that a name must either be at the end of content or be followed by a space. This helps
+            # avoid issues with ambiguous naming where a command with the names "name" and "names" may sometimes hit
+            # the former before the latter when triggered with the latter, leading to the command potentially being
+            # inconsistently parsed.
+            if name.startswith(own_name) and (name == own_name or name[len(own_name)] == " "):
                 yield FoundCommand(self, own_name)
                 break
 

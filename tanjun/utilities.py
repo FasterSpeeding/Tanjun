@@ -29,6 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""Collection of utility functions used within Tanjun."""
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
@@ -63,6 +64,7 @@ _ValueT = typing.TypeVar("_ValueT")
 
 
 async def async_chain(iterable: typing.Iterable[typing.AsyncIterable[_ValueT]]) -> typing.AsyncIterator[_ValueT]:
+    """Make an asynchronous iterator of the elements within multiple asynchronous iterators."""
     for async_iterable in iterable:
         async for value in async_iterable:
             yield value
@@ -71,6 +73,24 @@ async def async_chain(iterable: typing.Iterable[typing.AsyncIterable[_ValueT]]) 
 async def await_if_async(
     callback: typing.Callable[..., typing.Union[_ValueT, typing.Awaitable[_ValueT]]], *args: typing.Any
 ) -> _ValueT:
+    """Resole any awaitable returned by a function call.
+
+    Parameters
+    ----------
+    callback : typing.Callable[..., typing.Union[_ValueT, typing.Awaitable[_ValueT]]
+        The async or non-async function to call.
+
+    Other Parameters
+    ----------------
+    *args : typing.Any
+        A variable amount of positional arguments to pass through when calling
+        `callback`.
+
+    Returns
+    -------
+    _ValueT
+        The resolved result of the passed function.
+    """
     result = callback(*args)
 
     if isinstance(result, typing.Awaitable):
@@ -81,6 +101,8 @@ async def await_if_async(
 
 
 async def _wrap_check(check: typing.Awaitable[bool]) -> bool:
+    # We raise on `False` to let asyncio.gather stop execution on the first failed
+    # check rather than waiting for all checks to fail.
     if not await check:
         raise tanjun_errors.FailedCheck()
 
@@ -88,11 +110,25 @@ async def _wrap_check(check: typing.Awaitable[bool]) -> bool:
 
 
 async def gather_checks(checks: typing.Iterable[typing.Awaitable[bool]]) -> bool:
+    """Gather a collection of checks.
+
+    Parameters
+    ----------
+    checks : typing.Iterable[typing.Awaitable[bool]]
+        An iterable of check awaitables which each return `builtin.bool`.
+        These may raise `hikari.errors.FailedCheck` as an alternative to
+        returning `False`.
+
+    Returns
+    -------
+    bool
+        Whether all the checks passed or not.
+    """
     try:
-        results = await asyncio.gather(*map(_wrap_check, checks))
-        # min can't take an empty sequence so we need to have a special case for if no-checks
-        # are passed.
-        return bool(min(results)) if results else True
+        await asyncio.gather(*map(_wrap_check, checks))
+        # _wrap_check will raise FailedCheck if a false is received so if we get
+        # this far then it's True.
+        return True
 
     except tanjun_errors.FailedCheck:
         return False
@@ -101,6 +137,7 @@ async def gather_checks(checks: typing.Iterable[typing.Awaitable[bool]]) -> bool
 async def fetch_resource(
     retry: backoff.Backoff, call: typing.Callable[..., typing.Awaitable[_ResourceT]], *args: typing.Any
 ) -> _ResourceT:
+    """A utility function for retrying a request used by Tanjun internally."""
     retry.reset()
     async for _ in retry:
         try:
@@ -120,6 +157,8 @@ async def fetch_resource(
 
 
 ALL_PERMISSIONS = permissions_.Permissions.NONE
+"""All of the known permissions based on the linked version of Hikari."""
+
 for _permission in permissions_.Permissions:
     ALL_PERMISSIONS |= _permission
 
@@ -169,6 +208,28 @@ async def calculate_permissions(
     *,
     channel: typing.Optional[snowflakes.SnowflakeishOr[channels.GuildChannel]],
 ) -> permissions_.Permissions:
+    """Calculate the permissions a member has within a guild.
+
+    Parameters
+    ----------
+    client : tanjun.traits.Client
+        The Tanjun client to use for lookups.
+    member : hikari.guilds.Member
+        The object of the member to calculate the permissions for.
+    channel : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.channels.GuildChannel]]
+        The object of ID of the channel to get their permissions in.
+        If left as `builtins.None` then this will return their base guild
+        permissions.
+
+    !!! note
+        This function will fallback to REST requests if cache lookups fail or
+        are not possible.
+
+    Returns
+    -------
+    hikari.permissions.Permissions
+        The calculated permissions.
+    """
     # The ordering of how this adds and removes permissions does matter.
     # For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.
     retry = backoff.Backoff(maximum=5, max_retries=4)
@@ -210,7 +271,17 @@ async def calculate_permissions(
 
 
 def with_function_wrapping(obj: typing.Any, function_field: str, /) -> None:
-    obj.__annotations__ = property(lambda self: getattr(self, function_field).__annotations__)
+    """Utility function for making an object wrap a function at runtime.
+
+    Parameters
+    ----------
+    obj : typing.Any
+        The initialised object to update the wrapping information for.
+    function_field : str
+        The name of the attribute which is being wrapped. This should point to a
+        function.
+    """
+    obj.__annotations__ = getattr(obj, function_field).__annotations__
     # For the sake of presenting as the right signature the objects this will be applied to should pre-define
     # their own __call__ method which assumes "self" is already bound to the contained function.
     obj.__call__ = types.MethodType(lambda self, *args, **kwargs: getattr(self, function_field)(*args, **kwargs), obj)

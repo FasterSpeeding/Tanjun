@@ -29,11 +29,13 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""Interfaces of the objects used within Tanjun."""
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
     "CommandDescriptor",
     "ListenerDescriptor",
+    "LoadableDescriptor",
     "ParserDescriptor",
     "ConverterT",
     "ParserHookT",
@@ -77,35 +79,151 @@ if typing.TYPE_CHECKING:
 ConverterT = typing.Union[
     typing.Callable[[str], typing.Any], "Converter[typing.Any]", "typing.Type[StatelessConverter[typing.Any]]"
 ]
+"""Type hint of a converter used within a parser instance.
+
+This may either be a callable which takes one position `builtins.string` argument,
+a `Converter` instance or a `StatelessConverter` class.
+
+`Converter` and `StatelessConverter` differ in the fact that
+`StatelessConverter` is intended to be callable as a class where all it's methods
+are class methods unlike `Converter` which will need to have initialised before
+being registered as a listener.
+"""
 # TODO: be more specific about the structure of command functions using a callable protocol
+
 CommandFunctionT = typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, typing.Any]]
+"""Type hint of the function a `Command` instance will operate on.
+
+This will be called when executing a command and will need to take at least one
+positional argument of type `Context` where any other required or optional
+keyword or positional arguments will be based on the parser instance for the
+command if applicable.
+
+!!! note
+    This will have to be asynchronous.
+"""
+
+LoadableT = typing.Callable[["Client"], None]
+"""Type hint of the function used to load resources into a Tanjun client.
+
+This should take one positional argument of type `Client` and return nothing.
+This will be expected to initiate and resources like components to the client
+through the use of it's protocol methods.
+"""
+
 ParserHookT = typing.Callable[
     ["Context", "errors.ParserError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
 ]
+"""Type hint of the function used as a parser error hook.
+
+This will be called whenever a `tanjun.errors.ParserError` is raised during the
+command argument parsing stage, will have to take two positional arguments - of
+type `Context` and `tanjun.errors.ParserError` - and may either be a
+synchronous or asynchronous function which returns `builtins.None`
+"""
+
 ErrorHookT = typing.Callable[
     ["Context", BaseException], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
 ]
+"""Type hint of the function used as a unexpected command error hook.
+
+This will be called whenever a `builtins.BaseException` is raised during the
+execution stage whenever the command function raises any exception except
+`tanjun.errors.CommandError`,  will have to take two positional arguments - of
+type `Context` and `builtins.BaseException` - and may either be a synchronous
+or asynchronous function which returns `builtins.None`
+"""
+
 HookT = typing.Callable[["Context"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]]
+"""Type hint of the function used as a general command hook.
+
+This may be called during different stages of command execution (decided by
+which hook this is registered as), will have to take one positional argument of
+type `Context` and may be a synchronous or asynchronous function which returns
+`builtins.None`.
+"""
+
 PreExecutionHookT = typing.Callable[["Context"], typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]]
+"""Type hint of the function used as a pre-execution command hook.
+
+This will be called before command function is executed, will have to take one
+positional argument of type `Context` and may be a synchronous or asynchronous
+function which returns `builtins.bool` (where returning `False` may cancel
+execution of the current command).
+"""
+
 CheckT = typing.Callable[["Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]]
-EventT = typing.TypeVar("EventT", bound="base_events.Event")
+"""Type hint of a general context check used with Tanjun `Executable` classes.
+
+This may be registered with a `Executable` to add a rule which decides whether
+it should execute for each context passed to it. This should take one positional
+argument of type `Context` and may either be a synchronous or asynchronous
+function which returns `builtins.bool` where returning `builtins.False` or
+raising `tanjun.errors.FailedCheck` will indicate that the current context
+shouldn't lead to an execution.
+"""
+
 ValueT = typing.TypeVar("ValueT", covariant=True)
+"""A general type hint used for generic interfaces in Tanjun."""
 
 
 @typing.runtime_checkable
 class CommandDescriptor(typing.Protocol):
+    """Descriptor of a command that's attached to a component."""
+
     __slots__: typing.Sequence[str] = ()
 
     @property
     def function(self) -> CommandFunctionT:
+        """The function this Command will operate on.
+
+        This will be called when executing a command and will need to take at
+        least one positional argument of type `Context` where any other required
+        or optional keyword or positional arguments will be based on `
+        instance for the command if applicable.
+
+        Returns
+        -------
+        CommandFunctionT
+            The asynchronous function which should accept "self", and another
+            positional argument of type `Context` along with the other accepted
+            arguments being dependent on `CommandDescriptor.parser`.
+        """
+        raise NotImplementedError
+
+    @property
+    def is_owned(self) -> bool:
+        """Whether this command descriptor belongs to a command group.
+
+        Returns
+        -------
+        bool
+            Whether this command descriptor belongs to a command group.
+            If this is `builtins.True` then a component shouldn't try to load
+            this into it's own commands.
+        """
         raise NotImplementedError
 
     @property
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+        """Metadata which describes the command.
+
+        Returns
+        -------
+        typing.MutableMapping[typing.Any, typing.Any]
+            A mutable mapping of metadata which describes the command.
+        """
         raise NotImplementedError
 
     @property
     def parser(self) -> typing.Optional[ParserDescriptor]:
+        """The descriptor of this command's parser if set.
+
+        Returns
+        -------
+        typing.Optional[ParserDescriptor]
+            A descriptor of this command's parser if set, else `builtins.None`.
+        """
         raise NotImplementedError
 
     @parser.setter
@@ -113,48 +231,183 @@ class CommandDescriptor(typing.Protocol):
         raise NotImplementedError
 
     def add_check(self, check: CheckT, /) -> None:
+        """Add a pre-execution check for this command descriptor.
+
+        This will be run before execution to decide whether the command should
+        be executed for the provided context.
+
+        Parameters
+        ----------
+        check : CheckT
+            The sync or async callable which takes one positional argument
+            of type `Context` and return `builtins.bool` where returning
+            `builtins.False` or raising `tanjun.errors.FailedCheck` will
+            indicate that the current context shouldn't lead to an execution to
+            register as a check.
+        """
         raise NotImplementedError
 
     def with_check(self, check: CheckT, /) -> CheckT:
+        """Decorator for adding a pre-execution check to this command.
+
+        !!! note
+            Unlike `CommandDescriptor.add_check`, this will return the passed
+            check function to allow it to be used as a function decorator.
+
+        Returns
+        -------
+        CheckT
+            The passed check.
+        """
         raise NotImplementedError
 
     def add_name(self, name: str, /) -> None:
+        """Add a execution name to this command.
+
+        This name is used to decide whether the command fits a given string or
+        not.
+
+        Parameters
+        ----------
+        name : str
+            The name to add to this command.
+        """
         raise NotImplementedError
 
     def build_command(self, component: Component, /) -> ExecutableCommand:
+        """Build a command object from this descriptor.
+
+        Parameters
+        ----------
+        component : ExecutableCommand
+            The component this command is being built for.
+
+        Returns
+        -------
+        ExecutableCommand
+            The command object that was created.
+        """
         raise NotImplementedError
 
 
 @typing.runtime_checkable
 class ListenerDescriptor(typing.Protocol):
+    """Descriptor of a event listener that's attached to a component."""
+
     __slots__: typing.Sequence[str] = ()
 
     def build_listener(
         self, component: Component, /
     ) -> typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]:
+        """Build a listener from this descriptor.
+
+        Parameters
+        component : Component
+            The component this listener is being built for.
+
+        Returns
+        -------
+        typing.Tuple[typing.Type[hikari.events.base_events.Event], hikari.event_dispatcher.CallbackT[typing.Any]]
+            A tuple of the event class this event listener should tbe registered
+            for to the callable listener that should be registered.
+        """
+        raise NotImplementedError
+
+
+class LoadableDescriptor:
+    """Descriptor of a function used for loading a lib's resources into a Tanjun instance."""
+
+    __slots__: typing.Sequence[str] = ()
+
+    @property
+    def load_function(self) -> LoadableT:
+        """Function called to load these resources into a Tanjun client.
+
+        Returns
+        -------
+        LoadableT
+            The load function which should take one argument of type Client and
+            return nothing. This should call methods on `Client` in-order to
+            load it's pre-prepared resources.
+        """
         raise NotImplementedError
 
 
 @typing.runtime_checkable
 class ParserDescriptor(typing.Protocol):
+    """Descriptor of a parser for command descriptor."""
+
     __slots__: typing.Sequence[str] = ()
 
+    @property
+    def parameters(self) -> typing.Sequence[Parameter]:
+        """Get the parameters rules set for this parser descriptor.
+
+        Returns
+        -------
+        typing.Sequence[Parameter]
+            A sequence of the parameters rules set for this parser descriptor.
+        """
+        raise NotImplementedError
+
     def add_parameter(self, parameter: Parameter, /) -> None:
+        """Add a parameter to the parser's rules.
+
+        !!! note
+            For positional arguments this should add from left to right if the
+            index isn't explicitly declared.
+
+        Parameters
+        ----------
+        parameter : Parameter
+            The parameter to add.
+        """
         raise NotImplementedError
 
     def set_parameters(self, parameters: typing.Iterable[Parameter], /) -> None:
+        """Set the parameters for this parser's rules.
+
+        !!! note
+            This will replace any previously set parameters.
+
+        Parameters
+        ----------
+        parameters : typing.Iterable[Parameter]
+            An iterable of the parameters to set for this parser.
+        """
         raise NotImplementedError
 
     def build_parser(self, component: Component, /) -> Parser:
+        """Build a parser object from this descriptor.
+
+        Parameters
+        ----------
+        component : ExecutableCommand
+            The component this command is being built for.
+
+        Returns
+        -------
+        ExecutableCommand
+            The command object that was created.
+        """
         raise NotImplementedError
 
 
 @typing.runtime_checkable
 class Context(typing.Protocol):
+    """Traits for the context of a command execution event."""
+
     __slots__: typing.Sequence[str] = ()
 
     @property
     def client(self) -> Client:
+        """The Tanjun `Client` implementation this context was spawned by.
+
+        Returns
+        -------
+        Client
+            The Tanjun `Client` implementation this context was spawned by.
+        """
         raise NotImplementedError
 
     @property
@@ -231,21 +484,6 @@ class StatelessConverter(typing.Protocol[ValueT]):
 @typing.runtime_checkable
 class Hooks(typing.Protocol):
     __slots__: typing.Sequence[str] = ()
-
-    def on_error(self, hook: typing.Optional[ErrorHookT], /) -> typing.Optional[ErrorHookT]:
-        raise NotImplementedError
-
-    def on_parser_error(self, hook: typing.Optional[ParserHookT], /) -> typing.Optional[ParserHookT]:
-        raise NotImplementedError
-
-    def post_execution(self, hook: typing.Optional[HookT], /) -> typing.Optional[HookT]:
-        raise NotImplementedError
-
-    def pre_execution(self, hook: typing.Optional[PreExecutionHookT], /) -> typing.Optional[PreExecutionHookT]:
-        raise NotImplementedError
-
-    def on_success(self, hook: typing.Optional[HookT], /) -> typing.Optional[HookT]:
-        raise NotImplementedError
 
     async def trigger_error(
         self, ctx: Context, /, exception: BaseException, *, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None

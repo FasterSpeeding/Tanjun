@@ -29,16 +29,18 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""A collection of common standard checks designed for Tanjun commands."""
+
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
-    "dm_only",
-    "guild_only",
-    "nsfw_only",
-    "sfw_only",
-    "owner_only",
-    "requires_author_permissions",
-    "requires_bot_permissions",
+    "with_dm_check",
+    "with_guild_check",
+    "with_nsfw_check",
+    "with_sfw_check",
+    "with_owner_check",
+    "with_author_permission_check",
+    "with_bot_permission_check",
 ]
 
 import abc
@@ -63,7 +65,9 @@ if typing.TYPE_CHECKING:
     from tanjun import traits as tanjun_traits
 
 
-CommandT = typing.TypeVar("CommandT", bound="tanjun_traits.CommandDescriptor")
+CommandT = typing.TypeVar(
+    "CommandT", "tanjun_traits.CommandDescriptor", "tanjun_traits.ExecutableCommand", contravariant=True
+)
 
 
 class ApplicationOwnerCheck:
@@ -173,8 +177,8 @@ def guild_check(ctx: tanjun_traits.Context, /) -> bool:
 class PermissionCheck(abc.ABC):
     __slots__: typing.Sequence[str] = ("permissions",)
 
-    def __init__(self, permissions: permissions_.Permissions, /) -> None:
-        self.permissions = permissions
+    def __init__(self, permissions: typing.Union[permissions_.Permissions, int], /) -> None:
+        self.permissions = permissions_.Permissions(permissions)
 
     async def __call__(self, ctx: tanjun_traits.Context, /) -> bool:
         return (self.permissions & await self.get_permissions(ctx)) == self.permissions
@@ -197,7 +201,7 @@ class AuthorPermissionCheck(PermissionCheck):
 class BotPermissionsCheck(PermissionCheck):
     __slots__: typing.Sequence[str] = ("_lock", "_me" "_members")
 
-    def __init__(self, permissions: permissions_.Permissions, /) -> None:
+    def __init__(self, permissions: typing.Union[permissions_.Permissions, int], /) -> None:
         super().__init__(permissions)
         self._lock = asyncio.Lock()
         self._me: typing.Optional[users.User] = None
@@ -258,32 +262,114 @@ class BotPermissionsCheck(PermissionCheck):
         return self._me
 
 
-def dm_only(command: CommandT, /) -> CommandT:
+def with_dm_check(command: CommandT, /) -> CommandT:
+    """Only let a command run in a DM channel.
+
+    Parameters
+    ----------
+    command : CommandT
+        The command to add this check to.
+
+    Returns
+    -------
+    CommandT
+        The command this check was added to.
+    """
     command.add_check(guild_check)
     return command
 
 
-def guild_only(command: CommandT, /) -> CommandT:
+def with_guild_check(command: CommandT, /) -> CommandT:
+    """Only let a command run in a guild channel.
+
+    Parameters
+    ----------
+    command : CommandT
+        The command to add this check to.
+
+    Returns
+    -------
+    CommandT
+        The command this check was added to.
+    """
     command.add_check(dm_check)
     return command
 
 
-def nsfw_only(command: CommandT, /) -> CommandT:
+def with_nsfw_check(command: CommandT, /) -> CommandT:
+    """Only let a command run in a channel that's marked as nsfw.
+
+    Parameters
+    ----------
+    command : CommandT
+        The command to add this check to.
+
+    Returns
+    -------
+    CommandT
+        The command this check was added to.
+    """
     command.add_check(nsfw_check)
     return command
 
 
-def sfw_only(command: CommandT, /) -> CommandT:
+def with_sfw_check(command: CommandT, /) -> CommandT:
+    """Only let a command run in a channel that's not marked as nsfw.
+
+    Parameters
+    ----------
+    command : CommandT
+        The command to add this check to.
+
+    Returns
+    -------
+    CommandT
+        The command this check was added to.
+    """
     command.add_check(sfw_check)
     return command
 
 
-def owner_only(command: CommandT, /) -> CommandT:
+def with_owner_check(command: CommandT, /) -> CommandT:
+    """Only let a command run if it's being triggered by one of the bot's owners.
+
+    !!! note
+        This is based on the owner(s) of the bot's application and will account
+        for team owners as well.
+
+    Parameters
+    ----------
+    command : CommandT
+        The command to add this check to.
+
+    Returns
+    -------
+    CommandT
+        The command this check was added to.
+    """
     command.add_check(ApplicationOwnerCheck())
     return command
 
 
-def requires_author_permissions(permissions: permissions_.Permissions, /) -> typing.Callable[[CommandT], CommandT]:
+def with_author_permission_check(
+    permissions: typing.Union[permissions_.Permissions, int], /
+) -> typing.Callable[[CommandT], CommandT]:
+    """Only let a command run if the author has certain permissions in the current channel.
+
+    !!! note
+        This will always pass for commands triggered in DM channels.
+
+    Parameters
+    ----------
+    permissions: typing.Union[hikari.permissions.Permissions, builtins.int]
+        The permission(s) required for this command to run.
+
+    Returns
+    -------
+    typing.Callable[[CommandT], CommandT]
+        A command decorator function which adds the check.
+    """
+
     def decorator(command: CommandT, /) -> CommandT:
         command.add_check(AuthorPermissionCheck(permissions))
         return command
@@ -291,7 +377,25 @@ def requires_author_permissions(permissions: permissions_.Permissions, /) -> typ
     return decorator
 
 
-def requires_bot_permissions(permissions: permissions_.Permissions, /) -> typing.Callable[[CommandT], CommandT]:
+def with_bot_permission_check(
+    permissions: typing.Union[permissions_.Permissions, int], /
+) -> typing.Callable[[CommandT], CommandT]:
+    """Only let a command run if we have certain permissions in the current channel.
+
+    !!! note
+        This will always pass for commands triggered in DM channels.
+
+    Parameters
+    ----------
+    permissions: typing.Union[hikari.permissions.Permissions, builtins.int]
+        The permission(s) required for this command to run.
+
+    Returns
+    -------
+    typing.Callable[[CommandT], CommandT]
+        A command decorator function which adds the check.
+    """
+
     def decorator(command: CommandT, /) -> CommandT:
         command.add_check(BotPermissionsCheck(permissions))
         return command

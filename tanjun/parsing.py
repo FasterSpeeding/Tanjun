@@ -32,18 +32,18 @@
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
-    "argument",
-    "greedy_argument",
-    "multi_argument",
-    "option",
-    "multi_option",
     "Argument",
     "Option",
     "ShlexParser",
     "parser_descriptor",
-    "with_parser",
-    "generate_parameters",
     "verify_parameters",
+    "with_argument",
+    "with_greedy_argument",
+    "with_multi_argument",
+    "with_option",
+    "with_multi_option",
+    "with_parser",
+    "with_typed_parameters",
 ]
 
 import asyncio
@@ -58,7 +58,8 @@ from tanjun import conversion
 from tanjun import errors
 from tanjun import traits
 
-_CommandT = typing.TypeVar("_CommandT", bound=traits.CommandDescriptor)
+CommandT = typing.TypeVar("CommandT", traits.CommandDescriptor, traits.ExecutableCommand, contravariant=True)
+CommandDescriptorT = typing.TypeVar("CommandDescriptorT", bound=traits.CommandDescriptor)
 GREEDY = "greedy"
 """Parameter flags key used for marking a parameter as "greedy".
 
@@ -230,56 +231,199 @@ class SemanticShlex(ShlexTokenizer):
         raise errors.NotEnoughArgumentsError(f"Missing required option `{option_.key}`", option_)
 
 
-def argument(
+def with_argument(
     key: str,
     /,
     converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
     *,
     default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
-) -> typing.Callable[[_CommandT], _CommandT]:
-    def decorator(command: _CommandT, /) -> _CommandT:
+) -> typing.Callable[[CommandT], CommandT]:
+    """Add an argument to a command or command descriptor through a decorator call.
+
+    !!! info
+        Order matters for positional arguments and since decorator execution
+        starts at the decorator closest to the command and goes upwards this
+        will decide where a positional argument is located in a command's
+        signature.
+
+    Parameters
+    ----------
+    key : str
+        The string identifier of this argument (may be used to pass the result
+        of this argument to the command's function during execution).
+    converters : typing.Optional[typing.Iterable[traits.ConverterT]]
+        An iterable of the converters this argument should use to handle values
+        passed to it during parsing, this may be left as `builtins.None to indicate
+        that the raw string value should be returned without conversion.
+    default : typing.Any
+        The default value of this argument, if left as
+        `tanjun.traits.UNDEFINED_DEFAULT` then this will have no default.
+    flags : typing.Optional[typing.MutableMapping[str, typing.Any]]
+        A mutable mapping of metadata flags to initiate this argument with.
+
+    Returns
+    -------
+    typing.Callable[[CommandT], CommandT]:
+        A command or command descriptor decorator function which will add this
+        argument.
+
+    Examples
+    --------
+    ```python
+    import tanjun
+
+    @tanjun.parsing.with_argument("command", converters=(int,), default=42)
+    @tanjun.parsing.with_parser
+    @tanjun.component.as_command("command")
+    async def command(self, ctx: tanjun.traits.Context, /, argument: int):
+        ...
+    ```
+    """
+
+    def decorator(command: CommandT, /) -> CommandT:
         if command.parser is None:
             raise ValueError("Cannot add a parameter to a command client without a parser.")
 
-        argument_ = Argument(key, converters=converters, default=default, flags=flags)
-        command.parser.add_parameter(argument_)
+        argument = Argument(key, converters=converters, default=default, flags=flags)
+        command.parser.add_parameter(argument)
         return command
 
     return decorator
 
 
-def greedy_argument(
+def with_greedy_argument(
     key: str,
     /,
     converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
     *,
     default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
-) -> typing.Callable[[_CommandT], _CommandT]:
+) -> typing.Callable[[CommandT], CommandT]:
+    """Add a greedy argument to a command or command descriptor through a decorator call.
+
+    !!! note
+        A greedy argument will consume the remaining positional arguments and pass
+        them through to the converters as one joined string while also requiring
+        that at least one more positional argument is remaining unless a
+        default is set.
+
+    !!! info
+        Order matters for positional arguments and since decorator execution
+        starts at the decorator closest to the command and goes upwards this
+        will decide where a positional argument is located in a command's
+        signature.
+
+    Parameters
+    ----------
+    key : str
+        The string identifier of this argument (may be used to pass the result
+        of this argument to the command's function during execution).
+
+    Other Parameters
+    ----------------
+    converters : typing.Optional[typing.Iterable[traits.ConverterT]]
+        An iterable of the converters this argument should use to handle values
+        passed to it during parsing, this may be left as `builtins.None to indicate
+        that the raw string value should be returned without conversion.
+    default : typing.Any
+        The default value of this argument, if left as
+        `tanjun.traits.UNDEFINED_DEFAULT` then this will have no default.
+    flags : typing.Optional[typing.MutableMapping[str, typing.Any]]
+        A mutable mapping of metadata flags to initiate this argument with.
+
+    Returns
+    -------
+    typing.Callable[[CommandT], CommandT]:
+        A command or command descriptor decorator function which will add this
+        argument.
+
+    Examples
+    --------
+    ```python
+    import tanjun
+
+    @tanjun.parsing.with_greedy_argument("command", converters=(StringView,))
+    @tanjun.parsing.with_parser
+    @tanjun.component.as_command("command")
+    async def command(self, ctx: tanjun.traits.Context, /, argument: StringView):
+        ...
+    ```
+    """
     if flags is None:
         flags = {}
 
     flags[GREEDY] = True
-    return argument(key, converters=converters, default=default, flags=flags)
+    return with_argument(key, converters=converters, default=default, flags=flags)
 
 
-def multi_argument(
+def with_multi_argument(
     key: str,
     /,
     converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
     *,
     default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
-) -> typing.Callable[[_CommandT], _CommandT]:
+) -> typing.Callable[[CommandT], CommandT]:
+    """Add a greedy argument to a command or command descriptor through a decorator call.
+
+    !!! note
+        A multi argument will consume the remaining positional arguments and pass
+        them to the converters through multiple calls while also requiring that
+        at least one more positional argument is remaining unless a default is
+        set and passing through the results to the command's function as a
+        sequence.
+
+    !!! info
+        Order matters for positional arguments and since decorator execution
+        starts at the decorator closest to the command and goes upwards this
+        will decide where a positional argument is located in a command's
+        signature.
+
+    Parameters
+    ----------
+    key : str
+        The string identifier of this argument (may be used to pass the result
+        of this argument to the command's function during execution).
+
+    Other Parameters
+    ----------------
+    converters : typing.Optional[typing.Iterable[traits.ConverterT]]
+        An iterable of the converters this argument should use to handle values
+        passed to it during parsing, this may be left as `builtins.None to indicate
+        that the raw string value should be returned without conversion.
+    default : typing.Any
+        The default value of this argument, if left as
+        `tanjun.traits.UNDEFINED_DEFAULT` then this will have no default.
+    flags : typing.Optional[typing.MutableMapping[str, typing.Any]]
+        A mutable mapping of metadata flags to initiate this argument with.
+
+    Returns
+    -------
+    typing.Callable[[CommandT], CommandT]:
+        A command or command descriptor decorator function which will add this
+        argument.
+
+    Examples
+    --------
+    ```python
+    import tanjun
+
+    @tanjun.parsing.with_multi_argument("command", converters=(int,))
+    @tanjun.parsing.with_parser
+    @tanjun.component.as_command("command")
+    async def command(self, ctx: tanjun.traits.Context, /, argument: typing.Sequence[int]):
+        ...
+    ```
+    """
     if flags is None:
         flags = {}
 
     flags[MULTI] = True
-    return argument(key, converters=converters, default=default, flags=flags)
+    return with_argument(key, converters=converters, default=default, flags=flags)
 
 
-def option(
+def with_option(
     key: str,
     name: str,
     /,
@@ -288,21 +432,69 @@ def option(
     default: typing.Any,
     empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
-) -> typing.Callable[[_CommandT], _CommandT]:
-    def decorator(command: _CommandT) -> _CommandT:
+) -> typing.Callable[[CommandT], CommandT]:
+    """Add an option to a command or command descriptor through a decorator call.
+
+    Parameters
+    ----------
+    key : str
+        The string identifier of this option which will be used to pass the
+        result of this argument to the command's function during execution as
+        a keyword argument.
+    name : str
+        The name of this option used for identifying it in the parsed content.
+    default : typing.Any
+        The default value of this argument, unlike arguments this is required
+        for options.
+
+    Other Parameters
+    ----------------
+    *names : str
+        Other names of this option used for identifying it in the parsed content.
+    converters : typing.Optional[typing.Iterable[traits.ConverterT]]
+        An iterable of the converters this option should use to handle values
+        passed to it during parsing, this may be left as `builtins.None to indicate
+        that the raw string value should be returned without conversion.
+    empty_value : typing.Any
+        The value to use if this option is provided without a value. If left as
+        `tanjun.traits.UNDEFINED_DEFAULT` then this option will error if it's
+        provided without a value.
+    flags : typing.Optional[typing.MutableMapping[str, typing.Any]]
+        A mutable mapping of metadata flags to initiate this option with.
+
+    Returns
+    -------
+    typing.Callable[[CommandT], CommandT]:
+        A command or command descriptor decorator function which will add this
+        option.
+
+    Examples
+    --------
+    ```python
+    import tanjun
+
+    @tanjun.parsing.with_option("command", converters=(int,), default=42)
+    @tanjun.parsing.with_parser
+    @tanjun.component.as_command("command")
+    async def command(self, ctx: tanjun.traits.Context, /, argument: int):
+        ...
+    ```
+    """
+
+    def decorator(command: CommandT) -> CommandT:
         if command.parser is None:
             raise ValueError("Cannot add an option to a command client without a parser.")
 
-        option_ = Option(
+        option = Option(
             key, name, *names, converters=converters, default=default, empty_value=empty_value, flags=flags,
         )
-        command.parser.add_parameter(option_)
+        command.parser.add_parameter(option)
         return command
 
     return decorator
 
 
-def multi_option(
+def with_multi_option(
     key: str,
     name: str,
     /,
@@ -311,12 +503,65 @@ def multi_option(
     default: typing.Any,
     empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
-) -> typing.Callable[[_CommandT], _CommandT]:
+) -> typing.Callable[[CommandT], CommandT]:
+    """Add an multi-option to a command or command descriptor through a decorator call.
+
+    !!! note
+        A multi option will consume all the values provided for an option and
+        pass them through to the converters as an array of strings while also
+        requiring that at least one value is provided for the option unless
+        a default is set.
+
+    Parameters
+    ----------
+    key : str
+        The string identifier of this option which will be used to pass the
+        result of this argument to the command's function during execution as
+        a keyword argument.
+    name : str
+        The name of this option used for identifying it in the parsed content.
+    default : typing.Any
+        The default value of this argument, unlike arguments this is required
+        for options.
+
+    Other Parameters
+    ----------------
+    *names : str
+        Other names of this option used for identifying it in the parsed content.
+    converters : typing.Optional[typing.Iterable[traits.ConverterT]]
+        An iterable of the converters this option should use to handle values
+        passed to it during parsing, this may be left as `builtins.None to indicate
+        that the raw string value should be returned without conversion.
+    empty_value : typing.Any
+        The value to use if this option is provided without a value. If left as
+        `tanjun.traits.UNDEFINED_DEFAULT` then this option will error if it's
+        provided without a value.
+    flags : typing.Optional[typing.MutableMapping[str, typing.Any]]
+        A mutable mapping of metadata flags to initiate this option with.
+
+    Returns
+    -------
+    typing.Callable[[CommandT], CommandT]:
+        A command or command descriptor decorator function which will add this
+        option.
+
+    Examples
+    --------
+    ```python
+    import tanjun
+
+    @tanjun.parsing.with_multi_option("command", converters=(int,), default=())
+    @tanjun.parsing.with_parser
+    @tanjun.component.as_command("command")
+    async def command(self, ctx: tanjun.traits.Context, /, argument: typing.Sequence[int]):
+        ...
+    ```
+    """
     if flags is None:
         flags = {}
 
     flags[MULTI] = True
-    return option(key, name, *names, converters=converters, default=default, empty_value=empty_value, flags=flags)
+    return with_option(key, name, *names, converters=converters, default=default, empty_value=empty_value, flags=flags)
 
 
 class _Parameter(traits.Parameter):
@@ -425,7 +670,12 @@ class Argument(_Parameter, traits.Argument):
         super().__init__(key, converters=converters, default=default, flags=flags)
 
     def __copy__(self) -> Argument:
-        return Argument(self.key, converters=self._converters, default=self.default, flags=dict(self._flags))
+        return Argument(
+            self.key,
+            converters=list(self._converters) if self._converters else None,
+            default=self.default,
+            flags=dict(self._flags),
+        )
 
 
 class Option(_Parameter, traits.Option):
@@ -458,7 +708,7 @@ class Option(_Parameter, traits.Option):
         return Option(
             self.key,
             *self.names,
-            converters=self._converters,
+            converters=list(self._converters) if self._converters else None,
             default=self.default,
             flags=dict(self._flags),
             empty_value=self.empty_value,
@@ -469,6 +719,8 @@ class Option(_Parameter, traits.Option):
 
 
 class ShlexParser(traits.Parser):
+    """A shlex based `tanjun.traits.Parser` implementation."""
+
     __slots__: typing.Sequence[str] = ("_arguments", "_options")
 
     def __init__(self, *, parameters: typing.Optional[typing.Iterable[traits.Parameter]] = None) -> None:
@@ -480,14 +732,16 @@ class ShlexParser(traits.Parser):
 
     @property
     def parameters(self) -> typing.Sequence[traits.Parameter]:
+        # <<inherited docstring from tanjun.traits.ShlexParser>>.
         return (*self._arguments, *self._options)
 
-    def add_parameter(self, parameter_: traits.Parameter, /) -> None:
-        if isinstance(parameter_, traits.Option):
-            self._options.append(parameter_)
+    def add_parameter(self, parameter: traits.Parameter, /) -> None:
+        # <<inherited docstring from tanjun.traits.ShlexParser>>.
+        if isinstance(parameter, traits.Option):
+            self._options.append(parameter)
 
         else:
-            self._arguments.append(parameter_)
+            self._arguments.append(parameter)
             found_final_argument = False
 
             for argument_ in self._arguments:
@@ -497,14 +751,16 @@ class ShlexParser(traits.Parser):
 
                 found_final_argument = MULTI in argument_.flags or GREEDY in argument_.flags
 
-    def remove_parameter(self, parameter_: traits.Parameter, /) -> None:
-        if isinstance(parameter_, traits.Option):
-            self._options.remove(parameter_)
+    def remove_parameter(self, parameter: traits.Parameter, /) -> None:
+        # <<inherited docstring from tanjun.traits.ShlexParser>>.
+        if isinstance(parameter, traits.Option):
+            self._options.remove(parameter)
 
         else:
-            self._arguments.remove(parameter_)
+            self._arguments.remove(parameter)
 
     def set_parameters(self, parameters: typing.Iterable[traits.Parameter], /) -> None:
+        # <<inherited docstring from tanjun.traits.ShlexParser>>.
         self._arguments = []
         self._options = []
 
@@ -512,16 +768,19 @@ class ShlexParser(traits.Parser):
             self.add_parameter(parameter_)
 
     def bind_client(self, client: traits.Client, /) -> None:
+        # <<inherited docstring from tanjun.traits.ShlexParser>>.
         for parameter in itertools.chain(self._options, self._arguments):
             parameter.bind_client(client)
 
     def bind_component(self, component: traits.Component, /) -> None:
+        # <<inherited docstring from tanjun.traits.ShlexParser>>.
         for parameter in itertools.chain(self._options, self._arguments):
             parameter.bind_component(component)
 
     async def parse(
         self, ctx: traits.Context, /
     ) -> typing.Tuple[typing.Sequence[typing.Any], typing.Mapping[str, typing.Any]]:
+        # <<inherited docstring from tanjun.traits.ShlexParser>>.
         parser = SemanticShlex(ctx)
         arguments = await parser.get_arguments(self._arguments)
         options = await parser.get_options(self._options)
@@ -529,33 +788,45 @@ class ShlexParser(traits.Parser):
 
 
 class ParserDescriptor(traits.ParserDescriptor):
+    """Descriptor used for pre-defining the parameters of a `ShlexParser`."""
+
     __slots__: typing.Sequence[str] = ("_parameters",)
 
     def __init__(self, *, parameters: typing.Optional[typing.Iterable[traits.Parameter]] = None) -> None:
         self._parameters = list(parameters) if parameters else []
 
+    def parameters(self) -> typing.Sequence[traits.Parameter]:
+        # <<inherited docstring from tanjun.traits.ParserDescriptor>>.
+        return tuple(self._parameters)
+
     def add_parameter(self, parameter: traits.Parameter, /) -> None:
+        # <<inherited docstring from tanjun.traits.ParserDescriptor>>.
         self._parameters.append(parameter)
 
     def set_parameters(self, parameters: typing.Iterable[traits.Parameter], /) -> None:
+        # <<inherited docstring from tanjun.traits.ParserDescriptor>>.
         self._parameters = list(parameters)
 
     def build_parser(self, component: traits.Component, /) -> ShlexParser:
+        # <<inherited docstring from tanjun.traits.ParserDescriptor>>.
         parser = ShlexParser(parameters=map(copy.copy, self._parameters))
         parser.bind_component(component)
         return parser
 
 
 def parser_descriptor(*, parameters: typing.Optional[typing.Iterable[traits.Parameter]] = None) -> ParserDescriptor:
+    """Build a shlex parser descriptor."""
     return ParserDescriptor(parameters=parameters)
 
 
-def with_parser(cls: _CommandT) -> _CommandT:
-    cls.parser = parser_descriptor()
-    return cls
+# Unlike the other decorators in this module, this can only be applied to a command descriptor.
+def with_parser(command: CommandDescriptorT, /) -> CommandDescriptorT:
+    """Add a shlex parser descriptor to a command descriptor."""
+    command.parser = parser_descriptor()
+    return command
 
 
-def generate_parameters(command: _CommandT, /, *, ignore_self: bool) -> _CommandT:
+def with_typed_parameters(command: CommandT, /, *, ignore_self: bool) -> CommandT:
     # TODO: implement this to enable generating parameters from a function's signature.
     if command.parser is None:
         raise RuntimeError("Cannot generate parameters for a command with no parser")
@@ -566,6 +837,6 @@ def generate_parameters(command: _CommandT, /, *, ignore_self: bool) -> _Command
     raise NotImplementedError
 
 
-def verify_parameters(command: _CommandT, /) -> _CommandT:
+def verify_parameters(command: CommandT, /) -> CommandT:
     # TODO: implement this to verify the parameters of a command against the function signature
     return command
