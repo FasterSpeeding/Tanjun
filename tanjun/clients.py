@@ -55,7 +55,7 @@ if typing.TYPE_CHECKING:
 
 
 class _LoadableDescriptor(traits.LoadableDescriptor):
-    __slots__: typing.Sequence[str] = ("function",)
+    __slots__: typing.Sequence[str] = ("_function",)
 
     def __init__(self, function: traits.LoadableT, /) -> None:
         self._function = function
