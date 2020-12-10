@@ -95,8 +95,8 @@ class ShlexTokenizer:
     def collect_raw_options(self) -> typing.Mapping[str, typing.Sequence[typing.Optional[str]]]:
         results: typing.MutableMapping[str, typing.MutableSequence[typing.Optional[str]]] = {}
 
-        while (option_ := self.next_raw_option()) is not None:
-            name, value = option_
+        while (option := self.next_raw_option()) is not None:
+            name, value = option
 
             if name not in results:
                 results[name] = []
@@ -106,8 +106,8 @@ class ShlexTokenizer:
         return results
 
     def iter_raw_arguments(self) -> typing.Iterator[str]:
-        while (argument_ := self.next_raw_argument()) is not None:
-            yield argument_
+        while (argument := self.next_raw_argument()) is not None:
+            yield argument
 
     def next_raw_argument(self) -> typing.Optional[str]:
         if self.__arg_buffer:
@@ -160,15 +160,15 @@ class ShlexTokenizer:
 
 
 async def _covert_option_or_empty(
-    ctx: traits.Context, option_: traits.Option, value: typing.Optional[typing.Any], /
+    ctx: traits.Context, option: traits.Option, value: typing.Optional[typing.Any], /
 ) -> typing.Any:
     if value is not None:
-        return await option_.convert(ctx, value)
+        return await option.convert(ctx, value)
 
-    if option_.empty_value is not traits.UNDEFINED_DEFAULT:
-        return option_.empty_value
+    if option.empty_value is not traits.UNDEFINED_DEFAULT:
+        return option.empty_value
 
-    raise errors.NotEnoughArgumentsError(f"Option '{option_.key} cannot be empty.", option_)
+    raise errors.NotEnoughArgumentsError(f"Option '{option.key} cannot be empty.", option)
 
 
 class SemanticShlex(ShlexTokenizer):
@@ -180,55 +180,55 @@ class SemanticShlex(ShlexTokenizer):
 
     async def get_arguments(self, arguments: typing.Sequence[traits.Argument], /) -> typing.MutableSequence[typing.Any]:
         results: typing.MutableSequence[typing.Any] = []
-        for argument_ in arguments:
-            results.append(await self.__process_argument(argument_))
+        for argument in arguments:
+            results.append(await self.__process_argument(argument))
 
-            if argument_.flags.get(GREEDY) or argument_.flags.get(MULTI):
+            if argument.flags.get(GREEDY) or argument.flags.get(MULTI):
                 break  # Multi and Greedy parameters should always be the last parameter.
 
         return results
 
     async def get_options(self, options: typing.Sequence[traits.Option], /) -> typing.MutableMapping[str, typing.Any]:
         raw_options = self.collect_raw_options()
-        results = asyncio.gather(*map(lambda option_: self.__process_option(option_, raw_options), options))
-        return dict(zip((option_.key for option_ in options), await results))
+        results = asyncio.gather(*map(lambda option: self.__process_option(option, raw_options), options))
+        return dict(zip((option.key for option in options), await results))
 
-    async def __process_argument(self, argument_: traits.Parameter) -> typing.Any:
-        if argument_.flags.get(GREEDY) and (value := " ".join(self.iter_raw_arguments())):
-            return await argument_.convert(self.__ctx, value)
+    async def __process_argument(self, argument: traits.Parameter) -> typing.Any:
+        if argument.flags.get(GREEDY) and (value := " ".join(self.iter_raw_arguments())):
+            return await argument.convert(self.__ctx, value)
 
-        if argument_.flags.get(MULTI) and (values := list(self.iter_raw_arguments())):
-            return await asyncio.gather(*(argument_.convert(self.__ctx, value) for value in values))
+        if argument.flags.get(MULTI) and (values := list(self.iter_raw_arguments())):
+            return await asyncio.gather(*(argument.convert(self.__ctx, value) for value in values))
 
         # If the previous two statements failed on getting raw arguments then this will as well.
         if (optional_value := self.next_raw_argument()) is not None:
-            return await argument_.convert(self.__ctx, optional_value)
+            return await argument.convert(self.__ctx, optional_value)
 
-        if argument_.default is not traits.UNDEFINED_DEFAULT:
-            return argument_.default
+        if argument.default is not traits.UNDEFINED_DEFAULT:
+            return argument.default
 
         # If this is reached then no value was found.
-        raise errors.NotEnoughArgumentsError(f"Missing value for required argument '{argument_.key}'", argument_)
+        raise errors.NotEnoughArgumentsError(f"Missing value for required argument '{argument.key}'", argument)
 
     async def __process_option(
-        self, option_: traits.Option, raw_options: typing.Mapping[str, typing.Sequence[typing.Optional[str]]]
+        self, option: traits.Option, raw_options: typing.Mapping[str, typing.Sequence[typing.Optional[str]]]
     ) -> typing.Any:
-        values_iter = itertools.chain.from_iterable(raw_options[name] for name in option_.names if name in raw_options)
-        is_multi = option_.flags.get(MULTI, False)
+        values_iter = itertools.chain.from_iterable(raw_options[name] for name in option.names if name in raw_options)
+        is_multi = option.flags.get(MULTI, False)
         if is_multi and (values := list(values_iter)):
-            return asyncio.gather(*(_covert_option_or_empty(self.__ctx, option_, value) for value in values))
+            return asyncio.gather(*(_covert_option_or_empty(self.__ctx, option, value) for value in values))
 
         if not is_multi and (value := next(values_iter, undefined.UNDEFINED)) is not undefined.UNDEFINED:
             if next(values_iter, undefined.UNDEFINED) is not undefined.UNDEFINED:
-                raise errors.TooManyArgumentsError(f"Option `{option_.key}` can only take a single value", option_)
+                raise errors.TooManyArgumentsError(f"Option `{option.key}` can only take a single value", option)
 
-            return await _covert_option_or_empty(self.__ctx, option_, value)
+            return await _covert_option_or_empty(self.__ctx, option, value)
 
-        if option_.default is not traits.UNDEFINED_DEFAULT:
-            return option_.default
+        if option.default is not traits.UNDEFINED_DEFAULT:
+            return option.default
 
         # If this is reached then no value was found.
-        raise errors.NotEnoughArgumentsError(f"Missing required option `{option_.key}`", option_)
+        raise errors.NotEnoughArgumentsError(f"Missing required option `{option.key}`", option)
 
 
 def with_argument(
@@ -744,12 +744,12 @@ class ShlexParser(traits.Parser):
             self._arguments.append(parameter)
             found_final_argument = False
 
-            for argument_ in self._arguments:
+            for argument in self._arguments:
                 if found_final_argument:
                     del self._arguments[-1]
                     raise ValueError("Multi or greedy argument must be the last argument")
 
-                found_final_argument = MULTI in argument_.flags or GREEDY in argument_.flags
+                found_final_argument = MULTI in argument.flags or GREEDY in argument.flags
 
     def remove_parameter(self, parameter: traits.Parameter, /) -> None:
         # <<inherited docstring from tanjun.traits.ShlexParser>>.
@@ -764,8 +764,8 @@ class ShlexParser(traits.Parser):
         self._arguments = []
         self._options = []
 
-        for parameter_ in parameters:
-            self.add_parameter(parameter_)
+        for parameter in parameters:
+            self.add_parameter(parameter)
 
     def bind_client(self, client: traits.Client, /) -> None:
         # <<inherited docstring from tanjun.traits.ShlexParser>>.

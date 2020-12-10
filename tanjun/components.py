@@ -481,20 +481,20 @@ class Component(traits.Component):
         for event_, listener in self._listeners:
             self._client.dispatch_service.dispatcher.subscribe(event_, listener)
 
-        for command_ in self._commands:
-            command_.bind_client(client)
+        for command in self._commands:
+            command.bind_client(client)
 
     async def check_context(
         self, ctx: traits.Context, /, *, name_prefix: str = ""
     ) -> typing.AsyncIterator[traits.FoundCommand]:
         if await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks):
             async for value in utilities.async_chain(
-                command_.check_context(ctx, name_prefix=name_prefix) for command_ in self._commands
+                command.check_context(ctx, name_prefix=name_prefix) for command in self._commands
             ):
                 yield value
 
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
-        yield from itertools.chain.from_iterable(command_.check_name(name) for command_ in self._commands)
+        yield from itertools.chain.from_iterable(command.check_name(name) for command in self._commands)
 
     async def close(self) -> None:
         if not self.started:
@@ -529,11 +529,11 @@ class Component(traits.Component):
         if not self.started:
             return False
 
-        async for command_ in self.check_context(ctx):
-            ctx.triggering_name = command_.name
-            ctx.content = ctx.content[len(command_.name) :].lstrip()
+        async for result in self.check_context(ctx):
+            ctx.triggering_name = result.name
+            ctx.content = ctx.content[len(result.name) :].lstrip()
             # Only add our hooks and set command if we're sure we'll be executing the command here.
-            ctx.command = command_.command
+            ctx.command = result.command
 
             if self.hooks and hooks:
                 hooks.add(self.hooks)
@@ -541,7 +541,7 @@ class Component(traits.Component):
             elif self.hooks:
                 hooks = {self.hooks}
 
-            await command_.command.execute(ctx, hooks=hooks)
+            await result.command.execute(ctx, hooks=hooks)
             return True
 
         return False
