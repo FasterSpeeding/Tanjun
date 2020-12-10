@@ -55,8 +55,6 @@ if typing.TYPE_CHECKING:
 
 
 class _LoadableDescriptor(traits.LoadableDescriptor):
-    __slots__: typing.Sequence[str] = ("_function",)
-
     def __init__(self, function: traits.LoadableT, /) -> None:
         self._function = function
         utilities.with_function_wrapping(self, "load_function")
@@ -69,6 +67,8 @@ class _LoadableDescriptor(traits.LoadableDescriptor):
         return self._function
 
 
+# This class is left unslotted as to allow it to "wrap" the underlying function
+# by overwriting class attributes.
 def as_loader(function: traits.LoadableT) -> traits.LoadableT:
     """Mark a function as being used to load Tanjun utilities from a module.
 
