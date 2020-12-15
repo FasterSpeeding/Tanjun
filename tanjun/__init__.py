@@ -51,8 +51,9 @@ __all__: typing.Sequence[str] = [
     "CommandGroup",
     # components.py
     "components",
+    "as_check",
     "as_command",
-    "as_event",
+    "as_listener",
     "as_group",
     "Component",
     # context.py

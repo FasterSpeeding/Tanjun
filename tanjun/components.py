@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["as_command", "as_event", "as_group", "Component"]
+__all__: typing.Sequence[str] = ["as_check", "as_command", "as_listener", "as_group", "Component"]
 
 import copy
 import inspect
@@ -47,6 +47,19 @@ from tanjun import utilities
 
 if typing.TYPE_CHECKING:
     from hikari.api import event_dispatcher
+
+
+# This class is left unslotted as to allow it to "wrap" the underlying function
+# by overwriting class attributes.
+class CheckDescriptor(traits.CheckDescriptor):
+    def __init__(self, check: traits.CheckT, /) -> None:
+        self._check = check
+
+    def __call__(self, *args: typing.Any) -> typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]:
+        return self._check(*args)
+
+    def build_check(self, component: traits.Component, /) -> traits.CheckT:
+        return types.MethodType(self._check, component)
 
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
@@ -68,8 +81,8 @@ class CommandDescriptor(traits.CommandDescriptor):
         self._parser = parser
         utilities.with_function_wrapping(self, "function")
 
-    async def __call__(self, ctx: traits.Context, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
-        return await self._function(ctx, *args, **kwargs)
+    async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
+        return await self._function(*args, **kwargs)
 
     def __repr__(self) -> str:
         return f"CommandDescriptor <{self._function, self._names}>"
@@ -184,8 +197,8 @@ class ListenerDescriptor(traits.ListenerDescriptor):
         self.listener = function
         utilities.with_function_wrapping(self, "listener")
 
-    async def __call__(self, event: base_events.Event, /) -> None:
-        return await self.listener(event)
+    async def __call__(self, *args: typing.Any) -> None:
+        return await self.listener(*args)
 
     def __repr__(self) -> str:
         return f"ListenerDescriptor for {self.event.__name__}: {self.listener}>"
@@ -194,6 +207,39 @@ class ListenerDescriptor(traits.ListenerDescriptor):
         self, component: traits.Component, /
     ) -> typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]:
         return self.event, types.MethodType(self.listener, component)
+
+
+def as_check(check: traits.CheckT) -> traits.CheckT:
+    """Declare a check descriptor on a component's class.
+
+    The returned descriptor will be loaded into the component it's attached to
+    during initialisation.
+
+    Parameters
+    ----------
+    check : traits.CheckT
+        The method to decorate as a check.
+
+    Returns
+    -------
+    traits.CheckT
+        The decorated method.
+
+    Examples
+    --------
+    ```python
+    import tanjun
+
+    class MyComponent(tanjun.components.Component):
+        def __init__(self, *args, **kwargs, blacklist) -> None:
+            self.blacklist = set(blacklist)
+
+        @tanjun.components.as_check
+        def blacklisted_check(self, ctx: tanjun.traits.Context, /) -> None:
+            return ctx.message.author.id in self.blacklist
+    ```
+    """
+    return CheckDescriptor(check)
 
 
 def as_command(
@@ -322,7 +368,7 @@ def as_group(
     class MyComponent(tanjun.components.Component):
         @tanjun.parsing.with_greedy_argument("content", converters=None)
         @tanjun.parsing.with_parser
-        @tanjun.components.group("help")
+        @tanjun.components.as_group("help")
         async def help(self, ctx: tanjun.traits.Context, /, content: str) -> None:
             await ctx.message.reply(f"`{content}` is not a valid help command")
 
@@ -344,7 +390,7 @@ EventDecoratorT = typing.Callable[
 ]
 
 
-def as_event(cls: typing.Type[event_dispatcher.EventT_inv], /) -> EventDecoratorT[event_dispatcher.EventT_inv]:
+def as_listener(cls: typing.Type[event_dispatcher.EventT_inv], /) -> EventDecoratorT[event_dispatcher.EventT_inv]:
     """Declare an event listener
 
     The returned descriptor will be loaded into the component it's attached to
@@ -369,7 +415,7 @@ def as_event(cls: typing.Type[event_dispatcher.EventT_inv], /) -> EventDecorator
     import tanjun
 
     class MyComponent(tanjun.components.Component):
-        @tanjun.components.event(events.GuildVisibilityEvent):
+        @tanjun.components.as_listener(events.GuildVisibilityEvent)
         async def on_guild_visibility_event(self, event: events.GuildVisibilityEvent) -> None:
             ...
     ```
@@ -561,3 +607,8 @@ class Component(traits.Component):
                 event_, listener = member.build_listener(self)
                 self.add_listener(event_, listener)
                 setattr(self, name, listener)
+
+            elif isinstance(member, traits.CheckDescriptor):
+                check = member.build_check(self)
+                self.add_check(check)
+                setattr(self, name, check)

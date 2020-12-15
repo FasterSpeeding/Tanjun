@@ -33,6 +33,7 @@
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
+    "CheckDescriptor",
     "CommandDescriptor",
     "ListenerDescriptor",
     "LoadableDescriptor",
@@ -165,6 +166,28 @@ shouldn't lead to an execution.
 
 ValueT = typing.TypeVar("ValueT", covariant=True)
 """A general type hint used for generic interfaces in Tanjun."""
+
+
+@typing.runtime_checkable
+class CheckDescriptor(typing.Protocol):
+    """Descriptor of a check that's attached to a component."""
+
+    __slots__: typing.Sequence[str] = ()
+
+    def build_check(self, component: Component, /) -> CheckT:
+        """Build a check from this descriptor.
+
+        Parameters
+        ----------
+        component : ExecutableCommand
+            The component this check is being built for.
+
+        Returns
+        -------
+        CheckT
+            The check function that was created.
+        """
+        raise NotImplementedError
 
 
 @typing.runtime_checkable
