@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["as_check", "as_command", "as_listener", "as_group", "Component"]
+__all__: typing.Sequence[str] = ["as_check", "as_command", "as_group", "as_listener", "Component"]
 
 import copy
 import inspect
@@ -54,9 +54,14 @@ if typing.TYPE_CHECKING:
 class CheckDescriptor(traits.CheckDescriptor):
     def __init__(self, check: traits.CheckT, /) -> None:
         self._check = check
+        utilities.with_function_wrapping(self, "_check")
 
     def __call__(self, *args: typing.Any) -> typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]:
         return self._check(*args)
+
+    @property
+    def function(self) -> traits.CheckT:
+        return self._check
 
     def build_check(self, component: traits.Component, /) -> traits.CheckT:
         return types.MethodType(self._check, component)
@@ -133,6 +138,7 @@ class CommandDescriptor(traits.CommandDescriptor):
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
 class _OwnedCommandDescriptor(CommandDescriptor):
+    @property
     def is_owned(self) -> bool:
         return True
 
@@ -193,20 +199,28 @@ class ListenerDescriptor(traits.ListenerDescriptor):
     def __init__(
         self, event: typing.Type[base_events.Event], function: event_dispatcher.CallbackT[typing.Any], /
     ) -> None:
-        self.event = event
-        self.listener = function
+        self._event = event
+        self._listener = function
         utilities.with_function_wrapping(self, "listener")
 
     async def __call__(self, *args: typing.Any) -> None:
-        return await self.listener(*args)
+        return await self._listener(*args)
 
     def __repr__(self) -> str:
-        return f"ListenerDescriptor for {self.event.__name__}: {self.listener}>"
+        return f"ListenerDescriptor for {self._event.__name__}: {self._listener}>"
+
+    @property
+    def event(self) -> typing.Type[base_events.Event]:
+        return self._event
+
+    @property
+    def function(self) -> event_dispatcher.CallbackT[typing.Any]:
+        return self._listener
 
     def build_listener(
         self, component: traits.Component, /
     ) -> typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]:
-        return self.event, types.MethodType(self.listener, component)
+        return self._event, types.MethodType(self._listener, component)
 
 
 def as_check(check: traits.CheckT) -> traits.CheckT:

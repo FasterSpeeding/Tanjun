@@ -174,6 +174,17 @@ class CheckDescriptor(typing.Protocol):
 
     __slots__: typing.Sequence[str] = ()
 
+    @property
+    def function(self) -> CheckT:
+        """The underlying function this describes.
+
+        Returns
+        -------
+        CheckT
+            The underlying function this describes.
+        """
+        raise NotImplementedError
+
     def build_check(self, component: Component, /) -> CheckT:
         """Build a check from this descriptor.
 
@@ -318,6 +329,28 @@ class ListenerDescriptor(typing.Protocol):
     """Descriptor of a event listener that's attached to a component."""
 
     __slots__: typing.Sequence[str] = ()
+
+    @property
+    def event(self) -> typing.Type[base_events.Event]:
+        """The event descriptor is bound to.
+
+        Returns
+        -------
+        typing.Type[base_events.Event]:
+            The event descriptor is bound to.
+        """
+        raise NotImplementedError
+
+    @property
+    def function(self) -> event_dispatcher.CallbackT[typing.Any]:
+        """The underlying function this describes.
+
+        Returns
+        -------
+        event_dispatcher.CallbackT[typing.Any]
+            The underlying function this describes.
+        """
+        raise NotImplementedError
 
     def build_listener(
         self, component: Component, /

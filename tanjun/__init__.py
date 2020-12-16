@@ -53,8 +53,8 @@ __all__: typing.Sequence[str] = [
     "components",
     "as_check",
     "as_command",
-    "as_listener",
     "as_group",
+    "as_listener",
     "Component",
     # context.py
     "context",
