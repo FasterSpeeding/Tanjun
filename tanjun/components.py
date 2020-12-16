@@ -120,6 +120,7 @@ class CommandDescriptor(traits.CommandDescriptor):
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
 class _OwnedCommandDescriptor(CommandDescriptor):
+    @property
     def is_owned(self) -> bool:
         return True
 
