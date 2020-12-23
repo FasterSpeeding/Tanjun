@@ -53,6 +53,7 @@ setuptools.setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
+        "Typing :: Typed",
     ],
     # TODO: nice console entry point.
     # entry_points={"console_scripts": [f"{MAIN_MODULE_NAME}={MAIN_MODULE_NAME}.__main__:main"]},
