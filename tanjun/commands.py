@@ -174,7 +174,7 @@ class Command(traits.ExecutableCommand):
                 try:
                     await ctx.message.reply(content=response)
 
-                except hikari_errors.RateLimitedError as retry_error:
+                except (hikari_errors.RateLimitedError, hikari_errors.RateLimitTooLongError) as retry_error:
                     if retry_error.retry_after > 4:
                         raise
 

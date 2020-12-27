@@ -286,7 +286,7 @@ class Client(traits.Client):
                     user = await self._rest.rest.fetch_my_user()
                     break
 
-                except hikari_errors.RateLimitedError as exc:
+                except (hikari_errors.RateLimitedError, hikari_errors.RateLimitTooLongError) as exc:
                     if exc.retry_after > 30:
                         raise
 
