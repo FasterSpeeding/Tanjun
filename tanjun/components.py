@@ -51,8 +51,8 @@ if typing.TYPE_CHECKING:
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
-class CheckDescriptor(traits.CheckDescriptor):
-    def __init__(self, check: traits.CheckT, /) -> None:
+class CheckDescriptor(traits.CheckDescriptor[traits.ComponentT]):
+    def __init__(self, check: traits.UnboundCheckT[traits.ComponentT], /) -> None:
         self._check = check
         utilities.with_function_wrapping(self, "_check")
 
@@ -60,16 +60,18 @@ class CheckDescriptor(traits.CheckDescriptor):
         return self._check(*args)
 
     @property
-    def function(self) -> traits.CheckT:
+    def function(self) -> traits.UnboundCheckT[traits.ComponentT]:
         return self._check
 
-    def build_check(self, component: traits.Component, /) -> traits.CheckT:
+    def build_check(self, component: traits.ComponentT, /) -> traits.CheckT:
         return types.MethodType(self._check, component)
 
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
 class CommandDescriptor(traits.CommandDescriptor):
+    _checks: typing.List[typing.Tuple[typing.Union[traits.CheckT, traits.UnboundCheckT[typing.Any]], bool]]
+
     def __init__(
         self,
         checks: typing.Optional[typing.Iterable[traits.CheckT]],
@@ -78,7 +80,7 @@ class CommandDescriptor(traits.CommandDescriptor):
         names: typing.Sequence[str],
         parser: typing.Optional[traits.ParserDescriptor],
     ) -> None:
-        self._checks = list(checks) if checks else []
+        self._checks = [(check, False) for check in checks] if checks else []
         self._function = function
         self._hooks = hooks
         self._metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
@@ -112,21 +114,22 @@ class CommandDescriptor(traits.CommandDescriptor):
     def parser(self, parser_: typing.Optional[traits.ParserDescriptor]) -> None:
         self._parser = parser_
 
-    def add_check(self, check: traits.CheckT, /) -> None:
-        self._checks.append(check)
+    def add_check(self, check: traits.CheckT, /, *, bound: bool=False) -> None:
+        self._checks.append((check, bound))
 
     def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
-        self.add_check(check)
+        self.add_check(check, bound=True)
         return check
 
     def add_name(self, name: str, /) -> None:
         self._names.append(name)
 
     def build_command(self, component: traits.Component, /) -> traits.ExecutableCommand:
+        checks = (types.MethodType(check, component) if bound else check for check, bound in self._checks)
         command = commands.Command(
             types.MethodType(self._function, component),
             *self._names,
-            checks=self._checks.copy(),
+            checks=typing.cast("typing.Iterable[traits.CheckT]", checks),
             hooks=copy.copy(self._hooks),
             metadata=dict(self._metadata),
             parser=self.parser.build_parser(component) if self.parser else None,
@@ -161,10 +164,11 @@ class CommandGroupDescriptor(CommandDescriptor):
         return f"CommandGroupDescriptor <{self._function, self._names}, commands: {len(self._commands)}>"
 
     def build_command(self, component: traits.Component, /) -> traits.ExecutableCommandGroup:
+        checks = (types.MethodType(check, component) if bound else check for check, bound in self._checks)
         group = commands.CommandGroup(
             types.MethodType(self._function, component),
             *self._names,
-            checks=self._checks.copy(),
+            checks=typing.cast("typing.Iterable[traits.CheckT]", checks),
             hooks=copy.copy(self._hooks),
             metadata=dict(self._metadata),
             parser=self.parser.build_parser(component) if self.parser else None,
@@ -223,7 +227,7 @@ class ListenerDescriptor(traits.ListenerDescriptor):
         return self._event, types.MethodType(self._listener, component)
 
 
-def as_check(check: traits.CheckT) -> traits.CheckT:
+def as_check(check: traits.UnboundCheckT[typing.Any]) -> traits.CheckT:
     """Declare a check descriptor on a component's class.
 
     The returned descriptor will be loaded into the component it's attached to

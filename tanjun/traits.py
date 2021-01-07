@@ -164,18 +164,27 @@ raising `tanjun.errors.FailedCheck` will indicate that the current context
 shouldn't lead to an execution.
 """
 
+ComponentT = typing.TypeVar("ComponentT", bound="Component", contravariant=True)
+
+UnboundCheckT = typing.Callable[["ComponentT", "Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]]
+"""Type hint of a general context check used by Tanjun `Executable` classes.
+
+This is an equivalent to `CheckT` where it's yet to be bound to a `Component`,
+used by `CheckDescriptor`.
+"""
+
 ValueT = typing.TypeVar("ValueT", covariant=True)
 """A general type hint used for generic interfaces in Tanjun."""
 
 
 @typing.runtime_checkable
-class CheckDescriptor(typing.Protocol):
+class CheckDescriptor(typing.Protocol[ComponentT]):
     """Descriptor of a check that's attached to a component."""
 
     __slots__: typing.Sequence[str] = ()
 
     @property
-    def function(self) -> CheckT:
+    def function(self) -> UnboundCheckT[ComponentT]:
         """The underlying function this describes.
 
         Returns
@@ -185,12 +194,12 @@ class CheckDescriptor(typing.Protocol):
         """
         raise NotImplementedError
 
-    def build_check(self, component: Component, /) -> CheckT:
+    def build_check(self, component: ComponentT, /) -> CheckT:
         """Build a check from this descriptor.
 
         Parameters
         ----------
-        component : ExecutableCommand
+        component : ComponentT
             The component this check is being built for.
 
         Returns
