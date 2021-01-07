@@ -45,20 +45,21 @@ __all__: typing.Sequence[str] = [
 
 import abc
 import asyncio
+import datetime
+import time
 import typing
 
 from hikari import channels
 from hikari import errors as hikari_errors
 from hikari import guilds
 from hikari import permissions as permissions_
-from hikari.events import member_events
+from hikari import snowflakes
 from yuyo import backoff
 
 from tanjun import utilities
 
 if typing.TYPE_CHECKING:
     from hikari import applications
-    from hikari import snowflakes
     from hikari import traits as hikari_traits
     from hikari import users
 
@@ -71,58 +72,92 @@ CommandT = typing.TypeVar(
 
 
 class ApplicationOwnerCheck:
-    __slots__: typing.Sequence[str] = ("_application", "_client", "_fetch_task", "_lock")
+    __slots__: typing.Sequence[str] = ("_application", "_expire", "_lock", "_owner_ids", "_time")
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        *,
+        expire_delta: datetime.timedelta = datetime.timedelta(minutes=5),
+        owner_ids: typing.Optional[typing.Iterable[snowflakes.SnowflakeishOr[users.User]]] = None,
+    ) -> None:
         self._application: typing.Optional[applications.Application] = None
-        self._client: typing.Optional[tanjun_traits.Client] = None
-        self._fetch_task: typing.Optional[asyncio.Task[None]] = None
+        self._expire = expire_delta.total_seconds()
         self._lock = asyncio.Lock()
+        self._owner_ids = tuple(snowflakes.Snowflake(id_) for id_ in owner_ids) if owner_ids else ()
+        self._time = 0.0
 
     async def __call__(self, ctx: tanjun_traits.Context, /) -> bool:
-        if ctx.client:
-            self._client = ctx.client
-
         return await self.check(ctx)
 
-    @staticmethod
-    async def _fetch_application(rest: hikari_traits.RESTAware, /) -> applications.Application:  # type: ignore[return]
+    @property
+    def _is_expired(self) -> bool:
+        return time.perf_counter() - self._time >= self._expire
+
+    async def _try_fetch(self, rest: hikari_traits.RESTAware, /) -> applications.Application:  # type: ignore[return]
         retry = backoff.Backoff()
         async for _ in retry:
             try:
-                return await rest.rest.fetch_application()
+                self._application = await rest.rest.fetch_application()
+                return self._application
 
-            except hikari_errors.RateLimitedError as exc:
+            except (hikari_errors.RateLimitedError, hikari_errors.RateLimitTooLongError) as exc:
                 retry.set_next_backoff(exc.retry_after)
 
             except hikari_errors.InternalServerError:
                 continue
 
-    async def _fetch_loop(self) -> None:
-        while True:
-            # Update the application every 30 minutes.
-            await asyncio.sleep(1_800)
-            if self._client:
-                try:
-                    self._application = await self._fetch_application(self._client.rest_service)
-
-                except hikari_errors.ForbiddenError:
-                    pass
-
     async def _get_application(self, ctx: tanjun_traits.Context, /) -> applications.Application:
-        if not self._application:
-            async with self._lock:
-                if self._application:
-                    return self._application
+        if self._application and not self._is_expired:
+            return self._application
 
-                self._application = await self._fetch_application(ctx.client.rest_service)
+        async with self._lock:
+            if self._application and not self._is_expired:
+                return self._application
 
-                if not self._fetch_task:
-                    self._fetch_task = asyncio.create_task(self._fetch_loop())
+            try:
+                application = await ctx.client.rest_service.rest.fetch_application()
+                self._application = application
 
-        return self._application
+            except (
+                hikari_errors.RateLimitedError,
+                hikari_errors.RateLimitTooLongError,
+                hikari_errors.InternalServerError,
+            ):
+                # If we can't fetch this information straight away and don't have a stale state to go off then we
+                # have to retry before returning.
+                if not self._application:
+                    application = await asyncio.wait_for(self._try_fetch(ctx.client.rest_service), 10)
+
+                # Otherwise we create a task to ensure that we will still try to refresh the stored state in the future
+                # while returning the stale state to ensure that the command execution doesn't stall.
+                else:
+                    asyncio.create_task(asyncio.wait_for(self._try_fetch(ctx.client.rest_service), self._expire * 0.80))
+                    application = self._application
+
+            self._time = time.perf_counter()
+
+        return application
+
+    def close(self) -> None:
+        ...  # This is only left in to match up with the `open` method.
+
+    async def open(
+        self,
+        client: tanjun_traits.Client,
+        /,
+        *,
+        timeout: typing.Optional[datetime.timedelta] = datetime.timedelta(seconds=30),
+    ) -> None:
+        try:
+            await self.update(client.rest_service, timeout=timeout)
+
+        except asyncio.TimeoutError:
+            pass
 
     async def check(self, ctx: tanjun_traits.Context, /) -> bool:
+        if ctx.message.author.id in self._owner_ids:
+            return True
+
         application = await self._get_application(ctx)
 
         if not application.team and application.owner:
@@ -130,24 +165,15 @@ class ApplicationOwnerCheck:
 
         return bool(application.team and ctx.message.author.id in application.team.members)
 
-    def close(self) -> None:
-        if self._fetch_task:
-            self._fetch_task.cancel()
-            self._fetch_task = None
-
-    async def open(self, client: tanjun_traits.Client, /) -> None:
-        self.close()
-        self._client = client
-        self._fetch_task = asyncio.create_task(self._fetch_loop())
-
-    async def update(self, *, rest: typing.Optional[hikari_traits.RESTAware] = None) -> None:
-        if not rest and self._client:
-            rest = self._client.rest_service
-
-        elif not rest:
-            raise ValueError("REST client must be provided when trying to update a closed application owner check.")
-
-        self._application = await self._fetch_application(rest)
+    async def update(
+        self,
+        rest: hikari_traits.RESTAware,
+        /,
+        *,
+        timeout: typing.Optional[datetime.timedelta] = datetime.timedelta(seconds=30),
+    ) -> None:
+        self._time = time.perf_counter()
+        await asyncio.wait_for(self._try_fetch(rest), timeout.total_seconds() if timeout else None)
 
 
 async def nsfw_check(ctx: tanjun_traits.Context, /) -> bool:
@@ -199,49 +225,28 @@ class AuthorPermissionCheck(PermissionCheck):
 
 
 class BotPermissionsCheck(PermissionCheck):
-    __slots__: typing.Sequence[str] = ("_lock", "_me" "_members")
+    __slots__: typing.Sequence[str] = ("_lock", "_me")
 
     def __init__(self, permissions: typing.Union[permissions_.Permissions, int], /) -> None:
         super().__init__(permissions)
         self._lock = asyncio.Lock()
         self._me: typing.Optional[users.User] = None
-        self._members: typing.MutableMapping[snowflakes.Snowflake, guilds.Member] = {}
-
-    async def on_member_event(self, event: member_events.MemberEvent, /) -> None:
-        if event.user_id != (await self._get_user(event.app, event.app)):
-            return
-
-        if isinstance(event, (member_events.MemberUpdateEvent, member_events.MemberCreateEvent)):
-            self._members[event.user_id] = event.member
-
-        elif event.user_id in self._members:
-            del self._members[event.user_id]
 
     async def get_permissions(self, ctx: tanjun_traits.Context, /) -> permissions_.Permissions:
         if ctx.message.guild_id is None:
             return utilities.ALL_PERMISSIONS
 
-        member = await self._get_member(ctx)
+        member = await self._get_member(ctx, ctx.message.guild_id)
         return await utilities.calculate_permissions(ctx.client, member, channel=ctx.message.channel_id)
 
-    async def _get_member(self, ctx: tanjun_traits.Context, /) -> guilds.Member:
-        if ctx.message.guild_id is None:
-            raise RuntimeError("Cannot get member for a DM Channel")
-
-        if member := self._members.get(ctx.message.guild_id):
-            return member
-
+    async def _get_member(self, ctx: tanjun_traits.Context, guild_id: snowflakes.Snowflake, /) -> guilds.Member:
         user = await self._get_user(ctx.client.cache_service, ctx.client.rest_service)
 
-        if ctx.client.cache_service and (
-            member := ctx.client.cache_service.cache.get_member(ctx.message.guild_id, user.id)
-        ):
+        if ctx.client.cache_service and (member := ctx.client.cache_service.cache.get_member(guild_id, user.id)):
             return member
 
         retry = backoff.Backoff(maximum=5, max_retries=4)
-        return await utilities.fetch_resource(
-            retry, ctx.client.rest_service.rest.fetch_member, ctx.message.guild_id, user.id,
-        )
+        return await utilities.fetch_resource(retry, ctx.client.rest_service.rest.fetch_member, guild_id, user.id)
 
     async def _get_user(
         self, cache_service: typing.Optional[hikari_traits.CacheAware], rest_service: hikari_traits.RESTAware, /

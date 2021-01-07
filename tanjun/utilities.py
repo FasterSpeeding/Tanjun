@@ -143,7 +143,7 @@ async def fetch_resource(
         try:
             return await call(*args)
 
-        except hikari_errors.RateLimitedError as exc:
+        except (hikari_errors.RateLimitedError, hikari_errors.RateLimitTooLongError) as exc:
             if exc.retry_after > 5:
                 raise
 
