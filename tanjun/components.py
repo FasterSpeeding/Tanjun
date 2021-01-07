@@ -70,8 +70,6 @@ class CheckDescriptor(traits.CheckDescriptor[traits.ComponentT]):
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
 class CommandDescriptor(traits.CommandDescriptor):
-    _checks: typing.List[typing.Tuple[typing.Union[traits.CheckT, traits.UnboundCheckT[typing.Any]], bool]]
-
     def __init__(
         self,
         checks: typing.Optional[typing.Iterable[traits.CheckT]],
@@ -80,7 +78,8 @@ class CommandDescriptor(traits.CommandDescriptor):
         names: typing.Sequence[str],
         parser: typing.Optional[traits.ParserDescriptor],
     ) -> None:
-        self._checks = [(check, False) for check in checks] if checks else []
+        self._unbound_checks: typing.List[traits.UnboundCheckT[typing.Any]] = []
+        self._checks = list(checks) if checks else []
         self._function = function
         self._hooks = hooks
         self._metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
@@ -114,22 +113,23 @@ class CommandDescriptor(traits.CommandDescriptor):
     def parser(self, parser_: typing.Optional[traits.ParserDescriptor]) -> None:
         self._parser = parser_
 
-    def add_check(self, check: traits.CheckT, /, *, bound: bool=False) -> None:
-        self._checks.append((check, bound))
+    def add_check(self, check: traits.CheckT, /) -> None:
+        self._checks.append(check)
 
-    def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
-        self.add_check(check, bound=True)
+    def with_check(self, check: traits.UnboundCheckT[traits.ComponentT], /) -> traits.UnboundCheckT[traits.ComponentT]:
+        self._unbound_checks.append(check)
         return check
 
     def add_name(self, name: str, /) -> None:
         self._names.append(name)
 
     def build_command(self, component: traits.Component, /) -> traits.ExecutableCommand:
-        checks = (types.MethodType(check, component) if bound else check for check, bound in self._checks)
+        checks = self._checks.copy()
+        checks.extend(types.MethodType(check, component) for check in self._unbound_checks)
         command = commands.Command(
             types.MethodType(self._function, component),
             *self._names,
-            checks=typing.cast("typing.Iterable[traits.CheckT]", checks),
+            checks=checks,
             hooks=copy.copy(self._hooks),
             metadata=dict(self._metadata),
             parser=self.parser.build_parser(component) if self.parser else None,
@@ -164,11 +164,12 @@ class CommandGroupDescriptor(CommandDescriptor):
         return f"CommandGroupDescriptor <{self._function, self._names}, commands: {len(self._commands)}>"
 
     def build_command(self, component: traits.Component, /) -> traits.ExecutableCommandGroup:
-        checks = (types.MethodType(check, component) if bound else check for check, bound in self._checks)
+        checks = self._checks.copy()
+        checks.extend(types.MethodType(check, component) for check in self._unbound_checks)
         group = commands.CommandGroup(
             types.MethodType(self._function, component),
             *self._names,
-            checks=typing.cast("typing.Iterable[traits.CheckT]", checks),
+            checks=checks,
             hooks=copy.copy(self._hooks),
             metadata=dict(self._metadata),
             parser=self.parser.build_parser(component) if self.parser else None,

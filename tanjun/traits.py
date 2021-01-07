@@ -166,7 +166,9 @@ shouldn't lead to an execution.
 
 ComponentT = typing.TypeVar("ComponentT", bound="Component", contravariant=True)
 
-UnboundCheckT = typing.Callable[["ComponentT", "Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]]
+UnboundCheckT = typing.Callable[
+    ["ComponentT", "Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]
+]
 """Type hint of a general context check used by Tanjun `Executable` classes.
 
 This is an equivalent to `CheckT` where it's yet to be bound to a `Component`,
@@ -290,16 +292,23 @@ class CommandDescriptor(typing.Protocol):
         """
         raise NotImplementedError
 
-    def with_check(self, check: CheckT, /) -> CheckT:
+    def with_check(self, check: UnboundCheckT[ComponentT], /) -> UnboundCheckT[ComponentT]:
         """Decorator for adding a pre-execution check to this command.
 
         !!! note
             Unlike `CommandDescriptor.add_check`, this will return the passed
             check function to allow it to be used as a function decorator.
 
+        Parameters
+        ----------
+        check: UnboundCheckT[ComponentT]
+            The check method to add to this command. Unlike
+            `CommandDescriptor.add_check`, this check's first argument should be
+            `self` and accept the component this command is attached to.
+
         Returns
         -------
-        CheckT
+        UnboundCheckT[ComponentT]
             The passed check.
         """
         raise NotImplementedError
