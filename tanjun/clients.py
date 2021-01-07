@@ -116,48 +116,16 @@ class Client(traits.Client):
         modules: typing.Optional[typing.Iterable[typing.Union[pathlib.Path, str]]] = None,
         prefixes: typing.Optional[typing.Iterable[str]] = None,
     ) -> None:
-        if rest is not None:
-            pass
-
-        elif isinstance(cache, hikari_traits.RESTAware):
-            rest = cache
-
-        elif isinstance(dispatch, hikari_traits.RESTAware):
-            rest = dispatch
-
-        elif isinstance(shard, hikari_traits.RESTAware):
-            rest = shard  # type: ignore[unreachable]
-
-        else:
+        rest = utilities.try_find_type(hikari_traits.RESTAware, rest, dispatch, shard, cache)  # type: ignore[misc]
+        if not rest:
             raise ValueError("Missing RESTAware client implementation.")
 
-        if shard is not None:
-            pass
-
-        elif isinstance(cache, hikari_traits.ShardAware):
-            shard = cache
-
-        elif isinstance(dispatch, hikari_traits.ShardAware):
-            shard = dispatch
-
-        elif isinstance(rest, hikari_traits.ShardAware):
-            shard = rest
-
-        else:
+        shard = utilities.try_find_type(hikari_traits.ShardAware, shard, dispatch, rest, cache)  # type: ignore[misc]
+        if not shard:
             raise ValueError("Missing ShardAware client implementation.")
 
         # Unlike `rest`, no provided Cache implementation just means this runs stateless.
-        if cache is not None:
-            pass
-
-        elif isinstance(dispatch, hikari_traits.CacheAware):
-            cache = dispatch
-
-        elif isinstance(rest, hikari_traits.CacheAware):
-            cache = rest
-
-        elif isinstance(shard, hikari_traits.CacheAware):  # type: ignore[unreachable]
-            cache = shard
+        cache = utilities.try_find_type(hikari_traits.CacheAware, cache, dispatch, rest, shard)  # type: ignore[misc]
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
 
         self._checks: typing.MutableSet[traits.CheckT] = {self.check_human, *(checks or ())}

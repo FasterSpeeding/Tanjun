@@ -39,6 +39,7 @@ __all__: typing.Sequence[str] = [
     "ALL_PERMISSIONS",
     "calculate_permissions",
     "with_function_wrapping",
+    "try_find_type",
 ]
 
 import asyncio
@@ -288,3 +289,11 @@ def with_function_wrapping(obj: typing.Any, function_field: str, /) -> None:
     obj.__doc__ = getattr(obj, function_field).__doc__
     obj.__module__ = getattr(obj, function_field).__module__
     obj.__wrapped__ = getattr(obj, function_field)
+
+
+def try_find_type(cls: typing.Type[_ValueT], *values: typing.Any) -> typing.Optional[_ValueT]:
+    for value in values:
+        if isinstance(value, cls):
+            return value
+
+    return None

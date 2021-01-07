@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["as_command", "as_event", "as_group", "Component"]
+__all__: typing.Sequence[str] = ["as_check", "as_command", "as_group", "as_listener", "Component"]
 
 import copy
 import inspect
@@ -51,7 +51,27 @@ if typing.TYPE_CHECKING:
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
+class CheckDescriptor(traits.CheckDescriptor[traits.ComponentT]):
+    def __init__(self, check: traits.UnboundCheckT[traits.ComponentT], /) -> None:
+        self._check = check
+        utilities.with_function_wrapping(self, "_check")
+
+    def __call__(self, *args: typing.Any) -> typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]:
+        return self._check(*args)
+
+    @property
+    def function(self) -> traits.UnboundCheckT[traits.ComponentT]:
+        return self._check
+
+    def build_check(self, component: traits.ComponentT, /) -> traits.CheckT:
+        return types.MethodType(self._check, component)
+
+
+# This class is left unslotted as to allow it to "wrap" the underlying function
+# by overwriting class attributes.
 class CommandDescriptor(traits.CommandDescriptor):
+    _checks: typing.List[typing.Tuple[typing.Union[traits.CheckT, traits.UnboundCheckT[typing.Any]], bool]]
+
     def __init__(
         self,
         checks: typing.Optional[typing.Iterable[traits.CheckT]],
@@ -60,7 +80,7 @@ class CommandDescriptor(traits.CommandDescriptor):
         names: typing.Sequence[str],
         parser: typing.Optional[traits.ParserDescriptor],
     ) -> None:
-        self._checks = list(checks) if checks else []
+        self._checks = [(check, False) for check in checks] if checks else []
         self._function = function
         self._hooks = hooks
         self._metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
@@ -68,8 +88,8 @@ class CommandDescriptor(traits.CommandDescriptor):
         self._parser = parser
         utilities.with_function_wrapping(self, "function")
 
-    async def __call__(self, ctx: traits.Context, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
-        return await self._function(ctx, *args, **kwargs)
+    async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> typing.Any:
+        return await self._function(*args, **kwargs)
 
     def __repr__(self) -> str:
         return f"CommandDescriptor <{self._function, self._names}>"
@@ -94,21 +114,22 @@ class CommandDescriptor(traits.CommandDescriptor):
     def parser(self, parser_: typing.Optional[traits.ParserDescriptor]) -> None:
         self._parser = parser_
 
-    def add_check(self, check: traits.CheckT, /) -> None:
-        self._checks.append(check)
+    def add_check(self, check: traits.CheckT, /, *, bound: bool=False) -> None:
+        self._checks.append((check, bound))
 
     def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
-        self.add_check(check)
+        self.add_check(check, bound=True)
         return check
 
     def add_name(self, name: str, /) -> None:
         self._names.append(name)
 
     def build_command(self, component: traits.Component, /) -> traits.ExecutableCommand:
+        checks = (types.MethodType(check, component) if bound else check for check, bound in self._checks)
         command = commands.Command(
             types.MethodType(self._function, component),
             *self._names,
-            checks=self._checks.copy(),
+            checks=typing.cast("typing.Iterable[traits.CheckT]", checks),
             hooks=copy.copy(self._hooks),
             metadata=dict(self._metadata),
             parser=self.parser.build_parser(component) if self.parser else None,
@@ -143,10 +164,11 @@ class CommandGroupDescriptor(CommandDescriptor):
         return f"CommandGroupDescriptor <{self._function, self._names}, commands: {len(self._commands)}>"
 
     def build_command(self, component: traits.Component, /) -> traits.ExecutableCommandGroup:
+        checks = (types.MethodType(check, component) if bound else check for check, bound in self._checks)
         group = commands.CommandGroup(
             types.MethodType(self._function, component),
             *self._names,
-            checks=self._checks.copy(),
+            checks=typing.cast("typing.Iterable[traits.CheckT]", checks),
             hooks=copy.copy(self._hooks),
             metadata=dict(self._metadata),
             parser=self.parser.build_parser(component) if self.parser else None,
@@ -181,20 +203,61 @@ class ListenerDescriptor(traits.ListenerDescriptor):
     def __init__(
         self, event: typing.Type[base_events.Event], function: event_dispatcher.CallbackT[typing.Any], /
     ) -> None:
-        self.event = event
-        self.listener = function
+        self._event = event
+        self._listener = function
         utilities.with_function_wrapping(self, "listener")
 
-    async def __call__(self, event: base_events.Event, /) -> None:
-        return await self.listener(event)
+    async def __call__(self, *args: typing.Any) -> None:
+        return await self._listener(*args)
 
     def __repr__(self) -> str:
-        return f"ListenerDescriptor for {self.event.__name__}: {self.listener}>"
+        return f"ListenerDescriptor for {self._event.__name__}: {self._listener}>"
+
+    @property
+    def event(self) -> typing.Type[base_events.Event]:
+        return self._event
+
+    @property
+    def function(self) -> event_dispatcher.CallbackT[typing.Any]:
+        return self._listener
 
     def build_listener(
         self, component: traits.Component, /
     ) -> typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]:
-        return self.event, types.MethodType(self.listener, component)
+        return self._event, types.MethodType(self._listener, component)
+
+
+def as_check(check: traits.UnboundCheckT[typing.Any]) -> traits.CheckT:
+    """Declare a check descriptor on a component's class.
+
+    The returned descriptor will be loaded into the component it's attached to
+    during initialisation.
+
+    Parameters
+    ----------
+    check : traits.CheckT
+        The method to decorate as a check.
+
+    Returns
+    -------
+    traits.CheckT
+        The decorated method.
+
+    Examples
+    --------
+    ```python
+    import tanjun
+
+    class MyComponent(tanjun.components.Component):
+        def __init__(self, *args, **kwargs, blacklist) -> None:
+            self.blacklist = set(blacklist)
+
+        @tanjun.components.as_check
+        def blacklisted_check(self, ctx: tanjun.traits.Context, /) -> None:
+            return ctx.message.author.id in self.blacklist
+    ```
+    """
+    return CheckDescriptor(check)
 
 
 def as_command(
@@ -323,7 +386,7 @@ def as_group(
     class MyComponent(tanjun.components.Component):
         @tanjun.parsing.with_greedy_argument("content", converters=None)
         @tanjun.parsing.with_parser
-        @tanjun.components.group("help")
+        @tanjun.components.as_group("help")
         async def help(self, ctx: tanjun.traits.Context, /, content: str) -> None:
             await ctx.message.reply(f"`{content}` is not a valid help command")
 
@@ -345,7 +408,7 @@ EventDecoratorT = typing.Callable[
 ]
 
 
-def as_event(cls: typing.Type[event_dispatcher.EventT_inv], /) -> EventDecoratorT[event_dispatcher.EventT_inv]:
+def as_listener(cls: typing.Type[event_dispatcher.EventT_inv], /) -> EventDecoratorT[event_dispatcher.EventT_inv]:
     """Declare an event listener
 
     The returned descriptor will be loaded into the component it's attached to
@@ -370,7 +433,7 @@ def as_event(cls: typing.Type[event_dispatcher.EventT_inv], /) -> EventDecorator
     import tanjun
 
     class MyComponent(tanjun.components.Component):
-        @tanjun.components.event(events.GuildVisibilityEvent):
+        @tanjun.components.as_listener(events.GuildVisibilityEvent)
         async def on_guild_visibility_event(self, event: events.GuildVisibilityEvent) -> None:
             ...
     ```
@@ -562,3 +625,8 @@ class Component(traits.Component):
                 event_, listener = member.build_listener(self)
                 self.add_listener(event_, listener)
                 setattr(self, name, listener)
+
+            elif isinstance(member, traits.CheckDescriptor):
+                check = member.build_check(self)
+                self.add_check(check)
+                setattr(self, name, check)
