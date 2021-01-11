@@ -206,7 +206,7 @@ class ListenerDescriptor(traits.ListenerDescriptor):
     ) -> None:
         self._event = event
         self._listener = function
-        utilities.with_function_wrapping(self, "listener")
+        utilities.with_function_wrapping(self, "function")
 
     async def __call__(self, *args: typing.Any) -> None:
         return await self._listener(*args)
@@ -581,7 +581,7 @@ class Component(traits.Component):
             for event_, listener in self._listeners:
                 try:
                     self._client.dispatch_service.dispatcher.unsubscribe(event_, listener)
-                except (KeyError, ValueError, LookupError):  # TODO: what does hikari raise?
+                except (LookupError, ValueError):  # TODO: what does hikari raise?
                     continue
 
                 self._client.dispatch_service.dispatcher.subscribe(event_, listener)

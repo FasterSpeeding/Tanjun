@@ -40,7 +40,7 @@ __all__: typing.Sequence[str] = [
     "with_sfw_check",
     "with_owner_check",
     "with_author_permission_check",
-    "with_bot_permission_check",
+    "with_own_permission_check",
     # clients.py
     "clients",
     "as_loader",

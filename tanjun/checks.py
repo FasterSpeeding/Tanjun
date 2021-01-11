@@ -40,7 +40,7 @@ __all__: typing.Sequence[str] = [
     "with_sfw_check",
     "with_owner_check",
     "with_author_permission_check",
-    "with_bot_permission_check",
+    "with_own_permission_check",
 ]
 
 import abc
@@ -319,7 +319,7 @@ def with_nsfw_check(command: CommandT, /) -> CommandT:
 
 
 def with_sfw_check(command: CommandT, /) -> CommandT:
-    """Only let a command run in a channel that's not marked as nsfw.
+    """Only let a command run in a channel that's marked as sfw.
 
     Parameters
     ----------
@@ -382,7 +382,7 @@ def with_author_permission_check(
     return decorator
 
 
-def with_bot_permission_check(
+def with_own_permission_check(
     permissions: typing.Union[permissions_.Permissions, int], /
 ) -> typing.Callable[[CommandT], CommandT]:
     """Only let a command run if we have certain permissions in the current channel.
