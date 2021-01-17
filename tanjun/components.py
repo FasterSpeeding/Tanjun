@@ -313,7 +313,7 @@ def as_command(
         @tanjun.checks.with_owner_check
         @tanjun.components.as_command("echo")
         async def echo_command(self, ctx: tanjun.traits.Context, /, content: str) -> None:
-            await ctx.message.reply(content)
+            await ctx.message.respond(content)
     ```
     """
 
@@ -375,7 +375,7 @@ def as_group(
         @tanjun.checks.with_owner_check
         @tanjun.components.as_group("help")
         async def help(self, ctx: tanjun.traits.Context, /, content: str) -> None:
-            await ctx.message.reply(f"`{content}` is not a valid help command")
+            await ctx.message.respond(f"`{content}` is not a valid help command")
     ```
 
     The `CommandGroupDescriptor.with_command` can be called on the returned
@@ -389,11 +389,11 @@ def as_group(
         @tanjun.parsing.with_parser
         @tanjun.components.as_group("help")
         async def help(self, ctx: tanjun.traits.Context, /, content: str) -> None:
-            await ctx.message.reply(f"`{content}` is not a valid help command")
+            await ctx.message.respond(f"`{content}` is not a valid help command")
 
         @help.with_command("me")
         async def help_me(self, ctx: tanjun.traits.Context) -> None:
-            await ctx.message.reply(f"There is no reset for you, {ctx.message.author}")
+            await ctx.message.respond(f"There is no reset for you, {ctx.message.author}")
     ```
     """
 
