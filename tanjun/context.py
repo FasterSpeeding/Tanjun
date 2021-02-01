@@ -90,6 +90,10 @@ class Context(traits.Context):
         return self._client.cache_service
 
     @property
+    def cached_rest(self) -> traits.CachedREST:
+        return self._client.cached_rest
+
+    @property
     def client(self) -> traits.Client:
         return self._client
 

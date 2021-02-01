@@ -49,14 +49,22 @@ __all__: typing.Sequence[str] = [
     "Argument",
     "Option",
     "Parser",
+    "CachedREST",
 ]
 
 import abc
 import typing
 
 if typing.TYPE_CHECKING:
+    from hikari import applications
+    from hikari import channels
+    from hikari import emojis
+    from hikari import guilds
+    from hikari import invites
     from hikari import messages
+    from hikari import snowflakes
     from hikari import traits
+    from hikari import users
     from hikari.api import event_manager
     from hikari.api import shard as shard_
     from hikari.events import base_events
@@ -216,7 +224,11 @@ class Hooks(abc.ABC):
 
     @abc.abstractmethod
     async def trigger_parser_error(
-        self, ctx: Context, /, exception: errors.ParserError, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None
+        self,
+        ctx: Context,
+        /,
+        exception: errors.ParserError,
+        hooks: typing.Optional[typing.AbstractSet[Hooks]] = None
     ) -> None:
         raise NotImplementedError
 
@@ -228,7 +240,11 @@ class Hooks(abc.ABC):
 
     @abc.abstractmethod
     async def trigger_pre_execution(
-        self, ctx: Context, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None
+        self,
+        ctx: Context,
+        /,
+        *,
+        hooks: typing.Optional[typing.AbstractSet[Hooks]] = None
     ) -> bool:
         raise NotImplementedError
 
@@ -467,6 +483,10 @@ class Client(abc.ABC):
         raise NotImplementedError
 
     @property
+    def cached_rest(self) -> CachedREST:
+        raise NotImplementedError
+
+    @property
     @abc.abstractmethod
     def components(self) -> typing.AbstractSet[Component]:
         raise NotImplementedError
@@ -656,4 +676,71 @@ class Parser(abc.ABC):
 
     @abc.abstractmethod
     async def parse(self, ctx: Context, /) -> typing.Tuple[typing.List[typing.Any], typing.Dict[str, typing.Any]]:
+        raise NotImplementedError
+
+
+class CachedREST(typing.Protocol):
+    __slots__: typing.Sequence[str] = ()
+
+    def clear(self) -> None:
+        raise NotImplementedError
+
+    def gc(self) -> None:
+        raise NotImplementedError
+
+    async def fetch_application(self) -> applications.Application:
+        raise NotImplementedError
+
+    async def fetch_channel(
+        self, channel: snowflakes.SnowflakeishOr[channels.PartialChannel], /
+    ) -> channels.PartialChannel:
+        raise NotImplementedError
+
+    async def fetch_emoji(
+        self,
+        guild: snowflakes.SnowflakeishOr[guilds.PartialGuild],
+        emoji: snowflakes.SnowflakeishOr[emojis.CustomEmoji],
+        /,
+    ) -> emojis.KnownCustomEmoji:
+        raise NotImplementedError
+
+    async def fetch_guild(self, guild: snowflakes.SnowflakeishOr[guilds.PartialGuild], /) -> guilds.Guild:
+        raise NotImplementedError
+
+    async def fetch_invite(self, invite: typing.Union[str, invites.Invite], /) -> invites.Invite:
+        raise NotImplementedError
+
+    async def fetch_member(
+        self,
+        guild: snowflakes.SnowflakeishOr[guilds.PartialGuild],
+        user: snowflakes.SnowflakeishOr[users.User],
+        /,
+    ) -> guilds.Member:
+        raise NotImplementedError
+
+    async def fetch_message(
+        self,
+        channel: snowflakes.SnowflakeishOr[channels.PartialChannel],
+        message: snowflakes.SnowflakeishOr[messages.Message],
+        /,
+    ) -> messages.Message:
+        raise NotImplementedError
+
+    async def fetch_my_user(self) -> users.OwnUser:
+        raise NotImplementedError
+
+    async def fetch_role(
+        self,
+        guild: snowflakes.SnowflakeishOr[guilds.PartialGuild],
+        role: snowflakes.SnowflakeishOr[guilds.PartialRole],
+        /,
+    ) -> guilds.Role:
+        raise NotImplementedError
+
+    async def fetch_roles(
+        self, guild: snowflakes.SnowflakeishOr[guilds.PartialGuild], /
+    ) -> typing.Sequence[guilds.Role]:
+        raise NotImplementedError
+
+    async def fetch_user(self, user: snowflakes.SnowflakeishOr[users.User]) -> users.User:
         raise NotImplementedError
