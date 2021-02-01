@@ -93,11 +93,11 @@ class ApplicationOwnerCheck:
     def _is_expired(self) -> bool:
         return time.perf_counter() - self._time >= self._expire
 
-    async def _try_fetch(self, rest: hikari_traits.RESTAware, /) -> applications.Application:  # type: ignore[return]
+    async def _try_fetch(self, rest: tanjun_traits.CachedREST, /) -> applications.Application:  # type: ignore[return]
         retry = backoff.Backoff()
         async for _ in retry:
             try:
-                self._application = await rest.rest.fetch_application()
+                self._application = await rest.fetch_application()  # TODO: or fetch authroization
                 return self._application
 
             except (hikari_errors.RateLimitedError, hikari_errors.RateLimitTooLongError) as exc:
@@ -115,7 +115,7 @@ class ApplicationOwnerCheck:
                 return self._application
 
             try:
-                application = await ctx.client.rest_service.rest.fetch_application()
+                application = await ctx.client.cached_rest.fetch_application()
                 self._application = application
 
             except (
@@ -126,12 +126,12 @@ class ApplicationOwnerCheck:
                 # If we can't fetch this information straight away and don't have a stale state to go off then we
                 # have to retry before returning.
                 if not self._application:
-                    application = await asyncio.wait_for(self._try_fetch(ctx.client.rest_service), 10)
+                    application = await asyncio.wait_for(self._try_fetch(ctx.client.cached_rest), 10)
 
                 # Otherwise we create a task to ensure that we will still try to refresh the stored state in the future
                 # while returning the stale state to ensure that the command execution doesn't stall.
                 else:
-                    asyncio.create_task(asyncio.wait_for(self._try_fetch(ctx.client.rest_service), self._expire * 0.80))
+                    asyncio.create_task(asyncio.wait_for(self._try_fetch(ctx.client.cached_rest), self._expire * 0.80))
                     application = self._application
 
             self._time = time.perf_counter()
@@ -149,7 +149,7 @@ class ApplicationOwnerCheck:
         timeout: typing.Optional[datetime.timedelta] = datetime.timedelta(seconds=30),
     ) -> None:
         try:
-            await self.update(client.rest_service, timeout=timeout)
+            await self.update(client.cached_rest, timeout=timeout)
 
         except asyncio.TimeoutError:
             pass
@@ -167,7 +167,7 @@ class ApplicationOwnerCheck:
 
     async def update(
         self,
-        rest: hikari_traits.RESTAware,
+        rest: tanjun_traits.CachedREST,
         /,
         *,
         timeout: typing.Optional[datetime.timedelta] = datetime.timedelta(seconds=30),
@@ -183,7 +183,7 @@ async def nsfw_check(ctx: tanjun_traits.Context, /) -> bool:
 
     if not channel:
         retry = backoff.Backoff(maximum=5, max_retries=4)
-        channel = await utilities.fetch_resource(retry, ctx.message.fetch_channel)
+        channel = await utilities.fetch_resource(retry, ctx.client.cached_rest.fetch_channel, ctx.message.channel_id)
 
     return channel.is_nsfw or False if isinstance(channel, channels.GuildChannel) else True
 
@@ -224,7 +224,7 @@ class AuthorPermissionCheck(PermissionCheck):
         return await utilities.calculate_permissions(ctx.client, ctx.message.member, channel=ctx.message.channel_id)
 
 
-class BotPermissionsCheck(PermissionCheck):
+class OwnPermissionsCheck(PermissionCheck):
     __slots__: typing.Sequence[str] = ("_lock", "_me")
 
     def __init__(self, permissions: typing.Union[permissions_.Permissions, int], /) -> None:
@@ -240,16 +240,16 @@ class BotPermissionsCheck(PermissionCheck):
         return await utilities.calculate_permissions(ctx.client, member, channel=ctx.message.channel_id)
 
     async def _get_member(self, ctx: tanjun_traits.Context, guild_id: snowflakes.Snowflake, /) -> guilds.Member:
-        user = await self._get_user(ctx.client.cache_service, ctx.client.rest_service)
+        user = await self._get_user(ctx.client.cache_service, ctx.client.cached_rest)
 
         if ctx.client.cache_service and (member := ctx.client.cache_service.cache.get_member(guild_id, user.id)):
             return member
 
         retry = backoff.Backoff(maximum=5, max_retries=4)
-        return await utilities.fetch_resource(retry, ctx.client.rest_service.rest.fetch_member, guild_id, user.id)
+        return await utilities.fetch_resource(retry, ctx.client.cached_rest.fetch_member, guild_id, user.id)
 
     async def _get_user(
-        self, cache_service: typing.Optional[hikari_traits.CacheAware], rest_service: hikari_traits.RESTAware, /
+        self, cache_service: typing.Optional[hikari_traits.CacheAware], cached_rest: tanjun_traits.CachedREST, /
     ) -> users.User:
         if not self._me:
             async with self._lock:
@@ -261,7 +261,7 @@ class BotPermissionsCheck(PermissionCheck):
 
                 else:
                     retry = backoff.Backoff(maximum=5, max_retries=4)
-                    raw_user = await utilities.fetch_resource(retry, rest_service.rest.fetch_my_user)
+                    raw_user = await utilities.fetch_resource(retry, cached_rest.fetch_my_user)
                     self._me = raw_user
 
         return self._me
@@ -280,7 +280,7 @@ def with_dm_check(command: CommandT, /) -> CommandT:
     CommandT
         The command this check was added to.
     """
-    command.add_check(guild_check)
+    command.add_check(dm_check)
     return command
 
 
@@ -297,7 +297,7 @@ def with_guild_check(command: CommandT, /) -> CommandT:
     CommandT
         The command this check was added to.
     """
-    command.add_check(dm_check)
+    command.add_check(guild_check)
     return command
 
 
@@ -402,7 +402,7 @@ def with_own_permission_check(
     """
 
     def decorator(command: CommandT, /) -> CommandT:
-        command.add_check(BotPermissionsCheck(permissions))
+        command.add_check(OwnPermissionsCheck(permissions))
         return command
 
     return decorator

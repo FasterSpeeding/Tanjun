@@ -485,9 +485,7 @@ def with_option(
         if command.parser is None:
             raise ValueError("Cannot add an option to a command client without a parser.")
 
-        option = Option(
-            key, name, *names, converters=converters, default=default, empty_value=empty_value, flags=flags,
-        )
+        option = Option(key, name, *names, converters=converters, default=default, empty_value=empty_value, flags=flags)
         command.parser.add_parameter(option)
         return command
 

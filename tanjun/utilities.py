@@ -104,7 +104,7 @@ async def await_if_async(
 async def _wrap_check(check: typing.Awaitable[bool]) -> bool:
     # We raise on `False` to let asyncio.gather stop execution on the first failed
     # check rather than waiting for all checks to fail.
-    if not await check:
+    if await check is False:
         raise tanjun_errors.FailedCheck()
 
     return True
@@ -137,7 +137,7 @@ async def gather_checks(checks: typing.Iterable[typing.Awaitable[bool]]) -> bool
 
 async def fetch_resource(
     retry: backoff.Backoff, call: typing.Callable[..., typing.Awaitable[_ResourceT]], *args: typing.Any
-) -> _ResourceT:
+) -> _ResourceT:  # TODO: replace this
     """A utility function for retrying a request used by Tanjun internally."""
     retry.reset()
     async for _ in retry:
@@ -202,6 +202,7 @@ def _calculate_role_permissions(
     return permissions
 
 
+# TODO: implicitly handle more special cases?
 async def calculate_permissions(
     client: tanjun_traits.Client,
     member: guilds.Member,
@@ -245,7 +246,7 @@ async def calculate_permissions(
         roles = client.cache_service.cache.get_roles_view_for_guild(member.guild_id)
 
     if not guild:
-        raw_guild = await fetch_resource(retry, client.rest_service.rest.fetch_guild, member.guild_id)
+        raw_guild = await fetch_resource(retry, client.cached_rest.fetch_guild, member.guild_id)
         guild = raw_guild
 
     # Guild owners are implicitly admins.
@@ -253,7 +254,7 @@ async def calculate_permissions(
         return ALL_PERMISSIONS
 
     if not roles:
-        raw_roles = await fetch_resource(retry, client.rest_service.rest.fetch_roles, member.guild_id)
+        raw_roles = await fetch_resource(retry, client.cached_rest.fetch_roles, member.guild_id)
         roles = {role.id: role for role in raw_roles}
 
     # Admin permission overrides all overwrites and is only applicable to roles.
@@ -264,7 +265,7 @@ async def calculate_permissions(
         return permissions
 
     if not found_channel:
-        raw_channel = await fetch_resource(retry, client.rest_service.rest.fetch_channel, channel)
+        raw_channel = await fetch_resource(retry, client.cached_rest.fetch_channel, channel)
         assert isinstance(raw_channel, channels.GuildChannel), "We shouldn't get DM channels in guilds."
         found_channel = raw_channel
 
