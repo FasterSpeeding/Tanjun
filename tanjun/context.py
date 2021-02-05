@@ -31,21 +31,28 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["Context"]
+__all__: typing.Sequence[str] = ["IntegrationContext", "MessageContext"]
 
 import typing
 
 from hikari import snowflakes
+from hikari import undefined
 
 from tanjun import traits
 
 if typing.TYPE_CHECKING:
+    from hikari import channels
+    from hikari import embeds as embeds_
+    from hikari import files
+    from hikari import guilds
+    from hikari import interactions
     from hikari import messages
     from hikari import traits as hikari_traits
+    from hikari import users
     from hikari.api import shard as shard_
 
 
-class Context(traits.Context):
+class MessageContext(traits.MessageContext):
     """Standard implementation of a command context as used within Tanjun."""
 
     __slots__: typing.Sequence[str] = (
@@ -67,12 +74,12 @@ class Context(traits.Context):
         content: str,
         message: messages.Message,
         *,
-        command: typing.Optional[traits.ExecutableCommand] = None,
+        command: typing.Optional[traits.MessageCommand] = None,
         triggering_name: str = "",
         triggering_prefix: str = "",
     ) -> None:
         if message.content is None:
-            raise ValueError("Cannot spawn context with a contentless message.")
+            raise ValueError("Cannot spawn context with a content-less message.")
 
         self._client = client
         self.command = command
@@ -83,23 +90,42 @@ class Context(traits.Context):
         self._triggering_prefix = triggering_prefix
 
     def __repr__(self) -> str:
-        return f"Context <{self.message!r}, {self.command!r}>"
+        return f"Context <{self._message!r}, {self.command!r}>"
 
     @property
-    def cache_service(self) -> typing.Optional[hikari_traits.CacheAware]:
-        return self._client.cache_service
+    def author(self) -> users.User:
+        return self._message.author
 
     @property
     def cached_rest(self) -> traits.CachedREST:
         return self._client.cached_rest
 
     @property
+    def cache_service(self) -> typing.Optional[hikari_traits.CacheAware]:
+        return self._client.cache_service
+
+    @property
+    def channel_id(self) -> snowflakes.Snowflake:
+        return self._message.channel_id
+
+    @property
     def client(self) -> traits.Client:
         return self._client
 
     @property
-    def event_service(self) -> hikari_traits.EventManagerAware:
+    def event_service(self) -> typing.Optional[hikari_traits.EventManagerAware]:
         return self._client.event_service
+
+    @property
+    def guild_id(self) -> typing.Optional[snowflakes.Snowflake]:
+        return self._message.guild_id
+
+    def is_human(self) -> bool:
+        return not self._message.author.is_bot and self._message.webhook_id is None
+
+    @property
+    def member(self) -> typing.Optional[guilds.Member]:
+        return self._message.member
 
     @property
     def message(self) -> messages.Message:
@@ -120,15 +146,160 @@ class Context(traits.Context):
         return self._client.rest_service
 
     @property
-    def shard_service(self) -> hikari_traits.ShardAware:
+    def server_service(self) -> typing.Optional[hikari_traits.InteractionServerAware]:
+        return self._client.server_service
+
+    @property
+    def shard_service(self) -> typing.Optional[hikari_traits.ShardAware]:
         return self._client.shard_service
 
     @property
-    def shard(self) -> shard_.GatewayShard:
-        if self.message.guild_id is not None:
-            shard_id = snowflakes.calculate_shard_id(self.shard_service, self.message.guild_id)
+    def shard(self) -> typing.Optional[shard_.GatewayShard]:
+        if not self._client.shard_service:
+            return None
+
+        if self._message.guild_id is not None:
+            shard_id = snowflakes.calculate_shard_id(self._client.shard_service, self._message.guild_id)
 
         else:
             shard_id = 0
 
-        return self.shard_service.shards[shard_id]
+        return self._client.shard_service.shards[shard_id]
+
+    async def execute(
+        self,
+        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        *,
+        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
+        attachment: undefined.UndefinedOr[files.Resourceish] = undefined.UNDEFINED,
+        attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
+        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        nonce: undefined.UndefinedOr[str] = undefined.UNDEFINED,
+        reply: undefined.UndefinedOr[snowflakes.SnowflakeishOr[messages.PartialMessage]] = undefined.UNDEFINED,
+        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        mentions_reply: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        user_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
+        ] = undefined.UNDEFINED,
+        role_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
+        ] = undefined.UNDEFINED,
+    ) -> messages.Message:
+        return await self._message.respond(
+            content=content,
+            embed=embed,
+            attachment=attachment,
+            attachments=attachments,
+            tts=tts,
+            nonce=nonce,
+            reply=reply,
+            mentions_everyone=mentions_everyone,
+            mentions_reply=mentions_reply,
+            user_mentions=user_mentions,
+            role_mentions=role_mentions,
+        )
+
+    async def fetch_channel(self) -> channels.PartialChannel:
+        return await self._client.cached_rest.fetch_channel(self._message.channel_id)
+
+    async def fetch_guild(self) -> typing.Optional[guilds.Guild]:  # TODO: or raise?
+        if self._message.guild_id is not None:
+            return await self._client.cached_rest.fetch_guild(self._message.guild_id)
+
+        return None
+
+    def get_channel(self) -> typing.Optional[channels.PartialChannel]:
+        if self._client.cache_service:
+            return self._client.cache_service.cache.get_guild_channel(self._message.channel_id)
+
+        return None
+
+    def get_guild(self) -> typing.Optional[guilds.Guild]:
+        if self._message.guild_id is not None and self._client.cache_service:
+            return self._client.cache_service.cache.get_guild(self._message.guild_id)
+
+        return None
+
+
+class IntegrationContext(traits.InteractionContext):
+    __slots__: typing.Sequence[str] = ("_client", "_interaction")
+
+    def __init__(
+        self,
+        client: traits.Client,
+        /,
+        interaction: interactions.CommandInteraction,
+    ) -> None:
+        self._client = client
+        self._interaction = interaction
+
+    @property
+    def author(self) -> users.User:
+        return self._interaction.user
+
+    @property
+    def channel_id(self) -> snowflakes.Snowflake:
+        return self._interaction.channel_id
+
+    @property
+    def client(self) -> traits.Client:
+        return self._client
+
+    @property
+    def guild_id(self) -> typing.Optional[snowflakes.Snowflake]:
+        return self._interaction.guild_id
+
+    @property
+    def is_human(self) -> typing.Literal[True]:
+        return True
+
+    @property
+    def member(self) -> typing.Optional[guilds.Member]:
+        return self._interaction.member
+
+    @property
+    def triggering_name(self) -> typing.Optional[str]:
+        return self._interaction.command_name
+
+    @property
+    def interaction(self) -> interactions.CommandInteraction:
+        return self._interaction
+
+    async def execute(
+        self,
+        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        *,
+        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
+        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        user_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
+        ] = undefined.UNDEFINED,
+        role_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
+        ] = undefined.UNDEFINED,
+        with_source: bool = False,
+    ) -> None:
+        raise NotImplementedError  # TODO: this
+
+    async def fetch_channel(self) -> channels.PartialChannel:
+        return await self._client.rest_service.rest.fetch_channel(self._interaction.channel_id)
+
+    async def fetch_guild(self) -> typing.Optional[guilds.Guild]:  # TODO: or raise
+        if self._interaction.guild_id is not None:
+            return await self._client.rest_service.rest.fetch_guild(self._interaction.guild_id)
+
+        return None
+
+    def get_channel(self) -> typing.Optional[channels.PartialChannel]:
+        if self._client.cache_service:
+            return self._client.cache_service.cache.get_guild_channel(self._interaction.channel_id)
+
+        return None
+
+    def get_guild(self) -> typing.Optional[guilds.Guild]:
+        if self._interaction.guild_id is not None and self._client.cache_service:
+            return self._client.cache_service.cache.get_guild(self._interaction.guild_id)
+
+        return None

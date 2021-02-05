@@ -94,7 +94,7 @@ async def await_if_async(
     """
     result = callback(*args)
 
-    if isinstance(result, typing.Awaitable):
+    if isinstance(result, typing.Awaitable):  # TODO: this is probably slow
         # For some reason MYPY thinks this returns typing.Any
         return typing.cast(_ValueT, await result)
 
@@ -336,3 +336,11 @@ def try_find_type(cls: typing.Type[_ValueT], *values: typing.Any) -> typing.Opti
             return value
 
     return None
+
+
+def duck_check(obj: typing.Any, _: typing.Type[_ValueT], *attributes: str) -> typing.Optional[_ValueT]:
+    for attribute in attributes:
+        if not hasattr(obj, attribute):
+            return None
+
+    return typing.cast("_ValueT", obj)

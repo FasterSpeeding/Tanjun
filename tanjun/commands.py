@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["as_command", "as_group", "Command", "CommandGroup"]
+__all__: typing.Sequence[str] = ["as_command", "as_group", "MessageCommand", "MessageCommandGroup"]
 
 import copy
 import types
@@ -47,11 +47,14 @@ from tanjun import traits
 from tanjun import utilities
 
 if typing.TYPE_CHECKING:
+    from hikari import interactions
+
     _CommandT = typing.TypeVar("_CommandT", bound="Command[typing.Any]")
     _CommandGroupT = typing.TypeVar("_CommandGroupT", bound="CommandGroup[typing.Any]")
 
 
 CommandFunctionSigT = typing.TypeVar("CommandFunctionSigT", bound=traits.CommandFunctionSig)
+
 
 
 class _LoadableInjector(injector.InjectableCheck):
@@ -64,14 +67,96 @@ class _LoadableInjector(injector.InjectableCheck):
         self.callback = types.MethodType(self.callback, component)  # type: ignore[assignment]
 
 
-class FoundCommand(traits.FoundCommand):
+class FoundCommand(traits.FoundCommand[traits.CommandT]):
     __slots__: typing.Sequence[str] = ("command", "name", "prefix")
 
-    def __init__(self, command_: traits.ExecutableCommand, name: str, /) -> None:
+    def __init__(self, command_: traits.CommandT, name: str, /) -> None:
         self.command = command_
         self.name = name
 
 
+class InteractionCommand(traits.InteractionCommand):
+    __slots__: typing.Sequence[str] = (
+        "_checks",
+        "_component",
+        "_function",
+        "hooks",
+        "_metadata",
+        "_name",
+        "parent",
+        "tracked_command",
+        "_wait_for_result",
+    )
+
+    def __init__(
+        self,
+        function: traits.InteractionCommandFunctionT,
+        name: str,
+        /,
+        *,
+        checks: typing.Optional[typing.Iterable[traits.CheckT[traits.InteractionContext]]] = None,
+        hooks: typing.Optional[traits.Hooks[traits.InteractionContext]] = None,
+        metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
+        wait_for_result: bool = False,
+    ) -> None:
+        self._checks = set(checks)
+        self._component: typing.Optional[traits.Component] = None
+        self._function = function
+        self.hooks = hooks or hooks_.Hooks()
+        self._metadata = dict(metadata) if metadata else None
+        self._name = name
+        self.parent: typing.Optional[traits.InteractionCommandGroup] = None
+        self.tracked_command: typing.Optional[interactions.Command] = None
+        self._wait_for_result = wait_for_result
+
+    @property
+    def checks(self) -> typing.AbstractSet[traits.CheckT[traits.InteractionContext]]:
+        return frozenset(self._checks)
+
+    @property
+    def component(self) -> typing.Optional[traits.Component]:
+        return self._component
+
+    @property
+    def function(self) -> traits.InteractionCommandFunctionT:
+        return self._function
+
+    @property
+    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+        return self._metadata
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def add_check(self, check: traits.CheckT[traits.InteractionContext], /) -> None:
+        self._checks.add(check)
+
+    def remove_check(self, check: traits.CheckT[traits.InteractionContext], /) -> None:
+        self._checks.remove(check)
+
+    def with_check(
+        self, check: traits.CheckT[traits.InteractionContext], /
+    ) -> traits.CheckT[traits.InteractionContext]:
+        self.add_check(check)
+        return check
+
+    def _process_ctx(
+        self, ctx: traits.InteractionContext, /
+    ) -> typing.Tuple[typing.Sequence[typing.Any], typing.Mapping[str, typing.Any]]:
+        raise NotImplementedError
+
+    async def execute(
+        self,
+        ctx: traits.InteractionContext,
+        /,
+        *,
+        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.InteractionContext]]] = None,
+    ) -> bool:
+        raise NotImplementedError
+
+
+class MessageCommand(injector.Injectable, traits.MessageCommand):
 def as_command(name: str, /, *names: str) -> typing.Callable[[CommandFunctionSigT], Command[CommandFunctionSigT]]:
     def decorator(callback: CommandFunctionSigT, /) -> Command[CommandFunctionSigT]:
         return Command(callback, name, *names)
@@ -116,12 +201,12 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
         self._checks = set(injector.InjectableCheck(check) for check in checks) if checks else set()
         self._component: typing.Optional[traits.Component] = None
         self._function = function
-        self.hooks: traits.Hooks = hooks or hooks_.Hooks()
+        self.hooks: traits.Hooks[traits.MessageContext] = hooks or hooks_.Hooks()
         self._injector: typing.Optional[injector.InjectorClient] = None
         self._metadata = dict(metadata) if metadata else {}
         self._names = {name, *names}
         self._needs_injector: typing.Optional[bool] = None
-        self.parent: typing.Optional[traits.ExecutableCommandGroup] = None
+        self.parent: typing.Optional[traits.MessageCommandGroup] = None
         self.parser = parser
 
     def __repr__(self) -> str:
@@ -190,8 +275,8 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
         return check
 
     async def check_context(
-        self, ctx: traits.Context, /, *, name_prefix: str = ""
-    ) -> typing.AsyncIterator[traits.FoundCommand]:
+        self, ctx: traits.MessageContext, /, *, name_prefix: str = ""
+    ) -> typing.AsyncIterator[traits.FoundCommand[traits.MessageCommand]]:
         if found := next(self.check_name(ctx.content[len(name_prefix) :].lstrip()), None):
             if await utilities.gather_checks(self._checks, ctx):
                 yield found
@@ -200,13 +285,13 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
         self._names.add(name)
         return self
 
-    def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
+    def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand[traits.MessageCommand]]:
         for own_name in self._names:
             # Here we enforce that a name must either be at the end of content or be followed by a space. This helps
             # avoid issues with ambiguous naming where a command with the names "name" and "names" may sometimes hit
             # the former before the latter when triggered with the latter, leading to the command potentially being
             # inconsistently parsed.
-            if name.startswith(own_name) and (name == own_name or name[len(own_name)] == " "):
+            if name == own_name or name.startswith(own_name) and name[len(own_name)] == " ":
                 yield FoundCommand(self, own_name)
                 break
 
@@ -242,7 +327,11 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
         return self._cached_getters
 
     async def execute(
-        self, ctx: traits.Context, /, *, hooks: typing.Optional[typing.MutableSet[traits.Hooks]] = None
+        self,
+        ctx: traits.MessageContext,
+        /,
+        *,
+        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.MessageContext]]] = None,
     ) -> bool:
         try:
             if await self.hooks.trigger_pre_execution(ctx, hooks=hooks) is False:
@@ -269,7 +358,7 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
             # TODO: preemptive cache based permission checks before throwing to the REST gods.
             async for _ in retry:
                 try:
-                    await ctx.message.respond(content=response)
+                    await ctx.execute(content=response)
 
                 except (hikari_errors.RateLimitedError, hikari_errors.RateLimitTooLongError) as retry_error:
                     if retry_error.retry_after > 4:
@@ -315,7 +404,7 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
                 check.make_method_type(component)
 
 
-class CommandGroup(Command[CommandFunctionSigT], traits.ExecutableCommandGroup):
+class CommandGroup(MessageCommand[CommandFunctionSigT], traits.ExecutableCommandGroup):
     __slots__: typing.Sequence[str] = ("_commands",)
 
     def __init__(
@@ -330,13 +419,13 @@ class CommandGroup(Command[CommandFunctionSigT], traits.ExecutableCommandGroup):
         parser: typing.Optional[traits.Parser] = None,
     ) -> None:
         super().__init__(function, name, *names, checks=checks, hooks=hooks, metadata=metadata, parser=parser)
-        self._commands: typing.Set[traits.ExecutableCommand] = set()
+        self._commands: typing.Set[traits.MessageCommand] = set()
 
     def __repr__(self) -> str:
         return f"CommandGroup <{len(self._commands)}: {self._names}>"
 
     @property
-    def commands(self) -> typing.AbstractSet[traits.ExecutableCommand]:
+    def commands(self) -> typing.AbstractSet[traits.MessageCommand]:
         return self._commands.copy()
 
     def copy(
@@ -347,12 +436,12 @@ class CommandGroup(Command[CommandFunctionSigT], traits.ExecutableCommandGroup):
 
         return super().copy(parent, _new=_new)
 
-    def add_command(self: _CommandGroupT, command: traits.ExecutableCommand, /) -> _CommandGroupT:
+    def add_command(self: _CommandGroupT, command: traits.MessageCommand, /) -> _CommandGroupT:
         command.parent = self
         self._commands.add(command)
         return self
 
-    def remove_command(self, command: traits.ExecutableCommand, /) -> None:
+    def remove_command(self, command: traits.MessageCommand, /) -> None:
         self._commands.remove(command)
         command.parent = None
 
@@ -388,7 +477,11 @@ class CommandGroup(Command[CommandFunctionSigT], traits.ExecutableCommandGroup):
 
     # I sure hope this plays well with command group recursion cause I am waaaaaaaaaaaaaay too lazy to test that myself.
     async def execute(
-        self, ctx: traits.Context, /, *, hooks: typing.Optional[typing.MutableSet[traits.Hooks]] = None
+        self,
+        ctx: traits.MessageContext,
+        /,
+        *,
+        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.MessageContext]]] = None,
     ) -> bool:
         if ctx.message.content is None:
             raise ValueError("Cannot execute a command with a contentless message")

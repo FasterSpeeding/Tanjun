@@ -53,7 +53,7 @@ if typing.TypeVar:
 CommandT = typing.TypeVar("CommandT", bound=traits.ExecutableCommand)
 
 ParserHookSig = typing.Callable[
-    ["traits.Context", "errors.ParserError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
+    ["traits.ContextT", "errors.ParserError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
 ]
 """Type hint of the function used as a parser error hook.
 
@@ -63,10 +63,10 @@ type `tanjun.traits.Context` and `tanjun.errors.ParserError` - and may either be
 a synchronous or asynchronous function which returns `builtins.None`
 """
 
-ParserHookSigT = typing.TypeVar("ParserHookSigT", bound=ParserHookSig)
+ParserHookSigT = typing.TypeVar("ParserHookSigT", bound=ParserHookSig[traits.ContextT])
 
 ErrorHookSig = typing.Callable[
-    ["traits.Context", BaseException], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
+    ["traits.ContextT", BaseException], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
 ]
 """Type hint of the function used as a unexpected command error hook.
 
@@ -77,9 +77,9 @@ type `tanjun.traits.Context` and `builtins.BaseException` - and may either be a
 synchronous or asynchronous function which returns `builtins.None`
 """
 
-ErrorHookSigT = typing.TypeVar("ErrorHookSigT", bound=ErrorHookSig)
+ErrorHookSigT = typing.TypeVar("ErrorHookSigT", bound=ErrorHookSig[traits.ContextT])
 
-HookSig = typing.Callable[["traits.Context"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]]
+HookSig = typing.Callable[["traits.ContextT"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]]
 """Type hint of the function used as a general command hook.
 
 This may be called during different stages of command execution (decided by
@@ -88,11 +88,11 @@ type `tanjun.traits.Context` and may be a synchronous or asynchronous function
 which returns `builtins.None`.
 """
 
-HookSigT = typing.TypeVar("HookSigT", bound=HookSig)
+HookSigT = typing.TypeVar("HookSigT", bound=HookSig[traits.ContextT])
 
 
 PreExecutionHookSig = typing.Callable[
-    ["traits.Context"], typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]
+    ["traits.ContextT"], typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]
 ]
 """Type hint of the function used as a pre-execution command hook.
 
@@ -102,7 +102,7 @@ asynchronous function which returns `builtins.bool` (where returning `False` may
 cancel execution of the current command).
 """
 
-PreExecutionHookSigT = typing.TypeVar("PreExecutionHookSigT", bound=PreExecutionHookSig)
+PreExecutionHookSigT = typing.TypeVar("PreExecutionHookSigT", bound=PreExecutionHookSig[traits.ContextT])
 
 
 class _FailedPreError(Exception):
@@ -116,15 +116,15 @@ async def _wrap_pre_check(callback: PreExecutionHookSig, ctx: traits.Context) ->
     raise _FailedPreError
 
 
-class Hooks(traits.Hooks):
+class Hooks(traits.Hooks[traits.ContextT]):
     __slots__: typing.Sequence[str] = ("_error", "_parser_error", "_pre_execution", "_post_execution", "_success")
 
     def __init__(self) -> None:
-        self._error: typing.Optional[ErrorHookSig] = None
-        self._parser_error: typing.Optional[ParserHookSig] = None
-        self._pre_execution: typing.Optional[PreExecutionHookSig] = None
-        self._post_execution: typing.Optional[HookSig] = None
-        self._success: typing.Optional[HookSig] = None
+        self._error: typing.Optional[ErrorHookSig[traits.ContextT]] = None
+        self._parser_error: typing.Optional[ParserHookSig[traits.ContextT]] = None
+        self._pre_execution: typing.Optional[PreExecutionHookSig[traits.ContextT]] = None
+        self._post_execution: typing.Optional[HookSig[traits.ContextT]] = None
+        self._success: typing.Optional[HookSig[traits.ContextT]] = None
 
     def __repr__(self) -> str:
         return (
@@ -139,53 +139,53 @@ class Hooks(traits.Hooks):
     def copy(self: _HooksT) -> _HooksT:
         return copy.deepcopy(self)
 
-    def set_on_error(self: _HooksT, hook: typing.Optional[ErrorHookSig], /) -> _HooksT:
+    def set_on_error(self: _HooksT, hook: typing.Optional[ErrorHookSig[traits.ContextT]], /) -> _HooksT:
         self._error = hook
         return self
 
-    def with_on_error(self, hook: ErrorHookSigT, /) -> ErrorHookSigT:
+    def with_on_error(self, hook: ErrorHookSigT[traits.ContextT], /) -> ErrorHookSigT[traits.ContextT]:
         self.set_on_error(hook)
         return hook
 
-    def set_on_parser_error(self: _HooksT, hook: typing.Optional[ParserHookSig], /) -> _HooksT:
+    def set_on_parser_error(self: _HooksT, hook: typing.Optional[ParserHookSig[traits.ContextT]], /) -> _HooksT:
         self._parser_error = hook
         return self
 
-    def with_on_parser_error(self, hook: ParserHookSigT, /) -> ParserHookSigT:
+    def with_on_parser_error(self, hook: ParserHookSigT[traits.ContextT], /) -> ParserHookSigT[traits.ContextT]:
         self.set_on_parser_error(hook)
         return hook
 
-    def set_post_execution(self: _HooksT, hook: typing.Optional[HookSig], /) -> _HooksT:
+    def set_post_execution(self: _HooksT, hook: typing.Optional[HookSig[traits.ContextT]], /) -> _HooksT:
         self._post_execution = hook
         return self
 
-    def with_post_execution(self, hook: HookSigT, /) -> HookSigT:
+    def with_post_execution(self, hook: HookSigT[traits.ContextT], /) -> HookSigT[traits.ContextT]:
         self.set_post_execution(hook)
         return hook
 
-    def set_pre_execution(self: _HooksT, hook: typing.Optional[PreExecutionHookSig], /) -> _HooksT:
+    def set_pre_execution(self: _HooksT, hook: typing.Optional[PreExecutionHookSig[traits.ContextT]], /) -> _HooksT:
         self._pre_execution = hook
         return self
 
-    def with_pre_execution(self, hook: PreExecutionHookSigT, /) -> PreExecutionHookSigT:
+    def with_pre_execution(self, hook: PreExecutionHookSigT[traits.ContextT], /) -> PreExecutionHookSigT[traits.ContextT]:
         self.set_pre_execution(hook)
         return hook
 
-    def set_on_success(self: _HooksT, hook: typing.Optional[HookSig], /) -> _HooksT:
+    def set_on_success(self: _HooksT, hook: typing.Optional[HookSig[traits.ContextT]], /) -> _HooksT:
         self._success = hook
         return self
 
-    def with_on_success(self, hook: HookSigT, /) -> HookSigT:
+    def with_on_success(self, hook: HookSigT[traits.ContextT], /) -> HookSigT[traits.ContextT]:
         self.set_on_success(hook)
         return hook
 
     async def trigger_error(
         self,
-        ctx: traits.Context,
+        ctx: traits.ContextT,
         /,
         exception: BaseException,
         *,
-        hooks: typing.Optional[typing.AbstractSet[traits.Hooks]] = None,
+        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT]]] = None,
     ) -> None:  # TODO: return True to indicate "raise" else False or None to suppress
         if self._error:
             await utilities.await_if_async(self._error, ctx, exception)
@@ -195,10 +195,10 @@ class Hooks(traits.Hooks):
 
     async def trigger_parser_error(
         self,
-        ctx: traits.Context,
+        ctx: traits.ContextT,
         /,
         exception: errors.ParserError,
-        hooks: typing.Optional[typing.AbstractSet[traits.Hooks]] = None,
+        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT]]] = None,
     ) -> None:
         if self._parser_error:
             await utilities.await_if_async(self._parser_error, ctx, exception)
@@ -207,7 +207,11 @@ class Hooks(traits.Hooks):
             await asyncio.gather(*(hook.trigger_parser_error(ctx, exception) for hook in hooks))
 
     async def trigger_post_execution(
-        self, ctx: traits.Context, /, *, hooks: typing.Optional[typing.AbstractSet[traits.Hooks]] = None
+        self,
+        ctx: traits.ContextT,
+        /,
+        *,
+        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT]]] = None,
     ) -> None:
         if self._post_execution:
             await utilities.await_if_async(self._post_execution, ctx)
@@ -216,7 +220,11 @@ class Hooks(traits.Hooks):
             await asyncio.gather(*(hook.trigger_post_execution(ctx) for hook in hooks))
 
     async def trigger_pre_execution(
-        self, ctx: traits.Context, /, *, hooks: typing.Optional[typing.AbstractSet[traits.Hooks]] = None
+        self,
+        ctx: traits.ContextT,
+        /,
+        *,
+        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT]]] = None,
     ) -> bool:
         if self._pre_execution and await utilities.await_if_async(self._pre_execution, ctx) is False:
             return False
@@ -230,7 +238,11 @@ class Hooks(traits.Hooks):
         return True
 
     async def trigger_success(
-        self, ctx: traits.Context, /, *, hooks: typing.Optional[typing.AbstractSet[traits.Hooks]] = None
+        self,
+        ctx: traits.ContextT,
+        /,
+        *,
+        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT]]] = None,
     ) -> None:
         if self._success:
             await utilities.await_if_async(self._success, ctx)

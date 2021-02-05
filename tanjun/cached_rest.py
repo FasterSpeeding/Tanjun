@@ -58,7 +58,7 @@ if typing.TYPE_CHECKING:
 
 KeyT = typing.TypeVar("KeyT")
 ValueT = typing.TypeVar("ValueT")
-OrFutureT = typing.Union[ValueT, asyncio.Future[ValueT]]
+OrFuture = typing.Union[ValueT, "asyncio.Future[ValueT]"]
 
 
 class _TimeLimitedMapping(typing.MutableMapping[KeyT, ValueT]):
@@ -108,12 +108,28 @@ class _TimeLimitedMapping(typing.MutableMapping[KeyT, ValueT]):
             del self._data[key]
 
 
+class _TimeLimitedFutureMapping(_TimeLimitedMapping[KeyT, "asyncio.Future[ValueT]"]):
+    __slots__: typing.Sequence[str] = ()
+
+    def set_future(self, key: KeyT, /) -> asyncio.Future[ValueT]:
+        future = self[key] = asyncio.Future()
+        return future
+
+
+class _TimeLimitedOrFutureMapping(_TimeLimitedMapping[KeyT, OrFuture[ValueT]]):
+    __slots__: typing.Sequence[str] = ()
+
+    def set_future(self, key: KeyT, /) -> asyncio.Future[ValueT]:
+        future = self[key] = asyncio.Future()
+        return future
+
+
 class _FailedCallError(Exception):
     __slots__: typing.Sequence[str] = ()
 
 
 class _ErrorManager:
-    __slots__: typing.Sequence[str] = ("_resource",)
+    __slots__: typing.Sequence[str] = ("_future",)
 
     def __init__(self, future: asyncio.Future[typing.Any], /) -> None:
         self._future = future
@@ -179,14 +195,16 @@ class SingleValueResource(typing.Generic[ValueT]):
     def gc(self) -> None:
         if time.perf_counter() - self._time >= self._expire:
             self._value = None
+            self._time = 0.0
 
     def get(self) -> typing.Optional[asyncio.Future[ValueT]]:
         self.gc()
         return self._value
 
-    def set(self, value: asyncio.Future[ValueT], /) -> None:
+    def set(self, value: typing.Optional[asyncio.Future[ValueT]] = None, /) -> asyncio.Future[ValueT]:
         self._time = time.perf_counter()
-        self._value = value
+        self._value = value or asyncio.Future()
+        return self._value
 
 
 class CachedREST(tanjun_traits.CachedREST):
@@ -205,15 +223,15 @@ class CachedREST(tanjun_traits.CachedREST):
     )
 
     _application_store: SingleValueResource[applications.Application]
-    _channel_store: _TimeLimitedMapping[snowflakes.Snowflake, asyncio.Future[channels.PartialChannel]]
-    _emoji_store: _TimeLimitedMapping[snowflakes.Snowflake, OrFutureT[emojis.KnownCustomEmoji]]
-    _guild_store: _TimeLimitedMapping[snowflakes.Snowflake, asyncio.Future[guilds.Guild]]
-    _invite_store: _TimeLimitedMapping[str, asyncio.Future[invites.Invite]]
+    _channel_store: _TimeLimitedFutureMapping[snowflakes.Snowflake, channels.PartialChannel]
+    _emoji_store: _TimeLimitedOrFutureMapping[snowflakes.Snowflake, emojis.KnownCustomEmoji]
+    _guild_store: _TimeLimitedFutureMapping[snowflakes.Snowflake, guilds.RESTGuild]
+    _invite_store: _TimeLimitedFutureMapping[str, invites.Invite]
     _me_store: SingleValueResource[users.OwnUser]
-    _member_store: _TimeLimitedMapping[str, OrFutureT[guilds.Member]]
-    _message_store: _TimeLimitedMapping[snowflakes.Snowflake, asyncio.Future[messages.Message]]
-    _roles_store: _TimeLimitedMapping[snowflakes.Snowflake, OrFutureT[typing.Sequence[guilds.Role]]]
-    _user_store: _TimeLimitedMapping[snowflakes.Snowflake, OrFutureT[users.User]]
+    _member_store: _TimeLimitedFutureMapping[str, guilds.Member]
+    _message_store: _TimeLimitedFutureMapping[snowflakes.Snowflake, messages.Message]
+    _role_store: _TimeLimitedOrFutureMapping[snowflakes.Snowflake, typing.Sequence[guilds.Role]]
+    _user_store: _TimeLimitedOrFutureMapping[snowflakes.Snowflake, users.User]
 
     def __init__(
         self,
@@ -221,27 +239,27 @@ class CachedREST(tanjun_traits.CachedREST):
         /,
         *,
         application_expire: datetime.timedelta = datetime.timedelta(seconds=60),
-        channel_expire: datetime.timedelta = datetime.timedelta(seconds=10),
+        channel_expire: datetime.timedelta = datetime.timedelta(seconds=5),  # Permission related
         emoji_expire: datetime.timedelta = datetime.timedelta(seconds=60),
         guild_expire: datetime.timedelta = datetime.timedelta(seconds=30),
         invite_expire: datetime.timedelta = datetime.timedelta(seconds=60),
-        me_expire: datetime.timedelta = datetime.timedelta(seconds=120),
-        member_expire: datetime.timedelta = datetime.timedelta(seconds=5),
+        me_expire: datetime.timedelta = datetime.timedelta(seconds=60),
+        member_expire: datetime.timedelta = datetime.timedelta(seconds=5),  # Permission related
         message_expire: datetime.timedelta = datetime.timedelta(seconds=10),
-        role_expire: datetime.timedelta = datetime.timedelta(seconds=10),
+        role_expire: datetime.timedelta = datetime.timedelta(seconds=5),  # Permission related
         user_expire: datetime.timedelta = datetime.timedelta(seconds=60),
     ) -> None:
         self._application_store = SingleValueResource(application_expire)
-        self._channel_store = _TimeLimitedMapping(channel_expire)
-        self._emoji_store = _TimeLimitedMapping(emoji_expire)
-        self._guild_store = _TimeLimitedMapping(guild_expire)
-        self._invite_store = _TimeLimitedMapping(invite_expire)
+        self._channel_store = _TimeLimitedFutureMapping(channel_expire)
+        self._emoji_store = _TimeLimitedOrFutureMapping(emoji_expire)
+        self._guild_store = _TimeLimitedFutureMapping(guild_expire)
+        self._invite_store = _TimeLimitedFutureMapping(invite_expire)
         self._me_store = SingleValueResource(me_expire)
-        self._member_store = _TimeLimitedMapping(member_expire)
-        self._message_store = _TimeLimitedMapping(message_expire)
+        self._member_store = _TimeLimitedFutureMapping(member_expire)
+        self._message_store = _TimeLimitedFutureMapping(message_expire)
         self._rest = rest
-        self._roles_store = _TimeLimitedMapping(role_expire)
-        self._user_store = _TimeLimitedMapping(user_expire)
+        self._role_store = _TimeLimitedOrFutureMapping(role_expire)
+        self._user_store = _TimeLimitedOrFutureMapping(user_expire)
 
     def clear(self) -> None:
         self._application_store.clear()
@@ -252,7 +270,7 @@ class CachedREST(tanjun_traits.CachedREST):
         self._me_store.clear()
         self._member_store.clear()
         self._message_store.clear()
-        self._roles_store.clear()
+        self._role_store.clear()
         self._user_store.clear()
 
     def gc(self) -> None:
@@ -264,7 +282,7 @@ class CachedREST(tanjun_traits.CachedREST):
         self._me_store.gc()
         self._member_store.gc()
         self._message_store.gc()
-        self._roles_store.gc()
+        self._role_store.gc()
         self._user_store.gc()
 
     async def fetch_application(self) -> applications.Application:
@@ -275,16 +293,12 @@ class CachedREST(tanjun_traits.CachedREST):
             except _FailedCallError:
                 self._application_store.clear()
 
-        future: asyncio.Future[applications.Application] = asyncio.Future()
-        self._application_store.set(future)
-
-        with _ErrorManager(future):
+        with _ErrorManager(future := self._application_store.set()):
             fetched_application = await self._rest.rest.fetch_application()
             future.set_result(fetched_application)
 
             if fetched_application.team:
-                for user_id, member in fetched_application.team.members.items():
-                    self._user_store[user_id] = member.user
+                self._user_store.update(fetched_application.team.members)
 
             else:
                 self._user_store[fetched_application.owner.id] = fetched_application.owner
@@ -302,10 +316,7 @@ class CachedREST(tanjun_traits.CachedREST):
             except _FailedCallError:
                 del self._channel_store[channel]
 
-        future: asyncio.Future[channels.PartialChannel] = asyncio.Future()
-        self._channel_store[channel] = future
-
-        with _ErrorManager(future):
+        with _ErrorManager(future := self._channel_store.set_future(channel)):
             fetched_channel = await self._rest.rest.fetch_channel(channel)
             future.set_result(fetched_channel)
             if isinstance(fetched_channel, channels.DMChannel):
@@ -333,10 +344,7 @@ class CachedREST(tanjun_traits.CachedREST):
         elif cached_emoji:
             return cached_emoji
 
-        future: asyncio.Future[emojis.KnownCustomEmoji] = asyncio.Future()
-        self._emoji_store[emoji] = future
-
-        with _ErrorManager(future):
+        with _ErrorManager(future := self._emoji_store.set_future(emoji)):
             fetched_emoji = await self._rest.rest.fetch_emoji(guild, emoji)
             future.set_result(fetched_emoji)
 
@@ -345,7 +353,7 @@ class CachedREST(tanjun_traits.CachedREST):
 
             return fetched_emoji
 
-    async def fetch_guild(self, guild: snowflakes.SnowflakeishOr[guilds.PartialGuild], /) -> guilds.Guild:
+    async def fetch_guild(self, guild: snowflakes.SnowflakeishOr[guilds.PartialGuild], /) -> guilds.RESTGuild:
         guild = snowflakes.Snowflake(guild)
         if cached_guild := self._guild_store.get(guild):
             try:
@@ -354,14 +362,11 @@ class CachedREST(tanjun_traits.CachedREST):
             except _FailedCallError:
                 del self._guild_store[guild]
 
-        future: asyncio.Future[guilds.Guild] = asyncio.Future()
-        self._guild_store[guild] = future
-
-        with _ErrorManager(future):
+        with _ErrorManager(future := self._guild_store.set_future(guild)):
             fetched_guild = await self._rest.rest.fetch_guild(guild)
             future.set_result(fetched_guild)
             self._emoji_store.update(fetched_guild.emojis)
-            self._roles_store[guild] = list(fetched_guild.roles.values())
+            self._role_store[guild] = list(fetched_guild.roles.values())
             return fetched_guild
 
     async def fetch_invite(self, invite: typing.Union[str, invites.Invite], /) -> invites.Invite:
@@ -373,18 +378,15 @@ class CachedREST(tanjun_traits.CachedREST):
             except _FailedCallError:
                 del self._invite_store[invite_code]
 
-        future: asyncio.Future[invites.Invite] = asyncio.Future()
-        self._invite_store[invite_code] = future
-
-        with _ErrorManager(future):
+        with _ErrorManager(future := self._invite_store.set_future(invite_code)):
             fetched_invite = await self._rest.rest.fetch_invite(invite_code)
+            future.set_result(fetched_invite)
             if fetched_invite.target_user:
                 self._user_store[fetched_invite.target_user.id] = fetched_invite.target_user
 
             if fetched_invite.inviter:
                 self._user_store[fetched_invite.inviter.id] = fetched_invite.inviter
 
-            future.set_result(fetched_invite)
             return fetched_invite
 
     async def fetch_member(
@@ -396,20 +398,14 @@ class CachedREST(tanjun_traits.CachedREST):
         guild = snowflakes.Snowflake(guild)
         user = snowflakes.Snowflake(user)
         cache_id = f"{guild}:{user}"
-        if isinstance(cached_member := self._member_store.get(cache_id), asyncio.Future):
+        if cached_member := self._member_store.get(cache_id):
             try:
                 return await cached_member
 
             except _FailedCallError:
                 del self._member_store[cache_id]
 
-        elif cached_member:
-            return cached_member
-
-        future: asyncio.Future[guilds.Member] = asyncio.Future()
-        self._member_store[cache_id] = future
-
-        with _ErrorManager(future):
+        with _ErrorManager(future := self._member_store.set_future(cache_id)):
             fetched_member = await self._rest.rest.fetch_member(guild, user)
             future.set_result(fetched_member)
             self._user_store[user] = fetched_member.user
@@ -430,10 +426,7 @@ class CachedREST(tanjun_traits.CachedREST):
             except _FailedCallError:
                 del self._message_store[message]
 
-        future: asyncio.Future[messages.Message] = asyncio.Future()
-        self._message_store[message] = future
-
-        with _ErrorManager(future):
+        with _ErrorManager(future := self._message_store.set_future(message)):
             fetched_message = await self._rest.rest.fetch_message(channel, message)
             future.set_result(fetched_message)
             return fetched_message
@@ -446,12 +439,10 @@ class CachedREST(tanjun_traits.CachedREST):
             except _FailedCallError:
                 self._me_store.clear()
 
-        future: asyncio.Future[users.OwnUser] = asyncio.Future()
-        self._me_store.set(future)
-
-        with _ErrorManager(future):
+        with _ErrorManager(future := self._me_store.set()):
             user = await self._rest.rest.fetch_my_user()
             future.set_result(user)
+            self._user_store[user.id] = user
             return user
 
     async def fetch_role(
@@ -472,20 +463,17 @@ class CachedREST(tanjun_traits.CachedREST):
         self, guild: snowflakes.SnowflakeishOr[guilds.PartialGuild], /
     ) -> typing.Sequence[guilds.Role]:
         guild = snowflakes.Snowflake(guild)
-        if isinstance(cached_roles := self._roles_store.get(guild), asyncio.Future):
+        if isinstance(cached_roles := self._role_store.get(guild), asyncio.Future):
             try:
                 return await cached_roles
 
             except _FailedCallError:
-                del self._roles_store[guild]
+                del self._role_store[guild]
 
         elif cached_roles:
             return cached_roles
 
-        future: asyncio.Future[typing.Sequence[guilds.Role]] = asyncio.Future()
-        self._roles_store[guild] = future
-
-        with _ErrorManager(future):
+        with _ErrorManager(future := self._role_store.set_future(guild)):
             fetched_roles = await self._rest.rest.fetch_roles(guild)
             future.set_result(fetched_roles)
             return fetched_roles
@@ -502,10 +490,7 @@ class CachedREST(tanjun_traits.CachedREST):
         elif cached_user:
             return cached_user
 
-        future: asyncio.Future[users.User] = asyncio.Future()
-        self._user_store[user] = future
-
-        with _ErrorManager(future):
+        with _ErrorManager(future := self._user_store.set_future(user)):
             fetched_user = await self._rest.rest.fetch_user(user)
             future.set_result(fetched_user)
             return fetched_user

@@ -53,6 +53,7 @@ import typing
 from hikari import channels
 from hikari import errors as hikari_errors
 from hikari import guilds
+from hikari import interactions
 from hikari import permissions as permissions_
 from hikari import snowflakes
 from yuyo import backoff
@@ -67,6 +68,7 @@ if typing.TYPE_CHECKING:
     from tanjun import traits as tanjun_traits
 
 
+# TODO: update
 CommandT = typing.TypeVar("CommandT", bound="tanjun_traits.ExecutableCommand")
 
 
@@ -154,15 +156,15 @@ class ApplicationOwnerCheck:
             pass
 
     async def check(self, ctx: tanjun_traits.Context, /) -> bool:
-        if ctx.message.author.id in self._owner_ids:
+        if ctx.author.id in self._owner_ids:
             return True
 
         application = await self._get_application(ctx)
 
         if not application.team:
-            return ctx.message.author.id == application.owner.id
+            return ctx.author.id == application.owner.id
 
-        return ctx.message.author.id in application.team.members
+        return ctx.author.id in application.team.members
 
     async def update(
         self,
@@ -178,11 +180,11 @@ class ApplicationOwnerCheck:
 async def nsfw_check(ctx: tanjun_traits.Context, /) -> bool:
     channel: typing.Optional[channels.PartialChannel] = None
     if ctx.client.cache_service:
-        channel = ctx.client.cache_service.cache.get_guild_channel(ctx.message.channel_id)
+        channel = ctx.client.cache_service.cache.get_guild_channel(ctx.channel_id)
 
     if not channel:
         retry = backoff.Backoff(maximum=5, max_retries=4)
-        channel = await utilities.fetch_resource(retry, ctx.client.cached_rest.fetch_channel, ctx.message.channel_id)
+        channel = await utilities.fetch_resource(retry, ctx.client.cached_rest.fetch_channel, ctx.channel_id)
 
     return channel.is_nsfw or False if isinstance(channel, channels.GuildChannel) else True
 
@@ -192,7 +194,7 @@ async def sfw_check(ctx: tanjun_traits.Context, /) -> bool:
 
 
 def dm_check(ctx: tanjun_traits.Context, /) -> bool:
-    return ctx.message.guild_id is None
+    return ctx.guild_id is None
 
 
 def guild_check(ctx: tanjun_traits.Context, /) -> bool:
@@ -217,10 +219,13 @@ class AuthorPermissionCheck(PermissionCheck):
     __slots__: typing.Sequence[str] = ()
 
     async def get_permissions(self, ctx: tanjun_traits.Context, /) -> permissions_.Permissions:
-        if not ctx.message.member:
+        if not ctx.member:
             return utilities.ALL_PERMISSIONS
 
-        return await utilities.fetch_permissions(ctx.client, ctx.message.member, channel=ctx.message.channel_id)
+        elif isinstance(ctx.member, interactions.InteractionMember):
+            return ctx.member.permissions
+
+        return await utilities.fetch_permissions(ctx.client, ctx.member, channel=ctx.channel_id)
 
 
 class OwnPermissionsCheck(PermissionCheck):
@@ -232,11 +237,11 @@ class OwnPermissionsCheck(PermissionCheck):
         self._me: typing.Optional[users.User] = None
 
     async def get_permissions(self, ctx: tanjun_traits.Context, /) -> permissions_.Permissions:
-        if ctx.message.guild_id is None:
+        if ctx.guild_id is None:
             return utilities.ALL_PERMISSIONS
 
-        member = await self._get_member(ctx, ctx.message.guild_id)
-        return await utilities.fetch_permissions(ctx.client, member, channel=ctx.message.channel_id)
+        member = await self._get_member(ctx, ctx.guild_id)
+        return await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
     async def _get_member(self, ctx: tanjun_traits.Context, guild_id: snowflakes.Snowflake, /) -> guilds.Member:
         user = await self._get_user(ctx.client.cache_service, ctx.client.cached_rest)

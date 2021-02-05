@@ -9,7 +9,7 @@ from tanjun import traits
 
 @pytest.fixture()
 def command():
-    return mock.Mock(traits.ExecutableCommand)
+    return mock.Mock(traits.MessageCommand)
 
 
 

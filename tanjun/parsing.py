@@ -116,6 +116,7 @@ class ShlexTokenizer:
         if self.__arg_buffer:
             return self.__arg_buffer.pop(0)
 
+        # TODO: this is probably slow
         while isinstance(value := self.__seek_shlex(), tuple):
             self.__options_buffer.append(value)
 
@@ -125,6 +126,7 @@ class ShlexTokenizer:
         if self.__options_buffer:
             return self.__options_buffer.pop(0)
 
+        # TODO: this is probably slow
         while isinstance(value := self.__seek_shlex(), str):
             self.__arg_buffer.append(value)
 
@@ -239,7 +241,7 @@ def with_argument(
     /,
     converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
     *,
-    default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+    default: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
 ) -> typing.Callable[[CommandT], CommandT]:
     """Add an argument to a command or command descriptor through a decorator call.
@@ -300,7 +302,7 @@ def with_greedy_argument(
     /,
     converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
     *,
-    default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+    default: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
 ) -> typing.Callable[[CommandT], CommandT]:
     """Add a greedy argument to a command or command descriptor through a decorator call.
@@ -365,7 +367,7 @@ def with_multi_argument(
     /,
     converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
     *,
-    default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+    default: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
 ) -> typing.Callable[[CommandT], CommandT]:
     """Add a greedy argument to a command or command descriptor through a decorator call.
@@ -426,6 +428,7 @@ def with_multi_argument(
     return with_argument(key, converters=converters, default=default, flags=flags)
 
 
+# TODO: add default getter
 def with_option(
     key: str,
     name: str,
@@ -433,7 +436,7 @@ def with_option(
     *names: str,
     converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
     default: typing.Any,
-    empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+    empty_value: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
 ) -> typing.Callable[[CommandT], CommandT]:
     """Add an option to a command or command descriptor through a decorator call.
@@ -502,7 +505,7 @@ def with_multi_option(
     *names: str,
     converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
     default: typing.Any,
-    empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+    empty_value: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
 ) -> typing.Callable[[CommandT], CommandT]:
     """Add an multi-option to a command or command descriptor through a decorator call.
@@ -574,7 +577,7 @@ class _Parameter(injector_.Injectable, traits.Parameter):
         /,
         *,
         converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
-        default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+        default: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
     ) -> None:
         self._client: typing.Optional[traits.Client] = None
@@ -699,7 +702,7 @@ class Argument(_Parameter, traits.Argument):
         /,
         *,
         converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
-        default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+        default: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
     ) -> None:
         if flags and MULTI in flags and GREEDY in flags:
@@ -717,9 +720,9 @@ class Option(_Parameter, traits.Option):
         name: str,
         *names: str,
         converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
-        default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+        default: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
-        empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+        empty_value: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
     ) -> None:
         names = [name, *names]
 

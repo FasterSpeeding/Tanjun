@@ -58,6 +58,7 @@ if typing.TYPE_CHECKING:
     import types
 
     from hikari import users
+    from hikari.api import event_manager
 
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
 
@@ -146,7 +147,7 @@ _ACCEPTS_EVENT_TYPE_MAPPING: typing.Dict[
 
 
 def _check_human(ctx: traits.Context, /) -> bool:
-    return not ctx.message.author.is_bot and ctx.message.webhook_id is None
+    return ctx.is_human
 
 
 class Client(injector.InjectorClient, traits.Client):
@@ -163,33 +164,30 @@ class Client(injector.InjectorClient, traits.Client):
         "_prefix_getter",
         "_prefixes",
         "_rest",
+        "_server",
         "_shards",
     )
 
     def __init__(
         self,
-        events: hikari_traits.EventManagerAware,
-        rest: typing.Optional[hikari_traits.RESTAware] = None,
-        shard: typing.Optional[hikari_traits.ShardAware] = None,
-        cache: typing.Optional[hikari_traits.CacheAware] = None,
+        rest: hikari_traits.RESTAware,
         /,
+        cache: typing.Optional[hikari_traits.CacheAware] = None,
+        events: typing.Optional[hikari_traits.EventManagerAware] = None,
+        server: typing.Optional[hikari_traits.InteractionServerAware] = None,
+        shard: typing.Optional[hikari_traits.ShardAware] = None,
         *,
         event_managed: bool = True,
         mention_prefix: bool = False,
     ) -> None:
-        rest = utilities.try_find_type(hikari_traits.RESTAware, rest, events, shard, cache)
-        if not rest:
-            raise ValueError("Missing RESTAware client implementation.")
-
-        shard = utilities.try_find_type(hikari_traits.ShardAware, shard, events, rest, cache)
-        if not shard:
-            raise ValueError("Missing ShardAware client implementation.")
-
-        # Unlike `rest`, no provided Cache implementation just means this runs stateless.
-        cache = utilities.try_find_type(hikari_traits.CacheAware, cache, events, rest, shard)
+        cache = utilities.try_find_type(hikari_traits.CacheAware, cache, events, rest, server, shard)
+        events = utilities.try_find_type(hikari_traits.EventManagerAware, events, cache, rest, server, shard)
+        server = utilities.try_find_type(hikari_traits.InteractionServerAware, server, cache, events, rest, shard)
+        shard = utilities.try_find_type(hikari_traits.ShardAware, shard, cache, events, rest, server)
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
+        # TODO: warn if server and dispatch both None but don't error
 
-        self._accepts = AcceptsEnum.ALL
+        self._accepts = AcceptsEnum.ALL if events else AcceptsEnum.NONE
         self._checks: typing.Set[injector.InjectableCheck] = set()
         self._cache = cache
         self._cached_rest = cached_rest.CachedREST(rest)
@@ -201,10 +199,17 @@ class Client(injector.InjectorClient, traits.Client):
         self._prefix_getter: typing.Optional[PrefixGetterSig] = None
         self._prefixes: typing.Set[str] = set()
         self._rest = rest
+        self._server = server
         self._shards = shard
         self.set_human_only(True)
 
+        if self._events and event_managed is None:
+            event_managed = True
+
         if event_managed:
+            if not self._events:
+                raise ValueError("Client cannot be event managed without an event manager")
+
             self._events.event_manager.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
             self._events.event_manager.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
 
@@ -232,6 +237,10 @@ class Client(injector.InjectorClient, traits.Client):
         return self._accepts
 
     @property
+    def cached_rest(self) -> traits.CachedREST:
+        return self._cached_rest
+
+    @property
     def is_human_only(self) -> bool:
         """Whether this client is only executing for non-bot/webhook users messages."""
         return _check_human in self._checks  # type: ignore[comparison-overlap]
@@ -253,7 +262,7 @@ class Client(injector.InjectorClient, traits.Client):
         return self._components.copy()
 
     @property
-    def event_service(self) -> hikari_traits.EventManagerAware:
+    def event_service(self) -> typing.Optional[hikari_traits.EventManagerAware]:
         return self._events
 
     @property
@@ -273,7 +282,11 @@ class Client(injector.InjectorClient, traits.Client):
         return self._rest
 
     @property
-    def shard_service(self) -> hikari_traits.ShardAware:
+    def server_service(self) -> typing.Optional[hikari_traits.InteractionServerAware]:
+        return self._server
+
+    @property
+    def shard_service(self) -> typing.Optional[hikari_traits.ShardAware]:
         return self._shards
 
     async def _on_starting_event(self, _: lifetime_events.StartingEvent, /) -> None:
@@ -283,6 +296,9 @@ class Client(injector.InjectorClient, traits.Client):
         await self.close()
 
     def set_accepts(self: _ClientT, accepts: AcceptsEnum, /) -> _ClientT:
+        if accepts.get_event_type() and not self._events:
+            raise ValueError("Cannot set accepts level on a client with no event manager")
+
         self._accepts = accepts
         return self
 
@@ -322,6 +338,38 @@ class Client(injector.InjectorClient, traits.Client):
 
     def remove_component(self, component: traits.Component, /) -> None:
         self._components.remove(component)
+
+    def add_listener(
+        self,
+        event: typing.Type[event_manager.EventT_inv],
+        listener: event_manager.CallbackT[event_manager.EventT_inv],
+        /,
+    ) -> None:
+        if self.event_service:
+            self.event_service.event_manager.subscribe(event, listener)
+
+    def remove_listener(
+        self,
+        event: typing.Type[event_manager.EventT_inv],
+        listener: event_manager.CallbackT[event_manager.EventT_inv],
+        /,
+    ) -> None:
+        if self.event_service:
+            self.event_service.event_manager.unsubscribe(event, listener)
+
+    # TODO: make event optional?
+    def with_listener(
+        self, event: typing.Type[event_manager.EventT_inv]
+    ) -> typing.Callable[
+        [event_manager.CallbackT[event_manager.EventT_inv]], event_manager.CallbackT[event_manager.EventT_inv]
+    ]:
+        def add_listener_(
+            listener: event_manager.CallbackT[event_manager.EventT_inv],
+        ) -> event_manager.CallbackT[event_manager.EventT_inv]:
+            self.add_listener(event, listener)
+            return listener
+
+        return add_listener_
 
     def add_prefix(self: _ClientT, prefixes: typing.Union[typing.Iterable[str], str], /) -> _ClientT:
         if isinstance(prefixes, str):
@@ -366,7 +414,7 @@ class Client(injector.InjectorClient, traits.Client):
         await asyncio.gather(*(component.close() for component in self._components))
 
         event_type = self._accepts.get_event_type()
-        if deregister_listener and event_type:
+        if deregister_listener and event_type and self._events:
             try:
                 self._events.event_manager.unsubscribe(event_type, self.on_message_create)
             except (ValueError, LookupError):
@@ -406,7 +454,7 @@ class Client(injector.InjectorClient, traits.Client):
         await asyncio.gather(*(component.open() for component in self._components))
 
         event_type = self._accepts.get_event_type()
-        if register_listener and event_type:
+        if register_listener and event_type and self._events:
             self._events.event_manager.subscribe(event_type, self.on_message_create)
 
     def set_hooks(self: _ClientT, hooks: typing.Optional[traits.Hooks], /) -> _ClientT:
@@ -440,7 +488,7 @@ class Client(injector.InjectorClient, traits.Client):
         if event.message.content is None:
             return
 
-        ctx = context.Context(self, content=event.message.content, message=event.message)
+        ctx = context.MessageContext(self, content=event.message.content, message=event.message)
         if (prefix := await self._check_prefix(ctx)) is None:
             return
 
@@ -457,5 +505,5 @@ class Client(injector.InjectorClient, traits.Client):
             hooks = set()
 
         for component in self._components:
-            if await component.execute(ctx, hooks=hooks):
+            if await component.execute_message(ctx, hooks=hooks):
                 break

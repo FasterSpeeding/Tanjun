@@ -75,12 +75,13 @@ class Component(injector.Injectable, traits.Component):
     def __init__(
         self,
         *,
-        checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
+        checks: typing.Optional[typing.Iterable[traits.CheckSig[traits.ContextT]]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
     ) -> None:
         self._checks = set(injector.InjectableCheck(check) for check in checks) if checks else set()
         self._client: typing.Optional[traits.Client] = None
-        self._commands: typing.Set[traits.ExecutableCommand] = set()
+        self._interaction_commands: typing.Dict[str, traits.InteractionCommand] = {}
+        self._message_commands: typing.Set[traits.MessageCommand] = set()
         self.hooks = hooks
         self._injector: typing.Optional[injector.InjectorClient] = None
         self._is_alive = False
@@ -91,10 +92,12 @@ class Component(injector.Injectable, traits.Component):
         self._load_from_properties()
 
     def __repr__(self) -> str:
-        return f"Component <{type(self).__name__}, {len(self._commands)} commands>"
+        count_1 = len(self._message_commands)
+        count_2 = len(self._interaction_commands)
+        return f"Component <{type(self).__name__}, ({count_1}, {count_2})  commands>"
 
     @property
-    def checks(self) -> typing.AbstractSet[traits.CheckSig]:
+    def checks(self) -> typing.AbstractSet[traits.CheckSig[traits.ContextT]]:
         return {check.callback for check in self._checks}
 
     @property
@@ -102,8 +105,12 @@ class Component(injector.Injectable, traits.Component):
         return self._client
 
     @property
-    def commands(self) -> typing.AbstractSet[traits.ExecutableCommand]:
-        return self._commands.copy()
+    def interaction_commands(self) -> typing.AbstractSet[traits.InteractionCommand]:
+        return frozenset(self._interaction_commands.values())
+
+    @property
+    def message_commands(self) -> typing.AbstractSet[traits.MessageCommand]:
+        return self._message_commands.copy()
 
     @property
     def is_alive(self) -> bool:
@@ -153,43 +160,66 @@ class Component(injector.Injectable, traits.Component):
         self.add_check(check)
         return check
 
-    def add_command(self: _ComponentT, command: traits.ExecutableCommand, /) -> _ComponentT:
+    def add_command(self: _ComponentT, command: traits.InteractionCommand, /) -> _ComponentT:
         if self._injector and isinstance(command, injector.Injectable):
             command.set_injector(self._injector)
 
-        self._commands.add(command)
+        self._interaction_commands[command.name.casefold()] = command
         return self
 
-    def remove_command(self, command: traits.ExecutableCommand, /) -> None:
-        self._commands.remove(command)
+    def remove_interaction_command(self, command: traits.InteractionCommand) -> None:
+        del self._interaction_commands[command.name.casefold()]
+
+    def add_message_command(
+        self: _ComponentT, command: traits.MessageCommand, /
+    ) -> _ComponentT:
+        if self._injector and isinstance(command, injector.Injectable):
+            command.set_injector(self._injector)
+
+        self._message_commands.add(command)
+        return self
+
+    def remove_message_command(self, command: traits.MessageCommand, /) -> None:
+        self._message_commands.remove(command)
 
     def with_command(self, command: _CommandT, /) -> _CommandT:
         self.add_command(command)
         return command
 
     def add_listener(
-        self: _ComponentT, event: typing.Type[base_events.Event], listener: event_manager.CallbackT[typing.Any], /
+        self: _ComponentT,
+        event: typing.Type[event_manager.EventT_inv],
+        listener: event_manager.CallbackT[event_manager.EventT_inv],
+        /,
     ) -> _ComponentT:
         self._listeners.add((event, listener))
 
-        if self._is_alive and self._client:
+        if self._is_alive and self._client and self._client.event_service:
             self._client.event_service.event_manager.subscribe(event, listener)
 
         return self
 
     def remove_listener(
-        self, event: typing.Type[base_events.Event], listener: event_manager.CallbackT[typing.Any], /
+        self,
+        event: typing.Type[event_manager.EventT_inv],
+        listener: event_manager.CallbackT[event_manager.EventT_inv],
+        /,
     ) -> None:
         self._listeners.remove((event, listener))
 
-        if self._is_alive and self._client:
+        if self._is_alive and self._client and self._client.event_service:
             self._client.event_service.event_manager.unsubscribe(event, listener)
 
+    # TODO: make event optional?
     def with_listener(
-        self, event: typing.Type[base_events.Event], /
-    ) -> typing.Callable[[event_manager.CallbackT[_ValueT]], event_manager.CallbackT[_ValueT]]:
-        def decorator(callback: event_manager.CallbackT[_ValueT], /) -> event_manager.CallbackT[_ValueT]:
-            self.add_listener(event, callback)
+        self, event_type: typing.Type[event_manager.EventT_inv]
+    ) -> typing.Callable[
+        [event_manager.CallbackT[event_manager.EventT_inv]], event_manager.CallbackT[event_manager.EventT_inv]
+    ]:
+        def decorator(
+            callback: event_manager.CallbackT[event_manager.EventT_inv],
+        ) -> event_manager.CallbackT[event_manager.EventT_inv]:
+            self.add_listener(event_type, callback)
             return callback
 
         return decorator
@@ -212,10 +242,12 @@ class Component(injector.Injectable, traits.Component):
             raise RuntimeError("Client already set")
 
         self._client = client
-        for event_, listener in self._listeners:
-            self._client.event_service.event_manager.subscribe(event_, listener)
 
-        for command in self._commands:
+        if self._client.event_service:
+            for event_, listener in self._listeners:
+                self._client.event_service.event_manager.subscribe(event_, listener)
+
+        for command in self._message_commands:
             command.bind_client(client)
 
     async def check_context(
@@ -224,14 +256,14 @@ class Component(injector.Injectable, traits.Component):
         ctx.component = self
         if await utilities.gather_checks(self._checks, ctx):
             async for value in utilities.async_chain(
-                command.check_context(ctx, name_prefix=name_prefix) for command in self._commands
+                command.check_context(ctx, name_prefix=name_prefix) for command in self._message_commands
             ):
                 yield value
 
         ctx.component = None
 
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
-        return itertools.chain.from_iterable(command.check_name(name) for command in self._commands)
+        return itertools.chain.from_iterable(command.check_name(name) for command in self._message_commands)
 
     def _try_unsubscribe(
         self,
@@ -250,7 +282,7 @@ class Component(injector.Injectable, traits.Component):
             return
 
         self._is_alive = False
-        if self._client:
+        if self._client and self._client.event_service:
             for event_, listener in self._listeners:
                 self._try_unsubscribe(event_, listener)
 
@@ -258,10 +290,11 @@ class Component(injector.Injectable, traits.Component):
         if self._is_alive:
             return
 
+        # TODO: warn if listeners reigstered without any provided dispatch handler
         # This is duplicated between both open and bind_cluster to ensure that these are registered
         # as soon as possible the first time this is binded to a client and that these are
         # re-registered everytime an object is restarted.
-        if self._client:
+        if self._client and self._client.event_service:
             for event_, listener in self._listeners:
                 try:
                     self._try_unsubscribe(event_, listener)
@@ -272,8 +305,32 @@ class Component(injector.Injectable, traits.Component):
 
         self._is_alive = True
 
-    async def execute(
-        self, ctx: traits.Context, /, *, hooks: typing.Optional[typing.MutableSet[traits.Hooks]] = None
+    async def execute_interaction(
+        self,
+        ctx: traits.InteractionContext,
+        /,
+        *,
+        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.InteractionContext]]] = None,
+    ) -> bool:
+        command = self._interaction_commands.get(ctx.triggering_name.casefold())
+        if not self.started or not command:
+            return False
+
+        if self.hooks and hooks:
+            hooks.add(self.hooks)
+
+        elif self.hooks:
+            hooks = {self.hooks}
+
+        await command.execute(ctx, hooks=hooks)
+        return True
+
+    async def execute_message(
+        self,
+        ctx: traits.MessageContext,
+        /,
+        *,
+        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.MessageContext]]] = None,
     ) -> bool:
         if not self._is_alive:
             return False

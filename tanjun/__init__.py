@@ -71,7 +71,8 @@ __all__: typing.Sequence[str] = [
     "Component",
     # context.py
     "context",
-    "Context",
+    "MessageContext",
+    "IntegrationContext",
     # conversion.py
     "conversion",
     "ChannelConverter",
