@@ -83,7 +83,7 @@ class CommandError(TanjunError):
     response.
     """
 
-    def __init__(self, message: typing.Optional[str], /) -> None:
+    def __init__(self, message: typing.Optional[str] = None, /) -> None:
         if message and len(message) > 2000:
             raise ValueError("Error message cannot be over 2_000 characters long.")
 
