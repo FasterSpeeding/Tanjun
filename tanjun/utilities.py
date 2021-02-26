@@ -49,13 +49,13 @@ import typing
 from hikari import channels
 from hikari import errors as hikari_errors
 from hikari import permissions as permissions_
+from hikari import snowflakes
 from yuyo import backoff
 
 from tanjun import errors as tanjun_errors
 
 if typing.TYPE_CHECKING:
     from hikari import guilds
-    from hikari import snowflakes
 
     from tanjun import traits as tanjun_traits
 

@@ -221,7 +221,7 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
         parser: typing.Optional[traits.Parser] = None,
     ) -> None:
         super().__init__(function, name, *names, checks=checks, hooks=hooks, metadata=metadata, parser=parser)
-        self._commands: typing.MutableSet[traits.ExecutableCommand] = set()
+        self._commands: typing.Set[traits.ExecutableCommand] = set()
 
     def __repr__(self) -> str:
         return f"CommandGroup <{len(self._commands)}: {self._names}>"

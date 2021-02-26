@@ -388,7 +388,7 @@ class ListenerDescriptor(typing.Protocol):
         raise NotImplementedError
 
 
-class LoadableDescriptor:
+class LoadableDescriptor(typing.Protocol):
     """Descriptor of a function used for loading a lib's resources into a Tanjun instance."""
 
     __slots__: typing.Sequence[str] = ()

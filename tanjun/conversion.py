@@ -71,7 +71,7 @@ _ValueT = typing.TypeVar("_ValueT", covariant=True)
 
 class BaseConverter(abc.ABC, typing.Generic[_ValueT], traits.StatelessConverter[_ValueT]):
     __slots__: typing.Sequence[str] = ()
-    __implementations: typing.MutableSet[typing.Type[BaseConverter[typing.Type[typing.Any]]]] = set()
+    __implementations: typing.Set[typing.Type[BaseConverter[typing.Type[typing.Any]]]] = set()
 
     @classmethod
     def bind_client(cls, client: traits.Client, /) -> None:

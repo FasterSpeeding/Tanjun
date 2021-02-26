@@ -128,13 +128,13 @@ class Client(traits.Client):
         cache = utilities.try_find_type(hikari_traits.CacheAware, cache, dispatch, rest, shard)  # type: ignore[misc]
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
 
-        self._checks: typing.MutableSet[traits.CheckT] = {self.check_human, *(checks or ())}
+        self._checks: typing.Set[traits.CheckT] = {self.check_human, *(checks or ())}
         self._cache = cache
-        self._components: typing.MutableSet[traits.Component] = set()
+        self._components: typing.Set[traits.Component] = set()
         self._dispatch = dispatch
         self._grab_mention_prefix = mention_prefix
         self.hooks = hooks
-        self._metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
+        self._metadata: typing.Dict[typing.Any, typing.Any] = {}
         self._prefixes = set(prefixes) if prefixes else set()
         self._rest = rest
         self._shards = shard

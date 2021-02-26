@@ -85,15 +85,15 @@ class ShlexTokenizer:
     __slots__: typing.Sequence[str] = ("__arg_buffer", "__last_name", "__options_buffer", "__shlex")
 
     def __init__(self, content: str, /) -> None:
-        self.__arg_buffer: typing.MutableSequence[str] = []
+        self.__arg_buffer: typing.List[str] = []
         self.__last_name: typing.Optional[str] = None
-        self.__options_buffer: typing.MutableSequence[typing.Tuple[str, typing.Optional[str]]] = []
+        self.__options_buffer: typing.List[typing.Tuple[str, typing.Optional[str]]] = []
         self.__shlex = shlex.shlex(content, posix=True)
         self.__shlex.whitespace = " "
         self.__shlex.whitespace_split = True
 
     def collect_raw_options(self) -> typing.Mapping[str, typing.Sequence[typing.Optional[str]]]:
-        results: typing.MutableMapping[str, typing.MutableSequence[typing.Optional[str]]] = {}
+        results: typing.Dict[str, typing.List[typing.Optional[str]]] = {}
 
         while (option := self.next_raw_option()) is not None:
             name, value = option
@@ -178,8 +178,8 @@ class SemanticShlex(ShlexTokenizer):
         super().__init__(ctx.content)
         self.__ctx = ctx
 
-    async def get_arguments(self, arguments: typing.Sequence[traits.Argument], /) -> typing.MutableSequence[typing.Any]:
-        results: typing.MutableSequence[typing.Any] = []
+    async def get_arguments(self, arguments: typing.Sequence[traits.Argument], /) -> typing.List[typing.Any]:
+        results: typing.List[typing.Any] = []
         for argument in arguments:
             results.append(await self.__process_argument(argument))
 
@@ -188,7 +188,7 @@ class SemanticShlex(ShlexTokenizer):
 
         return results
 
-    async def get_options(self, options: typing.Sequence[traits.Option], /) -> typing.MutableMapping[str, typing.Any]:
+    async def get_options(self, options: typing.Sequence[traits.Option], /) -> typing.Dict[str, typing.Any]:
         raw_options = self.collect_raw_options()
         results = asyncio.gather(*map(lambda option: self.__process_option(option, raw_options), options))
         return dict(zip((option.key for option in options), await results))
@@ -216,7 +216,7 @@ class SemanticShlex(ShlexTokenizer):
         values_iter = itertools.chain.from_iterable(raw_options[name] for name in option.names if name in raw_options)
         is_multi = option.flags.get(MULTI, False)
         if is_multi and (values := list(values_iter)):
-            return asyncio.gather(*(_covert_option_or_empty(self.__ctx, option, value) for value in values))
+            return await asyncio.gather(*(_covert_option_or_empty(self.__ctx, option, value) for value in values))
 
         if not is_multi and (value := next(values_iter, undefined.UNDEFINED)) is not undefined.UNDEFINED:
             if next(values_iter, undefined.UNDEFINED) is not undefined.UNDEFINED:
@@ -234,7 +234,7 @@ class SemanticShlex(ShlexTokenizer):
 def with_argument(
     key: str,
     /,
-    converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
+    converters: typing.Union[typing.Iterable[traits.ConverterT], traits.ConverterT, None] = None,
     *,
     default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
@@ -252,10 +252,10 @@ def with_argument(
     key : str
         The string identifier of this argument (may be used to pass the result
         of this argument to the command's function during execution).
-    converters : typing.Optional[typing.Iterable[traits.ConverterT]]
-        An iterable of the converters this argument should use to handle values
-        passed to it during parsing, this may be left as `builtins.None to indicate
-        that the raw string value should be returned without conversion.
+    converters : typing.Union[tanjun.traits.ConverterT, typing.Iterable[tanjun.traits.ConverterT], builtins.None]
+        The converter(s) this argument should use to handle values passed to it
+        during parsing, this may be left as `builtins.None to indicate that
+        the raw string value should be returned without conversion.
     default : typing.Any
         The default value of this argument, if left as
         `tanjun.traits.UNDEFINED_DEFAULT` then this will have no default.
@@ -295,7 +295,7 @@ def with_argument(
 def with_greedy_argument(
     key: str,
     /,
-    converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
+    converters: typing.Union[typing.Iterable[traits.ConverterT], traits.ConverterT, None] = None,
     *,
     default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
@@ -322,10 +322,10 @@ def with_greedy_argument(
 
     Other Parameters
     ----------------
-    converters : typing.Optional[typing.Iterable[traits.ConverterT]]
-        An iterable of the converters this argument should use to handle values
-        passed to it during parsing, this may be left as `builtins.None to indicate
-        that the raw string value should be returned without conversion.
+    converters : typing.Union[tanjun.traits.ConverterT, typing.Iterable[tanjun.traits.ConverterT], builtins.None]
+        The converter(s) this argument should use to handle values passed to it
+        during parsing, this may be left as `builtins.None to indicate that
+        the raw string value should be returned without conversion.
     default : typing.Any
         The default value of this argument, if left as
         `tanjun.traits.UNDEFINED_DEFAULT` then this will have no default.
@@ -360,7 +360,7 @@ def with_greedy_argument(
 def with_multi_argument(
     key: str,
     /,
-    converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
+    converters: typing.Union[typing.Iterable[traits.ConverterT], traits.ConverterT, None] = None,
     *,
     default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
@@ -388,10 +388,10 @@ def with_multi_argument(
 
     Other Parameters
     ----------------
-    converters : typing.Optional[typing.Iterable[traits.ConverterT]]
-        An iterable of the converters this argument should use to handle values
-        passed to it during parsing, this may be left as `builtins.None to indicate
-        that the raw string value should be returned without conversion.
+    converters : typing.Union[tanjun.traits.ConverterT, typing.Iterable[tanjun.traits.ConverterT], builtins.None]
+        The converter(s) this argument should use to handle values passed to it
+        during parsing, this may be left as `builtins.None to indicate that
+        the raw string value should be returned without conversion.
     default : typing.Any
         The default value of this argument, if left as
         `tanjun.traits.UNDEFINED_DEFAULT` then this will have no default.
@@ -428,7 +428,7 @@ def with_option(
     name: str,
     /,
     *names: str,
-    converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
+    converters: typing.Union[typing.Iterable[traits.ConverterT], traits.ConverterT, None] = None,
     default: typing.Any,
     empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
@@ -451,10 +451,10 @@ def with_option(
     ----------------
     *names : str
         Other names of this option used for identifying it in the parsed content.
-    converters : typing.Optional[typing.Iterable[traits.ConverterT]]
-        An iterable of the converters this option should use to handle values
-        passed to it during parsing, this may be left as `builtins.None to indicate
-        that the raw string value should be returned without conversion.
+    converters : typing.Union[tanjun.traits.ConverterT, typing.Iterable[tanjun.traits.ConverterT], builtins.None]
+        The converter(s) this argument should use to handle values passed to it
+        during parsing, this may be left as `builtins.None to indicate that
+        the raw string value should be returned without conversion.
     empty_value : typing.Any
         The value to use if this option is provided without a value. If left as
         `tanjun.traits.UNDEFINED_DEFAULT` then this option will error if it's
@@ -499,7 +499,7 @@ def with_multi_option(
     name: str,
     /,
     *names: str,
-    converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
+    converters: typing.Union[typing.Iterable[traits.ConverterT], traits.ConverterT, None] = None,
     default: typing.Any,
     empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
@@ -528,10 +528,10 @@ def with_multi_option(
     ----------------
     *names : str
         Other names of this option used for identifying it in the parsed content.
-    converters : typing.Optional[typing.Iterable[traits.ConverterT]]
-        An iterable of the converters this option should use to handle values
-        passed to it during parsing, this may be left as `builtins.None to indicate
-        that the raw string value should be returned without conversion.
+    converters : typing.Union[tanjun.traits.ConverterT, typing.Iterable[tanjun.traits.ConverterT], builtins.None]
+        The converter(s) this argument should use to handle values passed to it
+        during parsing, this may be left as `builtins.None to indicate that
+        the raw string value should be returned without conversion.
     empty_value : typing.Any
         The value to use if this option is provided without a value. If left as
         `tanjun.traits.UNDEFINED_DEFAULT` then this option will error if it's
@@ -572,11 +572,11 @@ class _Parameter(traits.Parameter):
         key: str,
         /,
         *,
-        converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
+        converters: typing.Union[typing.Iterable[traits.ConverterT], traits.ConverterT, None] = None,
         default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
     ) -> None:
-        self._converters: typing.Optional[typing.MutableSequence[traits.ConverterT]] = None
+        self._converters: typing.Optional[typing.List[traits.ConverterT]] = None
         self.default = default
         self._flags = dict(flags) if flags else {}
         self.key = key
@@ -585,8 +585,12 @@ class _Parameter(traits.Parameter):
             raise ValueError("parameter key cannot start with `-`")
 
         if converters is not None:
-            for converter in converters:
-                self.add_converter(converter)
+            if isinstance(converters, typing.Iterable):
+                for converter in converters:
+                    self.add_converter(converter)
+
+            else:
+                self.add_converter(converters)
 
     def __repr__(self) -> str:
         return f"{type(self).__name__} <{self.key}>"
@@ -635,7 +639,7 @@ class _Parameter(traits.Parameter):
         if self._converters is None:
             return value
 
-        sources: typing.MutableSequence[ValueError] = []
+        sources: typing.List[ValueError] = []
         for converter in self._converters:
             try:
                 if hasattr(converter, "convert"):
@@ -660,7 +664,7 @@ class Argument(_Parameter, traits.Argument):
         key: str,
         /,
         *,
-        converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
+        converters: typing.Union[typing.Iterable[traits.ConverterT], traits.ConverterT, None] = None,
         default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
     ) -> None:
@@ -686,7 +690,7 @@ class Option(_Parameter, traits.Option):
         key: str,
         name: str,
         *names: str,
-        converters: typing.Optional[typing.Iterable[traits.ConverterT]] = None,
+        converters: typing.Union[typing.Iterable[traits.ConverterT], traits.ConverterT, None] = None,
         default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
         empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
@@ -708,7 +712,7 @@ class Option(_Parameter, traits.Option):
         return Option(
             self.key,
             *self.names,
-            converters=list(self._converters) if self._converters else None,
+            converters=self._converters.copy() if self._converters else None,
             default=self.default,
             flags=dict(self._flags),
             empty_value=self.empty_value,
@@ -724,8 +728,8 @@ class ShlexParser(traits.Parser):
     __slots__: typing.Sequence[str] = ("_arguments", "_options")
 
     def __init__(self, *, parameters: typing.Optional[typing.Iterable[traits.Parameter]] = None) -> None:
-        self._arguments: typing.MutableSequence[traits.Argument] = []
-        self._options: typing.MutableSequence[traits.Option] = []
+        self._arguments: typing.List[traits.Argument] = []
+        self._options: typing.List[traits.Option] = []
 
         if parameters is not None:
             self.set_parameters(parameters)

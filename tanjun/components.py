@@ -82,7 +82,7 @@ class CommandDescriptor(traits.CommandDescriptor):
         self._checks = list(checks) if checks else []
         self._function = function
         self._hooks = hooks
-        self._metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
+        self._metadata: typing.Dict[typing.Any, typing.Any] = {}
         self._names = list(names)
         self._parser = parser
         utilities.with_function_wrapping(self, "function")
@@ -158,7 +158,7 @@ class CommandGroupDescriptor(CommandDescriptor):
         parser: typing.Optional[traits.ParserDescriptor],
     ) -> None:
         super().__init__(checks, function, hooks, names, parser)
-        self._commands: typing.MutableSequence[CommandDescriptor] = []
+        self._commands: typing.List[CommandDescriptor] = []
 
     def __repr__(self) -> str:
         return f"CommandGroupDescriptor <{self._function, self._names}, commands: {len(self._commands)}>"
@@ -465,12 +465,12 @@ class Component(traits.Component):
     ) -> None:
         self._checks = set(checks) if checks else set()
         self._client: typing.Optional[traits.Client] = None
-        self._commands: typing.MutableSet[traits.ExecutableCommand] = set()
+        self._commands: typing.Set[traits.ExecutableCommand] = set()
         self._hooks = hooks
-        self._listeners: typing.MutableSet[
+        self._listeners: typing.Set[
             typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]
         ] = set()
-        self._metadata: typing.MutableMapping[typing.Any, typing.Any] = {}
+        self._metadata: typing.Dict[typing.Any, typing.Any] = {}
         self.started = False
         self._load_from_properties()
 
