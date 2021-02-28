@@ -38,7 +38,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     include_package_data=True,
     install_requires=REQUIREMENTS,
-    python_requires=">=3.8.0,<3.10",
+    python_requires=">=3.8.0,<3.11",
     classifiers=[
         "Development Status :: 1 - Planning",
         "License :: OSI Approved :: BSD License",
