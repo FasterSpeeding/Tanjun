@@ -44,6 +44,6 @@ class BasicComponent(tanjun.Component):
     @tanjun.with_option("force", "--force", "-f", converters=(bool,), default=False)
     @tanjun.with_argument("name")
     @note.with_command("remove", "delete")
-    async def note_remove(self, ctx: tanjun.traits.Context, name: str, false: bool) -> None:
+    async def note_remove(self, ctx: tanjun.traits.Context, name: str, force: bool) -> None:
         ...  # Actual implementation
         await ctx.message.reply(f"Removed {name} note")
