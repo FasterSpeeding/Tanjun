@@ -111,28 +111,21 @@ class _TimeLimitedMapping(typing.MutableMapping[KeyT, ValueT]):
 class _TimeLimitedFutureMapping(_TimeLimitedMapping[KeyT, "asyncio.Future[ValueT]"]):
     __slots__: typing.Sequence[str] = ()
 
-    def set_future(self, key: KeyT, /) -> asyncio.Future[ValueT]:
-        future = self[key] = asyncio.Future()
+    def set_future(self, key: KeyT, future: typing.Awaitable[ValueT], /) -> asyncio.Future[ValueT]:
+        future = self[key] = asyncio.create_task(future)
         return future
 
 
 class _TimeLimitedOrFutureMapping(_TimeLimitedMapping[KeyT, OrFuture[ValueT]]):
     __slots__: typing.Sequence[str] = ()
 
-    def set_future(self, key: KeyT, /) -> asyncio.Future[ValueT]:
-        future = self[key] = asyncio.Future()
+    def set_future(self, key: KeyT, future: typing.Awaitable[ValueT], /) -> asyncio.Future[ValueT]:
+        future = self[key] = asyncio.create_task(future)
         return future
 
 
-class _FailedCallError(Exception):
-    __slots__: typing.Sequence[str] = ()
-
-
 class _ErrorManager:
-    __slots__: typing.Sequence[str] = ("_future",)
-
-    def __init__(self, future: asyncio.Future[typing.Any], /) -> None:
-        self._future = future
+    __slots__: typing.Sequence[str] = ()
 
     def __enter__(self) -> _ErrorManager:
         return self
@@ -171,13 +164,12 @@ class _ErrorManager:
             # We don't expected internal server errors to repeat.
             and not issubclass(exception_type, errors.InternalServerError)
         ):
-            assert exception is not None
-            self._future.set_exception(exception)
+            return True  # suppress the error
 
-        else:
-            self._future.set_exception(_FailedCallError())
+        return False  # re-raise the error
 
-        return None
+
+ERROR_MANAGER: typing.Final[_ErrorManager] = _ErrorManager()
 
 
 class SingleValueResource(typing.Generic[ValueT]):
@@ -201,9 +193,9 @@ class SingleValueResource(typing.Generic[ValueT]):
         self.gc()
         return self._value
 
-    def set(self, value: typing.Optional[asyncio.Future[ValueT]] = None, /) -> asyncio.Future[ValueT]:
+    def set(self, value: typing.Awaitable[ValueT], /) -> asyncio.Future[ValueT]:
         self._time = time.perf_counter()
-        self._value = value or asyncio.Future()
+        self._value = asyncio.create_task(value)
         return self._value
 
 
@@ -287,45 +279,39 @@ class CachedREST(tanjun_traits.CachedREST):
 
     async def fetch_application(self) -> applications.Application:
         if application := self._application_store.get():
-            try:
+            with ERROR_MANAGER:
                 return await application
 
-            except _FailedCallError:
-                self._application_store.clear()
+            self._application_store.clear()  # type: ignore[unreachable]
 
-        with _ErrorManager(future := self._application_store.set()):
-            fetched_application = await self._rest.rest.fetch_application()
-            future.set_result(fetched_application)
+        fetched_application = await self._application_store.set(self._rest.rest.fetch_application())
 
-            if fetched_application.team:
-                self._user_store.update(fetched_application.team.members)
+        if fetched_application.team:
+            self._user_store.update(fetched_application.team.members)
 
-            else:
-                self._user_store[fetched_application.owner.id] = fetched_application.owner
+        else:
+            self._user_store[fetched_application.owner.id] = fetched_application.owner
 
-            return fetched_application
+        return fetched_application
 
     async def fetch_channel(
         self, channel: snowflakes.SnowflakeishOr[channels.PartialChannel], /
     ) -> channels.PartialChannel:
         channel = snowflakes.Snowflake(channel)
         if cached_channel := self._channel_store.get(channel):
-            try:
+            with ERROR_MANAGER:
                 return await cached_channel
 
-            except _FailedCallError:
-                del self._channel_store[channel]
+            self._channel_store.pop(channel, None)  # type: ignore[unreachable]
 
-        with _ErrorManager(future := self._channel_store.set_future(channel)):
-            fetched_channel = await self._rest.rest.fetch_channel(channel)
-            future.set_result(fetched_channel)
-            if isinstance(fetched_channel, channels.DMChannel):
-                self._user_store[fetched_channel.recipient.id] = fetched_channel.recipient
+        fetched_channel = await self._channel_store.set_future(channel, self._rest.rest.fetch_channel(channel))
+        if isinstance(fetched_channel, channels.DMChannel):
+            self._user_store[fetched_channel.recipient.id] = fetched_channel.recipient
 
-            elif isinstance(fetched_channel, channels.GroupDMChannel):
-                self._user_store.update(fetched_channel.recipients)
+        elif isinstance(fetched_channel, channels.GroupDMChannel):
+            self._user_store.update(fetched_channel.recipients)
 
-            return fetched_channel
+        return fetched_channel
 
     async def fetch_emoji(
         self,
@@ -335,59 +321,50 @@ class CachedREST(tanjun_traits.CachedREST):
     ) -> emojis.KnownCustomEmoji:
         emoji = snowflakes.Snowflake(emoji)
         if isinstance(cached_emoji := self._emoji_store.get(emoji), asyncio.Future):
-            try:
+            with ERROR_MANAGER:
                 return await cached_emoji
 
-            except _FailedCallError:
-                del self._emoji_store[emoji]
+            self._emoji_store.pop(emoji, None)  # type: ignore[unreachable]
 
         elif cached_emoji:
             return cached_emoji
 
-        with _ErrorManager(future := self._emoji_store.set_future(emoji)):
-            fetched_emoji = await self._rest.rest.fetch_emoji(guild, emoji)
-            future.set_result(fetched_emoji)
+        fetched_emoji = await self._emoji_store.set_future(emoji, self._rest.rest.fetch_emoji(guild, emoji))
 
-            if fetched_emoji.user:
-                self._user_store[fetched_emoji.user.id] = fetched_emoji.user
+        if fetched_emoji.user:
+            self._user_store[fetched_emoji.user.id] = fetched_emoji.user
 
-            return fetched_emoji
+        return fetched_emoji
 
     async def fetch_guild(self, guild: snowflakes.SnowflakeishOr[guilds.PartialGuild], /) -> guilds.RESTGuild:
         guild = snowflakes.Snowflake(guild)
         if cached_guild := self._guild_store.get(guild):
-            try:
+            with ERROR_MANAGER:
                 return await cached_guild
 
-            except _FailedCallError:
-                del self._guild_store[guild]
+            self._guild_store.pop(guild, None)  # type: ignore[unreachable]
 
-        with _ErrorManager(future := self._guild_store.set_future(guild)):
-            fetched_guild = await self._rest.rest.fetch_guild(guild)
-            future.set_result(fetched_guild)
-            self._emoji_store.update(fetched_guild.emojis)
-            self._role_store[guild] = list(fetched_guild.roles.values())
-            return fetched_guild
+        fetched_guild = await self._guild_store.set_future(guild, self._rest.rest.fetch_guild(guild))
+        self._emoji_store.update(fetched_guild.emojis)
+        self._role_store[guild] = list(fetched_guild.roles.values())
+        return fetched_guild
 
     async def fetch_invite(self, invite: typing.Union[str, invites.Invite], /) -> invites.Invite:
         invite_code = invite if isinstance(invite, str) else invite.code
         if cached_invite := self._invite_store.get(invite_code):
-            try:
+            with ERROR_MANAGER:
                 return await cached_invite
 
-            except _FailedCallError:
-                del self._invite_store[invite_code]
+            self._invite_store.pop(invite_code, None)  # type: ignore[unreachable]
 
-        with _ErrorManager(future := self._invite_store.set_future(invite_code)):
-            fetched_invite = await self._rest.rest.fetch_invite(invite_code)
-            future.set_result(fetched_invite)
-            if fetched_invite.target_user:
-                self._user_store[fetched_invite.target_user.id] = fetched_invite.target_user
+        fetched_invite = await self._invite_store.set_future(invite_code, self._rest.rest.fetch_invite(invite_code))
+        if fetched_invite.target_user:
+            self._user_store[fetched_invite.target_user.id] = fetched_invite.target_user
 
-            if fetched_invite.inviter:
-                self._user_store[fetched_invite.inviter.id] = fetched_invite.inviter
+        if fetched_invite.inviter:
+            self._user_store[fetched_invite.inviter.id] = fetched_invite.inviter
 
-            return fetched_invite
+        return fetched_invite
 
     async def fetch_member(
         self,
@@ -399,17 +376,14 @@ class CachedREST(tanjun_traits.CachedREST):
         user = snowflakes.Snowflake(user)
         cache_id = f"{guild}:{user}"
         if cached_member := self._member_store.get(cache_id):
-            try:
+            with ERROR_MANAGER:
                 return await cached_member
 
-            except _FailedCallError:
-                del self._member_store[cache_id]
+            self._member_store.pop(cache_id, None)  # type: ignore[unreachable]
 
-        with _ErrorManager(future := self._member_store.set_future(cache_id)):
-            fetched_member = await self._rest.rest.fetch_member(guild, user)
-            future.set_result(fetched_member)
-            self._user_store[user] = fetched_member.user
-            return fetched_member
+        fetched_member = await self._member_store.set_future(cache_id, self._rest.rest.fetch_member(guild, user))
+        self._user_store[user] = fetched_member.user
+        return fetched_member
 
     async def fetch_message(
         self,
@@ -420,30 +394,23 @@ class CachedREST(tanjun_traits.CachedREST):
         channel = snowflakes.Snowflake(channel)
         message = snowflakes.Snowflake(message)
         if isinstance(cached_message := self._message_store.get(message), asyncio.Future):
-            try:
+            with ERROR_MANAGER:
                 return await cached_message
 
-            except _FailedCallError:
-                del self._message_store[message]
+            self._message_store.pop(message, None)  # type: ignore[unreachable]
 
-        with _ErrorManager(future := self._message_store.set_future(message)):
-            fetched_message = await self._rest.rest.fetch_message(channel, message)
-            future.set_result(fetched_message)
-            return fetched_message
+        return await self._message_store.set_future(message, self._rest.rest.fetch_message(channel, message))
 
     async def fetch_my_user(self) -> users.OwnUser:
         if me := self._me_store.get():
-            try:
+            with ERROR_MANAGER:
                 return await me
 
-            except _FailedCallError:
-                self._me_store.clear()
+            self._me_store.clear()  # type: ignore[unreachable]
 
-        with _ErrorManager(future := self._me_store.set()):
-            user = await self._rest.rest.fetch_my_user()
-            future.set_result(user)
-            self._user_store[user.id] = user
-            return user
+        user = await self._rest.rest.fetch_my_user()
+        self._user_store[user.id] = user
+        return user
 
     async def fetch_role(
         self,
@@ -464,33 +431,26 @@ class CachedREST(tanjun_traits.CachedREST):
     ) -> typing.Sequence[guilds.Role]:
         guild = snowflakes.Snowflake(guild)
         if isinstance(cached_roles := self._role_store.get(guild), asyncio.Future):
-            try:
+            with ERROR_MANAGER:
                 return await cached_roles
 
-            except _FailedCallError:
-                del self._role_store[guild]
+            self._role_store.pop(guild, None)  # type: ignore[unreachable]
 
         elif cached_roles:
             return cached_roles
 
-        with _ErrorManager(future := self._role_store.set_future(guild)):
-            fetched_roles = await self._rest.rest.fetch_roles(guild)
-            future.set_result(fetched_roles)
-            return fetched_roles
+        fetched_roles = await self._role_store.set_future(guild, self._rest.rest.fetch_roles(guild))
+        return fetched_roles
 
     async def fetch_user(self, user: snowflakes.SnowflakeishOr[users.User]) -> users.User:
         user = snowflakes.Snowflake(user)
         if isinstance(cached_user := self._user_store.get(user), asyncio.Future):
-            try:
+            with ERROR_MANAGER:
                 return await cached_user
 
-            except _FailedCallError:
-                del self._user_store[user]
+            self._user_store.pop(user, None)  # type: ignore[unreachable]
 
         elif cached_user:
             return cached_user
 
-        with _ErrorManager(future := self._user_store.set_future(user)):
-            fetched_user = await self._rest.rest.fetch_user(user)
-            future.set_result(fetched_user)
-            return fetched_user
+        return await self._user_store.set_future(user, self._rest.rest.fetch_user(user))
