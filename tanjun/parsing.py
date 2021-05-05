@@ -607,8 +607,8 @@ class _Parameter(traits.Parameter):
         if self._converters is None:
             self._converters = []
 
-        # Some builtin types like `bool` and `bytes` are overridden here for the sake of convenience.
-        self._converters.append(conversion.override_builtin_type(converter))
+        # Some types like `bool` and `bytes` are overridden here for the sake of convenience.
+        self._converters.append(conversion.override_type(converter))
 
     def remove_converter(self, converter: traits.ConverterT, /) -> None:
         if self._converters is None:

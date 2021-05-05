@@ -520,15 +520,25 @@ for _cls in vars().copy().values():
 del _cls
 
 
-_BUILTIN_TYPE_OVERRIDES: typing.Mapping[typing.Callable[..., typing.Any], typing.Callable[[str], typing.Any]] = {
+def convert_snowflake(value: str) -> snowflakes.Snowflake:
+    result = snowflakes.Snowflake(value)
+
+    if snowflakes.Snowflake.min() <= result <= snowflakes.Snowflake.max():
+        return result
+
+    raise ValueError(f"{result} is not a valid ID")
+
+
+_TYPE_OVERRIDES: typing.Mapping[typing.Callable[..., typing.Any], typing.Callable[[str], typing.Any]] = {
     bool: distutils.util.strtobool,
     bytes: lambda d: bytes(d, "utf-8"),
     bytearray: lambda d: bytearray(d, "utf-8"),
+    snowflakes.Snowflake: convert_snowflake
 }
 
 
-def override_builtin_type(cls: traits.ConverterT) -> traits.ConverterT:
+def override_type(cls: traits.ConverterT) -> traits.ConverterT:
     if callable(cls):
-        return _BUILTIN_TYPE_OVERRIDES.get(cls, cls)
+        return _TYPE_OVERRIDES.get(cls, cls)
 
     return cls
