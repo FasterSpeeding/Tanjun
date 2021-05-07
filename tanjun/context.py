@@ -92,8 +92,8 @@ class Context(traits.Context):
         return self._client
 
     @property
-    def dispatch_service(self) -> hikari_traits.DispatcherAware:
-        return self._client.dispatch_service
+    def event_service(self) -> hikari_traits.EventManagerAware:
+        return self._client.event_service
 
     @property
     def message(self) -> messages.Message:

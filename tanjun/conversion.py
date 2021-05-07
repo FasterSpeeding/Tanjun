@@ -533,7 +533,7 @@ _TYPE_OVERRIDES: typing.Mapping[typing.Callable[..., typing.Any], typing.Callabl
     bool: distutils.util.strtobool,
     bytes: lambda d: bytes(d, "utf-8"),
     bytearray: lambda d: bytearray(d, "utf-8"),
-    snowflakes.Snowflake: convert_snowflake
+    snowflakes.Snowflake: convert_snowflake,
 }
 
 

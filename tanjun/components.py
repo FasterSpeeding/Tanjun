@@ -46,7 +46,7 @@ from tanjun import traits
 from tanjun import utilities
 
 if typing.TYPE_CHECKING:
-    from hikari.api import event_dispatcher
+    from hikari.api import event_manager
 
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
@@ -201,9 +201,7 @@ class CommandGroupDescriptor(CommandDescriptor):
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
 class ListenerDescriptor(traits.ListenerDescriptor):
-    def __init__(
-        self, event: typing.Type[base_events.Event], function: event_dispatcher.CallbackT[typing.Any], /
-    ) -> None:
+    def __init__(self, event: typing.Type[base_events.Event], function: event_manager.CallbackT[typing.Any], /) -> None:
         self._event = event
         self._listener = function
         utilities.with_function_wrapping(self, "function")
@@ -219,12 +217,12 @@ class ListenerDescriptor(traits.ListenerDescriptor):
         return self._event
 
     @property
-    def function(self) -> event_dispatcher.CallbackT[typing.Any]:
+    def function(self) -> event_manager.CallbackT[typing.Any]:
         return self._listener
 
     def build_listener(
         self, component: traits.Component, /
-    ) -> typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]:
+    ) -> typing.Tuple[typing.Type[base_events.Event], event_manager.CallbackT[typing.Any]]:
         return self._event, types.MethodType(self._listener, component)
 
 
@@ -404,12 +402,12 @@ def as_group(
 
 
 EventDecoratorT = typing.Callable[
-    ["event_dispatcher.CallbackT[event_dispatcher.EventT_inv]"],
-    "event_dispatcher.CallbackT[event_dispatcher.EventT_inv]",
+    ["event_manager.CallbackT[event_manager.EventT_inv]"],
+    "event_manager.CallbackT[event_manager.EventT_inv]",
 ]
 
 
-def as_listener(cls: typing.Type[event_dispatcher.EventT_inv], /) -> EventDecoratorT[event_dispatcher.EventT_inv]:
+def as_listener(cls: typing.Type[event_manager.EventT_inv], /) -> EventDecoratorT[event_manager.EventT_inv]:
     """Declare an event listener
 
     The returned descriptor will be loaded into the component it's attached to
@@ -417,12 +415,12 @@ def as_listener(cls: typing.Type[event_dispatcher.EventT_inv], /) -> EventDecora
 
     Parameters
     ----------
-    cls : typing.Type[hikari.api.event_dispatcher.EventT_inv]
+    cls : typing.Type[hikari.api.event_manager.EventT_inv]
         The Hikari event class this listener should be called for.
 
     Returns
     -------
-    EventDecoratorT[event_dispatcher.EventT_inv]
+    hikari.api.EventDecoratorT[hikari.api.event_manager.EventT_inv]
         The callable event decorator which takes the event's asynchronous
         listener function (with signature {self, event, /}) as it's only
         positional argument and returns a listener descriptor.
@@ -441,8 +439,8 @@ def as_listener(cls: typing.Type[event_dispatcher.EventT_inv], /) -> EventDecora
     """
 
     def decorator(
-        function: event_dispatcher.CallbackT[event_dispatcher.EventT_inv], /
-    ) -> event_dispatcher.CallbackT[event_dispatcher.EventT_inv]:
+        function: event_manager.CallbackT[event_manager.EventT_inv], /
+    ) -> event_manager.CallbackT[event_manager.EventT_inv]:
         return ListenerDescriptor(cls, function)
 
     return decorator
@@ -468,7 +466,7 @@ class Component(traits.Component):
         self._commands: typing.Set[traits.ExecutableCommand] = set()
         self._hooks = hooks
         self._listeners: typing.Set[
-            typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]
+            typing.Tuple[typing.Type[base_events.Event], event_manager.CallbackT[typing.Any]]
         ] = set()
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
         self.started = False
@@ -501,7 +499,7 @@ class Component(traits.Component):
     @property
     def listeners(
         self,
-    ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]]:
+    ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_manager.CallbackT[typing.Any]]]:
         return frozenset(self._listeners)
 
     @property
@@ -526,25 +524,25 @@ class Component(traits.Component):
         self._commands.remove(command)
 
     def add_listener(
-        self, event: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
+        self, event: typing.Type[base_events.Event], listener: event_manager.CallbackT[typing.Any], /
     ) -> None:
         self._listeners.add((event, listener))
 
         if self.started and self._client:
-            self._client.dispatch_service.dispatcher.subscribe(event, listener)
+            self._client.event_service.event_manager.subscribe(event, listener)
 
     def remove_listener(
-        self, event: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
+        self, event: typing.Type[base_events.Event], listener: event_manager.CallbackT[typing.Any], /
     ) -> None:
         self._listeners.remove((event, listener))
 
         if self.started and self._client:
-            self._client.dispatch_service.dispatcher.unsubscribe(event, listener)
+            self._client.event_service.event_manager.unsubscribe(event, listener)
 
     def bind_client(self, client: traits.Client, /) -> None:
         self._client = client
         for event_, listener in self._listeners:
-            self._client.dispatch_service.dispatcher.subscribe(event_, listener)
+            self._client.event_service.event_manager.subscribe(event_, listener)
 
         for command in self._commands:
             command.bind_client(client)
@@ -568,7 +566,7 @@ class Component(traits.Component):
         self.started = False
         if self._client:
             for event_, listener in self._listeners:
-                self._client.dispatch_service.dispatcher.unsubscribe(event_, listener)
+                self._client.event_service.event_manager.unsubscribe(event_, listener)
 
     async def open(self) -> None:
         if self.started:
@@ -580,11 +578,11 @@ class Component(traits.Component):
         if self._client:
             for event_, listener in self._listeners:
                 try:
-                    self._client.dispatch_service.dispatcher.unsubscribe(event_, listener)
+                    self._client.event_service.event_manager.unsubscribe(event_, listener)
                 except (LookupError, ValueError):  # TODO: what does hikari raise?
                     continue
 
-                self._client.dispatch_service.dispatcher.subscribe(event_, listener)
+                self._client.event_service.event_manager.subscribe(event_, listener)
 
         self.started = True
 

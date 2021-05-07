@@ -125,7 +125,7 @@ class Hooks(traits.Hooks):
             await asyncio.gather(*(hook.trigger_post_execution(ctx) for hook in hooks))
 
     async def trigger_pre_execution(
-        self, ctx: Context, /, *, hooks: typing.Optional[typing.AbstractSet[traits.Hooks]] = None,
+        self, ctx: Context, /, *, hooks: typing.Optional[typing.AbstractSet[traits.Hooks]] = None
     ) -> bool:
         if self._pre_execution and await utilities.await_if_async(self._pre_execution, ctx) is False:
             return False

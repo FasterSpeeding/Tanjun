@@ -67,7 +67,7 @@ import typing
 if typing.TYPE_CHECKING:
     from hikari import messages
     from hikari import traits
-    from hikari.api import event_dispatcher
+    from hikari.api import event_manager
     from hikari.api import shard as shard_
     from hikari.events import base_events
 
@@ -360,19 +360,19 @@ class ListenerDescriptor(typing.Protocol):
         raise NotImplementedError
 
     @property
-    def function(self) -> event_dispatcher.CallbackT[typing.Any]:
+    def function(self) -> event_manager.CallbackT[typing.Any]:
         """The underlying function this describes.
 
         Returns
         -------
-        event_dispatcher.CallbackT[typing.Any]
+        hikari.api.event_manager.CallbackT[typing.Any]
             The underlying function this describes.
         """
         raise NotImplementedError
 
     def build_listener(
         self, component: Component, /
-    ) -> typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]:
+    ) -> typing.Tuple[typing.Type[base_events.Event], event_manager.CallbackT[typing.Any]]:
         """Build a listener from this descriptor.
 
         Parameters
@@ -381,13 +381,14 @@ class ListenerDescriptor(typing.Protocol):
 
         Returns
         -------
-        typing.Tuple[typing.Type[hikari.events.base_events.Event], hikari.event_dispatcher.CallbackT[typing.Any]]
+        typing.Tuple[typing.Type[hikari.events.base_events.Event], hikari.api.event_manager.CallbackT[typing.Any]]
             A tuple of the event class this event listener should tbe registered
             for to the callable listener that should be registered.
         """
         raise NotImplementedError
 
 
+@typing.runtime_checkable
 class LoadableDescriptor(typing.Protocol):
     """Descriptor of a function used for loading a lib's resources into a Tanjun instance."""
 
@@ -474,6 +475,10 @@ class Context(typing.Protocol):
     __slots__: typing.Sequence[str] = ()
 
     @property
+    def cache_service(self) -> typing.Optional[traits.CacheAware]:
+        raise NotImplementedError
+
+    @property
     def client(self) -> Client:
         """The Tanjun `Client` implementation this context was spawned by.
 
@@ -501,7 +506,19 @@ class Context(typing.Protocol):
         raise NotImplementedError
 
     @property
+    def event_service(self) -> traits.EventManagerAware:
+        raise NotImplementedError
+
+    @property
     def message(self) -> messages.Message:
+        raise NotImplementedError
+
+    @property
+    def rest_service(self) -> traits.RESTAware:
+        raise NotImplementedError
+
+    @property
+    def shard_service(self) -> traits.ShardAware:
         raise NotImplementedError
 
     @property
@@ -565,7 +582,7 @@ class Hooks(typing.Protocol):
         raise NotImplementedError
 
     async def trigger_parser_error(
-        self, ctx: Context, /, exception: errors.ParserError, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None,
+        self, ctx: Context, /, exception: errors.ParserError, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None
     ) -> None:
         raise NotImplementedError
 
@@ -575,7 +592,7 @@ class Hooks(typing.Protocol):
         raise NotImplementedError
 
     async def trigger_pre_execution(
-        self, ctx: Context, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None,
+        self, ctx: Context, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None
     ) -> bool:
         raise NotImplementedError
 
@@ -732,7 +749,7 @@ class Component(Executable, typing.Protocol):
     @property
     def listeners(
         self,
-    ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_dispatcher.CallbackT[typing.Any]]]:
+    ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_manager.CallbackT[typing.Any]]]:
         raise NotImplementedError
 
     @property
@@ -746,12 +763,12 @@ class Component(Executable, typing.Protocol):
         raise NotImplementedError
 
     def add_listener(
-        self, event: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
+        self, event: typing.Type[base_events.Event], listener: event_manager.CallbackT[typing.Any], /
     ) -> None:
         raise NotImplementedError
 
     def remove_listener(
-        self, event: typing.Type[base_events.Event], listener: event_dispatcher.CallbackT[typing.Any], /
+        self, event: typing.Type[base_events.Event], listener: event_manager.CallbackT[typing.Any], /
     ) -> None:
         raise NotImplementedError
 
@@ -778,7 +795,7 @@ class Client(typing.Protocol):
         raise NotImplementedError
 
     @property
-    def dispatch_service(self) -> traits.DispatcherAware:
+    def event_service(self) -> traits.EventManagerAware:
         raise NotImplementedError
 
     @property

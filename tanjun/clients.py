@@ -93,7 +93,7 @@ class Client(traits.Client):
         "_cache",
         "_checks",
         "_components",
-        "_dispatch",
+        "_events",
         "_grab_mention_prefix",
         "hooks",
         "_metadata",
@@ -104,7 +104,7 @@ class Client(traits.Client):
 
     def __init__(
         self,
-        dispatch: hikari_traits.DispatcherAware,
+        events: hikari_traits.EventManagerAware,
         rest: typing.Optional[hikari_traits.RESTAware] = None,
         shard: typing.Optional[hikari_traits.ShardAware] = None,
         cache: typing.Optional[hikari_traits.CacheAware] = None,
@@ -116,30 +116,30 @@ class Client(traits.Client):
         modules: typing.Optional[typing.Iterable[typing.Union[pathlib.Path, str]]] = None,
         prefixes: typing.Optional[typing.Iterable[str]] = None,
     ) -> None:
-        rest = utilities.try_find_type(hikari_traits.RESTAware, rest, dispatch, shard, cache)  # type: ignore[misc]
+        rest = utilities.try_find_type(hikari_traits.RESTAware, rest, events, shard, cache)
         if not rest:
             raise ValueError("Missing RESTAware client implementation.")
 
-        shard = utilities.try_find_type(hikari_traits.ShardAware, shard, dispatch, rest, cache)  # type: ignore[misc]
+        shard = utilities.try_find_type(hikari_traits.ShardAware, shard, events, rest, cache)
         if not shard:
             raise ValueError("Missing ShardAware client implementation.")
 
         # Unlike `rest`, no provided Cache implementation just means this runs stateless.
-        cache = utilities.try_find_type(hikari_traits.CacheAware, cache, dispatch, rest, shard)  # type: ignore[misc]
+        cache = utilities.try_find_type(hikari_traits.CacheAware, cache, events, rest, shard)
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
 
         self._checks: typing.Set[traits.CheckT] = {self.check_human, *(checks or ())}
         self._cache = cache
         self._components: typing.Set[traits.Component] = set()
-        self._dispatch = dispatch
+        self._events = events
         self._grab_mention_prefix = mention_prefix
         self.hooks = hooks
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
         self._prefixes = set(prefixes) if prefixes else set()
         self._rest = rest
         self._shards = shard
-        self._dispatch.dispatcher.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
-        self._dispatch.dispatcher.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
+        self._events.event_manager.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
+        self._events.event_manager.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
 
         if modules:
             self.load_from_modules(modules)
@@ -172,8 +172,8 @@ class Client(traits.Client):
         return frozenset(self._components)
 
     @property
-    def dispatch_service(self) -> hikari_traits.DispatcherAware:
-        return self._dispatch
+    def event_service(self) -> hikari_traits.EventManagerAware:
+        return self._events
 
     @property
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
@@ -238,7 +238,7 @@ class Client(traits.Client):
         return None
 
     async def close(self, *, deregister_listener: bool = True) -> None:
-        self._dispatch.dispatcher.unsubscribe(message_events.MessageCreateEvent, self.on_message_create)
+        self._events.event_manager.unsubscribe(message_events.MessageCreateEvent, self.on_message_create)
 
         if deregister_listener:
             await asyncio.gather(*(component.close() for component in self._components))
@@ -271,7 +271,7 @@ class Client(traits.Client):
             self._prefixes.add(f"<@!{user.id}>")
 
         if register_listener:
-            self._dispatch.dispatcher.subscribe(message_events.MessageCreateEvent, self.on_message_create)
+            self._events.event_manager.subscribe(message_events.MessageCreateEvent, self.on_message_create)
 
     def load_from_modules(self, modules: typing.Iterable[typing.Union[str, pathlib.Path]]) -> None:
         for module_path in modules:
@@ -307,7 +307,11 @@ class Client(traits.Client):
         if not await self.check(ctx):
             return
 
-        hooks = {self.hooks,} if self.hooks else set()
+        if self.hooks:
+            hooks = {self.hooks}
+
+        else:
+            hooks = set()
 
         for component in self._components:
             if await component.execute(ctx, hooks=hooks):
