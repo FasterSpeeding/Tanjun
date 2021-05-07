@@ -24,11 +24,11 @@ with open("requirements.txt") as f:
 with open("README.md") as f:
     README = f.read()
 
-
 setuptools.setup(
     name=TARGET_PROJECT_NAME,
     url=metadata.url,
     version=metadata.version,
+    package_data={MAIN_MODULE_NAME: ["py.typed"]},
     packages=setuptools.find_namespace_packages(include=[f"{MAIN_MODULE_NAME}*"]),
     author=metadata.author,
     author_email=metadata.email,
