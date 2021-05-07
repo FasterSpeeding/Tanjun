@@ -280,7 +280,7 @@ def with_dm_check(command: CommandT, /) -> CommandT:
     CommandT
         The command this check was added to.
     """
-    command.add_check(guild_check)
+    command.add_check(dm_check)
     return command
 
 
@@ -297,7 +297,7 @@ def with_guild_check(command: CommandT, /) -> CommandT:
     CommandT
         The command this check was added to.
     """
-    command.add_check(dm_check)
+    command.add_check(guild_check)
     return command
 
 
