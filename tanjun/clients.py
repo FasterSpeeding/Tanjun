@@ -284,11 +284,12 @@ class Client(traits.Client):
                 )
                 module = importlib.util.module_from_spec(spec)
 
-                if spec.loader is None:
+                # https://github.com/python/typeshed/issues/2793
+                if not isinstance(spec.loader, importlib.abc.Loader):
                     raise RuntimeError(f"Invalid module provided {module_path}")
 
                 # The type shedding is wrong here
-                spec.loader.exec_module(module)  # type: ignore[attr-defined]
+                spec.loader.exec_module(module)
 
             for _, member in inspect.getmembers(module):
                 if isinstance(member, traits.LoadableDescriptor):
