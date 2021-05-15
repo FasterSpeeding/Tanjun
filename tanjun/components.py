@@ -250,9 +250,9 @@ class Component(injector.Injectable, traits.Component):
         for command in self._message_commands:
             command.bind_client(client)
 
-    async def check_context(
-        self, ctx: traits.Context, /, *, name_prefix: str = ""
-    ) -> typing.AsyncIterator[traits.FoundCommand]:
+    async def check_message_context(
+        self, ctx: traits.MessageContext, /, *, name_prefix: str = ""
+    ) -> typing.AsyncIterator[traits.FoundMessageCommand]:
         ctx.component = self
         if await utilities.gather_checks(self._checks, ctx):
             async for value in utilities.async_chain(
@@ -262,7 +262,7 @@ class Component(injector.Injectable, traits.Component):
 
         ctx.component = None
 
-    def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
+    def check_message_name(self, name: str, /) -> typing.Iterator[traits.FoundMessageCommand]:
         return itertools.chain.from_iterable(command.check_name(name) for command in self._message_commands)
 
     def _try_unsubscribe(
@@ -335,7 +335,7 @@ class Component(injector.Injectable, traits.Component):
         if not self._is_alive:
             return False
 
-        async for result in self.check_context(ctx):
+        async for result in self.check_message_context(ctx):
             ctx.triggering_name = result.name
             ctx.content = ctx.content[len(result.name) :].lstrip()
             # Only add our hooks and set command if we're sure we'll be executing the command here.

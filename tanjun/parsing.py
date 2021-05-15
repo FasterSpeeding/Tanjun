@@ -179,7 +179,7 @@ async def _covert_option_or_empty(
 class SemanticShlex(ShlexTokenizer):
     __slots__: typing.Sequence[str] = ("__ctx",)
 
-    def __init__(self, ctx: traits.Context, /) -> None:
+    def __init__(self, ctx: traits.MessageContext, /) -> None:
         super().__init__(ctx.content)
         self.__ctx = ctx
 
@@ -280,7 +280,7 @@ def with_argument(
 
     @tanjun.parsing.with_argument("command", converters=(int,), default=42)
     @tanjun.parsing.with_parser
-    @tanjun.component.as_command("command")
+    @tanjun.component.as_message_command("command")
     async def command(self, ctx: tanjun.traits.Context, /, argument: int):
         ...
     ```
@@ -350,7 +350,7 @@ def with_greedy_argument(
 
     @tanjun.parsing.with_greedy_argument("command", converters=(StringView,))
     @tanjun.parsing.with_parser
-    @tanjun.component.as_command("command")
+    @tanjun.component.as_message_command("command")
     async def command(self, ctx: tanjun.traits.Context, /, argument: StringView):
         ...
     ```
@@ -416,7 +416,7 @@ def with_multi_argument(
 
     @tanjun.parsing.with_multi_argument("command", converters=(int,))
     @tanjun.parsing.with_parser
-    @tanjun.component.as_command("command")
+    @tanjun.component.as_message_command("command")
     async def command(self, ctx: tanjun.traits.Context, /, argument: typing.Sequence[int]):
         ...
     ```
@@ -481,7 +481,7 @@ def with_option(
 
     @tanjun.parsing.with_option("command", converters=(int,), default=42)
     @tanjun.parsing.with_parser
-    @tanjun.component.as_command("command")
+    @tanjun.component.as_message_command("command")
     async def command(self, ctx: tanjun.traits.Context, /, argument: int):
         ...
     ```
@@ -556,7 +556,7 @@ def with_multi_option(
 
     @tanjun.parsing.with_multi_option("command", converters=(int,), default=())
     @tanjun.parsing.with_parser
-    @tanjun.component.as_command("command")
+    @tanjun.component.as_message_command("command")
     async def command(self, ctx: tanjun.traits.Context, /, argument: typing.Sequence[int]):
         ...
     ```
@@ -843,7 +843,7 @@ class ShlexParser(injector_.Injectable, traits.Parser):
             parameter.bind_component(component)
 
     async def parse(
-        self, ctx: traits.Context, /
+        self, ctx: traits.MessageContext, /
     ) -> typing.Tuple[typing.List[typing.Any], typing.Dict[str, typing.Any]]:
         # <<inherited docstring from tanjun.traits.ShlexParser>>.
         parser = SemanticShlex(ctx)

@@ -258,7 +258,7 @@ class IntegrationContext(traits.InteractionContext):
         return self._interaction.member
 
     @property
-    def triggering_name(self) -> typing.Optional[str]:
+    def triggering_name(self) -> str:
         return self._interaction.command_name
 
     @property

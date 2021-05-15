@@ -180,10 +180,18 @@ class Client(injector.InjectorClient, traits.Client):
         event_managed: bool = True,
         mention_prefix: bool = False,
     ) -> None:
-        cache = utilities.try_find_type(hikari_traits.CacheAware, cache, events, rest, server, shard)
-        events = utilities.try_find_type(hikari_traits.EventManagerAware, events, cache, rest, server, shard)
-        server = utilities.try_find_type(hikari_traits.InteractionServerAware, server, cache, events, rest, shard)
-        shard = utilities.try_find_type(hikari_traits.ShardAware, shard, cache, events, rest, server)
+        cache = utilities.try_find_type(
+            hikari_traits.CacheAware, cache, events, rest, server, shard  # type: ignore[misc]
+        )
+        events = utilities.try_find_type(
+            hikari_traits.EventManagerAware, events, cache, rest, server, shard  # type: ignore[misc]
+        )
+        server = utilities.try_find_type(
+            hikari_traits.InteractionServerAware, server, cache, events, rest, shard  # type: ignore[misc]
+        )
+        shard = utilities.try_find_type(
+            hikari_traits.ShardAware, shard, cache, events, rest, server  # type: ignore[misc]
+        )
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
         # TODO: warn if server and dispatch both None but don't error
 
@@ -392,11 +400,15 @@ class Client(injector.InjectorClient, traits.Client):
         self.set_prefix_getter(getter)
         return getter
 
-    def check_context(self, ctx: traits.Context, /) -> typing.AsyncIterator[traits.FoundCommand]:
-        return utilities.async_chain(component.check_context(ctx) for component in self._components)
+    def check_message_context(
+        self, ctx: traits.MessageContext, /
+    ) -> typing.AsyncIterator[traits.FoundMessageCommand]:
+        return utilities.async_chain(
+            component.check_message_context(ctx) for component in self._components
+        )
 
-    def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
-        return itertools.chain.from_iterable(component.check_name(name) for component in self._components)
+    def check_message_name(self, name: str, /) -> typing.Iterator[traits.FoundMessageCommand]:
+        return itertools.chain.from_iterable(component.check_message_name(name) for component in self._components)
 
     async def _check_prefix(self, ctx: traits.Context, /) -> typing.Optional[str]:
         if self._prefix_getter:

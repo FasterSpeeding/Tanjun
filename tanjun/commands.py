@@ -67,10 +67,10 @@ class _LoadableInjector(injector.InjectableCheck):
         self.callback = types.MethodType(self.callback, component)  # type: ignore[assignment]
 
 
-class FoundCommand(traits.FoundCommand[traits.CommandT]):
+class FoundMessageCommand(traits.FoundMessageCommand):
     __slots__: typing.Sequence[str] = ("command", "name", "prefix")
 
-    def __init__(self, command_: traits.CommandT, name: str, /) -> None:
+    def __init__(self, command_: traits.MessageCommand, name: str, /) -> None:
         self.command = command_
         self.name = name
 
@@ -103,7 +103,7 @@ class InteractionCommand(traits.InteractionCommand):
         self._component: typing.Optional[traits.Component] = None
         self._function = function
         self.hooks = hooks or hooks_.Hooks()
-        self._metadata = dict(metadata) if metadata else None
+        self._metadata = dict(metadata) if metadata else {}
         self._name = name
         self.parent: typing.Optional[traits.InteractionCommandGroup] = None
         self.tracked_command: typing.Optional[interactions.Command] = None
@@ -276,7 +276,7 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
 
     async def check_context(
         self, ctx: traits.MessageContext, /, *, name_prefix: str = ""
-    ) -> typing.AsyncIterator[traits.FoundCommand[traits.MessageCommand]]:
+    ) -> typing.AsyncIterator[traits.FoundMessageCommand[traits.MessageCommand]]:
         if found := next(self.check_name(ctx.content[len(name_prefix) :].lstrip()), None):
             if await utilities.gather_checks(self._checks, ctx):
                 yield found
@@ -285,14 +285,14 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
         self._names.add(name)
         return self
 
-    def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand[traits.MessageCommand]]:
+    def check_name(self, name: str, /) -> typing.Iterator[traits.FoundMessageCommand[traits.MessageCommand]]:
         for own_name in self._names:
             # Here we enforce that a name must either be at the end of content or be followed by a space. This helps
             # avoid issues with ambiguous naming where a command with the names "name" and "names" may sometimes hit
             # the former before the latter when triggered with the latter, leading to the command potentially being
             # inconsistently parsed.
             if name == own_name or name.startswith(own_name) and name[len(own_name)] == " ":
-                yield FoundCommand(self, own_name)
+                yield FoundMessageCommand(self, own_name)
                 break
 
     def remove_name(self, name: str, /) -> None:

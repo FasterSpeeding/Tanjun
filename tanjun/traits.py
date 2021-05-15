@@ -39,7 +39,7 @@ __all__: typing.Sequence[str] = [
     "Context",
     "Hooks",
     "Executable",
-    "FoundCommand",
+    "FoundMessageCommand",
     "MessageCommand",
     "MessageCommandGroup",
     "Component",
@@ -275,7 +275,7 @@ class MessageContext(Context, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def shard_service(self) -> traits.ShardAware:
+    def shard_service(self) -> typing.Optional[traits.ShardAware]:
         raise NotImplementedError
 
     @property
@@ -388,7 +388,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT]):
         ctx: ContextT,
         /,
         exception: errors.ParserError,
-        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT]]] = None
+        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT]]] = None,
     ) -> None:
         raise NotImplementedError
 
@@ -400,11 +400,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT]):
 
     @abc.abstractmethod
     async def trigger_pre_execution(
-        self,
-        ctx: ContextT,
-        /,
-        *,
-        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT]]] = None
+        self, ctx: ContextT, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT]]] = None
     ) -> bool:
         raise NotImplementedError
 
@@ -458,16 +454,17 @@ class Executable(abc.ABC, typing.Generic[ContextT]):
         raise NotImplementedError
 
 
-class FoundCommand(abc.ABC, typing.Generic[CommandT]):
+# This doesn't apply to interaction commands as they only have one name
+class FoundCommand(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
     @abc.abstractmethod
-    def command(self) -> CommandT:
+    def command(self) -> MessageCommand:
         raise NotImplementedError
 
     @command.setter
-    def command(self, _: CommandT, /) -> None:
+    def command(self, _: MessageCommand, /) -> None:
         raise NotImplementedError
 
     @property
@@ -607,10 +604,10 @@ class MessageCommand(Executable[MessageContext], abc.ABC):
     # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
     def check_context(
         self: CommandT, ctx: ContextT, /, *, name_prefix: str = ""
-    ) -> typing.AsyncIterator[FoundCommand[CommandT]]:
+    ) -> typing.AsyncIterator[FoundMessageCommand]:
         raise NotImplementedError
 
-    def check_name(self: CommandT, name: str, /) -> typing.Iterator[FoundCommand[CommandT]]:
+    def check_name(self: CommandT, name: str, /) -> typing.Iterator[FoundMessageCommand]:
         raise NotImplementedError
 
 
@@ -677,8 +674,15 @@ class Component(abc.ABC):
     def bind_client(self, client: Client, /) -> None:
         raise NotImplementedError
 
-    # def check_name(self, name: str, /) -> typing.Iterator[FoundCommand[typing.Any]]:
-    #     raise NotImplementedError
+    # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
+    # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
+    def check_message_context(
+        self, ctx: MessageContext, /, *, name_prefix: str = ""
+    ) -> typing.AsyncIterator[FoundMessageCommand]:
+        raise NotImplementedError
+
+    def check_message_name(self, name: str, /) -> typing.Iterator[FoundMessageCommand]:
+        raise NotImplementedError
 
     @abc.abstractmethod
     async def close(self) -> None:
@@ -763,14 +767,14 @@ class Client(abc.ABC):
     def remove_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
-    # # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
-    # # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
+    # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
+    # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
     # @abc.abstractmethod
-    # def check_context(self, ctx: Context, /) -> typing.AsyncIterator[FoundCommand]:
+    # def check_message_context(self, ctx: MessageContext, /) -> typing.AsyncIterator[FoundMessageCommand]:
     #     raise NotImplementedError
 
     @abc.abstractmethod
-    def check_name(self, name: str, /) -> typing.Iterator[FoundCommand[typing.Any]]:
+    def check_message_name(self, name: str, /) -> typing.Iterator[FoundMessageCommand]:
         raise NotImplementedError
 
     @abc.abstractmethod
