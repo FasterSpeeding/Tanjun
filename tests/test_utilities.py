@@ -1,6 +1,5 @@
-import pytest
-
 import mock
+import pytest
 
 from tanjun import errors
 from tanjun import utilities
@@ -8,11 +7,15 @@ from tanjun import utilities
 
 @pytest.mark.asyncio
 async def test_async_chain():
-    resources = (mock.AsyncMock(return_value=[1,2,3]), mock.AsyncMock(return_value=[99,55,44]), mock.AsyncMock(return_value=[444,333,222]))
+    resources = (
+        mock.AsyncMock(return_value=[1, 2, 3]),
+        mock.AsyncMock(return_value=[99, 55, 44]),
+        mock.AsyncMock(return_value=[444, 333, 222]),
+    )
 
     results = [result async for result in utilities.async_chain(resources)]
 
-    assert results == [1,2,3,99,55,44,444,333,222]
+    assert results == [1, 2, 3, 99, 55, 44, 444, 333, 222]
 
 
 @pytest.mark.asyncio
@@ -61,6 +64,7 @@ async def test_gather_checks_handles_false_return():
     check_2.assert_awaited_once()
     check_3.assert_awaited_once()
 
+
 @pytest.mark.asyncio
 async def test_gather_checks_handles_raised_check():
     check_1 = mock.AsyncMock(return_value=True)
@@ -104,4 +108,3 @@ def test_try_find_type_finds_type():
 
 def test_try_find_type_finds_none():
     ...
-
