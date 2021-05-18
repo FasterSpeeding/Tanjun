@@ -53,9 +53,9 @@ import typing
 from hikari import channels
 from hikari import errors as hikari_errors
 from hikari import guilds
-from hikari import interactions
 from hikari import permissions as permissions_
 from hikari import snowflakes
+from hikari.interactions import commands as command_interactions
 from yuyo import backoff
 
 from tanjun import utilities
@@ -222,7 +222,7 @@ class AuthorPermissionCheck(PermissionCheck):
         if not ctx.member:
             return utilities.ALL_PERMISSIONS
 
-        elif isinstance(ctx.member, interactions.InteractionMember):
+        elif isinstance(ctx.member, command_interactions.InteractionMember):
             return ctx.member.permissions
 
         return await utilities.fetch_permissions(ctx.client, ctx.member, channel=ctx.channel_id)

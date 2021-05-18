@@ -45,11 +45,11 @@ if typing.TYPE_CHECKING:
     from hikari import embeds as embeds_
     from hikari import files
     from hikari import guilds
-    from hikari import interactions
     from hikari import messages
     from hikari import traits as hikari_traits
     from hikari import users
     from hikari.api import shard as shard_
+    from hikari.interactions import commands as command_interactions
 
 
 class MessageContext(traits.MessageContext):
@@ -228,7 +228,7 @@ class IntegrationContext(traits.InteractionContext):
         self,
         client: traits.Client,
         /,
-        interaction: interactions.CommandInteraction,
+        interaction: command_interactions.CommandInteraction,
     ) -> None:
         self._client = client
         self._interaction = interaction
@@ -262,7 +262,7 @@ class IntegrationContext(traits.InteractionContext):
         return self._interaction.command_name
 
     @property
-    def interaction(self) -> interactions.CommandInteraction:
+    def interaction(self) -> command_interactions.CommandInteraction:
         return self._interaction
 
     async def execute(

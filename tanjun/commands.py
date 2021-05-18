@@ -47,7 +47,7 @@ from tanjun import traits
 from tanjun import utilities
 
 if typing.TYPE_CHECKING:
-    from hikari import interactions
+    from hikari.interactions import commands as command_interactions
 
     _CommandT = typing.TypeVar("_CommandT", bound="Command[typing.Any]")
     _CommandGroupT = typing.TypeVar("_CommandGroupT", bound="CommandGroup[typing.Any]")
@@ -95,22 +95,18 @@ class InteractionCommand(traits.InteractionCommand):
         /,
         *,
         checks: typing.Optional[typing.Iterable[traits.CheckT[traits.InteractionContext]]] = None,
-        hooks: typing.Optional[traits.Hookable[traits.InteractionContext]] = None,
+        hooks: typing.Optional[traits.Hooks[traits.InteractionContext]] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         wait_for_result: bool = False,
     ) -> None:
-        if not hooks:
-            # MYPY resolves hooks_.Hooks() to tanjun.hooks.Hooks[<nothing>] and complains otherwise
-            hooks = typing.cast("traits.Hookable[traits.InteractionContext]", hooks_.Hooks())
-
-        self._checks = set(checks)
+        self._checks = set(checks) if checks else set()
         self._component: typing.Optional[traits.Component] = None
         self._function = function
-        self.hooks: traits.Hookable[traits.InteractionContext] = hooks
+        self.hooks: traits.Hooks[traits.InteractionContext] = hooks or hooks_.Hooks()
         self._metadata = dict(metadata) if metadata else {}
         self._name = name
         self.parent: typing.Optional[traits.InteractionCommandGroup] = None
-        self.tracked_command: typing.Optional[interactions.Command] = None
+        self.tracked_command: typing.Optional[command_interactions.Command] = None
         self._wait_for_result = wait_for_result
 
     @property
@@ -155,7 +151,7 @@ class InteractionCommand(traits.InteractionCommand):
         ctx: traits.InteractionContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.Hookable[traits.InteractionContext]]] = None,
+        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.InteractionContext]]] = None,
     ) -> bool:
         raise NotImplementedError
 
@@ -209,7 +205,7 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
         self._checks = set(injector.InjectableCheck(check) for check in checks) if checks else set()
         self._component: typing.Optional[traits.Component] = None
         self._function = function
-        self.hooks: traits.Hookable[traits.MessageContext] = hooks or hooks_.Hooks()
+        self.hooks: traits.Hooks[traits.MessageContext] = hooks or hooks_.Hooks()
         self._injector: typing.Optional[injector.InjectorClient] = None
         self._metadata = dict(metadata) if metadata else {}
         self._names = {name, *names}
@@ -339,7 +335,7 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
         ctx: traits.MessageContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.Hookable[traits.MessageContext]]] = None,
+        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.MessageContext]]] = None,
     ) -> bool:
         try:
             if await self.hooks.trigger_pre_execution(ctx, hooks=hooks) is False:
@@ -489,7 +485,7 @@ class CommandGroup(MessageCommand[CommandFunctionSigT], traits.ExecutableCommand
         ctx: traits.MessageContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.Hookable[traits.MessageContext]]] = None,
+        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.MessageContext]]] = None,
     ) -> bool:
         if ctx.message.content is None:
             raise ValueError("Cannot execute a command with a contentless message")

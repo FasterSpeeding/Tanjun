@@ -514,7 +514,7 @@ class Client(injector.InjectorClient, traits.Client):
         if not await self.check(ctx):
             return
 
-        hooks: typing.Set[traits.Hookable[traits.MessageContext]] = set()
+        hooks: typing.Set[traits.Hooks[traits.MessageContext]] = set()
         if self.hooks:
             hooks.add(self.hooks)
 

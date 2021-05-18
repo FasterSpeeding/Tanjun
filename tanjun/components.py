@@ -331,7 +331,7 @@ class Component(injector.Injectable, traits.Component):
         ctx: traits.InteractionContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.Hookable[traits.InteractionContext]]] = None,
+        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.InteractionContext]]] = None,
     ) -> bool:
         command = self._interaction_commands.get(ctx.triggering_name.casefold())
         if not self.started or not command:
@@ -351,7 +351,7 @@ class Component(injector.Injectable, traits.Component):
         ctx: traits.MessageContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.Hookable[traits.MessageContext]]] = None,
+        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.MessageContext]]] = None,
     ) -> bool:
         if not self._is_alive:
             return False
