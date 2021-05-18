@@ -89,6 +89,8 @@ CommandT = typing.TypeVar("CommandT", bound="Executable[Context]")
 CommandT_co = typing.TypeVar("CommandT_co", bound="Executable[Context]", covariant=True)
 ContextT = typing.TypeVar("ContextT", bound="Context")
 ContextT_contra = typing.TypeVar("ContextT_contra", bound="Context", contravariant=True)
+ContextT_co = typing.TypeVar("ContextT_co", bound="Context", covariant=True)
+Hookable = typing.Union["Hooks[Context]", "Hooks[ContextT]"]
 
 # To allow for stateless converters we accept both "Converter[...]" and "Type[StatelessConverter[...]]" where all the
 # methods on "Type[StatelessConverter[...]]" need to be classmethods as it will not be initialised before calls are made
@@ -378,7 +380,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT]):
         /,
         exception: BaseException,
         *,
-        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[Hookable[ContextT]]] = None,
     ) -> None:
         raise NotImplementedError
 
@@ -388,25 +390,25 @@ class Hooks(abc.ABC, typing.Generic[ContextT]):
         ctx: ContextT,
         /,
         exception: errors.ParserError,
-        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[Hookable[ContextT]]] = None,
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_post_execution(
-        self, ctx: ContextT, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT]]] = None
+        self, ctx: ContextT, /, *, hooks: typing.Optional[typing.AbstractSet[Hookable[ContextT]]] = None
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_pre_execution(
-        self, ctx: ContextT, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT]]] = None
+        self, ctx: ContextT, /, *, hooks: typing.Optional[typing.AbstractSet[Hookable[ContextT]]] = None
     ) -> bool:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_success(
-        self, ctx: ContextT, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT]]] = None
+        self, ctx: ContextT, /, *, hooks: typing.Optional[typing.AbstractSet[Hookable[ContextT]]] = None
     ) -> None:
         raise NotImplementedError
 
@@ -421,11 +423,11 @@ class Executable(abc.ABC, typing.Generic[ContextT]):
 
     @property
     @abc.abstractmethod
-    def hooks(self) -> typing.Optional[Hooks[ContextT]]:
+    def hooks(self) -> typing.Optional[Hookable[ContextT]]:
         raise NotImplementedError
 
     @hooks.setter
-    def hooks(self, _: typing.Optional[Hooks[ContextT]]) -> None:
+    def hooks(self, _: typing.Optional[Hookable[ContextT]]) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -449,7 +451,7 @@ class Executable(abc.ABC, typing.Generic[ContextT]):
 
     @abc.abstractmethod
     async def execute(
-        self, ctx: ContextT, /, *, hooks: typing.Optional[typing.MutableSet[Hooks[ContextT]]] = None
+        self, ctx: ContextT, /, *, hooks: typing.Optional[typing.MutableSet[Hookable[ContextT]]] = None
     ) -> bool:
         raise NotImplementedError
 
@@ -463,7 +465,7 @@ class FoundCommand(abc.ABC):
     def command(self) -> MessageCommand:
         raise NotImplementedError
 
-    @command.setter
+    @command.setter  # TODO: is this still necessary?
     def command(self, _: MessageCommand, /) -> None:
         raise NotImplementedError
 
@@ -472,7 +474,7 @@ class FoundCommand(abc.ABC):
     def name(self) -> str:
         raise NotImplementedError
 
-    @name.setter
+    @name.setter  # TODO: can we remove stuff like this from the public interface?
     def name(self, _: typing.Optional[str], /) -> None:
         raise NotImplementedError
 
@@ -533,7 +535,7 @@ class InteractionCommandGroup(InteractionCommand, abc.ABC):
         /,
         *names: str,
         checks: typing.Optional[typing.Iterable[CheckT[InteractionContext]]] = None,
-        hooks: typing.Optional[Hooks[InteractionContext]] = None,
+        hooks: typing.Optional[Hookable[InteractionContext]] = None,
     ) -> typing.Callable[[InteractionCommandFunctionT], InteractionCommandFunctionT]:
         raise NotImplementedError
 
@@ -693,12 +695,16 @@ class Component(abc.ABC):
         raise NotImplementedError
 
     async def execute_interaction(
-        self, ctx: InteractionContext, /, *, hooks: typing.Optional[typing.MutableSet[Hooks[InteractionContext]]] = None
+        self,
+        ctx: InteractionContext,
+        /,
+        *,
+        hooks: typing.Optional[typing.MutableSet[Hookable[InteractionContext]]] = None,
     ) -> bool:
         raise NotImplementedError
 
     async def execute_message(
-        self, ctx: MessageContext, /, *, hooks: typing.Optional[typing.MutableSet[Hooks[MessageContext]]] = None
+        self, ctx: MessageContext, /, *, hooks: typing.Optional[typing.MutableSet[Hookable[MessageContext]]] = None
     ) -> bool:
         raise NotImplementedError
 
@@ -883,7 +889,7 @@ class Option(Parameter, abc.ABC):
     def names(self) -> typing.Sequence[str]:
         raise NotImplementedError
 
-    @names.setter
+    @names.setter  # TODO: what?
     def names(self, _: typing.Sequence[str], /) -> None:
         raise NotImplementedError
 

@@ -160,6 +160,8 @@ class Client(injector.InjectorClient, traits.Client):
         "_events",
         "_grab_mention_prefix",
         "hooks",
+        "interaction_hooks",
+        "message_hooks",
         "_metadata",
         "_prefix_getter",
         "_prefixes",
@@ -202,7 +204,9 @@ class Client(injector.InjectorClient, traits.Client):
         self._components: typing.Set[traits.Component] = set()
         self._events = events
         self._grab_mention_prefix = mention_prefix
-        self.hooks: typing.Optional[traits.Hooks] = None
+        self.hooks: typing.Optional[traits.Hooks[traits.Context]] = None
+        self.interaction_hooks: typing.Optional[traits.Hooks[traits.InteractionContext]] = None
+        self.message_hooks: typing.Optional[traits.Hooks[traits.MessageContext]] = None
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
         self._prefix_getter: typing.Optional[PrefixGetterSig] = None
         self._prefixes: typing.Set[str] = set()
@@ -510,11 +514,12 @@ class Client(injector.InjectorClient, traits.Client):
         if not await self.check(ctx):
             return
 
+        hooks: typing.Set[traits.Hookable[traits.MessageContext]] = set()
         if self.hooks:
-            hooks = {self.hooks}
+            hooks.add(self.hooks)
 
-        else:
-            hooks = set()
+        if self.message_hooks:
+            hooks.add(self.message_hooks)
 
         for component in self._components:
             if await component.execute_message(ctx, hooks=hooks):

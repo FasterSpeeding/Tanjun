@@ -76,7 +76,9 @@ class Component(injector.Injectable, traits.Component):
         self,
         *,
         checks: typing.Optional[typing.Iterable[traits.CheckSig[traits.ContextT]]] = None,
-        hooks: typing.Optional[traits.Hooks] = None,
+        hooks: typing.Optional[traits.Hooks[traits.Context]] = None,
+        interaction_hooks: typing.Optional[traits.Hooks[traits.InteractionContext]] = None,
+        message_hooks: typing.Optional[traits.Hooks[traits.MessageContext]] = None,
     ) -> None:
         self._checks = set(injector.InjectableCheck(check) for check in checks) if checks else set()
         self._client: typing.Optional[traits.Client] = None
@@ -85,6 +87,8 @@ class Component(injector.Injectable, traits.Component):
         self.hooks = hooks
         self._injector: typing.Optional[injector.InjectorClient] = None
         self._is_alive = False
+        self._interaction_hooks = interaction_hooks
+        self._message_hooks = message_hooks
         self._listeners: typing.Set[
             typing.Tuple[typing.Type[base_events.Event], event_manager.CallbackT[typing.Any]]
         ] = set()
@@ -112,6 +116,7 @@ class Component(injector.Injectable, traits.Component):
     def message_commands(self) -> typing.AbstractSet[traits.MessageCommand]:
         return self._message_commands.copy()
 
+    # TODO: should this accept all 3 different kind of hooks?
     @property
     def is_alive(self) -> bool:
         """Whether this component is active.
@@ -119,6 +124,22 @@ class Component(injector.Injectable, traits.Component):
         When this is `builtins.False` executing the cluster will always do nothing.
         """
         return self._is_alive
+
+    @property
+    def interaction_hooks(self) -> typing.Optional[traits.Hooks[traits.InteractionContext]]:
+        return self._interaction_hooks
+
+    @interaction_hooks.setter
+    def interaction_hooks(self, hooks_: typing.Optional[traits.Hooks[traits.InteractionContext]], /) -> None:
+        self._interaction_hooks = hooks_
+
+    @property
+    def message_hooks(self) -> typing.Optional[traits.Hooks[traits.MessageContext]]:
+        return self._message_hooks
+
+    @message_hooks.setter
+    def message_hooks(self, hooks_: typing.Optional[traits.Hooks[traits.MessageContext]]) -> None:
+        self._message_hooks = hooks_
 
     @property
     def needs_injector(self) -> bool:
@@ -310,7 +331,7 @@ class Component(injector.Injectable, traits.Component):
         ctx: traits.InteractionContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.InteractionContext]]] = None,
+        hooks: typing.Optional[typing.MutableSet[traits.Hookable[traits.InteractionContext]]] = None,
     ) -> bool:
         command = self._interaction_commands.get(ctx.triggering_name.casefold())
         if not self.started or not command:
@@ -330,7 +351,7 @@ class Component(injector.Injectable, traits.Component):
         ctx: traits.MessageContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.MessageContext]]] = None,
+        hooks: typing.Optional[typing.MutableSet[traits.Hookable[traits.MessageContext]]] = None,
     ) -> bool:
         if not self._is_alive:
             return False

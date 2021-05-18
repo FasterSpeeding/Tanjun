@@ -95,14 +95,18 @@ class InteractionCommand(traits.InteractionCommand):
         /,
         *,
         checks: typing.Optional[typing.Iterable[traits.CheckT[traits.InteractionContext]]] = None,
-        hooks: typing.Optional[traits.Hooks[traits.InteractionContext]] = None,
+        hooks: typing.Optional[traits.Hookable[traits.InteractionContext]] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         wait_for_result: bool = False,
     ) -> None:
+        if not hooks:
+            # MYPY resolves hooks_.Hooks() to tanjun.hooks.Hooks[<nothing>] and complains otherwise
+            hooks = typing.cast("traits.Hookable[traits.InteractionContext]", hooks_.Hooks())
+
         self._checks = set(checks)
         self._component: typing.Optional[traits.Component] = None
         self._function = function
-        self.hooks = hooks or hooks_.Hooks()
+        self.hooks: traits.Hookable[traits.InteractionContext] = hooks
         self._metadata = dict(metadata) if metadata else {}
         self._name = name
         self.parent: typing.Optional[traits.InteractionCommandGroup] = None
@@ -151,7 +155,7 @@ class InteractionCommand(traits.InteractionCommand):
         ctx: traits.InteractionContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.InteractionContext]]] = None,
+        hooks: typing.Optional[typing.MutableSet[traits.Hookable[traits.InteractionContext]]] = None,
     ) -> bool:
         raise NotImplementedError
 
@@ -197,11 +201,15 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         parser: typing.Optional[traits.Parser] = None,
     ) -> None:
+        if not hooks:
+            # MYPY resolves hooks_.Hooks() to tanjun.hooks.Hooks[<nothing>] and complains otherwise
+            hooks = typing.cast("traits.Hookable[traits.MessageContext]", hooks_.Hooks())
+
         self._cached_getters: typing.Optional[typing.List[injector.Getter[typing.Any]]] = None
         self._checks = set(injector.InjectableCheck(check) for check in checks) if checks else set()
         self._component: typing.Optional[traits.Component] = None
         self._function = function
-        self.hooks: traits.Hooks[traits.MessageContext] = hooks or hooks_.Hooks()
+        self.hooks: traits.Hookable[traits.MessageContext] = hooks or hooks_.Hooks()
         self._injector: typing.Optional[injector.InjectorClient] = None
         self._metadata = dict(metadata) if metadata else {}
         self._names = {name, *names}
@@ -276,7 +284,7 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
 
     async def check_context(
         self, ctx: traits.MessageContext, /, *, name_prefix: str = ""
-    ) -> typing.AsyncIterator[traits.FoundMessageCommand[traits.MessageCommand]]:
+    ) -> typing.AsyncIterator[traits.FoundMessageCommand]:
         if found := next(self.check_name(ctx.content[len(name_prefix) :].lstrip()), None):
             if await utilities.gather_checks(self._checks, ctx):
                 yield found
@@ -285,7 +293,7 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
         self._names.add(name)
         return self
 
-    def check_name(self, name: str, /) -> typing.Iterator[traits.FoundMessageCommand[traits.MessageCommand]]:
+    def check_name(self, name: str, /) -> typing.Iterator[traits.FoundMessageCommand]:
         for own_name in self._names:
             # Here we enforce that a name must either be at the end of content or be followed by a space. This helps
             # avoid issues with ambiguous naming where a command with the names "name" and "names" may sometimes hit
@@ -331,7 +339,7 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
         ctx: traits.MessageContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.MessageContext]]] = None,
+        hooks: typing.Optional[typing.MutableSet[traits.Hookable[traits.MessageContext]]] = None,
     ) -> bool:
         try:
             if await self.hooks.trigger_pre_execution(ctx, hooks=hooks) is False:
@@ -481,7 +489,7 @@ class CommandGroup(MessageCommand[CommandFunctionSigT], traits.ExecutableCommand
         ctx: traits.MessageContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.MessageContext]]] = None,
+        hooks: typing.Optional[typing.MutableSet[traits.Hookable[traits.MessageContext]]] = None,
     ) -> bool:
         if ctx.message.content is None:
             raise ValueError("Cannot execute a command with a contentless message")

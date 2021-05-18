@@ -185,7 +185,7 @@ class Hooks(traits.Hooks[traits.ContextT]):
         /,
         exception: BaseException,
         *,
-        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[traits.Hookable[traits.ContextT]]] = None,
     ) -> None:  # TODO: return True to indicate "raise" else False or None to suppress
         if self._error:
             await utilities.await_if_async(self._error, ctx, exception)
@@ -198,7 +198,7 @@ class Hooks(traits.Hooks[traits.ContextT]):
         ctx: traits.ContextT,
         /,
         exception: errors.ParserError,
-        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[traits.Hookable[traits.ContextT]]] = None,
     ) -> None:
         if self._parser_error:
             await utilities.await_if_async(self._parser_error, ctx, exception)
@@ -211,7 +211,7 @@ class Hooks(traits.Hooks[traits.ContextT]):
         ctx: traits.ContextT,
         /,
         *,
-        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[traits.Hookable[traits.ContextT]]] = None,
     ) -> None:
         if self._post_execution:
             await utilities.await_if_async(self._post_execution, ctx)
@@ -224,7 +224,7 @@ class Hooks(traits.Hooks[traits.ContextT]):
         ctx: traits.ContextT,
         /,
         *,
-        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[traits.Hookable[traits.ContextT]]] = None,
     ) -> bool:
         if self._pre_execution and await utilities.await_if_async(self._pre_execution, ctx) is False:
             return False
@@ -242,7 +242,7 @@ class Hooks(traits.Hooks[traits.ContextT]):
         ctx: traits.ContextT,
         /,
         *,
-        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[traits.Hookable[traits.ContextT]]] = None,
     ) -> None:
         if self._success:
             await utilities.await_if_async(self._success, ctx)
