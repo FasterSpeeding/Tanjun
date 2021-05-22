@@ -43,8 +43,6 @@ __all__: typing.Sequence[str] = [
     "CheckT",
     "ValueT_co",
     "Context",
-    "Converter",
-    "StatelessConverter",
     "Hooks",
     "Executable",
     "FoundCommand",
@@ -77,18 +75,11 @@ if typing.TYPE_CHECKING:
 # To allow for stateless converters we accept both "Converter[...]" and "Type[StatelessConverter[...]]" where all the
 # methods on "Type[StatelessConverter[...]]" need to be classmethods as it will not be initialised before calls are made
 # to it.
-ConverterT = typing.Union[
-    typing.Callable[[str], typing.Any], "Converter[typing.Any]", "typing.Type[StatelessConverter[typing.Any]]"
-]
+ConverterT = typing.Callable[[str], typing.Union[typing.Coroutine[typing.Any, typing.Any, typing.Any], typing.Any]]
 """Type hint of a converter used within a parser instance.
 
-This may either be a callable which takes one position `builtins.string` argument,
-a `Converter` instance or a `StatelessConverter` class.
-
-`Converter` and `StatelessConverter` differ in the fact that
-`StatelessConverter` is intended to be callable as a class where all it's methods
-are class methods unlike `Converter` which will need to have initialised before
-being registered as a listener.
+This must be a callable or asynchronous callable which takes one position
+`builtins.string` argument and returns the resultant value.
 """
 # TODO: be more specific about the structure of command functions using a callable protocol
 
@@ -331,34 +322,6 @@ class Context(abc.ABC):
 
     @triggering_name.setter
     def triggering_name(self, _: str, /) -> None:
-        raise NotImplementedError
-
-
-class Converter(abc.ABC, typing.Generic[ValueT_co]):
-    __slots__: typing.Sequence[str] = ()
-
-    async def convert(self, ctx: Context, argument: str, /) -> ValueT_co:
-        raise NotImplementedError
-
-    def bind_client(self, client: Client, /) -> None:
-        raise NotImplementedError
-
-    def bind_component(self, component: Component, /) -> None:
-        raise NotImplementedError
-
-
-class StatelessConverter(abc.ABC, typing.Generic[ValueT_co]):
-    __slots__: typing.Sequence[str] = ()
-
-    @classmethod
-    async def convert(cls, ctx: Context, argument: str, /) -> ValueT_co:
-        raise NotImplementedError
-
-    @classmethod
-    def bind_client(cls, client: Client, /) -> None:
-        raise NotImplementedError
-
-    def bind_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
 

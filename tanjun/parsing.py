@@ -57,6 +57,7 @@ from hikari import undefined
 from tanjun import conversion
 from tanjun import errors
 from tanjun import traits
+from tanjun import utilities
 
 if typing.TYPE_CHECKING:
     from tanjun import components
@@ -627,7 +628,7 @@ class _Parameter(traits.Parameter):
             return
 
         for converter in self._converters:
-            if isinstance(converter, (traits.Converter, traits.StatelessConverter)):
+            if isinstance(converter, conversion.BaseConverter):
                 converter.bind_client(client)
 
     def bind_component(self, component: traits.Component, /) -> None:
@@ -635,7 +636,7 @@ class _Parameter(traits.Parameter):
             return
 
         for converter in self._converters:
-            if isinstance(converter, (traits.Converter, traits.StatelessConverter)):
+            if isinstance(converter, conversion.BaseConverter):
                 converter.bind_component(component)
 
     async def convert(self, ctx: traits.Context, value: str) -> typing.Any:
@@ -645,13 +646,7 @@ class _Parameter(traits.Parameter):
         sources: typing.List[ValueError] = []
         for converter in self._converters:
             try:
-                if hasattr(converter, "convert"):
-                    converter = typing.cast("traits.Converter[typing.Any]", converter)
-                    result = await converter.convert(ctx, value)
-                    return result
-
-                converter = typing.cast("typing.Callable[[str], typing.Any]", converter)
-                return converter(value)
+                return await utilities.await_if_async(converter, value)
 
             except ValueError as exc:
                 sources.append(exc)
