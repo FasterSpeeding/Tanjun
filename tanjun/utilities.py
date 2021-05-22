@@ -245,8 +245,9 @@ async def calculate_permissions(
         roles = client.cache_service.cache.get_roles_view_for_guild(member.guild_id)
 
     if not guild:
-        raw_guild = await fetch_resource(retry, client.rest_service.rest.fetch_guild, member.guild_id)
-        guild = raw_guild
+        guild = await fetch_resource(retry, client.rest_service.rest.fetch_guild, member.guild_id)
+        assert guild is not None
+        roles = guild.roles
 
     # Guild owners are implicitly admins.
     if guild.owner_id == member.user.id:
