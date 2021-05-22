@@ -197,6 +197,7 @@ class Client(injector.InjectorClient, traits.Client):
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
         # TODO: warn if server and dispatch both None but don't error
 
+        # TODO: separate slash and gateway checks?
         self._accepts = AcceptsEnum.ALL if events else AcceptsEnum.NONE
         self._checks: typing.Set[injector.InjectableCheck] = set()
         self._cache = cache

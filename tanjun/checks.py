@@ -67,8 +67,6 @@ if typing.TYPE_CHECKING:
 
     from tanjun import traits as tanjun_traits
 
-
-# TODO: update
 CommandT = typing.TypeVar("CommandT", bound="tanjun_traits.ExecutableCommand")
 
 

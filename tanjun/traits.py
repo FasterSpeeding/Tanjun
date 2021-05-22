@@ -177,11 +177,11 @@ class Context(abc.ABC):
 
     @property  # TODO: can we somehow have this always be present on the command execution facing interface
     @abc.abstractmethod
-    def command(self) -> typing.Optional[Executable[Context]]:
+    def command(self: ContextT) -> typing.Optional[Executable[ContextT]]:
         raise NotImplementedError
 
     @command.setter
-    def command(self, _: Executable[Context], /) -> None:
+    def command(self: ContextT, _: Executable[ContextT], /) -> None:
         raise NotImplementedError
 
     @property

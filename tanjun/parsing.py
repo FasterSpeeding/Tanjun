@@ -51,8 +51,6 @@ import itertools
 import shlex
 import typing
 
-from hikari import undefined
-
 from tanjun import conversion
 from tanjun import errors
 from tanjun import injector as injector_
@@ -165,7 +163,7 @@ class ShlexTokenizer:
 
 
 async def _covert_option_or_empty(
-    ctx: traits.Context, option: traits.Option, value: typing.Optional[typing.Any], /
+    ctx: traits.MessageContext, option: traits.Option, value: typing.Optional[typing.Any], /
 ) -> typing.Any:
     if value is not None:
         return await option.convert(ctx, value)
@@ -223,8 +221,8 @@ class SemanticShlex(ShlexTokenizer):
         if is_multi and (values := list(values_iter)):
             return await asyncio.gather(*(_covert_option_or_empty(self.__ctx, option, value) for value in values))
 
-        if not is_multi and (value := next(values_iter, undefined.UNDEFINED)) is not undefined.UNDEFINED:
-            if next(values_iter, undefined.UNDEFINED) is not undefined.UNDEFINED:
+        if not is_multi and (value := next(values_iter, ...)) is not ...:
+            if next(values_iter, ...) is not ...:
                 raise errors.TooManyArgumentsError(f"Option `{option.key}` can only take a single value", option)
 
             return await _covert_option_or_empty(self.__ctx, option, value)
