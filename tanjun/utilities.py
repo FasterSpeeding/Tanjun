@@ -195,8 +195,8 @@ def _calculate_role_permissions(
 ) -> permissions_.Permissions:
     permissions = roles[member.guild_id].permissions
 
-    for role in filter(None, map(roles.get, member.role_ids)):
-        if role.id != member.guild_id:
+    for role in map(roles.get, member.role_ids):
+        if role and role.id != member.guild_id:
             permissions |= role.permissions
 
     return permissions
