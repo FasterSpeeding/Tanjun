@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["as_loader", "Client"]
+__all__: typing.Sequence[str] = ["as_loader", "Client", "PrefixGetterT"]
 
 import asyncio
 import importlib.util
@@ -56,7 +56,14 @@ if typing.TYPE_CHECKING:
     from hikari import users
 
     ClientT = typing.TypeVar("ClientT", bound="Client")
-    PrefixGetterT = typing.Callable[[traits.Context], typing.Awaitable[typing.Iterable[str]]]
+
+
+PrefixGetterT = typing.Callable[[traits.Context], typing.Awaitable[typing.Iterable[str]]]
+"""Type hint of a callable used to get the prefix(es) for a specific guild.
+
+This should be an asynchronous callable which takes one positional argument of
+type `tanjun.traits.Context` and returns an iterable of strings.
+"""
 
 
 class _LoadableDescriptor(traits.LoadableDescriptor):
