@@ -828,12 +828,6 @@ class Client(typing.Protocol):
     def remove_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
-    def add_prefix(self, prefix: str, /) -> None:
-        raise NotImplementedError
-
-    def remove_prefix(self, prefix: str, /) -> None:
-        raise NotImplementedError
-
     # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
     # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
     def check_context(self, ctx: Context, /) -> typing.AsyncIterator[FoundCommand]:

@@ -55,6 +55,8 @@ if typing.TYPE_CHECKING:
 
     from hikari import users
 
+    ClientT = typing.TypeVar("ClientT", bound="Client")
+
 
 class _LoadableDescriptor(traits.LoadableDescriptor):
     def __init__(self, function: traits.LoadableT, /) -> None:
@@ -99,6 +101,7 @@ class Client(traits.Client):
         "hooks",
         "_metadata",
         "_prefixes",
+        "_prefix_getter",
         "_rest",
         "_shards",
     )
@@ -111,11 +114,7 @@ class Client(traits.Client):
         cache: typing.Optional[hikari_traits.CacheAware] = None,
         /,
         *,
-        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
         event_managed: bool = True,
-        hooks: typing.Optional[traits.Hooks] = None,
-        modules: typing.Optional[typing.Iterable[typing.Union[pathlib.Path, str]]] = None,
-        prefixes: typing.Optional[typing.Iterable[str]] = None,
     ) -> None:
         rest = utilities.try_find_type(hikari_traits.RESTAware, rest, events, shard, cache)
         if not rest:
@@ -129,22 +128,22 @@ class Client(traits.Client):
         cache = utilities.try_find_type(hikari_traits.CacheAware, cache, events, rest, shard)
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
 
-        self._checks: typing.Set[traits.CheckT] = {self.check_human, *(checks or ())}
+        self._checks: typing.Set[traits.CheckT] = {self.check_human}
         self._cache = cache
         self._components: typing.Set[traits.Component] = set()
         self._events = events
-        self.hooks = hooks
+        self.hooks: typing.Optional[traits.Hooks] = None
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
-        self._prefixes = set(prefixes) if prefixes else set()
+        self._prefixes: typing.Set[str] = set()
+        self._prefix_getter: typing.Optional[
+            typing.Callable[[traits.Context], typing.Awaitable[typing.Iterable[str]]]
+        ] = None
         self._rest = rest
         self._shards = shard
 
         if event_managed:
             self._events.event_manager.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
             self._events.event_manager.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
-
-        if modules:
-            self.load_from_modules(modules)
 
     async def __aenter__(self) -> Client:
         await self.open()
@@ -199,11 +198,12 @@ class Client(traits.Client):
     async def _on_stopping_event(self, _: lifetime_events.StoppingEvent, /) -> None:
         await self.close()
 
-    def add_check(self, check: traits.CheckT, /) -> None:
-        self._checks.add(check)
-
     def remove_check(self, check: traits.CheckT, /) -> None:
         self._checks.remove(check)
+
+    def with_check(self: ClientT, check: traits.CheckT, /) -> ClientT:
+        self._checks.add(check)
+        return self
 
     async def check(self, ctx: traits.Context, /) -> bool:
         return await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks)
@@ -215,11 +215,29 @@ class Client(traits.Client):
     def remove_component(self, component: traits.Component, /) -> None:
         self._components.remove(component)
 
-    def add_prefix(self, prefix: str, /) -> None:
-        self._prefixes.add(prefix)
+    def with_component(self: ClientT, component: traits.Component, /) -> ClientT:
+        self.add_component(component)
+        return self
 
     def remove_prefix(self, prefix: str, /) -> None:
         self._prefixes.remove(prefix)
+
+    def with_prefixes(self: ClientT, prefixes: typing.Union[typing.Iterable[str], str], /) -> ClientT:
+        if isinstance(prefixes, str):
+            self._prefixes.add(prefixes)
+
+        else:
+            self._prefixes.update(prefixes)
+
+        return self
+
+    def set_prefix_getter(
+        self: ClientT,
+        getter: typing.Optional[typing.Callable[[traits.Context], typing.Awaitable[typing.Iterable[str]]]],
+        /,
+    ) -> ClientT:
+        self._prefix_getter = getter
+        return self
 
     async def check_context(self, ctx: traits.Context, /) -> typing.AsyncIterator[traits.FoundCommand]:
         async for value in utilities.async_chain(component.check_context(ctx) for component in self._components):
@@ -232,9 +250,14 @@ class Client(traits.Client):
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
         yield from itertools.chain.from_iterable(component.check_name(name) for component in self._components)
 
-    async def check_prefix(self, content: str, /) -> typing.Optional[str]:
+    async def _check_prefix(self, ctx: traits.Context, /) -> typing.Optional[str]:
+        if self._prefix_getter:
+            for prefix in await self._prefix_getter(ctx):
+                if ctx.content.startswith(prefix):
+                    return prefix
+
         for prefix in self._prefixes:
-            if content.startswith(prefix):
+            if ctx.content.startswith(prefix):
                 return prefix
 
         return None
@@ -279,7 +302,11 @@ class Client(traits.Client):
         if register_listener:
             self._events.event_manager.subscribe(message_events.MessageCreateEvent, self.on_message_create)
 
-    def load_from_modules(self, modules: typing.Iterable[typing.Union[str, pathlib.Path]]) -> None:
+    def with_hooks(self: ClientT, hooks: typing.Optional[traits.Hooks], /) -> ClientT:
+        self.hooks = hooks
+        return self
+
+    def with_modules(self: ClientT, modules: typing.Iterable[typing.Union[str, pathlib.Path]], /) -> ClientT:
         for module_path in modules:
             if isinstance(module_path, str):
                 module = importlib.import_module(module_path)
@@ -301,15 +328,18 @@ class Client(traits.Client):
                 if isinstance(member, traits.LoadableDescriptor):
                     member.load_function(self)
 
+        return self
+
     async def on_message_create(self, event: message_events.MessageCreateEvent) -> None:
         if event.message.content is None:
             return
 
-        if (prefix := await self.check_prefix(event.message.content)) is None:
+        ctx = context.Context(self, content=event.message.content, message=event.message, triggering_prefix="")
+        if (prefix := await self._check_prefix(ctx)) is None:
             return
 
-        content = event.message.content.lstrip()[len(prefix) :].lstrip()
-        ctx = context.Context(self, content=content, message=event.message, triggering_prefix=prefix)
+        ctx.content = ctx.content.lstrip()[len(prefix) :].lstrip()
+        ctx.triggering_prefix = prefix
 
         if not await self.check(ctx):
             return
