@@ -56,6 +56,7 @@ if typing.TYPE_CHECKING:
     from hikari import users
 
     ClientT = typing.TypeVar("ClientT", bound="Client")
+    PrefixGetterT = typing.Callable[[traits.Context], typing.Awaitable[typing.Iterable[str]]]
 
 
 class _LoadableDescriptor(traits.LoadableDescriptor):
@@ -100,8 +101,8 @@ class Client(traits.Client):
         "_events",
         "hooks",
         "_metadata",
-        "_prefixes",
         "_prefix_getter",
+        "_prefixes",
         "_rest",
         "_shards",
     )
@@ -134,10 +135,8 @@ class Client(traits.Client):
         self._events = events
         self.hooks: typing.Optional[traits.Hooks] = None
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
+        self._prefix_getter: typing.Optional[PrefixGetterT] = None
         self._prefixes: typing.Set[str] = set()
-        self._prefix_getter: typing.Optional[
-            typing.Callable[[traits.Context], typing.Awaitable[typing.Iterable[str]]]
-        ] = None
         self._rest = rest
         self._shards = shard
 
@@ -179,6 +178,10 @@ class Client(traits.Client):
     @property
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         return self._metadata
+
+    @property
+    def prefix_getter(self) -> typing.Optional[PrefixGetterT]:
+        return self._prefix_getter
 
     @property
     def prefixes(self) -> typing.AbstractSet[str]:
@@ -231,11 +234,7 @@ class Client(traits.Client):
 
         return self
 
-    def set_prefix_getter(
-        self: ClientT,
-        getter: typing.Optional[typing.Callable[[traits.Context], typing.Awaitable[typing.Iterable[str]]]],
-        /,
-    ) -> ClientT:
+    def set_prefix_getter(self: ClientT, getter: typing.Optional[PrefixGetterT], /) -> ClientT:
         self._prefix_getter = getter
         return self
 
