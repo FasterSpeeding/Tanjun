@@ -334,7 +334,7 @@ class Client(traits.Client):
         if event.message.content is None:
             return
 
-        ctx = context.Context(self, content=event.message.content, message=event.message, triggering_prefix="")
+        ctx = context.Context(self, content=event.message.content, message=event.message)
         if (prefix := await self._check_prefix(ctx)) is None:
             return
 

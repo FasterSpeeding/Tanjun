@@ -489,7 +489,7 @@ class Context(typing.Protocol):
         """
         raise NotImplementedError
 
-    @property
+    @property  # TODO: can we somehow have this always be present on the command execution facing interface
     def command(self) -> typing.Optional[ExecutableCommand]:
         raise NotImplementedError
 
@@ -526,15 +526,11 @@ class Context(typing.Protocol):
         raise NotImplementedError
 
     @property
-    def triggering_prefix(self) -> typing.Optional[str]:
-        raise NotImplementedError
-
-    @triggering_prefix.setter
-    def triggering_prefix(self, triggering_prefix: str, /) -> None:
+    def triggering_prefix(self) -> str:
         raise NotImplementedError
 
     @property
-    def triggering_name(self) -> typing.Optional[str]:
+    def triggering_name(self) -> str:
         raise NotImplementedError
 
     @triggering_name.setter
