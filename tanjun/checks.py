@@ -160,10 +160,10 @@ class ApplicationOwnerCheck:
 
         application = await self._get_application(ctx)
 
-        if not application.team and application.owner:
+        if not application.team:
             return ctx.message.author.id == application.owner.id
 
-        return bool(application.team and ctx.message.author.id in application.team.members)
+        return ctx.message.author.id in application.team.members
 
     async def update(
         self,
