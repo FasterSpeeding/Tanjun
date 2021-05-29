@@ -280,7 +280,7 @@ def with_dm_check(command: CommandT, /) -> CommandT:
     CommandT
         The command this check was added to.
     """
-    command.add_check(dm_check)
+    command.append_check(dm_check)
     return command
 
 
@@ -297,7 +297,7 @@ def with_guild_check(command: CommandT, /) -> CommandT:
     CommandT
         The command this check was added to.
     """
-    command.add_check(guild_check)
+    command.append_check(guild_check)
     return command
 
 
@@ -314,7 +314,7 @@ def with_nsfw_check(command: CommandT, /) -> CommandT:
     CommandT
         The command this check was added to.
     """
-    command.add_check(nsfw_check)
+    command.append_check(nsfw_check)
     return command
 
 
@@ -331,7 +331,7 @@ def with_sfw_check(command: CommandT, /) -> CommandT:
     CommandT
         The command this check was added to.
     """
-    command.add_check(sfw_check)
+    command.append_check(sfw_check)
     return command
 
 
@@ -352,7 +352,7 @@ def with_owner_check(command: CommandT, /) -> CommandT:
     CommandT
         The command this check was added to.
     """
-    command.add_check(ApplicationOwnerCheck())
+    command.append_check(ApplicationOwnerCheck())
     return command
 
 
@@ -376,7 +376,7 @@ def with_author_permission_check(
     """
 
     def decorator(command: CommandT, /) -> CommandT:
-        command.add_check(AuthorPermissionCheck(permissions))
+        command.append_check(AuthorPermissionCheck(permissions))
         return command
 
     return decorator
@@ -402,7 +402,7 @@ def with_own_permission_check(
     """
 
     def decorator(command: CommandT, /) -> CommandT:
-        command.add_check(BotPermissionsCheck(permissions))
+        command.append_check(BotPermissionsCheck(permissions))
         return command
 
     return decorator

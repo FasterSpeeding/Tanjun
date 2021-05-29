@@ -43,6 +43,9 @@ from tanjun import hooks as hooks_
 from tanjun import traits
 from tanjun import utilities
 
+CommandT = typing.TypeVar("CommandT", bound="Command")
+CommandGroupT = typing.TypeVar("CommandGroupT", bound="CommandGroup")
+
 
 class FoundCommand(traits.FoundCommand):
     __slots__: typing.Sequence[str] = ("command", "name", "prefix")
@@ -107,14 +110,18 @@ class Command(traits.ExecutableCommand):
     def names(self) -> typing.AbstractSet[str]:
         return frozenset(self._names)
 
-    def add_check(self, check: traits.CheckT, /) -> None:
+    def add_check(self: CommandT, check: traits.CheckT, /) -> CommandT:
+        self.add_check(check)
+        return self
+
+    def append_check(self, check: traits.CheckT, /) -> None:
         self._checks.add(check)
 
     def remove_check(self, check: traits.CheckT, /) -> None:
         self._checks.remove(check)
 
     def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
-        self.add_check(check)
+        self.append_check(check)
         return check
 
     async def check_context(
@@ -124,7 +131,11 @@ class Command(traits.ExecutableCommand):
             if await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks):
                 yield found
 
-    def add_name(self, name: str, /) -> None:
+    def add_name(self: CommandT, name: str, /) -> CommandT:
+        self.append_name(name)
+        return self
+
+    def append_name(self, name: str, /) -> None:
         self._names.add(name)
 
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
@@ -230,7 +241,11 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
     def commands(self) -> typing.AbstractSet[traits.ExecutableCommand]:
         return frozenset(self._commands)
 
-    def add_command(self, command: traits.ExecutableCommand, /) -> None:
+    def add_command(self: CommandGroupT, command: traits.ExecutableCommand, /) -> CommandGroupT:
+        self.append_command(command)
+        return self
+
+    def append_command(self, command: traits.ExecutableCommand, /) -> None:
         command.parent = self
         self._commands.add(command)
 

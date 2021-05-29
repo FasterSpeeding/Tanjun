@@ -275,7 +275,7 @@ class CommandDescriptor(typing.Protocol):
     def parser(self, parser: ParserDescriptor, /) -> None:
         raise NotImplementedError
 
-    def add_check(self, check: CheckT, /) -> None:
+    def append_check(self, check: CheckT, /) -> None:
         """Add a pre-execution check for this command descriptor.
 
         This will be run before execution to decide whether the command should
@@ -313,7 +313,7 @@ class CommandDescriptor(typing.Protocol):
         """
         raise NotImplementedError
 
-    def add_name(self, name: str, /) -> None:
+    def append_name(self, name: str, /) -> None:
         """Add a execution name to this command.
 
         This name is used to decide whether the command fits a given string or
@@ -614,7 +614,7 @@ class Executable(typing.Protocol):
     def hooks(self, hooks: typing.Optional[Hooks]) -> None:
         raise NotImplementedError
 
-    def add_check(self, check: CheckT, /) -> None:
+    def append_check(self, check: CheckT, /) -> None:
         raise NotImplementedError
 
     def remove_check(self, check: CheckT, /) -> None:
@@ -692,7 +692,7 @@ class ExecutableCommand(Executable, typing.Protocol):
     def parser(self, parser: typing.Optional[Parser], /) -> None:
         raise NotImplementedError
 
-    def add_name(self, name: str, /) -> None:
+    def append_name(self, name: str, /) -> None:
         raise NotImplementedError
 
     def remove_name(self, name: str, /) -> None:
@@ -712,7 +712,7 @@ class ExecutableCommandGroup(ExecutableCommand, typing.Protocol):
     def commands(self) -> typing.AbstractSet[ExecutableCommand]:
         raise NotImplementedError
 
-    def add_command(self, command: ExecutableCommand, /) -> None:
+    def append_command(self, command: ExecutableCommand, /) -> None:
         raise NotImplementedError
 
     def remove_command(self, command: ExecutableCommand, /) -> None:
@@ -752,13 +752,13 @@ class Component(Executable, typing.Protocol):
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         raise NotImplementedError
 
-    def add_command(self, command: ExecutableCommand, /) -> None:
+    def append_command(self, command: ExecutableCommand, /) -> None:
         raise NotImplementedError
 
     def remove_command(self, command: ExecutableCommand, /) -> None:
         raise NotImplementedError
 
-    def add_listener(
+    def append_listener(
         self, event: typing.Type[base_events.Event], listener: event_manager.CallbackT[typing.Any], /
     ) -> None:
         raise NotImplementedError
@@ -818,7 +818,7 @@ class Client(typing.Protocol):
     def shard_service(self) -> traits.ShardAware:
         raise NotImplementedError
 
-    def add_component(self, component: Component, /) -> None:
+    def append_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
     def remove_component(self, component: Component, /) -> None:

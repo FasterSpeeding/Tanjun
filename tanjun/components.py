@@ -48,6 +48,10 @@ from tanjun import utilities
 if typing.TYPE_CHECKING:
     from hikari.api import event_manager
 
+    CommandT = typing.TypeVar("CommandT", "traits.ExecutableCommand", traits.CommandDescriptor)
+    ComponentT = typing.TypeVar("ComponentT", bound="Component")
+    ValueT = typing.TypeVar("ValueT")
+
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
@@ -113,14 +117,14 @@ class CommandDescriptor(traits.CommandDescriptor):
     def parser(self, parser_: typing.Optional[traits.ParserDescriptor]) -> None:
         self._parser = parser_
 
-    def add_check(self, check: traits.CheckT, /) -> None:
+    def append_check(self, check: traits.CheckT, /) -> None:
         self._checks.append(check)
 
     def with_check(self, check: traits.UnboundCheckT[traits.ComponentT], /) -> traits.UnboundCheckT[traits.ComponentT]:
         self._unbound_checks.append(check)
         return check
 
-    def add_name(self, name: str, /) -> None:
+    def append_name(self, name: str, /) -> None:
         self._names.append(name)
 
     def build_command(self, component: traits.Component, /) -> traits.ExecutableCommand:
@@ -177,7 +181,7 @@ class CommandGroupDescriptor(CommandDescriptor):
         group.bind_component(component)
 
         for descriptor in self._commands:
-            group.add_command(descriptor.build_command(component))
+            group.append_command(descriptor.build_command(component))
 
         return group
 
@@ -506,24 +510,44 @@ class Component(traits.Component):
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         return self._metadata
 
-    def add_check(self, check: traits.CheckT, /) -> None:
+    def add_check(self: ComponentT, check: traits.CheckT, /) -> ComponentT:
+        self.append_check(check)
+        return self
+
+    def append_check(self, check: traits.CheckT, /) -> None:
         self._checks.add(check)
 
     def remove_check(self, check: traits.CheckT, /) -> None:
         self._checks.remove(check)
 
     def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
-        self.add_check(check)
+        self.append_check(check)
         return check
 
-    def add_command(self, command: typing.Union[traits.ExecutableCommand, traits.CommandDescriptor], /) -> None:
+    def add_command(
+        self: ComponentT, command: typing.Union[traits.ExecutableCommand, traits.CommandDescriptor], /
+    ) -> ComponentT:
+        self.append_command(command)
+        return self
+
+    def append_command(self, command: typing.Union[traits.ExecutableCommand, traits.CommandDescriptor], /) -> None:
         command = command.build_command(self) if isinstance(command, traits.CommandDescriptor) else command
         self._commands.add(command)
 
     def remove_command(self, command: traits.ExecutableCommand, /) -> None:
         self._commands.remove(command)
 
+    def with_command(self, command: CommandT, /) -> CommandT:
+        self.append_command(command)
+        return command
+
     def add_listener(
+        self: ComponentT, event: typing.Type[base_events.Event], listener: event_manager.CallbackT[typing.Any], /
+    ) -> ComponentT:
+        self.append_listener(event, listener)
+        return self
+
+    def append_listener(
         self, event: typing.Type[base_events.Event], listener: event_manager.CallbackT[typing.Any], /
     ) -> None:
         self._listeners.add((event, listener))
@@ -538,6 +562,15 @@ class Component(traits.Component):
 
         if self.started and self._client:
             self._client.event_service.event_manager.unsubscribe(event, listener)
+
+    def with_listener(
+        self, event: typing.Type[base_events.Event], /
+    ) -> typing.Callable[[event_manager.CallbackT[ValueT]], event_manager.CallbackT[ValueT]]:
+        def decorator(callback: event_manager.CallbackT[ValueT], /) -> event_manager.CallbackT[ValueT]:
+            self.append_listener(event, callback)
+            return callback
+
+        return decorator
 
     def bind_client(self, client: traits.Client, /) -> None:
         self._client = client
@@ -622,10 +655,10 @@ class Component(traits.Component):
 
             elif isinstance(member, traits.ListenerDescriptor):
                 event_, listener = member.build_listener(self)
-                self.add_listener(event_, listener)
+                self.append_listener(event_, listener)
                 setattr(self, name, listener)
 
             elif isinstance(member, traits.CheckDescriptor):
                 check = member.build_check(self)
-                self.add_check(check)
+                self.append_check(check)
                 setattr(self, name, check)

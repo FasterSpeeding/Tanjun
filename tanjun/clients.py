@@ -208,31 +208,31 @@ class Client(traits.Client):
     async def _on_stopping_event(self, _: lifetime_events.StoppingEvent, /) -> None:
         await self.close()
 
+    def add_check(self: ClientT, check: traits.CheckT, /) -> ClientT:
+        self._checks.add(check)
+        return self
+
     def remove_check(self, check: traits.CheckT, /) -> None:
         self._checks.remove(check)
 
-    def with_check(self: ClientT, check: traits.CheckT, /) -> ClientT:
-        self._checks.add(check)
-        return self
+    def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
+        self.add_check(check)
+        return check
 
     async def check(self, ctx: traits.Context, /) -> bool:
         return await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks)
 
-    def add_component(self, component: traits.Component, /) -> None:
-        component.bind_client(self)
+    def add_component(self: ClientT, component: traits.Component, /) -> ClientT:
+        self.add_component(component)
+        return self
+
+    def append_component(self, component: traits.Component, /) -> None:
         self._components.add(component)
 
     def remove_component(self, component: traits.Component, /) -> None:
         self._components.remove(component)
 
-    def with_component(self: ClientT, component: traits.Component, /) -> ClientT:
-        self.add_component(component)
-        return self
-
-    def remove_prefix(self, prefix: str, /) -> None:
-        self._prefixes.remove(prefix)
-
-    def with_prefixes(self: ClientT, prefixes: typing.Union[typing.Iterable[str], str], /) -> ClientT:
+    def add_prefix(self: ClientT, prefixes: typing.Union[typing.Iterable[str], str], /) -> ClientT:
         if isinstance(prefixes, str):
             self._prefixes.add(prefixes)
 
@@ -240,6 +240,9 @@ class Client(traits.Client):
             self._prefixes.update(prefixes)
 
         return self
+
+    def remove_prefix(self, prefix: str, /) -> None:
+        self._prefixes.remove(prefix)
 
     def set_prefix_getter(self: ClientT, getter: typing.Optional[PrefixGetterT], /) -> ClientT:
         self._prefix_getter = getter
@@ -308,11 +311,11 @@ class Client(traits.Client):
         if register_listener:
             self._events.event_manager.subscribe(message_events.MessageCreateEvent, self.on_message_create)
 
-    def with_hooks(self: ClientT, hooks: typing.Optional[traits.Hooks], /) -> ClientT:
+    def set_hooks(self: ClientT, hooks: typing.Optional[traits.Hooks], /) -> ClientT:
         self.hooks = hooks
         return self
 
-    def with_modules(self: ClientT, modules: typing.Iterable[typing.Union[str, pathlib.Path]], /) -> ClientT:
+    def load_modules(self: ClientT, modules: typing.Iterable[typing.Union[str, pathlib.Path]], /) -> ClientT:
         for module_path in modules:
             if isinstance(module_path, str):
                 module = importlib.import_module(module_path)
