@@ -53,6 +53,8 @@ if typing.TYPE_CHECKING:
     import pathlib
     import types
 
+    from hikari import users
+
 
 class _LoadableDescriptor(traits.LoadableDescriptor):
     def __init__(self, function: traits.LoadableT, /) -> None:
@@ -244,31 +246,36 @@ class Client(traits.Client):
             self._events.event_manager.unsubscribe(message_events.MessageCreateEvent, self.on_message_create)
 
     async def open(self, *, register_listener: bool = True) -> None:
-        await asyncio.gather(*(component.open() for component in self._components))
-
         if self._grab_mention_prefix:
-            retry = backoff.Backoff(max_retries=4, maximum=30)
+            user: typing.Optional[users.User] = None
+            if self._cache:
+                user = self._cache.cache.get_me()
 
-            async for _ in retry:
-                try:
+            if not user:
+                retry = backoff.Backoff(max_retries=4, maximum=30)
+
+                async for _ in retry:
+                    try:
+                        user = await self._rest.rest.fetch_my_user()
+                        break
+
+                    except (hikari_errors.RateLimitedError, hikari_errors.RateLimitTooLongError) as exc:
+                        if exc.retry_after > 30:
+                            raise
+
+                        retry.set_next_backoff(exc.retry_after)
+
+                    except hikari_errors.InternalServerError:
+                        continue
+
+                else:
                     user = await self._rest.rest.fetch_my_user()
-                    break
-
-                except (hikari_errors.RateLimitedError, hikari_errors.RateLimitTooLongError) as exc:
-                    if exc.retry_after > 30:
-                        raise
-
-                    retry.set_next_backoff(exc.retry_after)
-
-                except hikari_errors.InternalServerError:
-                    continue
-
-            else:
-                user = await self._rest.rest.fetch_my_user()
 
             self._grab_mention_prefix = False
             self._prefixes.add(f"<@{user.id}>")
             self._prefixes.add(f"<@!{user.id}>")
+
+        await asyncio.gather(*(component.open() for component in self._components))
 
         if register_listener:
             self._events.event_manager.subscribe(message_events.MessageCreateEvent, self.on_message_create)
