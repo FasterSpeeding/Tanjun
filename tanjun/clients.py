@@ -238,10 +238,10 @@ class Client(traits.Client):
         return None
 
     async def close(self, *, deregister_listener: bool = True) -> None:
-        self._events.event_manager.unsubscribe(message_events.MessageCreateEvent, self.on_message_create)
+        await asyncio.gather(*(component.close() for component in self._components))
 
         if deregister_listener:
-            await asyncio.gather(*(component.close() for component in self._components))
+            self._events.event_manager.unsubscribe(message_events.MessageCreateEvent, self.on_message_create)
 
     async def open(self, *, register_listener: bool = True) -> None:
         await asyncio.gather(*(component.open() for component in self._components))
