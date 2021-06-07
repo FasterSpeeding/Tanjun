@@ -221,7 +221,7 @@ class AuthorPermissionCheck(PermissionCheck):
         if not ctx.message.member:
             return utilities.ALL_PERMISSIONS
 
-        return await utilities.calculate_permissions(ctx.client, ctx.message.member, channel=ctx.message.channel_id)
+        return await utilities.fetch_permissions(ctx.client, ctx.message.member, channel=ctx.message.channel_id)
 
 
 class BotPermissionsCheck(PermissionCheck):
@@ -237,7 +237,7 @@ class BotPermissionsCheck(PermissionCheck):
             return utilities.ALL_PERMISSIONS
 
         member = await self._get_member(ctx, ctx.message.guild_id)
-        return await utilities.calculate_permissions(ctx.client, member, channel=ctx.message.channel_id)
+        return await utilities.fetch_permissions(ctx.client, member, channel=ctx.message.channel_id)
 
     async def _get_member(self, ctx: tanjun_traits.Context, guild_id: snowflakes.Snowflake, /) -> guilds.Member:
         user = await self._get_user(ctx.client.cache_service, ctx.client.rest_service)

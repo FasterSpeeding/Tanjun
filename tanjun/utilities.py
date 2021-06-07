@@ -38,6 +38,7 @@ __all__: typing.Sequence[str] = [
     "gather_checks",
     "ALL_PERMISSIONS",
     "calculate_permissions",
+    "fetch_permissions",
     "with_function_wrapping",
     "try_find_type",
 ]
@@ -202,12 +203,62 @@ def _calculate_role_permissions(
     return permissions
 
 
-async def calculate_permissions(
+def calculate_permissions(
+    member: guilds.Member,
+    guild: guilds.Guild,
+    roles: typing.Mapping[snowflakes.Snowflake, guilds.Role],
+    *,
+    channel: typing.Optional[channels.GuildChannel] = None,
+) -> permissions_.Permissions:
+    """Calculate the permissions a member has within a guild.
+
+    Parameters
+    ----------
+    member : hikari.guilds.Member
+        Object of the member to calculate the permissions for.
+    guild : hikari.guilds.Guild
+        Object of the guild to calculate their permissions within.
+    roles : typing.Mapping[hikari.snowflakes.Snowflake, hikari.guilds.Role]
+        Mapping of snowflake IDs to objects of the roles within the target
+        guild.
+
+    Other Parameters
+    ----------------
+    channel : typing.Optional[hikari.channels.GuildChannel]
+        Object of the channel to calculate the member's permissions in.
+
+        If this is left as `builtins.None` then this will just calculate their
+        permissions on a guild level.
+
+    Returns
+    -------
+    hikari.permissions.Permission
+        Value of the member's permissions either within the guild or specified
+        guild channel.
+    """
+    if member.guild_id != guild.id:
+        raise ValueError("Member object isn't from the provided guild")
+
+    # Guild owners are implicitly admins.
+    if guild.owner_id == member.user.id:
+        return ALL_PERMISSIONS
+
+    # Admin permission overrides all overwrites and is only applicable to roles.
+    if (permissions := _calculate_role_permissions(roles, member)) & permissions.ADMINISTRATOR:
+        return ALL_PERMISSIONS
+
+    if not channel:
+        return permissions
+
+    return _calculate_channel_overwrites(channel, member, permissions)
+
+
+async def fetch_permissions(
     client: tanjun_traits.Client,
     member: guilds.Member,
     /,
     *,
-    channel: typing.Optional[snowflakes.SnowflakeishOr[channels.GuildChannel]],
+    channel: typing.Optional[snowflakes.SnowflakeishOr[channels.PartialChannel]] = None,
 ) -> permissions_.Permissions:
     """Calculate the permissions a member has within a guild.
 
@@ -217,6 +268,9 @@ async def calculate_permissions(
         The Tanjun client to use for lookups.
     member : hikari.guilds.Member
         The object of the member to calculate the permissions for.
+
+    Other Parameters
+    ----------------
     channel : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.channels.GuildChannel]]
         The object of ID of the channel to get their permissions in.
         If left as `builtins.None` then this will return their base guild
@@ -234,16 +288,9 @@ async def calculate_permissions(
     # The ordering of how this adds and removes permissions does matter.
     # For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.
     retry = backoff.Backoff(maximum=5, max_retries=4)
-    found_channel = channel if isinstance(channel, channels.GuildChannel) else None
-    guild: typing.Optional[guilds.Guild] = None
+    guild: typing.Optional[guilds.Guild]
     roles: typing.Optional[typing.Mapping[snowflakes.Snowflake, guilds.Role]] = None
-    if client.cache_service:
-        if not found_channel and channel:
-            found_channel = client.cache_service.cache.get_guild_channel(snowflakes.Snowflake(channel))
-
-        guild = client.cache_service.cache.get_guild(member.guild_id)
-        roles = client.cache_service.cache.get_roles_view_for_guild(member.guild_id)
-
+    guild = client.cache_service.cache.get_guild(member.guild_id) if client.cache_service else None
     if not guild:
         guild = await fetch_resource(retry, client.rest_service.rest.fetch_guild, member.guild_id)
         assert guild is not None
@@ -253,6 +300,7 @@ async def calculate_permissions(
     if guild.owner_id == member.user.id:
         return ALL_PERMISSIONS
 
+    roles = roles or client.cache_service and client.cache_service.cache.get_roles_view_for_guild(member.guild_id)
     if not roles:
         raw_roles = await fetch_resource(retry, client.rest_service.rest.fetch_roles, member.guild_id)
         roles = {role.id: role for role in raw_roles}
@@ -264,10 +312,20 @@ async def calculate_permissions(
     if not channel:
         return permissions
 
+    found_channel: typing.Optional[channels.GuildChannel] = None
+    if isinstance(channel, channels.GuildChannel):
+        found_channel = channel
+
+    elif client.cache_service:
+        found_channel = client.cache_service.cache.get_guild_channel(snowflakes.Snowflake(channel))
+
     if not found_channel:
         raw_channel = await fetch_resource(retry, client.rest_service.rest.fetch_channel, channel)
-        assert isinstance(raw_channel, channels.GuildChannel), "We shouldn't get DM channels in guilds."
+        assert isinstance(raw_channel, channels.GuildChannel), "Cannot perform operation on a DM channel."
         found_channel = raw_channel
+
+    if found_channel.guild_id != guild.id:
+        raise ValueError("Channel doesn't match up with the member's guild")
 
     return _calculate_channel_overwrites(found_channel, member, permissions)
 
