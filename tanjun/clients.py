@@ -112,6 +112,7 @@ class Client(traits.Client):
         /,
         *,
         checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
+        event_managed: bool = True,
         hooks: typing.Optional[traits.Hooks] = None,
         modules: typing.Optional[typing.Iterable[typing.Union[pathlib.Path, str]]] = None,
         prefixes: typing.Optional[typing.Iterable[str]] = None,
@@ -137,8 +138,10 @@ class Client(traits.Client):
         self._prefixes = set(prefixes) if prefixes else set()
         self._rest = rest
         self._shards = shard
-        self._events.event_manager.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
-        self._events.event_manager.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
+
+        if event_managed:
+            self._events.event_manager.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
+            self._events.event_manager.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
 
         if modules:
             self.load_from_modules(modules)
