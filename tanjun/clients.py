@@ -31,9 +31,10 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["as_loader", "Client", "PrefixGetterT"]
+__all__: typing.Sequence[str] = ["AcceptsEnum", "as_loader", "Client", "PrefixGetterT"]
 
 import asyncio
+import enum
 import importlib.util
 import inspect
 import itertools
@@ -100,8 +101,33 @@ def as_loader(function: traits.LoadableT) -> traits.LoadableT:
     return _LoadableDescriptor(function)
 
 
+class AcceptsEnum(str, enum.Enum):
+    ALL = "ALL"
+    DM_ONLY = "DM_ONLY"
+    GUILD_ONLY = "GUILD_ONLY"
+    NONE = "NONE"
+
+    def get_event_type(self) -> typing.Optional[typing.Type[message_events.MessageCreateEvent]]:
+        return __ACCEPTS_EVENT_TYPE_MAPPING[self]
+
+
+__ACCEPTS_EVENT_TYPE_MAPPING: typing.Dict[
+    AcceptsEnum, typing.Optional[typing.Type[message_events.MessageCreateEvent]]
+] = {
+    AcceptsEnum.ALL: message_events.MessageCreateEvent,
+    AcceptsEnum.DM_ONLY: message_events.DMMessageCreateEvent,
+    AcceptsEnum.GUILD_ONLY: message_events.GuildMessageCreateEvent,
+    AcceptsEnum.NONE: None,
+}
+
+
+def _check_human(ctx: traits.Context, /) -> bool:
+    return not ctx.message.author.is_bot and ctx.message.webhook_id is None
+
+
 class Client(traits.Client):
     __slots__: typing.Sequence[str] = (
+        "_accepts",
         "_cache",
         "_checks",
         "_components",
@@ -136,7 +162,8 @@ class Client(traits.Client):
         cache = utilities.try_find_type(hikari_traits.CacheAware, cache, events, rest, shard)
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
 
-        self._checks: typing.Set[traits.CheckT] = {self.check_human}
+        self._accepts = AcceptsEnum.ALL
+        self._checks: typing.Set[traits.CheckT] = set()
         self._cache = cache
         self._components: typing.Set[traits.Component] = set()
         self._events = events
@@ -150,6 +177,7 @@ class Client(traits.Client):
         if event_managed:
             self._events.event_manager.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
             self._events.event_manager.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
+        self.set_human_only()
 
     async def __aenter__(self) -> Client:
         await self.open()
@@ -165,6 +193,16 @@ class Client(traits.Client):
 
     def __repr__(self) -> str:
         return f"CommandClient <{type(self).__name__!r}, {len(self._components)} components, {self._prefixes}>"
+
+    @property
+    def accepts(self) -> AcceptsEnum:
+        """The type of message create events this command client accepts for execution."""
+        return self._accepts
+
+    @property
+    def is_human_only(self) -> bool:
+        """Whether this client is only executing for non-bot/webhook users messages."""
+        return _check_human in self._checks
 
     @property
     def cache_service(self) -> typing.Optional[hikari_traits.CacheAware]:
@@ -207,6 +245,22 @@ class Client(traits.Client):
 
     async def _on_stopping_event(self, _: lifetime_events.StoppingEvent, /) -> None:
         await self.close()
+
+    def set_accepts(self: ClientT, accepts: AcceptsEnum, /) -> ClientT:
+        self._accepts = accepts
+        return self
+
+    def set_human_only(self: ClientT, value: bool = True) -> ClientT:
+        if value:
+            self._checks.add(_check_human)
+
+        else:
+            try:
+                self._checks.remove(_check_human)
+            except ValueError:
+                pass
+
+        return self
 
     def add_check(self: ClientT, check: traits.CheckT, /) -> ClientT:
         self._checks.add(check)
@@ -252,10 +306,6 @@ class Client(traits.Client):
         async for value in utilities.async_chain(component.check_context(ctx) for component in self._components):
             yield value
 
-    @staticmethod
-    def check_human(ctx: traits.Context, /) -> bool:
-        return not ctx.message.author.is_bot and ctx.message.webhook_id is None
-
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
         yield from itertools.chain.from_iterable(component.check_name(name) for component in self._components)
 
@@ -274,8 +324,12 @@ class Client(traits.Client):
     async def close(self, *, deregister_listener: bool = True) -> None:
         await asyncio.gather(*(component.close() for component in self._components))
 
-        if deregister_listener:
-            self._events.event_manager.unsubscribe(message_events.MessageCreateEvent, self.on_message_create)
+        event_type = self._accepts.get_event_type()
+        if deregister_listener and event_type:
+            try:
+                self._events.event_manager.unsubscribe(event_type, self.on_message_create)
+            except (ValueError, LookupError):
+                pass
 
     async def open(self, *, mention_prefix: bool = True, register_listener: bool = True) -> None:
         if mention_prefix:
@@ -308,8 +362,9 @@ class Client(traits.Client):
 
         await asyncio.gather(*(component.open() for component in self._components))
 
-        if register_listener:
-            self._events.event_manager.subscribe(message_events.MessageCreateEvent, self.on_message_create)
+        event_type = self._accepts.get_event_type()
+        if register_listener and event_type:
+            self._events.event_manager.subscribe(event_type, self.on_message_create)
 
     def set_hooks(self: ClientT, hooks: typing.Optional[traits.Hooks], /) -> ClientT:
         self.hooks = hooks
