@@ -111,17 +111,14 @@ class Command(traits.ExecutableCommand):
         return frozenset(self._names)
 
     def add_check(self: CommandT, check: traits.CheckT, /) -> CommandT:
-        self.add_check(check)
-        return self
-
-    def append_check(self, check: traits.CheckT, /) -> None:
         self._checks.add(check)
+        return self
 
     def remove_check(self, check: traits.CheckT, /) -> None:
         self._checks.remove(check)
 
     def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
-        self.append_check(check)
+        self.add_check(check)
         return check
 
     async def check_context(
@@ -132,11 +129,8 @@ class Command(traits.ExecutableCommand):
                 yield found
 
     def add_name(self: CommandT, name: str, /) -> CommandT:
-        self.append_name(name)
-        return self
-
-    def append_name(self, name: str, /) -> None:
         self._names.add(name)
+        return self
 
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
         for own_name in self._names:
@@ -242,16 +236,13 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
         return frozenset(self._commands)
 
     def add_command(self: CommandGroupT, command: traits.ExecutableCommand, /) -> CommandGroupT:
-        self.append_command(command)
-        return self
-
-    def append_command(self, command: traits.ExecutableCommand, /) -> None:
         command.parent = self
         self._commands.add(command)
+        return self
 
     def remove_command(self, command: traits.ExecutableCommand, /) -> None:
-        command.parent = None
         self._commands.remove(command)
+        command.parent = None
 
     def with_command(
         self,

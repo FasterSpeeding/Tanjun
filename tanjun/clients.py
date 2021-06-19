@@ -277,11 +277,8 @@ class Client(traits.Client):
         return await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks)
 
     def add_component(self: ClientT, component: traits.Component, /) -> ClientT:
-        self.add_component(component)
-        return self
-
-    def append_component(self, component: traits.Component, /) -> None:
         self._components.add(component)
+        return self
 
     def remove_component(self, component: traits.Component, /) -> None:
         self._components.remove(component)
