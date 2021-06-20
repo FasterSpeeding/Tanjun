@@ -108,10 +108,10 @@ class AcceptsEnum(str, enum.Enum):
     NONE = "NONE"
 
     def get_event_type(self) -> typing.Optional[typing.Type[message_events.MessageCreateEvent]]:
-        return __ACCEPTS_EVENT_TYPE_MAPPING[self]
+        return _ACCEPTS_EVENT_TYPE_MAPPING[self]
 
 
-__ACCEPTS_EVENT_TYPE_MAPPING: typing.Dict[
+_ACCEPTS_EVENT_TYPE_MAPPING: typing.Dict[
     AcceptsEnum, typing.Optional[typing.Type[message_events.MessageCreateEvent]]
 ] = {
     AcceptsEnum.ALL: message_events.MessageCreateEvent,
@@ -277,6 +277,7 @@ class Client(traits.Client):
         return await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks)
 
     def add_component(self: _ClientT, component: traits.Component, /) -> _ClientT:
+        component.bind_client(self)
         self._components.add(component)
         return self
 
