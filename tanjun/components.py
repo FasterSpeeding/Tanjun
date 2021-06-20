@@ -48,10 +48,10 @@ from tanjun import utilities
 if typing.TYPE_CHECKING:
     from hikari.api import event_manager
 
-    CommandDescriptorT = typing.TypeVar("CommandDescriptorT", bound="CommandDescriptor")
-    CommandT = typing.TypeVar("CommandT", "traits.ExecutableCommand", traits.CommandDescriptor)
+    _CommandDescriptorT = typing.TypeVar("_CommandDescriptorT", bound="CommandDescriptor")
+    _CommandT = typing.TypeVar("_CommandT", "traits.ExecutableCommand", traits.CommandDescriptor)
     ComponentT = typing.TypeVar("ComponentT", bound="Component")
-    ValueT = typing.TypeVar("ValueT")
+    _ValueT = typing.TypeVar("_ValueT")
 
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
@@ -118,7 +118,7 @@ class CommandDescriptor(traits.CommandDescriptor):
     def parser(self, parser_: typing.Optional[traits.ParserDescriptor]) -> None:
         self._parser = parser_
 
-    def add_check(self: CommandDescriptorT, check: traits.CheckT, /) -> CommandDescriptorT:
+    def add_check(self: _CommandDescriptorT, check: traits.CheckT, /) -> _CommandDescriptorT:
         self._checks.append(check)
         return self
 
@@ -126,7 +126,7 @@ class CommandDescriptor(traits.CommandDescriptor):
         self._unbound_checks.append(check)
         return check
 
-    def add_name(self: CommandDescriptorT, name: str, /) -> CommandDescriptorT:
+    def add_name(self: _CommandDescriptorT, name: str, /) -> _CommandDescriptorT:
         self._names.append(name)
         return self
 
@@ -534,7 +534,7 @@ class Component(traits.Component):
     def remove_command(self, command: traits.ExecutableCommand, /) -> None:
         self._commands.remove(command)
 
-    def with_command(self, command: CommandT, /) -> CommandT:
+    def with_command(self, command: _CommandT, /) -> _CommandT:
         self.add_command(command)
         return command
 
@@ -558,8 +558,8 @@ class Component(traits.Component):
 
     def with_listener(
         self, event: typing.Type[base_events.Event], /
-    ) -> typing.Callable[[event_manager.CallbackT[ValueT]], event_manager.CallbackT[ValueT]]:
-        def decorator(callback: event_manager.CallbackT[ValueT], /) -> event_manager.CallbackT[ValueT]:
+    ) -> typing.Callable[[event_manager.CallbackT[_ValueT]], event_manager.CallbackT[_ValueT]]:
+        def decorator(callback: event_manager.CallbackT[_ValueT], /) -> event_manager.CallbackT[_ValueT]:
             self.add_listener(event, callback)
             return callback
 

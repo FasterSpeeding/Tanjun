@@ -66,8 +66,8 @@ if typing.TYPE_CHECKING:
     from tanjun import traits as tanjun_traits
 
 
-CommandT = typing.TypeVar(
-    "CommandT", "tanjun_traits.CommandDescriptor", "tanjun_traits.ExecutableCommand", contravariant=True
+CommandT_contra = typing.TypeVar(
+    "CommandT_contra", "tanjun_traits.CommandDescriptor", "tanjun_traits.ExecutableCommand", contravariant=True
 )
 
 
@@ -267,75 +267,75 @@ class BotPermissionsCheck(PermissionCheck):
         return self._me
 
 
-def with_dm_check(command: CommandT, /) -> CommandT:
+def with_dm_check(command: CommandT_contra, /) -> CommandT_contra:
     """Only let a command run in a DM channel.
 
     Parameters
     ----------
-    command : CommandT
+    command : CommandT_contra
         The command to add this check to.
 
     Returns
     -------
-    CommandT
+    CommandT_contra
         The command this check was added to.
     """
     command.add_check(dm_check)
     return command
 
 
-def with_guild_check(command: CommandT, /) -> CommandT:
+def with_guild_check(command: CommandT_contra, /) -> CommandT_contra:
     """Only let a command run in a guild channel.
 
     Parameters
     ----------
-    command : CommandT
+    command : CommandT_contra
         The command to add this check to.
 
     Returns
     -------
-    CommandT
+    CommandT_contra
         The command this check was added to.
     """
     command.add_check(guild_check)
     return command
 
 
-def with_nsfw_check(command: CommandT, /) -> CommandT:
+def with_nsfw_check(command: CommandT_contra, /) -> CommandT_contra:
     """Only let a command run in a channel that's marked as nsfw.
 
     Parameters
     ----------
-    command : CommandT
+    command : CommandT_contra
         The command to add this check to.
 
     Returns
     -------
-    CommandT
+    CommandT_contra
         The command this check was added to.
     """
     command.add_check(nsfw_check)
     return command
 
 
-def with_sfw_check(command: CommandT, /) -> CommandT:
+def with_sfw_check(command: CommandT_contra, /) -> CommandT_contra:
     """Only let a command run in a channel that's marked as sfw.
 
     Parameters
     ----------
-    command : CommandT
+    command : CommandT_contra
         The command to add this check to.
 
     Returns
     -------
-    CommandT
+    CommandT_contra
         The command this check was added to.
     """
     command.add_check(sfw_check)
     return command
 
 
-def with_owner_check(command: CommandT, /) -> CommandT:
+def with_owner_check(command: CommandT_contra, /) -> CommandT_contra:
     """Only let a command run if it's being triggered by one of the bot's owners.
 
     !!! note
@@ -344,12 +344,12 @@ def with_owner_check(command: CommandT, /) -> CommandT:
 
     Parameters
     ----------
-    command : CommandT
+    command : CommandT_contra
         The command to add this check to.
 
     Returns
     -------
-    CommandT
+    CommandT_contra
         The command this check was added to.
     """
     command.add_check(ApplicationOwnerCheck())
@@ -358,7 +358,7 @@ def with_owner_check(command: CommandT, /) -> CommandT:
 
 def with_author_permission_check(
     permissions: typing.Union[permissions_.Permissions, int], /
-) -> typing.Callable[[CommandT], CommandT]:
+) -> typing.Callable[[CommandT_contra], CommandT_contra]:
     """Only let a command run if the author has certain permissions in the current channel.
 
     !!! note
@@ -371,11 +371,11 @@ def with_author_permission_check(
 
     Returns
     -------
-    typing.Callable[[CommandT], CommandT]
+    typing.Callable[[CommandT_contra], CommandT_contra]
         A command decorator function which adds the check.
     """
 
-    def decorator(command: CommandT, /) -> CommandT:
+    def decorator(command: CommandT_contra, /) -> CommandT_contra:
         command.add_check(AuthorPermissionCheck(permissions))
         return command
 
@@ -384,7 +384,7 @@ def with_author_permission_check(
 
 def with_own_permission_check(
     permissions: typing.Union[permissions_.Permissions, int], /
-) -> typing.Callable[[CommandT], CommandT]:
+) -> typing.Callable[[CommandT_contra], CommandT_contra]:
     """Only let a command run if we have certain permissions in the current channel.
 
     !!! note
@@ -397,11 +397,11 @@ def with_own_permission_check(
 
     Returns
     -------
-    typing.Callable[[CommandT], CommandT]
+    typing.Callable[[CommandT_contra], CommandT_contra]
         A command decorator function which adds the check.
     """
 
-    def decorator(command: CommandT, /) -> CommandT:
+    def decorator(command: CommandT_contra, /) -> CommandT_contra:
         command.add_check(BotPermissionsCheck(permissions))
         return command
 

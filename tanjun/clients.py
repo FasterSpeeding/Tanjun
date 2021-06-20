@@ -56,7 +56,7 @@ if typing.TYPE_CHECKING:
 
     from hikari import users
 
-    ClientT = typing.TypeVar("ClientT", bound="Client")
+    _ClientT = typing.TypeVar("_ClientT", bound="Client")
 
 
 PrefixGetterT = typing.Callable[[traits.Context], typing.Awaitable[typing.Iterable[str]]]
@@ -177,7 +177,7 @@ class Client(traits.Client):
         if event_managed:
             self._events.event_manager.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
             self._events.event_manager.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
-        self.set_human_only()
+        self.set_human_only(True)
 
     async def __aenter__(self) -> Client:
         await self.open()
@@ -246,11 +246,11 @@ class Client(traits.Client):
     async def _on_stopping_event(self, _: lifetime_events.StoppingEvent, /) -> None:
         await self.close()
 
-    def set_accepts(self: ClientT, accepts: AcceptsEnum, /) -> ClientT:
+    def set_accepts(self: _ClientT, accepts: AcceptsEnum, /) -> _ClientT:
         self._accepts = accepts
         return self
 
-    def set_human_only(self: ClientT, value: bool = True) -> ClientT:
+    def set_human_only(self: _ClientT, value: bool = True) -> _ClientT:
         if value:
             self._checks.add(_check_human)
 
@@ -262,7 +262,7 @@ class Client(traits.Client):
 
         return self
 
-    def add_check(self: ClientT, check: traits.CheckT, /) -> ClientT:
+    def add_check(self: _ClientT, check: traits.CheckT, /) -> _ClientT:
         self._checks.add(check)
         return self
 
@@ -276,14 +276,14 @@ class Client(traits.Client):
     async def check(self, ctx: traits.Context, /) -> bool:
         return await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks)
 
-    def add_component(self: ClientT, component: traits.Component, /) -> ClientT:
+    def add_component(self: _ClientT, component: traits.Component, /) -> _ClientT:
         self._components.add(component)
         return self
 
     def remove_component(self, component: traits.Component, /) -> None:
         self._components.remove(component)
 
-    def add_prefix(self: ClientT, prefixes: typing.Union[typing.Iterable[str], str], /) -> ClientT:
+    def add_prefix(self: _ClientT, prefixes: typing.Union[typing.Iterable[str], str], /) -> _ClientT:
         if isinstance(prefixes, str):
             self._prefixes.add(prefixes)
 
@@ -295,7 +295,7 @@ class Client(traits.Client):
     def remove_prefix(self, prefix: str, /) -> None:
         self._prefixes.remove(prefix)
 
-    def set_prefix_getter(self: ClientT, getter: typing.Optional[PrefixGetterT], /) -> ClientT:
+    def set_prefix_getter(self: _ClientT, getter: typing.Optional[PrefixGetterT], /) -> _ClientT:
         self._prefix_getter = getter
         return self
 
@@ -363,11 +363,11 @@ class Client(traits.Client):
         if register_listener and event_type:
             self._events.event_manager.subscribe(event_type, self.on_message_create)
 
-    def set_hooks(self: ClientT, hooks: typing.Optional[traits.Hooks], /) -> ClientT:
+    def set_hooks(self: _ClientT, hooks: typing.Optional[traits.Hooks], /) -> _ClientT:
         self.hooks = hooks
         return self
 
-    def load_modules(self: ClientT, modules: typing.Iterable[typing.Union[str, pathlib.Path]], /) -> ClientT:
+    def load_modules(self: _ClientT, modules: typing.Iterable[typing.Union[str, pathlib.Path]], /) -> _ClientT:
         for module_path in modules:
             if isinstance(module_path, str):
                 module = importlib.import_module(module_path)

@@ -43,8 +43,9 @@ from tanjun import hooks as hooks_
 from tanjun import traits
 from tanjun import utilities
 
-CommandT = typing.TypeVar("CommandT", bound="Command")
-CommandGroupT = typing.TypeVar("CommandGroupT", bound="CommandGroup")
+if typing.TYPE_CHECKING:
+    _CommandT = typing.TypeVar("_CommandT", bound="Command")
+    _CommandGroupT = typing.TypeVar("_CommandGroupT", bound="CommandGroup")
 
 
 class FoundCommand(traits.FoundCommand):
@@ -110,7 +111,7 @@ class Command(traits.ExecutableCommand):
     def names(self) -> typing.AbstractSet[str]:
         return frozenset(self._names)
 
-    def add_check(self: CommandT, check: traits.CheckT, /) -> CommandT:
+    def add_check(self: _CommandT, check: traits.CheckT, /) -> _CommandT:
         self._checks.add(check)
         return self
 
@@ -128,7 +129,7 @@ class Command(traits.ExecutableCommand):
             if await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks):
                 yield found
 
-    def add_name(self: CommandT, name: str, /) -> CommandT:
+    def add_name(self: _CommandT, name: str, /) -> _CommandT:
         self._names.add(name)
         return self
 
@@ -235,7 +236,7 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
     def commands(self) -> typing.AbstractSet[traits.ExecutableCommand]:
         return frozenset(self._commands)
 
-    def add_command(self: CommandGroupT, command: traits.ExecutableCommand, /) -> CommandGroupT:
+    def add_command(self: _CommandGroupT, command: traits.ExecutableCommand, /) -> _CommandGroupT:
         command.parent = self
         self._commands.add(command)
         return self
