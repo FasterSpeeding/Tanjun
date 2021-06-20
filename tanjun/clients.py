@@ -193,11 +193,11 @@ class Client(traits.Client):
         self._prefixes: typing.Set[str] = set()
         self._rest = rest
         self._shards = shard
+        self.set_human_only(True)
 
         if event_managed:
             self._events.event_manager.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
             self._events.event_manager.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
-        self.set_human_only(True)
 
     async def __aenter__(self) -> Client:
         await self.open()
