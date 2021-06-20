@@ -349,8 +349,8 @@ class Client(traits.Client):
             except (ValueError, LookupError):
                 pass
 
-    async def open(self, *, mention_prefix: bool = True, register_listener: bool = True) -> None:
-        if mention_prefix:
+    async def open(self, *, get_mention_prefix: bool = False, register_listener: bool = True) -> None:
+        if get_mention_prefix:
             user: typing.Optional[users.User] = None
             if self._cache:
                 user = self._cache.cache.get_me()
