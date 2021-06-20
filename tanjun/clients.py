@@ -102,12 +102,32 @@ def as_loader(function: traits.LoadableT) -> traits.LoadableT:
 
 
 class AcceptsEnum(str, enum.Enum):
+    """The possible configurations for which events `Client` should execute commands based on."""
+
     ALL = "ALL"
+    """Set the client to execute commands based on both DM and guild message create events."""
+
     DM_ONLY = "DM_ONLY"
+    """Set the client to execute commands based only DM message create events."""
+
     GUILD_ONLY = "GUILD_ONLY"
+    """Set the client to execute commands based only guild message create events."""
+
     NONE = "NONE"
+    """Set the client to not execute commands based on message create events."""
 
     def get_event_type(self) -> typing.Optional[typing.Type[message_events.MessageCreateEvent]]:
+        """Get the base event type this mode listens to.
+
+        Returns
+        -------
+        typing.Optional[typing.Type[hikari.message_events.MessageCreateEvent]]
+            The type object of the MessageCreateEvent class this mode will
+            register a listener for.
+
+            This will be `builtins.None` if this mode disables listening to
+            message create events/
+        """
         return _ACCEPTS_EVENT_TYPE_MAPPING[self]
 
 
