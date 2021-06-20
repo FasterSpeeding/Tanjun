@@ -55,7 +55,7 @@ class Context(traits.Context):
         "_message",
         "_rest",
         "triggering_name",
-        "triggering_prefix",
+        "_triggering_prefix",
         "_shard",
     )
 
@@ -67,8 +67,8 @@ class Context(traits.Context):
         message: messages.Message,
         *,
         command: typing.Optional[traits.ExecutableCommand] = None,
-        triggering_name: typing.Optional[str] = None,
-        triggering_prefix: typing.Optional[str] = None,
+        triggering_name: str = "",
+        triggering_prefix: str = "",
     ) -> None:
         if message.content is None:
             raise ValueError("Cannot spawn context with a contentless message.")
@@ -78,7 +78,7 @@ class Context(traits.Context):
         self.content = content
         self._message = message
         self.triggering_name = triggering_name
-        self.triggering_prefix = triggering_prefix
+        self._triggering_prefix = triggering_prefix
 
     def __repr__(self) -> str:
         return f"Context <{self.message!r}, {self.command!r}>"
@@ -98,6 +98,16 @@ class Context(traits.Context):
     @property
     def message(self) -> messages.Message:
         return self._message
+
+    @property
+    def triggering_prefix(self) -> str:
+        return self._triggering_prefix
+
+    # Since this isn't settable on the interface we need to override this with a property
+    # rather than just using a slotted instance variable.
+    @triggering_prefix.setter
+    def triggering_prefix(self, triggering_prefix: str) -> None:
+        self._triggering_prefix = triggering_prefix
 
     @property
     def rest_service(self) -> hikari_traits.RESTAware:

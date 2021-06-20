@@ -48,6 +48,11 @@ from tanjun import utilities
 if typing.TYPE_CHECKING:
     from hikari.api import event_manager
 
+    _CommandDescriptorT = typing.TypeVar("_CommandDescriptorT", bound="CommandDescriptor")
+    _CommandT = typing.TypeVar("_CommandT", traits.ExecutableCommand, traits.CommandDescriptor)
+    ComponentT = typing.TypeVar("ComponentT", bound="Component")
+    _ValueT = typing.TypeVar("_ValueT")
+
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
@@ -113,15 +118,17 @@ class CommandDescriptor(traits.CommandDescriptor):
     def parser(self, parser_: typing.Optional[traits.ParserDescriptor]) -> None:
         self._parser = parser_
 
-    def add_check(self, check: traits.CheckT, /) -> None:
+    def add_check(self: _CommandDescriptorT, check: traits.CheckT, /) -> _CommandDescriptorT:
         self._checks.append(check)
+        return self
 
     def with_check(self, check: traits.UnboundCheckT[traits.ComponentT], /) -> traits.UnboundCheckT[traits.ComponentT]:
         self._unbound_checks.append(check)
         return check
 
-    def add_name(self, name: str, /) -> None:
+    def add_name(self: _CommandDescriptorT, name: str, /) -> _CommandDescriptorT:
         self._names.append(name)
+        return self
 
     def build_command(self, component: traits.Component, /) -> traits.ExecutableCommand:
         checks = self._checks.copy()
@@ -506,8 +513,9 @@ class Component(traits.Component):
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         return self._metadata
 
-    def add_check(self, check: traits.CheckT, /) -> None:
+    def add_check(self: ComponentT, check: traits.CheckT, /) -> ComponentT:
         self._checks.add(check)
+        return self
 
     def remove_check(self, check: traits.CheckT, /) -> None:
         self._checks.remove(check)
@@ -516,20 +524,29 @@ class Component(traits.Component):
         self.add_check(check)
         return check
 
-    def add_command(self, command: typing.Union[traits.ExecutableCommand, traits.CommandDescriptor], /) -> None:
+    def add_command(
+        self: ComponentT, command: typing.Union[traits.ExecutableCommand, traits.CommandDescriptor], /
+    ) -> ComponentT:
         command = command.build_command(self) if isinstance(command, traits.CommandDescriptor) else command
         self._commands.add(command)
+        return self
 
     def remove_command(self, command: traits.ExecutableCommand, /) -> None:
         self._commands.remove(command)
 
+    def with_command(self, command: _CommandT, /) -> _CommandT:
+        self.add_command(command)
+        return command
+
     def add_listener(
-        self, event: typing.Type[base_events.Event], listener: event_manager.CallbackT[typing.Any], /
-    ) -> None:
+        self: ComponentT, event: typing.Type[base_events.Event], listener: event_manager.CallbackT[typing.Any], /
+    ) -> ComponentT:
         self._listeners.add((event, listener))
 
         if self.started and self._client:
             self._client.event_service.event_manager.subscribe(event, listener)
+
+        return self
 
     def remove_listener(
         self, event: typing.Type[base_events.Event], listener: event_manager.CallbackT[typing.Any], /
@@ -538,6 +555,15 @@ class Component(traits.Component):
 
         if self.started and self._client:
             self._client.event_service.event_manager.unsubscribe(event, listener)
+
+    def with_listener(
+        self, event: typing.Type[base_events.Event], /
+    ) -> typing.Callable[[event_manager.CallbackT[_ValueT]], event_manager.CallbackT[_ValueT]]:
+        def decorator(callback: event_manager.CallbackT[_ValueT], /) -> event_manager.CallbackT[_ValueT]:
+            self.add_listener(event, callback)
+            return callback
+
+        return decorator
 
     def bind_client(self, client: traits.Client, /) -> None:
         self._client = client

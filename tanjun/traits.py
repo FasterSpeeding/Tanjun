@@ -44,7 +44,7 @@ __all__: typing.Sequence[str] = [
     "HookT",
     "PreExecutionHookT",
     "CheckT",
-    "ValueT",
+    "ValueT_co",
     "Context",
     "Converter",
     "StatelessConverter",
@@ -72,6 +72,8 @@ if typing.TYPE_CHECKING:
     from hikari.events import base_events
 
     from tanjun import errors
+
+    _T = typing.TypeVar("_T")
 
 
 # To allow for stateless converters we accept both "Converter[...]" and "Type[StatelessConverter[...]]" where all the
@@ -175,7 +177,7 @@ This is an equivalent to `CheckT` where it's yet to be bound to a `Component`,
 used by `CheckDescriptor`.
 """
 
-ValueT = typing.TypeVar("ValueT", covariant=True)
+ValueT_co = typing.TypeVar("ValueT_co", covariant=True)
 """A general type hint used for generic interfaces in Tanjun."""
 
 
@@ -275,7 +277,7 @@ class CommandDescriptor(typing.Protocol):
     def parser(self, parser: ParserDescriptor, /) -> None:
         raise NotImplementedError
 
-    def add_check(self, check: CheckT, /) -> None:
+    def add_check(self: _T, check: CheckT, /) -> _T:
         """Add a pre-execution check for this command descriptor.
 
         This will be run before execution to decide whether the command should
@@ -313,7 +315,7 @@ class CommandDescriptor(typing.Protocol):
         """
         raise NotImplementedError
 
-    def add_name(self, name: str, /) -> None:
+    def add_name(self: _T, name: str, /) -> _T:
         """Add a execution name to this command.
 
         This name is used to decide whether the command fits a given string or
@@ -489,7 +491,7 @@ class Context(typing.Protocol):
         """
         raise NotImplementedError
 
-    @property
+    @property  # TODO: can we somehow have this always be present on the command execution facing interface
     def command(self) -> typing.Optional[ExecutableCommand]:
         raise NotImplementedError
 
@@ -526,15 +528,11 @@ class Context(typing.Protocol):
         raise NotImplementedError
 
     @property
-    def triggering_prefix(self) -> typing.Optional[str]:
-        raise NotImplementedError
-
-    @triggering_prefix.setter
-    def triggering_prefix(self, triggering_prefix: str, /) -> None:
+    def triggering_prefix(self) -> str:
         raise NotImplementedError
 
     @property
-    def triggering_name(self) -> typing.Optional[str]:
+    def triggering_name(self) -> str:
         raise NotImplementedError
 
     @triggering_name.setter
@@ -543,10 +541,10 @@ class Context(typing.Protocol):
 
 
 @typing.runtime_checkable
-class Converter(typing.Protocol[ValueT]):
+class Converter(typing.Protocol[ValueT_co]):
     __slots__: typing.Sequence[str] = ()
 
-    async def convert(self, ctx: Context, argument: str, /) -> ValueT:
+    async def convert(self, ctx: Context, argument: str, /) -> ValueT_co:
         raise NotImplementedError
 
     def bind_client(self, client: Client, /) -> None:
@@ -557,11 +555,11 @@ class Converter(typing.Protocol[ValueT]):
 
 
 @typing.runtime_checkable
-class StatelessConverter(typing.Protocol[ValueT]):
+class StatelessConverter(typing.Protocol[ValueT_co]):
     __slots__: typing.Sequence[str] = ()
 
     @classmethod
-    async def convert(cls, ctx: Context, argument: str, /) -> ValueT:
+    async def convert(cls, ctx: Context, argument: str, /) -> ValueT_co:
         raise NotImplementedError
 
     @classmethod
@@ -618,7 +616,7 @@ class Executable(typing.Protocol):
     def hooks(self, hooks: typing.Optional[Hooks]) -> None:
         raise NotImplementedError
 
-    def add_check(self, check: CheckT, /) -> None:
+    def add_check(self: _T, check: CheckT, /) -> _T:
         raise NotImplementedError
 
     def remove_check(self, check: CheckT, /) -> None:
@@ -696,7 +694,7 @@ class ExecutableCommand(Executable, typing.Protocol):
     def parser(self, parser: typing.Optional[Parser], /) -> None:
         raise NotImplementedError
 
-    def add_name(self, name: str, /) -> None:
+    def add_name(self: _T, name: str, /) -> _T:
         raise NotImplementedError
 
     def remove_name(self, name: str, /) -> None:
@@ -716,7 +714,7 @@ class ExecutableCommandGroup(ExecutableCommand, typing.Protocol):
     def commands(self) -> typing.AbstractSet[ExecutableCommand]:
         raise NotImplementedError
 
-    def add_command(self, command: ExecutableCommand, /) -> None:
+    def add_command(self: _T, command: ExecutableCommand, /) -> _T:
         raise NotImplementedError
 
     def remove_command(self, command: ExecutableCommand, /) -> None:
@@ -756,15 +754,15 @@ class Component(Executable, typing.Protocol):
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         raise NotImplementedError
 
-    def add_command(self, command: ExecutableCommand, /) -> None:
+    def add_command(self: _T, command: ExecutableCommand, /) -> _T:
         raise NotImplementedError
 
     def remove_command(self, command: ExecutableCommand, /) -> None:
         raise NotImplementedError
 
     def add_listener(
-        self, event: typing.Type[base_events.Event], listener: event_manager.CallbackT[typing.Any], /
-    ) -> None:
+        self: _T, event: typing.Type[base_events.Event], listener: event_manager.CallbackT[typing.Any], /
+    ) -> _T:
         raise NotImplementedError
 
     def remove_listener(
@@ -822,16 +820,10 @@ class Client(typing.Protocol):
     def shard_service(self) -> traits.ShardAware:
         raise NotImplementedError
 
-    def add_component(self, component: Component, /) -> None:
+    def add_component(self: _T, component: Component, /) -> _T:
         raise NotImplementedError
 
     def remove_component(self, component: Component, /) -> None:
-        raise NotImplementedError
-
-    def add_prefix(self, prefix: str, /) -> None:
-        raise NotImplementedError
-
-    def remove_prefix(self, prefix: str, /) -> None:
         raise NotImplementedError
 
     # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an

@@ -43,6 +43,10 @@ from tanjun import hooks as hooks_
 from tanjun import traits
 from tanjun import utilities
 
+if typing.TYPE_CHECKING:
+    _CommandT = typing.TypeVar("_CommandT", bound="Command")
+    _CommandGroupT = typing.TypeVar("_CommandGroupT", bound="CommandGroup")
+
 
 class FoundCommand(traits.FoundCommand):
     __slots__: typing.Sequence[str] = ("command", "name", "prefix")
@@ -107,8 +111,9 @@ class Command(traits.ExecutableCommand):
     def names(self) -> typing.AbstractSet[str]:
         return frozenset(self._names)
 
-    def add_check(self, check: traits.CheckT, /) -> None:
+    def add_check(self: _CommandT, check: traits.CheckT, /) -> _CommandT:
         self._checks.add(check)
+        return self
 
     def remove_check(self, check: traits.CheckT, /) -> None:
         self._checks.remove(check)
@@ -124,8 +129,9 @@ class Command(traits.ExecutableCommand):
             if await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks):
                 yield found
 
-    def add_name(self, name: str, /) -> None:
+    def add_name(self: _CommandT, name: str, /) -> _CommandT:
         self._names.add(name)
+        return self
 
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
         for own_name in self._names:
@@ -230,13 +236,14 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
     def commands(self) -> typing.AbstractSet[traits.ExecutableCommand]:
         return frozenset(self._commands)
 
-    def add_command(self, command: traits.ExecutableCommand, /) -> None:
+    def add_command(self: _CommandGroupT, command: traits.ExecutableCommand, /) -> _CommandGroupT:
         command.parent = self
         self._commands.add(command)
+        return self
 
     def remove_command(self, command: traits.ExecutableCommand, /) -> None:
-        command.parent = None
         self._commands.remove(command)
+        command.parent = None
 
     def with_command(
         self,
