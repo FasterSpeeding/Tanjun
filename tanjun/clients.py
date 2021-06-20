@@ -320,6 +320,11 @@ class Client(traits.Client):
         self._prefix_getter = getter
         return self
 
+    # TODO: use generic callable type var here instead?
+    def with_prefix_getter(self: _ClientT, getter: PrefixGetterT) -> PrefixGetterT:
+        self.set_prefix_getter(getter)
+        return getter
+
     async def check_context(self, ctx: traits.Context, /) -> typing.AsyncIterator[traits.FoundCommand]:
         async for value in utilities.async_chain(component.check_context(ctx) for component in self._components):
             yield value
