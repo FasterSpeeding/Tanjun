@@ -49,7 +49,7 @@ if typing.TYPE_CHECKING:
     from hikari.api import event_manager
 
     _CommandDescriptorT = typing.TypeVar("_CommandDescriptorT", bound="CommandDescriptor")
-    _CommandT = typing.TypeVar("_CommandT", "traits.ExecutableCommand", traits.CommandDescriptor)
+    _CommandT = typing.TypeVar("_CommandT", traits.ExecutableCommand, traits.CommandDescriptor)
     ComponentT = typing.TypeVar("ComponentT", bound="Component")
     _ValueT = typing.TypeVar("_ValueT")
 
