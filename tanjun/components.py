@@ -644,14 +644,14 @@ class Component(traits.Component):
                 if not member.is_owned:
                     self.add_command(result)
 
-                setattr(self, name, result.function)
+                setattr(self, name, result)  # TODO: this actually breaks typing
 
             elif isinstance(member, traits.ListenerDescriptor):
                 event_, listener = member.build_listener(self)
-                self.add_listener(event_, listener)
+                self.add_listener(event_, listener)  # TODO: this actually breaks typing
                 setattr(self, name, listener)
 
             elif isinstance(member, traits.CheckDescriptor):
                 check = member.build_check(self)
                 self.add_check(check)
-                setattr(self, name, check)
+                setattr(self, name, check)  # TODO: this actually breaks typing

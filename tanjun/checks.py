@@ -34,6 +34,7 @@
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
+    "with_check",
     "with_dm_check",
     "with_guild_check",
     "with_nsfw_check",
@@ -403,6 +404,27 @@ def with_own_permission_check(
 
     def decorator(command: CommandT_contra, /) -> CommandT_contra:
         command.add_check(BotPermissionsCheck(permissions))
+        return command
+
+    return decorator
+
+
+def with_check(check: tanjun_traits.CheckT, /) -> typing.Callable[[CommandT_contra], CommandT_contra]:
+    """Add a generic check to a command.
+
+    Parameters
+    ----------
+    check : tanjun.traits.CheckT
+        The check to add to this command.
+
+    Returns
+    -------
+    typing.Callable[[CommandT_contra], CommandT_contra]
+        A command decorator function which adds the check.
+    """
+
+    def decorator(command: CommandT_contra, /) -> CommandT_contra:
+        command.add_check(check)
         return command
 
     return decorator
