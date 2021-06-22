@@ -64,11 +64,12 @@ if typing.TYPE_CHECKING:
     from hikari import traits as hikari_traits
     from hikari import users
 
+    from tanjun import components
     from tanjun import traits as tanjun_traits
 
 
 CommandT_contra = typing.TypeVar(
-    "CommandT_contra", "tanjun_traits.CommandDescriptor", "tanjun_traits.ExecutableCommand", contravariant=True
+    "CommandT_contra", "components.CommandDescriptor", "tanjun_traits.ExecutableCommand", contravariant=True
 )
 
 

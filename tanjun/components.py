@@ -48,15 +48,17 @@ from tanjun import utilities
 if typing.TYPE_CHECKING:
     from hikari.api import event_manager
 
+    from tanjun import components
+
     _CommandDescriptorT = typing.TypeVar("_CommandDescriptorT", bound="CommandDescriptor")
-    _CommandT = typing.TypeVar("_CommandT", traits.ExecutableCommand, traits.CommandDescriptor)
+    _CommandT = typing.TypeVar("_CommandT", traits.ExecutableCommand, "components.CommandDescriptor")
     ComponentT = typing.TypeVar("ComponentT", bound="Component")
     _ValueT = typing.TypeVar("_ValueT")
 
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
-class CheckDescriptor(traits.CheckDescriptor[traits.ComponentT]):
+class CheckDescriptor(typing.Generic[traits.ComponentT]):
     def __init__(self, check: traits.UnboundCheckT[traits.ComponentT], /) -> None:
         self._check = check
         utilities.with_function_wrapping(self, "_check")
@@ -74,7 +76,7 @@ class CheckDescriptor(traits.CheckDescriptor[traits.ComponentT]):
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
-class CommandDescriptor(traits.CommandDescriptor):
+class CommandDescriptor:
     def __init__(
         self,
         checks: typing.Optional[typing.Iterable[traits.CheckT]],
@@ -207,7 +209,7 @@ class CommandGroupDescriptor(CommandDescriptor):
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
-class ListenerDescriptor(traits.ListenerDescriptor):
+class ListenerDescriptor:
     def __init__(self, event: typing.Type[base_events.Event], function: event_manager.CallbackT[typing.Any], /) -> None:
         self._event = event
         self._listener = function
@@ -525,9 +527,9 @@ class Component(traits.Component):
         return check
 
     def add_command(
-        self: ComponentT, command: typing.Union[traits.ExecutableCommand, traits.CommandDescriptor], /
+        self: ComponentT, command: typing.Union[traits.ExecutableCommand, CommandDescriptor], /
     ) -> ComponentT:
-        command = command.build_command(self) if isinstance(command, traits.CommandDescriptor) else command
+        command = command.build_command(self) if isinstance(command, CommandDescriptor) else command
         self._commands.add(command)
         return self
 
@@ -585,6 +587,18 @@ class Component(traits.Component):
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
         yield from itertools.chain.from_iterable(command.check_name(name) for command in self._commands)
 
+    def _try_unsubscribe(
+        self,
+        event_type: typing.Type[event_manager.EventT_co],
+        callback: event_manager.CallbackT[event_manager.EventT_co],
+    ) -> None:
+        assert self._client
+        try:
+            self._client.event_service.event_manager.unsubscribe(event_type, callback)
+        except (ValueError, LookupError):
+            # TODO: add logging here
+            pass
+
     async def close(self) -> None:
         if not self.started:
             return
@@ -592,7 +606,7 @@ class Component(traits.Component):
         self.started = False
         if self._client:
             for event_, listener in self._listeners:
-                self._client.event_service.event_manager.unsubscribe(event_, listener)
+                self._try_unsubscribe(event_, listener)
 
     async def open(self) -> None:
         if self.started:
@@ -604,7 +618,7 @@ class Component(traits.Component):
         if self._client:
             for event_, listener in self._listeners:
                 try:
-                    self._client.event_service.event_manager.unsubscribe(event_, listener)
+                    self._try_unsubscribe(event_, listener)
                 except (LookupError, ValueError):  # TODO: what does hikari raise?
                     continue
 
@@ -637,7 +651,7 @@ class Component(traits.Component):
 
     def _load_from_properties(self) -> None:
         for name, member in inspect.getmembers(self):
-            if isinstance(member, traits.CommandDescriptor):
+            if isinstance(member, CommandDescriptor):
                 result = member.build_command(self)
 
                 # We don't want to load in commands which belong to a command group here.
@@ -646,12 +660,12 @@ class Component(traits.Component):
 
                 setattr(self, name, result)  # TODO: this actually breaks typing
 
-            elif isinstance(member, traits.ListenerDescriptor):
+            elif isinstance(member, ListenerDescriptor):
                 event_, listener = member.build_listener(self)
                 self.add_listener(event_, listener)  # TODO: this actually breaks typing
                 setattr(self, name, listener)
 
-            elif isinstance(member, traits.CheckDescriptor):
+            elif isinstance(member, CheckDescriptor):
                 check = member.build_check(self)
                 self.add_check(check)
                 setattr(self, name, check)  # TODO: this actually breaks typing

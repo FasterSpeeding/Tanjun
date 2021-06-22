@@ -355,6 +355,7 @@ class Client(traits.Client):
             try:
                 self._events.event_manager.unsubscribe(event_type, self.on_message_create)
             except (ValueError, LookupError):
+                # TODO: add logging here
                 pass
 
     async def open(self, *, register_listener: bool = True) -> None:
