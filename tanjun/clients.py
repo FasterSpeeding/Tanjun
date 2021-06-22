@@ -152,6 +152,7 @@ class Client(traits.Client):
         "_checks",
         "_components",
         "_events",
+        "_grab_mention_prefix",
         "hooks",
         "_metadata",
         "_prefix_getter",
@@ -169,6 +170,7 @@ class Client(traits.Client):
         /,
         *,
         event_managed: bool = True,
+        mention_prefix: bool = False,
     ) -> None:
         rest = utilities.try_find_type(hikari_traits.RESTAware, rest, events, shard, cache)
         if not rest:
@@ -187,6 +189,7 @@ class Client(traits.Client):
         self._cache = cache
         self._components: typing.Set[traits.Component] = set()
         self._events = events
+        self._grab_mention_prefix = mention_prefix
         self.hooks: typing.Optional[traits.Hooks] = None
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
         self._prefix_getter: typing.Optional[PrefixGetterT] = None
@@ -354,8 +357,8 @@ class Client(traits.Client):
             except (ValueError, LookupError):
                 pass
 
-    async def open(self, *, get_mention_prefix: bool = False, register_listener: bool = True) -> None:
-        if get_mention_prefix:
+    async def open(self, *, register_listener: bool = True) -> None:
+        if self._grab_mention_prefix:
             user: typing.Optional[users.User] = None
             if self._cache:
                 user = self._cache.cache.get_me()
@@ -382,6 +385,7 @@ class Client(traits.Client):
 
             self._prefixes.add(f"<@{user.id}>")
             self._prefixes.add(f"<@!{user.id}>")
+            self._grab_mention_prefix = False
 
         await asyncio.gather(*(component.open() for component in self._components))
 
