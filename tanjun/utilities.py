@@ -79,7 +79,7 @@ async def await_if_async(
 
     Parameters
     ----------
-    callback : typing.Callable[..., typing.Union[_ValueT, typing.Awaitable[_ValueT]]
+    callback : typing.Callable[..., typing.Union[_ValueT_co, typing.Awaitable[_ValueT_co]]
         The async or non-async function to call.
 
     Other Parameters
@@ -90,7 +90,7 @@ async def await_if_async(
 
     Returns
     -------
-    _ValueT
+    _ValueT_co
         The resolved result of the passed function.
     """
     result = callback(*args)

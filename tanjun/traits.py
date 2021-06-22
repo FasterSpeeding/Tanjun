@@ -163,10 +163,10 @@ raising `tanjun.errors.FailedCheck` will indicate that the current context
 shouldn't lead to an execution.
 """
 
-ComponentT = typing.TypeVar("ComponentT", bound="Component", contravariant=True)
+ComponentT_contra = typing.TypeVar("ComponentT_contra", bound="Component", contravariant=True)
 
 UnboundCheckT = typing.Callable[
-    ["ComponentT", "Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]
+    ["ComponentT_contra", "Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]
 ]
 """Type hint of a general context check used by Tanjun `Executable` classes.
 

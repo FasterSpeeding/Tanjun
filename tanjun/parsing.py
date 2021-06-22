@@ -61,7 +61,9 @@ from tanjun import traits
 if typing.TYPE_CHECKING:
     from tanjun import components
 
-CommandT = typing.TypeVar("CommandT", "components.CommandDescriptor", traits.ExecutableCommand, contravariant=True)
+CommandT = typing.TypeVar(
+    "CommandT", "components.CommandDescriptor", traits.ExecutableCommand, "components.CommandGroupDescriptor"
+)
 CommandDescriptorT = typing.TypeVar("CommandDescriptorT", bound="components.CommandDescriptor")
 GREEDY = "greedy"
 """Parameter flags key used for marking a parameter as "greedy".

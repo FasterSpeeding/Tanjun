@@ -58,8 +58,8 @@ if typing.TYPE_CHECKING:
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
-class CheckDescriptor(typing.Generic[traits.ComponentT]):
-    def __init__(self, check: traits.UnboundCheckT[traits.ComponentT], /) -> None:
+class CheckDescriptor(typing.Generic[traits.ComponentT_contra]):
+    def __init__(self, check: traits.UnboundCheckT[traits.ComponentT_contra], /) -> None:
         self._check = check
         utilities.with_function_wrapping(self, "_check")
 
@@ -67,10 +67,10 @@ class CheckDescriptor(typing.Generic[traits.ComponentT]):
         return self._check(*args)
 
     @property
-    def function(self) -> traits.UnboundCheckT[traits.ComponentT]:
+    def function(self) -> traits.UnboundCheckT[traits.ComponentT_contra]:
         return self._check
 
-    def build_check(self, component: traits.ComponentT, /) -> traits.CheckT:
+    def build_check(self, component: traits.ComponentT_contra, /) -> traits.CheckT:
         return types.MethodType(self._check, component)
 
 
@@ -124,7 +124,9 @@ class CommandDescriptor:
         self._checks.append(check)
         return self
 
-    def with_check(self, check: traits.UnboundCheckT[traits.ComponentT], /) -> traits.UnboundCheckT[traits.ComponentT]:
+    def with_check(
+        self, check: traits.UnboundCheckT[traits.ComponentT_contra], /
+    ) -> traits.UnboundCheckT[traits.ComponentT_contra]:
         self._unbound_checks.append(check)
         return check
 

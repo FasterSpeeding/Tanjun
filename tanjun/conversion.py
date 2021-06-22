@@ -66,10 +66,10 @@ from hikari import voices
 from tanjun import errors
 from tanjun import traits
 
-_ValueT = typing.TypeVar("_ValueT", covariant=True)
+_ValueT_co = typing.TypeVar("_ValueT_co", covariant=True)
 
 
-class BaseConverter(abc.ABC, typing.Generic[_ValueT], traits.StatelessConverter[_ValueT]):
+class BaseConverter(abc.ABC, typing.Generic[_ValueT_co], traits.StatelessConverter[_ValueT_co]):
     __slots__: typing.Sequence[str] = ()
     __implementations: typing.Set[typing.Type[BaseConverter[typing.Type[typing.Any]]]] = set()
 
@@ -97,8 +97,8 @@ class BaseConverter(abc.ABC, typing.Generic[_ValueT], traits.StatelessConverter[
 
     @classmethod
     def get_from_type(
-        cls, type_: typing.Type[_ValueT]
-    ) -> typing.Optional[typing.Type[BaseConverter[typing.Type[_ValueT]]]]:
+        cls, type_: typing.Type[_ValueT_co]
+    ) -> typing.Optional[typing.Type[BaseConverter[typing.Type[_ValueT_co]]]]:
         for converter in cls.__implementations:
             is_inheritable = converter.is_inheritable()
             if is_inheritable and issubclass(type_, converter.types()):
@@ -120,7 +120,7 @@ class BaseConverter(abc.ABC, typing.Generic[_ValueT], traits.StatelessConverter[
 
     @classmethod
     @abc.abstractmethod
-    async def convert(cls, ctx: traits.Context, argument: str, /) -> _ValueT:
+    async def convert(cls, ctx: traits.Context, argument: str, /) -> _ValueT_co:
         raise NotImplementedError
 
     @classmethod
