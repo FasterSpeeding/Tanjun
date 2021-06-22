@@ -406,6 +406,10 @@ class Client(traits.Client):
                 spec = importlib.util.spec_from_file_location(
                     module_path.name.rsplit(".", 1)[0], str(module_path.absolute())
                 )
+
+                if not spec:
+                    raise ValueError(f"Unknown module provided {module_path}")
+
                 module = importlib.util.module_from_spec(spec)
 
                 # https://github.com/python/typeshed/issues/2793
