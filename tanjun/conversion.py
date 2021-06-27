@@ -50,6 +50,7 @@ import distutils.util
 import inspect
 import re
 import typing
+import urllib.parse
 import warnings
 
 from hikari import channels
@@ -66,6 +67,7 @@ from hikari import voices
 from tanjun import errors
 from tanjun import traits
 
+_ValueT = typing.TypeVar("_ValueT")
 _ValueT_co = typing.TypeVar("_ValueT_co", covariant=True)
 
 
@@ -529,11 +531,24 @@ def convert_snowflake(value: str) -> snowflakes.Snowflake:
     raise ValueError(f"{result} is not a valid ID")
 
 
+def _build_url_parser(callback: typing.Callable[[str], _ValueT], /) -> typing.Callable[[str], _ValueT]:
+    def parse(value: str, /) -> _ValueT:
+        if value.startswith("|") and value.endswith("|"):
+            value = value[1:-1]
+
+        return callback(value)
+
+    return parse
+
+
 _TYPE_OVERRIDES: typing.Mapping[typing.Callable[..., typing.Any], typing.Callable[[str], typing.Any]] = {
     bool: distutils.util.strtobool,
     bytes: lambda d: bytes(d, "utf-8"),
     bytearray: lambda d: bytearray(d, "utf-8"),
     snowflakes.Snowflake: convert_snowflake,
+    urllib.parse.DefragResult: _build_url_parser(urllib.parse.urldefrag),
+    urllib.parse.ParseResult: _build_url_parser(urllib.parse.urlparse),
+    urllib.parse.SplitResult: _build_url_parser(urllib.parse.urlsplit),
 }
 
 
