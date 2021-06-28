@@ -525,7 +525,7 @@ del _cls
 
 def _build_url_parser(callback: typing.Callable[[str], _ValueT], /) -> typing.Callable[[str], _ValueT]:
     def parse(value: str, /) -> _ValueT:
-        if value.startswith("|") and value.endswith("|"):
+        if value.startswith("<") and value.endswith(">"):
             value = value[1:-1]
 
         return callback(value)
