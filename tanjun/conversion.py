@@ -46,6 +46,7 @@ __all__: typing.Sequence[str] = [
 ]
 
 import abc
+import datetime
 import distutils.util
 import inspect
 import re
@@ -541,14 +542,33 @@ def _build_url_parser(callback: typing.Callable[[str], _ValueT], /) -> typing.Ca
     return parse
 
 
+defragment_url = _build_url_parser(urllib.parse.urldefrag)
+parse_url = _build_url_parser(urllib.parse.urlparse)
+split_url = _build_url_parser(urllib.parse.urlsplit)
+
+
+_DATETIME_REGEX = re.compile(r"<-?t:(\d+)(?::\w)?>")
+
+
+def convert_datetime(value: str) -> datetime.datetime:
+    try:
+        timestamp = int(next(_DATETIME_REGEX.finditer(value)).groups()[0])
+
+    except StopIteration:
+        raise ValueError("Not a valid datetime")
+
+    return datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+
+
 _TYPE_OVERRIDES: typing.Mapping[typing.Callable[..., typing.Any], typing.Callable[[str], typing.Any]] = {
     bool: distutils.util.strtobool,
     bytes: lambda d: bytes(d, "utf-8"),
     bytearray: lambda d: bytearray(d, "utf-8"),
-    snowflakes.Snowflake: convert_snowflake,
-    urllib.parse.DefragResult: _build_url_parser(urllib.parse.urldefrag),
-    urllib.parse.ParseResult: _build_url_parser(urllib.parse.urlparse),
-    urllib.parse.SplitResult: _build_url_parser(urllib.parse.urlsplit),
+    datetime.datetime: convert_datetime,
+    snowflakes.Snowflake: SnowflakeParser.match_id,
+    urllib.parse.DefragResult: defragment_url,
+    urllib.parse.ParseResult: parse_url,
+    urllib.parse.SplitResult: split_url,
 }
 
 
