@@ -45,10 +45,12 @@ from tanjun import traits
 from tanjun import utilities
 
 if typing.TYPE_CHECKING:
-    from hikari.api import event_manager
+    from hikari.api import event_manager as event_manager_
 
-    _CommandT = typing.TypeVar("_CommandT", bound=traits.ExecutableCommand)
-    _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
+    _InteractionCommandT = typing.TypeVar("_InteractionCommandT", bound=commands.InteractionCommand)
+    _MessageCommandDescriptorT = typing.TypeVar("_MessageCommandDescriptorT", bound="MessageCommandDescriptor")
+    _MessageCommandT = typing.TypeVar("_MessageCommandT", traits.MessageCommand, "MessageCommandDescriptor")
+    ComponentT = typing.TypeVar("ComponentT", bound="Component")
     _ValueT = typing.TypeVar("_ValueT")
 
 
@@ -90,7 +92,7 @@ class Component(injector.Injectable, traits.Component):
         self._interaction_hooks = interaction_hooks
         self._message_hooks = message_hooks
         self._listeners: typing.Set[
-            typing.Tuple[typing.Type[base_events.Event], event_manager.CallbackT[typing.Any]]
+            typing.Tuple[typing.Type[base_events.Event], event_manager_.CallbackT[typing.Any]]
         ] = set()
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
         self._load_from_properties()
@@ -152,7 +154,7 @@ class Component(injector.Injectable, traits.Component):
     @property
     def listeners(
         self,
-    ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_manager.CallbackT[typing.Any]]]:
+    ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_manager_.CallbackT[typing.Any]]]:
         return self._listeners.copy()
 
     @property
@@ -181,7 +183,11 @@ class Component(injector.Injectable, traits.Component):
         self.add_check(check)
         return check
 
-    def add_command(self: _ComponentT, command: traits.InteractionCommand, /) -> _ComponentT:
+    def add_interaction_command(
+        self: ComponentT, command: traits.InteractionCommand, /
+    ) -> ComponentT:
+        command = command.build_command(self) if isinstance(command, traits.InteractionCommandDescriptor) else command
+
         if self._injector and isinstance(command, injector.Injectable):
             command.set_injector(self._injector)
 
@@ -191,9 +197,13 @@ class Component(injector.Injectable, traits.Component):
     def remove_interaction_command(self, command: traits.InteractionCommand) -> None:
         del self._interaction_commands[command.name.casefold()]
 
+    def with_interaction_command(self, command: _InteractionCommandT) -> _InteractionCommandT:
+        self.add_interaction_command(command)
+        return command
+
     def add_message_command(
-        self: _ComponentT, command: traits.MessageCommand, /
-    ) -> _ComponentT:
+        self: ComponentT, command: traits.MessageCommand, /
+    ) -> ComponentT:
         if self._injector and isinstance(command, injector.Injectable):
             command.set_injector(self._injector)
 
@@ -203,14 +213,14 @@ class Component(injector.Injectable, traits.Component):
     def remove_message_command(self, command: traits.MessageCommand, /) -> None:
         self._message_commands.remove(command)
 
-    def with_command(self, command: _CommandT, /) -> _CommandT:
-        self.add_command(command)
+    def with_message_command(self, command: _MessageCommandT, /) -> _MessageCommandT:
+        self.add_message_command(command)
         return command
 
     def add_listener(
         self: _ComponentT,
-        event: typing.Type[event_manager.EventT_inv],
-        listener: event_manager.CallbackT[event_manager.EventT_inv],
+        event: typing.Type[event_manager_.EventT_inv],
+        listener: event_manager_.CallbackT[event_manager_.EventT_inv],
         /,
     ) -> _ComponentT:
         self._listeners.add((event, listener))
@@ -222,8 +232,8 @@ class Component(injector.Injectable, traits.Component):
 
     def remove_listener(
         self,
-        event: typing.Type[event_manager.EventT_inv],
-        listener: event_manager.CallbackT[event_manager.EventT_inv],
+        event: typing.Type[event_manager_.EventT_inv],
+        listener: event_manager_.CallbackT[event_manager_.EventT_inv],
         /,
     ) -> None:
         self._listeners.remove((event, listener))
@@ -233,13 +243,13 @@ class Component(injector.Injectable, traits.Component):
 
     # TODO: make event optional?
     def with_listener(
-        self, event_type: typing.Type[event_manager.EventT_inv]
+        self, event_type: typing.Type[event_manager_.EventT_inv]
     ) -> typing.Callable[
-        [event_manager.CallbackT[event_manager.EventT_inv]], event_manager.CallbackT[event_manager.EventT_inv]
+        [event_manager_.CallbackT[event_manager_.EventT_inv]], event_manager_.CallbackT[event_manager_.EventT_inv]
     ]:
         def decorator(
-            callback: event_manager.CallbackT[event_manager.EventT_inv],
-        ) -> event_manager.CallbackT[event_manager.EventT_inv]:
+            callback: event_manager_.CallbackT[event_manager_.EventT_inv],
+        ) -> event_manager_.CallbackT[event_manager_.EventT_inv]:
             self.add_listener(event_type, callback)
             return callback
 
@@ -288,12 +298,12 @@ class Component(injector.Injectable, traits.Component):
 
     def _try_unsubscribe(
         self,
-        event_type: typing.Type[event_manager.EventT_co],
-        callback: event_manager.CallbackT[event_manager.EventT_co],
+        event_manager: event_manager_.EventManager,
+        event_type: typing.Type[event_manager_.EventT_co],
+        callback: event_manager_.CallbackT[event_manager_.EventT_co],
     ) -> None:
-        assert self._client
         try:
-            self._client.event_service.event_manager.unsubscribe(event_type, callback)
+            event_manager.unsubscribe(event_type, callback)
         except (ValueError, LookupError):
             # TODO: add logging here
             pass
@@ -305,7 +315,7 @@ class Component(injector.Injectable, traits.Component):
         self._is_alive = False
         if self._client and self._client.event_service:
             for event_, listener in self._listeners:
-                self._try_unsubscribe(event_, listener)
+                self._try_unsubscribe(self._client.event_service.event_manager, event_, listener)
 
     async def open(self) -> None:
         if self._is_alive:
@@ -318,7 +328,7 @@ class Component(injector.Injectable, traits.Component):
         if self._client and self._client.event_service:
             for event_, listener in self._listeners:
                 try:
-                    self._try_unsubscribe(event_, listener)
+                    self._try_unsubscribe(self._client.event_service.event_manager, event_, listener)
                 except (LookupError, ValueError):  # TODO: what does hikari raise?
                     continue
 

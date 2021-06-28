@@ -179,7 +179,7 @@ class Client(injector.InjectorClient, traits.Client):
         server: typing.Optional[hikari_traits.InteractionServerAware] = None,
         shard: typing.Optional[hikari_traits.ShardAware] = None,
         *,
-        event_managed: bool = True,
+        event_managed: typing.Optional[bool] = None,
         mention_prefix: bool = False,
     ) -> None:
         cache = utilities.try_find_type(
@@ -415,7 +415,7 @@ class Client(injector.InjectorClient, traits.Client):
     def check_message_name(self, name: str, /) -> typing.Iterator[traits.FoundMessageCommand]:
         return itertools.chain.from_iterable(component.check_message_name(name) for component in self._components)
 
-    async def _check_prefix(self, ctx: traits.Context, /) -> typing.Optional[str]:
+    async def _check_prefix(self, ctx: traits.MessageContext, /) -> typing.Optional[str]:
         if self._prefix_getter:
             for prefix in await self._prefix_getter(ctx):
                 if ctx.content.startswith(prefix):
@@ -474,7 +474,7 @@ class Client(injector.InjectorClient, traits.Client):
         if register_listener and event_type and self._events:
             self._events.event_manager.subscribe(event_type, self.on_message_create)
 
-    def set_hooks(self: _ClientT, hooks: typing.Optional[traits.Hooks], /) -> _ClientT:
+    def set_hooks(self: _ClientT, hooks: typing.Optional[traits.Hooks[traits.Context]], /) -> _ClientT:
         self.hooks = hooks
         return self
 

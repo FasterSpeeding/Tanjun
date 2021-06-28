@@ -428,10 +428,6 @@ class Executable(abc.ABC, typing.Generic[ContextT]):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_check(self: _T, check: CheckSig, /) -> _T:
-        raise NotImplementedError
-
-    @abc.abstractmethod
     def copy(self: _ExecutableT) -> _ExecutableT:
         raise NotImplementedError
 

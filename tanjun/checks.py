@@ -55,7 +55,7 @@ from hikari import errors as hikari_errors
 from hikari import guilds
 from hikari import permissions as permissions_
 from hikari import snowflakes
-from hikari.interactions import commands as command_interactions
+from hikari.interactions import bases as base_interactions
 from yuyo import backoff
 
 from tanjun import utilities
@@ -126,6 +126,7 @@ class ApplicationOwnerCheck:
                 # have to retry before returning.
                 if not self._application:
                     application = await asyncio.wait_for(self._try_fetch(ctx.client.cached_rest), 10)
+                    self._application = application
 
                 # Otherwise we create a task to ensure that we will still try to refresh the stored state in the future
                 # while returning the stale state to ensure that the command execution doesn't stall.
@@ -220,7 +221,7 @@ class AuthorPermissionCheck(PermissionCheck):
         if not ctx.member:
             return utilities.ALL_PERMISSIONS
 
-        elif isinstance(ctx.member, command_interactions.InteractionMember):
+        elif isinstance(ctx.member, base_interactions.InteractionMember):
             return ctx.member.permissions
 
         return await utilities.fetch_permissions(ctx.client, ctx.member, channel=ctx.channel_id)

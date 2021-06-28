@@ -49,8 +49,9 @@ from tanjun import utilities
 if typing.TYPE_CHECKING:
     from hikari.interactions import commands as command_interactions
 
-    _CommandT = typing.TypeVar("_CommandT", bound="Command[typing.Any]")
-    _CommandGroupT = typing.TypeVar("_CommandGroupT", bound="CommandGroup[typing.Any]")
+    _InteractionCommandT = typing.TypeVar("_InteractionCommandT", bound="InteractionCommand")
+    _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand")
+    _MessageCommandGroupT = typing.TypeVar("_MessageCommandGroupT", bound="MessageCommandGroup")
 
 
 CommandFunctionSigT = typing.TypeVar("CommandFunctionSigT", bound=traits.CommandFunctionSig)
@@ -129,8 +130,11 @@ class InteractionCommand(traits.InteractionCommand):
     def name(self) -> str:
         return self._name
 
-    def add_check(self, check: traits.CheckT[traits.InteractionContext], /) -> None:
+    def add_check(
+        self: _InteractionCommandT, check: traits.CheckT[traits.InteractionContext], /
+    ) -> _InteractionCommandT:
         self._checks.add(check)
+        return self
 
     def remove_check(self, check: traits.CheckT[traits.InteractionContext], /) -> None:
         self._checks.remove(check)
@@ -267,7 +271,7 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
 
         return copy.copy(self).copy(parent, _new=False)
 
-    def add_check(self: _CommandT, check: traits.CheckSig, /) -> _CommandT:
+    def add_check(self: _MessageCommandT, check: traits.CheckSig, /) -> _MessageCommandT:
         self._checks.add(injector.InjectableCheck(check, injector=self._injector))
         return self
 
@@ -285,7 +289,7 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
             if await utilities.gather_checks(self._checks, ctx):
                 yield found
 
-    def add_name(self: _CommandT, name: str, /) -> _CommandT:
+    def add_name(self: _MessageCommandT, name: str, /) -> _MessageCommandT:
         self._names.add(name)
         return self
 
@@ -440,7 +444,7 @@ class CommandGroup(MessageCommand[CommandFunctionSigT], traits.ExecutableCommand
 
         return super().copy(parent, _new=_new)
 
-    def add_command(self: _CommandGroupT, command: traits.MessageCommand, /) -> _CommandGroupT:
+    def add_command(self: _MessageCommandGroupT, command: traits.MessageCommand, /) -> _MessageCommandGroupT:
         command.parent = self
         self._commands.add(command)
         return self
