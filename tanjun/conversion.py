@@ -523,15 +523,6 @@ for _cls in vars().copy().values():
 del _cls
 
 
-def convert_snowflake(value: str) -> snowflakes.Snowflake:
-    result = snowflakes.Snowflake(value)
-
-    if snowflakes.Snowflake.min() <= result <= snowflakes.Snowflake.max():
-        return result
-
-    raise ValueError(f"{result} is not a valid ID")
-
-
 def _build_url_parser(callback: typing.Callable[[str], _ValueT], /) -> typing.Callable[[str], _ValueT]:
     def parse(value: str, /) -> _ValueT:
         if value.startswith("|") and value.endswith("|"):
