@@ -277,6 +277,14 @@ class Context(abc.ABC):
         """
         raise NotImplementedError
 
+    @property
+    def component(self) -> typing.Optional[Component]:
+        raise NotImplementedError
+
+    @component.setter
+    def component(self, _: Component, /) -> None:
+        raise NotImplementedError
+
     @property  # TODO: can we somehow have this always be present on the command execution facing interface
     def command(self) -> typing.Optional[ExecutableCommand]:
         raise NotImplementedError

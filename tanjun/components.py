@@ -580,11 +580,14 @@ class Component(traits.Component):
     async def check_context(
         self, ctx: traits.Context, /, *, name_prefix: str = ""
     ) -> typing.AsyncIterator[traits.FoundCommand]:
+        ctx.component = self
         if await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks):
             async for value in utilities.async_chain(
                 command.check_context(ctx, name_prefix=name_prefix) for command in self._commands
             ):
                 yield value
+
+        ctx.component = None
 
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
         yield from itertools.chain.from_iterable(command.check_name(name) for command in self._commands)
