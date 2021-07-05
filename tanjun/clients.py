@@ -408,17 +408,12 @@ class Client(traits.Client):
                     module_path.name.rsplit(".", 1)[0], str(module_path.absolute())
                 )
 
-                if not spec:
-                    raise ValueError(f"Unknown module provided {module_path}")
-
-                module = importlib.util.module_from_spec(spec)
-
                 # https://github.com/python/typeshed/issues/2793
-                if not isinstance(spec.loader, importlib.abc.Loader):
-                    raise RuntimeError(f"Invalid module provided {module_path}")
+                if spec and isinstance(spec.loader, importlib.abc.Loader):
+                    module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(module)
 
-                # The type shedding is wrong here
-                spec.loader.exec_module(module)
+                raise RuntimeError(f"Unknown or invalid module provided {module_path}")
 
             for _, member in inspect.getmembers(module):
                 if isinstance(member, traits.LoadableDescriptor):

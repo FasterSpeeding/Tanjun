@@ -72,7 +72,7 @@ _ValueT = typing.TypeVar("_ValueT")
 _ValueT_co = typing.TypeVar("_ValueT_co", covariant=True)
 
 
-class BaseConverter(abc.ABC, typing.Generic[_ValueT_co], traits.StatelessConverter[_ValueT_co]):
+class BaseConverter(typing.Generic[_ValueT_co], traits.StatelessConverter[_ValueT_co], abc.ABC):
     __slots__: typing.Sequence[str] = ()
     __implementations: typing.Set[typing.Type[BaseConverter[typing.Type[typing.Any]]]] = set()
 
