@@ -93,7 +93,7 @@ class Command(traits.ExecutableCommand):
 
     @property
     def checks(self) -> typing.AbstractSet[traits.CheckT]:
-        return frozenset(self._checks)
+        return self._checks.copy()
 
     @property
     def component(self) -> typing.Optional[traits.Component]:
@@ -109,7 +109,7 @@ class Command(traits.ExecutableCommand):
 
     @property
     def names(self) -> typing.AbstractSet[str]:
-        return frozenset(self._names)
+        return self._names.copy()
 
     def add_check(self: _CommandT, check: traits.CheckT, /) -> _CommandT:
         self._checks.add(check)
@@ -234,7 +234,7 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
 
     @property
     def commands(self) -> typing.AbstractSet[traits.ExecutableCommand]:
-        return frozenset(self._commands)
+        return self._commands.copy()
 
     def add_command(self: _CommandGroupT, command: traits.ExecutableCommand, /) -> _CommandGroupT:
         command.parent = self

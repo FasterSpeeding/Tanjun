@@ -47,6 +47,7 @@ from hikari.events import message_events
 from yuyo import backoff
 
 from tanjun import context
+from tanjun import injector
 from tanjun import traits
 from tanjun import utilities
 
@@ -145,7 +146,7 @@ def _check_human(ctx: traits.Context, /) -> bool:
     return not ctx.message.author.is_bot and ctx.message.webhook_id is None
 
 
-class Client(traits.Client):
+class Client(injector.InjectorClient, traits.Client):
     __slots__: typing.Sequence[str] = (
         "_accepts",
         "_cache",
@@ -153,6 +154,7 @@ class Client(traits.Client):
         "_components",
         "_events",
         "_grab_mention_prefix",
+        "_human_check",
         "hooks",
         "_metadata",
         "_prefix_getter",
@@ -185,11 +187,12 @@ class Client(traits.Client):
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
 
         self._accepts = AcceptsEnum.ALL
-        self._checks: typing.Set[traits.CheckT] = set()
+        self._checks: typing.Set[injector.InjectableCheck] = set()
         self._cache = cache
         self._components: typing.Set[traits.Component] = set()
         self._events = events
         self._grab_mention_prefix = mention_prefix
+        self._human_check = injector.InjectableCheck(_check_human, injector=self)
         self.hooks: typing.Optional[traits.Hooks] = None
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
         self._prefix_getter: typing.Optional[PrefixGetterT] = None
@@ -225,7 +228,7 @@ class Client(traits.Client):
     @property
     def is_human_only(self) -> bool:
         """Whether this client is only executing for non-bot/webhook users messages."""
-        return _check_human in self._checks
+        return self._human_check in self._checks
 
     @property
     def cache_service(self) -> typing.Optional[hikari_traits.CacheAware]:
@@ -233,11 +236,11 @@ class Client(traits.Client):
 
     @property
     def checks(self) -> typing.AbstractSet[traits.CheckT]:
-        return frozenset(self._checks)
+        return self._checks.copy()
 
     @property
     def components(self) -> typing.AbstractSet[traits.Component]:
-        return frozenset(self._components)
+        return self._components.copy()
 
     @property
     def event_service(self) -> hikari_traits.EventManagerAware:
@@ -253,7 +256,7 @@ class Client(traits.Client):
 
     @property
     def prefixes(self) -> typing.AbstractSet[str]:
-        return frozenset(self._prefixes)
+        return self._prefixes.copy()
 
     @property
     def rest_service(self) -> hikari_traits.RESTAware:
@@ -275,29 +278,35 @@ class Client(traits.Client):
 
     def set_human_only(self: _ClientT, value: bool = True) -> _ClientT:
         if value:
-            self._checks.add(_check_human)
+            self.add_check(self._human_check)
 
         else:
             try:
-                self._checks.remove(_check_human)
+                self.remove_check(self._human_check)
             except ValueError:
                 pass
 
         return self
 
     def add_check(self: _ClientT, check: traits.CheckT, /) -> _ClientT:
-        self._checks.add(check)
+        self._checks.add(injector.InjectableCheck(check, injector=self))
         return self
 
     def remove_check(self, check: traits.CheckT, /) -> None:
-        self._checks.remove(check)
+        for other_check in self._checks:
+            if other_check.callback == check:
+                self._checks.remove(other_check)
+                break
+
+        else:
+            raise ValueError("Check not found")
 
     def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
         self.add_check(check)
         return check
 
     async def check(self, ctx: traits.Context, /) -> bool:
-        return await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks)
+        return await utilities.gather_checks(check(ctx) for check in self._checks)
 
     def add_component(self: _ClientT, component: traits.Component, /) -> _ClientT:
         component.bind_client(self)

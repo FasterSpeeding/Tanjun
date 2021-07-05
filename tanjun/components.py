@@ -142,7 +142,7 @@ class CommandDescriptor:
             *self._names,
             checks=checks,
             hooks=copy.copy(self._hooks),
-            metadata=dict(self._metadata),
+            metadata=self._metadata.copy(),
             parser=self.parser.build_parser(component) if self.parser else None,
         )
         command.bind_component(component)
@@ -182,7 +182,7 @@ class CommandGroupDescriptor(CommandDescriptor):
             *self._names,
             checks=checks,
             hooks=copy.copy(self._hooks),
-            metadata=dict(self._metadata),
+            metadata=self._metadata.copy(),
             parser=self.parser.build_parser(component) if self.parser else None,
         )
         group.bind_component(component)
@@ -488,7 +488,7 @@ class Component(traits.Component):
 
     @property
     def checks(self) -> typing.AbstractSet[traits.CheckT]:
-        return frozenset(self._checks)
+        return self._checks.copy()
 
     @property
     def client(self) -> typing.Optional[traits.Client]:
@@ -496,7 +496,7 @@ class Component(traits.Component):
 
     @property
     def commands(self) -> typing.AbstractSet[traits.ExecutableCommand]:
-        return frozenset(self._commands)
+        return self._commands.copy()
 
     @property
     def hooks(self) -> typing.Optional[traits.Hooks]:
@@ -511,7 +511,7 @@ class Component(traits.Component):
     def listeners(
         self,
     ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_manager.CallbackT[typing.Any]]]:
-        return frozenset(self._listeners)
+        return self._listeners.copy()
 
     @property
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:

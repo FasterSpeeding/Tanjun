@@ -153,7 +153,7 @@ function which returns `builtins.bool` (where returning `False` may cancel
 execution of the current command).
 """
 
-CheckT = typing.Callable[["Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]]
+CheckT = typing.Callable[..., typing.Union[bool, typing.Awaitable[bool]]]
 """Type hint of a general context check used with Tanjun `Executable` classes.
 
 This may be registered with a `Executable` to add a rule which decides whether
@@ -168,7 +168,7 @@ ComponentT_contra = typing.TypeVar("ComponentT_contra", bound="Component", contr
 
 UnboundCheckT = typing.Callable[
     ["ComponentT_contra", "Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]
-]
+]  # TODO: remove this
 """Type hint of a general context check used by Tanjun `Executable` classes.
 
 This is an equivalent to `CheckT` where it's yet to be bound to a `Component`,

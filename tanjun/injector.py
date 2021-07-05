@@ -41,7 +41,7 @@ if typing.TYPE_CHECKING:
 
 _T = typing.TypeVar("_T")
 CallbackT = typing.Callable[..., typing.Union[_T, typing.Awaitable[_T]]]
-GetterT = typing.Callable[[traits.Context], typing.Any]
+GetterT = typing.Callable[["traits.Context"], typing.Any]
 
 
 class Undefined:
@@ -172,20 +172,20 @@ class Injectable(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @abc.abstractmethod
-    def add_injector(self, client: InjectorClient, /) -> None:
+    def set_injector(self, client: InjectorClient, /) -> None:
         ...
 
 
 class InjectableCheck(Injectable):
     __slots__: typing.Sequence[str] = ("callback", "_cached_getters", "injector", "is_async")
 
-    def __init__(self, callback: CallbackT[bool]) -> None:
+    def __init__(self, callback: CallbackT[bool], *, injector: typing.Optional[InjectorClient] = None) -> None:
         self.callback = callback
         self._cached_getters: typing.Optional[typing.Dict[str, typing.Callable[[traits.Context], typing.Any]]]
-        self.injector: typing.Optional[InjectorClient] = None
+        self.injector = injector
         self.is_async: typing.Optional[bool] = None
 
-    def add_injector(self, client: InjectorClient) -> None:
+    def set_injector(self, client: InjectorClient) -> None:
         if self.injector:
             raise RuntimeError("Injector already set for this check")
 
