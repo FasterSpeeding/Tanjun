@@ -83,7 +83,7 @@ class Command(injector.Injectable, traits.ExecutableCommand):
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         parser: typing.Optional[traits.Parser] = None,
     ) -> None:
-        self._cached_getters: typing.Optional[typing.Dict[str, typing.Callable[[traits.Context], typing.Any]]] = None
+        self._cached_getters: typing.Optional[typing.List[injector.Getter[typing.Any]]] = None
         self._checks = set(injector.InjectableCheck(check) for check in checks) if checks else set()
         self._component: typing.Optional[traits.Component] = None
         self._function = function
@@ -182,12 +182,12 @@ class Command(injector.Injectable, traits.ExecutableCommand):
     def bind_component(self, component: traits.Component, /) -> None:
         pass
 
-    def _get_injection_getters(self) -> typing.Dict[str, injector.GetterT[typing.Any]]:
+    def _get_injection_getters(self) -> typing.Iterable[injector.Getter[typing.Any]]:
         if not self._injector:
             raise ValueError("Cannot execute command without injector client")
 
         if self._cached_getters is None:
-            self._cached_getters = self._injector.resolve_callback_to_getters(self._function)
+            self._cached_getters = list(self._injector.resolve_callback_to_getters(self._function))
 
             if self._needs_injector is None:
                 self._needs_injector = bool(self._cached_getters)
@@ -209,7 +209,7 @@ class Command(injector.Injectable, traits.ExecutableCommand):
                 kwargs = {}
 
             if self.needs_injector:
-                kwargs.update(((name, getter(ctx)) for name, getter in self._get_injection_getters().items()))
+                kwargs.update(await injector.call_getters(ctx, self._get_injection_getters()))
 
             await self._function(ctx, *args, **kwargs)
 
