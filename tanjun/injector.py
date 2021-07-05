@@ -67,7 +67,7 @@ class Undefined:
             return cls.__instance
 
 
-UNDEFINED = Undefined()
+UNDEFINED: typing.Final[Undefined] = Undefined()
 UndefinedOr = typing.Union[Undefined, _T]
 
 
