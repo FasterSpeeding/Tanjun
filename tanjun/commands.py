@@ -209,7 +209,7 @@ class Command(injector.Injectable, traits.ExecutableCommand):
                 kwargs = {}
 
             if self.needs_injector:
-                kwargs.update(await injector.call_getters(ctx, self._get_injection_getters()))
+                kwargs.update(await injector.resolve_getters(ctx, self._get_injection_getters()))
 
             await self._function(ctx, *args, **kwargs)
 

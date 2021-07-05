@@ -86,6 +86,16 @@ __all__: typing.Sequence[str] = [
     # hooks.py
     "hooks",
     "Hooks",
+    # injector.py
+    "CallbackT",
+    "GetterCallbackT",
+    "Getter",
+    "Undefined",
+    "UNDEFINED",
+    "UndefinedOr",
+    "Injected",
+    "InjectorClient",
+    "Injectable",
     # parsing.py
     "parsing",
     "Argument",
@@ -115,4 +125,5 @@ from tanjun.context import *
 from tanjun.conversion import *
 from tanjun.errors import *
 from tanjun.hooks import *
+from tanjun.injector import *
 from tanjun.parsing import *

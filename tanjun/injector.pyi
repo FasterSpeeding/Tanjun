@@ -31,6 +31,18 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
+__all__: typing.Sequence[str] = [
+    "CallbackT",
+    "GetterCallbackT",
+    "Getter",
+    "Undefined",
+    "UNDEFINED",
+    "UndefinedOr",
+    "Injected",
+    "InjectorClient",
+    "Injectable",
+]
+
 import abc
 import typing
 
@@ -60,7 +72,7 @@ def Injected(*, callback: typing.Callable[[], typing.Awaitable[_T]]) -> _T: ...
 def Injected(*, callback: typing.Callable[[], _T]) -> _T: ...
 @typing.overload
 def Injected(*, type: UndefinedOr[_T]) -> _T: ...
-async def call_getters(
+async def resolve_getters(
     ctx: traits.Context, getters: typing.Iterable[Getter[typing.Any]]
 ) -> typing.Mapping[str, typing.Any]: ...
 

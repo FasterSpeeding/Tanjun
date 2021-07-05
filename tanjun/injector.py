@@ -31,30 +31,47 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
+__all__: typing.Sequence[str] = [
+    "CallbackT",
+    "GetterCallbackT",
+    "Getter",
+    "Undefined",
+    "UNDEFINED",
+    "UndefinedOr",
+    "Injected",
+    "InjectorClient",
+    "Injectable",
+]
+
 import abc
 import inspect
 import typing
 
-if typing.TYPE_CHECKING:
-    from . import traits
-
+from . import traits
 
 _T = typing.TypeVar("_T")
 CallbackT = typing.Callable[..., typing.Union[_T, typing.Awaitable[_T]]]
-GetterCallbackT = typing.Callable[["traits.Context"], _T]
+GetterCallbackT = typing.Callable[[traits.Context], _T]
+
+CALLBACK_GETTER: typing.Final[int] = 1
+TYPE_GETTER: typing.Final[int] = 2
 
 
 class Getter(typing.Generic[_T]):
-    __slots__: typing.Sequence[str] = ("callback", "is_async", "name")
+    __slots__: typing.Sequence[str] = ("callback", "is_async", "name", "type")
 
-    def __init__(self, callback: GetterCallbackT[_T], name: str, /) -> None:
+    def __init__(self, callback: GetterCallbackT[_T], name: str, type_: int, /) -> None:
         self.callback = callback
         self.is_async: typing.Optional[bool] = None
         self.name = name
+        self.type = type_
 
 
 class Undefined:
     __instance: Undefined
+
+    def __bool__(self) -> bool:
+        return False
 
     def __new__(cls) -> Undefined:
         try:
@@ -82,7 +99,7 @@ class Injected(typing.Generic[_T]):
     def __init__(
         self,
         *,
-        callback: UndefinedOr[typing.Callable[[], _T]] = UNDEFINED,
+        callback: UndefinedOr[typing.Callable[[], typing.Union[_T, typing.Awaitable[_T]]]] = UNDEFINED,
         type: UndefinedOr[UndefinedOr[_T]] = UNDEFINED,
     ) -> None:
         if callback is UNDEFINED and type is UNDEFINED:
@@ -95,13 +112,16 @@ class Injected(typing.Generic[_T]):
         self.type = type
 
 
-async def call_getters(
+async def resolve_getters(
     ctx: traits.Context, getters: typing.Iterable[Getter[typing.Any]]
 ) -> typing.Mapping[str, typing.Any]:
     results: typing.Dict[str, typing.Any] = {}
 
     for getter in getters:
-        print(getter)
+        if getter.type == TYPE_GETTER:
+            results[getter.name] = getter.callback(ctx)
+            continue
+
         result = getter.callback(ctx)()
         if getter.is_async is None:
             getter.is_async = isinstance(result, typing.Awaitable)
@@ -155,7 +175,7 @@ class InjectorClient:
         def get(_: traits.Context) -> CallbackT[_T]:
             return self._callback_overrides.get(callback, callback)
 
-        return Getter(get, name)
+        return Getter(get, name, CALLBACK_GETTER)
 
     def _make_type_getter(self, type_: typing.Type[_T], name: str, /) -> Getter[_T]:
         default_to_client = issubclass(type_, traits.Client)
@@ -177,9 +197,9 @@ class InjectorClient:
                     if ctx.component:
                         return typing.cast(_T, ctx.component)
 
-                raise RuntimeError(f"Couldn't resolve injected type {type_} to actual value")
+                raise RuntimeError(f"Couldn't resolve injected type {type_} to actual value") from None
 
-        return Getter(get, name)
+        return Getter(get, name, TYPE_GETTER)
 
     def resolve_callback_to_getters(self, callback: CallbackT[typing.Any], /) -> typing.Iterator[Getter[typing.Any]]:
         for name, parameter in inspect.signature(callback).parameters.items():
@@ -189,7 +209,7 @@ class InjectorClient:
             if parameter.kind is parameter.POSITIONAL_ONLY:
                 raise ValueError("Injected positional only arguments are not supported")
 
-            if parameter.default.callback:
+            if parameter.default.callback is not UNDEFINED:
                 yield self._make_callback_getter(parameter.default.callback, name)
 
             else:
@@ -230,7 +250,7 @@ class InjectableCheck(Injectable):
             if self._cached_getters is None:
                 self._cached_getters = list(self.injector.resolve_callback_to_getters(self.callback))
 
-            result = self.callback(ctx, **await call_getters(ctx, self._cached_getters))
+            result = self.callback(ctx, **await resolve_getters(ctx, self._cached_getters))
 
         else:
             result = self.callback(ctx)
