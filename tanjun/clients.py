@@ -205,6 +205,9 @@ class Client(injector.InjectorClient, traits.Client):
             self._events.event_manager.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
             self._events.event_manager.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
 
+        # InjectorClient.__init__
+        super().__init__(self)
+
     async def __aenter__(self) -> Client:
         await self.open()
         return self
@@ -309,6 +312,9 @@ class Client(injector.InjectorClient, traits.Client):
         return await utilities.gather_checks(check(ctx) for check in self._checks)
 
     def add_component(self: _ClientT, component: traits.Component, /) -> _ClientT:
+        if isinstance(component, injector.Injectable):
+            component.set_injector(self)
+
         component.bind_client(self)
         self._components.add(component)
         return self

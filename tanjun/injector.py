@@ -41,7 +41,7 @@ if typing.TYPE_CHECKING:
 
 _T = typing.TypeVar("_T")
 CallbackT = typing.Callable[..., typing.Union[_T, typing.Awaitable[_T]]]
-GetterT = typing.Callable[["traits.Context"], typing.Any]
+GetterT = typing.Callable[["traits.Context"], _T]
 
 
 class Undefined:
@@ -60,6 +60,11 @@ class Undefined:
 
 UNDEFINED = Undefined()
 UndefinedOr = typing.Union[Undefined, _T]
+
+
+def check_injecting(callback: CallbackT[typing.Any], /) -> bool:
+    parameters = inspect.signature(callback).parameters.values()
+    return any(isinstance(parameter.default, Injected) for parameter in parameters)
 
 
 class Injected(typing.Generic[_T]):
@@ -117,13 +122,13 @@ class InjectorClient:
 
         return self._component_mapping
 
-    def _make_callback_getter(self, callback: CallbackT[_T], /) -> typing.Callable[[traits.Context], CallbackT[_T]]:
+    def _make_callback_getter(self, callback: CallbackT[_T], /) -> GetterT[CallbackT[_T]]:
         def get(_: traits.Context) -> CallbackT[_T]:
             return self._callback_overrides.get(callback, callback)
 
         return get
 
-    def _make_type_getter(self, type_: typing.Type[_T]) -> typing.Callable[[traits.Context], _T]:
+    def _make_type_getter(self, type_: typing.Type[_T], /) -> GetterT[_T]:
         default_to_client = issubclass(type_, traits.Client)
         try_component = issubclass(type_, traits.Component)
 
@@ -147,10 +152,8 @@ class InjectorClient:
 
         return get
 
-    def resolve_callback_to_getters(
-        self, callback: CallbackT[typing.Any]
-    ) -> typing.Dict[str, typing.Callable[[traits.Context], typing.Any]]:
-        getters: typing.Dict[str, typing.Callable[[traits.Context], typing.Any]] = {}
+    def resolve_callback_to_getters(self, callback: CallbackT[typing.Any], /) -> typing.Dict[str, GetterT[typing.Any]]:
+        getters: typing.Dict[str, GetterT[typing.Any]] = {}
         for name, parameter in inspect.signature(callback).parameters.items():
             if parameter.default is parameter.default and not isinstance(Injected, parameter.default):
                 continue
@@ -172,33 +175,39 @@ class Injectable(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @abc.abstractmethod
+    def needs_injector(self) -> bool:
+        ...
+
+    @abc.abstractmethod
     def set_injector(self, client: InjectorClient, /) -> None:
         ...
 
 
 class InjectableCheck(Injectable):
-    __slots__: typing.Sequence[str] = ("callback", "_cached_getters", "injector", "is_async")
+    __slots__: typing.Sequence[str] = ("callback", "_cached_getters", "injector", "is_async", "_needs_injector")
 
     def __init__(self, callback: CallbackT[bool], *, injector: typing.Optional[InjectorClient] = None) -> None:
+        self._cached_getters: typing.Optional[typing.Dict[str, GetterT[typing.Any]]] = None
         self.callback = callback
-        self._cached_getters: typing.Optional[typing.Dict[str, typing.Callable[[traits.Context], typing.Any]]]
         self.injector = injector
         self.is_async: typing.Optional[bool] = None
-
-    def set_injector(self, client: InjectorClient) -> None:
-        if self.injector:
-            raise RuntimeError("Injector already set for this check")
-
-        self.injector = client
+        self._needs_injector: typing.Optional[bool] = None
 
     async def __call__(self, ctx: traits.Context, /) -> bool:
-        if self.injector is None:
-            raise RuntimeError("Cannot call an injectable check before the injector has been set")
+        if self._needs_injector is None:
+            self._needs_injector = bool(self._cached_getters)
 
-        if self._cached_getters is None:
-            self._cached_getters = self.injector.resolve_callback_to_getters(self.callback)
+        if self._needs_injector:
+            if self.injector is None:
+                raise RuntimeError("Cannot call an injectable check before the injector has been set")
 
-        result = self.callback(*{name: getter(ctx) for name, getter in self._cached_getters.items()})
+            if self._cached_getters is None:
+                self._cached_getters = self.injector.resolve_callback_to_getters(self.callback)
+
+            result = self.callback(ctx, *{name: getter(ctx) for name, getter in self._cached_getters.items()})
+
+        else:
+            result = self.callback(ctx)
 
         if self.is_async is None:
             self.is_async = isinstance(result, typing.Awaitable)
@@ -211,3 +220,19 @@ class InjectableCheck(Injectable):
             assert isinstance(result, bool)
 
         return result
+
+    @property
+    def needs_injector(self) -> bool:
+        if not self.injector:
+            raise ValueError("Need injector to introspect whether it is required")
+
+        if self._needs_injector is None:
+            self._needs_injector = check_injecting(self.callback)
+
+        return self._needs_injector
+
+    def set_injector(self, client: InjectorClient) -> None:
+        if self.injector:
+            raise RuntimeError("Injector already set for this check")
+
+        self.injector = client

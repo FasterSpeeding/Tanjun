@@ -724,7 +724,5 @@ class Parser(abc.ABC):
     def bind_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
-    async def parse(
-        self, ctx: Context, /
-    ) -> typing.Tuple[typing.Sequence[typing.Any], typing.Mapping[str, typing.Any]]:
+    async def parse(self, ctx: Context, /) -> typing.Tuple[typing.List[typing.Any], typing.Dict[str, typing.Any]]:
         raise NotImplementedError

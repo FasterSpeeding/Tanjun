@@ -786,7 +786,7 @@ class ShlexParser(traits.Parser):
 
     async def parse(
         self, ctx: traits.Context, /
-    ) -> typing.Tuple[typing.Sequence[typing.Any], typing.Mapping[str, typing.Any]]:
+    ) -> typing.Tuple[typing.List[typing.Any], typing.Dict[str, typing.Any]]:
         # <<inherited docstring from tanjun.traits.ShlexParser>>.
         parser = SemanticShlex(ctx)
         arguments = await parser.get_arguments(self._arguments)
