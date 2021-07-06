@@ -47,13 +47,15 @@ import abc
 import inspect
 import typing
 
-from . import traits
+from hikari import traits as hikari_traits
+
 from . import errors
+from . import traits as tanjun_traits
 
 _InjectorClientT = typing.TypeVar("_InjectorClientT", bound="InjectorClient")
 _T = typing.TypeVar("_T")
 CallbackT = typing.Callable[..., typing.Union[_T, typing.Awaitable[_T]]]
-GetterCallbackT = typing.Callable[[traits.Context], _T]
+GetterCallbackT = typing.Callable[[tanjun_traits.Context], _T]
 
 CALLBACK_GETTER: typing.Final[int] = 1
 TYPE_GETTER: typing.Final[int] = 2
@@ -103,7 +105,7 @@ class Injected(typing.Generic[_T]):
         *,
         callback: UndefinedOr[typing.Callable[[], typing.Union[_T, typing.Awaitable[_T]]]] = UNDEFINED,
         type: UndefinedOr[UndefinedOr[_T]] = UNDEFINED,
-    ) -> None:
+    ) -> None:  # TODO: add defaulct/factory to this?
         if callback is UNDEFINED and type is UNDEFINED:
             raise ValueError("Must specify one of `callback` or `type`")
 
@@ -115,7 +117,7 @@ class Injected(typing.Generic[_T]):
 
 
 async def resolve_getters(
-    ctx: traits.Context, getters: typing.Iterable[Getter[typing.Any]]
+    ctx: tanjun_traits.Context, getters: typing.Iterable[Getter[typing.Any]]
 ) -> typing.Mapping[str, typing.Any]:
     results: typing.Dict[str, typing.Any] = {}
 
@@ -146,11 +148,11 @@ class InjectorClient:
         "_type_dependencies",
     )
 
-    def __init__(self, client: traits.Client, /) -> None:
+    def __init__(self, client: tanjun_traits.Client, /) -> None:
         self._callback_overrides: typing.Dict[CallbackT[typing.Any], CallbackT[typing.Any]] = {}
         self._client = client
-        self._component_mapping_values: typing.Set[traits.Component] = set()
-        self._component_mapping: typing.Dict[typing.Type[traits.Component], traits.Component] = {}
+        self._component_mapping_values: typing.Set[tanjun_traits.Component] = set()
+        self._component_mapping: typing.Dict[typing.Type[tanjun_traits.Component], tanjun_traits.Component] = {}
         self._type_dependencies: typing.Dict[typing.Type[typing.Any], typing.Any] = {}
 
     def add_type_dependency(self: _InjectorClientT, type_: typing.Type[_T], value: _T, /) -> _InjectorClientT:
@@ -169,7 +171,7 @@ class InjectorClient:
     def get_callable_override(self, callback: CallbackT[_T], /) -> typing.Optional[CallbackT[_T]]:
         return self._callback_overrides.get(callback)
 
-    def _get_component_mapping(self) -> typing.Dict[typing.Type[traits.Component], traits.Component]:
+    def _get_component_mapping(self) -> typing.Dict[typing.Type[tanjun_traits.Component], tanjun_traits.Component]:
         if self._component_mapping_values != self._client.components:
             self._component_mapping.clear()
             self._component_mapping = {type(component): component for component in self._client.components}
@@ -178,18 +180,22 @@ class InjectorClient:
         return self._component_mapping
 
     def _make_callback_getter(self, callback: CallbackT[_T], name: str, /) -> Getter[CallbackT[_T]]:
-        def get(_: traits.Context) -> CallbackT[_T]:
+        def get(_: tanjun_traits.Context) -> CallbackT[_T]:
             return self._callback_overrides.get(callback, callback)
 
         return Getter(get, name, CALLBACK_GETTER)
 
     def _make_type_getter(self, type_: typing.Type[_T], name: str, /) -> Getter[_T]:
-        default_to_client = issubclass(type_, traits.Client)
-        default_to_context = issubclass(type_, traits.Context)
+        default_to_client = issubclass(type_, tanjun_traits.Client)
+        default_to_context = issubclass(type_, tanjun_traits.Context)
         default_to_injector = issubclass(type_, InjectorClient)
-        try_component = issubclass(type_, traits.Component)
+        default_to_cache_service = issubclass(type_, hikari_traits.CacheAware)
+        default_to_rest_service = issubclass(type_, hikari_traits.RESTAware)
+        default_to_shard_service = issubclass(type_, hikari_traits.ShardAware)
+        default_to_event_service = issubclass(type_, hikari_traits.EventManagerAware)
+        try_component = issubclass(type_, tanjun_traits.Component)
 
-        def get(ctx: traits.Context) -> _T:
+        def get(ctx: tanjun_traits.Context) -> _T:
             try:
                 return typing.cast(_T, self._type_dependencies[type_])
 
@@ -203,6 +209,18 @@ class InjectorClient:
                 if default_to_injector:
                     return typing.cast(_T, self)
 
+                if default_to_cache_service and ctx.client.cache_service is not None:
+                    return typing.cast(_T, ctx.client.cache_service)
+
+                if default_to_rest_service:
+                    return typing.cast(_T, ctx.client.rest_service)
+
+                if default_to_shard_service and ctx.client.cache_service:
+                    return typing.cast(_T, ctx.client.cache_service)
+
+                if default_to_event_service and ctx.client.event_service:
+                    return typing.cast(_T, ctx.client.event_service)
+
                 if try_component:
                     if value := self._get_component_mapping().get(type_):  # type: ignore[arg-type]
                         return typing.cast(_T, value)
@@ -211,9 +229,7 @@ class InjectorClient:
                     if ctx.component:
                         return typing.cast(_T, ctx.component)
 
-                raise errors.MissingDependencyError(
-                    f"Couldn't resolve injected type {type_} to actual value"
-                ) from None
+                raise errors.MissingDependencyError(f"Couldn't resolve injected type {type_} to actual value") from None
 
         return Getter(get, name, TYPE_GETTER)
 
@@ -255,7 +271,7 @@ class InjectableCheck(Injectable):
         self.is_async: typing.Optional[bool] = None
         self._needs_injector: typing.Optional[bool] = None
 
-    async def __call__(self, ctx: traits.Context, /) -> bool:
+    async def __call__(self, ctx: tanjun_traits.Context, /) -> bool:
         if self._needs_injector is None:
             self._needs_injector = bool(self._cached_getters)
 
@@ -304,7 +320,7 @@ def cache_callback(callback: CallbackT[_T]) -> typing.Callable[..., typing.Await
     result: typing.Optional[_T] = None
 
     async def _get_or_build(
-        ctx: traits.Context,
+        ctx: tanjun_traits.Context,
         injector: InjectorClient = Injected(type=InjectorClient),
     ) -> _T:
         nonlocal result
