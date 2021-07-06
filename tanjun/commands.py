@@ -162,7 +162,7 @@ class Command(injector.Injectable, traits.ExecutableCommand):
 
     def set_injector(self, client: injector.InjectorClient, /) -> None:
         if self._injector:
-            raise ValueError("Injector already set")
+            raise RuntimeError("Injector already set")
 
         self._injector = client
 
@@ -305,6 +305,9 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
 
     def set_injector(self, client: injector.InjectorClient, /) -> None:
         super().set_injector(client)
+
+        if self.parser and isinstance(self.parser, injector.Injectable):
+            self.parser.set_injector(client)
 
         for command in self._commands:
             if isinstance(command, injector.Injectable):

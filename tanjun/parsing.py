@@ -56,6 +56,7 @@ from hikari import undefined
 
 from tanjun import conversion
 from tanjun import errors
+from tanjun import injector as injector_
 from tanjun import traits
 
 if typing.TYPE_CHECKING:
@@ -567,8 +568,8 @@ def with_multi_option(
     return with_option(key, name, *names, converters=converters, default=default, empty_value=empty_value, flags=flags)
 
 
-class _Parameter(traits.Parameter):
-    __slots__: typing.Sequence[str] = ("_converters", "default", "_flags", "key")
+class _Parameter(injector_.Injectable, traits.Parameter):
+    __slots__: typing.Sequence[str] = ("_client", "_component", "_converters", "default", "_flags", "_injector", "key")
 
     def __init__(
         self,
@@ -579,9 +580,12 @@ class _Parameter(traits.Parameter):
         default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
     ) -> None:
-        self._converters: typing.Optional[typing.List[traits.ConverterT]] = None
+        self._client: typing.Optional[traits.Client] = None
+        self._component: typing.Optional[traits.Component] = None
+        self._converters: typing.Optional[typing.List[injector_.InjectableConverter]] = None
         self.default = default
         self._flags = dict(flags) if flags else {}
+        self._injector: typing.Optional[injector_.InjectorClient] = None
         self.key = key
 
         if key.startswith("-"):
@@ -600,24 +604,40 @@ class _Parameter(traits.Parameter):
 
     @property
     def converters(self) -> typing.Optional[typing.Sequence[traits.ConverterT]]:
-        return tuple(self._converters) if self._converters is not None else None
+        return tuple(converter.callback for converter in self._converters) if self._converters is not None else None
 
     @property
     def flags(self) -> typing.MutableMapping[str, typing.Any]:
         return self._flags
 
+    @property
+    def needs_injector(self) -> bool:
+        # TODO: cache this value?
+        return any(converter.needs_injector for converter in self._converters) if self._converters else False
+
     def add_converter(self, converter: traits.ConverterT, /) -> None:
         if self._converters is None:
             self._converters = []
 
-        # Some types like `bool` and `bytes` are overridden here for the sake of convenience.
-        self._converters.append(conversion.override_type(converter))
+        if isinstance(converter, conversion.BaseConverter):
+            if self._client:
+                converter.bind_client(self._client)
+
+            if self._component:
+                converter.bind_component(self._component)
+
+        if not isinstance(converter, injector_.InjectableConverter):
+            # Some types like `bool` and `bytes` are overridden here for the sake of convenience.
+            converter = conversion.override_type(converter)
+            converter = injector_.InjectableConverter(converter, injector=self._injector)
+
+        self._converters.append(converter)
 
     def remove_converter(self, converter: traits.ConverterT, /) -> None:
         if self._converters is None:
             raise ValueError("No converters set")
 
-        self._converters.remove(converter)
+        self._converters.remove(converter)  # type: ignore[arg-type]
 
         if not self._converters:
             self._converters = None
@@ -626,17 +646,19 @@ class _Parameter(traits.Parameter):
         if not self._converters:
             return
 
+        self._client = client
         for converter in self._converters:
-            if isinstance(converter, (traits.Converter, traits.StatelessConverter)):
-                converter.bind_client(client)
+            if isinstance(converter.callback, conversion.BaseConverter):
+                converter.callback.bind_client(client)
 
     def bind_component(self, component: traits.Component, /) -> None:
         if not self._converters:
             return
 
+        self._component = component
         for converter in self._converters:
-            if isinstance(converter, (traits.Converter, traits.StatelessConverter)):
-                converter.bind_component(component)
+            if isinstance(converter.callback, conversion.BaseConverter):
+                converter.callback.bind_component(component)
 
     async def convert(self, ctx: traits.Context, value: str) -> typing.Any:
         if self._converters is None:
@@ -645,18 +667,21 @@ class _Parameter(traits.Parameter):
         sources: typing.List[ValueError] = []
         for converter in self._converters:
             try:
-                if hasattr(converter, "convert"):
-                    converter = typing.cast("traits.Converter[typing.Any]", converter)
-                    result = await converter.convert(ctx, value)
-                    return result
-
-                converter = typing.cast("typing.Callable[[str], typing.Any]", converter)
-                return converter(value)
+                return await converter(value, ctx)
 
             except ValueError as exc:
                 sources.append(exc)
 
         raise errors.ConversionError(self, sources)
+
+    def set_injector(self, client: injector_.InjectorClient, /) -> None:
+        if self._injector is not None:
+            raise RuntimeError("Injector already set")
+
+        self._injector = client
+        if self._converters:
+            for converter in self._converters:
+                converter.set_injector(client)
 
 
 class Argument(_Parameter, traits.Argument):
@@ -679,7 +704,7 @@ class Argument(_Parameter, traits.Argument):
     def __copy__(self) -> Argument:
         return Argument(
             self.key,
-            converters=list(self._converters) if self._converters else None,
+            converters=self._converters.copy() if self._converters else None,
             default=self.default,
             flags=dict(self._flags),
         )
@@ -725,17 +750,28 @@ class Option(_Parameter, traits.Option):
         return f"{type(self).__name__} <{self.key}, {self.names}>"
 
 
-class ShlexParser(traits.Parser):
+class ShlexParser(injector_.Injectable, traits.Parser):
     """A shlex based `tanjun.traits.Parser` implementation."""
 
-    __slots__: typing.Sequence[str] = ("_arguments", "_options")
+    __slots__: typing.Sequence[str] = ("_arguments", "_client", "_component", "_injector", "_options")
 
     def __init__(self, *, parameters: typing.Optional[typing.Iterable[traits.Parameter]] = None) -> None:
         self._arguments: typing.List[traits.Argument] = []
+        self._client: typing.Optional[traits.Client] = None
+        self._component: typing.Optional[traits.Component] = None
+        self._injector: typing.Optional[injector_.InjectorClient] = None
         self._options: typing.List[traits.Option] = []
 
         if parameters is not None:
             self.set_parameters(parameters)
+
+    @property
+    def needs_injector(self) -> bool:
+        # TODO: cache this value?
+        return any(
+            isinstance(parameter, injector_.Injectable) and parameter.needs_injector
+            for parameter in itertools.chain(self._options, self._arguments)
+        )
 
     @property
     def parameters(self) -> typing.Sequence[traits.Parameter]:
@@ -744,10 +780,19 @@ class ShlexParser(traits.Parser):
 
     def add_parameter(self, parameter: traits.Parameter, /) -> None:
         # <<inherited docstring from tanjun.traits.ShlexParser>>.
+        if self._injector and isinstance(parameter, injector_.Injectable):
+            parameter.set_injector(self._injector)
+
+        if self._client:
+            parameter.bind_client(self._client)
+
+        if self._component:
+            parameter.bind_component(self._component)
+
         if isinstance(parameter, traits.Option):
             self._options.append(parameter)
 
-        else:
+        elif isinstance(parameter, traits.Argument):
             self._arguments.append(parameter)
             found_final_argument = False
 
@@ -758,13 +803,26 @@ class ShlexParser(traits.Parser):
 
                 found_final_argument = MULTI in argument.flags or GREEDY in argument.flags
 
+        else:
+            raise ValueError("Invalid type passed")
+
     def remove_parameter(self, parameter: traits.Parameter, /) -> None:
         # <<inherited docstring from tanjun.traits.ShlexParser>>.
         if isinstance(parameter, traits.Option):
             self._options.remove(parameter)
 
-        else:
+        elif isinstance(parameter, traits.Argument):
             self._arguments.remove(parameter)
+
+        else:
+            raise ValueError("Invalid type passed")
+
+    def set_injector(self, client: injector_.InjectorClient, /) -> None:
+        self._injector = client
+
+        for parameter in itertools.chain(self._options, self._arguments):
+            if isinstance(parameter, injector_.Injectable):
+                parameter.set_injector(client)
 
     def set_parameters(self, parameters: typing.Iterable[traits.Parameter], /) -> None:
         # <<inherited docstring from tanjun.traits.ShlexParser>>.
@@ -776,11 +834,13 @@ class ShlexParser(traits.Parser):
 
     def bind_client(self, client: traits.Client, /) -> None:
         # <<inherited docstring from tanjun.traits.ShlexParser>>.
+        self._client = client
         for parameter in itertools.chain(self._options, self._arguments):
             parameter.bind_client(client)
 
     def bind_component(self, component: traits.Component, /) -> None:
         # <<inherited docstring from tanjun.traits.ShlexParser>>.
+        self._component = component
         for parameter in itertools.chain(self._options, self._arguments):
             parameter.bind_component(component)
 
@@ -804,7 +864,7 @@ class ParserDescriptor(traits.ParserDescriptor):
 
     def parameters(self) -> typing.Sequence[traits.Parameter]:
         # <<inherited docstring from tanjun.traits.ParserDescriptor>>.
-        return tuple(self._parameters)
+        return self._parameters.copy()
 
     def add_parameter(self, parameter: traits.Parameter, /) -> None:
         # <<inherited docstring from tanjun.traits.ParserDescriptor>>.

@@ -585,7 +585,7 @@ class Component(injector.Injectable, traits.Component):
 
     def set_injector(self, client: injector.InjectorClient, /) -> None:
         if self._injector:
-            raise ValueError("Injector already set")
+            raise RuntimeError("Injector already set")
 
         self._injector = client
 
@@ -598,7 +598,7 @@ class Component(injector.Injectable, traits.Component):
 
     def bind_client(self, client: traits.Client, /) -> None:
         if self._client:
-            raise ValueError("Client already set")
+            raise RuntimeError("Client already set")
 
         self._client = client
         for event_, listener in self._listeners:
