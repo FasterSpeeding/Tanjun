@@ -71,14 +71,13 @@ if typing.TYPE_CHECKING:
     from tanjun import traits
 
 _ValueT = typing.TypeVar("_ValueT")
-_ValueT_co = typing.TypeVar("_ValueT_co", covariant=True)
 
 
-class BaseConverter(abc.ABC, typing.Generic[_ValueT_co]):
+class BaseConverter(typing.Generic[_ValueT], abc.ABC):
     __slots__: typing.Sequence[str] = ()
     __implementations: typing.Set[typing.Type[BaseConverter[typing.Type[typing.Any]]]] = set()
 
-    async def __call__(self, ctx: traits.Context, argument: str, /) -> _ValueT_co:
+    async def __call__(self, argument: str, ctx: traits.Context) -> _ValueT:
         return await self.convert(ctx, argument)
 
     def bind_client(self, client: traits.Client, /) -> None:
@@ -103,8 +102,8 @@ class BaseConverter(abc.ABC, typing.Generic[_ValueT_co]):
 
     @classmethod
     def get_from_type(
-        cls, type_: typing.Type[_ValueT_co]
-    ) -> typing.Optional[typing.Type[BaseConverter[typing.Type[_ValueT_co]]]]:
+        cls, type_: typing.Type[_ValueT]
+    ) -> typing.Optional[typing.Type[BaseConverter[typing.Type[_ValueT]]]]:
         for converter in cls.__implementations:
             is_inheritable = converter.is_inheritable()
             if is_inheritable and issubclass(type_, converter.types()):
@@ -125,7 +124,7 @@ class BaseConverter(abc.ABC, typing.Generic[_ValueT_co]):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def convert(self, ctx: traits.Context, argument: str, /) -> _ValueT_co:
+    async def convert(self, ctx: traits.Context, argument: str, /) -> _ValueT:
         raise NotImplementedError
 
     @property
@@ -341,7 +340,7 @@ class RoleConverter(BaseConverter[guilds.Role]):
 
     async def convert(self, ctx: traits.Context, argument: str, /) -> guilds.Role:
         if ctx.client.cache_service:
-            role_id = parse_snowflake(argument, message="No valid role mention or ID  found")
+            role_id = parse_role_id(argument, message="No valid role mention or ID  found")
             if role := ctx.client.cache_service.cache.get_role(role_id):
                 return role
 
@@ -391,6 +390,7 @@ def make_snowflake_parser(regex: typing.Pattern[str]) -> _IDMatcher:
 parse_snowflake = make_snowflake_parser(re.compile(r"<[@&?!#a]{0,3}(?::\w+:)?(\d+)>"))
 parse_channel_id = make_snowflake_parser(re.compile(r"<#(\d+)>"))
 parse_emoji_id = make_snowflake_parser(re.compile(r"<a?:\w+:(\d+)>"))
+parse_role_id = make_snowflake_parser(re.compile(r"<@&(\d+)>"))
 parse_user_id = make_snowflake_parser(re.compile(r"<@!?(\d+)>"))
 
 

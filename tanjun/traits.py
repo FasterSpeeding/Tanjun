@@ -75,7 +75,7 @@ if typing.TYPE_CHECKING:
 # To allow for stateless converters we accept both "Converter[...]" and "Type[StatelessConverter[...]]" where all the
 # methods on "Type[StatelessConverter[...]]" need to be classmethods as it will not be initialised before calls are made
 # to it.
-ConverterT = typing.Callable[[str], typing.Union[typing.Coroutine[typing.Any, typing.Any, typing.Any], typing.Any]]
+ConverterT = typing.Callable[..., typing.Union[typing.Awaitable[typing.Any], typing.Any]]
 """Type hint of a converter used within a parser instance.
 
 This must be a callable or asynchronous callable which takes one position
