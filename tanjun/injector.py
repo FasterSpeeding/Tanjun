@@ -281,6 +281,14 @@ class InjectableCheck(Injectable):
 
         return result
 
+    # This is delegated to the callback function in-order to delegate set behaviour for this class to the function.
+    def __eq__(self, other: typing.Any) -> bool:
+        return self.callback == other
+
+    # This is delegated to the callback function in-order to delegate set behaviour for this class to the function.
+    def __hash__(self) -> int:
+        return hash(self.callback)
+
     @property
     def needs_injector(self) -> bool:
         if not self.injector:

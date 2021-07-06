@@ -98,8 +98,8 @@ class InjectorClient:
 
 class Injectable(abc.ABC):
     __slots__: typing.Sequence[str]
-    @abc.abstractmethod
     @property
+    @abc.abstractmethod
     def needs_injector(self) -> bool: ...
     @abc.abstractmethod
     def set_injector(self, client: InjectorClient, /) -> None: ...

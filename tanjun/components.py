@@ -490,7 +490,7 @@ class Component(injector.Injectable, traits.Component):
 
     @property
     def checks(self) -> typing.AbstractSet[traits.CheckT]:
-        return self._checks.copy()
+        return {check.callback for check in self._checks}
 
     @property
     def client(self) -> typing.Optional[traits.Client]:
@@ -532,13 +532,7 @@ class Component(injector.Injectable, traits.Component):
         return self
 
     def remove_check(self, check: traits.CheckT, /) -> None:
-        for other_check in self._checks:
-            if other_check == check:
-                self._checks.remove(other_check)
-                break
-
-        else:
-            raise ValueError("Check not found")
+        self._checks.remove(check)  # type: ignore[arg-type]
 
     def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
         self.add_check(check)
@@ -617,7 +611,7 @@ class Component(injector.Injectable, traits.Component):
         self, ctx: traits.Context, /, *, name_prefix: str = ""
     ) -> typing.AsyncIterator[traits.FoundCommand]:
         ctx.component = self
-        if await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks):
+        if await utilities.gather_checks(check(ctx) for check in self._checks):
             async for value in utilities.async_chain(
                 command.check_context(ctx, name_prefix=name_prefix) for command in self._commands
             ):

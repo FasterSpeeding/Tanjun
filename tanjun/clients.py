@@ -154,7 +154,6 @@ class Client(injector.InjectorClient, traits.Client):
         "_components",
         "_events",
         "_grab_mention_prefix",
-        "_human_check",
         "hooks",
         "_metadata",
         "_prefix_getter",
@@ -192,7 +191,6 @@ class Client(injector.InjectorClient, traits.Client):
         self._components: typing.Set[traits.Component] = set()
         self._events = events
         self._grab_mention_prefix = mention_prefix
-        self._human_check = injector.InjectableCheck(_check_human, injector=self)
         self.hooks: typing.Optional[traits.Hooks] = None
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
         self._prefix_getter: typing.Optional[PrefixGetterT] = None
@@ -231,7 +229,7 @@ class Client(injector.InjectorClient, traits.Client):
     @property
     def is_human_only(self) -> bool:
         """Whether this client is only executing for non-bot/webhook users messages."""
-        return self._human_check in self._checks
+        return _check_human in self._checks  # type: ignore[comparison-overlap]
 
     @property
     def cache_service(self) -> typing.Optional[hikari_traits.CacheAware]:
@@ -239,7 +237,7 @@ class Client(injector.InjectorClient, traits.Client):
 
     @property
     def checks(self) -> typing.AbstractSet[traits.CheckT]:
-        return self._checks.copy()
+        return {check.callback for check in self._checks}
 
     @property
     def components(self) -> typing.AbstractSet[traits.Component]:
@@ -281,11 +279,11 @@ class Client(injector.InjectorClient, traits.Client):
 
     def set_human_only(self: _ClientT, value: bool = True) -> _ClientT:
         if value:
-            self.add_check(self._human_check)
+            self.add_check(injector.InjectableCheck(_check_human, injector=self))
 
         else:
             try:
-                self.remove_check(self._human_check)
+                self.remove_check(_check_human)
             except ValueError:
                 pass
 
@@ -296,13 +294,7 @@ class Client(injector.InjectorClient, traits.Client):
         return self
 
     def remove_check(self, check: traits.CheckT, /) -> None:
-        for other_check in self._checks:
-            if other_check.callback == check:
-                self._checks.remove(other_check)
-                break
-
-        else:
-            raise ValueError("Check not found")
+        self._checks.remove(check)  # type: ignore[arg-type]
 
     def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
         self.add_check(check)

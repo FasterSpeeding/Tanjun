@@ -100,7 +100,7 @@ class Command(injector.Injectable, traits.ExecutableCommand):
 
     @property
     def checks(self) -> typing.AbstractSet[traits.CheckT]:
-        return self._checks.copy()
+        return {check.callback for check in self._checks}
 
     @property
     def component(self) -> typing.Optional[traits.Component]:
@@ -130,13 +130,7 @@ class Command(injector.Injectable, traits.ExecutableCommand):
         return self
 
     def remove_check(self, check: traits.CheckT, /) -> None:
-        for other_check in self._checks:
-            if other_check.callback == check:
-                self._checks.remove(other_check)
-                break
-
-        else:
-            raise ValueError("Couldn't find check")
+        self._checks.remove(check)  # type: ignore[arg-type]
 
     def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
         self.add_check(check)
