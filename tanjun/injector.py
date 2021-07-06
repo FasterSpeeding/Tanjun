@@ -48,7 +48,9 @@ import inspect
 import typing
 
 from . import traits
+from . import errors
 
+_InjectorClientT = typing.TypeVar("_InjectorClientT", bound="InjectorClient")
 _T = typing.TypeVar("_T")
 CallbackT = typing.Callable[..., typing.Union[_T, typing.Awaitable[_T]]]
 GetterCallbackT = typing.Callable[[traits.Context], _T]
@@ -151,14 +153,18 @@ class InjectorClient:
         self._component_mapping: typing.Dict[typing.Type[traits.Component], traits.Component] = {}
         self._type_dependencies: typing.Dict[typing.Type[typing.Any], typing.Any] = {}
 
-    def add_type_dependency(self, type_: typing.Type[_T], value: _T, /) -> None:
+    def add_type_dependency(self: _InjectorClientT, type_: typing.Type[_T], value: _T, /) -> _InjectorClientT:
         self._type_dependencies[type_] = value
+        return self
 
     def get_type_dependency(self, type_: typing.Type[_T], /) -> UndefinedOr[_T]:
         return self._type_dependencies.get(type_, UNDEFINED)
 
-    def add_callable_override(self, callback: CallbackT[_T], override: CallbackT[_T], /) -> None:
+    def add_callable_override(
+        self: _InjectorClientT, callback: CallbackT[_T], override: CallbackT[_T], /
+    ) -> _InjectorClientT:
         self._callback_overrides[callback] = override
+        return self
 
     def get_callable_override(self, callback: CallbackT[_T], /) -> typing.Optional[CallbackT[_T]]:
         return self._callback_overrides.get(callback)
@@ -179,6 +185,8 @@ class InjectorClient:
 
     def _make_type_getter(self, type_: typing.Type[_T], name: str, /) -> Getter[_T]:
         default_to_client = issubclass(type_, traits.Client)
+        default_to_context = issubclass(type_, traits.Context)
+        default_to_injector = issubclass(type_, InjectorClient)
         try_component = issubclass(type_, traits.Component)
 
         def get(ctx: traits.Context) -> _T:
@@ -189,6 +197,12 @@ class InjectorClient:
                 if default_to_client:
                     return typing.cast(_T, ctx.client)
 
+                if default_to_context:
+                    return typing.cast(_T, ctx)
+
+                if default_to_injector:
+                    return typing.cast(_T, self)
+
                 if try_component:
                     if value := self._get_component_mapping().get(type_):  # type: ignore[arg-type]
                         return typing.cast(_T, value)
@@ -197,7 +211,9 @@ class InjectorClient:
                     if ctx.component:
                         return typing.cast(_T, ctx.component)
 
-                raise RuntimeError(f"Couldn't resolve injected type {type_} to actual value") from None
+                raise errors.MissingDependencyError(
+                    f"Couldn't resolve injected type {type_} to actual value"
+                ) from None
 
         return Getter(get, name, TYPE_GETTER)
 
@@ -282,3 +298,22 @@ class InjectableCheck(Injectable):
             raise RuntimeError("Injector already set for this check")
 
         self.injector = client
+
+
+def cache_callback(callback: CallbackT[_T]) -> typing.Callable[..., typing.Awaitable[_T]]:
+    result: typing.Optional[_T] = None
+
+    async def _get_or_build(
+        ctx: traits.Context,
+        injector: InjectorClient = Injected(type=InjectorClient),
+    ) -> _T:
+        nonlocal result
+
+        if result is None:
+            getters = injector.resolve_callback_to_getters(callback)
+            temp_result = callback(**await resolve_getters(ctx, getters))
+            result = await temp_result if isinstance(temp_result, typing.Awaitable) else temp_result
+
+        return result
+
+    return _get_or_build
