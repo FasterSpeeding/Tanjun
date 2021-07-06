@@ -51,6 +51,7 @@ class Context(traits.Context):
     __slots__: typing.Sequence[str] = (
         "_client",
         "command",
+        "component",
         "content",
         "_message",
         "_rest",
@@ -75,6 +76,7 @@ class Context(traits.Context):
 
         self._client = client
         self.command = command
+        self.component: typing.Optional[traits.Component] = None
         self.content = content
         self._message = message
         self.triggering_name = triggering_name

@@ -42,6 +42,7 @@ import typing
 from hikari.events import base_events
 
 from tanjun import commands
+from tanjun import injector
 from tanjun import traits
 from tanjun import utilities
 
@@ -142,7 +143,7 @@ class CommandDescriptor:
             *self._names,
             checks=checks,
             hooks=copy.copy(self._hooks),
-            metadata=dict(self._metadata),
+            metadata=self._metadata.copy(),
             parser=self.parser.build_parser(component) if self.parser else None,
         )
         command.bind_component(component)
@@ -182,7 +183,7 @@ class CommandGroupDescriptor(CommandDescriptor):
             *self._names,
             checks=checks,
             hooks=copy.copy(self._hooks),
-            metadata=dict(self._metadata),
+            metadata=self._metadata.copy(),
             parser=self.parser.build_parser(component) if self.parser else None,
         )
         group.bind_component(component)
@@ -459,7 +460,7 @@ def as_listener(cls: typing.Type[event_manager.EventT_inv], /) -> EventDecorator
 
 # This class isn't slotted to let us overwrite command and event methods during initialisation by making sure
 # class properties aren't read only
-class Component(traits.Component):
+class Component(injector.Injectable, traits.Component):
     started: bool
     """Whether this component has been "started" yet.
 
@@ -472,10 +473,11 @@ class Component(traits.Component):
         checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
     ) -> None:
-        self._checks = set(checks) if checks else set()
+        self._checks = set(injector.InjectableCheck(check) for check in checks) if checks else set()
         self._client: typing.Optional[traits.Client] = None
         self._commands: typing.Set[traits.ExecutableCommand] = set()
         self._hooks = hooks
+        self._injector: typing.Optional[injector.InjectorClient] = None
         self._listeners: typing.Set[
             typing.Tuple[typing.Type[base_events.Event], event_manager.CallbackT[typing.Any]]
         ] = set()
@@ -488,7 +490,7 @@ class Component(traits.Component):
 
     @property
     def checks(self) -> typing.AbstractSet[traits.CheckT]:
-        return frozenset(self._checks)
+        return {check.callback for check in self._checks}
 
     @property
     def client(self) -> typing.Optional[traits.Client]:
@@ -496,7 +498,7 @@ class Component(traits.Component):
 
     @property
     def commands(self) -> typing.AbstractSet[traits.ExecutableCommand]:
-        return frozenset(self._commands)
+        return self._commands.copy()
 
     @property
     def hooks(self) -> typing.Optional[traits.Hooks]:
@@ -508,21 +510,29 @@ class Component(traits.Component):
         self._hooks = hooks_
 
     @property
+    def needs_injector(self) -> bool:
+        # TODO: cache this value maybe
+        if any(check.needs_injector for check in self._checks):
+            return True
+
+        return any(isinstance(command, injector.Injectable) and command.needs_injector for command in self._commands)
+
+    @property
     def listeners(
         self,
     ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_manager.CallbackT[typing.Any]]]:
-        return frozenset(self._listeners)
+        return self._listeners.copy()
 
     @property
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         return self._metadata
 
     def add_check(self: ComponentT, check: traits.CheckT, /) -> ComponentT:
-        self._checks.add(check)
+        self._checks.add(injector.InjectableCheck(check, injector=self._injector))
         return self
 
     def remove_check(self, check: traits.CheckT, /) -> None:
-        self._checks.remove(check)
+        self._checks.remove(check)  # type: ignore[arg-type]
 
     def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
         self.add_check(check)
@@ -532,6 +542,10 @@ class Component(traits.Component):
         self: ComponentT, command: typing.Union[traits.ExecutableCommand, CommandDescriptor], /
     ) -> ComponentT:
         command = command.build_command(self) if isinstance(command, CommandDescriptor) else command
+
+        if self._injector and isinstance(command, injector.Injectable):
+            command.set_injector(self._injector)
+
         self._commands.add(command)
         return self
 
@@ -569,7 +583,23 @@ class Component(traits.Component):
 
         return decorator
 
+    def set_injector(self, client: injector.InjectorClient, /) -> None:
+        if self._injector:
+            raise ValueError("Injector already set")
+
+        self._injector = client
+
+        for check in self._checks:
+            check.set_injector(client)
+
+        for command in self._commands:
+            if isinstance(command, injector.Injectable):
+                command.set_injector(client)
+
     def bind_client(self, client: traits.Client, /) -> None:
+        if self._client:
+            raise ValueError("Client already set")
+
         self._client = client
         for event_, listener in self._listeners:
             self._client.event_service.event_manager.subscribe(event_, listener)
@@ -580,11 +610,14 @@ class Component(traits.Component):
     async def check_context(
         self, ctx: traits.Context, /, *, name_prefix: str = ""
     ) -> typing.AsyncIterator[traits.FoundCommand]:
-        if await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks):
+        ctx.component = self
+        if await utilities.gather_checks(check(ctx) for check in self._checks):
             async for value in utilities.async_chain(
                 command.check_context(ctx, name_prefix=name_prefix) for command in self._commands
             ):
                 yield value
+
+        ctx.component = None
 
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
         yield from itertools.chain.from_iterable(command.check_name(name) for command in self._commands)

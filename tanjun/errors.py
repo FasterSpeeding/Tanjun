@@ -36,6 +36,7 @@ __all__: typing.Sequence[str] = [
     "CommandError",
     "ConversionError",
     "FailedCheck",
+    "MissingDependencyError",
     "NotEnoughArgumentsError",
     "TooManyArgumentsError",
     "ParserError",
@@ -59,6 +60,18 @@ class TanjunWarning(RuntimeWarning):
     """The base class for all warnings raised by Tanjun."""
 
     __slots__: typing.Sequence[str] = ()
+
+
+class MissingDependencyError(TanjunError):
+    """Error raised when a dependency couldn't be found."""
+
+    __slots__: typing.Sequence[str] = ("message",)
+
+    def __init__(self, message: str) -> None:
+        self.message = message
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__} <{self.message}>"
 
 
 class CommandError(TanjunError):

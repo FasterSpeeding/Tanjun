@@ -40,6 +40,7 @@ from yuyo import backoff
 
 from tanjun import errors
 from tanjun import hooks as hooks_
+from tanjun import injector
 from tanjun import traits
 from tanjun import utilities
 
@@ -56,13 +57,16 @@ class FoundCommand(traits.FoundCommand):
         self.name = name
 
 
-class Command(traits.ExecutableCommand):
+class Command(injector.Injectable, traits.ExecutableCommand):
     __slots__: typing.Sequence[str] = (
+        "_cached_getters",
         "_checks",
         "_component",
         "_function",
         "hooks",
+        "_injector",
         "_metadata",
+        "_needs_injector",
         "_names",
         "parent",
         "parser",
@@ -79,12 +83,15 @@ class Command(traits.ExecutableCommand):
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         parser: typing.Optional[traits.Parser] = None,
     ) -> None:
-        self._checks = set(checks) if checks else set()
+        self._cached_getters: typing.Optional[typing.List[injector.Getter[typing.Any]]] = None
+        self._checks = set(injector.InjectableCheck(check) for check in checks) if checks else set()
         self._component: typing.Optional[traits.Component] = None
         self._function = function
         self.hooks: traits.Hooks = hooks or hooks_.Hooks()
+        self._injector: typing.Optional[injector.InjectorClient] = None
         self._metadata = metadata or {}
         self._names = {name, *names}
+        self._needs_injector: typing.Optional[bool] = None
         self.parent: typing.Optional[traits.ExecutableCommandGroup] = None
         self.parser = parser
 
@@ -93,7 +100,7 @@ class Command(traits.ExecutableCommand):
 
     @property
     def checks(self) -> typing.AbstractSet[traits.CheckT]:
-        return frozenset(self._checks)
+        return {check.callback for check in self._checks}
 
     @property
     def component(self) -> typing.Optional[traits.Component]:
@@ -109,14 +116,21 @@ class Command(traits.ExecutableCommand):
 
     @property
     def names(self) -> typing.AbstractSet[str]:
-        return frozenset(self._names)
+        return self._names.copy()
+
+    @property
+    def needs_injector(self) -> bool:
+        if self._needs_injector is None:
+            self._needs_injector = injector.check_injecting(self._function)
+
+        return self._needs_injector
 
     def add_check(self: _CommandT, check: traits.CheckT, /) -> _CommandT:
-        self._checks.add(check)
+        self._checks.add(injector.InjectableCheck(check, injector=self._injector))
         return self
 
     def remove_check(self, check: traits.CheckT, /) -> None:
-        self._checks.remove(check)
+        self._checks.remove(check)  # type: ignore[arg-type]
 
     def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
         self.add_check(check)
@@ -126,7 +140,7 @@ class Command(traits.ExecutableCommand):
         self, ctx: traits.Context, /, *, name_prefix: str = ""
     ) -> typing.AsyncIterator[traits.FoundCommand]:
         if found := next(self.check_name(ctx.content[len(name_prefix) :].lstrip()), None):
-            if await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks):
+            if await utilities.gather_checks(check(ctx) for check in self._checks):
                 yield found
 
     def add_name(self: _CommandT, name: str, /) -> _CommandT:
@@ -146,12 +160,33 @@ class Command(traits.ExecutableCommand):
     def remove_name(self, name: str, /) -> None:
         self._names.remove(name)
 
+    def set_injector(self, client: injector.InjectorClient, /) -> None:
+        if self._injector:
+            raise ValueError("Injector already set")
+
+        self._injector = client
+
+        for check in self._checks:
+            check.set_injector(client)
+
     def bind_client(self, client: traits.Client, /) -> None:
         if self.parser:
             self.parser.bind_client(client)
 
     def bind_component(self, component: traits.Component, /) -> None:
         pass
+
+    def _get_injection_getters(self) -> typing.Iterable[injector.Getter[typing.Any]]:
+        if not self._injector:
+            raise ValueError("Cannot execute command without injector client")
+
+        if self._cached_getters is None:
+            self._cached_getters = list(self._injector.resolve_callback_to_getters(self._function))
+
+            if self._needs_injector is None:
+                self._needs_injector = bool(self._cached_getters)
+
+        return self._cached_getters
 
     async def execute(
         self, ctx: traits.Context, /, *, hooks: typing.Optional[typing.MutableSet[traits.Hooks]] = None
@@ -166,6 +201,9 @@ class Command(traits.ExecutableCommand):
             else:
                 args = []
                 kwargs = {}
+
+            if self.needs_injector:
+                kwargs.update(await injector.resolve_getters(ctx, self._get_injection_getters()))
 
             await self._function(ctx, *args, **kwargs)
 
@@ -234,7 +272,7 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
 
     @property
     def commands(self) -> typing.AbstractSet[traits.ExecutableCommand]:
-        return frozenset(self._commands)
+        return self._commands.copy()
 
     def add_command(self: _CommandGroupT, command: traits.ExecutableCommand, /) -> _CommandGroupT:
         command.parent = self
@@ -264,6 +302,13 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
         super().bind_client(client)
         for command in self._commands:
             command.bind_client(client)
+
+    def set_injector(self, client: injector.InjectorClient, /) -> None:
+        super().set_injector(client)
+
+        for command in self._commands:
+            if isinstance(command, injector.Injectable):
+                command.set_injector(client)
 
     # I sure hope this plays well with command group recursion cause I am waaaaaaaaaaaaaay too lazy to test that myself.
     async def execute(

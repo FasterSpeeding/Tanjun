@@ -47,6 +47,7 @@ from hikari.events import message_events
 from yuyo import backoff
 
 from tanjun import context
+from tanjun import injector
 from tanjun import traits
 from tanjun import utilities
 
@@ -145,7 +146,7 @@ def _check_human(ctx: traits.Context, /) -> bool:
     return not ctx.message.author.is_bot and ctx.message.webhook_id is None
 
 
-class Client(traits.Client):
+class Client(injector.InjectorClient, traits.Client):
     __slots__: typing.Sequence[str] = (
         "_accepts",
         "_cache",
@@ -185,7 +186,7 @@ class Client(traits.Client):
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
 
         self._accepts = AcceptsEnum.ALL
-        self._checks: typing.Set[traits.CheckT] = set()
+        self._checks: typing.Set[injector.InjectableCheck] = set()
         self._cache = cache
         self._components: typing.Set[traits.Component] = set()
         self._events = events
@@ -201,6 +202,9 @@ class Client(traits.Client):
         if event_managed:
             self._events.event_manager.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
             self._events.event_manager.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
+
+        # InjectorClient.__init__
+        super().__init__(self)
 
     async def __aenter__(self) -> Client:
         await self.open()
@@ -225,7 +229,7 @@ class Client(traits.Client):
     @property
     def is_human_only(self) -> bool:
         """Whether this client is only executing for non-bot/webhook users messages."""
-        return _check_human in self._checks
+        return _check_human in self._checks  # type: ignore[comparison-overlap]
 
     @property
     def cache_service(self) -> typing.Optional[hikari_traits.CacheAware]:
@@ -233,11 +237,11 @@ class Client(traits.Client):
 
     @property
     def checks(self) -> typing.AbstractSet[traits.CheckT]:
-        return frozenset(self._checks)
+        return {check.callback for check in self._checks}
 
     @property
     def components(self) -> typing.AbstractSet[traits.Component]:
-        return frozenset(self._components)
+        return self._components.copy()
 
     @property
     def event_service(self) -> hikari_traits.EventManagerAware:
@@ -253,7 +257,7 @@ class Client(traits.Client):
 
     @property
     def prefixes(self) -> typing.AbstractSet[str]:
-        return frozenset(self._prefixes)
+        return self._prefixes.copy()
 
     @property
     def rest_service(self) -> hikari_traits.RESTAware:
@@ -275,31 +279,34 @@ class Client(traits.Client):
 
     def set_human_only(self: _ClientT, value: bool = True) -> _ClientT:
         if value:
-            self._checks.add(_check_human)
+            self.add_check(injector.InjectableCheck(_check_human, injector=self))
 
         else:
             try:
-                self._checks.remove(_check_human)
+                self.remove_check(_check_human)
             except ValueError:
                 pass
 
         return self
 
     def add_check(self: _ClientT, check: traits.CheckT, /) -> _ClientT:
-        self._checks.add(check)
+        self._checks.add(injector.InjectableCheck(check, injector=self))
         return self
 
     def remove_check(self, check: traits.CheckT, /) -> None:
-        self._checks.remove(check)
+        self._checks.remove(check)  # type: ignore[arg-type]
 
     def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
         self.add_check(check)
         return check
 
     async def check(self, ctx: traits.Context, /) -> bool:
-        return await utilities.gather_checks(utilities.await_if_async(check, ctx) for check in self._checks)
+        return await utilities.gather_checks(check(ctx) for check in self._checks)
 
     def add_component(self: _ClientT, component: traits.Component, /) -> _ClientT:
+        if isinstance(component, injector.Injectable):
+            component.set_injector(self)
+
         component.bind_client(self)
         self._components.add(component)
         return self
@@ -408,17 +415,12 @@ class Client(traits.Client):
                     module_path.name.rsplit(".", 1)[0], str(module_path.absolute())
                 )
 
-                if not spec:
-                    raise ValueError(f"Unknown module provided {module_path}")
-
-                module = importlib.util.module_from_spec(spec)
-
                 # https://github.com/python/typeshed/issues/2793
-                if not isinstance(spec.loader, importlib.abc.Loader):
-                    raise RuntimeError(f"Invalid module provided {module_path}")
+                if spec and isinstance(spec.loader, importlib.abc.Loader):
+                    module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(module)
 
-                # The type shedding is wrong here
-                spec.loader.exec_module(module)
+                raise RuntimeError(f"Unknown or invalid module provided {module_path}")
 
             for _, member in inspect.getmembers(module):
                 if isinstance(member, traits.LoadableDescriptor):

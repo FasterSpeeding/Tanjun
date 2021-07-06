@@ -59,6 +59,7 @@ __all__: typing.Sequence[str] = [
     "Parser",
 ]
 
+import abc
 import typing
 
 if typing.TYPE_CHECKING:
@@ -152,7 +153,7 @@ function which returns `builtins.bool` (where returning `False` may cancel
 execution of the current command).
 """
 
-CheckT = typing.Callable[["Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]]
+CheckT = typing.Callable[..., typing.Union[bool, typing.Awaitable[bool]]]
 """Type hint of a general context check used with Tanjun `Executable` classes.
 
 This may be registered with a `Executable` to add a rule which decides whether
@@ -167,7 +168,7 @@ ComponentT_contra = typing.TypeVar("ComponentT_contra", bound="Component", contr
 
 UnboundCheckT = typing.Callable[
     ["ComponentT_contra", "Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]
-]
+]  # TODO: remove this
 """Type hint of a general context check used by Tanjun `Executable` classes.
 
 This is an equivalent to `CheckT` where it's yet to be bound to a `Component`,
@@ -178,8 +179,7 @@ ValueT_co = typing.TypeVar("ValueT_co", covariant=True)
 """A general type hint used for generic interfaces in Tanjun."""
 
 
-@typing.runtime_checkable
-class LoadableDescriptor(typing.Protocol):
+class LoadableDescriptor(abc.ABC):
     """Descriptor of a function used for loading a lib's resources into a Tanjun instance."""
 
     __slots__: typing.Sequence[str] = ()
@@ -198,8 +198,7 @@ class LoadableDescriptor(typing.Protocol):
         raise NotImplementedError
 
 
-@typing.runtime_checkable
-class ParserDescriptor(typing.Protocol):
+class ParserDescriptor(abc.ABC):
     """Descriptor of a parser for command descriptor."""
 
     __slots__: typing.Sequence[str] = ()
@@ -258,8 +257,7 @@ class ParserDescriptor(typing.Protocol):
         raise NotImplementedError
 
 
-@typing.runtime_checkable
-class Context(typing.Protocol):
+class Context(abc.ABC):
     """Traits for the context of a command execution event."""
 
     __slots__: typing.Sequence[str] = ()
@@ -279,12 +277,20 @@ class Context(typing.Protocol):
         """
         raise NotImplementedError
 
+    @property
+    def component(self) -> typing.Optional[Component]:
+        raise NotImplementedError
+
+    @component.setter
+    def component(self, _: Component, /) -> None:
+        raise NotImplementedError
+
     @property  # TODO: can we somehow have this always be present on the command execution facing interface
     def command(self) -> typing.Optional[ExecutableCommand]:
         raise NotImplementedError
 
     @command.setter
-    def command(self, command: ExecutableCommand, /) -> None:
+    def command(self, _: ExecutableCommand, /) -> None:
         raise NotImplementedError
 
     @property
@@ -292,7 +298,7 @@ class Context(typing.Protocol):
         raise NotImplementedError
 
     @content.setter
-    def content(self, content: str, /) -> None:
+    def content(self, _: str, /) -> None:
         raise NotImplementedError
 
     @property
@@ -324,12 +330,11 @@ class Context(typing.Protocol):
         raise NotImplementedError
 
     @triggering_name.setter
-    def triggering_name(self, triggering_name: str, /) -> None:
+    def triggering_name(self, _: str, /) -> None:
         raise NotImplementedError
 
 
-@typing.runtime_checkable
-class Converter(typing.Protocol[ValueT_co]):
+class Converter(abc.ABC, typing.Generic[ValueT_co]):
     __slots__: typing.Sequence[str] = ()
 
     async def convert(self, ctx: Context, argument: str, /) -> ValueT_co:
@@ -342,8 +347,7 @@ class Converter(typing.Protocol[ValueT_co]):
         raise NotImplementedError
 
 
-@typing.runtime_checkable
-class StatelessConverter(typing.Protocol[ValueT_co]):
+class StatelessConverter(abc.ABC, typing.Generic[ValueT_co]):
     __slots__: typing.Sequence[str] = ()
 
     @classmethod
@@ -358,8 +362,7 @@ class StatelessConverter(typing.Protocol[ValueT_co]):
         raise NotImplementedError
 
 
-@typing.runtime_checkable
-class Hooks(typing.Protocol):
+class Hooks(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     async def trigger_error(
@@ -388,8 +391,7 @@ class Hooks(typing.Protocol):
         raise NotImplementedError
 
 
-@typing.runtime_checkable
-class Executable(typing.Protocol):
+class Executable(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
@@ -401,7 +403,7 @@ class Executable(typing.Protocol):
         raise NotImplementedError
 
     @hooks.setter
-    def hooks(self, hooks: typing.Optional[Hooks]) -> None:
+    def hooks(self, _: typing.Optional[Hooks]) -> None:
         raise NotImplementedError
 
     def add_check(self: _T, check: CheckT, /) -> _T:
@@ -425,8 +427,7 @@ class Executable(typing.Protocol):
         raise NotImplementedError
 
 
-@typing.runtime_checkable
-class FoundCommand(typing.Protocol):
+class FoundCommand(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
@@ -434,7 +435,7 @@ class FoundCommand(typing.Protocol):
         raise NotImplementedError
 
     @command.setter
-    def command(self, command: ExecutableCommand, /) -> None:
+    def command(self, _: ExecutableCommand, /) -> None:
         raise NotImplementedError
 
     @property
@@ -442,12 +443,11 @@ class FoundCommand(typing.Protocol):
         raise NotImplementedError
 
     @name.setter
-    def name(self, name: typing.Optional[str], /) -> None:
+    def name(self, _: typing.Optional[str], /) -> None:
         raise NotImplementedError
 
 
-@typing.runtime_checkable
-class ExecutableCommand(Executable, typing.Protocol):
+class ExecutableCommand(Executable, abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
@@ -471,7 +471,7 @@ class ExecutableCommand(Executable, typing.Protocol):
         raise NotImplementedError
 
     @parent.setter
-    def parent(self, parent: typing.Optional[ExecutableCommandGroup], /) -> None:
+    def parent(self, _: typing.Optional[ExecutableCommandGroup], /) -> None:
         raise NotImplementedError
 
     @property
@@ -479,7 +479,7 @@ class ExecutableCommand(Executable, typing.Protocol):
         raise NotImplementedError
 
     @parser.setter
-    def parser(self, parser: typing.Optional[Parser], /) -> None:
+    def parser(self, _: typing.Optional[Parser], /) -> None:
         raise NotImplementedError
 
     def add_name(self: _T, name: str, /) -> _T:
@@ -495,7 +495,7 @@ class ExecutableCommand(Executable, typing.Protocol):
         raise NotImplementedError
 
 
-class ExecutableCommandGroup(ExecutableCommand, typing.Protocol):
+class ExecutableCommandGroup(ExecutableCommand, abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
@@ -520,8 +520,7 @@ class ExecutableCommandGroup(ExecutableCommand, typing.Protocol):
         raise NotImplementedError
 
 
-@typing.runtime_checkable
-class Component(Executable, typing.Protocol):
+class Component(Executable, abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
@@ -568,8 +567,7 @@ class Component(Executable, typing.Protocol):
         raise NotImplementedError
 
 
-@typing.runtime_checkable
-class Client(typing.Protocol):
+class Client(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
@@ -589,7 +587,7 @@ class Client(typing.Protocol):
         raise NotImplementedError
 
     @hooks.setter
-    def hooks(self, hooks: typing.Optional[Hooks]) -> None:
+    def hooks(self, _: typing.Optional[Hooks]) -> None:
         raise NotImplementedError
 
     @property
@@ -637,8 +635,7 @@ UNDEFINED_DEFAULT = UndefinedDefault()
 """A singleton used to represent no default for a parameter."""
 
 
-@typing.runtime_checkable
-class Parameter(typing.Protocol):
+class Parameter(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
@@ -650,7 +647,7 @@ class Parameter(typing.Protocol):
         raise NotImplementedError
 
     @default.setter
-    def default(self, default: typing.Union[typing.Any, UndefinedDefault], /) -> None:
+    def default(self, _: typing.Union[typing.Any, UndefinedDefault], /) -> None:
         raise NotImplementedError
 
     @property
@@ -662,7 +659,7 @@ class Parameter(typing.Protocol):
         raise NotImplementedError
 
     @key.setter
-    def key(self, key: str) -> None:
+    def key(self, _: str) -> None:
         raise NotImplementedError
 
     def add_converter(self, converter: ConverterT, /) -> None:
@@ -681,13 +678,11 @@ class Parameter(typing.Protocol):
         raise NotImplementedError
 
 
-@typing.runtime_checkable
-class Argument(Parameter, typing.Protocol):
+class Argument(Parameter, abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
 
-@typing.runtime_checkable
-class Option(Parameter, typing.Protocol):
+class Option(Parameter, abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
@@ -695,7 +690,7 @@ class Option(Parameter, typing.Protocol):
         raise NotImplementedError
 
     @empty_value.setter
-    def empty_value(self, empty_value: typing.Union[typing.Any, UndefinedDefault], /) -> None:
+    def empty_value(self, _: typing.Union[typing.Any, UndefinedDefault], /) -> None:
         raise NotImplementedError
 
     @property
@@ -703,12 +698,11 @@ class Option(Parameter, typing.Protocol):
         raise NotImplementedError
 
     @names.setter
-    def names(self, names: typing.Sequence[str], /) -> None:
+    def names(self, _: typing.Sequence[str], /) -> None:
         raise NotImplementedError
 
 
-@typing.runtime_checkable
-class Parser(typing.Protocol):
+class Parser(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
@@ -730,7 +724,5 @@ class Parser(typing.Protocol):
     def bind_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
-    async def parse(
-        self, ctx: Context, /
-    ) -> typing.Tuple[typing.Sequence[typing.Any], typing.Mapping[str, typing.Any]]:
+    async def parse(self, ctx: Context, /) -> typing.Tuple[typing.List[typing.Any], typing.Dict[str, typing.Any]]:
         raise NotImplementedError
