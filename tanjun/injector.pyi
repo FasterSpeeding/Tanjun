@@ -32,6 +32,7 @@
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
+    "cache_callback",
     "CallbackT",
     "GetterCallbackT",
     "Getter",
@@ -98,6 +99,7 @@ class InjectorClient:
 class Injectable(abc.ABC):
     __slots__: typing.Sequence[str]
     @abc.abstractmethod
+    @property
     def needs_injector(self) -> bool: ...
     @abc.abstractmethod
     def set_injector(self, client: InjectorClient, /) -> None: ...

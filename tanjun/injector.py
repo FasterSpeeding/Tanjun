@@ -32,6 +32,7 @@
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
+    "cache_callback",
     "CallbackT",
     "GetterCallbackT",
     "Getter",
@@ -57,18 +58,14 @@ _T = typing.TypeVar("_T")
 CallbackT = typing.Callable[..., typing.Union[_T, typing.Awaitable[_T]]]
 GetterCallbackT = typing.Callable[[tanjun_traits.Context], CallbackT[_T]]
 
-CALLBACK_GETTER: typing.Final[int] = 1
-TYPE_GETTER: typing.Final[int] = 2
-
 
 class Getter(typing.Generic[_T]):
     __slots__: typing.Sequence[str] = ("callback", "is_async", "name", "type")
 
-    def __init__(self, callback: GetterCallbackT[_T], name: str, type_: int, /) -> None:
+    def __init__(self, callback: GetterCallbackT[_T], name: str, /) -> None:
         self.callback = callback
         self.is_async: typing.Optional[bool] = None
         self.name = name
-        self.type = type_
 
 
 class Undefined:
@@ -181,7 +178,7 @@ class InjectorClient:
         def get(_: tanjun_traits.Context) -> CallbackT[_T]:
             return self._callback_overrides.get(callback, callback)
 
-        return Getter(get, name, CALLBACK_GETTER)
+        return Getter(get, name)
 
     def _make_type_getter(self, type_: typing.Type[_T], name: str, /) -> Getter[_T]:
         default = None
@@ -200,7 +197,7 @@ class InjectorClient:
 
                 raise errors.MissingDependencyError(f"Couldn't resolve injected type {type_} to actual value") from None
 
-        return Getter(get, name, TYPE_GETTER)
+        return Getter(get, name)
 
     def resolve_callback_to_getters(self, callback: CallbackT[typing.Any], /) -> typing.Iterator[Getter[typing.Any]]:
         for name, parameter in inspect.signature(callback).parameters.items():
@@ -236,6 +233,7 @@ _TYPE_GETTER_OVERRIDES: typing.Dict[
 class Injectable(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
+    @property
     @abc.abstractmethod
     def needs_injector(self) -> bool:
         ...
