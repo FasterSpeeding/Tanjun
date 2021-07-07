@@ -52,7 +52,7 @@ from . import traits as tanjun_traits
 
 _T = typing.TypeVar("_T")
 _InjectorClientT = typing.TypeVar("_InjectorClientT", bound=InjectorClient)
-CallbackT = typing.Callable[..., typing.Union[_T, typing.Awaitable[_T]]]
+CallbackT = typing.Callable[..., typing.Union[typing.Awaitable[_T], _T]]
 GetterCallbackT = typing.Callable[["tanjun_traits.Context"], CallbackT[_T]]
 
 class Getter(typing.Generic[_T]):
@@ -74,16 +74,18 @@ def check_injecting(callback: CallbackT[typing.Any], /) -> bool: ...
 class Injected(typing.Generic[_T]):
     __slots__: typing.Sequence[str]
     callback: UndefinedOr[typing.Callable[[], typing.Union[_T, typing.Awaitable[_T]]]]
-    type: UndefinedOr[UndefinedOr[_T]]
+    type: UndefinedOr[typing.Type[_T]]
     @typing.overload
-    def __init__(
-        self, *, callback: UndefinedOr[typing.Callable[[], typing.Union[_T, typing.Awaitable[_T]]]] = UNDEFINED
-    ) -> None: ...
+    def __init__(self, *, callback: typing.Callable[[], typing.Awaitable[_T]]) -> None: ...
     @typing.overload
-    def __init__(self, *, type: UndefinedOr[UndefinedOr[_T]] = UNDEFINED) -> None: ...
+    def __init__(self, *, callback: typing.Callable[[], _T]) -> None: ...
+    @typing.overload
+    def __init__(self, *, type: typing.Type[_T]) -> None: ...
 
 @typing.overload
-def injected(*, callback: CallbackT[_T]) -> _T: ...
+def injected(*, callback: typing.Callable[[], typing.Awaitable[_T]]) -> _T: ...
+@typing.overload
+def injected(*, callback: typing.Callable[[], _T]) -> _T: ...
 @typing.overload
 def injected(*, type: typing.Type[_T]) -> _T: ...
 async def resolve_getters(
@@ -135,7 +137,7 @@ class InjectableValue(BaseInjectableValue[_T]):
 
 class InjectableCheck(BaseInjectableValue[bool]):
     __slots__: typing.Sequence[str]
-    async def __call__(self, ctx: tanjun_traits.Context, /) -> _T: ...
+    async def __call__(self, ctx: tanjun_traits.Context, /) -> bool: ...
 
 class InjectableConverter(BaseInjectableValue[_T]):
     __slots__: typing.Sequence[str]

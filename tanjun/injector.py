@@ -57,7 +57,7 @@ from . import traits as tanjun_traits
 
 _InjectorClientT = typing.TypeVar("_InjectorClientT", bound="InjectorClient")
 _T = typing.TypeVar("_T")
-CallbackT = typing.Callable[..., typing.Union[_T, typing.Awaitable[_T]]]
+CallbackT = typing.Callable[..., typing.Union[typing.Awaitable[_T], _T]]
 GetterCallbackT = typing.Callable[[tanjun_traits.Context], CallbackT[_T]]
 
 
@@ -103,7 +103,7 @@ class Injected(typing.Generic[_T]):
         self,
         *,
         callback: UndefinedOr[typing.Callable[[], typing.Union[_T, typing.Awaitable[_T]]]] = UNDEFINED,
-        type: UndefinedOr[UndefinedOr[_T]] = UNDEFINED,
+        type: UndefinedOr[typing.Type[_T]] = UNDEFINED,
     ) -> None:  # TODO: add defaulct/factory to this?
         if callback is UNDEFINED and type is UNDEFINED:
             raise ValueError("Must specify one of `callback` or `type`")
@@ -118,7 +118,7 @@ class Injected(typing.Generic[_T]):
 def injected(
     *,
     callback: UndefinedOr[typing.Callable[[], typing.Union[_T, typing.Awaitable[_T]]]] = UNDEFINED,
-    type: UndefinedOr[UndefinedOr[_T]] = UNDEFINED,
+    type: UndefinedOr[typing.Type[_T]] = UNDEFINED,
 ) -> Injected[_T]:
     return Injected(callback=callback, type=type)
 
@@ -332,7 +332,7 @@ class InjectableConverter(BaseInjectableValue[_T]):
 
     def __init__(self, callback: CallbackT[_T], *, injector: typing.Optional[InjectorClient] = None) -> None:
         super().__init__(callback, injector=injector)
-        self._is_base_converter: typing.Optional[bool] = isinstance(self.callback, conversion.BaseConverter)
+        self._is_base_converter = isinstance(self.callback, conversion.BaseConverter)
 
     async def __call__(self, value: str, ctx: tanjun_traits.Context, /) -> _T:
         if self._is_base_converter:
