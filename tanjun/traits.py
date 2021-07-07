@@ -185,6 +185,11 @@ class Context(abc.ABC):
         raise NotImplementedError
 
     @property
+    @abc.abstractmethod
+    def event_service(self) -> typing.Optional[traits.EventManagerAware]:
+        raise NotImplementedError
+
+    @property
     def guild_id(self) -> typing.Optional[snowflakes.Snowflake]:
         raise NotImplementedError
 
@@ -194,6 +199,22 @@ class Context(abc.ABC):
 
     @property
     def member(self) -> typing.Optional[guilds.Member]:
+        raise NotImplementedError
+
+    # TODO: rename to server_app
+    @property
+    @abc.abstractmethod
+    def server_service(self) -> typing.Optional[traits.InteractionServerAware]:
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def rest_service(self) -> traits.RESTAware:
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def shard_service(self) -> typing.Optional[traits.ShardAware]:
         raise NotImplementedError
 
     @property
@@ -236,7 +257,6 @@ class Context(abc.ABC):
         raise NotImplementedError
 
 
-@typing.runtime_checkable
 class MessageContext(Context, abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
@@ -259,22 +279,7 @@ class MessageContext(Context, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def event_service(self) -> typing.Optional[traits.EventManagerAware]:
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
     def message(self) -> messages.Message:
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def rest_service(self) -> traits.RESTAware:
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def shard_service(self) -> typing.Optional[traits.ShardAware]:
         raise NotImplementedError
 
     @property
@@ -318,7 +323,6 @@ class MessageContext(Context, abc.ABC):
         raise NotImplementedError
 
 
-@typing.runtime_checkable
 class InteractionContext(Context, abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
@@ -450,7 +454,7 @@ class Executable(abc.ABC, typing.Generic[ContextT]):
 
 
 # This doesn't apply to interaction commands as they only have one name
-class FoundCommand(abc.ABC):
+class FoundMessageCommand(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
@@ -508,7 +512,6 @@ class InteractionCommand(Executable[InteractionContext], abc.ABC):
         raise NotImplementedError
 
 
-@typing.runtime_checkable
 class InteractionCommandGroup(InteractionCommand, abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
@@ -527,13 +530,12 @@ class InteractionCommandGroup(InteractionCommand, abc.ABC):
         name: str,
         /,
         *names: str,
-        checks: typing.Optional[typing.Iterable[CheckT[InteractionContext]]] = None,
+        checks: typing.Optional[typing.Iterable[CheckT]] = None,
         hooks: typing.Optional[Hooks[InteractionContext]] = None,
     ) -> typing.Callable[[InteractionCommandFunctionT], InteractionCommandFunctionT]:
         raise NotImplementedError
 
 
-@typing.runtime_checkable
 class MessageCommand(Executable[MessageContext], abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
@@ -606,7 +608,6 @@ class MessageCommand(Executable[MessageContext], abc.ABC):
         raise NotImplementedError
 
 
-@typing.runtime_checkable
 class MessageCommandGroup(MessageCommand, abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
@@ -723,11 +724,6 @@ class Client(abc.ABC):
     # TODO: rename to dispatch_app
     @property
     @abc.abstractmethod
-    def event_service(self) -> traits.EventManagerAware:
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
     def event_service(self) -> typing.Optional[traits.EventManagerAware]:
         raise NotImplementedError
 
@@ -749,6 +745,7 @@ class Client(abc.ABC):
 
     # TODO: rename to server_app
     @property
+    @abc.abstractmethod
     def server_service(self) -> typing.Optional[traits.InteractionServerAware]:
         raise NotImplementedError
 
@@ -920,12 +917,13 @@ class Parser(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def parse(self, ctx: MessageContext, /) -> typing.Tuple[typing.List[typing.Any], typing.Dict[str, typing.Any]]:
+    async def parse(
+        self, ctx: MessageContext, /
+    ) -> typing.Tuple[typing.List[typing.Any], typing.Dict[str, typing.Any]]:
         raise NotImplementedError
 
 
-@typing.runtime_checkable
-class CachedREST(typing.Protocol):
+class CachedREST(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     def clear(self) -> None:

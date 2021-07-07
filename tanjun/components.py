@@ -149,7 +149,9 @@ class Component(injector.Injectable, traits.Component):
         if any(check.needs_injector for check in self._checks):
             return True
 
-        return any(isinstance(command, injector.Injectable) and command.needs_injector for command in self._commands)
+        return any(
+            isinstance(command, injector.Injectable) and command.needs_injector for command in self._message_commands
+        )
 
     @property
     def listeners(
@@ -264,7 +266,7 @@ class Component(injector.Injectable, traits.Component):
         for check in self._checks:
             check.set_injector(client)
 
-        for command in self._commands:
+        for command in self._message_commands:
             if isinstance(command, injector.Injectable):
                 command.set_injector(client)
 

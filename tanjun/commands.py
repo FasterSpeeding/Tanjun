@@ -95,7 +95,7 @@ class InteractionCommand(traits.InteractionCommand):
         name: str,
         /,
         *,
-        checks: typing.Optional[typing.Iterable[traits.CheckT[traits.InteractionContext]]] = None,
+        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
         hooks: typing.Optional[traits.Hooks[traits.InteractionContext]] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         wait_for_result: bool = False,
@@ -111,7 +111,7 @@ class InteractionCommand(traits.InteractionCommand):
         self._wait_for_result = wait_for_result
 
     @property
-    def checks(self) -> typing.AbstractSet[traits.CheckT[traits.InteractionContext]]:
+    def checks(self) -> typing.AbstractSet[traits.CheckT]:
         return frozenset(self._checks)
 
     @property
@@ -130,18 +130,14 @@ class InteractionCommand(traits.InteractionCommand):
     def name(self) -> str:
         return self._name
 
-    def add_check(
-        self: _InteractionCommandT, check: traits.CheckT[traits.InteractionContext], /
-    ) -> _InteractionCommandT:
+    def add_check(self: _InteractionCommandT, check: traits.CheckT, /) -> _InteractionCommandT:
         self._checks.add(check)
         return self
 
-    def remove_check(self, check: traits.CheckT[traits.InteractionContext], /) -> None:
+    def remove_check(self, check: traits.CheckT, /) -> None:
         self._checks.remove(check)
 
-    def with_check(
-        self, check: traits.CheckT[traits.InteractionContext], /
-    ) -> traits.CheckT[traits.InteractionContext]:
+    def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
         self.add_check(check)
         return check
 
@@ -202,8 +198,7 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
         parser: typing.Optional[traits.Parser] = None,
     ) -> None:
         if not hooks:
-            # MYPY resolves hooks_.Hooks() to tanjun.hooks.Hooks[<nothing>] and complains otherwise
-            hooks = typing.cast("traits.Hookable[traits.MessageContext]", hooks_.Hooks())
+            hooks = hooks_.Hooks()
 
         self._cached_getters: typing.Optional[typing.List[injector.Getter[typing.Any]]] = None
         self._checks = set(injector.InjectableCheck(check) for check in checks) if checks else set()
