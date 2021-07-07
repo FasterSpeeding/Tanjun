@@ -120,7 +120,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
 
     @property
     @abc.abstractmethod
-    def cache_bound(self) -> bool:
+    def cache_bound(self) -> bool:  # TODO: replace with cache components
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -134,8 +134,8 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def is_inheritable(cls) -> bool:
-        raise NotImplementedError
+    def is_inheritable(cls) -> bool:  # TODO: will this ever actually work when true?
+        raise NotImplementedError  # or do we want to assert specific idk channel types
 
     @classmethod
     @abc.abstractmethod

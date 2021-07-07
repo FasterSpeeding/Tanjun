@@ -94,6 +94,7 @@ __all__: typing.Sequence[str] = [
     "Undefined",
     "UNDEFINED",
     "UndefinedOr",
+    "injected",
     "Injected",
     "InjectorClient",
     "Injectable",

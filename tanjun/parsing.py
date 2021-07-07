@@ -582,7 +582,7 @@ class _Parameter(injector_.Injectable, traits.Parameter):
     ) -> None:
         self._client: typing.Optional[traits.Client] = None
         self._component: typing.Optional[traits.Component] = None
-        self._converters: typing.Optional[typing.List[injector_.InjectableConverter]] = None
+        self._converters: typing.Optional[typing.List[injector_.InjectableConverter[typing.Any]]] = None
         self.default = default
         self._flags = dict(flags) if flags else {}
         self._injector: typing.Optional[injector_.InjectorClient] = None

@@ -39,6 +39,7 @@ __all__: typing.Sequence[str] = [
     "Undefined",
     "UNDEFINED",
     "UndefinedOr",
+    "injected",
     "Injected",
     "InjectorClient",
     "Injectable",
@@ -62,18 +63,29 @@ class Getter(typing.Generic[_T]):
     def __init__(self, callback: GetterCallbackT[_T], name: str, /) -> None: ...
 
 class Undefined:
+    def __bool__(self) -> typing.Literal[False]: ...
     def __new__(cls) -> Undefined: ...
 
 UNDEFINED: typing.Final[Undefined]
 UndefinedOr = typing.Union[Undefined, _T]
 
 def check_injecting(callback: CallbackT[typing.Any], /) -> bool: ...
+
+class Injected(typing.Generic[_T]):
+    __slots__: typing.Sequence[str]
+    callback: UndefinedOr[typing.Callable[[], typing.Union[_T, typing.Awaitable[_T]]]]
+    type: UndefinedOr[UndefinedOr[_T]]
+    @typing.overload
+    def __init__(
+        self, *, callback: UndefinedOr[typing.Callable[[], typing.Union[_T, typing.Awaitable[_T]]]] = UNDEFINED
+    ) -> None: ...
+    @typing.overload
+    def __init__(self, *, type: UndefinedOr[UndefinedOr[_T]] = UNDEFINED) -> None: ...
+
 @typing.overload
-def Injected(*, callback: typing.Callable[[], typing.Awaitable[_T]]) -> _T: ...
+def injected(*, callback: CallbackT[_T]) -> _T: ...
 @typing.overload
-def Injected(*, callback: typing.Callable[[], _T]) -> _T: ...
-@typing.overload
-def Injected(*, type: typing.Type[_T]) -> _T: ...
+def injected(*, type: typing.Type[_T]) -> _T: ...
 async def resolve_getters(
     ctx: tanjun_traits.Context, getters: typing.Iterable[Getter[typing.Any]]
 ) -> typing.Mapping[str, typing.Any]: ...
@@ -104,21 +116,28 @@ class Injectable(abc.ABC):
     @abc.abstractmethod
     def set_injector(self, client: InjectorClient, /) -> None: ...
 
-class InjectableValue(Injectable, typing.Generic[_T]):
+class BaseInjectableValue(Injectable, typing.Generic[_T]):
     __slots__: typing.Sequence[str]
     callback: CallbackT[_T]
     injector: typing.Optional[InjectorClient]
     is_async: typing.Optional[bool]
     def __init__(self, callback: CallbackT[_T], *, injector: typing.Optional[InjectorClient] = None) -> None: ...
+    def __eq__(self, other: typing.Any) -> bool: ...
+    def __hash__(self) -> int: ...
     @property
     def needs_injector(self) -> bool: ...
     def set_injector(self, client: InjectorClient) -> None: ...
+    async def call(self, *args: typing.Any, ctx: tanjun_traits.Context) -> _T: ...
 
-class InjectableCheck(InjectableValue[bool]):
+class InjectableValue(BaseInjectableValue[_T]):
     __slots__: typing.Sequence[str]
     async def __call__(self, ctx: tanjun_traits.Context, /) -> _T: ...
 
-class InjectableConverter(InjectableValue[typing.Any]):
+class InjectableCheck(BaseInjectableValue[bool]):
+    __slots__: typing.Sequence[str]
+    async def __call__(self, ctx: tanjun_traits.Context, /) -> _T: ...
+
+class InjectableConverter(BaseInjectableValue[_T]):
     __slots__: typing.Sequence[str]
     async def __call__(self, value: str, ctx: tanjun_traits.Context, /) -> _T: ...
 
