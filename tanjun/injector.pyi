@@ -34,7 +34,6 @@ from __future__ import annotations
 __all__: typing.Sequence[str] = [
     "cache_callback",
     "CallbackT",
-    "GetterCallbackT",
     "Getter",
     "Undefined",
     "UNDEFINED",
@@ -53,14 +52,32 @@ from . import traits as tanjun_traits
 _T = typing.TypeVar("_T")
 _InjectorClientT = typing.TypeVar("_InjectorClientT", bound=InjectorClient)
 CallbackT = typing.Callable[..., typing.Union[typing.Awaitable[_T], _T]]
-GetterCallbackT = typing.Callable[["tanjun_traits.Context"], CallbackT[_T]]
 
 class Getter(typing.Generic[_T]):
     __slots__: typing.Sequence[str]
-    callback: GetterCallbackT[_T]
-    is_async: typing.Optional[bool]
+    callback: typing.Callable[
+        [tanjun_traits.Context], typing.Union[InjectableValue[_T], typing.Callable[[tanjun_traits.Context], _T]]
+    ]
     name: str
-    def __init__(self, callback: GetterCallbackT[_T], name: str, /) -> None: ...
+    is_injecting: bool
+    @typing.overload
+    def __init__(
+        self,
+        callback: typing.Callable[[tanjun_traits.Context], InjectableValue[_T]],
+        name: str,
+        /,
+        *,
+        injecting: typing.Literal[True] = True,
+    ) -> None: ...
+    @typing.overload
+    def __init__(
+        self,
+        callback: typing.Callable[[tanjun_traits.Context], _T],
+        name: str,
+        /,
+        *,
+        injecting: typing.Literal[False],
+    ) -> None: ...
 
 class Undefined:
     def __bool__(self) -> typing.Literal[False]: ...
@@ -76,16 +93,16 @@ class Injected(typing.Generic[_T]):
     callback: UndefinedOr[typing.Callable[[], typing.Union[_T, typing.Awaitable[_T]]]]
     type: UndefinedOr[typing.Type[_T]]
     @typing.overload
-    def __init__(self, *, callback: typing.Callable[[], typing.Awaitable[_T]]) -> None: ...
+    def __init__(self, *, callback: typing.Callable[..., typing.Awaitable[_T]]) -> None: ...
     @typing.overload
-    def __init__(self, *, callback: typing.Callable[[], _T]) -> None: ...
+    def __init__(self, *, callback: typing.Callable[..., _T]) -> None: ...
     @typing.overload
     def __init__(self, *, type: typing.Type[_T]) -> None: ...
 
 @typing.overload
-def injected(*, callback: typing.Callable[[], typing.Awaitable[_T]]) -> _T: ...
+def injected(*, callback: typing.Callable[..., typing.Awaitable[_T]]) -> _T: ...
 @typing.overload
-def injected(*, callback: typing.Callable[[], _T]) -> _T: ...
+def injected(*, callback: typing.Callable[..., _T]) -> _T: ...
 @typing.overload
 def injected(*, type: typing.Type[_T]) -> _T: ...
 async def resolve_getters(

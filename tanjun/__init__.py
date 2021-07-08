@@ -89,7 +89,6 @@ __all__: typing.Sequence[str] = [
     # injector.py
     "cache_callback",
     "CallbackT",
-    "GetterCallbackT",
     "Getter",
     "Undefined",
     "UNDEFINED",

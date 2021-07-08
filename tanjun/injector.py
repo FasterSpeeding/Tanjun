@@ -34,7 +34,6 @@ from __future__ import annotations
 __all__: typing.Sequence[str] = [
     "cache_callback",
     "CallbackT",
-    "GetterCallbackT",
     "Getter",
     "Undefined",
     "UNDEFINED",
@@ -58,15 +57,43 @@ from . import traits as tanjun_traits
 _InjectorClientT = typing.TypeVar("_InjectorClientT", bound="InjectorClient")
 _T = typing.TypeVar("_T")
 CallbackT = typing.Callable[..., typing.Union[typing.Awaitable[_T], _T]]
-GetterCallbackT = typing.Callable[[tanjun_traits.Context], CallbackT[_T]]
 
 
 class Getter(typing.Generic[_T]):
-    __slots__: typing.Sequence[str] = ("callback", "is_async", "name", "type")
+    __slots__: typing.Sequence[str] = ("callback", "is_injecting", "name")
 
-    def __init__(self, callback: GetterCallbackT[_T], name: str, /) -> None:
+    @typing.overload
+    def __init__(
+        self,
+        callback: typing.Callable[["tanjun_traits.Context"], InjectableValue[_T]],
+        name: str,
+        /,
+        *,
+        injecting: typing.Literal[True] = True,
+    ) -> None:
+        ...
+
+    @typing.overload
+    def __init__(
+        self,
+        callback: typing.Callable[["tanjun_traits.Context"], _T],
+        name: str,
+        /,
+        *,
+        injecting: typing.Literal[False],
+    ) -> None:
+        ...
+
+    def __init__(
+        self,
+        callback: typing.Callable[[tanjun_traits.Context], typing.Union[_T, InjectableValue[_T]]],
+        name: str,
+        /,
+        *,
+        injecting: bool = True,
+    ) -> None:
         self.callback = callback
-        self.is_async: typing.Optional[bool] = None
+        self.is_injecting = injecting
         self.name = name
 
 
@@ -102,7 +129,7 @@ class Injected(typing.Generic[_T]):
     def __init__(
         self,
         *,
-        callback: UndefinedOr[typing.Callable[[], typing.Union[_T, typing.Awaitable[_T]]]] = UNDEFINED,
+        callback: UndefinedOr[CallbackT[_T]] = UNDEFINED,
         type: UndefinedOr[typing.Type[_T]] = UNDEFINED,
     ) -> None:  # TODO: add defaulct/factory to this?
         if callback is UNDEFINED and type is UNDEFINED:
@@ -117,7 +144,7 @@ class Injected(typing.Generic[_T]):
 
 def injected(
     *,
-    callback: UndefinedOr[typing.Callable[[], typing.Union[_T, typing.Awaitable[_T]]]] = UNDEFINED,
+    callback: UndefinedOr[CallbackT[_T]] = UNDEFINED,
     type: UndefinedOr[typing.Type[_T]] = UNDEFINED,
 ) -> Injected[_T]:
     return Injected(callback=callback, type=type)
@@ -129,15 +156,15 @@ async def resolve_getters(
     results: typing.Dict[str, typing.Any] = {}
 
     for getter in getters:
-        result = getter.callback(ctx)()
-        if getter.is_async is None:
-            getter.is_async = isinstance(result, typing.Awaitable)
-
-        if getter.is_async:
-            results[getter.name] = await result
+        result = getter.callback(ctx)
+        if not getter.is_injecting:
+            assert not isinstance(result, InjectableValue)
+            results[getter.name] = result
+            continue
 
         else:
-            results[getter.name] = result
+            assert isinstance(result, InjectableValue)
+            results[getter.name] = await result(ctx)
 
     return results
 
@@ -152,7 +179,7 @@ class InjectorClient:
     )
 
     def __init__(self, client: tanjun_traits.Client, /) -> None:
-        self._callback_overrides: typing.Dict[CallbackT[typing.Any], CallbackT[typing.Any]] = {}
+        self._callback_overrides: typing.Dict[CallbackT[typing.Any], InjectableValue[typing.Any]] = {}
         self._client = client
         self._component_mapping_values: typing.Set[tanjun_traits.Component] = set()
         self._component_mapping: typing.Dict[typing.Type[tanjun_traits.Component], tanjun_traits.Component] = {}
@@ -161,7 +188,7 @@ class InjectorClient:
     def add_type_dependency(
         self: _InjectorClientT, type_: typing.Type[_T], callback: CallbackT[_T], /
     ) -> _InjectorClientT:
-        self._type_dependencies[type_] = callback
+        self._type_dependencies[type_] = InjectableValue(callback, injector=self)
         return self
 
     def get_type_dependency(self, type_: typing.Type[_T], /) -> UndefinedOr[CallbackT[_T]]:
@@ -170,7 +197,7 @@ class InjectorClient:
     def add_callable_override(
         self: _InjectorClientT, callback: CallbackT[_T], override: CallbackT[_T], /
     ) -> _InjectorClientT:
-        self._callback_overrides[callback] = override
+        self._callback_overrides[callback] = InjectableValue(override, injector=self)
         return self
 
     def get_callable_override(self, callback: CallbackT[_T], /) -> typing.Optional[CallbackT[_T]]:
@@ -185,29 +212,35 @@ class InjectorClient:
         return self._component_mapping
 
     def _make_callback_getter(self, callback: CallbackT[_T], name: str, /) -> Getter[_T]:
-        def get(_: tanjun_traits.Context) -> CallbackT[_T]:
-            return self._callback_overrides.get(callback, callback)
+        default = InjectableValue(callback, injector=self)
 
-        return Getter(get, name)
+        def get(_: tanjun_traits.Context) -> InjectableValue[_T]:
+            return self._callback_overrides.get(callback, default)
+
+        return Getter(get, name, injecting=True)
 
     def _make_type_getter(self, type_: typing.Type[_T], name: str, /) -> Getter[_T]:
-        default = None
         for match, function in _TYPE_GETTER_OVERRIDES.items():
             if isinstance(type_, match):
-                default = function
-                break
 
-        def get(ctx: tanjun_traits.Context) -> CallbackT[_T]:
+                def get_simple(ctx: tanjun_traits.Context) -> _T:
+                    if (result := function(ctx, self, type)) is not UNDEFINED:
+                        return typing.cast(_T, result)
+
+                    raise errors.MissingDependencyError(
+                        f"Couldn't resolve injected type {type_} to actual value"
+                    ) from None
+
+                return Getter(get_simple, name, injecting=False)
+
+        def get_injectable(_: tanjun_traits.Context) -> InjectableValue[_T]:
             try:
-                return typing.cast(CallbackT[_T], self._type_dependencies[type_])
+                return typing.cast(InjectableValue[_T], self._type_dependencies[type_])
 
             except KeyError:
-                if default and (result := default(ctx, self, type_)):
-                    return lambda: typing.cast(_T, result)
-
                 raise errors.MissingDependencyError(f"Couldn't resolve injected type {type_} to actual value") from None
 
-        return Getter(get, name)
+        return Getter(get_injectable, name, injecting=True)
 
     def resolve_callback_to_getters(self, callback: CallbackT[typing.Any], /) -> typing.Iterator[Getter[typing.Any]]:
         for name, parameter in inspect.signature(callback).parameters.items():
@@ -230,13 +263,13 @@ _TYPE_GETTER_OVERRIDES: typing.Dict[
     typing.Callable[[tanjun_traits.Context, InjectorClient, typing.Type[typing.Any]], UndefinedOr[typing.Any]],
 ] = {
     tanjun_traits.Client: lambda ctx, _, __: ctx.client,
+    tanjun_traits.Component: lambda ctx, cli, type_: cli.get_component_mapping().get(type_, ctx.component) or UNDEFINED,
     tanjun_traits.Context: lambda ctx, _, __: ctx,
     InjectorClient: lambda _, cli, __: cli,
     hikari_traits.CacheAware: lambda ctx, _, __: ctx.cache_service or UNDEFINED,
     hikari_traits.RESTAware: lambda ctx, _, __: ctx.rest_service,
     hikari_traits.ShardAware: lambda ctx, _, __: ctx.shard_service or UNDEFINED,
     hikari_traits.EventManagerAware: lambda ctx, _, __: ctx.event_service or UNDEFINED,
-    tanjun_traits.Component: lambda ctx, cli, type_: cli.get_component_mapping().get(type_, ctx.component) or UNDEFINED,
 }
 
 
