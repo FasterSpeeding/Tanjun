@@ -292,7 +292,7 @@ async def fetch_permissions(
     roles: typing.Optional[typing.Mapping[snowflakes.Snowflake, guilds.Role]] = None
     guild = client.cache_service.cache.get_guild(member.guild_id) if client.cache_service else None
     if not guild:
-        guild = await fetch_resource(retry, client.cached_rest.fetch_guild, member.guild_id)
+        guild = await fetch_resource(retry, client.rest_service.rest.fetch_guild, member.guild_id)
         assert guild is not None
         roles = guild.roles
 
@@ -302,7 +302,7 @@ async def fetch_permissions(
 
     roles = roles or client.cache_service and client.cache_service.cache.get_roles_view_for_guild(member.guild_id)
     if not roles:
-        raw_roles = await fetch_resource(retry, client.cached_rest.fetch_roles, member.guild_id)
+        raw_roles = await fetch_resource(retry, client.rest_service.rest.fetch_roles, member.guild_id)
         roles = {role.id: role for role in raw_roles}
 
     # Admin permission overrides all overwrites and is only applicable to roles.
@@ -320,7 +320,7 @@ async def fetch_permissions(
         found_channel = client.cache_service.cache.get_guild_channel(snowflakes.Snowflake(channel))
 
     if not found_channel:
-        raw_channel = await fetch_resource(retry, client.cached_rest.fetch_channel, channel)
+        raw_channel = await fetch_resource(retry, client.rest_service.rest.fetch_channel, channel)
         assert isinstance(raw_channel, channels.GuildChannel), "Cannot perform operation on a DM channel."
         found_channel = raw_channel
 

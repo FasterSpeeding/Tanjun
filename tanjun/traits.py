@@ -50,7 +50,6 @@ __all__: typing.Sequence[str] = [
     "Argument",
     "Option",
     "Parser",
-    "CachedREST",
 ]
 
 import abc
@@ -59,13 +58,10 @@ import typing
 from hikari import undefined
 
 if typing.TYPE_CHECKING:
-    from hikari import applications
     from hikari import channels
     from hikari import embeds as embeds_
-    from hikari import emojis
     from hikari import files
     from hikari import guilds
-    from hikari import invites
     from hikari import messages
     from hikari import snowflakes
     from hikari import traits
@@ -706,11 +702,6 @@ class Component(abc.ABC):
 class Client(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
-    @property
-    @abc.abstractmethod
-    def cached_rest(self) -> CachedREST:
-        raise NotImplementedError
-
     # TODO: rename to cache_app
     @property
     def cache_service(self) -> typing.Optional[traits.CacheAware]:
@@ -920,71 +911,4 @@ class Parser(abc.ABC):
     async def parse(
         self, ctx: MessageContext, /
     ) -> typing.Tuple[typing.List[typing.Any], typing.Dict[str, typing.Any]]:
-        raise NotImplementedError
-
-
-class CachedREST(abc.ABC):
-    __slots__: typing.Sequence[str] = ()
-
-    def clear(self) -> None:
-        raise NotImplementedError
-
-    def gc(self) -> None:
-        raise NotImplementedError
-
-    async def fetch_application(self) -> applications.Application:
-        raise NotImplementedError
-
-    async def fetch_channel(
-        self, channel: snowflakes.SnowflakeishOr[channels.PartialChannel], /
-    ) -> channels.PartialChannel:
-        raise NotImplementedError
-
-    async def fetch_emoji(
-        self,
-        guild: snowflakes.SnowflakeishOr[guilds.PartialGuild],
-        emoji: snowflakes.SnowflakeishOr[emojis.CustomEmoji],
-        /,
-    ) -> emojis.KnownCustomEmoji:
-        raise NotImplementedError
-
-    async def fetch_guild(self, guild: snowflakes.SnowflakeishOr[guilds.PartialGuild], /) -> guilds.RESTGuild:
-        raise NotImplementedError
-
-    async def fetch_invite(self, invite: typing.Union[str, invites.Invite], /) -> invites.Invite:
-        raise NotImplementedError
-
-    async def fetch_member(
-        self,
-        guild: snowflakes.SnowflakeishOr[guilds.PartialGuild],
-        user: snowflakes.SnowflakeishOr[users.User],
-        /,
-    ) -> guilds.Member:
-        raise NotImplementedError
-
-    async def fetch_message(
-        self,
-        channel: snowflakes.SnowflakeishOr[channels.PartialChannel],
-        message: snowflakes.SnowflakeishOr[messages.Message],
-        /,
-    ) -> messages.Message:
-        raise NotImplementedError
-
-    async def fetch_my_user(self) -> users.OwnUser:
-        raise NotImplementedError
-
-    async def fetch_role(
-        self,
-        guild: snowflakes.SnowflakeishOr[guilds.PartialGuild],
-        role: snowflakes.SnowflakeishOr[guilds.PartialRole],
-        /,
-    ) -> guilds.Role:
-        raise NotImplementedError
-
-    async def fetch_roles(
-        self, guild: snowflakes.SnowflakeishOr[guilds.PartialGuild], /
-    ) -> typing.Sequence[guilds.Role]:
-        raise NotImplementedError
-
-    async def fetch_user(self, user: snowflakes.SnowflakeishOr[users.User]) -> users.User:
         raise NotImplementedError

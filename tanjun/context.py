@@ -97,10 +97,6 @@ class MessageContext(traits.MessageContext):
         return self._message.author
 
     @property
-    def cached_rest(self) -> traits.CachedREST:
-        return self._client.cached_rest
-
-    @property
     def cache_service(self) -> typing.Optional[hikari_traits.CacheAware]:
         return self._client.cache_service
 
@@ -200,11 +196,11 @@ class MessageContext(traits.MessageContext):
         )
 
     async def fetch_channel(self) -> channels.PartialChannel:
-        return await self._client.cached_rest.fetch_channel(self._message.channel_id)
+        return await self._client.rest_service.rest.fetch_channel(self._message.channel_id)
 
     async def fetch_guild(self) -> typing.Optional[guilds.Guild]:  # TODO: or raise?
         if self._message.guild_id is not None:
-            return await self._client.cached_rest.fetch_guild(self._message.guild_id)
+            return await self._client.rest_service.rest.fetch_guild(self._message.guild_id)
 
         return None
 

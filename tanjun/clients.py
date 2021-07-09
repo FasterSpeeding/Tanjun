@@ -47,7 +47,6 @@ from hikari.events import lifetime_events
 from hikari.events import message_events
 from yuyo import backoff
 
-from tanjun import cached_rest
 from tanjun import context
 from tanjun import injector
 from tanjun import traits
@@ -154,7 +153,6 @@ class Client(injector.InjectorClient, traits.Client):
     __slots__: typing.Sequence[str] = (
         "_accepts",
         "_cache",
-        "_cached_rest",
         "_checks",
         "_components",
         "_events",
@@ -201,7 +199,6 @@ class Client(injector.InjectorClient, traits.Client):
         self._accepts = AcceptsEnum.ALL if events else AcceptsEnum.NONE
         self._checks: typing.Set[injector.InjectableCheck] = set()
         self._cache = cache
-        self._cached_rest = cached_rest.CachedREST(rest)
         self._components: typing.Set[traits.Component] = set()
         self._events = events
         self._grab_mention_prefix = mention_prefix
@@ -248,10 +245,6 @@ class Client(injector.InjectorClient, traits.Client):
     def accepts(self) -> AcceptsEnum:
         """The type of message create events this command client accepts for execution."""
         return self._accepts
-
-    @property
-    def cached_rest(self) -> traits.CachedREST:
-        return self._cached_rest
 
     @property
     def is_human_only(self) -> bool:
@@ -449,7 +442,7 @@ class Client(injector.InjectorClient, traits.Client):
 
                 async for _ in retry:
                     try:
-                        user = await self._cached_rest.fetch_my_user()
+                        user = await self._rest.rest.fetch_my_user()
                         break
 
                     except (hikari_errors.RateLimitedError, hikari_errors.RateLimitTooLongError) as exc:
@@ -462,7 +455,7 @@ class Client(injector.InjectorClient, traits.Client):
                         continue
 
                 else:
-                    user = await self._cached_rest.fetch_my_user()
+                    user = await self._rest.rest.fetch_my_user()
 
             self._prefixes.add(f"<@{user.id}>")
             self._prefixes.add(f"<@!{user.id}>")
