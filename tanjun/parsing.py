@@ -35,7 +35,6 @@ __all__: typing.Sequence[str] = [
     "Argument",
     "Option",
     "ShlexParser",
-    "parser_descriptor",
     "verify_parameters",
     "with_argument",
     "with_greedy_argument",
@@ -47,7 +46,6 @@ __all__: typing.Sequence[str] = [
 ]
 
 import asyncio
-import copy
 import itertools
 import shlex
 import typing
@@ -59,13 +57,7 @@ from tanjun import errors
 from tanjun import injector as injector_
 from tanjun import traits
 
-if typing.TYPE_CHECKING:
-    from tanjun import components
-
-CommandT = typing.TypeVar(
-    "CommandT", "components.CommandDescriptor", traits.ExecutableCommand, "components.CommandGroupDescriptor"
-)
-CommandDescriptorT = typing.TypeVar("CommandDescriptorT", bound="components.CommandDescriptor")
+CommandT = typing.TypeVar("CommandT", bound=traits.ExecutableCommand)
 GREEDY = "greedy"
 """Parameter flags key used for marking a parameter as "greedy".
 
@@ -854,42 +846,10 @@ class ShlexParser(injector_.Injectable, traits.Parser):
         return arguments, options
 
 
-class ParserDescriptor(traits.ParserDescriptor):
-    """Descriptor used for pre-defining the parameters of a `ShlexParser`."""
-
-    __slots__: typing.Sequence[str] = ("_parameters",)
-
-    def __init__(self, *, parameters: typing.Optional[typing.Iterable[traits.Parameter]] = None) -> None:
-        self._parameters = list(parameters) if parameters else []
-
-    def parameters(self) -> typing.Sequence[traits.Parameter]:
-        # <<inherited docstring from tanjun.traits.ParserDescriptor>>.
-        return self._parameters.copy()
-
-    def add_parameter(self, parameter: traits.Parameter, /) -> None:
-        # <<inherited docstring from tanjun.traits.ParserDescriptor>>.
-        self._parameters.append(parameter)
-
-    def set_parameters(self, parameters: typing.Iterable[traits.Parameter], /) -> None:
-        # <<inherited docstring from tanjun.traits.ParserDescriptor>>.
-        self._parameters = list(parameters)
-
-    def build_parser(self, component: traits.Component, /) -> ShlexParser:
-        # <<inherited docstring from tanjun.traits.ParserDescriptor>>.
-        parser = ShlexParser(parameters=map(copy.copy, self._parameters))
-        parser.bind_component(component)
-        return parser
-
-
-def parser_descriptor(*, parameters: typing.Optional[typing.Iterable[traits.Parameter]] = None) -> ParserDescriptor:
-    """Build a shlex parser descriptor."""
-    return ParserDescriptor(parameters=parameters)
-
-
 # Unlike the other decorators in this module, this can only be applied to a command descriptor.
-def with_parser(command: CommandDescriptorT, /) -> CommandDescriptorT:
+def with_parser(command: CommandT, /) -> CommandT:
     """Add a shlex parser descriptor to a command descriptor."""
-    command.parser = parser_descriptor()
+    command.parser = ShlexParser()
     return command
 
 

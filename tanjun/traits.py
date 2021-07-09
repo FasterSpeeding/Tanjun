@@ -34,7 +34,6 @@ from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
     "LoadableDescriptor",
-    "ParserDescriptor",
     "ConverterT",
     "ParserHookT",
     "ErrorHookT",
@@ -154,17 +153,9 @@ function which returns `builtins.bool` where returning `builtins.False` or
 raising `tanjun.errors.FailedCheck` will indicate that the current context
 shouldn't lead to an execution.
 """
+CheckT_inv = typing.TypeVar("CheckT_inv", bound=CheckT)
 
 ComponentT_contra = typing.TypeVar("ComponentT_contra", bound="Component", contravariant=True)
-
-UnboundCheckT = typing.Callable[
-    ["ComponentT_contra", "Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]
-]  # TODO: remove this
-"""Type hint of a general context check used by Tanjun `Executable` classes.
-
-This is an equivalent to `CheckT` where it's yet to be bound to a `Component`,
-used by `CheckDescriptor`.
-"""
 
 ValueT_co = typing.TypeVar("ValueT_co", covariant=True)
 """A general type hint used for generic interfaces in Tanjun."""
@@ -186,69 +177,6 @@ class LoadableDescriptor(abc.ABC):
             The load function which should take one argument of type Client and
             return nothing. This should call methods on `Client` in-order to
             load it's pre-prepared resources.
-        """
-        raise NotImplementedError
-
-
-class ParserDescriptor(abc.ABC):
-    """Descriptor of a parser for command descriptor."""
-
-    __slots__: typing.Sequence[str] = ()
-
-    @property
-    @abc.abstractmethod
-    def parameters(self) -> typing.Sequence[Parameter]:
-        """Get the parameters rules set for this parser descriptor.
-
-        Returns
-        -------
-        typing.Sequence[Parameter]
-            A sequence of the parameters rules set for this parser descriptor.
-        """
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def add_parameter(self, parameter: Parameter, /) -> None:
-        """Add a parameter to the parser's rules.
-
-        !!! note
-            For positional arguments this should add from left to right if the
-            index isn't explicitly declared.
-
-        Parameters
-        ----------
-        parameter : Parameter
-            The parameter to add.
-        """
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def set_parameters(self, parameters: typing.Iterable[Parameter], /) -> None:
-        """Set the parameters for this parser's rules.
-
-        !!! note
-            This will replace any previously set parameters.
-
-        Parameters
-        ----------
-        parameters : typing.Iterable[Parameter]
-            An iterable of the parameters to set for this parser.
-        """
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def build_parser(self, component: Component, /) -> Parser:
-        """Build a parser object from this descriptor.
-
-        Parameters
-        ----------
-        component : ExecutableCommand
-            The component this command is being built for.
-
-        Returns
-        -------
-        ExecutableCommand
-            The command object that was created.
         """
         raise NotImplementedError
 
@@ -402,7 +330,7 @@ class Executable(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def with_check(self, check: CheckT, /) -> CheckT:
+    def with_check(self, check: CheckT_inv, /) -> CheckT_inv:
         raise NotImplementedError
 
     # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an

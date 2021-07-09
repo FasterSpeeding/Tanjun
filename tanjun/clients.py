@@ -296,7 +296,7 @@ class Client(injector.InjectorClient, traits.Client):
     def remove_check(self, check: traits.CheckT, /) -> None:
         self._checks.remove(check)  # type: ignore[arg-type]
 
-    def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
+    def with_check(self, check: traits.CheckT_inv, /) -> traits.CheckT_inv:
         self.add_check(check)
         return check
 

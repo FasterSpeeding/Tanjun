@@ -51,10 +51,6 @@ __all__: typing.Sequence[str] = [
     "CommandGroup",
     # components.py
     "components",
-    "as_check",
-    "as_command",
-    "as_group",
-    "as_listener",
     "Component",
     # context.py
     "context",
@@ -102,7 +98,6 @@ __all__: typing.Sequence[str] = [
     "Argument",
     "Option",
     "ShlexParser",
-    "parser_descriptor",
     "verify_parameters",
     "with_argument",
     "with_greedy_argument",

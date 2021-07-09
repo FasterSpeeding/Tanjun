@@ -64,13 +64,10 @@ if typing.TYPE_CHECKING:
     from hikari import traits as hikari_traits
     from hikari import users
 
-    from tanjun import components
     from tanjun import traits as tanjun_traits
 
 
-CommandT = typing.TypeVar(
-    "CommandT", "components.CommandDescriptor", "tanjun_traits.ExecutableCommand", "components.CommandGroupDescriptor"
-)
+CommandT = typing.TypeVar("CommandT", bound="tanjun_traits.ExecutableCommand")
 
 
 class ApplicationOwnerCheck:
