@@ -206,7 +206,6 @@ class EmojiConverter(BaseConverter[emojis.KnownCustomEmoji]):
     def cache_bound(self) -> bool:
         return True
 
-    # TODO: lookup by name
     async def convert(self, ctx: traits.Context, argument: str, /) -> emojis.KnownCustomEmoji:
         if ctx.client.cache_service:
             emoji_id = parse_emoji_id(argument, message="No valid emoji or emoji ID found")
@@ -235,7 +234,6 @@ class GuildConverter(BaseConverter[guilds.GatewayGuild]):
     def cache_bound(self) -> bool:
         return True
 
-    # TODO: lookup by name
     async def convert(self, ctx: traits.Context, argument: str, /) -> guilds.GatewayGuild:
         if ctx.client.cache_service:
             guild_id = parse_snowflake(argument, message="No valid guild ID found")
@@ -254,10 +252,10 @@ class GuildConverter(BaseConverter[guilds.GatewayGuild]):
 
     @classmethod
     def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
-        return (guilds.GatewayGuild,)
+        return (guilds.Guild,)
 
 
-class InviteConverter(BaseConverter[invites.InviteWithMetadata]):  # TODO: lookup by name
+class InviteConverter(BaseConverter[invites.InviteWithMetadata]):
     __slots__: typing.Sequence[str] = ()
 
     @property
@@ -284,7 +282,7 @@ class InviteConverter(BaseConverter[invites.InviteWithMetadata]):  # TODO: looku
         return (invites.Invite,)
 
 
-class MemberConverter(BaseConverter[guilds.Member]):  # TODO: lookup by name
+class MemberConverter(BaseConverter[guilds.Member]):
     __slots__: typing.Sequence[str] = ()
 
     @property
@@ -334,7 +332,7 @@ class PresenceConverter(BaseConverter[presences.MemberPresence]):
         raise ValueError("Couldn't find presence in current guild")
 
 
-class RoleConverter(BaseConverter[guilds.Role]):  # TODO: lookup by name
+class RoleConverter(BaseConverter[guilds.Role]):
     __slots__: typing.Sequence[str] = ()
 
     @property
@@ -420,7 +418,7 @@ class SnowflakeConverter(BaseConverter[snowflakes.Snowflake]):
         return (snowflakes.Snowflake,)
 
 
-class UserConverter(BaseConverter[users.User]):  # TODO: lookup by name
+class UserConverter(BaseConverter[users.User]):
     __slots__: typing.Sequence[str] = ()
 
     @property

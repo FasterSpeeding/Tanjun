@@ -92,11 +92,11 @@ class ApplicationOwnerCheck:
     def _is_expired(self) -> bool:
         return time.perf_counter() - self._time >= self._expire
 
-    async def _try_fetch(self, rest_service: hikari_traits.RESTAware, /) -> applications.Application:  # type: ignore[return]
+    async def _try_fetch(self, rest: hikari_traits.RESTAware, /) -> applications.Application:  # type: ignore[return]
         retry = backoff.Backoff()
         async for _ in retry:
             try:
-                self._application = await rest_service.rest.fetch_application()  # TODO: or fetch authroization
+                self._application = await rest.rest.fetch_application()  # TODO: or fetch authroization
                 return self._application
 
             except (hikari_errors.RateLimitedError, hikari_errors.RateLimitTooLongError) as exc:
