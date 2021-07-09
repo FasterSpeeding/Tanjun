@@ -119,8 +119,12 @@ UndefinedOr = typing.Union[Undefined, _T]
 
 
 def check_injecting(callback: CallbackT[typing.Any], /) -> bool:
-    parameters = inspect.signature(callback).parameters.values()
-    return any(isinstance(parameter.default, Injected) for parameter in parameters)
+    try:
+        parameters = inspect.signature(callback).parameters.values()
+    except ValueError:  # If we can't inspect it then we have to assume this is a NO
+        return False
+    else:
+        return any(isinstance(parameter.default, Injected) for parameter in parameters)
 
 
 class Injected(typing.Generic[_T]):
@@ -224,7 +228,7 @@ class InjectorClient:
             if isinstance(type_, match):
 
                 def get_simple(ctx: tanjun_traits.Context) -> _T:
-                    if (result := function(ctx, self, type)) is not UNDEFINED:
+                    if (result := function(ctx, self, type_)) is not UNDEFINED:
                         return typing.cast(_T, result)
 
                     raise errors.MissingDependencyError(
@@ -243,7 +247,12 @@ class InjectorClient:
         return Getter(get_injectable, name, injecting=True)
 
     def resolve_callback_to_getters(self, callback: CallbackT[typing.Any], /) -> typing.Iterator[Getter[typing.Any]]:
-        for name, parameter in inspect.signature(callback).parameters.items():
+        try:
+            parameters = inspect.signature(callback).parameters.items()
+        except ValueError:  # If we can't inspect it then we have to assume this is a NO
+            return
+
+        for name, parameter in parameters:
             if parameter.default is parameter.default and not isinstance(parameter.default, Injected):
                 continue
 
