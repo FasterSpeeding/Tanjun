@@ -33,6 +33,7 @@ from __future__ import annotations
 
 __all__: typing.Sequence[str] = ["Component"]
 
+import copy
 import itertools
 import typing
 
@@ -117,6 +118,16 @@ class Component(injector.Injectable, traits.Component):
     @property
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         return self._metadata
+
+    def copy(self: _ComponentT, *, _new: bool = False) -> _ComponentT:
+        if not _new:
+            self._checks = set(check.copy() for check in self._checks)
+            self._commands = {command.copy(None) for command in self._commands}
+            self._hooks = self._hooks.copy() if self._hooks else None
+            self._listeners = {copy.copy(listener) for listener in self._listeners}
+            self._metadata = self._metadata.copy()
+
+        return copy.copy(self).copy(_new=False)
 
     def add_check(self: _ComponentT, check: traits.CheckSig, /) -> _ComponentT:
         self._checks.add(injector.InjectableCheck(check, injector=self._injector))

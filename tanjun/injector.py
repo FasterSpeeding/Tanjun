@@ -45,6 +45,7 @@ __all__: typing.Sequence[str] = [
 ]
 
 import abc
+import copy
 import inspect
 import typing
 
@@ -53,6 +54,9 @@ from hikari import traits as hikari_traits
 from . import conversion
 from . import errors
 from . import traits as tanjun_traits
+
+if typing.TYPE_CHECKING:
+    _BaseInjectableValueT = typing.TypeVar("_BaseInjectableValueT", bound="BaseInjectableValue[typing.Any]")
 
 _InjectorClientT = typing.TypeVar("_InjectorClientT", bound="InjectorClient")
 _T = typing.TypeVar("_T")
@@ -303,7 +307,7 @@ class BaseInjectableValue(Injectable, typing.Generic[_T]):
         self.callback = callback
         self.injector = injector
         self.is_async: typing.Optional[bool] = None
-        self._needs_injector: typing.Optional[bool] = None
+        self._needs_injector = check_injecting(self.callback)
 
     # This is delegated to the callback function in-order to delegate set behaviour for this class to the function.
     def __eq__(self, other: typing.Any) -> bool:
@@ -315,13 +319,16 @@ class BaseInjectableValue(Injectable, typing.Generic[_T]):
 
     @property
     def needs_injector(self) -> bool:
-        if not self.injector:
-            raise ValueError("Need injector to introspect whether it is required")
-
-        if self._needs_injector is None:
-            self._needs_injector = check_injecting(self.callback)
-
         return self._needs_injector
+
+    def copy(self: _BaseInjectableValueT, *, _new: bool = True) -> _BaseInjectableValueT:
+        if not _new:
+            self._cached_getters = None
+            self.callback = copy.copy(self.callback)
+            self.is_async = None
+            return self
+
+        return copy.copy(self).copy(_new=False)
 
     def set_injector(self, client: InjectorClient) -> None:
         if self.injector:
@@ -330,9 +337,6 @@ class BaseInjectableValue(Injectable, typing.Generic[_T]):
         self.injector = client
 
     async def call(self, *args: typing.Any, ctx: tanjun_traits.Context) -> _T:
-        if self._needs_injector is None:
-            self._needs_injector = check_injecting(self.callback)
-
         if self._needs_injector:
             if self.injector is None:
                 raise RuntimeError("Cannot call this injectable function before the injector has been set")
@@ -384,22 +388,27 @@ class InjectableConverter(BaseInjectableValue[_T]):
         return await self.call(value, ctx=ctx)
 
 
-def cache_callback(callback: CallbackSig[_T]) -> typing.Callable[..., typing.Awaitable[_T]]:
-    result: typing.Optional[_T] = None
+class _CacheCallback(typing.Generic[_T]):
+    __slots__: typing.Sequence[str] = ("_callback", "_result")
 
-    async def _get_or_build(
+    def __init__(self, callback: CallbackSig[_T], /) -> None:
+        self._callback = callback
+        self._result: typing.Optional[_T] = None
+
+    async def __call__(
+        self,
         # Positional arg(s) may be guaranteed under some contexts so we want to pass those through.
         *args: typing.Any,
         ctx: tanjun_traits.Context = Injected(type=tanjun_traits.Context),  # type: ignore[assignment]
         injector: InjectorClient = Injected(type=InjectorClient),  # type: ignore[assignment]
     ) -> _T:
-        nonlocal result
+        if self._result is None:
+            getters = injector.resolve_callback_to_getters(self._callback)
+            temp_result = self._callback(*args, **await resolve_getters(ctx, getters))
+            self._result = await temp_result if isinstance(temp_result, typing.Awaitable) else temp_result
 
-        if result is None:
-            getters = injector.resolve_callback_to_getters(callback)
-            temp_result = callback(*args, **await resolve_getters(ctx, getters))
-            result = await temp_result if isinstance(temp_result, typing.Awaitable) else temp_result
+        return self._result
 
-        return result
 
-    return _get_or_build
+def cache_callback(callback: CallbackSig[_T], /) -> typing.Callable[..., typing.Awaitable[_T]]:
+    return _CacheCallback(callback)

@@ -45,7 +45,9 @@ __all__: typing.Sequence[str] = [
     "with_typed_parameters",
 ]
 
+import abc
 import asyncio
+import copy
 import itertools
 import shlex
 import typing
@@ -56,6 +58,10 @@ from tanjun import conversion
 from tanjun import errors
 from tanjun import injector as injector_
 from tanjun import traits
+
+if typing.TYPE_CHECKING:
+    _ParameterT = typing.TypeVar("_ParameterT", bound="_Parameter")
+    _ShlexParserT = typing.TypeVar("_ShlexParserT", bound="ShlexParser")
 
 CommandT = typing.TypeVar("CommandT", bound=traits.ExecutableCommand)
 GREEDY = "greedy"
@@ -560,7 +566,7 @@ def with_multi_option(
     return with_option(key, name, *names, converters=converters, default=default, empty_value=empty_value, flags=flags)
 
 
-class _Parameter(injector_.Injectable, traits.Parameter):
+class _Parameter(injector_.Injectable, traits.Parameter, abc.ABC):
     __slots__: typing.Sequence[str] = ("_client", "_component", "_converters", "default", "_flags", "_injector", "key")
 
     def __init__(
@@ -675,6 +681,15 @@ class _Parameter(injector_.Injectable, traits.Parameter):
             for converter in self._converters:
                 converter.set_injector(client)
 
+    def copy(self: _ParameterT, *, _new: bool = True) -> _ParameterT:
+        if not _new:
+            self._converters = [converter.copy() for converter in self._converters] if self._converters else None
+            self._flags = self._flags.copy()
+            return self
+
+        result = copy.copy(self).copy(_new=False)
+        return result
+
 
 class Argument(_Parameter, traits.Argument):
     __slots__: typing.Sequence[str] = ()
@@ -692,14 +707,6 @@ class Argument(_Parameter, traits.Argument):
             raise ValueError("Argument cannot be both greed and multi.")
 
         super().__init__(key, converters=converters, default=default, flags=flags)
-
-    def __copy__(self) -> Argument:
-        return Argument(
-            self.key,
-            converters=self._converters.copy() if self._converters else None,
-            default=self.default,
-            flags=dict(self._flags),
-        )
 
 
 class Option(_Parameter, traits.Option):
@@ -726,17 +733,6 @@ class Option(_Parameter, traits.Option):
         self.empty_value = empty_value
         self.names = names
         super().__init__(key, converters=converters, default=default, flags=flags)
-
-    def __copy__(self) -> Option:
-        # TODO: this will error if there's no set names.
-        return Option(
-            self.key,
-            *self.names,
-            converters=self._converters.copy() if self._converters else None,
-            default=self.default,
-            flags=dict(self._flags),
-            empty_value=self.empty_value,
-        )
 
     def __repr__(self) -> str:
         return f"{type(self).__name__} <{self.key}, {self.names}>"
@@ -769,6 +765,14 @@ class ShlexParser(injector_.Injectable, traits.Parser):
     def parameters(self) -> typing.Sequence[traits.Parameter]:
         # <<inherited docstring from tanjun.traits.ShlexParser>>.
         return (*self._arguments, *self._options)
+
+    def copy(self: _ShlexParserT, *, _new: bool = True) -> _ShlexParserT:
+        if not _new:
+            self._arguments = [argument.copy() for argument in self._arguments]
+            self._options = [option.copy() for option in self._options]
+            return self
+
+        return copy.copy(self).copy(_new=False)
 
     def add_parameter(self, parameter: traits.Parameter, /) -> None:
         # <<inherited docstring from tanjun.traits.ShlexParser>>.

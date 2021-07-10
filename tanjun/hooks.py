@@ -40,6 +40,7 @@ __all__: typing.Sequence[str] = [
 ]
 
 import asyncio
+import copy
 import typing
 
 from tanjun import errors
@@ -118,6 +119,9 @@ class Hooks(traits.Hooks):
             f"Hooks <{self._error!r}, {self._parser_error!r}, {self._pre_execution!r}, "
             f"{self._post_execution!r}, {self._success!r}>"
         )
+
+    def copy(self: _HooksT) -> _HooksT:
+        return copy.deepcopy(self)
 
     def set_on_error(self: _HooksT, hook: typing.Optional[ErrorHookSig], /) -> _HooksT:
         self._error = hook

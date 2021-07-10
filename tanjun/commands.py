@@ -33,6 +33,7 @@ from __future__ import annotations
 
 __all__: typing.Sequence[str] = ["Command", "CommandGroup"]
 
+import copy
 import typing
 
 from hikari import errors as hikari_errors
@@ -89,7 +90,7 @@ class Command(injector.Injectable, traits.ExecutableCommand):
         self._function = function
         self.hooks: traits.Hooks = hooks or hooks_.Hooks()
         self._injector: typing.Optional[injector.InjectorClient] = None
-        self._metadata = metadata or {}
+        self._metadata = dict(metadata) if metadata else {}
         self._names = {name, *names}
         self._needs_injector: typing.Optional[bool] = None
         self.parent: typing.Optional[traits.ExecutableCommandGroup] = None
@@ -124,6 +125,22 @@ class Command(injector.Injectable, traits.ExecutableCommand):
             self._needs_injector = injector.check_injecting(self._function)
 
         return self._needs_injector
+
+    def copy(
+        self: _CommandT, parent: typing.Optional[traits.ExecutableCommandGroup], /, *, _new: bool = True
+    ) -> _CommandT:
+        if not _new:
+            self._cached_getters = None
+            self._checks = {check.copy() for check in self._checks}
+            self._function = copy.copy(self._function)
+            self.hooks = self.hooks.copy()
+            self._metadata = self._metadata.copy()
+            self._names = self._names.copy()
+            self._needs_injector = None
+            self.parent = parent
+            return self
+
+        return copy.copy(self).copy(parent, _new=False)
 
     def add_check(self: _CommandT, check: traits.CheckSig, /) -> _CommandT:
         self._checks.add(injector.InjectableCheck(check, injector=self._injector))
@@ -273,6 +290,14 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
     @property
     def commands(self) -> typing.AbstractSet[traits.ExecutableCommand]:
         return self._commands.copy()
+
+    def copy(
+        self: _CommandGroupT, parent: typing.Optional[traits.ExecutableCommandGroup], /, *, _new: bool = True
+    ) -> _CommandGroupT:
+        if not _new:
+            self._commands = {command.copy(self) for command in self._commands}
+
+        return super().copy(parent, _new=_new)
 
     def add_command(self: _CommandGroupT, command: traits.ExecutableCommand, /) -> _CommandGroupT:
         command.parent = self

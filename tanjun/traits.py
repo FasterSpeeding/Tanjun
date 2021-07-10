@@ -65,6 +65,10 @@ if typing.TYPE_CHECKING:
     from tanjun import errors
 
     _T = typing.TypeVar("_T")
+    _ExecutableT = typing.TypeVar("_ExecutableT", bound="Executable")
+    _HooksT = typing.TypeVar("_HooksT", bound="Hooks")
+    _Parser = typing.TypeVar("_Parser", bound="Parser")
+    _ParameterT = typing.TypeVar("_ParameterT", bound="Parameter")
 
 
 # To allow for stateless converters we accept both "Converter[...]" and "Type[StatelessConverter[...]]" where all the
@@ -229,6 +233,10 @@ class Hooks(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @abc.abstractmethod
+    def copy(self: _HooksT) -> _HooksT:
+        raise NotImplementedError
+
+    @abc.abstractmethod
     async def trigger_error(
         self, ctx: Context, /, exception: BaseException, *, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None
     ) -> None:
@@ -281,11 +289,15 @@ class Executable(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def copy(self: _ExecutableT) -> _ExecutableT:
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def remove_check(self, check: CheckSig, /) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def with_check(self, check: CheckT, /) -> CheckT:
+    def with_check(self, check: CheckSigT, /) -> CheckSigT:
         raise NotImplementedError
 
     # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
@@ -380,6 +392,10 @@ class ExecutableCommand(Executable, abc.ABC):
 
     @abc.abstractmethod
     def bind_component(self, component: Component, /) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def copy(self: _ExecutableT, parent: typing.Optional[ExecutableCommandGroup], /) -> _ExecutableT:
         raise NotImplementedError
 
 
@@ -588,6 +604,10 @@ class Parameter(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def copy(self: _ParameterT) -> _ParameterT:
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def remove_converter(self, converter: ConverterSig, /) -> None:
         raise NotImplementedError
 
@@ -640,6 +660,10 @@ class Parser(abc.ABC):
 
     @abc.abstractmethod
     def add_parameter(self, parameter: Parameter, /) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def copy(self: _Parser) -> _Parser:
         raise NotImplementedError
 
     @abc.abstractmethod
