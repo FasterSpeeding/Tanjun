@@ -31,7 +31,13 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["Hooks"]
+__all__: typing.Sequence[str] = [
+    "ErrorHookSig",
+    "Hooks",
+    "HookSig",
+    "ParserHookSig",
+    "PreExecutionHookSig",
+]
 
 import asyncio
 import typing
@@ -40,24 +46,72 @@ from tanjun import errors
 from tanjun import traits
 from tanjun import utilities
 
+if typing.TypeVar:
+    _HooksT = typing.TypeVar("_HooksT", bound="Hooks")
+
+
+ParserHookSig = typing.Callable[
+    ["traits.Context", "errors.ParserError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
+]
+"""Type hint of the function used as a parser error hook.
+
+This will be called whenever a `tanjun.errors.ParserError` is raised during the
+command argument parsing stage, will have to take two positional arguments - of
+type `tanjun.traits.Context` and `tanjun.errors.ParserError` - and may either be
+a synchronous or asynchronous function which returns `builtins.None`
+"""
+
+ParserHookSigT = typing.TypeVar("ParserHookSigT", bound=ParserHookSig)
+
+ErrorHookSig = typing.Callable[
+    ["traits.Context", BaseException], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
+]
+"""Type hint of the function used as a unexpected command error hook.
+
+This will be called whenever a `builtins.BaseException` is raised during the
+execution stage whenever the command function raises any exception except
+`tanjun.errors.CommandError`,  will have to take two positional arguments - of
+type `tanjun.traits.Context` and `builtins.BaseException` - and may either be a
+synchronous or asynchronous function which returns `builtins.None`
+"""
+
+ErrorHookSigT = typing.TypeVar("ErrorHookSigT", bound=ErrorHookSig)
+
+HookSig = typing.Callable[["traits.Context"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]]
+"""Type hint of the function used as a general command hook.
+
+This may be called during different stages of command execution (decided by
+which hook this is registered as), will have to take one positional argument of
+type `tanjun.traits.Context` and may be a synchronous or asynchronous function
+which returns `builtins.None`.
+"""
+
+HookSigT = typing.TypeVar("HookSigT", bound=HookSig)
+
+
+PreExecutionHookSig = typing.Callable[
+    ["traits.Context"], typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]
+]
+"""Type hint of the function used as a pre-execution command hook.
+
+This will be called before command function is executed, will have to take one
+positional argument of type `tanjun.traits.Context` and may be a synchronous or
+asynchronous function which returns `builtins.bool` (where returning `False` may
+cancel execution of the current command).
+"""
+
+PreExecutionHookSigT = typing.TypeVar("PreExecutionHookSigT", bound=PreExecutionHookSig)
+
 
 class Hooks(traits.Hooks):
     __slots__: typing.Sequence[str] = ("_error", "_parser_error", "_pre_execution", "_post_execution", "_success")
 
-    def __init__(
-        self,
-        *,
-        on_error: typing.Optional[traits.ErrorHookT] = None,
-        on_parser_error: typing.Optional[traits.ParserHookT] = None,
-        pre_execution: typing.Optional[traits.PreExecutionHookT] = None,
-        post_execution: typing.Optional[traits.HookT] = None,
-        on_success: typing.Optional[traits.HookT] = None,
-    ) -> None:
-        self._error = on_error
-        self._parser_error = on_parser_error
-        self._pre_execution = pre_execution
-        self._post_execution = post_execution
-        self._success = on_success
+    def __init__(self) -> None:
+        self._error: typing.Optional[ErrorHookSig] = None
+        self._parser_error: typing.Optional[ParserHookSig] = None
+        self._pre_execution: typing.Optional[PreExecutionHookSig] = None
+        self._post_execution: typing.Optional[HookSig] = None
+        self._success: typing.Optional[HookSig] = None
 
     def __repr__(self) -> str:
         return (
@@ -65,26 +119,44 @@ class Hooks(traits.Hooks):
             f"{self._post_execution!r}, {self._success!r}>"
         )
 
-    def set_on_error(self, hook: typing.Optional[traits.ErrorHookT], /) -> typing.Optional[traits.ErrorHookT]:
+    def set_on_error(self: _HooksT, hook: typing.Optional[ErrorHookSig], /) -> _HooksT:
         self._error = hook
+        return self
+
+    def with_on_error(self, hook: ErrorHookSigT, /) -> ErrorHookSigT:
+        self.set_on_error(hook)
         return hook
 
-    def set_on_parser_error(self, hook: typing.Optional[traits.ParserHookT], /) -> typing.Optional[traits.ParserHookT]:
+    def set_on_parser_error(self: _HooksT, hook: typing.Optional[ParserHookSig], /) -> _HooksT:
         self._parser_error = hook
+        return self
+
+    def with_on_parser_error(self, hook: ParserHookSigT, /) -> ParserHookSigT:
+        self.set_on_parser_error(hook)
         return hook
 
-    def set_post_execution(self, hook: typing.Optional[traits.HookT], /) -> typing.Optional[traits.HookT]:
+    def set_post_execution(self: _HooksT, hook: typing.Optional[HookSig], /) -> _HooksT:
         self._post_execution = hook
+        return self
+
+    def with_post_execution(self, hook: HookSigT, /) -> HookSigT:
+        self.set_post_execution(hook)
         return hook
 
-    def set_pre_execution(
-        self, hook: typing.Optional[traits.PreExecutionHookT], /
-    ) -> typing.Optional[traits.PreExecutionHookT]:
+    def set_pre_execution(self: _HooksT, hook: typing.Optional[PreExecutionHookSig], /) -> _HooksT:
         self._pre_execution = hook
+        return self
+
+    def with_pre_execution(self, hook: PreExecutionHookSigT, /) -> PreExecutionHookSigT:
+        self.set_pre_execution(hook)
         return hook
 
-    def set_on_success(self, hook: typing.Optional[traits.HookT], /) -> typing.Optional[traits.HookT]:
+    def set_on_success(self: _HooksT, hook: typing.Optional[HookSig], /) -> _HooksT:
         self._success = hook
+        return self
+
+    def with_on_success(self, hook: HookSigT, /) -> HookSigT:
+        self.set_on_success(hook)
         return hook
 
     async def trigger_error(

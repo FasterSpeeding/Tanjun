@@ -45,7 +45,8 @@ __all__: typing.Sequence[str] = [
     "clients",
     "as_loader",
     "Client",
-    # command.py
+    "PrefixGetterSig",
+    # commands.py
     "commands",
     "Command",
     "CommandGroup",
@@ -81,10 +82,15 @@ __all__: typing.Sequence[str] = [
     "StateWarning",
     # hooks.py
     "hooks",
+    "ErrorHookSig",
     "Hooks",
+    "HookSig",
+    "ParserHookSig",
+    "PreExecutionHookSig",
     # injector.py
+    "injector",
     "cache_callback",
-    "CallbackT",
+    "CallbackSig",
     "Getter",
     "Undefined",
     "UNDEFINED",

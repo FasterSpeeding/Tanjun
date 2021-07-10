@@ -74,11 +74,11 @@ class Command(injector.Injectable, traits.ExecutableCommand):
 
     def __init__(
         self,
-        function: traits.CommandFunctionT,
+        function: traits.CommandFunctionSig,
         name: str,
         /,
         *names: str,
-        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
+        checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         parser: typing.Optional[traits.Parser] = None,
@@ -99,7 +99,7 @@ class Command(injector.Injectable, traits.ExecutableCommand):
         return f"Command <{self._names}>"
 
     @property
-    def checks(self) -> typing.AbstractSet[traits.CheckT]:
+    def checks(self) -> typing.AbstractSet[traits.CheckSig]:
         return {check.callback for check in self._checks}
 
     @property
@@ -107,7 +107,7 @@ class Command(injector.Injectable, traits.ExecutableCommand):
         return self._component
 
     @property
-    def function(self) -> traits.CommandFunctionT:
+    def function(self) -> traits.CommandFunctionSig:
         return self._function
 
     @property
@@ -125,14 +125,14 @@ class Command(injector.Injectable, traits.ExecutableCommand):
 
         return self._needs_injector
 
-    def add_check(self: _CommandT, check: traits.CheckT, /) -> _CommandT:
+    def add_check(self: _CommandT, check: traits.CheckSig, /) -> _CommandT:
         self._checks.add(injector.InjectableCheck(check, injector=self._injector))
         return self
 
-    def remove_check(self, check: traits.CheckT, /) -> None:
+    def remove_check(self, check: traits.CheckSig, /) -> None:
         self._checks.remove(check)  # type: ignore[arg-type]
 
-    def with_check(self, check: traits.CheckT_inv, /) -> traits.CheckT_inv:
+    def with_check(self, check: traits.CheckSigT, /) -> traits.CheckSigT:
         self.add_check(check)
         return check
 
@@ -255,11 +255,11 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
 
     def __init__(
         self,
-        function: traits.CommandFunctionT,
+        function: traits.CommandFunctionSig,
         name: str,
         /,
         *names: str,
-        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
+        checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         parser: typing.Optional[traits.Parser] = None,
@@ -288,11 +288,11 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
         name: str,
         /,
         *names: str,
-        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
+        checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
         parser: typing.Optional[traits.Parser] = None,
-    ) -> typing.Callable[[traits.CommandFunctionT], traits.CommandFunctionT]:
-        def decorator(function: traits.CommandFunctionT, /) -> traits.CommandFunctionT:
+    ) -> typing.Callable[[traits.CommandFunctionSig], traits.CommandFunctionSig]:
+        def decorator(function: traits.CommandFunctionSig, /) -> traits.CommandFunctionSig:
             self.add_command(Command(function, name, *names, checks=checks, hooks=hooks, parser=parser))
             return function
 

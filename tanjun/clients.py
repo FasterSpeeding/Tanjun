@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["AcceptsEnum", "as_loader", "Client", "PrefixGetterT"]
+__all__: typing.Sequence[str] = ["AcceptsEnum", "as_loader", "Client", "PrefixGetterSig"]
 
 import asyncio
 import enum
@@ -60,7 +60,7 @@ if typing.TYPE_CHECKING:
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
 
 
-PrefixGetterT = typing.Callable[[traits.Context], typing.Awaitable[typing.Iterable[str]]]
+PrefixGetterSig = typing.Callable[[traits.Context], typing.Awaitable[typing.Iterable[str]]]
 """Type hint of a callable used to get the prefix(es) for a specific guild.
 
 This should be an asynchronous callable which takes one positional argument of
@@ -69,7 +69,7 @@ type `tanjun.traits.Context` and returns an iterable of strings.
 
 
 class _LoadableDescriptor(traits.LoadableDescriptor):
-    def __init__(self, function: traits.LoadableT, /) -> None:
+    def __init__(self, function: traits.LoadableSig, /) -> None:
         self._function = function
         utilities.with_function_wrapping(self, "load_function")
 
@@ -77,18 +77,18 @@ class _LoadableDescriptor(traits.LoadableDescriptor):
         self._function(client)
 
     @property
-    def load_function(self) -> traits.LoadableT:
+    def load_function(self) -> traits.LoadableSig:
         return self._function
 
 
 # This class is left unslotted as to allow it to "wrap" the underlying function
 # by overwriting class attributes.
-def as_loader(function: traits.LoadableT) -> traits.LoadableT:
+def as_loader(function: traits.LoadableSig) -> traits.LoadableSig:
     """Mark a function as being used to load Tanjun utilities from a module.
 
     Parameters
     ----------
-    function : traits.LoadableT
+    function : traits.LoadableSig
         The function used to load Tanjun utilities from the a module. This
         should take one argument of type `tanjun.traits.Client`, return nothing
         and will be expected to initiate and add utilities such as components
@@ -96,7 +96,7 @@ def as_loader(function: traits.LoadableT) -> traits.LoadableT:
 
     Returns
     -------
-    traits.LoadableT
+    traits.LoadableSig
         The decorated load function.
     """
     return _LoadableDescriptor(function)
@@ -193,7 +193,7 @@ class Client(injector.InjectorClient, traits.Client):
         self._grab_mention_prefix = mention_prefix
         self.hooks: typing.Optional[traits.Hooks] = None
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
-        self._prefix_getter: typing.Optional[PrefixGetterT] = None
+        self._prefix_getter: typing.Optional[PrefixGetterSig] = None
         self._prefixes: typing.Set[str] = set()
         self._rest = rest
         self._shards = shard
@@ -236,7 +236,7 @@ class Client(injector.InjectorClient, traits.Client):
         return self._cache
 
     @property
-    def checks(self) -> typing.AbstractSet[traits.CheckT]:
+    def checks(self) -> typing.AbstractSet[traits.CheckSig]:
         return {check.callback for check in self._checks}
 
     @property
@@ -252,7 +252,7 @@ class Client(injector.InjectorClient, traits.Client):
         return self._metadata
 
     @property
-    def prefix_getter(self) -> typing.Optional[PrefixGetterT]:
+    def prefix_getter(self) -> typing.Optional[PrefixGetterSig]:
         return self._prefix_getter
 
     @property
@@ -289,14 +289,14 @@ class Client(injector.InjectorClient, traits.Client):
 
         return self
 
-    def add_check(self: _ClientT, check: traits.CheckT, /) -> _ClientT:
+    def add_check(self: _ClientT, check: traits.CheckSig, /) -> _ClientT:
         self._checks.add(injector.InjectableCheck(check, injector=self))
         return self
 
-    def remove_check(self, check: traits.CheckT, /) -> None:
+    def remove_check(self, check: traits.CheckSig, /) -> None:
         self._checks.remove(check)  # type: ignore[arg-type]
 
-    def with_check(self, check: traits.CheckT_inv, /) -> traits.CheckT_inv:
+    def with_check(self, check: traits.CheckSigT, /) -> traits.CheckSigT:
         self.add_check(check)
         return check
 
@@ -326,12 +326,12 @@ class Client(injector.InjectorClient, traits.Client):
     def remove_prefix(self, prefix: str, /) -> None:
         self._prefixes.remove(prefix)
 
-    def set_prefix_getter(self: _ClientT, getter: typing.Optional[PrefixGetterT], /) -> _ClientT:
+    def set_prefix_getter(self: _ClientT, getter: typing.Optional[PrefixGetterSig], /) -> _ClientT:
         self._prefix_getter = getter
         return self
 
     # TODO: use generic callable type var here instead?
-    def with_prefix_getter(self: _ClientT, getter: PrefixGetterT) -> PrefixGetterT:
+    def with_prefix_getter(self: _ClientT, getter: PrefixGetterSig) -> PrefixGetterSig:
         self.set_prefix_getter(getter)
         return getter
 

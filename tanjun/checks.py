@@ -407,12 +407,12 @@ def with_own_permission_check(
     return decorator
 
 
-def with_check(check: tanjun_traits.CheckT, /) -> typing.Callable[[CommandT], CommandT]:
+def with_check(check: tanjun_traits.CheckSig, /) -> typing.Callable[[CommandT], CommandT]:
     """Add a generic check to a command.
 
     Parameters
     ----------
-    check : tanjun.traits.CheckT
+    check : tanjun.traits.CheckSig
         The check to add to this command.
 
     Returns

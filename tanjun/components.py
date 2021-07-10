@@ -62,7 +62,7 @@ class Component(injector.Injectable, traits.Component):
     def __init__(
         self,
         *,
-        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
+        checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
     ) -> None:
         self._checks = set(injector.InjectableCheck(check) for check in checks) if checks else set()
@@ -80,7 +80,7 @@ class Component(injector.Injectable, traits.Component):
         return f"Component <{type(self).__name__}, {len(self._commands)} commands>"
 
     @property
-    def checks(self) -> typing.AbstractSet[traits.CheckT]:
+    def checks(self) -> typing.AbstractSet[traits.CheckSig]:
         return {check.callback for check in self._checks}
 
     @property
@@ -118,14 +118,14 @@ class Component(injector.Injectable, traits.Component):
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         return self._metadata
 
-    def add_check(self: _ComponentT, check: traits.CheckT, /) -> _ComponentT:
+    def add_check(self: _ComponentT, check: traits.CheckSig, /) -> _ComponentT:
         self._checks.add(injector.InjectableCheck(check, injector=self._injector))
         return self
 
-    def remove_check(self, check: traits.CheckT, /) -> None:
+    def remove_check(self, check: traits.CheckSig, /) -> None:
         self._checks.remove(check)  # type: ignore[arg-type]
 
-    def with_check(self, check: traits.CheckT_inv, /) -> traits.CheckT_inv:
+    def with_check(self, check: traits.CheckSigT, /) -> traits.CheckSigT:
         self.add_check(check)
         return check
 
