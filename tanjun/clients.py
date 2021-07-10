@@ -405,7 +405,7 @@ class Client(injector.InjectorClient, traits.Client):
         self.hooks = hooks
         return self
 
-    def load_modules(self: _ClientT, modules: typing.Iterable[typing.Union[str, pathlib.Path]], /) -> _ClientT:
+    def load_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
         for module_path in modules:
             if isinstance(module_path, str):
                 module = importlib.import_module(module_path)

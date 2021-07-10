@@ -50,6 +50,7 @@ from tanjun import utilities
 if typing.TypeVar:
     _HooksT = typing.TypeVar("_HooksT", bound="Hooks")
 
+CommandT = typing.TypeVar("CommandT", bound=traits.ExecutableCommand)
 
 ParserHookSig = typing.Callable[
     ["traits.Context", "errors.ParserError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
@@ -119,6 +120,10 @@ class Hooks(traits.Hooks):
             f"Hooks <{self._error!r}, {self._parser_error!r}, {self._pre_execution!r}, "
             f"{self._post_execution!r}, {self._success!r}>"
         )
+
+    def add_to_command(self, command: CommandT, /) -> CommandT:
+        command.hooks = self
+        return command
 
     def copy(self: _HooksT) -> _HooksT:
         return copy.deepcopy(self)

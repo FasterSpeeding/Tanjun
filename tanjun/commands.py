@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["Command", "CommandGroup"]
+__all__: typing.Sequence[str] = ["as_command", "as_group", "Command", "CommandGroup"]
 
 import copy
 import typing
@@ -46,8 +46,11 @@ from tanjun import traits
 from tanjun import utilities
 
 if typing.TYPE_CHECKING:
-    _CommandT = typing.TypeVar("_CommandT", bound="Command")
-    _CommandGroupT = typing.TypeVar("_CommandGroupT", bound="CommandGroup")
+    _CommandT = typing.TypeVar("_CommandT", bound="Command[typing.Any]")
+    _CommandGroupT = typing.TypeVar("_CommandGroupT", bound="CommandGroup[typing.Any]")
+
+
+CommandFunctionSigT = typing.TypeVar("CommandFunctionSigT", bound=traits.CommandFunctionSig)
 
 
 class FoundCommand(traits.FoundCommand):
@@ -58,7 +61,21 @@ class FoundCommand(traits.FoundCommand):
         self.name = name
 
 
-class Command(injector.Injectable, traits.ExecutableCommand):
+def as_command(name: str, /, *names: str) -> typing.Callable[[CommandFunctionSigT], Command[CommandFunctionSigT]]:
+    def decorator(callback: CommandFunctionSigT, /) -> Command[CommandFunctionSigT]:
+        return Command(callback, name, *names)
+
+    return decorator
+
+
+def as_group(name: str, /, *names: str) -> typing.Callable[[CommandFunctionSigT], CommandGroup[CommandFunctionSigT]]:
+    def decorator(callback: CommandFunctionSigT, /) -> CommandGroup[CommandFunctionSigT]:
+        return CommandGroup(callback, name, *names)
+
+    return decorator
+
+
+class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[CommandFunctionSigT]):
     __slots__: typing.Sequence[str] = (
         "_cached_getters",
         "_checks",
@@ -75,7 +92,7 @@ class Command(injector.Injectable, traits.ExecutableCommand):
 
     def __init__(
         self,
-        function: traits.CommandFunctionSig,
+        function: CommandFunctionSigT,
         name: str,
         /,
         *names: str,
@@ -108,7 +125,7 @@ class Command(injector.Injectable, traits.ExecutableCommand):
         return self._component
 
     @property
-    def function(self) -> traits.CommandFunctionSig:
+    def function(self) -> CommandFunctionSigT:
         return self._function
 
     @property
@@ -125,6 +142,14 @@ class Command(injector.Injectable, traits.ExecutableCommand):
             self._needs_injector = injector.check_injecting(self._function)
 
         return self._needs_injector
+
+    if typing.TYPE_CHECKING:
+        __call__: CommandFunctionSigT
+
+    else:
+
+        async def __call__(self, *args, **kwargs) -> None:
+            await self._function(*args, **kwargs)
 
     def copy(
         self: _CommandT, parent: typing.Optional[traits.ExecutableCommandGroup], /, *, _new: bool = True
@@ -267,12 +292,12 @@ class Command(injector.Injectable, traits.ExecutableCommand):
         return True
 
 
-class CommandGroup(Command, traits.ExecutableCommandGroup):
+class CommandGroup(Command[CommandFunctionSigT], traits.ExecutableCommandGroup):
     __slots__: typing.Sequence[str] = ("_commands",)
 
     def __init__(
         self,
-        function: traits.CommandFunctionSig,
+        function: CommandFunctionSigT,
         name: str,
         /,
         *names: str,
