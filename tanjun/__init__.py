@@ -34,6 +34,7 @@ from __future__ import annotations
 __all__: typing.Sequence[str] = [
     # checks.py
     "checks",
+    "with_check",
     "with_dm_check",
     "with_guild_check",
     "with_nsfw_check",
@@ -43,11 +44,14 @@ __all__: typing.Sequence[str] = [
     "with_own_permission_check",
     # clients.py
     "clients",
+    "AcceptsEnum",
     "as_loader",
     "Client",
     "PrefixGetterSig",
     # commands.py
     "commands",
+    "as_command",
+    "as_group",
     "Command",
     "CommandGroup",
     # components.py
@@ -74,6 +78,7 @@ __all__: typing.Sequence[str] = [
     "CommandError",
     "ConversionError",
     "FailedCheck",
+    "MissingDependencyError",
     "NotEnoughArgumentsError",
     "TooManyArgumentsError",
     "ParserError",
