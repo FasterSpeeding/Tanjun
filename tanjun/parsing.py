@@ -45,7 +45,6 @@ __all__: typing.Sequence[str] = [
     "with_typed_parameters",
 ]
 
-import abc
 import asyncio
 import copy
 import itertools
@@ -566,7 +565,7 @@ def with_multi_option(
     return with_option(key, name, *names, converters=converters, default=default, empty_value=empty_value, flags=flags)
 
 
-class _Parameter(injector_.Injectable, traits.Parameter, abc.ABC):
+class _Parameter(injector_.Injectable, traits.Parameter):
     __slots__: typing.Sequence[str] = ("_client", "_component", "_converters", "default", "_flags", "_injector", "key")
 
     def __init__(
