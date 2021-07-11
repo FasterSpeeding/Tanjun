@@ -31,10 +31,11 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["AcceptsEnum", "as_loader", "Client", "PrefixGetterSig"]
+__all__: typing.Sequence[str] = ["AcceptsEnum", "as_loader", "Client", "LoadableSig", "PrefixGetterSig"]
 
 import asyncio
 import enum
+import functools
 import importlib.util
 import inspect
 import itertools
@@ -59,6 +60,13 @@ if typing.TYPE_CHECKING:
 
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
 
+LoadableSig = typing.Callable[["Client"], None]
+"""Type hint of the function used to load resources into a Tanjun client.
+
+This should take one positional argument of type `Client` and return nothing.
+This will be expected to initiate and resources like components to the client
+through the use of it's protocol methods.
+"""
 
 PrefixGetterSig = typing.Callable[[traits.Context], typing.Awaitable[typing.Iterable[str]]]
 """Type hint of a callable used to get the prefix(es) for a specific guild.
@@ -68,27 +76,21 @@ type `tanjun.traits.Context` and returns an iterable of strings.
 """
 
 
-class _LoadableDescriptor(traits.LoadableDescriptor):
-    def __init__(self, function: traits.LoadableSig, /) -> None:
+class _LoadableDescriptor:  # Slots mess with functools.update_wrapper
+    def __init__(self, function: LoadableSig, /) -> None:
         self._function = function
-        utilities.with_function_wrapping(self, "load_function")
+        functools.update_wrapper(self, function)
 
-    def __call__(self, client: traits.Client, /) -> None:
+    def __call__(self, client: Client, /) -> None:
         self._function(client)
 
-    @property
-    def load_function(self) -> traits.LoadableSig:
-        return self._function
 
-
-# This class is left unslotted as to allow it to "wrap" the underlying function
-# by overwriting class attributes.
-def as_loader(function: traits.LoadableSig) -> traits.LoadableSig:
+def as_loader(function: LoadableSig, /) -> LoadableSig:
     """Mark a function as being used to load Tanjun utilities from a module.
 
     Parameters
     ----------
-    function : traits.LoadableSig
+    function : LoadableSig
         The function used to load Tanjun utilities from the a module. This
         should take one argument of type `tanjun.traits.Client`, return nothing
         and will be expected to initiate and add utilities such as components
@@ -96,7 +98,7 @@ def as_loader(function: traits.LoadableSig) -> traits.LoadableSig:
 
     Returns
     -------
-    traits.LoadableSig
+    LoadableSig
         The decorated load function.
     """
     return _LoadableDescriptor(function)
@@ -423,8 +425,8 @@ class Client(injector.InjectorClient, traits.Client):
                 raise RuntimeError(f"Unknown or invalid module provided {module_path}")
 
             for _, member in inspect.getmembers(module):
-                if isinstance(member, traits.LoadableDescriptor):
-                    member.load_function(self)
+                if isinstance(member, _LoadableDescriptor):
+                    member(self)
 
         return self
 

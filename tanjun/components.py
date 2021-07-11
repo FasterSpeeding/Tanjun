@@ -51,14 +51,17 @@ if typing.TYPE_CHECKING:
     _ValueT = typing.TypeVar("_ValueT")
 
 
-# This class isn't slotted to let us overwrite command and event methods during initialisation by making sure
-# class properties aren't read only
 class Component(injector.Injectable, traits.Component):
-    started: bool
-    """Whether this component has been "started" yet.
-
-    When this is `builtins.False` executing the cluster will always do nothing.
-    """
+    __slots__: typing.Sequence[str] = (
+        "_checks",
+        "_client",
+        "_commands",
+        "hooks",
+        "_injector",
+        "_is_alive",
+        "_listeners",
+        "_metadata",
+    )
 
     def __init__(
         self,
@@ -69,13 +72,13 @@ class Component(injector.Injectable, traits.Component):
         self._checks = set(injector.InjectableCheck(check) for check in checks) if checks else set()
         self._client: typing.Optional[traits.Client] = None
         self._commands: typing.Set[traits.ExecutableCommand] = set()
-        self._hooks = hooks
+        self.hooks = hooks
         self._injector: typing.Optional[injector.InjectorClient] = None
+        self._is_alive = False
         self._listeners: typing.Set[
             typing.Tuple[typing.Type[base_events.Event], event_manager.CallbackT[typing.Any]]
         ] = set()
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
-        self.started = False
 
     def __repr__(self) -> str:
         return f"Component <{type(self).__name__}, {len(self._commands)} commands>"
@@ -93,13 +96,12 @@ class Component(injector.Injectable, traits.Component):
         return self._commands.copy()
 
     @property
-    def hooks(self) -> typing.Optional[traits.Hooks]:
-        return self._hooks
+    def is_alive(self) -> bool:
+        """Whether this component is active.
 
-    # Seeing as this class isn't slotted we cannot overwrite settable properties with instance variables.
-    @hooks.setter
-    def hooks(self, hooks_: traits.Hooks, /) -> None:
-        self._hooks = hooks_
+        When this is `builtins.False` executing the cluster will always do nothing.
+        """
+        return self._is_alive
 
     @property
     def needs_injector(self) -> bool:
@@ -123,7 +125,7 @@ class Component(injector.Injectable, traits.Component):
         if not _new:
             self._checks = set(check.copy() for check in self._checks)
             self._commands = {command.copy(None) for command in self._commands}
-            self._hooks = self._hooks.copy() if self._hooks else None
+            self.hooks = self.hooks.copy() if self.hooks else None
             self._listeners = {copy.copy(listener) for listener in self._listeners}
             self._metadata = self._metadata.copy()
             return self
@@ -160,7 +162,7 @@ class Component(injector.Injectable, traits.Component):
     ) -> _ComponentT:
         self._listeners.add((event, listener))
 
-        if self.started and self._client:
+        if self._is_alive and self._client:
             self._client.event_service.event_manager.subscribe(event, listener)
 
         return self
@@ -170,7 +172,7 @@ class Component(injector.Injectable, traits.Component):
     ) -> None:
         self._listeners.remove((event, listener))
 
-        if self.started and self._client:
+        if self._is_alive and self._client:
             self._client.event_service.event_manager.unsubscribe(event, listener)
 
     def with_listener(
@@ -234,16 +236,16 @@ class Component(injector.Injectable, traits.Component):
             pass
 
     async def close(self) -> None:
-        if not self.started:
+        if not self._is_alive:
             return
 
-        self.started = False
+        self._is_alive = False
         if self._client:
             for event_, listener in self._listeners:
                 self._try_unsubscribe(event_, listener)
 
     async def open(self) -> None:
-        if self.started:
+        if self._is_alive:
             return
 
         # This is duplicated between both open and bind_cluster to ensure that these are registered
@@ -258,12 +260,12 @@ class Component(injector.Injectable, traits.Component):
 
                 self._client.event_service.event_manager.subscribe(event_, listener)
 
-        self.started = True
+        self._is_alive = True
 
     async def execute(
         self, ctx: traits.Context, /, *, hooks: typing.Optional[typing.MutableSet[traits.Hooks]] = None
     ) -> bool:
-        if not self.started:
+        if not self._is_alive:
             return False
 
         async for result in self.check_context(ctx):

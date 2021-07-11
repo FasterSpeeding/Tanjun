@@ -33,7 +33,6 @@
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
-    "LoadableDescriptor",
     "ConverterSig",
     "CheckSig",
     "ValueT_co",
@@ -94,13 +93,6 @@ command if applicable.
     This will have to be asynchronous.
 """
 
-LoadableSig = typing.Callable[["Client"], None]
-"""Type hint of the function used to load resources into a Tanjun client.
-
-This should take one positional argument of type `Client` and return nothing.
-This will be expected to initiate and resources like components to the client
-through the use of it's protocol methods.
-"""
 
 CheckSig = typing.Callable[..., typing.Union[bool, typing.Awaitable[bool]]]
 """Type hint of a general context check used with Tanjun `Executable` classes.
@@ -118,26 +110,6 @@ ComponentT_contra = typing.TypeVar("ComponentT_contra", bound="Component", contr
 
 ValueT_co = typing.TypeVar("ValueT_co", covariant=True)
 """A general type hint used for generic interfaces in Tanjun."""
-
-
-class LoadableDescriptor(abc.ABC):
-    """Descriptor of a function used for loading a lib's resources into a Tanjun instance."""
-
-    __slots__: typing.Sequence[str] = ()
-
-    @property
-    @abc.abstractmethod
-    def load_function(self) -> LoadableSig:
-        """Function called to load these resources into a Tanjun client.
-
-        Returns
-        -------
-        LoadableSig
-            The load function which should take one argument of type Client and
-            return nothing. This should call methods on `Client` in-order to
-            load it's pre-prepared resources.
-        """
-        raise NotImplementedError
 
 
 class Context(abc.ABC):

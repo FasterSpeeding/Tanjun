@@ -39,12 +39,10 @@ __all__: typing.Sequence[str] = [
     "ALL_PERMISSIONS",
     "calculate_permissions",
     "fetch_permissions",
-    "with_function_wrapping",
     "try_find_type",
 ]
 
 import asyncio
-import types
 import typing
 
 from hikari import channels
@@ -328,26 +326,6 @@ async def fetch_permissions(
         raise ValueError("Channel doesn't match up with the member's guild")
 
     return _calculate_channel_overwrites(found_channel, member, permissions)
-
-
-def with_function_wrapping(obj: typing.Any, function_field: str, /) -> None:
-    """Utility function for making an object wrap a function at runtime.
-
-    Parameters
-    ----------
-    obj : typing.Any
-        The initialised object to update the wrapping information for.
-    function_field : str
-        The name of the attribute which is being wrapped. This should point to a
-        function.
-    """
-    obj.__annotations__ = getattr(obj, function_field).__annotations__
-    # For the sake of presenting as the right signature the objects this will be applied to should pre-define
-    # their own __call__ method which assumes "self" is already bound to the contained function.
-    obj.__call__ = types.MethodType(lambda self, *args, **kwargs: getattr(self, function_field)(*args, **kwargs), obj)
-    obj.__doc__ = getattr(obj, function_field).__doc__
-    obj.__module__ = getattr(obj, function_field).__module__
-    obj.__wrapped__ = getattr(obj, function_field)
 
 
 def try_find_type(cls: typing.Type[_ValueT], *values: typing.Any) -> typing.Optional[_ValueT]:

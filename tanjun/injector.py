@@ -229,7 +229,7 @@ class InjectorClient:
 
     def _make_type_getter(self, type_: typing.Type[_T], name: str, /) -> Getter[_T]:
         for match, function in _TYPE_GETTER_OVERRIDES.items():
-            if isinstance(type_, match):
+            if inspect.isclass(match) and issubclass(type_, match):
 
                 def get_simple(ctx: tanjun_traits.Context) -> _T:
                     if (result := function(ctx, self, type_)) is not UNDEFINED:
