@@ -34,6 +34,7 @@ from __future__ import annotations
 __all__: typing.Sequence[str] = ["Component"]
 
 import copy
+import inspect
 import itertools
 import typing
 
@@ -49,6 +50,14 @@ if typing.TYPE_CHECKING:
     _CommandT = typing.TypeVar("_CommandT", bound=traits.ExecutableCommand)
     _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
     _ValueT = typing.TypeVar("_ValueT")
+
+
+@typing.runtime_checkable
+class LoadableProtocol(typing.Protocol):
+    __slots__ = ()
+
+    def make_method_type(self, component: traits.Component, /) -> None:
+        raise NotImplementedError
 
 
 class Component(injector.Injectable, traits.Component):
@@ -79,6 +88,7 @@ class Component(injector.Injectable, traits.Component):
             typing.Tuple[typing.Type[base_events.Event], event_manager.CallbackT[typing.Any]]
         ] = set()
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
+        self._load_from_properties()
 
     def __repr__(self) -> str:
         return f"Component <{type(self).__name__}, {len(self._commands)} commands>"
@@ -284,3 +294,11 @@ class Component(injector.Injectable, traits.Component):
             return True
 
         return False
+
+    def _load_from_properties(self) -> None:
+        for name, member in inspect.getmembers(self):
+            if isinstance(member, traits.ExecutableCommand) and isinstance(member, LoadableProtocol):
+                command = member.copy(None)
+                command.make_method_type(self)
+                setattr(self, name, command)
+                self.add_command(command)
