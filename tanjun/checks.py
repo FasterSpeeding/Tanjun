@@ -67,7 +67,7 @@ if typing.TYPE_CHECKING:
 
     from tanjun import traits as tanjun_traits
 
-CommandT = typing.TypeVar("CommandT", bound="tanjun_traits.ExecutableCommand")
+CommandT = typing.TypeVar("CommandT", bound="tanjun_traits.Executable[typing.Any]")
 
 
 class ApplicationOwnerCheck:

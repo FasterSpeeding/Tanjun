@@ -60,7 +60,7 @@ if typing.TYPE_CHECKING:
     _ParameterT = typing.TypeVar("_ParameterT", bound="_Parameter")
     _ShlexParserT = typing.TypeVar("_ShlexParserT", bound="ShlexParser")
 
-CommandT = typing.TypeVar("CommandT", bound=traits.ExecutableCommand)
+CommandT = typing.TypeVar("CommandT", bound=traits.MessageCommand)
 GREEDY = "greedy"
 """Parameter flags key used for marking a parameter as "greedy".
 

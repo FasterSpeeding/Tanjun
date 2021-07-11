@@ -256,10 +256,6 @@ class Client(injector.InjectorClient, traits.Client):
         return self._cache
 
     @property
-    def cached_rest(self) -> traits.CachedREST:
-        return self._cached_rest
-
-    @property
     def checks(self) -> typing.AbstractSet[traits.CheckSig]:
         return {check.callback for check in self._checks}
 

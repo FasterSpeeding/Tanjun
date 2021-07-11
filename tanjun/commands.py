@@ -40,6 +40,7 @@ import typing
 from hikari import errors as hikari_errors
 from yuyo import backoff
 
+from tanjun import components
 from tanjun import errors
 from tanjun import hooks as hooks_
 from tanjun import injector
@@ -49,13 +50,12 @@ from tanjun import utilities
 if typing.TYPE_CHECKING:
     from hikari.interactions import commands as command_interactions
 
-    _InteractionCommandT = typing.TypeVar("_InteractionCommandT", bound="InteractionCommand")
-    _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand")
-    _MessageCommandGroupT = typing.TypeVar("_MessageCommandGroupT", bound="MessageCommandGroup")
+    _InteractionCommandT = typing.TypeVar("_InteractionCommandT", bound="InteractionCommand[typing.Any]")
+    _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand[typing.Any]")
+    _MessageCommandGroupT = typing.TypeVar("_MessageCommandGroupT", bound="MessageCommandGroup[typing.Any]")
 
 
 CommandFunctionSigT = typing.TypeVar("CommandFunctionSigT", bound=traits.CommandFunctionSig)
-
 
 
 class _LoadableInjector(injector.InjectableCheck):
@@ -76,7 +76,7 @@ class FoundMessageCommand(traits.FoundMessageCommand):
         self.name = name
 
 
-class InteractionCommand(traits.InteractionCommand):
+class InteractionCommand(traits.InteractionCommand, typing.Generic[CommandFunctionSigT]):
     __slots__: typing.Sequence[str] = (
         "_checks",
         "_component",
@@ -91,11 +91,11 @@ class InteractionCommand(traits.InteractionCommand):
 
     def __init__(
         self,
-        function: traits.InteractionCommandFunctionT,
+        function: CommandFunctionSigT,
         name: str,
         /,
         *,
-        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
+        checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.Hooks[traits.InteractionContext]] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         wait_for_result: bool = False,
@@ -111,7 +111,7 @@ class InteractionCommand(traits.InteractionCommand):
         self._wait_for_result = wait_for_result
 
     @property
-    def checks(self) -> typing.AbstractSet[traits.CheckT]:
+    def checks(self) -> typing.AbstractSet[traits.CheckSig]:
         return frozenset(self._checks)
 
     @property
@@ -119,7 +119,7 @@ class InteractionCommand(traits.InteractionCommand):
         return self._component
 
     @property
-    def function(self) -> traits.InteractionCommandFunctionT:
+    def function(self) -> CommandFunctionSigT:
         return self._function
 
     @property
@@ -130,14 +130,22 @@ class InteractionCommand(traits.InteractionCommand):
     def name(self) -> str:
         return self._name
 
-    def add_check(self: _InteractionCommandT, check: traits.CheckT, /) -> _InteractionCommandT:
+    if typing.TYPE_CHECKING:
+        __call__: CommandFunctionSigT
+
+    else:
+
+        async def __call__(self, *args, **kwargs) -> None:
+            await self._function(*args, **kwargs)
+
+    def add_check(self: _InteractionCommandT, check: traits.CheckSig, /) -> _InteractionCommandT:
         self._checks.add(check)
         return self
 
-    def remove_check(self, check: traits.CheckT, /) -> None:
+    def remove_check(self, check: traits.CheckSig, /) -> None:
         self._checks.remove(check)
 
-    def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
+    def with_check(self, check: traits.CheckSigT, /) -> traits.CheckSigT:
         self.add_check(check)
         return check
 
@@ -156,22 +164,25 @@ class InteractionCommand(traits.InteractionCommand):
         raise NotImplementedError
 
 
-class MessageCommand(injector.Injectable, traits.MessageCommand):
-def as_command(name: str, /, *names: str) -> typing.Callable[[CommandFunctionSigT], Command[CommandFunctionSigT]]:
-    def decorator(callback: CommandFunctionSigT, /) -> Command[CommandFunctionSigT]:
-        return Command(callback, name, *names)
+def as_command(
+    name: str, /, *names: str
+) -> typing.Callable[[CommandFunctionSigT], MessageCommand[CommandFunctionSigT]]:
+    def decorator(callback: CommandFunctionSigT, /) -> MessageCommand[CommandFunctionSigT]:
+        return MessageCommand(callback, name, *names)
 
     return decorator
 
 
-def as_group(name: str, /, *names: str) -> typing.Callable[[CommandFunctionSigT], CommandGroup[CommandFunctionSigT]]:
-    def decorator(callback: CommandFunctionSigT, /) -> CommandGroup[CommandFunctionSigT]:
-        return CommandGroup(callback, name, *names)
+def as_group(
+    name: str, /, *names: str
+) -> typing.Callable[[CommandFunctionSigT], MessageCommandGroup[CommandFunctionSigT]]:
+    def decorator(callback: CommandFunctionSigT, /) -> MessageCommandGroup[CommandFunctionSigT]:
+        return MessageCommandGroup(callback, name, *names)
 
     return decorator
 
 
-class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[CommandFunctionSigT]):
+class MessageCommand(injector.Injectable, traits.MessageCommand, typing.Generic[CommandFunctionSigT]):
     __slots__: typing.Sequence[str] = (
         "_cached_getters",
         "_checks",
@@ -193,7 +204,7 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
         /,
         *names: str,
         checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.Hooks] = None,
+        hooks: typing.Optional[traits.Hooks[traits.MessageContext]] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         parser: typing.Optional[traits.Parser] = None,
     ) -> None:
@@ -251,8 +262,8 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
             await self._function(*args, **kwargs)
 
     def copy(
-        self: _CommandT, parent: typing.Optional[traits.ExecutableCommandGroup], /, *, _new: bool = True
-    ) -> _CommandT:
+        self: _MessageCommandT, parent: typing.Optional[traits.MessageCommandGroup] = None, /, *, _new: bool = True
+    ) -> _MessageCommandT:
         if not _new:
             self._cached_getters = None
             self._checks = {check.copy() for check in self._checks}
@@ -407,7 +418,7 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
                 check.make_method_type(component)
 
 
-class CommandGroup(MessageCommand[CommandFunctionSigT], traits.ExecutableCommandGroup):
+class MessageCommandGroup(MessageCommand[CommandFunctionSigT], traits.MessageCommandGroup):
     __slots__: typing.Sequence[str] = ("_commands",)
 
     def __init__(
@@ -417,7 +428,7 @@ class CommandGroup(MessageCommand[CommandFunctionSigT], traits.ExecutableCommand
         /,
         *names: str,
         checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.Hooks] = None,
+        hooks: typing.Optional[traits.Hooks[traits.MessageContext]] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         parser: typing.Optional[traits.Parser] = None,
     ) -> None:
@@ -432,8 +443,8 @@ class CommandGroup(MessageCommand[CommandFunctionSigT], traits.ExecutableCommand
         return self._commands.copy()
 
     def copy(
-        self: _CommandGroupT, parent: typing.Optional[traits.ExecutableCommandGroup], /, *, _new: bool = True
-    ) -> _CommandGroupT:
+        self: _MessageCommandGroupT, parent: typing.Optional[traits.MessageCommandGroup] = None, /, *, _new: bool = True
+    ) -> _MessageCommandGroupT:
         if not _new:
             self._commands = {command.copy(self) for command in self._commands}
 
@@ -454,11 +465,11 @@ class CommandGroup(MessageCommand[CommandFunctionSigT], traits.ExecutableCommand
         /,
         *names: str,
         checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.Hooks] = None,
+        hooks: typing.Optional[traits.Hooks[traits.MessageContext]] = None,
         parser: typing.Optional[traits.Parser] = None,
     ) -> typing.Callable[[traits.CommandFunctionSig], traits.CommandFunctionSig]:
         def decorator(function: traits.CommandFunctionSig, /) -> traits.CommandFunctionSig:
-            self.add_command(Command(function, name, *names, checks=checks, hooks=hooks, parser=parser))
+            self.add_command(MessageCommand(function, name, *names, checks=checks, hooks=hooks, parser=parser))
             return function
 
         return decorator
@@ -514,5 +525,5 @@ class CommandGroup(MessageCommand[CommandFunctionSigT], traits.ExecutableCommand
     def make_method_type(self, component: traits.Component, /) -> None:
         super().make_method_type(component)
         for command in self._commands:
-            if isinstance(command, Command):
+            if isinstance(command, components.LoadableProtocol):
                 command.make_method_type(component)

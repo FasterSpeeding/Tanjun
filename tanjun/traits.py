@@ -35,13 +35,18 @@ from __future__ import annotations
 __all__: typing.Sequence[str] = [
     "ConverterSig",
     "CheckSig",
+    "CheckSigT",
     "ValueT_co",
     "Context",
     "Hooks",
     "Executable",
     "FoundMessageCommand",
+    "InteractionCommand",
+    "InteractionCommandGroup",
+    "InteractionContext",
     "MessageCommand",
     "MessageCommandGroup",
+    "MessageContext",
     "Component",
     "Client",
     "UndefinedDefaultT",
@@ -75,13 +80,8 @@ if typing.TYPE_CHECKING:
     from tanjun import errors
 
     _T = typing.TypeVar("_T")
-    _ExecutableT = typing.TypeVar("_ExecutableT", bound="Executable")
-    _HooksT = typing.TypeVar("_HooksT", bound="Hooks")
-    _Parser = typing.TypeVar("_Parser", bound="Parser")
-    _ParameterT = typing.TypeVar("_ParameterT", bound="Parameter")
 
 
-CommandT_co = typing.TypeVar("CommandT_co", bound="Executable[Context]", covariant=True)
 ContextT = typing.TypeVar("ContextT", bound="Context")
 ContextT_contra = typing.TypeVar("ContextT_contra", bound="Context", contravariant=True)
 
@@ -96,12 +96,9 @@ This must be a callable or asynchronous callable which takes one position
 """
 # TODO: be more specific about the structure of command functions using a callable protocol
 
-InteractionCommandFunctionSig = typing.Callable[
-    ..., typing.Coroutine[typing.Any, typing.Any, typing.Optional["special_endpoints.InteractionResponseBuilder"]]
-]
 
 # TODO: MessageCommandFunctionT vs InteractionCommandFunctionT
-MessageCommandFunctionSig = typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, None]]
+CommandFunctionSig = typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, None]]
 """Type hint of the function a `Command` instance will operate on.
 
 This will be called when executing a command and will need to take at least one
@@ -138,10 +135,12 @@ class Context(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
+    @abc.abstractmethod
     def author(self) -> users.User:
         raise NotImplementedError
 
     @property
+    @abc.abstractmethod
     def channel_id(self) -> snowflakes.Snowflake:
         raise NotImplementedError
 
@@ -186,14 +185,17 @@ class Context(abc.ABC):
         raise NotImplementedError
 
     @property
+    @abc.abstractmethod
     def guild_id(self) -> typing.Optional[snowflakes.Snowflake]:
         raise NotImplementedError
 
     @property
+    @abc.abstractmethod
     def is_human(self) -> bool:
         raise NotImplementedError
 
     @property
+    @abc.abstractmethod
     def member(self) -> typing.Optional[guilds.Member]:
         raise NotImplementedError
 
@@ -214,27 +216,35 @@ class Context(abc.ABC):
         raise NotImplementedError
 
     @property
+    @abc.abstractmethod
     def triggering_name(self) -> str:
         raise NotImplementedError
 
+    # @abc.abstractmethod
     # async def edit_response(self) -> messages.Message:
     #     raise NotImplementedError
 
+    @abc.abstractmethod
     async def fetch_channel(self) -> channels.PartialChannel:
         raise NotImplementedError
 
+    @abc.abstractmethod
     async def fetch_guild(self) -> typing.Optional[guilds.Guild]:  # TODO: or raise?
         raise NotImplementedError
 
+    # @abc.abstractmethod
     # async def fetch_response(self) -> messages.Message:
     #     raise NotImplementedError
 
+    @abc.abstractmethod
     def get_channel(self) -> typing.Optional[channels.PartialChannel]:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def get_guild(self) -> typing.Optional[guilds.Guild]:
         raise NotImplementedError
 
+    @abc.abstractmethod
     async def execute(
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
@@ -257,6 +267,7 @@ class MessageContext(Context, abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
+    @abc.abstractmethod
     def command(self) -> typing.Optional[MessageCommand]:
         raise NotImplementedError
 
@@ -297,6 +308,7 @@ class MessageContext(Context, abc.ABC):
     def triggering_name(self, _: str, /) -> None:
         raise NotImplementedError
 
+    @abc.abstractmethod
     async def execute(
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
@@ -323,6 +335,7 @@ class InteractionContext(Context, abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
+    @abc.abstractmethod
     def command(self) -> typing.Optional[InteractionCommand]:
         raise NotImplementedError
 
@@ -331,10 +344,12 @@ class InteractionContext(Context, abc.ABC):
         raise NotImplementedError
 
     @property
+    @abc.abstractmethod
     def interaction(self) -> command_interactions.CommandInteraction:
         raise NotImplementedError
 
     @property
+    @abc.abstractmethod
     def result(self) -> typing.Optional[special_endpoints.InteractionResponseBuilder]:
         raise NotImplementedError
 
@@ -343,6 +358,7 @@ class InteractionContext(Context, abc.ABC):
         raise NotImplementedError
 
     # TODO: somehow let it default to ack with message or just ack on a command basis for non-fast commands
+    @abc.abstractmethod
     async def execute(
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
@@ -367,7 +383,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
     __slots__: typing.Sequence[str] = ()
 
     @abc.abstractmethod
-    def copy(self: _HooksT) -> _HooksT:
+    def copy(self: _T) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -428,18 +444,19 @@ class Executable(abc.ABC, typing.Generic[ContextT]):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def copy(self: _ExecutableT) -> _ExecutableT:
+    def copy(self: _T) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_check(self, check: CheckSig[ContextT], /) -> None:
-        raise NotImplementedError
-
-    def remove_check(self, check: CheckSig[ContextT], /) -> None:
+    def add_check(self: _T, check: CheckSig, /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def with_check(self, check: CheckSig[ContextT], /) -> CheckSig[ContextT]:
+    def remove_check(self, check: CheckSig, /) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def with_check(self, check: CheckSig, /) -> CheckSig:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -476,22 +493,27 @@ class InteractionCommand(Executable[InteractionContext], abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
+    @abc.abstractmethod
     def component(self) -> typing.Optional[Component]:
         raise NotImplementedError
 
     @property
-    def function(self) -> InteractionCommandFunctionT:
+    @abc.abstractmethod
+    def function(self) -> CommandFunctionSig:
         raise NotImplementedError
 
     @property
+    @abc.abstractmethod
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         raise NotImplementedError
 
     @property
+    @abc.abstractmethod
     def name(self) -> str:
         raise NotImplementedError
 
     @property
+    @abc.abstractmethod
     def parent(self) -> typing.Optional[InteractionCommandGroup]:
         raise NotImplementedError
 
@@ -500,6 +522,7 @@ class InteractionCommand(Executable[InteractionContext], abc.ABC):
         raise NotImplementedError
 
     @property
+    @abc.abstractmethod
     def tracked_command(self) -> typing.Optional[command_interactions.Command]:
         raise NotImplementedError
 
@@ -512,23 +535,27 @@ class InteractionCommandGroup(InteractionCommand, abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
+    @abc.abstractmethod
     def commands(self) -> typing.AbstractSet[InteractionCommand]:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def add_command(self, command: InteractionCommand, /) -> None:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def remove_command(self, command: InteractionCommand, /) -> None:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def with_command(
         self,
         name: str,
         /,
         *names: str,
-        checks: typing.Optional[typing.Iterable[CheckT]] = None,
+        checks: typing.Optional[typing.Iterable[CheckSig]] = None,
         hooks: typing.Optional[Hooks[InteractionContext]] = None,
-    ) -> typing.Callable[[InteractionCommandFunctionT], InteractionCommandFunctionT]:
+    ) -> typing.Callable[[CommandFunctionSig], CommandFunctionSig]:
         raise NotImplementedError
 
 
@@ -590,16 +617,18 @@ class MessageCommand(Executable[MessageContext], abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def copy(self: _ExecutableT, parent: typing.Optional[ExecutableCommandGroup], /) -> _ExecutableT:
+    def copy(self: _T, parent: typing.Optional[MessageCommandGroup] = None, /) -> _T:
         raise NotImplementedError
 
     # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
     # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
+    @abc.abstractmethod
     def check_context(
         self, ctx: MessageContext, /, *, name_prefix: str = ""
     ) -> typing.AsyncIterator[FoundMessageCommand]:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def check_name(self, name: str, /) -> typing.Iterator[FoundMessageCommand]:
         raise NotImplementedError
 
@@ -627,7 +656,7 @@ class MessageCommandGroup(MessageCommand, abc.ABC):
         /,
         *names: str,
         checks: typing.Optional[typing.Iterable[CheckSig]] = None,
-        hooks: typing.Optional[Hooks] = None,
+        hooks: typing.Optional[Hooks[MessageContext]] = None,
         parser: typing.Optional[Parser] = None,
     ) -> typing.Callable[[CommandFunctionSig], CommandFunctionSig]:
         raise NotImplementedError
@@ -668,11 +697,13 @@ class Component(abc.ABC):
 
     # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
     # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
+    @abc.abstractmethod
     def check_message_context(
         self, ctx: MessageContext, /, *, name_prefix: str = ""
     ) -> typing.AsyncIterator[FoundMessageCommand]:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def check_message_name(self, name: str, /) -> typing.Iterator[FoundMessageCommand]:
         raise NotImplementedError
 
@@ -684,6 +715,7 @@ class Component(abc.ABC):
     async def open(self) -> None:
         raise NotImplementedError
 
+    @abc.abstractmethod
     async def execute_interaction(
         self,
         ctx: InteractionContext,
@@ -693,6 +725,7 @@ class Component(abc.ABC):
     ) -> bool:
         raise NotImplementedError
 
+    @abc.abstractmethod
     async def execute_message(
         self, ctx: MessageContext, /, *, hooks: typing.Optional[typing.MutableSet[Hooks[MessageContext]]] = None
     ) -> bool:
@@ -704,6 +737,7 @@ class Client(abc.ABC):
 
     # TODO: rename to cache_app
     @property
+    @abc.abstractmethod
     def cache_service(self) -> typing.Optional[traits.CacheAware]:
         raise NotImplementedError
 
@@ -829,7 +863,7 @@ class Parameter(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def copy(self: _ParameterT) -> _ParameterT:
+    def copy(self: _T) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -888,7 +922,7 @@ class Parser(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def copy(self: _Parser) -> _Parser:
+    def copy(self: _T) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod

@@ -336,11 +336,3 @@ def try_find_type(cls: typing.Type[_ValueT], *values: typing.Any) -> typing.Opti
             return value
 
     return None
-
-
-def duck_check(obj: typing.Any, _: typing.Type[_ValueT], *attributes: str) -> typing.Optional[_ValueT]:
-    for attribute in attributes:
-        if not hasattr(obj, attribute):
-            return None
-
-    return typing.cast("_ValueT", obj)

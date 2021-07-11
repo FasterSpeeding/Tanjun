@@ -48,9 +48,9 @@ from tanjun import traits
 from tanjun import utilities
 
 if typing.TypeVar:
-    _HooksT = typing.TypeVar("_HooksT", bound="Hooks")
+    _HooksT = typing.TypeVar("_HooksT", bound="Hooks[typing.Any]")
 
-CommandT = typing.TypeVar("CommandT", bound=traits.ExecutableCommand)
+CommandT = typing.TypeVar("CommandT", bound=traits.Executable[typing.Any])
 
 ParserHookSig = typing.Callable[
     ["traits.ContextT", "errors.ParserError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
@@ -62,8 +62,6 @@ command argument parsing stage, will have to take two positional arguments - of
 type `tanjun.traits.Context` and `tanjun.errors.ParserError` - and may either be
 a synchronous or asynchronous function which returns `builtins.None`
 """
-
-ParserHookSigT = typing.TypeVar("ParserHookSigT", bound=ParserHookSig[traits.ContextT])
 
 ErrorHookSig = typing.Callable[
     ["traits.ContextT", BaseException], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
@@ -77,8 +75,6 @@ type `tanjun.traits.Context` and `builtins.BaseException` - and may either be a
 synchronous or asynchronous function which returns `builtins.None`
 """
 
-ErrorHookSigT = typing.TypeVar("ErrorHookSigT", bound=ErrorHookSig[traits.ContextT])
-
 HookSig = typing.Callable[["traits.ContextT"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]]
 """Type hint of the function used as a general command hook.
 
@@ -87,8 +83,6 @@ which hook this is registered as), will have to take one positional argument of
 type `tanjun.traits.Context` and may be a synchronous or asynchronous function
 which returns `builtins.None`.
 """
-
-HookSigT = typing.TypeVar("HookSigT", bound=HookSig[traits.ContextT])
 
 
 PreExecutionHookSig = typing.Callable[
@@ -101,8 +95,6 @@ positional argument of type `tanjun.traits.Context` and may be a synchronous or
 asynchronous function which returns `builtins.bool` (where returning `False` may
 cancel execution of the current command).
 """
-
-PreExecutionHookSigT = typing.TypeVar("PreExecutionHookSigT", bound=PreExecutionHookSig[traits.ContextT])
 
 
 class _FailedPreError(Exception):
@@ -143,7 +135,7 @@ class Hooks(traits.Hooks[traits.ContextT]):
         self._error = hook
         return self
 
-    def with_on_error(self, hook: ErrorHookSigT[traits.ContextT], /) -> ErrorHookSigT[traits.ContextT]:
+    def with_on_error(self, hook: ErrorHookSig[traits.ContextT], /) -> ErrorHookSig[traits.ContextT]:
         self.set_on_error(hook)
         return hook
 
@@ -151,7 +143,7 @@ class Hooks(traits.Hooks[traits.ContextT]):
         self._parser_error = hook
         return self
 
-    def with_on_parser_error(self, hook: ParserHookSigT[traits.ContextT], /) -> ParserHookSigT[traits.ContextT]:
+    def with_on_parser_error(self, hook: ParserHookSig[traits.ContextT], /) -> ParserHookSig[traits.ContextT]:
         self.set_on_parser_error(hook)
         return hook
 
@@ -159,7 +151,7 @@ class Hooks(traits.Hooks[traits.ContextT]):
         self._post_execution = hook
         return self
 
-    def with_post_execution(self, hook: HookSigT[traits.ContextT], /) -> HookSigT[traits.ContextT]:
+    def with_post_execution(self, hook: HookSig[traits.ContextT], /) -> HookSig[traits.ContextT]:
         self.set_post_execution(hook)
         return hook
 
@@ -167,7 +159,7 @@ class Hooks(traits.Hooks[traits.ContextT]):
         self._pre_execution = hook
         return self
 
-    def with_pre_execution(self, hook: PreExecutionHookSigT[traits.ContextT], /) -> PreExecutionHookSigT[traits.ContextT]:
+    def with_pre_execution(self, hook: PreExecutionHookSig[traits.ContextT], /) -> PreExecutionHookSig[traits.ContextT]:
         self.set_pre_execution(hook)
         return hook
 
@@ -175,7 +167,7 @@ class Hooks(traits.Hooks[traits.ContextT]):
         self._success = hook
         return self
 
-    def with_on_success(self, hook: HookSigT[traits.ContextT], /) -> HookSigT[traits.ContextT]:
+    def with_on_success(self, hook: HookSig[traits.ContextT], /) -> HookSig[traits.ContextT]:
         self.set_on_success(hook)
         return hook
 

@@ -47,10 +47,9 @@ from tanjun import utilities
 if typing.TYPE_CHECKING:
     from hikari.api import event_manager as event_manager_
 
-    _InteractionCommandT = typing.TypeVar("_InteractionCommandT", bound=commands.InteractionCommand)
-    _MessageCommandDescriptorT = typing.TypeVar("_MessageCommandDescriptorT", bound="MessageCommandDescriptor")
-    _MessageCommandT = typing.TypeVar("_MessageCommandT", traits.MessageCommand, "MessageCommandDescriptor")
-    ComponentT = typing.TypeVar("ComponentT", bound="Component")
+    _InteractionCommandT = typing.TypeVar("_InteractionCommandT", bound=traits.InteractionCommand)
+    _MessageCommandT = typing.TypeVar("_MessageCommandT", bound=traits.MessageCommand)
+    _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
     _ValueT = typing.TypeVar("_ValueT")
 
 
@@ -66,34 +65,37 @@ class Component(injector.Injectable, traits.Component):
     __slots__: typing.Sequence[str] = (
         "_checks",
         "_client",
-        "_commands",
         "hooks",
         "_injector",
+        "_interaction_commands",
+        "_interaction_hooks",
         "_is_alive",
         "_listeners",
+        "_message_commands",
+        "_message_hooks",
         "_metadata",
     )
 
     def __init__(
         self,
         *,
-        checks: typing.Optional[typing.Iterable[traits.CheckSig[traits.ContextT]]] = None,
+        checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.Hooks[traits.Context]] = None,
         interaction_hooks: typing.Optional[traits.Hooks[traits.InteractionContext]] = None,
         message_hooks: typing.Optional[traits.Hooks[traits.MessageContext]] = None,
     ) -> None:
         self._checks = set(injector.InjectableCheck(check) for check in checks) if checks else set()
         self._client: typing.Optional[traits.Client] = None
-        self._interaction_commands: typing.Dict[str, traits.InteractionCommand] = {}
-        self._message_commands: typing.Set[traits.MessageCommand] = set()
         self.hooks = hooks
         self._injector: typing.Optional[injector.InjectorClient] = None
         self._is_alive = False
+        self._interaction_commands: typing.Dict[str, traits.InteractionCommand] = {}
         self._interaction_hooks = interaction_hooks
-        self._message_hooks = message_hooks
         self._listeners: typing.Set[
             typing.Tuple[typing.Type[base_events.Event], event_manager_.CallbackT[typing.Any]]
         ] = set()
+        self._message_commands: typing.Set[traits.MessageCommand] = set()
+        self._message_hooks = message_hooks
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
         self._load_from_properties()
 
@@ -103,7 +105,7 @@ class Component(injector.Injectable, traits.Component):
         return f"Component <{type(self).__name__}, ({count_1}, {count_2})  commands>"
 
     @property
-    def checks(self) -> typing.AbstractSet[traits.CheckSig[traits.ContextT]]:
+    def checks(self) -> typing.AbstractSet[traits.CheckSig]:
         return {check.callback for check in self._checks}
 
     @property
@@ -118,7 +120,6 @@ class Component(injector.Injectable, traits.Component):
     def message_commands(self) -> typing.AbstractSet[traits.MessageCommand]:
         return self._message_commands.copy()
 
-    # TODO: should this accept all 3 different kind of hooks?
     @property
     def is_alive(self) -> bool:
         """Whether this component is active.
@@ -127,6 +128,7 @@ class Component(injector.Injectable, traits.Component):
         """
         return self._is_alive
 
+    # TODO: should this accept all 3 different kind of hooks?
     @property
     def interaction_hooks(self) -> typing.Optional[traits.Hooks[traits.InteractionContext]]:
         return self._interaction_hooks
@@ -166,7 +168,8 @@ class Component(injector.Injectable, traits.Component):
     def copy(self: _ComponentT, *, _new: bool = True) -> _ComponentT:
         if not _new:
             self._checks = set(check.copy() for check in self._checks)
-            self._commands = {command.copy(None) for command in self._commands}
+            self._interaction_commands = {name: command.copy() for name, command in self._interaction_commands.items()}
+            self._message_commands = {command.copy() for command in self._message_commands}
             self.hooks = self.hooks.copy() if self.hooks else None
             self._listeners = {copy.copy(listener) for listener in self._listeners}
             self._metadata = self._metadata.copy()
@@ -185,11 +188,7 @@ class Component(injector.Injectable, traits.Component):
         self.add_check(check)
         return check
 
-    def add_interaction_command(
-        self: ComponentT, command: traits.InteractionCommand, /
-    ) -> ComponentT:
-        command = command.build_command(self) if isinstance(command, traits.InteractionCommandDescriptor) else command
-
+    def add_interaction_command(self: _ComponentT, command: traits.InteractionCommand, /) -> _ComponentT:
         if self._injector and isinstance(command, injector.Injectable):
             command.set_injector(self._injector)
 
@@ -203,9 +202,7 @@ class Component(injector.Injectable, traits.Component):
         self.add_interaction_command(command)
         return command
 
-    def add_message_command(
-        self: ComponentT, command: traits.MessageCommand, /
-    ) -> ComponentT:
+    def add_message_command(self: _ComponentT, command: traits.MessageCommand, /) -> _ComponentT:
         if self._injector and isinstance(command, injector.Injectable):
             command.set_injector(self._injector)
 
@@ -346,7 +343,7 @@ class Component(injector.Injectable, traits.Component):
         hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.InteractionContext]]] = None,
     ) -> bool:
         command = self._interaction_commands.get(ctx.triggering_name.casefold())
-        if not self.started or not command:
+        if not self._is_alive or not command:
             return False
 
         if self.hooks and hooks:
@@ -387,8 +384,15 @@ class Component(injector.Injectable, traits.Component):
 
     def _load_from_properties(self) -> None:
         for name, member in inspect.getmembers(self):
-            if isinstance(member, traits.ExecutableCommand) and isinstance(member, LoadableProtocol):
-                command = member.copy(None)
-                command.make_method_type(self)
-                setattr(self, name, command)
-                self.add_command(command)
+            if isinstance(member, LoadableProtocol):
+                if isinstance(member, traits.MessageCommand):
+                    mcommand = member.copy()
+                    mcommand.make_method_type(self)
+                    setattr(self, name, mcommand)
+                    self.add_message_command(mcommand)
+
+                elif isinstance(member, traits.InteractionCommand):
+                    icommand = member.copy()
+                    icommand.make_method_type(self)
+                    setattr(self, name, icommand)
+                    self.add_interaction_command(icommand)
