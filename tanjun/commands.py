@@ -34,6 +34,7 @@ from __future__ import annotations
 __all__: typing.Sequence[str] = ["as_command", "as_group", "Command", "CommandGroup"]
 
 import copy
+import types
 import typing
 
 from hikari import errors as hikari_errors
@@ -291,6 +292,14 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
 
         return True
 
+    def make_method_type(self, component: traits.Component, /) -> None:
+        if isinstance(self._function, types.MethodType):
+            raise ValueError("Callback is already a method type")
+
+        self._cached_getters = None
+        self._function = types.MethodType(self._function, component)
+        self._needs_injector = None
+
 
 class CommandGroup(Command[CommandFunctionSigT], traits.ExecutableCommandGroup):
     __slots__: typing.Sequence[str] = ("_commands",)
@@ -391,3 +400,9 @@ class CommandGroup(Command[CommandFunctionSigT], traits.ExecutableCommandGroup):
                 return True
 
         return await super().execute(ctx, hooks=hooks)
+
+    def make_method_type(self, component: traits.Component, /) -> None:
+        super().make_method_type(component)
+        for command in self._commands:
+            if isinstance(command, Command):
+                command.make_method_type(component)

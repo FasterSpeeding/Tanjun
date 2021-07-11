@@ -52,6 +52,14 @@ if typing.TYPE_CHECKING:
     _ValueT = typing.TypeVar("_ValueT")
 
 
+@typing.runtime_checkable
+class LoadableProtocol(typing.Protocol):
+    __slots__ = ()
+
+    def make_method_type(self, component: traits.Component, /) -> None:
+        raise NotImplementedError
+
+
 class Component(injector.Injectable, traits.Component):
     __slots__: typing.Sequence[str] = (
         "_checks",
@@ -291,5 +299,8 @@ class Component(injector.Injectable, traits.Component):
         for name, member in inspect.getmembers(self):
             if isinstance(member, traits.ExecutableCommand):
                 command = member.copy(None)
+                if isinstance(command, LoadableProtocol):
+                    command.make_method_type(self)
+
                 setattr(self, name, command)
                 self.add_command(command)
