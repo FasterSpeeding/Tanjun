@@ -297,10 +297,8 @@ class Component(injector.Injectable, traits.Component):
 
     def _load_from_properties(self) -> None:
         for name, member in inspect.getmembers(self):
-            if isinstance(member, traits.ExecutableCommand):
+            if isinstance(member, traits.ExecutableCommand) and isinstance(member, LoadableProtocol):
                 command = member.copy(None)
-                if isinstance(command, LoadableProtocol):
-                    command.make_method_type(self)
-
+                command.make_method_type(self)
                 setattr(self, name, command)
                 self.add_command(command)

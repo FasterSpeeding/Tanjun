@@ -61,7 +61,7 @@ class _LoadableInjector(injector.InjectableCheck):
         if isinstance(self.callback, types.MethodType):
             raise ValueError("Callback is already a method type")
 
-        self.callback = types.MethodType(self.callback, component)
+        self.callback = types.MethodType(self.callback, component)  # type: ignore[assignment]
 
 
 class FoundCommand(traits.FoundCommand):
@@ -307,7 +307,7 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
             raise ValueError("Callback is already a method type")
 
         self._cached_getters = None
-        self._function = types.MethodType(self._function, component)
+        self._function = types.MethodType(self._function, component)  # type: ignore[assignment]
         self._needs_injector = None
 
         for check in self._checks:
