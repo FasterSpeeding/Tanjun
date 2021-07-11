@@ -54,6 +54,16 @@ if typing.TYPE_CHECKING:
 CommandFunctionSigT = typing.TypeVar("CommandFunctionSigT", bound=traits.CommandFunctionSig)
 
 
+class _LoadableInjector(injector.InjectableCheck):
+    __slots__: typing.Sequence[str] = ()
+
+    def make_method_type(self, component: traits.Component, /) -> None:
+        if isinstance(self.callback, types.MethodType):
+            raise ValueError("Callback is already a method type")
+
+        self.callback = types.MethodType(self.callback, component)
+
+
 class FoundCommand(traits.FoundCommand):
     __slots__: typing.Sequence[str] = ("command", "name", "prefix")
 
@@ -176,7 +186,7 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
         self._checks.remove(check)  # type: ignore[arg-type]
 
     def with_check(self, check: traits.CheckSigT, /) -> traits.CheckSigT:
-        self.add_check(check)
+        self._checks.add(_LoadableInjector(check, injector=self._injector))
         return check
 
     async def check_context(
@@ -299,6 +309,10 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
         self._cached_getters = None
         self._function = types.MethodType(self._function, component)
         self._needs_injector = None
+
+        for check in self._checks:
+            if isinstance(check, _LoadableInjector):
+                check.make_method_type(component)
 
 
 class CommandGroup(Command[CommandFunctionSigT], traits.ExecutableCommandGroup):
