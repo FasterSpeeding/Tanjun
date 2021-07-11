@@ -34,6 +34,7 @@ from __future__ import annotations
 __all__: typing.Sequence[str] = ["Component"]
 
 import copy
+import inspect
 import itertools
 import typing
 
@@ -79,6 +80,7 @@ class Component(injector.Injectable, traits.Component):
             typing.Tuple[typing.Type[base_events.Event], event_manager.CallbackT[typing.Any]]
         ] = set()
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
+        self._load_from_properties()
 
     def __repr__(self) -> str:
         return f"Component <{type(self).__name__}, {len(self._commands)} commands>"
@@ -284,3 +286,10 @@ class Component(injector.Injectable, traits.Component):
             return True
 
         return False
+
+    def _load_from_properties(self) -> None:
+        for name, member in inspect.getmembers(self):
+            if isinstance(member, traits.ExecutableCommand):
+                command = member.copy(None)
+                setattr(self, name, command)
+                self.add_command(command)
