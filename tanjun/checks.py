@@ -64,13 +64,10 @@ if typing.TYPE_CHECKING:
     from hikari import traits as hikari_traits
     from hikari import users
 
-    from tanjun import components
     from tanjun import traits as tanjun_traits
 
 
-CommandT = typing.TypeVar(
-    "CommandT", "components.CommandDescriptor", "tanjun_traits.ExecutableCommand", "components.CommandGroupDescriptor"
-)
+CommandT = typing.TypeVar("CommandT", bound="tanjun_traits.ExecutableCommand")
 
 
 class ApplicationOwnerCheck:
@@ -410,12 +407,12 @@ def with_own_permission_check(
     return decorator
 
 
-def with_check(check: tanjun_traits.CheckT, /) -> typing.Callable[[CommandT], CommandT]:
+def with_check(check: tanjun_traits.CheckSig, /) -> typing.Callable[[CommandT], CommandT]:
     """Add a generic check to a command.
 
     Parameters
     ----------
-    check : tanjun.traits.CheckT
+    check : tanjun.traits.CheckSig
         The check to add to this command.
 
     Returns

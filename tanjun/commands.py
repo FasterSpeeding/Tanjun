@@ -31,8 +31,9 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["Command", "CommandGroup"]
+__all__: typing.Sequence[str] = ["as_command", "as_group", "Command", "CommandGroup"]
 
+import copy
 import typing
 
 from hikari import errors as hikari_errors
@@ -45,8 +46,11 @@ from tanjun import traits
 from tanjun import utilities
 
 if typing.TYPE_CHECKING:
-    _CommandT = typing.TypeVar("_CommandT", bound="Command")
-    _CommandGroupT = typing.TypeVar("_CommandGroupT", bound="CommandGroup")
+    _CommandT = typing.TypeVar("_CommandT", bound="Command[typing.Any]")
+    _CommandGroupT = typing.TypeVar("_CommandGroupT", bound="CommandGroup[typing.Any]")
+
+
+CommandFunctionSigT = typing.TypeVar("CommandFunctionSigT", bound=traits.CommandFunctionSig)
 
 
 class FoundCommand(traits.FoundCommand):
@@ -57,7 +61,21 @@ class FoundCommand(traits.FoundCommand):
         self.name = name
 
 
-class Command(injector.Injectable, traits.ExecutableCommand):
+def as_command(name: str, /, *names: str) -> typing.Callable[[CommandFunctionSigT], Command[CommandFunctionSigT]]:
+    def decorator(callback: CommandFunctionSigT, /) -> Command[CommandFunctionSigT]:
+        return Command(callback, name, *names)
+
+    return decorator
+
+
+def as_group(name: str, /, *names: str) -> typing.Callable[[CommandFunctionSigT], CommandGroup[CommandFunctionSigT]]:
+    def decorator(callback: CommandFunctionSigT, /) -> CommandGroup[CommandFunctionSigT]:
+        return CommandGroup(callback, name, *names)
+
+    return decorator
+
+
+class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[CommandFunctionSigT]):
     __slots__: typing.Sequence[str] = (
         "_cached_getters",
         "_checks",
@@ -74,11 +92,11 @@ class Command(injector.Injectable, traits.ExecutableCommand):
 
     def __init__(
         self,
-        function: traits.CommandFunctionT,
+        function: CommandFunctionSigT,
         name: str,
         /,
         *names: str,
-        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
+        checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         parser: typing.Optional[traits.Parser] = None,
@@ -89,7 +107,7 @@ class Command(injector.Injectable, traits.ExecutableCommand):
         self._function = function
         self.hooks: traits.Hooks = hooks or hooks_.Hooks()
         self._injector: typing.Optional[injector.InjectorClient] = None
-        self._metadata = metadata or {}
+        self._metadata = dict(metadata) if metadata else {}
         self._names = {name, *names}
         self._needs_injector: typing.Optional[bool] = None
         self.parent: typing.Optional[traits.ExecutableCommandGroup] = None
@@ -99,7 +117,7 @@ class Command(injector.Injectable, traits.ExecutableCommand):
         return f"Command <{self._names}>"
 
     @property
-    def checks(self) -> typing.AbstractSet[traits.CheckT]:
+    def checks(self) -> typing.AbstractSet[traits.CheckSig]:
         return {check.callback for check in self._checks}
 
     @property
@@ -107,7 +125,7 @@ class Command(injector.Injectable, traits.ExecutableCommand):
         return self._component
 
     @property
-    def function(self) -> traits.CommandFunctionT:
+    def function(self) -> CommandFunctionSigT:
         return self._function
 
     @property
@@ -125,14 +143,38 @@ class Command(injector.Injectable, traits.ExecutableCommand):
 
         return self._needs_injector
 
-    def add_check(self: _CommandT, check: traits.CheckT, /) -> _CommandT:
+    if typing.TYPE_CHECKING:
+        __call__: CommandFunctionSigT
+
+    else:
+
+        async def __call__(self, *args, **kwargs) -> None:
+            await self._function(*args, **kwargs)
+
+    def copy(
+        self: _CommandT, parent: typing.Optional[traits.ExecutableCommandGroup], /, *, _new: bool = True
+    ) -> _CommandT:
+        if not _new:
+            self._cached_getters = None
+            self._checks = {check.copy() for check in self._checks}
+            self._function = copy.copy(self._function)
+            self.hooks = self.hooks.copy()
+            self._metadata = self._metadata.copy()
+            self._names = self._names.copy()
+            self._needs_injector = None
+            self.parent = parent
+            return self
+
+        return copy.copy(self).copy(parent, _new=False)
+
+    def add_check(self: _CommandT, check: traits.CheckSig, /) -> _CommandT:
         self._checks.add(injector.InjectableCheck(check, injector=self._injector))
         return self
 
-    def remove_check(self, check: traits.CheckT, /) -> None:
+    def remove_check(self, check: traits.CheckSig, /) -> None:
         self._checks.remove(check)  # type: ignore[arg-type]
 
-    def with_check(self, check: traits.CheckT, /) -> traits.CheckT:
+    def with_check(self, check: traits.CheckSigT, /) -> traits.CheckSigT:
         self.add_check(check)
         return check
 
@@ -250,16 +292,16 @@ class Command(injector.Injectable, traits.ExecutableCommand):
         return True
 
 
-class CommandGroup(Command, traits.ExecutableCommandGroup):
+class CommandGroup(Command[CommandFunctionSigT], traits.ExecutableCommandGroup):
     __slots__: typing.Sequence[str] = ("_commands",)
 
     def __init__(
         self,
-        function: traits.CommandFunctionT,
+        function: CommandFunctionSigT,
         name: str,
         /,
         *names: str,
-        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
+        checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         parser: typing.Optional[traits.Parser] = None,
@@ -273,6 +315,14 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
     @property
     def commands(self) -> typing.AbstractSet[traits.ExecutableCommand]:
         return self._commands.copy()
+
+    def copy(
+        self: _CommandGroupT, parent: typing.Optional[traits.ExecutableCommandGroup], /, *, _new: bool = True
+    ) -> _CommandGroupT:
+        if not _new:
+            self._commands = {command.copy(self) for command in self._commands}
+
+        return super().copy(parent, _new=_new)
 
     def add_command(self: _CommandGroupT, command: traits.ExecutableCommand, /) -> _CommandGroupT:
         command.parent = self
@@ -288,11 +338,11 @@ class CommandGroup(Command, traits.ExecutableCommandGroup):
         name: str,
         /,
         *names: str,
-        checks: typing.Optional[typing.Iterable[traits.CheckT]] = None,
+        checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.Hooks] = None,
         parser: typing.Optional[traits.Parser] = None,
-    ) -> typing.Callable[[traits.CommandFunctionT], traits.CommandFunctionT]:
-        def decorator(function: traits.CommandFunctionT, /) -> traits.CommandFunctionT:
+    ) -> typing.Callable[[traits.CommandFunctionSig], traits.CommandFunctionSig]:
+        def decorator(function: traits.CommandFunctionSig, /) -> traits.CommandFunctionSig:
             self.add_command(Command(function, name, *names, checks=checks, hooks=hooks, parser=parser))
             return function
 

@@ -33,14 +33,8 @@
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
-    "LoadableDescriptor",
-    "ParserDescriptor",
-    "ConverterT",
-    "ParserHookT",
-    "ErrorHookT",
-    "HookT",
-    "PreExecutionHookT",
-    "CheckT",
+    "ConverterSig",
+    "CheckSig",
     "ValueT_co",
     "Context",
     "Hooks",
@@ -70,12 +64,16 @@ if typing.TYPE_CHECKING:
     from tanjun import errors
 
     _T = typing.TypeVar("_T")
+    _ExecutableT = typing.TypeVar("_ExecutableT", bound="Executable")
+    _HooksT = typing.TypeVar("_HooksT", bound="Hooks")
+    _Parser = typing.TypeVar("_Parser", bound="Parser")
+    _ParameterT = typing.TypeVar("_ParameterT", bound="Parameter")
 
 
 # To allow for stateless converters we accept both "Converter[...]" and "Type[StatelessConverter[...]]" where all the
 # methods on "Type[StatelessConverter[...]]" need to be classmethods as it will not be initialised before calls are made
 # to it.
-ConverterT = typing.Callable[..., typing.Union[typing.Awaitable[typing.Any], typing.Any]]
+ConverterSig = typing.Callable[..., typing.Union[typing.Awaitable[typing.Any], typing.Any]]
 """Type hint of a converter used within a parser instance.
 
 This must be a callable or asynchronous callable which takes one position
@@ -83,7 +81,7 @@ This must be a callable or asynchronous callable which takes one position
 """
 # TODO: be more specific about the structure of command functions using a callable protocol
 
-CommandFunctionT = typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, typing.Any]]
+CommandFunctionSig = typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, typing.Any]]
 """Type hint of the function a `Command` instance will operate on.
 
 This will be called when executing a command and will need to take at least one
@@ -95,56 +93,8 @@ command if applicable.
     This will have to be asynchronous.
 """
 
-LoadableT = typing.Callable[["Client"], None]
-"""Type hint of the function used to load resources into a Tanjun client.
 
-This should take one positional argument of type `Client` and return nothing.
-This will be expected to initiate and resources like components to the client
-through the use of it's protocol methods.
-"""
-
-ParserHookT = typing.Callable[
-    ["Context", "errors.ParserError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
-]
-"""Type hint of the function used as a parser error hook.
-
-This will be called whenever a `tanjun.errors.ParserError` is raised during the
-command argument parsing stage, will have to take two positional arguments - of
-type `Context` and `tanjun.errors.ParserError` - and may either be a
-synchronous or asynchronous function which returns `builtins.None`
-"""
-
-ErrorHookT = typing.Callable[
-    ["Context", BaseException], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
-]
-"""Type hint of the function used as a unexpected command error hook.
-
-This will be called whenever a `builtins.BaseException` is raised during the
-execution stage whenever the command function raises any exception except
-`tanjun.errors.CommandError`,  will have to take two positional arguments - of
-type `Context` and `builtins.BaseException` - and may either be a synchronous
-or asynchronous function which returns `builtins.None`
-"""
-
-HookT = typing.Callable[["Context"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]]
-"""Type hint of the function used as a general command hook.
-
-This may be called during different stages of command execution (decided by
-which hook this is registered as), will have to take one positional argument of
-type `Context` and may be a synchronous or asynchronous function which returns
-`builtins.None`.
-"""
-
-PreExecutionHookT = typing.Callable[["Context"], typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]]
-"""Type hint of the function used as a pre-execution command hook.
-
-This will be called before command function is executed, will have to take one
-positional argument of type `Context` and may be a synchronous or asynchronous
-function which returns `builtins.bool` (where returning `False` may cancel
-execution of the current command).
-"""
-
-CheckT = typing.Callable[..., typing.Union[bool, typing.Awaitable[bool]]]
+CheckSig = typing.Callable[..., typing.Union[bool, typing.Awaitable[bool]]]
 """Type hint of a general context check used with Tanjun `Executable` classes.
 
 This may be registered with a `Executable` to add a rule which decides whether
@@ -154,103 +104,12 @@ function which returns `builtins.bool` where returning `builtins.False` or
 raising `tanjun.errors.FailedCheck` will indicate that the current context
 shouldn't lead to an execution.
 """
+CheckSigT = typing.TypeVar("CheckSigT", bound=CheckSig)
 
 ComponentT_contra = typing.TypeVar("ComponentT_contra", bound="Component", contravariant=True)
 
-UnboundCheckT = typing.Callable[
-    ["ComponentT_contra", "Context"], typing.Union[bool, typing.Coroutine[typing.Any, typing.Any, bool]]
-]  # TODO: remove this
-"""Type hint of a general context check used by Tanjun `Executable` classes.
-
-This is an equivalent to `CheckT` where it's yet to be bound to a `Component`,
-used by `CheckDescriptor`.
-"""
-
 ValueT_co = typing.TypeVar("ValueT_co", covariant=True)
 """A general type hint used for generic interfaces in Tanjun."""
-
-
-class LoadableDescriptor(abc.ABC):
-    """Descriptor of a function used for loading a lib's resources into a Tanjun instance."""
-
-    __slots__: typing.Sequence[str] = ()
-
-    @property
-    @abc.abstractmethod
-    def load_function(self) -> LoadableT:
-        """Function called to load these resources into a Tanjun client.
-
-        Returns
-        -------
-        LoadableT
-            The load function which should take one argument of type Client and
-            return nothing. This should call methods on `Client` in-order to
-            load it's pre-prepared resources.
-        """
-        raise NotImplementedError
-
-
-class ParserDescriptor(abc.ABC):
-    """Descriptor of a parser for command descriptor."""
-
-    __slots__: typing.Sequence[str] = ()
-
-    @property
-    @abc.abstractmethod
-    def parameters(self) -> typing.Sequence[Parameter]:
-        """Get the parameters rules set for this parser descriptor.
-
-        Returns
-        -------
-        typing.Sequence[Parameter]
-            A sequence of the parameters rules set for this parser descriptor.
-        """
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def add_parameter(self, parameter: Parameter, /) -> None:
-        """Add a parameter to the parser's rules.
-
-        !!! note
-            For positional arguments this should add from left to right if the
-            index isn't explicitly declared.
-
-        Parameters
-        ----------
-        parameter : Parameter
-            The parameter to add.
-        """
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def set_parameters(self, parameters: typing.Iterable[Parameter], /) -> None:
-        """Set the parameters for this parser's rules.
-
-        !!! note
-            This will replace any previously set parameters.
-
-        Parameters
-        ----------
-        parameters : typing.Iterable[Parameter]
-            An iterable of the parameters to set for this parser.
-        """
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def build_parser(self, component: Component, /) -> Parser:
-        """Build a parser object from this descriptor.
-
-        Parameters
-        ----------
-        component : ExecutableCommand
-            The component this command is being built for.
-
-        Returns
-        -------
-        ExecutableCommand
-            The command object that was created.
-        """
-        raise NotImplementedError
 
 
 class Context(abc.ABC):
@@ -346,6 +205,10 @@ class Hooks(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @abc.abstractmethod
+    def copy(self: _HooksT) -> _HooksT:
+        raise NotImplementedError
+
+    @abc.abstractmethod
     async def trigger_error(
         self, ctx: Context, /, exception: BaseException, *, hooks: typing.Optional[typing.AbstractSet[Hooks]] = None
     ) -> None:
@@ -381,7 +244,7 @@ class Executable(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def checks(self) -> typing.AbstractSet[CheckT]:
+    def checks(self) -> typing.AbstractSet[CheckSig]:
         raise NotImplementedError
 
     @property
@@ -394,15 +257,19 @@ class Executable(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_check(self: _T, check: CheckT, /) -> _T:
+    def add_check(self: _T, check: CheckSig, /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def remove_check(self, check: CheckT, /) -> None:
+    def copy(self: _ExecutableT) -> _ExecutableT:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def with_check(self, check: CheckT, /) -> CheckT:
+    def remove_check(self, check: CheckSig, /) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def with_check(self, check: CheckSigT, /) -> CheckSigT:
         raise NotImplementedError
 
     # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
@@ -452,7 +319,7 @@ class ExecutableCommand(Executable, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def function(self) -> CommandFunctionT:
+    def function(self) -> CommandFunctionSig:
         raise NotImplementedError
 
     @property
@@ -499,6 +366,10 @@ class ExecutableCommand(Executable, abc.ABC):
     def bind_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def copy(self: _ExecutableT, parent: typing.Optional[ExecutableCommandGroup], /) -> _ExecutableT:
+        raise NotImplementedError
+
 
 class ExecutableCommandGroup(ExecutableCommand, abc.ABC):
     __slots__: typing.Sequence[str] = ()
@@ -522,10 +393,10 @@ class ExecutableCommandGroup(ExecutableCommand, abc.ABC):
         name: str,
         /,
         *names: str,
-        checks: typing.Optional[typing.Iterable[CheckT]] = None,
+        checks: typing.Optional[typing.Iterable[CheckSig]] = None,
         hooks: typing.Optional[Hooks] = None,
         parser: typing.Optional[Parser] = None,
-    ) -> typing.Callable[[CommandFunctionT], CommandFunctionT]:
+    ) -> typing.Callable[[CommandFunctionSig], CommandFunctionSig]:
         raise NotImplementedError
 
 
@@ -674,7 +545,7 @@ class Parameter(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def converters(self) -> typing.Optional[typing.Sequence[ConverterT]]:
+    def converters(self) -> typing.Optional[typing.Sequence[ConverterSig]]:
         raise NotImplementedError
 
     @property
@@ -701,11 +572,15 @@ class Parameter(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_converter(self, converter: ConverterT, /) -> None:
+    def add_converter(self, converter: ConverterSig, /) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def remove_converter(self, converter: ConverterT, /) -> None:
+    def copy(self: _ParameterT) -> _ParameterT:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def remove_converter(self, converter: ConverterSig, /) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -757,6 +632,10 @@ class Parser(abc.ABC):
 
     @abc.abstractmethod
     def add_parameter(self, parameter: Parameter, /) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def copy(self: _Parser) -> _Parser:
         raise NotImplementedError
 
     @abc.abstractmethod

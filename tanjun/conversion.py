@@ -523,5 +523,5 @@ _TYPE_OVERRIDES: typing.Mapping[typing.Callable[..., typing.Any], typing.Callabl
 }
 
 
-def override_type(cls: traits.ConverterT) -> traits.ConverterT:
+def override_type(cls: traits.ConverterSig) -> traits.ConverterSig:
     return _TYPE_OVERRIDES.get(cls, cls)

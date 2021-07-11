@@ -35,7 +35,6 @@ __all__: typing.Sequence[str] = [
     "Argument",
     "Option",
     "ShlexParser",
-    "parser_descriptor",
     "verify_parameters",
     "with_argument",
     "with_greedy_argument",
@@ -60,12 +59,10 @@ from tanjun import injector as injector_
 from tanjun import traits
 
 if typing.TYPE_CHECKING:
-    from tanjun import components
+    _ParameterT = typing.TypeVar("_ParameterT", bound="_Parameter")
+    _ShlexParserT = typing.TypeVar("_ShlexParserT", bound="ShlexParser")
 
-CommandT = typing.TypeVar(
-    "CommandT", "components.CommandDescriptor", traits.ExecutableCommand, "components.CommandGroupDescriptor"
-)
-CommandDescriptorT = typing.TypeVar("CommandDescriptorT", bound="components.CommandDescriptor")
+CommandT = typing.TypeVar("CommandT", bound=traits.ExecutableCommand)
 GREEDY = "greedy"
 """Parameter flags key used for marking a parameter as "greedy".
 
@@ -240,7 +237,7 @@ class SemanticShlex(ShlexTokenizer):
 def with_argument(
     key: str,
     /,
-    converters: typing.Union[typing.Iterable[traits.ConverterT], traits.ConverterT, None] = None,
+    converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
     *,
     default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
@@ -258,7 +255,7 @@ def with_argument(
     key : str
         The string identifier of this argument (may be used to pass the result
         of this argument to the command's function during execution).
-    converters : typing.Union[tanjun.traits.ConverterT, typing.Iterable[tanjun.traits.ConverterT], builtins.None]
+    converters : typing.Union[tanjun.traits.ConverterSig, typing.Iterable[tanjun.traits.ConverterSig], builtins.None]
         The converter(s) this argument should use to handle values passed to it
         during parsing, this may be left as `builtins.None to indicate that
         the raw string value should be returned without conversion.
@@ -301,7 +298,7 @@ def with_argument(
 def with_greedy_argument(
     key: str,
     /,
-    converters: typing.Union[typing.Iterable[traits.ConverterT], traits.ConverterT, None] = None,
+    converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
     *,
     default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
@@ -328,7 +325,7 @@ def with_greedy_argument(
 
     Other Parameters
     ----------------
-    converters : typing.Union[tanjun.traits.ConverterT, typing.Iterable[tanjun.traits.ConverterT], builtins.None]
+    converters : typing.Union[tanjun.traits.ConverterSig, typing.Iterable[tanjun.traits.ConverterSig], builtins.None]
         The converter(s) this argument should use to handle values passed to it
         during parsing, this may be left as `builtins.None to indicate that
         the raw string value should be returned without conversion.
@@ -366,7 +363,7 @@ def with_greedy_argument(
 def with_multi_argument(
     key: str,
     /,
-    converters: typing.Union[typing.Iterable[traits.ConverterT], traits.ConverterT, None] = None,
+    converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
     *,
     default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
@@ -394,7 +391,7 @@ def with_multi_argument(
 
     Other Parameters
     ----------------
-    converters : typing.Union[tanjun.traits.ConverterT, typing.Iterable[tanjun.traits.ConverterT], builtins.None]
+    converters : typing.Union[tanjun.traits.ConverterSig, typing.Iterable[tanjun.traits.ConverterSig], builtins.None]
         The converter(s) this argument should use to handle values passed to it
         during parsing, this may be left as `builtins.None to indicate that
         the raw string value should be returned without conversion.
@@ -434,7 +431,7 @@ def with_option(
     name: str,
     /,
     *names: str,
-    converters: typing.Union[typing.Iterable[traits.ConverterT], traits.ConverterT, None] = None,
+    converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
     default: typing.Any,
     empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
@@ -457,7 +454,7 @@ def with_option(
     ----------------
     *names : str
         Other names of this option used for identifying it in the parsed content.
-    converters : typing.Union[tanjun.traits.ConverterT, typing.Iterable[tanjun.traits.ConverterT], builtins.None]
+    converters : typing.Union[tanjun.traits.ConverterSig, typing.Iterable[tanjun.traits.ConverterSig], builtins.None]
         The converter(s) this argument should use to handle values passed to it
         during parsing, this may be left as `builtins.None to indicate that
         the raw string value should be returned without conversion.
@@ -503,7 +500,7 @@ def with_multi_option(
     name: str,
     /,
     *names: str,
-    converters: typing.Union[typing.Iterable[traits.ConverterT], traits.ConverterT, None] = None,
+    converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
     default: typing.Any,
     empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
@@ -532,7 +529,7 @@ def with_multi_option(
     ----------------
     *names : str
         Other names of this option used for identifying it in the parsed content.
-    converters : typing.Union[tanjun.traits.ConverterT, typing.Iterable[tanjun.traits.ConverterT], builtins.None]
+    converters : typing.Union[tanjun.traits.ConverterSig, typing.Iterable[tanjun.traits.ConverterSig], builtins.None]
         The converter(s) this argument should use to handle values passed to it
         during parsing, this may be left as `builtins.None to indicate that
         the raw string value should be returned without conversion.
@@ -576,7 +573,7 @@ class _Parameter(injector_.Injectable, traits.Parameter):
         key: str,
         /,
         *,
-        converters: typing.Union[typing.Iterable[traits.ConverterT], traits.ConverterT, None] = None,
+        converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
         default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
     ) -> None:
@@ -603,7 +600,7 @@ class _Parameter(injector_.Injectable, traits.Parameter):
         return f"{type(self).__name__} <{self.key}>"
 
     @property
-    def converters(self) -> typing.Optional[typing.Sequence[traits.ConverterT]]:
+    def converters(self) -> typing.Optional[typing.Sequence[traits.ConverterSig]]:
         return tuple(converter.callback for converter in self._converters) if self._converters is not None else None
 
     @property
@@ -615,7 +612,7 @@ class _Parameter(injector_.Injectable, traits.Parameter):
         # TODO: cache this value?
         return any(converter.needs_injector for converter in self._converters) if self._converters else False
 
-    def add_converter(self, converter: traits.ConverterT, /) -> None:
+    def add_converter(self, converter: traits.ConverterSig, /) -> None:
         if self._converters is None:
             self._converters = []
 
@@ -633,7 +630,7 @@ class _Parameter(injector_.Injectable, traits.Parameter):
 
         self._converters.append(converter)
 
-    def remove_converter(self, converter: traits.ConverterT, /) -> None:
+    def remove_converter(self, converter: traits.ConverterSig, /) -> None:
         if self._converters is None:
             raise ValueError("No converters set")
 
@@ -683,6 +680,15 @@ class _Parameter(injector_.Injectable, traits.Parameter):
             for converter in self._converters:
                 converter.set_injector(client)
 
+    def copy(self: _ParameterT, *, _new: bool = True) -> _ParameterT:
+        if not _new:
+            self._converters = [converter.copy() for converter in self._converters] if self._converters else None
+            self._flags = self._flags.copy()
+            return self
+
+        result = copy.copy(self).copy(_new=False)
+        return result
+
 
 class Argument(_Parameter, traits.Argument):
     __slots__: typing.Sequence[str] = ()
@@ -692,7 +698,7 @@ class Argument(_Parameter, traits.Argument):
         key: str,
         /,
         *,
-        converters: typing.Union[typing.Iterable[traits.ConverterT], traits.ConverterT, None] = None,
+        converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
         default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
     ) -> None:
@@ -700,14 +706,6 @@ class Argument(_Parameter, traits.Argument):
             raise ValueError("Argument cannot be both greed and multi.")
 
         super().__init__(key, converters=converters, default=default, flags=flags)
-
-    def __copy__(self) -> Argument:
-        return Argument(
-            self.key,
-            converters=self._converters.copy() if self._converters else None,
-            default=self.default,
-            flags=dict(self._flags),
-        )
 
 
 class Option(_Parameter, traits.Option):
@@ -718,7 +716,7 @@ class Option(_Parameter, traits.Option):
         key: str,
         name: str,
         *names: str,
-        converters: typing.Union[typing.Iterable[traits.ConverterT], traits.ConverterT, None] = None,
+        converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
         default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
         empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
@@ -734,17 +732,6 @@ class Option(_Parameter, traits.Option):
         self.empty_value = empty_value
         self.names = names
         super().__init__(key, converters=converters, default=default, flags=flags)
-
-    def __copy__(self) -> Option:
-        # TODO: this will error if there's no set names.
-        return Option(
-            self.key,
-            *self.names,
-            converters=self._converters.copy() if self._converters else None,
-            default=self.default,
-            flags=dict(self._flags),
-            empty_value=self.empty_value,
-        )
 
     def __repr__(self) -> str:
         return f"{type(self).__name__} <{self.key}, {self.names}>"
@@ -777,6 +764,14 @@ class ShlexParser(injector_.Injectable, traits.Parser):
     def parameters(self) -> typing.Sequence[traits.Parameter]:
         # <<inherited docstring from tanjun.traits.ShlexParser>>.
         return (*self._arguments, *self._options)
+
+    def copy(self: _ShlexParserT, *, _new: bool = True) -> _ShlexParserT:
+        if not _new:
+            self._arguments = [argument.copy() for argument in self._arguments]
+            self._options = [option.copy() for option in self._options]
+            return self
+
+        return copy.copy(self).copy(_new=False)
 
     def add_parameter(self, parameter: traits.Parameter, /) -> None:
         # <<inherited docstring from tanjun.traits.ShlexParser>>.
@@ -854,42 +849,10 @@ class ShlexParser(injector_.Injectable, traits.Parser):
         return arguments, options
 
 
-class ParserDescriptor(traits.ParserDescriptor):
-    """Descriptor used for pre-defining the parameters of a `ShlexParser`."""
-
-    __slots__: typing.Sequence[str] = ("_parameters",)
-
-    def __init__(self, *, parameters: typing.Optional[typing.Iterable[traits.Parameter]] = None) -> None:
-        self._parameters = list(parameters) if parameters else []
-
-    def parameters(self) -> typing.Sequence[traits.Parameter]:
-        # <<inherited docstring from tanjun.traits.ParserDescriptor>>.
-        return self._parameters.copy()
-
-    def add_parameter(self, parameter: traits.Parameter, /) -> None:
-        # <<inherited docstring from tanjun.traits.ParserDescriptor>>.
-        self._parameters.append(parameter)
-
-    def set_parameters(self, parameters: typing.Iterable[traits.Parameter], /) -> None:
-        # <<inherited docstring from tanjun.traits.ParserDescriptor>>.
-        self._parameters = list(parameters)
-
-    def build_parser(self, component: traits.Component, /) -> ShlexParser:
-        # <<inherited docstring from tanjun.traits.ParserDescriptor>>.
-        parser = ShlexParser(parameters=map(copy.copy, self._parameters))
-        parser.bind_component(component)
-        return parser
-
-
-def parser_descriptor(*, parameters: typing.Optional[typing.Iterable[traits.Parameter]] = None) -> ParserDescriptor:
-    """Build a shlex parser descriptor."""
-    return ParserDescriptor(parameters=parameters)
-
-
 # Unlike the other decorators in this module, this can only be applied to a command descriptor.
-def with_parser(command: CommandDescriptorT, /) -> CommandDescriptorT:
+def with_parser(command: CommandT, /) -> CommandT:
     """Add a shlex parser descriptor to a command descriptor."""
-    command.parser = parser_descriptor()
+    command.parser = ShlexParser()
     return command
 
 

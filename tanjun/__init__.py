@@ -34,6 +34,7 @@ from __future__ import annotations
 __all__: typing.Sequence[str] = [
     # checks.py
     "checks",
+    "with_check",
     "with_dm_check",
     "with_guild_check",
     "with_nsfw_check",
@@ -43,18 +44,18 @@ __all__: typing.Sequence[str] = [
     "with_own_permission_check",
     # clients.py
     "clients",
+    "AcceptsEnum",
     "as_loader",
     "Client",
-    # command.py
+    "PrefixGetterSig",
+    # commands.py
     "commands",
+    "as_command",
+    "as_group",
     "Command",
     "CommandGroup",
     # components.py
     "components",
-    "as_check",
-    "as_command",
-    "as_group",
-    "as_listener",
     "Component",
     # context.py
     "context",
@@ -77,6 +78,7 @@ __all__: typing.Sequence[str] = [
     "CommandError",
     "ConversionError",
     "FailedCheck",
+    "MissingDependencyError",
     "NotEnoughArgumentsError",
     "TooManyArgumentsError",
     "ParserError",
@@ -85,10 +87,15 @@ __all__: typing.Sequence[str] = [
     "StateWarning",
     # hooks.py
     "hooks",
+    "ErrorHookSig",
     "Hooks",
+    "HookSig",
+    "ParserHookSig",
+    "PreExecutionHookSig",
     # injector.py
+    "injector",
     "cache_callback",
-    "CallbackT",
+    "CallbackSig",
     "Getter",
     "Undefined",
     "UNDEFINED",
@@ -102,7 +109,6 @@ __all__: typing.Sequence[str] = [
     "Argument",
     "Option",
     "ShlexParser",
-    "parser_descriptor",
     "verify_parameters",
     "with_argument",
     "with_greedy_argument",
