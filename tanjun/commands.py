@@ -62,7 +62,7 @@ if typing.TYPE_CHECKING:
 
 
 CommandFunctionSigT = typing.TypeVar("CommandFunctionSigT", bound=traits.CommandFunctionSig)
-_EMPTY_HOOKS = hooks_.Hooks[typing.Any]()
+_EMPTY_HOOKS = hooks_.Hooks[typing.Any, typing.Any]()
 
 
 class _LoadableInjector(injector.InjectableCheck):
@@ -97,7 +97,7 @@ class PartialCommand(
         function: CommandFunctionSigT,
         /,
         checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.Hooks[traits.ContextT]] = None,
+        hooks: typing.Optional[traits.Hooks[traits.ContextT, traits.ContextT]] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
     ) -> None:
         self._cached_getters: typing.Optional[typing.List[injector.Getter[typing.Any]]] = None
@@ -124,7 +124,7 @@ class PartialCommand(
         return self._function
 
     @property
-    def hooks(self) -> typing.Optional[traits.Hooks[traits.ContextT]]:
+    def hooks(self) -> typing.Optional[traits.Hooks[traits.ContextT, traits.ContextT]]:
         return self._hooks
 
     @property
@@ -158,7 +158,7 @@ class PartialCommand(
 
         return copy.copy(self).copy(_new=False)
 
-    def set_hooks(self: _PartialCommandT, hooks: typing.Optional[traits.Hooks[traits.ContextT]], /) -> _PartialCommandT:
+    def set_hooks(self: _PartialCommandT, hooks: typing.Optional[traits.AnyHooks], /) -> _PartialCommandT:
         self._hooks = hooks
         return self
 
@@ -223,7 +223,7 @@ class InteractionCommand(PartialCommand[CommandFunctionSigT, traits.InteractionC
         /,
         *,
         checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.Hooks[traits.InteractionContext]] = None,
+        hooks: typing.Optional[traits.InteractionHooks] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
     ) -> None:
         super().__init__(function, checks=checks, hooks=hooks, metadata=metadata)
@@ -253,7 +253,7 @@ class InteractionCommand(PartialCommand[CommandFunctionSigT, traits.InteractionC
         ctx: traits.InteractionContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.InteractionContext]]] = None,
+        hooks: typing.Optional[typing.MutableSet[traits.InteractionHooks]] = None,
     ) -> bool:
         raise NotImplementedError
 
@@ -314,7 +314,7 @@ class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext],
         /,
         *names: str,
         checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.Hooks[traits.MessageContext]] = None,
+        hooks: typing.Optional[traits.MessageHooks] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         parser: typing.Optional[traits.Parser] = None,
     ) -> None:
@@ -346,7 +346,7 @@ class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext],
             self._parent = parent
             self._parser = self._parser.copy() if self._parser else None
 
-        return typing.cast(_MessageCommandT, super().copy(_new=_new))
+        return typing.cast("_MessageCommandT", super().copy(_new=_new))
 
     def set_parent(self: _MessageCommandT, parent: typing.Optional[traits.MessageCommandGroup], /) -> _MessageCommandT:
         self._parent = parent
@@ -389,7 +389,7 @@ class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext],
         ctx: traits.MessageContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.MessageContext]]] = None,
+        hooks: typing.Optional[typing.MutableSet[traits.MessageHooks]] = None,
     ) -> bool:
         try:
             if await (self._hooks or _EMPTY_HOOKS).trigger_pre_execution(ctx, hooks=hooks) is False:
@@ -460,7 +460,7 @@ class MessageCommandGroup(MessageCommand[CommandFunctionSigT], traits.MessageCom
         /,
         *names: str,
         checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.Hooks[traits.MessageContext]] = None,
+        hooks: typing.Optional[traits.MessageHooks] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         parser: typing.Optional[traits.Parser] = None,
     ) -> None:
@@ -497,7 +497,7 @@ class MessageCommandGroup(MessageCommand[CommandFunctionSigT], traits.MessageCom
         /,
         *names: str,
         checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.Hooks[traits.MessageContext]] = None,
+        hooks: typing.Optional[traits.MessageHooks] = None,
         parser: typing.Optional[traits.Parser] = None,
     ) -> typing.Callable[[traits.CommandFunctionSig], traits.CommandFunctionSig]:
         def decorator(function: traits.CommandFunctionSig, /) -> traits.CommandFunctionSig:
@@ -527,7 +527,7 @@ class MessageCommandGroup(MessageCommand[CommandFunctionSigT], traits.MessageCom
         ctx: traits.MessageContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.MessageContext]]] = None,
+        hooks: typing.Optional[typing.MutableSet[traits.MessageHooks]] = None,
     ) -> bool:
         if ctx.message.content is None:
             raise ValueError("Cannot execute a command with a contentless message")

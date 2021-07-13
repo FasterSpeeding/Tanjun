@@ -196,9 +196,9 @@ class Client(injector.InjectorClient, traits.Client):
         self._components: typing.Set[traits.Component] = set()
         self._events = events
         self._grab_mention_prefix = mention_prefix
-        self.hooks: typing.Optional[traits.Hooks[traits.Context]] = None
-        self.interaction_hooks: typing.Optional[traits.Hooks[traits.InteractionContext]] = None
-        self.message_hooks: typing.Optional[traits.Hooks[traits.MessageContext]] = None
+        self.hooks: typing.Optional[traits.AnyHooks] = None
+        self.interaction_hooks: typing.Optional[traits.InteractionHooks] = None
+        self.message_hooks: typing.Optional[traits.MessageHooks] = None
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
         self._prefix_getter: typing.Optional[PrefixGetterSig] = None
         self._prefixes: typing.Set[str] = set()
@@ -454,7 +454,7 @@ class Client(injector.InjectorClient, traits.Client):
         if register_listener and event_type and self._events:
             self._events.event_manager.subscribe(event_type, self.on_message_create)
 
-    def set_hooks(self: _ClientT, hooks: typing.Optional[traits.Hooks[traits.Context]], /) -> _ClientT:
+    def set_hooks(self: _ClientT, hooks: typing.Optional[traits.AnyHooks], /) -> _ClientT:
         self.hooks = hooks
         return self
 
@@ -495,7 +495,7 @@ class Client(injector.InjectorClient, traits.Client):
         if not await self.check(ctx):
             return
 
-        hooks: typing.Set[traits.Hooks[traits.MessageContext]] = set()
+        hooks: typing.Set[traits.MessageHooks] = set()
         if self.hooks:
             hooks.add(self.hooks)
 

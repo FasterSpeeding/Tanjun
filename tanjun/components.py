@@ -79,9 +79,9 @@ class Component(injector.Injectable, traits.Component):
         self,
         *,
         checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.Hooks[traits.Context]] = None,
-        interaction_hooks: typing.Optional[traits.Hooks[traits.InteractionContext]] = None,
-        message_hooks: typing.Optional[traits.Hooks[traits.MessageContext]] = None,
+        hooks: typing.Optional[traits.AnyHooks] = None,
+        interaction_hooks: typing.Optional[traits.InteractionHooks] = None,
+        message_hooks: typing.Optional[traits.MessageHooks] = None,
     ) -> None:
         self._checks: typing.Set[injector.InjectableCheck] = (
             set(injector.InjectableCheck(check) for check in checks) if checks else set()
@@ -114,7 +114,7 @@ class Component(injector.Injectable, traits.Component):
         return self._client
 
     @property
-    def hooks(self) -> typing.Optional[traits.Hooks[traits.Context]]:
+    def hooks(self) -> typing.Optional[traits.AnyHooks]:
         return self._hooks
 
     @property
@@ -135,20 +135,12 @@ class Component(injector.Injectable, traits.Component):
 
     # TODO: should this accept all 3 different kind of hooks?
     @property
-    def interaction_hooks(self) -> typing.Optional[traits.Hooks[traits.InteractionContext]]:
+    def interaction_hooks(self) -> typing.Optional[traits.InteractionHooks]:
         return self._interaction_hooks
 
-    @interaction_hooks.setter
-    def interaction_hooks(self, hooks_: typing.Optional[traits.Hooks[traits.InteractionContext]], /) -> None:
-        self._interaction_hooks = hooks_
-
     @property
-    def message_hooks(self) -> typing.Optional[traits.Hooks[traits.MessageContext]]:
+    def message_hooks(self) -> typing.Optional[traits.MessageHooks]:
         return self._message_hooks
-
-    @message_hooks.setter
-    def message_hooks(self, hooks_: typing.Optional[traits.Hooks[traits.MessageContext]]) -> None:
-        self._message_hooks = hooks_
 
     @property
     def needs_injector(self) -> bool:
@@ -182,7 +174,15 @@ class Component(injector.Injectable, traits.Component):
 
         return copy.copy(self).copy(_new=False)
 
-    def set_hooks(self: _ComponentT, hooks: typing.Optional[traits.Hooks[traits.Context]], /) -> _ComponentT:
+    def set_interaction_hooks(self: _ComponentT, hooks_: typing.Optional[traits.InteractionHooks], /) -> _ComponentT:
+        self._interaction_hooks = hooks_
+        return self
+
+    def set_message_hooks(self: _ComponentT, hooks_: typing.Optional[traits.MessageHooks]) -> _ComponentT:
+        self._message_hooks = hooks_
+        return self
+
+    def set_hooks(self: _ComponentT, hooks: typing.Optional[traits.AnyHooks], /) -> _ComponentT:
         self._hooks = hooks
         return self
 
@@ -349,7 +349,7 @@ class Component(injector.Injectable, traits.Component):
         ctx: traits.InteractionContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.InteractionContext]]] = None,
+        hooks: typing.Optional[typing.MutableSet[traits.InteractionHooks]] = None,
     ) -> bool:
         command = self._interaction_commands.get(ctx.triggering_name.casefold())
         if not self._is_alive or not command:
@@ -369,7 +369,7 @@ class Component(injector.Injectable, traits.Component):
         ctx: traits.MessageContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.Hooks[traits.MessageContext]]] = None,
+        hooks: typing.Optional[typing.MutableSet[traits.MessageHooks]] = None,
     ) -> bool:
         if not self._is_alive:
             return False

@@ -79,7 +79,7 @@ if typing.TYPE_CHECKING:
 
     from tanjun import errors
 
-    _T = typing.TypeVar("_T")
+_T = typing.TypeVar("_T")
 
 
 ContextT = typing.TypeVar("ContextT", bound="Context")
@@ -450,7 +450,7 @@ class InteractionContext(Context, abc.ABC):
         raise NotImplementedError
 
 
-class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
+class Hooks(abc.ABC, typing.Generic[ContextT, ContextT_contra]):
     __slots__: typing.Sequence[str] = ()
 
     @abc.abstractmethod
@@ -460,41 +460,47 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
     @abc.abstractmethod
     async def trigger_error(
         self,
-        ctx: ContextT_contra,
+        ctx: ContextT_co,
         /,
         exception: BaseException,
         *,
-        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT_contra]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT, ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_parser_error(
         self,
-        ctx: ContextT_contra,
+        ctx: ContextT_co,
         /,
         exception: errors.ParserError,
-        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT_contra]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT, ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_post_execution(
-        self, ctx: ContextT_contra, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT_contra]]] = None
+        self, ctx: ContextT_co, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT, ContextT_contra]]] = None
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_pre_execution(
-        self, ctx: ContextT_contra, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT_contra]]] = None
+        self, ctx: ContextT_co, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT, ContextT_contra]]] = None
     ) -> bool:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_success(
-        self, ctx: ContextT_contra, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT_contra]]] = None
+        self, ctx: ContextT_co, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT, ContextT_contra]]] = None
     ) -> None:
         raise NotImplementedError
+
+
+HooksT = Hooks[_T, _T]
+AnyHooks = Hooks[Context, Context]
+MessageHooks = Hooks[MessageContext, MessageContext]
+InteractionHooks = Hooks[InteractionContext, InteractionContext]
 
 
 class Executable(abc.ABC, typing.Generic[ContextT]):
@@ -507,7 +513,7 @@ class Executable(abc.ABC, typing.Generic[ContextT]):
 
     @property
     @abc.abstractmethod
-    def hooks(self) -> typing.Optional[Hooks[ContextT]]:
+    def hooks(self) -> typing.Optional[Hooks[ContextT, ContextT]]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -515,7 +521,7 @@ class Executable(abc.ABC, typing.Generic[ContextT]):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_hooks(self: _T, _: typing.Optional[Hooks[ContextT]], /) -> _T:
+    def set_hooks(self: _T, _: typing.Optional[Hooks[ContextT, ContextT]], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -532,7 +538,7 @@ class Executable(abc.ABC, typing.Generic[ContextT]):
 
     @abc.abstractmethod
     async def execute(
-        self, ctx: ContextT, /, *, hooks: typing.Optional[typing.MutableSet[Hooks[ContextT]]] = None
+        self, ctx: ContextT, /, *, hooks: typing.Optional[typing.MutableSet[Hooks[ContextT, ContextT]]] = None
     ) -> bool:
         raise NotImplementedError
 
@@ -616,7 +622,7 @@ class InteractionCommandGroup(InteractionCommand, abc.ABC):
         /,
         *names: str,
         checks: typing.Optional[typing.Iterable[CheckSig]] = None,
-        hooks: typing.Optional[Hooks[InteractionContext]] = None,
+        hooks: typing.Optional[InteractionHooks] = None,
     ) -> typing.Callable[[CommandFunctionSig], CommandFunctionSig]:
         raise NotImplementedError
 
@@ -718,7 +724,7 @@ class MessageCommandGroup(MessageCommand, abc.ABC):
         /,
         *names: str,
         checks: typing.Optional[typing.Iterable[CheckSig]] = None,
-        hooks: typing.Optional[Hooks[MessageContext]] = None,
+        hooks: typing.Optional[MessageHooks] = None,
         parser: typing.Optional[Parser] = None,
     ) -> typing.Callable[[CommandFunctionSig], CommandFunctionSig]:
         raise NotImplementedError
@@ -783,13 +789,13 @@ class Component(abc.ABC):
         ctx: InteractionContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[Hooks[InteractionContext]]] = None,
+        hooks: typing.Optional[typing.MutableSet[InteractionHooks]] = None,
     ) -> bool:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def execute_message(
-        self, ctx: MessageContext, /, *, hooks: typing.Optional[typing.MutableSet[Hooks[MessageContext]]] = None
+        self, ctx: MessageContext, /, *, hooks: typing.Optional[typing.MutableSet[MessageHooks]] = None
     ) -> bool:
         raise NotImplementedError
 
