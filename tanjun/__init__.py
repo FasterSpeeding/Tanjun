@@ -62,10 +62,10 @@ __all__: typing.Sequence[str] = [
     "PrefixGetterSig",
     # commands.py
     "commands",
-    "as_command",
-    "as_group",
-    "Command",
-    "CommandGroup",
+    "as_message_command",
+    "as_message_command_group",
+    "MessageCommand",
+    "MessageCommandGroup",
     # components.py
     "components",
     "Component",

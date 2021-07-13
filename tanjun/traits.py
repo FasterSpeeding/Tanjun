@@ -83,6 +83,7 @@ if typing.TYPE_CHECKING:
 
 
 ContextT = typing.TypeVar("ContextT", bound="Context")
+ContextT_co = typing.TypeVar("ContextT_co", bound="Context", covariant=True)
 ContextT_contra = typing.TypeVar("ContextT_contra", bound="Context", contravariant=True)
 
 # To allow for stateless converters we accept both "Converter[...]" and "Type[StatelessConverter[...]]" where all the
@@ -122,8 +123,6 @@ raising `tanjun.errors.FailedCheck` will indicate that the current context
 shouldn't lead to an execution.
 """
 CheckSigT = typing.TypeVar("CheckSigT", bound=CheckSig)
-
-ComponentT_contra = typing.TypeVar("ComponentT_contra", bound="Component", contravariant=True)
 
 ValueT_co = typing.TypeVar("ValueT_co", covariant=True)
 """A general type hint used for generic interfaces in Tanjun."""
@@ -166,17 +165,9 @@ class Context(abc.ABC):
     def component(self) -> typing.Optional[Component]:
         raise NotImplementedError
 
-    @component.setter
-    def component(self, _: Component, /) -> None:
-        raise NotImplementedError
-
     @property  # TODO: can we somehow have this always be present on the command execution facing interface
     @abc.abstractmethod
     def command(self: ContextT) -> typing.Optional[Executable[ContextT]]:
-        raise NotImplementedError
-
-    @command.setter
-    def command(self: ContextT, _: Executable[ContextT], /) -> None:
         raise NotImplementedError
 
     @property
@@ -220,9 +211,9 @@ class Context(abc.ABC):
     def triggering_name(self) -> str:
         raise NotImplementedError
 
-    # @abc.abstractmethod
-    # async def edit_response(self) -> messages.Message:
-    #     raise NotImplementedError
+    @abc.abstractmethod
+    def set_component(self: _T, _: typing.Optional[Component], /) -> _T:
+        raise NotImplementedError
 
     @abc.abstractmethod
     async def fetch_channel(self) -> channels.PartialChannel:
@@ -232,10 +223,6 @@ class Context(abc.ABC):
     async def fetch_guild(self) -> typing.Optional[guilds.Guild]:  # TODO: or raise?
         raise NotImplementedError
 
-    # @abc.abstractmethod
-    # async def fetch_response(self) -> messages.Message:
-    #     raise NotImplementedError
-
     @abc.abstractmethod
     def get_channel(self) -> typing.Optional[channels.PartialChannel]:
         raise NotImplementedError
@@ -244,13 +231,60 @@ class Context(abc.ABC):
     def get_guild(self) -> typing.Optional[guilds.Guild]:
         raise NotImplementedError
 
+    @typing.overload
     @abc.abstractmethod
-    async def execute(
+    async def respond(
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
+        wait_for_result: typing.Literal[False] = False,
+        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        # attachment: undefined.UndefinedOr[files.Resourceish] = undefined.UNDEFINED,
+        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        user_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
+        ] = undefined.UNDEFINED,
+        role_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
+        ] = undefined.UNDEFINED,
+    ) -> typing.Optional[messages.Message]:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    async def respond(
+        self,
+        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        *,
+        wait_for_result: typing.Literal[True],
+        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
+        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        user_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
+        ] = undefined.UNDEFINED,
+        role_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
+        ] = undefined.UNDEFINED,
+    ) -> messages.Message:
+        ...
+
+    @abc.abstractmethod
+    async def respond(
+        self,
+        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        *,
+        wait_for_result: bool = False,
+        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
+        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         user_mentions: undefined.UndefinedOr[
@@ -271,17 +305,9 @@ class MessageContext(Context, abc.ABC):
     def command(self) -> typing.Optional[MessageCommand]:
         raise NotImplementedError
 
-    @command.setter
-    def command(self, _: MessageCommand, /) -> None:
-        raise NotImplementedError
-
     @property
     @abc.abstractmethod
     def content(self) -> str:
-        raise NotImplementedError
-
-    @content.setter
-    def content(self, _: str, /) -> None:
         raise NotImplementedError
 
     @property
@@ -304,18 +330,30 @@ class MessageContext(Context, abc.ABC):
     def triggering_name(self) -> str:
         raise NotImplementedError
 
-    @triggering_name.setter
-    def triggering_name(self, _: str, /) -> None:
+    @abc.abstractmethod
+    def set_command(self: _T, _: MessageCommand, /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def execute(
+    def set_content(self: _T, _: str, /) -> _T:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def set_triggering_name(self: _T, _: str, /) -> _T:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def respond(
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
+        wait_for_result: bool = True,
         attachment: undefined.UndefinedOr[files.Resourceish] = undefined.UNDEFINED,
         attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
+        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
+        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         nonce: undefined.UndefinedOr[str] = undefined.UNDEFINED,
         reply: undefined.UndefinedOr[snowflakes.SnowflakeishOr[messages.PartialMessage]] = undefined.UNDEFINED,
@@ -335,12 +373,7 @@ class InteractionContext(Context, abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
-    @abc.abstractmethod
     def command(self) -> typing.Optional[InteractionCommand]:
-        raise NotImplementedError
-
-    @command.setter
-    def command(self, _: InteractionCommand, /) -> None:
         raise NotImplementedError
 
     @property
@@ -348,25 +381,19 @@ class InteractionContext(Context, abc.ABC):
     def interaction(self) -> command_interactions.CommandInteraction:
         raise NotImplementedError
 
-    @property
+    @typing.overload
     @abc.abstractmethod
-    def result(self) -> typing.Optional[special_endpoints.InteractionResponseBuilder]:
-        raise NotImplementedError
-
-    @result.setter
-    def result(self, _: typing.Optional[special_endpoints.InteractionResponseBuilder], /) -> None:
-        raise NotImplementedError
-
-    # TODO: somehow let it default to ack with message or just ack on a command basis for non-fast commands
-    @abc.abstractmethod
-    async def execute(
+    async def respond(
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
-        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        # TODO: attachment
+        wait_for_result: typing.Literal[False] = False,
+        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
+        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         user_mentions: undefined.UndefinedOr[
             typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
@@ -374,8 +401,52 @@ class InteractionContext(Context, abc.ABC):
         role_mentions: undefined.UndefinedOr[
             typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
         ] = undefined.UNDEFINED,
-        with_source: bool = False,
-    ) -> None:
+    ) -> typing.Optional[messages.Message]:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    async def respond(
+        self,
+        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        *,
+        wait_for_result: typing.Literal[True],
+        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
+        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
+        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        user_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
+        ] = undefined.UNDEFINED,
+        role_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
+        ] = undefined.UNDEFINED,
+    ) -> messages.Message:
+        ...
+
+    @abc.abstractmethod
+    async def respond(
+        self,
+        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        *,
+        wait_for_result: bool = False,
+        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
+        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
+        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        user_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
+        ] = undefined.UNDEFINED,
+        role_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
+        ] = undefined.UNDEFINED,
+    ) -> typing.Optional[messages.Message]:
         raise NotImplementedError
 
 
@@ -439,12 +510,12 @@ class Executable(abc.ABC, typing.Generic[ContextT]):
     def hooks(self) -> typing.Optional[Hooks[ContextT]]:
         raise NotImplementedError
 
-    @hooks.setter
-    def hooks(self, _: typing.Optional[Hooks[ContextT]]) -> None:
+    @abc.abstractmethod
+    def copy(self: _T) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def copy(self: _T) -> _T:
+    def set_hooks(self: _T, _: typing.Optional[Hooks[ContextT]], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -475,17 +546,9 @@ class FoundMessageCommand(abc.ABC):
     def command(self) -> MessageCommand:
         raise NotImplementedError
 
-    @command.setter  # TODO: is this still necessary?
-    def command(self, _: MessageCommand, /) -> None:
-        raise NotImplementedError
-
     @property
     @abc.abstractmethod
     def name(self) -> str:
-        raise NotImplementedError
-
-    @name.setter  # TODO: can we remove stuff like this from the public interface?
-    def name(self, _: typing.Optional[str], /) -> None:
         raise NotImplementedError
 
 
@@ -517,17 +580,16 @@ class InteractionCommand(Executable[InteractionContext], abc.ABC):
     def parent(self) -> typing.Optional[InteractionCommandGroup]:
         raise NotImplementedError
 
-    @parent.setter
-    def parent(self, _: typing.Optional[InteractionCommandGroup], /) -> None:
-        raise NotImplementedError
-
     @property
     @abc.abstractmethod
     def tracked_command(self) -> typing.Optional[command_interactions.Command]:
         raise NotImplementedError
 
-    @tracked_command.setter
-    def tracked_command(self, _: command_interactions.Command, /) -> None:
+    def set_tracked_command(self: _T, _: command_interactions.Command, /) -> _T:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def set_parent(self: _T, _: typing.Optional[InteractionCommandGroup], /) -> _T:
         raise NotImplementedError
 
 
@@ -587,17 +649,17 @@ class MessageCommand(Executable[MessageContext], abc.ABC):
     def parent(self) -> typing.Optional[MessageCommandGroup]:
         raise NotImplementedError
 
-    @parent.setter
-    def parent(self, _: typing.Optional[MessageCommandGroup], /) -> None:
-        raise NotImplementedError
-
     @property
     @abc.abstractmethod
     def parser(self) -> typing.Optional[Parser]:
         raise NotImplementedError
 
-    @parser.setter
-    def parser(self, _: typing.Optional[Parser], /) -> None:
+    @abc.abstractmethod
+    def set_parent(self: _T, _: typing.Optional[MessageCommandGroup], /) -> _T:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def set_parser(self: _T, _: typing.Optional[Parser], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -617,7 +679,7 @@ class MessageCommand(Executable[MessageContext], abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def copy(self: _T, parent: typing.Optional[MessageCommandGroup] = None, /) -> _T:
+    def copy(self: _T, *, parent: typing.Optional[MessageCommandGroup] = None) -> _T:
         raise NotImplementedError
 
     # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
@@ -813,6 +875,7 @@ class UndefinedDefaultT:
     def __new__(cls) -> UndefinedDefaultT:
         if cls.__singleton is None:
             cls.__singleton = super().__new__(cls)
+            assert isinstance(cls.__singleton, UndefinedDefaultT)
 
         return cls.__singleton
 
@@ -840,10 +903,6 @@ class Parameter(abc.ABC):
     def default(self) -> typing.Union[typing.Any, UndefinedDefaultT]:
         raise NotImplementedError
 
-    @default.setter
-    def default(self, _: typing.Union[typing.Any, UndefinedDefaultT], /) -> None:
-        raise NotImplementedError
-
     @property
     @abc.abstractmethod
     def flags(self) -> typing.MutableMapping[str, typing.Any]:
@@ -852,10 +911,6 @@ class Parameter(abc.ABC):
     @property
     @abc.abstractmethod
     def key(self) -> str:
-        raise NotImplementedError
-
-    @key.setter
-    def key(self, _: str) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -895,17 +950,9 @@ class Option(Parameter, abc.ABC):
     def empty_value(self) -> typing.Union[typing.Any, UndefinedDefaultT]:
         raise NotImplementedError
 
-    @empty_value.setter
-    def empty_value(self, _: typing.Union[typing.Any, UndefinedDefaultT], /) -> None:
-        raise NotImplementedError
-
     @property
     @abc.abstractmethod
     def names(self) -> typing.Sequence[str]:
-        raise NotImplementedError
-
-    @names.setter  # TODO: what?
-    def names(self, _: typing.Sequence[str], /) -> None:
         raise NotImplementedError
 
 
@@ -930,7 +977,7 @@ class Parser(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_parameters(self, parameters: typing.Iterable[Parameter], /) -> None:
+    def set_parameters(self, _: typing.Iterable[Parameter], /) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod

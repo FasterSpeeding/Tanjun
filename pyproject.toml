@@ -7,3 +7,16 @@ build-backend = "setuptools.build_meta"
 line-length     = 120
 target-version  = ["py38"]
 include         = ".*pyi?$"
+
+[tool.pyright]
+include = ["tanjun"]
+
+reportMissingImports = true
+reportMissingTypeStubs = true
+
+pythonVersion = "3.8"
+typeCheckingMode = "strict"
+reportIncompatibleMethodOverride = "warning"  # This relies on ordering for key-word only arguments which is annoying
+                                           # than it's worth
+reportUnknownMemberType = "warning"  # This messes with instance checking generic objects
+reportUnknownArgumentType = "warning"  # Pretty much the same as reportUnknownMemberType

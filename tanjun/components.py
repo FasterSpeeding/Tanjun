@@ -50,7 +50,6 @@ if typing.TYPE_CHECKING:
     _InteractionCommandT = typing.TypeVar("_InteractionCommandT", bound=traits.InteractionCommand)
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound=traits.MessageCommand)
     _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
-    _ValueT = typing.TypeVar("_ValueT")
 
 
 @typing.runtime_checkable
@@ -65,7 +64,7 @@ class Component(injector.Injectable, traits.Component):
     __slots__: typing.Sequence[str] = (
         "_checks",
         "_client",
-        "hooks",
+        "_hooks",
         "_injector",
         "_interaction_commands",
         "_interaction_hooks",
@@ -84,9 +83,11 @@ class Component(injector.Injectable, traits.Component):
         interaction_hooks: typing.Optional[traits.Hooks[traits.InteractionContext]] = None,
         message_hooks: typing.Optional[traits.Hooks[traits.MessageContext]] = None,
     ) -> None:
-        self._checks = set(injector.InjectableCheck(check) for check in checks) if checks else set()
+        self._checks: typing.Set[injector.InjectableCheck] = (
+            set(injector.InjectableCheck(check) for check in checks) if checks else set()
+        )
         self._client: typing.Optional[traits.Client] = None
-        self.hooks = hooks
+        self._hooks = hooks
         self._injector: typing.Optional[injector.InjectorClient] = None
         self._is_alive = False
         self._interaction_commands: typing.Dict[str, traits.InteractionCommand] = {}
@@ -111,6 +112,10 @@ class Component(injector.Injectable, traits.Component):
     @property
     def client(self) -> typing.Optional[traits.Client]:
         return self._client
+
+    @property
+    def hooks(self) -> typing.Optional[traits.Hooks[traits.Context]]:
+        return self._hooks
 
     @property
     def interaction_commands(self) -> typing.AbstractSet[traits.InteractionCommand]:
@@ -170,12 +175,16 @@ class Component(injector.Injectable, traits.Component):
             self._checks = set(check.copy() for check in self._checks)
             self._interaction_commands = {name: command.copy() for name, command in self._interaction_commands.items()}
             self._message_commands = {command.copy() for command in self._message_commands}
-            self.hooks = self.hooks.copy() if self.hooks else None
+            self._hooks = self._hooks.copy() if self._hooks else None
             self._listeners = {copy.copy(listener) for listener in self._listeners}
             self._metadata = self._metadata.copy()
             return self
 
         return copy.copy(self).copy(_new=False)
+
+    def set_hooks(self: _ComponentT, hooks: typing.Optional[traits.Hooks[traits.Context]], /) -> _ComponentT:
+        self._hooks = hooks
+        return self
 
     def add_check(self: _ComponentT, check: traits.CheckSig, /) -> _ComponentT:
         self._checks.add(injector.InjectableCheck(check, injector=self._injector))
@@ -283,14 +292,14 @@ class Component(injector.Injectable, traits.Component):
     async def check_message_context(
         self, ctx: traits.MessageContext, /, *, name_prefix: str = ""
     ) -> typing.AsyncIterator[traits.FoundMessageCommand]:
-        ctx.component = self
+        ctx.set_component(self)
         if await utilities.gather_checks(self._checks, ctx):
             async for value in utilities.async_chain(
                 command.check_context(ctx, name_prefix=name_prefix) for command in self._message_commands
             ):
                 yield value
 
-        ctx.component = None
+        ctx.set_component(None)
 
     def check_message_name(self, name: str, /) -> typing.Iterator[traits.FoundMessageCommand]:
         return itertools.chain.from_iterable(command.check_name(name) for command in self._message_commands)
@@ -346,11 +355,11 @@ class Component(injector.Injectable, traits.Component):
         if not self._is_alive or not command:
             return False
 
-        if self.hooks and hooks:
-            hooks.add(self.hooks)
+        if self._hooks and hooks:
+            hooks.add(self._hooks)
 
-        elif self.hooks:
-            hooks = {self.hooks}
+        elif self._hooks:
+            hooks = {self._hooks}
 
         await command.execute(ctx, hooks=hooks)
         return True
@@ -366,16 +375,16 @@ class Component(injector.Injectable, traits.Component):
             return False
 
         async for result in self.check_message_context(ctx):
-            ctx.triggering_name = result.name
-            ctx.content = ctx.content[len(result.name) :].lstrip()
+            ctx.set_triggering_name(result.name)
+            ctx.set_content(ctx.content[len(result.name) :].lstrip())
             # Only add our hooks and set command if we're sure we'll be executing the command here.
-            ctx.command = result.command
+            ctx.set_command(result.command)
 
-            if self.hooks and hooks:
-                hooks.add(self.hooks)
+            if self._hooks and hooks:
+                hooks.add(self._hooks)
 
-            elif self.hooks:
-                hooks = {self.hooks}
+            elif self._hooks:
+                hooks = {self._hooks}
 
             await result.command.execute(ctx, hooks=hooks)
             return True
@@ -386,13 +395,13 @@ class Component(injector.Injectable, traits.Component):
         for name, member in inspect.getmembers(self):
             if isinstance(member, LoadableProtocol):
                 if isinstance(member, traits.MessageCommand):
-                    mcommand = member.copy()
-                    mcommand.make_method_type(self)
-                    setattr(self, name, mcommand)
-                    self.add_message_command(mcommand)
+                    message_command = member.copy()
+                    message_command.make_method_type(self)
+                    setattr(self, name, message_command)
+                    self.add_message_command(message_command)
 
                 elif isinstance(member, traits.InteractionCommand):
-                    icommand = member.copy()
-                    icommand.make_method_type(self)
-                    setattr(self, name, icommand)
-                    self.add_interaction_command(icommand)
+                    interaction_command = member.copy()
+                    interaction_command.make_method_type(self)
+                    setattr(self, name, interaction_command)
+                    self.add_interaction_command(interaction_command)

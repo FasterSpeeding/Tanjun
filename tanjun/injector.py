@@ -45,6 +45,7 @@ __all__: typing.Sequence[str] = [
 ]
 
 import abc
+import collections.abc as collections
 import copy
 import inspect
 import typing
@@ -191,7 +192,7 @@ class InjectorClient:
         self._client = client
         self._component_mapping_values: typing.Set[tanjun_traits.Component] = set()
         self._component_mapping: typing.Dict[typing.Type[tanjun_traits.Component], tanjun_traits.Component] = {}
-        self._type_dependencies: typing.Dict[typing.Type[typing.Any], CallbackSig[typing.Any]] = {}
+        self._type_dependencies: typing.Dict[typing.Type[typing.Any], InjectableValue[typing.Any]] = {}
 
     def add_type_dependency(
         self: _InjectorClientT, type_: typing.Type[_T], callback: CallbackSig[_T], /
@@ -243,7 +244,7 @@ class InjectorClient:
 
         def get_injectable(_: tanjun_traits.Context) -> InjectableValue[_T]:
             try:
-                return typing.cast(InjectableValue[_T], self._type_dependencies[type_])
+                return self._type_dependencies[type_]
 
             except KeyError:
                 raise errors.MissingDependencyError(f"Couldn't resolve injected type {type_} to actual value") from None
@@ -257,13 +258,17 @@ class InjectorClient:
             return
 
         for name, parameter in parameters:
-            if parameter.default is parameter.default and not isinstance(parameter.default, Injected):
+            if parameter.default is parameter.default:
+                continue
+
+            if not isinstance(parameter.default, Injected):
                 continue
 
             if parameter.kind is parameter.POSITIONAL_ONLY:
                 raise ValueError("Injected positional only arguments are not supported")
 
             if parameter.default.callback is not UNDEFINED:
+                assert not isinstance(parameter.default.callback, Undefined)
                 yield self._make_callback_getter(parameter.default.callback, name)
 
             else:
@@ -330,7 +335,7 @@ class BaseInjectableValue(Injectable, typing.Generic[_T]):
 
         return copy.copy(self).copy(_new=False)
 
-    def set_injector(self, client: InjectorClient) -> None:
+    def set_injector(self, client: InjectorClient, /) -> None:
         if self.injector:
             raise RuntimeError("Injector already set for this check")
 
@@ -350,11 +355,11 @@ class BaseInjectableValue(Injectable, typing.Generic[_T]):
             result = self.callback(*args)
 
         if self.is_async is None:
-            self.is_async = isinstance(result, typing.Awaitable)
+            self.is_async = isinstance(result, collections.Awaitable)
 
         if self.is_async:
-            assert isinstance(result, typing.Awaitable)
-            result = await result
+            assert isinstance(result, collections.Awaitable)
+            return typing.cast(_T, await result)
 
         return typing.cast(_T, result)
 
@@ -386,7 +391,7 @@ class InjectableConverter(BaseInjectableValue[_T]):
     async def __call__(self, value: str, ctx: tanjun_traits.Context, /) -> _T:
         if self._is_base_converter:
             assert isinstance(self.callback, conversion.BaseConverter)
-            return await self.callback(value, ctx)
+            return typing.cast(_T, await self.callback(value, ctx))
 
         return await self.call(value, ctx=ctx)
 
@@ -408,7 +413,11 @@ class _CacheCallback(typing.Generic[_T]):
         if self._result is None:
             getters = injector.resolve_callback_to_getters(self._callback)
             temp_result = self._callback(*args, **await resolve_getters(ctx, getters))
-            self._result = await temp_result if isinstance(temp_result, typing.Awaitable) else temp_result
+
+            if isinstance(temp_result, collections.Awaitable):
+                self._result = typing.cast(_T, await temp_result)
+            else:
+                self._result = temp_result
 
         return self._result
 

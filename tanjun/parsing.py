@@ -50,6 +50,7 @@ import copy
 import itertools
 import shlex
 import typing
+from collections import abc as collections
 
 from tanjun import conversion
 from tanjun import errors
@@ -567,7 +568,15 @@ def with_multi_option(
 
 
 class _Parameter(injector_.Injectable, traits.Parameter):
-    __slots__: typing.Sequence[str] = ("_client", "_component", "_converters", "default", "_flags", "_injector", "key")
+    __slots__: typing.Sequence[str] = (
+        "_client",
+        "_component",
+        "_converters",
+        "_default",
+        "_flags",
+        "_injector",
+        "_key",
+    )
 
     def __init__(
         self,
@@ -581,16 +590,16 @@ class _Parameter(injector_.Injectable, traits.Parameter):
         self._client: typing.Optional[traits.Client] = None
         self._component: typing.Optional[traits.Component] = None
         self._converters: typing.Optional[typing.List[injector_.InjectableConverter[typing.Any]]] = None
-        self.default = default
+        self._default = default
         self._flags = dict(flags) if flags else {}
         self._injector: typing.Optional[injector_.InjectorClient] = None
-        self.key = key
+        self._key = key
 
         if key.startswith("-"):
             raise ValueError("parameter key cannot start with `-`")
 
         if converters is not None:
-            if isinstance(converters, typing.Iterable):
+            if isinstance(converters, collections.Iterable):
                 for converter in converters:
                     self.add_converter(converter)
 
@@ -598,15 +607,23 @@ class _Parameter(injector_.Injectable, traits.Parameter):
                 self.add_converter(converters)
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__} <{self.key}>"
+        return f"{type(self).__name__} <{self._key}>"
 
     @property
     def converters(self) -> typing.Optional[typing.Sequence[traits.ConverterSig]]:
         return tuple(converter.callback for converter in self._converters) if self._converters is not None else None
 
     @property
+    def default(self) -> typing.Union[typing.Any, traits.UndefinedDefaultT]:
+        return self._default
+
+    @property
     def flags(self) -> typing.MutableMapping[str, typing.Any]:
         return self._flags
+
+    @property
+    def key(self) -> str:
+        return self._key
 
     @property
     def needs_injector(self) -> bool:
@@ -635,7 +652,7 @@ class _Parameter(injector_.Injectable, traits.Parameter):
         if self._converters is None:
             raise ValueError("No converters set")
 
-        self._converters.remove(converter)  # type: ignore[arg-type]
+        self._converters.remove(converter)  # type: ignore # reportGeneralTypeIssues
 
         if not self._converters:
             self._converters = None
@@ -710,7 +727,7 @@ class Argument(_Parameter, traits.Argument):
 
 
 class Option(_Parameter, traits.Option):
-    __slots__: typing.Sequence[str] = ("empty_value", "names")
+    __slots__: typing.Sequence[str] = ("_empty_value", "_names")
 
     def __init__(
         self,
@@ -722,20 +739,26 @@ class Option(_Parameter, traits.Option):
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
         empty_value: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
     ) -> None:
-        names = [name, *names]
-
-        if not all(n.startswith("-") for n in names):
+        if not name.startswith("-") or not all(n.startswith("-") for n in names):
             raise ValueError("All option names must start with `-`")
 
         if flags and GREEDY in flags:
             raise ValueError("Option cannot be greedy")
 
-        self.empty_value = empty_value
-        self.names = names
+        self._empty_value = empty_value
+        self._names = [name, *names]
         super().__init__(key, converters=converters, default=default, flags=flags)
 
+    @property
+    def empty_value(self) -> typing.Union[typing.Any, traits.UndefinedDefaultT]:
+        return self._empty_value
+
+    @property
+    def names(self) -> typing.Sequence[str]:
+        return self._names.copy()
+
     def __repr__(self) -> str:
-        return f"{type(self).__name__} <{self.key}, {self.names}>"
+        return f"{type(self).__name__} <{self.key}, {self._names}>"
 
 
 class ShlexParser(injector_.Injectable, traits.Parser):
@@ -853,8 +876,7 @@ class ShlexParser(injector_.Injectable, traits.Parser):
 # Unlike the other decorators in this module, this can only be applied to a command descriptor.
 def with_parser(command: CommandT, /) -> CommandT:
     """Add a shlex parser descriptor to a command descriptor."""
-    command.parser = ShlexParser()
-    return command
+    return command.set_parser(ShlexParser())
 
 
 def with_typed_parameters(command: CommandT, /, *, ignore_self: bool) -> CommandT:

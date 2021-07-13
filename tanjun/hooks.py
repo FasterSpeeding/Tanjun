@@ -108,15 +108,15 @@ async def _wrap_pre_check(callback: PreExecutionHookSig, ctx: traits.Context) ->
     raise _FailedPreError
 
 
-class Hooks(traits.Hooks[traits.ContextT]):
+class Hooks(traits.Hooks[traits.ContextT_contra]):
     __slots__: typing.Sequence[str] = ("_error", "_parser_error", "_pre_execution", "_post_execution", "_success")
 
     def __init__(self) -> None:
-        self._error: typing.Optional[ErrorHookSig[traits.ContextT]] = None
-        self._parser_error: typing.Optional[ParserHookSig[traits.ContextT]] = None
-        self._pre_execution: typing.Optional[PreExecutionHookSig[traits.ContextT]] = None
-        self._post_execution: typing.Optional[HookSig[traits.ContextT]] = None
-        self._success: typing.Optional[HookSig[traits.ContextT]] = None
+        self._error: typing.Optional[ErrorHookSig[traits.ContextT_contra]] = None
+        self._parser_error: typing.Optional[ParserHookSig[traits.ContextT_contra]] = None
+        self._pre_execution: typing.Optional[PreExecutionHookSig[traits.ContextT_contra]] = None
+        self._post_execution: typing.Optional[HookSig[traits.ContextT_contra]] = None
+        self._success: typing.Optional[HookSig[traits.ContextT_contra]] = None
 
     def __repr__(self) -> str:
         return (
@@ -125,59 +125,65 @@ class Hooks(traits.Hooks[traits.ContextT]):
         )
 
     def add_to_command(self, command: CommandT, /) -> CommandT:
-        command.hooks = self
+        command.set_hooks(self)
         return command
 
     def copy(self: _HooksT) -> _HooksT:
         return copy.deepcopy(self)
 
-    def set_on_error(self: _HooksT, hook: typing.Optional[ErrorHookSig[traits.ContextT]], /) -> _HooksT:
+    def set_on_error(self: _HooksT, hook: typing.Optional[ErrorHookSig[traits.ContextT_contra]], /) -> _HooksT:
         self._error = hook
         return self
 
-    def with_on_error(self, hook: ErrorHookSig[traits.ContextT], /) -> ErrorHookSig[traits.ContextT]:
+    def with_on_error(self, hook: ErrorHookSig[traits.ContextT_contra], /) -> ErrorHookSig[traits.ContextT_contra]:
         self.set_on_error(hook)
         return hook
 
-    def set_on_parser_error(self: _HooksT, hook: typing.Optional[ParserHookSig[traits.ContextT]], /) -> _HooksT:
+    def set_on_parser_error(self: _HooksT, hook: typing.Optional[ParserHookSig[traits.ContextT_contra]], /) -> _HooksT:
         self._parser_error = hook
         return self
 
-    def with_on_parser_error(self, hook: ParserHookSig[traits.ContextT], /) -> ParserHookSig[traits.ContextT]:
+    def with_on_parser_error(
+        self, hook: ParserHookSig[traits.ContextT_contra], /
+    ) -> ParserHookSig[traits.ContextT_contra]:
         self.set_on_parser_error(hook)
         return hook
 
-    def set_post_execution(self: _HooksT, hook: typing.Optional[HookSig[traits.ContextT]], /) -> _HooksT:
+    def set_post_execution(self: _HooksT, hook: typing.Optional[HookSig[traits.ContextT_contra]], /) -> _HooksT:
         self._post_execution = hook
         return self
 
-    def with_post_execution(self, hook: HookSig[traits.ContextT], /) -> HookSig[traits.ContextT]:
+    def with_post_execution(self, hook: HookSig[traits.ContextT_contra], /) -> HookSig[traits.ContextT_contra]:
         self.set_post_execution(hook)
         return hook
 
-    def set_pre_execution(self: _HooksT, hook: typing.Optional[PreExecutionHookSig[traits.ContextT]], /) -> _HooksT:
+    def set_pre_execution(
+        self: _HooksT, hook: typing.Optional[PreExecutionHookSig[traits.ContextT_contra]], /
+    ) -> _HooksT:
         self._pre_execution = hook
         return self
 
-    def with_pre_execution(self, hook: PreExecutionHookSig[traits.ContextT], /) -> PreExecutionHookSig[traits.ContextT]:
+    def with_pre_execution(
+        self, hook: PreExecutionHookSig[traits.ContextT_contra], /
+    ) -> PreExecutionHookSig[traits.ContextT_contra]:
         self.set_pre_execution(hook)
         return hook
 
-    def set_on_success(self: _HooksT, hook: typing.Optional[HookSig[traits.ContextT]], /) -> _HooksT:
+    def set_on_success(self: _HooksT, hook: typing.Optional[HookSig[traits.ContextT_contra]], /) -> _HooksT:
         self._success = hook
         return self
 
-    def with_on_success(self, hook: HookSig[traits.ContextT], /) -> HookSig[traits.ContextT]:
+    def with_on_success(self, hook: HookSig[traits.ContextT_contra], /) -> HookSig[traits.ContextT_contra]:
         self.set_on_success(hook)
         return hook
 
     async def trigger_error(
         self,
-        ctx: traits.ContextT,
+        ctx: traits.ContextT_contra,
         /,
         exception: BaseException,
         *,
-        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT_contra]]] = None,
     ) -> None:  # TODO: return True to indicate "raise" else False or None to suppress
         if self._error:
             await utilities.await_if_async(self._error, ctx, exception)
@@ -187,10 +193,10 @@ class Hooks(traits.Hooks[traits.ContextT]):
 
     async def trigger_parser_error(
         self,
-        ctx: traits.ContextT,
+        ctx: traits.ContextT_contra,
         /,
         exception: errors.ParserError,
-        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT_contra]]] = None,
     ) -> None:
         if self._parser_error:
             await utilities.await_if_async(self._parser_error, ctx, exception)
@@ -200,10 +206,10 @@ class Hooks(traits.Hooks[traits.ContextT]):
 
     async def trigger_post_execution(
         self,
-        ctx: traits.ContextT,
+        ctx: traits.ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT_contra]]] = None,
     ) -> None:
         if self._post_execution:
             await utilities.await_if_async(self._post_execution, ctx)
@@ -213,10 +219,10 @@ class Hooks(traits.Hooks[traits.ContextT]):
 
     async def trigger_pre_execution(
         self,
-        ctx: traits.ContextT,
+        ctx: traits.ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT_contra]]] = None,
     ) -> bool:
         if self._pre_execution and await utilities.await_if_async(self._pre_execution, ctx) is False:
             return False
@@ -231,10 +237,10 @@ class Hooks(traits.Hooks[traits.ContextT]):
 
     async def trigger_success(
         self,
-        ctx: traits.ContextT,
+        ctx: traits.ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT_contra]]] = None,
     ) -> None:
         if self._success:
             await utilities.await_if_async(self._success, ctx)

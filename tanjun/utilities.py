@@ -43,7 +43,10 @@ __all__: typing.Sequence[str] = [
 ]
 
 import asyncio
+import functools
+import operator
 import typing
+from collections import abc as collections
 
 from hikari import channels
 from hikari import errors as hikari_errors
@@ -94,7 +97,7 @@ async def await_if_async(
     """
     result = callback(*args)
 
-    if isinstance(result, typing.Awaitable):  # TODO: this is probably slow
+    if isinstance(result, collections.Awaitable):  # TODO: this is probably slow
         # For some reason MYPY thinks this returns typing.Any
         return typing.cast(_ValueT, await result)
 
@@ -157,13 +160,8 @@ async def fetch_resource(
         return await call(*args)
 
 
-ALL_PERMISSIONS = permissions_.Permissions.NONE
+ALL_PERMISSIONS = functools.reduce(operator.__xor__, permissions_.Permissions)
 """All of the known permissions based on the linked version of Hikari."""
-
-for _permission in permissions_.Permissions:
-    ALL_PERMISSIONS |= _permission
-
-del _permission
 
 
 def _calculate_channel_overwrites(

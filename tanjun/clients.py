@@ -36,7 +36,9 @@ __all__: typing.Sequence[str] = ["AcceptsEnum", "as_loader", "Client", "Loadable
 import asyncio
 import enum
 import functools
-import importlib.util
+import importlib
+import importlib.abc as importlib_abc
+import importlib.util as importlib_util
 import inspect
 import itertools
 import typing
@@ -180,18 +182,10 @@ class Client(injector.InjectorClient, traits.Client):
         event_managed: typing.Optional[bool] = None,
         mention_prefix: bool = False,
     ) -> None:
-        cache = utilities.try_find_type(
-            hikari_traits.CacheAware, cache, events, rest, server, shard  # type: ignore[misc]
-        )
-        events = utilities.try_find_type(
-            hikari_traits.EventManagerAware, events, cache, rest, server, shard  # type: ignore[misc]
-        )
-        server = utilities.try_find_type(
-            hikari_traits.InteractionServerAware, server, cache, events, rest, shard  # type: ignore[misc]
-        )
-        shard = utilities.try_find_type(
-            hikari_traits.ShardAware, shard, cache, events, rest, server  # type: ignore[misc]
-        )
+        cache = utilities.try_find_type(hikari_traits.CacheAware, cache, events, rest, server, shard)
+        events = utilities.try_find_type(hikari_traits.EventManagerAware, events, cache, rest, server, shard)
+        server = utilities.try_find_type(hikari_traits.InteractionServerAware, server, cache, events, rest, shard)
+        shard = utilities.try_find_type(hikari_traits.ShardAware, shard, cache, events, rest, server)
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
         # TODO: warn if server and dispatch both None but don't error
 
@@ -213,10 +207,7 @@ class Client(injector.InjectorClient, traits.Client):
         self._shards = shard
         self.set_human_only(True)
 
-        if self._events and event_managed is None:
-            event_managed = True
-
-        if event_managed:
+        if event_managed or event_managed is None and self._events:
             if not self._events:
                 raise ValueError("Client cannot be event managed without an event manager")
 
@@ -390,7 +381,7 @@ class Client(injector.InjectorClient, traits.Client):
         return self
 
     # TODO: use generic callable type var here instead?
-    def with_prefix_getter(self: _ClientT, getter: PrefixGetterSig) -> PrefixGetterSig:
+    def with_prefix_getter(self, getter: PrefixGetterSig) -> PrefixGetterSig:
         self.set_prefix_getter(getter)
         return getter
 
@@ -473,13 +464,13 @@ class Client(injector.InjectorClient, traits.Client):
                 module = importlib.import_module(module_path)
 
             else:
-                spec = importlib.util.spec_from_file_location(
+                spec = importlib_util.spec_from_file_location(
                     module_path.name.rsplit(".", 1)[0], str(module_path.absolute())
                 )
 
                 # https://github.com/python/typeshed/issues/2793
-                if spec and isinstance(spec.loader, importlib.abc.Loader):
-                    module = importlib.util.module_from_spec(spec)
+                if spec and isinstance(spec.loader, importlib_abc.Loader):
+                    module = importlib_util.module_from_spec(spec)
                     spec.loader.exec_module(module)
 
                 raise RuntimeError(f"Unknown or invalid module provided {module_path}")
@@ -498,8 +489,8 @@ class Client(injector.InjectorClient, traits.Client):
         if (prefix := await self._check_prefix(ctx)) is None:
             return
 
-        ctx.content = ctx.content.lstrip()[len(prefix) :].lstrip()
-        ctx.triggering_prefix = prefix
+        ctx.set_content(ctx.content.lstrip()[len(prefix) :].lstrip())
+        ctx.set_triggering_prefix(prefix)
 
         if not await self.check(ctx):
             return

@@ -49,7 +49,10 @@ if typing.TYPE_CHECKING:
     from hikari import traits as hikari_traits
     from hikari import users
     from hikari.api import shard as shard_
+    from hikari.api import special_endpoints
     from hikari.interactions import commands as command_interactions
+
+    _MessageContextT = typing.TypeVar("_MessageContextT", bound="MessageContext")
 
 
 class MessageContext(traits.MessageContext):
@@ -57,12 +60,12 @@ class MessageContext(traits.MessageContext):
 
     __slots__: typing.Sequence[str] = (
         "_client",
-        "command",
-        "component",
-        "content",
+        "_command",
+        "_component",
+        "_content",
         "_message",
         "_rest",
-        "triggering_name",
+        "_triggering_name",
         "_triggering_prefix",
         "_shard",
     )
@@ -82,15 +85,15 @@ class MessageContext(traits.MessageContext):
             raise ValueError("Cannot spawn context with a content-less message.")
 
         self._client = client
-        self.command = command
-        self.component: typing.Optional[traits.Component] = None
-        self.content = content
+        self._command = command
+        self._component: typing.Optional[traits.Component] = None
+        self._content = content
         self._message = message
-        self.triggering_name = triggering_name
+        self._triggering_name = triggering_name
         self._triggering_prefix = triggering_prefix
 
     def __repr__(self) -> str:
-        return f"Context <{self._message!r}, {self.command!r}>"
+        return f"Context <{self._message!r}, {self._command!r}>"
 
     @property
     def author(self) -> users.User:
@@ -109,6 +112,18 @@ class MessageContext(traits.MessageContext):
         return self._client
 
     @property
+    def command(self) -> typing.Optional[traits.MessageCommand]:
+        return self._command
+
+    @property
+    def component(self) -> typing.Optional[traits.Component]:
+        return self._component
+
+    @property
+    def content(self) -> str:
+        return self._content
+
+    @property
     def event_service(self) -> typing.Optional[hikari_traits.EventManagerAware]:
         return self._client.event_service
 
@@ -116,6 +131,7 @@ class MessageContext(traits.MessageContext):
     def guild_id(self) -> typing.Optional[snowflakes.Snowflake]:
         return self._message.guild_id
 
+    @property
     def is_human(self) -> bool:
         return not self._message.author.is_bot and self._message.webhook_id is None
 
@@ -128,14 +144,12 @@ class MessageContext(traits.MessageContext):
         return self._message
 
     @property
+    def triggering_name(self) -> str:
+        return self._triggering_name
+
+    @property
     def triggering_prefix(self) -> str:
         return self._triggering_prefix
-
-    # Since this isn't settable on the interface we need to override this with a property
-    # rather than just using a slotted instance variable.
-    @triggering_prefix.setter
-    def triggering_prefix(self, triggering_prefix: str) -> None:
-        self._triggering_prefix = triggering_prefix
 
     @property
     def rest_service(self) -> hikari_traits.RESTAware:
@@ -162,38 +176,25 @@ class MessageContext(traits.MessageContext):
 
         return self._client.shard_service.shards[shard_id]
 
-    async def execute(
-        self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
-        *,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        attachment: undefined.UndefinedOr[files.Resourceish] = undefined.UNDEFINED,
-        attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        nonce: undefined.UndefinedOr[str] = undefined.UNDEFINED,
-        reply: undefined.UndefinedOr[snowflakes.SnowflakeishOr[messages.PartialMessage]] = undefined.UNDEFINED,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        mentions_reply: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> messages.Message:
-        return await self._message.respond(
-            content=content,
-            embed=embed,
-            attachment=attachment,
-            attachments=attachments,
-            tts=tts,
-            nonce=nonce,
-            reply=reply,
-            mentions_everyone=mentions_everyone,
-            mentions_reply=mentions_reply,
-            user_mentions=user_mentions,
-            role_mentions=role_mentions,
-        )
+    def set_command(self: _MessageContextT, command: traits.MessageCommand, /) -> _MessageContextT:
+        self._command = command
+        return self
+
+    def set_component(self: _MessageContextT, component: typing.Optional[traits.Component], /) -> _MessageContextT:
+        self._component = component
+        return self
+
+    def set_content(self: _MessageContextT, content: str, /) -> _MessageContextT:
+        self._content = content
+        return self
+
+    def set_triggering_name(self: _MessageContextT, name: str, /) -> _MessageContextT:
+        self._triggering_name = name
+        return self
+
+    def set_triggering_prefix(self: _MessageContextT, triggering_prefix: str, /) -> _MessageContextT:
+        self._triggering_prefix = triggering_prefix
+        return self
 
     async def fetch_channel(self) -> channels.PartialChannel:
         return await self._client.rest_service.rest.fetch_channel(self._message.channel_id)
@@ -215,6 +216,46 @@ class MessageContext(traits.MessageContext):
             return self._client.cache_service.cache.get_guild(self._message.guild_id)
 
         return None
+
+    async def respond(
+        self,
+        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        *,
+        wait_for_result: bool = True,
+        attachment: undefined.UndefinedOr[files.Resourceish] = undefined.UNDEFINED,
+        attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
+        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
+        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        nonce: undefined.UndefinedOr[str] = undefined.UNDEFINED,
+        reply: undefined.UndefinedOr[snowflakes.SnowflakeishOr[messages.PartialMessage]] = undefined.UNDEFINED,
+        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        mentions_reply: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        user_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
+        ] = undefined.UNDEFINED,
+        role_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
+        ] = undefined.UNDEFINED,
+    ) -> messages.Message:
+        return await self._message.respond(
+            content=content,
+            attachment=attachment,
+            attachments=attachments,
+            component=component,
+            components=components,
+            embed=embed,
+            embeds=embeds,
+            tts=tts,
+            nonce=nonce,
+            reply=reply,
+            mentions_everyone=mentions_everyone,
+            mentions_reply=mentions_reply,
+            user_mentions=user_mentions,
+            role_mentions=role_mentions,
+        )
 
 
 class IntegrationContext(traits.InteractionContext):
@@ -261,24 +302,6 @@ class IntegrationContext(traits.InteractionContext):
     def interaction(self) -> command_interactions.CommandInteraction:
         return self._interaction
 
-    async def execute(
-        self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
-        *,
-        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-        with_source: bool = False,
-    ) -> None:
-        raise NotImplementedError  # TODO: this
-
     async def fetch_channel(self) -> channels.PartialChannel:
         return await self._client.rest_service.rest.fetch_channel(self._interaction.channel_id)
 
@@ -299,3 +322,68 @@ class IntegrationContext(traits.InteractionContext):
             return self._client.cache_service.cache.get_guild(self._interaction.guild_id)
 
         return None
+
+    @typing.overload
+    async def respond(
+        self,
+        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        *,
+        wait_for_result: typing.Literal[False] = False,
+        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
+        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
+        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        user_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
+        ] = undefined.UNDEFINED,
+        role_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
+        ] = undefined.UNDEFINED,
+    ) -> typing.Optional[messages.Message]:
+        ...
+
+    @typing.overload
+    async def respond(
+        self,
+        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        *,
+        wait_for_result: typing.Literal[True],
+        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
+        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
+        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        user_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
+        ] = undefined.UNDEFINED,
+        role_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
+        ] = undefined.UNDEFINED,
+    ) -> messages.Message:
+        ...
+
+    async def respond(
+        self,
+        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        *,
+        wait_for_result: bool = False,
+        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
+        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
+        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        user_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
+        ] = undefined.UNDEFINED,
+        role_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
+        ] = undefined.UNDEFINED,
+    ) -> typing.Optional[messages.Message]:
+        raise NotImplementedError
