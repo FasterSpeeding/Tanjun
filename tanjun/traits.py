@@ -450,7 +450,7 @@ class InteractionContext(Context, abc.ABC):
         raise NotImplementedError
 
 
-class Hooks(abc.ABC, typing.Generic[ContextT, ContextT_contra]):
+class Hooks(abc.ABC, typing.Generic[ContextT_co, ContextT_contra]):
     __slots__: typing.Sequence[str] = ()
 
     @abc.abstractmethod
@@ -480,19 +480,31 @@ class Hooks(abc.ABC, typing.Generic[ContextT, ContextT_contra]):
 
     @abc.abstractmethod
     async def trigger_post_execution(
-        self, ctx: ContextT_co, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT, ContextT_contra]]] = None
+        self,
+        ctx: ContextT_co,
+        /,
+        *,
+        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT, ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_pre_execution(
-        self, ctx: ContextT_co, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT, ContextT_contra]]] = None
+        self,
+        ctx: ContextT_co,
+        /,
+        *,
+        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT, ContextT_contra]]] = None,
     ) -> bool:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_success(
-        self, ctx: ContextT_co, /, *, hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT, ContextT_contra]]] = None
+        self,
+        ctx: ContextT_co,
+        /,
+        *,
+        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT, ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
