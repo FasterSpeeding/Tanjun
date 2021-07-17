@@ -9,7 +9,7 @@ TARGET_PROJECT_NAME = "hikari-tanjun"
 
 def load_meta_data():
     pattern = re.compile(r"__(?P<key>\w+)__\s=\s\"(?P<value>.+)\"")
-    with open(os.path.join(MAIN_MODULE_NAME, "about.py"), "r") as file:
+    with open(os.path.join(MAIN_MODULE_NAME, "__init__.py"), "r") as file:
         code = file.read()
 
     groups = dict(group.groups() for group in pattern.finditer(code))

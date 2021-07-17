@@ -32,6 +32,18 @@
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
+    # __init__.py
+    "__author__",
+    "__ci__",
+    "__copyright__",
+    "__coverage__",
+    "__docs__",
+    "__email__",
+    "__issue_tracker__",
+    "__license__",
+    "__url__",
+    "__version__",
+    "__git_sha1__",
     # checks.py
     "checks",
     "with_check",
@@ -134,3 +146,15 @@ from tanjun.errors import *
 from tanjun.hooks import *
 from tanjun.injector import *
 from tanjun.parsing import *
+
+__author__ = "Faster Speeding"
+__ci__ = ""
+__copyright__ = "© 2020-2021 Faster Speeding"
+__coverage__ = ""
+__docs__ = "https://fasterspeeding.github.io/Tanjun/"
+__email__ = "lucina@lmbyrne.dev"
+__issue_tracker__ = "https://github.com/FasterSpeeding/Tanjun/issues"
+__license__ = "BSD"
+__url__ = "https://github.com/FasterSpeeding/Tanjun"
+__version__ = "2.0.0a1"
+__git_sha1__ = "HEAD"
