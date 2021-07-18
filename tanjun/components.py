@@ -231,7 +231,7 @@ class Component(injector.Injectable, traits.Component):
         ctx.component = None
 
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
-        yield from itertools.chain.from_iterable(command.check_name(name) for command in self._commands)
+        return itertools.chain.from_iterable(command.check_name(name) for command in self._commands)
 
     def _try_unsubscribe(
         self,

@@ -337,12 +337,11 @@ class Client(injector.InjectorClient, traits.Client):
         self.set_prefix_getter(getter)
         return getter
 
-    async def check_context(self, ctx: traits.Context, /) -> typing.AsyncIterator[traits.FoundCommand]:
-        async for value in utilities.async_chain(component.check_context(ctx) for component in self._components):
-            yield value
+    def check_context(self, ctx: traits.Context, /) -> typing.AsyncIterator[traits.FoundCommand]:
+        return utilities.async_chain(component.check_context(ctx) for component in self._components)
 
     def check_name(self, name: str, /) -> typing.Iterator[traits.FoundCommand]:
-        yield from itertools.chain.from_iterable(component.check_name(name) for component in self._components)
+        return itertools.chain.from_iterable(component.check_name(name) for component in self._components)
 
     async def _check_prefix(self, ctx: traits.Context, /) -> typing.Optional[str]:
         if self._prefix_getter:
