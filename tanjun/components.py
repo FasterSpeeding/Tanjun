@@ -222,7 +222,7 @@ class Component(injector.Injectable, traits.Component):
         self, ctx: traits.Context, /, *, name_prefix: str = ""
     ) -> typing.AsyncIterator[traits.FoundCommand]:
         ctx.component = self
-        if await utilities.gather_checks(check(ctx) for check in self._checks):
+        if await utilities.gather_checks(self._checks, ctx):
             async for value in utilities.async_chain(
                 command.check_context(ctx, name_prefix=name_prefix) for command in self._commands
             ):

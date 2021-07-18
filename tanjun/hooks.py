@@ -105,6 +105,17 @@ cancel execution of the current command).
 PreExecutionHookSigT = typing.TypeVar("PreExecutionHookSigT", bound=PreExecutionHookSig)
 
 
+class _FailedPreError(Exception):
+    __slots__: typing.Sequence[str] = ()
+
+
+async def _wrap_pre_check(callback: PreExecutionHookSig, ctx: traits.Context) -> None:
+    if await utilities.await_if_async(callback, ctx):
+        return
+
+    raise _FailedPreError
+
+
 class Hooks(traits.Hooks):
     __slots__: typing.Sequence[str] = ("_error", "_parser_error", "_pre_execution", "_post_execution", "_success")
 
@@ -211,7 +222,10 @@ class Hooks(traits.Hooks):
             return False
 
         if hooks:
-            return await utilities.gather_checks(hook.trigger_pre_execution(ctx) for hook in hooks)
+            try:
+                await asyncio.gather(_wrap_pre_check(hook.trigger_pre_execution, ctx) for hook in hooks)
+            except _FailedPreError:
+                return False
 
         return True
 

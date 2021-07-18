@@ -193,7 +193,7 @@ class Command(injector.Injectable, traits.ExecutableCommand, typing.Generic[Comm
         self, ctx: traits.Context, /, *, name_prefix: str = ""
     ) -> typing.AsyncIterator[traits.FoundCommand]:
         if found := next(self.check_name(ctx.content[len(name_prefix) :].lstrip()), None):
-            if await utilities.gather_checks(check(ctx) for check in self._checks):
+            if await utilities.gather_checks(self._checks, ctx):
                 yield found
 
     def add_name(self: _CommandT, name: str, /) -> _CommandT:

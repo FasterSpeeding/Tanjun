@@ -56,6 +56,7 @@ from tanjun import errors as tanjun_errors
 if typing.TYPE_CHECKING:
     from hikari import guilds
 
+    from tanjun import injector
     from tanjun import traits as tanjun_traits
 
 
@@ -109,15 +110,15 @@ async def _wrap_check(check: typing.Awaitable[bool]) -> bool:
     return True
 
 
-async def gather_checks(checks: typing.Iterable[typing.Awaitable[bool]]) -> bool:
+async def gather_checks(checks: typing.Iterable[injector.InjectableCheck], ctx: tanjun_traits.Context) -> bool:
     """Gather a collection of checks.
 
     Parameters
     ----------
-    checks : typing.Iterable[typing.Awaitable[bool]]
-        An iterable of check awaitables which each return `builtin.bool`.
-        These may raise `hikari.errors.FailedCheck` as an alternative to
-        returning `False`.
+    checks : typing.Iterable[tanjun.injector.InjectableCheck]
+        An iterable of injectable checks.
+    ctx : tanjun.traits.Context
+        The context to check.
 
     Returns
     -------
@@ -125,9 +126,9 @@ async def gather_checks(checks: typing.Iterable[typing.Awaitable[bool]]) -> bool
         Whether all the checks passed or not.
     """
     try:
-        await asyncio.gather(*map(_wrap_check, checks))
-        # _wrap_check will raise FailedCheck if a false is received so if we get
-        # this far then it's True.
+        await asyncio.gather(*(check(ctx) for check in checks))
+        # InjectableCheck will raise FailedCheck if a false is received so if
+        # we get this far then it's True.
         return True
 
     except tanjun_errors.FailedCheck:

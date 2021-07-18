@@ -370,7 +370,10 @@ class InjectableCheck(BaseInjectableValue[bool]):
     __slots__: typing.Sequence[str] = ()
 
     async def __call__(self, ctx: tanjun_traits.Context, /) -> bool:
-        return await self.call(ctx, ctx=ctx)
+        if result := await self.call(ctx, ctx=ctx):
+            return result
+
+        raise errors.FailedCheck()
 
 
 class InjectableConverter(BaseInjectableValue[_T]):

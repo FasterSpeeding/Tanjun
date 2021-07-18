@@ -303,7 +303,7 @@ class Client(injector.InjectorClient, traits.Client):
         return check
 
     async def check(self, ctx: traits.Context, /) -> bool:
-        return await utilities.gather_checks(check(ctx) for check in self._checks)
+        return await utilities.gather_checks(self._checks, ctx)
 
     def add_component(self: _ClientT, component: traits.Component, /) -> _ClientT:
         if isinstance(component, injector.Injectable):
