@@ -104,15 +104,6 @@ async def await_if_async(
     return result
 
 
-async def _wrap_check(check: typing.Awaitable[bool]) -> bool:
-    # We raise on `False` to let asyncio.gather stop execution on the first failed
-    # check rather than waiting for all checks to fail.
-    if await check is False:
-        raise tanjun_errors.FailedCheck()
-
-    return True
-
-
 async def gather_checks(checks: typing.Iterable[injector.InjectableCheck], ctx: tanjun_traits.Context) -> bool:
     """Gather a collection of checks.
 

@@ -101,7 +101,7 @@ class _FailedPreError(Exception):
     __slots__: typing.Sequence[str] = ()
 
 
-async def _wrap_pre_check(callback: PreExecutionHookSig, ctx: traits.Context) -> None:
+async def _wrap_pre_check(callback: PreExecutionHookSig[traits.ContextT], ctx: traits.ContextT) -> None:
     if await utilities.await_if_async(callback, ctx):
         return
 
