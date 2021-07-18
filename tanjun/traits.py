@@ -39,7 +39,7 @@ __all__: typing.Sequence[str] = [
     "ValueT_co",
     "Context",
     "Hooks",
-    "Executable",
+    "ExecutableCommand",
     "InteractionCommand",
     "InteractionCommandGroup",
     "InteractionContext",
@@ -112,9 +112,9 @@ command if applicable.
 
 
 CheckSig = typing.Callable[..., typing.Union[bool, typing.Awaitable[bool]]]
-"""Type hint of a general context check used with Tanjun `Executable` classes.
+"""Type hint of a general context check used with Tanjun `ExecutableCommand` classes.
 
-This may be registered with a `Executable` to add a rule which decides whether
+This may be registered with a `ExecutableCommand` to add a rule which decides whether
 it should execute for each context passed to it. This should take one positional
 argument of type `Context` and may either be a synchronous or asynchronous
 function which returns `builtins.bool` where returning `builtins.False` or
@@ -166,7 +166,7 @@ class Context(abc.ABC):
 
     @property  # TODO: can we somehow have this always be present on the command execution facing interface
     @abc.abstractmethod
-    def command(self: ContextT) -> typing.Optional[Executable[ContextT]]:
+    def command(self: ContextT) -> typing.Optional[ExecutableCommand[ContextT]]:
         raise NotImplementedError
 
     @property
@@ -514,7 +514,7 @@ MessageHooks = Hooks[MessageContext, MessageContext]
 InteractionHooks = Hooks[InteractionContext, InteractionContext]
 
 
-class Executable(abc.ABC, typing.Generic[ContextT]):
+class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
     __slots__: typing.Sequence[str] = ()
 
     @property
@@ -558,7 +558,7 @@ class Executable(abc.ABC, typing.Generic[ContextT]):
         raise NotImplementedError
 
 
-class InteractionCommand(Executable[InteractionContext], abc.ABC):
+class InteractionCommand(ExecutableCommand[InteractionContext], abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
@@ -627,7 +627,7 @@ class InteractionCommandGroup(InteractionCommand, abc.ABC):
         raise NotImplementedError
 
 
-class MessageCommand(Executable[MessageContext], abc.ABC):
+class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property

@@ -50,7 +50,7 @@ from tanjun import utilities
 if typing.TypeVar:
     _HooksT = typing.TypeVar("_HooksT", bound="Hooks[typing.Any, typing.Any]")
 
-CommandT = typing.TypeVar("CommandT", bound=traits.Executable[typing.Any])
+CommandT = typing.TypeVar("CommandT", bound=traits.ExecutableCommand[typing.Any])
 
 ParserHookSig = typing.Callable[
     ["traits.ContextT", "errors.ParserError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]

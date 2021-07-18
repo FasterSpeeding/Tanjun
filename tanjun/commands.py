@@ -76,7 +76,7 @@ class _LoadableInjector(injector.InjectableCheck):
 
 
 class PartialCommand(
-    injector.Injectable, traits.Executable[traits.ContextT], typing.Generic[CommandFunctionSigT, traits.ContextT]
+    injector.Injectable, traits.ExecutableCommand[traits.ContextT], typing.Generic[CommandFunctionSigT, traits.ContextT]
 ):
     __slots__: typing.Sequence[str] = (
         "_cached_getters",
@@ -345,6 +345,8 @@ class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext],
             if await utilities.gather_checks(self._checks, ctx):
                 return name
 
+        return None
+
     def add_name(self: _MessageCommandT, name: str, /) -> _MessageCommandT:
         self._names.add(name)
         return self
@@ -357,6 +359,8 @@ class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext],
             # inconsistently parsed.
             if name == own_name or name.startswith(own_name) and name[len(own_name)] == " ":
                 return name
+
+        return None
 
     def remove_name(self, name: str, /) -> None:
         self._names.remove(name)
