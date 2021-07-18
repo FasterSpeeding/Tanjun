@@ -276,22 +276,6 @@ def as_message_command_group(
     return decorator
 
 
-class FoundMessageCommand(traits.FoundMessageCommand):
-    __slots__: typing.Sequence[str] = ("_command", "_name")
-
-    def __init__(self, command_: traits.MessageCommand, name: str, /) -> None:
-        self._command = command_
-        self._name = name
-
-    @property
-    def command(self) -> traits.MessageCommand:
-        return self._command
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-
 class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext], traits.MessageCommand):
     __slots__: typing.Sequence[str] = (
         "_cached_getters",
@@ -356,26 +340,23 @@ class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext],
         self._parser = parser
         return self
 
-    async def check_context(
-        self, ctx: traits.MessageContext, /, *, name_prefix: str = ""
-    ) -> typing.AsyncIterator[traits.FoundMessageCommand]:
-        if found := next(self.check_name(ctx.content[len(name_prefix) :].lstrip()), None):
+    async def check_context(self, ctx: traits.MessageContext, /, *, name_prefix: str = "") -> typing.Optional[str]:
+        if name := self.check_name(ctx.content[len(name_prefix) :].lstrip()):
             if await utilities.gather_checks(self._checks, ctx):
-                yield found
+                return name
 
     def add_name(self: _MessageCommandT, name: str, /) -> _MessageCommandT:
         self._names.add(name)
         return self
 
-    def check_name(self, name: str, /) -> typing.Iterator[traits.FoundMessageCommand]:
+    def check_name(self, name: str, /) -> typing.Optional[str]:
         for own_name in self._names:
             # Here we enforce that a name must either be at the end of content or be followed by a space. This helps
             # avoid issues with ambiguous naming where a command with the names "name" and "names" may sometimes hit
             # the former before the latter when triggered with the latter, leading to the command potentially being
             # inconsistently parsed.
             if name == own_name or name.startswith(own_name) and name[len(own_name)] == " ":
-                yield FoundMessageCommand(self, own_name)
-                break
+                return name
 
     def remove_name(self, name: str, /) -> None:
         self._names.remove(name)
@@ -539,7 +520,7 @@ class MessageCommandGroup(MessageCommand[CommandFunctionSigT], traits.MessageCom
             hooks = {self._hooks}
 
         for command in self._commands:
-            async for result in command.check_context(ctx):
+            if name := await command.check_context(ctx):
                 # triggering_prefix should never be None here but for the sake of covering all cases if it is then we
                 # assume an empty string.
                 # If triggering_name is None then we assume an empty string for that as well.
@@ -547,9 +528,9 @@ class MessageCommandGroup(MessageCommand[CommandFunctionSigT], traits.MessageCom
                     len(ctx.triggering_name or "") :
                 ]
                 space_len = len(content) - len(content.lstrip())
-                ctx.set_triggering_name((ctx.triggering_name or "") + (" " * space_len) + result.name)
-                ctx.set_content(ctx.content[space_len + len(result.name) :].lstrip())
-                await result.command.execute(ctx, hooks=hooks)
+                ctx.set_triggering_name((ctx.triggering_name or "") + (" " * space_len) + name)
+                ctx.set_content(ctx.content[space_len + len(name) :].lstrip())
+                await command.execute(ctx, hooks=hooks)
                 return True
 
         return await super().execute(ctx, hooks=hooks)

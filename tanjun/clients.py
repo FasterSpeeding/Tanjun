@@ -387,12 +387,10 @@ class Client(injector.InjectorClient, traits.Client):
 
     def check_message_context(
         self, ctx: traits.MessageContext, /
-    ) -> typing.AsyncIterator[traits.FoundMessageCommand]:
-        return utilities.async_chain(
-            component.check_message_context(ctx) for component in self._components
-        )
+    ) -> typing.AsyncIterator[typing.Tuple[str, traits.MessageCommand]]:
+        return utilities.async_chain(component.check_message_context(ctx) for component in self._components)
 
-    def check_message_name(self, name: str, /) -> typing.Iterator[traits.FoundMessageCommand]:
+    def check_message_name(self, name: str, /) -> typing.Iterator[typing.Tuple[str, traits.MessageCommand]]:
         return itertools.chain.from_iterable(component.check_message_name(name) for component in self._components)
 
     async def _check_prefix(self, ctx: traits.MessageContext, /) -> typing.Optional[str]:

@@ -35,7 +35,6 @@ __all__: typing.Sequence[str] = ["Component"]
 
 import copy
 import inspect
-import itertools
 import typing
 
 from hikari.events import base_events
@@ -291,18 +290,19 @@ class Component(injector.Injectable, traits.Component):
 
     async def check_message_context(
         self, ctx: traits.MessageContext, /, *, name_prefix: str = ""
-    ) -> typing.AsyncIterator[traits.FoundMessageCommand]:
+    ) -> typing.AsyncIterator[typing.Tuple[str, traits.MessageCommand]]:
         ctx.set_component(self)
         if await utilities.gather_checks(self._checks, ctx):
-            async for value in utilities.async_chain(
-                command.check_context(ctx, name_prefix=name_prefix) for command in self._message_commands
-            ):
-                yield value
+            for command in self._message_commands:
+                if name := await command.check_context(ctx, name_prefix=name_prefix):
+                    yield name, command
 
         ctx.set_component(None)
 
-    def check_message_name(self, name: str, /) -> typing.Iterator[traits.FoundMessageCommand]:
-        return itertools.chain.from_iterable(command.check_name(name) for command in self._message_commands)
+    def check_message_name(self, name: str, /) -> typing.Iterator[typing.Tuple[str, traits.MessageCommand]]:
+        for command in self._message_commands:
+            if found_name := command.check_name(name):
+                yield found_name, command
 
     def _try_unsubscribe(
         self,
@@ -374,11 +374,11 @@ class Component(injector.Injectable, traits.Component):
         if not self._is_alive:
             return False
 
-        async for result in self.check_message_context(ctx):
-            ctx.set_triggering_name(result.name)
-            ctx.set_content(ctx.content[len(result.name) :].lstrip())
+        async for name, command in self.check_message_context(ctx):
+            ctx.set_triggering_name(name)
+            ctx.set_content(ctx.content[len(name) :].lstrip())
             # Only add our hooks and set command if we're sure we'll be executing the command here.
-            ctx.set_command(result.command)
+            ctx.set_command(command)
 
             if self._hooks and hooks:
                 hooks.add(self._hooks)
@@ -386,7 +386,7 @@ class Component(injector.Injectable, traits.Component):
             elif self._hooks:
                 hooks = {self._hooks}
 
-            await result.command.execute(ctx, hooks=hooks)
+            await command.execute(ctx, hooks=hooks)
             return True
 
         return False

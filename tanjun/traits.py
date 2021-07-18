@@ -40,7 +40,6 @@ __all__: typing.Sequence[str] = [
     "Context",
     "Hooks",
     "Executable",
-    "FoundMessageCommand",
     "InteractionCommand",
     "InteractionCommandGroup",
     "InteractionContext",
@@ -549,24 +548,13 @@ class Executable(abc.ABC, typing.Generic[ContextT]):
         raise NotImplementedError
 
     @abc.abstractmethod
+    async def check_context(self, ctx: MessageContext, /) -> typing.Optional[str]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
     async def execute(
         self, ctx: ContextT, /, *, hooks: typing.Optional[typing.MutableSet[Hooks[ContextT, ContextT]]] = None
     ) -> bool:
-        raise NotImplementedError
-
-
-# This doesn't apply to interaction commands as they only have one name
-class FoundMessageCommand(abc.ABC):
-    __slots__: typing.Sequence[str] = ()
-
-    @property
-    @abc.abstractmethod
-    def command(self) -> MessageCommand:
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def name(self) -> str:
         raise NotImplementedError
 
 
@@ -700,16 +688,12 @@ class MessageCommand(Executable[MessageContext], abc.ABC):
     def copy(self: _T, *, parent: typing.Optional[MessageCommandGroup] = None) -> _T:
         raise NotImplementedError
 
-    # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
-    # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
     @abc.abstractmethod
-    def check_context(
-        self, ctx: MessageContext, /, *, name_prefix: str = ""
-    ) -> typing.AsyncIterator[FoundMessageCommand]:
+    async def check_context(self, ctx: MessageContext, /, *, name_prefix: str = "") -> typing.Optional[str]:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def check_name(self, name: str, /) -> typing.Iterator[FoundMessageCommand]:
+    def check_name(self, name: str, /) -> typing.Optional[str]:
         raise NotImplementedError
 
 
@@ -780,11 +764,11 @@ class Component(abc.ABC):
     @abc.abstractmethod
     def check_message_context(
         self, ctx: MessageContext, /, *, name_prefix: str = ""
-    ) -> typing.AsyncIterator[FoundMessageCommand]:
+    ) -> typing.AsyncIterator[typing.Tuple[str, MessageCommand]]:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def check_message_name(self, name: str, /) -> typing.Iterator[FoundMessageCommand]:
+    def check_message_name(self, name: str, /) -> typing.Iterator[typing.Tuple[str, MessageCommand]]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -871,11 +855,13 @@ class Client(abc.ABC):
     # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
     # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
     # @abc.abstractmethod
-    # def check_message_context(self, ctx: MessageContext, /) -> typing.AsyncIterator[FoundMessageCommand]:
+    # def check_message_context(
+    #    self, ctx: MessageContext, /
+    # ) -> typing.AsyncIterator[typing.Tuple[str, MessageCommand]]:
     #     raise NotImplementedError
 
     @abc.abstractmethod
-    def check_message_name(self, name: str, /) -> typing.Iterator[FoundMessageCommand]:
+    def check_message_name(self, name: str, /) -> typing.Iterator[typing.Tuple[str, MessageCommand]]:
         raise NotImplementedError
 
     @abc.abstractmethod
