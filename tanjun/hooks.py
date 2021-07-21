@@ -223,7 +223,7 @@ class Hooks(traits.Hooks):
 
         if hooks:
             try:
-                await asyncio.gather(_wrap_pre_check(hook.trigger_pre_execution, ctx) for hook in hooks)
+                await asyncio.gather(*(_wrap_pre_check(hook.trigger_pre_execution, ctx) for hook in hooks))
             except _FailedPreError:
                 return False
 
