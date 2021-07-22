@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["InteractionContext", "MessageContext"]
+__all__: typing.Sequence[str] = ["InteractionContext", "MessageContext", "ResponseTypeT"]
 
 import asyncio
 import dataclasses
@@ -59,7 +59,11 @@ if typing.TYPE_CHECKING:
     from hikari.interactions import commands as command_interactions
 
     _BaseContextT = typing.TypeVar("_BaseContextT", bound="BaseContext")
+    _InteractionContextT = typing.TypeVar("_InteractionContextT", bound="InteractionContext")
     _MessageContextT = typing.TypeVar("_MessageContextT", bound="MessageContext")
+
+
+ResponseTypeT = typing.Union[special_endpoints.InteractionMessageBuilder, special_endpoints.InteractionDeferredBuilder]
 
 
 class BaseContext(traits.Context):
@@ -378,6 +382,7 @@ del _raise_not_implemented, _name, _value
 
 class InteractionContext(BaseContext, traits.InteractionContext):
     __slots__: typing.Sequence[str] = (
+        "_defer_task",
         "_hash_been_deferred",
         "_has_responed",
         "_interaction",
@@ -388,17 +393,17 @@ class InteractionContext(BaseContext, traits.InteractionContext):
     def __init__(
         self,
         client: traits.Client,
-        /,
         interaction: command_interactions.CommandInteraction,
-        response_future: typing.Optional[asyncio.Future[special_endpoints.InteractionResponseBuilder]],
+        /,
         *,
         component: typing.Optional[traits.Component] = None,
     ) -> None:
         super().__init__(client, component=component)
+        self._defer_task: typing.Optional[asyncio.Task[None]] = None
         self._hash_been_deferred = False
         self._has_responed = False
         self._interaction = interaction
-        self._response_future = response_future
+        self._response_future: typing.Optional[asyncio.Future[ResponseTypeT]] = None
         self._response_lock = asyncio.Lock()
 
     @property
@@ -433,7 +438,8 @@ class InteractionContext(BaseContext, traits.InteractionContext):
     def interaction(self) -> command_interactions.CommandInteraction:
         return self._interaction
 
-    async def deferr(self) -> None:
+    async def _auto_defer(self, countdown: typing.Union[int, float], /) -> None:
+        await asyncio.sleep(countdown)
         self._hash_been_deferred = True
 
         async with self._response_lock:
@@ -442,6 +448,19 @@ class InteractionContext(BaseContext, traits.InteractionContext):
 
             else:
                 await self.interaction.create_initial_response(base_interactions.ResponseType.DEFERRED_MESSAGE_CREATE)
+
+    def get_response_future(self) -> asyncio.Future[ResponseTypeT]:
+        if not self._response_future:
+            self._response_future = asyncio.get_running_loop().create_future()
+
+        return self._response_future
+
+    def start_defer_timer(self: _InteractionContextT, count_down: typing.Union[int, float], /) -> _InteractionContextT:
+        if self._defer_task:
+            raise ValueError("Defer timer already set")
+
+        self._defer_task = asyncio.get_running_loop().create_task(self._auto_defer(count_down))
+        return self
 
     @typing.overload
     async def respond(
@@ -526,6 +545,9 @@ class InteractionContext(BaseContext, traits.InteractionContext):
                     user_mentions=user_mentions,
                     role_mentions=role_mentions,
                 )
+
+            if self._defer_task:
+                self._defer_task.cancel()
 
             if not self._response_future or self._hash_been_deferred:
                 self._has_responed = True

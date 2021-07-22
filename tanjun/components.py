@@ -33,6 +33,7 @@ from __future__ import annotations
 
 __all__: typing.Sequence[str] = ["Component"]
 
+import asyncio
 import copy
 import inspect
 import typing
@@ -367,7 +368,7 @@ class Component(injector.Injectable, traits.Component):
 
             hooks.add(self._hooks)
 
-        await command.execute(ctx, hooks=hooks)
+        asyncio.create_task(command.execute(ctx, hooks=hooks))
         return True
 
     async def execute_message(

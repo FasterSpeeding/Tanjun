@@ -32,13 +32,17 @@
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
+    "as_interaction_command",
     "as_message_command",
     "as_message_command_group",
+    "InteractionCommand",
     "MessageCommand",
     "MessageCommandGroup",
+    "PartialCommand",
 ]
 
 import copy
+import re
 import types
 import typing
 
@@ -219,6 +223,16 @@ _COMMAND_OPTIONS_TYPES: typing.Final[typing.Set[command_interactions.OptionType]
     command_interactions.OptionType.SUB_COMMAND,
     command_interactions.OptionType.SUB_COMMAND_GROUP,
 }
+_ICOMMAND_NAME_REG: typing.Final[typing.Pattern[str]] = re.compile(r"^[a-z0-9_-]{1,32}$")
+
+
+def as_interaction_command(
+    name: str, /
+) -> typing.Callable[[CommandFunctionSigT], InteractionCommand[CommandFunctionSigT]]:
+    def decorator(function: CommandFunctionSigT) -> InteractionCommand[CommandFunctionSigT]:
+        return InteractionCommand(function, name)
+
+    return decorator
 
 
 class InteractionCommand(PartialCommand[CommandFunctionSigT, traits.InteractionContext], traits.InteractionCommand):
@@ -235,6 +249,9 @@ class InteractionCommand(PartialCommand[CommandFunctionSigT, traits.InteractionC
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
     ) -> None:
         super().__init__(function, checks=checks, hooks=hooks, metadata=metadata)
+        if not _ICOMMAND_NAME_REG.fullmatch(name):
+            raise ValueError("Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`")
+
         self._name = name
         self._parent: typing.Optional[traits.InteractionCommandGroup] = None
         self._tracked_command: typing.Optional[command_interactions.Command] = None
@@ -250,6 +267,12 @@ class InteractionCommand(PartialCommand[CommandFunctionSigT, traits.InteractionC
     @property
     def tracked_command(self) -> typing.Optional[command_interactions.Command]:
         return self._tracked_command
+
+    def set_parent(
+        self: _InteractionCommandT, parent: typing.Optional[traits.InteractionCommandGroup], /
+    ) -> _InteractionCommandT:
+        self._parent = parent
+        return self
 
     def _process_args(
         self,
@@ -280,6 +303,10 @@ class InteractionCommand(PartialCommand[CommandFunctionSigT, traits.InteractionC
                 keyword_args[option.name] = option.value
 
         return keyword_args
+
+    async def check_context(self, ctx: traits.MessageContext, /) -> typing.Optional[str]:
+        if ctx.content.startswith(self._name) and await utilities.gather_checks(self._checks, ctx):
+            return self._name
 
     async def execute(
         self,

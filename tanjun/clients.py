@@ -153,11 +153,6 @@ def _check_human(ctx: traits.Context, /) -> bool:
     return ctx.is_human
 
 
-async def _auto_defer(ctx: context.InteractionContext, /) -> None:
-    await asyncio.sleep(2.5)
-    await ctx.deferr()
-
-
 class Client(injector.InjectorClient, traits.Client):
     __slots__: typing.Sequence[str] = (
         "_accepts",
@@ -352,13 +347,15 @@ class Client(injector.InjectorClient, traits.Client):
         self._components.remove(component)
 
     def add_listener(
-        self,
+        self: _ClientT,
         event: typing.Type[event_manager_.EventT_inv],
         listener: event_manager_.CallbackT[event_manager_.EventT_inv],
         /,
-    ) -> None:
+    ) -> _ClientT:
         if self.event_service:
             self.event_service.event_manager.subscribe(event, listener)
+
+        return self
 
     def remove_listener(
         self,
@@ -441,11 +438,14 @@ class Client(injector.InjectorClient, traits.Client):
 
         if deregister_listener and self._events:
             if event_type := self._accepts.get_event_type():
-                self._try_unsubscribe(self._events.event_manager, event_type, self.on_message_create)
+                self._try_unsubscribe(self._events.event_manager, event_type, self.on_message_create_event)
 
             self._try_unsubscribe(
-                self._events.event_manager, interaction_events.InteractionCreateEvent, self.on_interaction_create
+                self._events.event_manager, interaction_events.InteractionCreateEvent, self.on_interaction_create_event
             )
+
+            if self._server:
+                self._server.interaction_server.set_listener(commands.CommandInteraction, None)
 
     async def open(self, *, register_listener: bool = True) -> None:
         if self._grab_mention_prefix:
@@ -481,9 +481,16 @@ class Client(injector.InjectorClient, traits.Client):
 
         if register_listener and self._events:
             if event_type := self._accepts.get_event_type():
-                self._events.event_manager.subscribe(event_type, self.on_message_create)
+                self._events.event_manager.subscribe(event_type, self.on_message_create_event)
 
-            self._events.event_manager.subscribe(interaction_events.InteractionCreateEvent, self.on_interaction_create)
+            self._events.event_manager.subscribe(
+                interaction_events.InteractionCreateEvent, self.on_interaction_create_event
+            )
+
+        if self._server:
+            self._server.interaction_server.set_listener(
+                commands.CommandInteraction, self.on_interaction_create_request
+            )
 
     def set_hooks(self: _ClientT, hooks: typing.Optional[traits.AnyHooks], /) -> _ClientT:
         self._hooks = hooks
@@ -520,7 +527,7 @@ class Client(injector.InjectorClient, traits.Client):
 
         return self
 
-    async def on_message_create(self, event: message_events.MessageCreateEvent) -> None:
+    async def on_message_create_event(self, event: message_events.MessageCreateEvent) -> None:
         if event.message.content is None:
             return
 
@@ -550,11 +557,11 @@ class Client(injector.InjectorClient, traits.Client):
             if await component.execute_message(ctx, hooks=hooks):
                 break
 
-    async def on_interaction_create(self, event: interaction_events.InteractionCreateEvent, /) -> None:
+    async def on_interaction_create_event(self, event: interaction_events.InteractionCreateEvent, /) -> None:
         if not isinstance(event.interaction, commands.CommandInteraction):
             return
 
-        ctx = context.InteractionContext(self, interaction=event.interaction, response_future=None)
+        ctx = context.InteractionContext(self, event.interaction).start_defer_timer(2.5)
         hooks: typing.Optional[typing.Set[traits.InteractionHooks]] = None
         if self._hooks:
             if not hooks:
@@ -568,11 +575,30 @@ class Client(injector.InjectorClient, traits.Client):
 
             hooks.add(self._interaction_hooks)
 
-        defer_task = asyncio.create_task(_auto_defer(ctx))
         for component in self._components:
             if await component.execute_interaction(ctx, hooks=hooks):
-                defer_task.cancel()
                 break
 
-        else:
-            defer_task.cancel()
+    async def on_interaction_create_request(
+        self, interaction: commands.CommandInteraction, /
+    ) -> typing.Union[context.ResponseTypeT]:
+        ctx = context.InteractionContext(self, interaction).start_defer_timer(2.5)
+        hooks: typing.Optional[typing.Set[traits.InteractionHooks]] = None
+        if self._hooks:
+            if not hooks:
+                hooks = set()
+
+            hooks.add(self._hooks)
+
+        if self._interaction_hooks:
+            if not hooks:
+                hooks = set()
+
+            hooks.add(self._interaction_hooks)
+
+        future = ctx.get_response_future()
+        for component in self._components:
+            if await component.execute_interaction(ctx, hooks=hooks):
+                break
+
+        return await future
