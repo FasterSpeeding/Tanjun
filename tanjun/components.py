@@ -355,11 +355,17 @@ class Component(injector.Injectable, traits.Component):
         if not self._is_alive or not command:
             return False
 
-        if self._hooks and hooks:
-            hooks.add(self._hooks)
+        if self._interaction_hooks:
+            if hooks is None:
+                hooks = set()
 
-        elif self._hooks:
-            hooks = {self._hooks}
+            hooks.add(self._interaction_hooks)
+
+        if self._hooks:
+            if hooks is None:
+                hooks = set()
+
+            hooks.add(self._hooks)
 
         await command.execute(ctx, hooks=hooks)
         return True
@@ -380,11 +386,17 @@ class Component(injector.Injectable, traits.Component):
             # Only add our hooks and set command if we're sure we'll be executing the command here.
             ctx.set_command(command)
 
-            if self._hooks and hooks:
-                hooks.add(self._hooks)
+            if self._message_hooks:
+                if hooks is None:
+                    hooks = set()
 
-            elif self._hooks:
-                hooks = {self._hooks}
+                hooks.add(self._message_hooks)
+
+            if self._hooks:
+                if hooks is None:
+                    hooks = set()
+
+                hooks.add(self._hooks)
 
             await command.execute(ctx, hooks=hooks)
             return True

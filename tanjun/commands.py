@@ -62,7 +62,7 @@ if typing.TYPE_CHECKING:
 
 
 CommandFunctionSigT = typing.TypeVar("CommandFunctionSigT", bound=traits.CommandFunctionSig)
-_EMPTY_HOOKS = hooks_.Hooks[typing.Any, typing.Any]()
+_EMPTY_HOOKS = hooks_.Hooks[typing.Any]()
 
 
 class _LoadableInjector(injector.InjectableCheck):
@@ -97,7 +97,7 @@ class PartialCommand(
         function: CommandFunctionSigT,
         /,
         checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.Hooks[traits.ContextT, traits.ContextT]] = None,
+        hooks: typing.Optional[traits.Hooks[traits.ContextT]] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
     ) -> None:
         self._cached_getters: typing.Optional[typing.List[injector.Getter[typing.Any]]] = None
@@ -124,7 +124,7 @@ class PartialCommand(
         return self._function
 
     @property
-    def hooks(self) -> typing.Optional[traits.Hooks[traits.ContextT, traits.ContextT]]:
+    def hooks(self) -> typing.Optional[traits.Hooks[traits.ContextT]]:
         return self._hooks
 
     @property
@@ -158,7 +158,7 @@ class PartialCommand(
 
         return copy.copy(self).copy(_new=False)
 
-    def set_hooks(self: _PartialCommandT, hooks: typing.Optional[traits.AnyHooks], /) -> _PartialCommandT:
+    def set_hooks(self: _PartialCommandT, hooks: typing.Optional[traits.Hooks[traits.ContextT]], /) -> _PartialCommandT:
         self._hooks = hooks
         return self
 
@@ -277,19 +277,7 @@ def as_message_command_group(
 
 
 class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext], traits.MessageCommand):
-    __slots__: typing.Sequence[str] = (
-        "_cached_getters",
-        "_checks",
-        "_component",
-        "_function",
-        "_hooks",
-        "_injector",
-        "_metadata",
-        "_needs_injector",
-        "_names",
-        "_parent",
-        "_parser",
-    )
+    __slots__: typing.Sequence[str] = ("_names", "_parent", "_parser")
 
     def __init__(
         self,
@@ -330,7 +318,7 @@ class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext],
             self._parent = parent
             self._parser = self._parser.copy() if self._parser else None
 
-        return typing.cast("_MessageCommandT", super().copy(_new=_new))
+        return super().copy(_new=_new)
 
     def set_parent(self: _MessageCommandT, parent: typing.Optional[traits.MessageCommandGroup], /) -> _MessageCommandT:
         self._parent = parent
@@ -517,11 +505,11 @@ class MessageCommandGroup(MessageCommand[CommandFunctionSigT], traits.MessageCom
         if ctx.message.content is None:
             raise ValueError("Cannot execute a command with a contentless message")
 
-        if self._hooks and hooks:
-            hooks.add(self._hooks)
+        if self._hooks:
+            if hooks is None:
+                hooks = set()
 
-        elif self._hooks:
-            hooks = {self._hooks}
+            hooks.add(self._hooks)
 
         for command in self._commands:
             if name := await command.check_context(ctx):

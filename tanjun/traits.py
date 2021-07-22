@@ -39,6 +39,9 @@ __all__: typing.Sequence[str] = [
     "ValueT_co",
     "Context",
     "Hooks",
+    "AnyHooks",
+    "MessageHooks",
+    "InteractionHooks",
     "ExecutableCommand",
     "InteractionCommand",
     "InteractionCommandGroup",
@@ -82,7 +85,6 @@ _T = typing.TypeVar("_T")
 
 
 ContextT = typing.TypeVar("ContextT", bound="Context")
-ContextT_co = typing.TypeVar("ContextT_co", bound="Context", covariant=True)
 ContextT_contra = typing.TypeVar("ContextT_contra", bound="Context", contravariant=True)
 
 # To allow for stateless converters we accept both "Converter[...]" and "Type[StatelessConverter[...]]" where all the
@@ -449,7 +451,7 @@ class InteractionContext(Context, abc.ABC):
         raise NotImplementedError
 
 
-class Hooks(abc.ABC, typing.Generic[ContextT_co, ContextT_contra]):
+class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
     __slots__: typing.Sequence[str] = ()
 
     @abc.abstractmethod
@@ -459,59 +461,58 @@ class Hooks(abc.ABC, typing.Generic[ContextT_co, ContextT_contra]):
     @abc.abstractmethod
     async def trigger_error(
         self,
-        ctx: ContextT_co,
+        ctx: ContextT_contra,
         /,
         exception: BaseException,
         *,
-        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT, ContextT_contra]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_parser_error(
         self,
-        ctx: ContextT_co,
+        ctx: ContextT_contra,
         /,
         exception: errors.ParserError,
-        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT, ContextT_contra]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_post_execution(
         self,
-        ctx: ContextT_co,
+        ctx: ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT, ContextT_contra]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_pre_execution(
         self,
-        ctx: ContextT_co,
+        ctx: ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT, ContextT_contra]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT_contra]]] = None,
     ) -> bool:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_success(
         self,
-        ctx: ContextT_co,
+        ctx: ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT, ContextT_contra]]] = None,
+        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
 
-HooksT = Hooks[_T, _T]
-AnyHooks = Hooks[Context, Context]
-MessageHooks = Hooks[MessageContext, MessageContext]
-InteractionHooks = Hooks[InteractionContext, InteractionContext]
+AnyHooks = Hooks[Context]
+MessageHooks = Hooks[MessageContext]
+InteractionHooks = Hooks[InteractionContext]
 
 
 class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
@@ -524,7 +525,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
 
     @property
     @abc.abstractmethod
-    def hooks(self) -> typing.Optional[Hooks[ContextT, ContextT]]:
+    def hooks(self) -> typing.Optional[Hooks[ContextT]]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -532,7 +533,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_hooks(self: _T, _: typing.Optional[Hooks[ContextT, ContextT]], /) -> _T:
+    def set_hooks(self: _T, _: typing.Optional[Hooks[ContextT]], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -553,7 +554,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
 
     @abc.abstractmethod
     async def execute(
-        self, ctx: ContextT, /, *, hooks: typing.Optional[typing.MutableSet[Hooks[ContextT, ContextT]]] = None
+        self, ctx: ContextT, /, *, hooks: typing.Optional[typing.MutableSet[Hooks[ContextT]]] = None
     ) -> bool:
         raise NotImplementedError
 
