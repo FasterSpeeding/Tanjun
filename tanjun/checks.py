@@ -126,7 +126,6 @@ class ApplicationOwnerCheck:
                 # have to retry before returning.
                 if not self._application:
                     application = await asyncio.wait_for(self._try_fetch(ctx.client.rest_service), 10)
-                    self._application = application
 
                 # Otherwise we create a task to ensure that we will still try to refresh the stored state in the future
                 # while returning the stale state to ensure that the command execution doesn't stall.

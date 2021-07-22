@@ -45,8 +45,10 @@ import typing
 
 from hikari import errors as hikari_errors
 from hikari import traits as hikari_traits
+from hikari.events import interaction_events
 from hikari.events import lifetime_events
 from hikari.events import message_events
+from hikari.interactions import commands
 from yuyo import backoff
 
 from tanjun import context
@@ -59,7 +61,7 @@ if typing.TYPE_CHECKING:
     import types
 
     from hikari import users
-    from hikari.api import event_manager
+    from hikari.api import event_manager as event_manager_
 
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
 
@@ -151,6 +153,11 @@ def _check_human(ctx: traits.Context, /) -> bool:
     return ctx.is_human
 
 
+async def _auto_defer(ctx: context.InteractionContext, /) -> None:
+    await asyncio.sleep(2.5)
+    await ctx.deferr()
+
+
 class Client(injector.InjectorClient, traits.Client):
     __slots__: typing.Sequence[str] = (
         "_accepts",
@@ -159,7 +166,7 @@ class Client(injector.InjectorClient, traits.Client):
         "_components",
         "_events",
         "_grab_mention_prefix",
-        "hooks",
+        "_hooks",
         "_interaction_hooks",
         "_message_hooks",
         "_metadata",
@@ -346,8 +353,8 @@ class Client(injector.InjectorClient, traits.Client):
 
     def add_listener(
         self,
-        event: typing.Type[event_manager.EventT_inv],
-        listener: event_manager.CallbackT[event_manager.EventT_inv],
+        event: typing.Type[event_manager_.EventT_inv],
+        listener: event_manager_.CallbackT[event_manager_.EventT_inv],
         /,
     ) -> None:
         if self.event_service:
@@ -355,8 +362,8 @@ class Client(injector.InjectorClient, traits.Client):
 
     def remove_listener(
         self,
-        event: typing.Type[event_manager.EventT_inv],
-        listener: event_manager.CallbackT[event_manager.EventT_inv],
+        event: typing.Type[event_manager_.EventT_inv],
+        listener: event_manager_.CallbackT[event_manager_.EventT_inv],
         /,
     ) -> None:
         if self.event_service:
@@ -364,13 +371,13 @@ class Client(injector.InjectorClient, traits.Client):
 
     # TODO: make event optional?
     def with_listener(
-        self, event: typing.Type[event_manager.EventT_inv]
+        self, event: typing.Type[event_manager_.EventT_inv]
     ) -> typing.Callable[
-        [event_manager.CallbackT[event_manager.EventT_inv]], event_manager.CallbackT[event_manager.EventT_inv]
+        [event_manager_.CallbackT[event_manager_.EventT_inv]], event_manager_.CallbackT[event_manager_.EventT_inv]
     ]:
         def add_listener_(
-            listener: event_manager.CallbackT[event_manager.EventT_inv],
-        ) -> event_manager.CallbackT[event_manager.EventT_inv]:
+            listener: event_manager_.CallbackT[event_manager_.EventT_inv],
+        ) -> event_manager_.CallbackT[event_manager_.EventT_inv]:
             self.add_listener(event, listener)
             return listener
 
@@ -417,16 +424,28 @@ class Client(injector.InjectorClient, traits.Client):
 
         return None
 
+    def _try_unsubscribe(
+        self,
+        event_manager: event_manager_.EventManager,
+        event_type: typing.Type[event_manager_.EventT_co],
+        callback: event_manager_.CallbackT[event_manager_.EventT_co],
+    ) -> None:
+        try:
+            event_manager.unsubscribe(event_type, callback)
+        except (ValueError, LookupError):
+            # TODO: add logging here
+            pass
+
     async def close(self, *, deregister_listener: bool = True) -> None:
         await asyncio.gather(*(component.close() for component in self._components))
 
-        event_type = self._accepts.get_event_type()
-        if deregister_listener and event_type and self._events:
-            try:
-                self._events.event_manager.unsubscribe(event_type, self.on_message_create)
-            except (ValueError, LookupError):
-                # TODO: add logging here
-                pass
+        if deregister_listener and self._events:
+            if event_type := self._accepts.get_event_type():
+                self._try_unsubscribe(self._events.event_manager, event_type, self.on_message_create)
+
+            self._try_unsubscribe(
+                self._events.event_manager, interaction_events.InteractionCreateEvent, self.on_interaction_create
+            )
 
     async def open(self, *, register_listener: bool = True) -> None:
         if self._grab_mention_prefix:
@@ -460,9 +479,11 @@ class Client(injector.InjectorClient, traits.Client):
 
         await asyncio.gather(*(component.open() for component in self._components))
 
-        event_type = self._accepts.get_event_type()
-        if register_listener and event_type and self._events:
-            self._events.event_manager.subscribe(event_type, self.on_message_create)
+        if register_listener and self._events:
+            if event_type := self._accepts.get_event_type():
+                self._events.event_manager.subscribe(event_type, self.on_message_create)
+
+            self._events.event_manager.subscribe(interaction_events.InteractionCreateEvent, self.on_interaction_create)
 
     def set_hooks(self: _ClientT, hooks: typing.Optional[traits.AnyHooks], /) -> _ClientT:
         self._hooks = hooks
@@ -507,8 +528,7 @@ class Client(injector.InjectorClient, traits.Client):
         if (prefix := await self._check_prefix(ctx)) is None:
             return
 
-        ctx.set_content(ctx.content.lstrip()[len(prefix) :].lstrip())
-        ctx.set_triggering_prefix(prefix)
+        ctx.set_content(ctx.content.lstrip()[len(prefix) :].lstrip()).set_triggering_prefix(prefix)
 
         if not await self.check(ctx):
             return
@@ -529,3 +549,30 @@ class Client(injector.InjectorClient, traits.Client):
         for component in self._components:
             if await component.execute_message(ctx, hooks=hooks):
                 break
+
+    async def on_interaction_create(self, event: interaction_events.InteractionCreateEvent, /) -> None:
+        if not isinstance(event.interaction, commands.CommandInteraction):
+            return
+
+        ctx = context.InteractionContext(self, interaction=event.interaction, response_future=None)
+        hooks: typing.Optional[typing.Set[traits.InteractionHooks]] = None
+        if self._hooks:
+            if not hooks:
+                hooks = set()
+
+            hooks.add(self._hooks)
+
+        if self._interaction_hooks:
+            if not hooks:
+                hooks = set()
+
+            hooks.add(self._interaction_hooks)
+
+        defer_task = asyncio.create_task(_auto_defer(ctx))
+        for component in self._components:
+            if await component.execute_interaction(ctx, hooks=hooks):
+                defer_task.cancel()
+                break
+
+        else:
+            defer_task.cancel()

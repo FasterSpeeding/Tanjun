@@ -77,6 +77,7 @@ if typing.TYPE_CHECKING:
     from hikari.api import shard as shard_
     from hikari.api import special_endpoints
     from hikari.events import base_events
+    from hikari.interactions import bases as base_interactions
     from hikari.interactions import commands as command_interactions
 
     from tanjun import errors
@@ -382,6 +383,11 @@ class InteractionContext(Context, abc.ABC):
     def interaction(self) -> command_interactions.CommandInteraction:
         raise NotImplementedError
 
+    @property
+    @abc.abstractmethod
+    def member(self) -> typing.Optional[base_interactions.InteractionMember]:
+        raise NotImplementedError
+
     @typing.overload
     @abc.abstractmethod
     async def respond(
@@ -555,7 +561,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
     @abc.abstractmethod
     async def execute(
         self, ctx: ContextT, /, *, hooks: typing.Optional[typing.MutableSet[Hooks[ContextT]]] = None
-    ) -> bool:
+    ) -> None:
         raise NotImplementedError
 
 
@@ -590,6 +596,17 @@ class InteractionCommand(ExecutableCommand[InteractionContext], abc.ABC):
     @property
     @abc.abstractmethod
     def tracked_command(self) -> typing.Optional[command_interactions.Command]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def execute(
+        self,
+        ctx: ContextT,
+        /,
+        option: typing.Optional[command_interactions.CommandInteractionOption] = None,
+        *,
+        hooks: typing.Optional[typing.MutableSet[Hooks[ContextT]]] = None,
+    ) -> None:
         raise NotImplementedError
 
     def set_tracked_command(self: _T, _: command_interactions.Command, /) -> _T:

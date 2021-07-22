@@ -31,12 +31,18 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["IntegrationContext", "MessageContext"]
+__all__: typing.Sequence[str] = ["InteractionContext", "MessageContext"]
 
+import asyncio
+import dataclasses
+import inspect
 import typing
 
 from hikari import snowflakes
 from hikari import undefined
+from hikari.api import special_endpoints
+from hikari.interactions import bases as base_interactions
+from hikari.internal import mentions
 
 from tanjun import traits
 
@@ -48,20 +54,89 @@ if typing.TYPE_CHECKING:
     from hikari import messages
     from hikari import traits as hikari_traits
     from hikari import users
+    from hikari.api import entity_factory as entity_factory_api
     from hikari.api import shard as shard_
-    from hikari.api import special_endpoints
     from hikari.interactions import commands as command_interactions
 
+    _BaseContextT = typing.TypeVar("_BaseContextT", bound="BaseContext")
     _MessageContextT = typing.TypeVar("_MessageContextT", bound="MessageContext")
 
 
-class MessageContext(traits.MessageContext):
+class BaseContext(traits.Context):
+    """Base class for all standard context implementations."""
+
+    __slots__: typing.Sequence[str] = ("_client", "_component")
+
+    def __init__(
+        self,
+        client: traits.Client,
+        /,
+        *,
+        component: typing.Optional[traits.Component] = None,
+    ) -> None:
+        self._client = client
+        self._component = component
+
+    @property
+    def cache_service(self) -> typing.Optional[hikari_traits.CacheAware]:
+        return self._client.cache_service
+
+    @property
+    def client(self) -> traits.Client:
+        return self._client
+
+    @property
+    def component(self) -> typing.Optional[traits.Component]:
+        return self._component
+
+    @property
+    def event_service(self) -> typing.Optional[hikari_traits.EventManagerAware]:
+        return self._client.event_service
+
+    # TODO: rename to server_app
+    @property
+    def server_service(self) -> typing.Optional[hikari_traits.InteractionServerAware]:
+        return self._client.server_service
+
+    @property
+    def rest_service(self) -> hikari_traits.RESTAware:
+        return self._client.rest_service
+
+    @property
+    def shard_service(self) -> typing.Optional[hikari_traits.ShardAware]:
+        return self._client.shard_service
+
+    def set_component(self: _BaseContextT, component: typing.Optional[traits.Component], /) -> _BaseContextT:
+        self._component = component
+        return self
+
+    def get_channel(self) -> typing.Optional[channels.PartialChannel]:
+        if self._client.cache_service:
+            return self._client.cache_service.cache.get_guild_channel(self.channel_id)
+
+        return None
+
+    def get_guild(self) -> typing.Optional[guilds.Guild]:
+        if self.guild_id is not None and self._client.cache_service:
+            return self._client.cache_service.cache.get_guild(self.guild_id)
+
+        return None
+
+    async def fetch_channel(self) -> channels.PartialChannel:
+        return await self._client.rest_service.rest.fetch_channel(self.channel_id)
+
+    async def fetch_guild(self) -> typing.Optional[guilds.Guild]:  # TODO: or raise?
+        if self.guild_id is not None:
+            return await self._client.rest_service.rest.fetch_guild(self.guild_id)
+
+        return None
+
+
+class MessageContext(BaseContext, traits.MessageContext):
     """Standard implementation of a command context as used within Tanjun."""
 
     __slots__: typing.Sequence[str] = (
-        "_client",
         "_command",
-        "_component",
         "_content",
         "_message",
         "_rest",
@@ -78,15 +153,15 @@ class MessageContext(traits.MessageContext):
         message: messages.Message,
         *,
         command: typing.Optional[traits.MessageCommand] = None,
+        component: typing.Optional[traits.Component] = None,
         triggering_name: str = "",
         triggering_prefix: str = "",
     ) -> None:
         if message.content is None:
             raise ValueError("Cannot spawn context with a content-less message.")
 
-        self._client = client
+        super().__init__(client, component=component)
         self._command = command
-        self._component: typing.Optional[traits.Component] = None
         self._content = content
         self._message = message
         self._triggering_name = triggering_name
@@ -100,32 +175,16 @@ class MessageContext(traits.MessageContext):
         return self._message.author
 
     @property
-    def cache_service(self) -> typing.Optional[hikari_traits.CacheAware]:
-        return self._client.cache_service
-
-    @property
     def channel_id(self) -> snowflakes.Snowflake:
         return self._message.channel_id
-
-    @property
-    def client(self) -> traits.Client:
-        return self._client
 
     @property
     def command(self) -> typing.Optional[traits.MessageCommand]:
         return self._command
 
     @property
-    def component(self) -> typing.Optional[traits.Component]:
-        return self._component
-
-    @property
     def content(self) -> str:
         return self._content
-
-    @property
-    def event_service(self) -> typing.Optional[hikari_traits.EventManagerAware]:
-        return self._client.event_service
 
     @property
     def guild_id(self) -> typing.Optional[snowflakes.Snowflake]:
@@ -152,18 +211,6 @@ class MessageContext(traits.MessageContext):
         return self._triggering_prefix
 
     @property
-    def rest_service(self) -> hikari_traits.RESTAware:
-        return self._client.rest_service
-
-    @property
-    def server_service(self) -> typing.Optional[hikari_traits.InteractionServerAware]:
-        return self._client.server_service
-
-    @property
-    def shard_service(self) -> typing.Optional[hikari_traits.ShardAware]:
-        return self._client.shard_service
-
-    @property
     def shard(self) -> typing.Optional[shard_.GatewayShard]:
         if not self._client.shard_service:
             return None
@@ -180,10 +227,6 @@ class MessageContext(traits.MessageContext):
         self._command = command
         return self
 
-    def set_component(self: _MessageContextT, component: typing.Optional[traits.Component], /) -> _MessageContextT:
-        self._component = component
-        return self
-
     def set_content(self: _MessageContextT, content: str, /) -> _MessageContextT:
         self._content = content
         return self
@@ -195,27 +238,6 @@ class MessageContext(traits.MessageContext):
     def set_triggering_prefix(self: _MessageContextT, triggering_prefix: str, /) -> _MessageContextT:
         self._triggering_prefix = triggering_prefix
         return self
-
-    async def fetch_channel(self) -> channels.PartialChannel:
-        return await self._client.rest_service.rest.fetch_channel(self._message.channel_id)
-
-    async def fetch_guild(self) -> typing.Optional[guilds.Guild]:  # TODO: or raise?
-        if self._message.guild_id is not None:
-            return await self._client.rest_service.rest.fetch_guild(self._message.guild_id)
-
-        return None
-
-    def get_channel(self) -> typing.Optional[channels.PartialChannel]:
-        if self._client.cache_service:
-            return self._client.cache_service.cache.get_guild_channel(self._message.channel_id)
-
-        return None
-
-    def get_guild(self) -> typing.Optional[guilds.Guild]:
-        if self._message.guild_id is not None and self._client.cache_service:
-            return self._client.cache_service.cache.get_guild(self._message.guild_id)
-
-        return None
 
     async def respond(
         self,
@@ -258,17 +280,126 @@ class MessageContext(traits.MessageContext):
         )
 
 
-class IntegrationContext(traits.InteractionContext):
-    __slots__: typing.Sequence[str] = ("_client", "_interaction")
+@dataclasses.dataclass
+class _InteractionMessageBuilder(special_endpoints.InteractionMessageBuilder):
+    __slots__ = (
+        "_flags",
+        "_is_tts",
+        "_mentions_everyone",
+        "_role_mentions",
+        "_user_mentions",
+        "_embeds",
+        "_components",
+    )
+
+    _content: undefined.UndefinedOr[str]
+    _components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]]
+    _embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]]
+    _flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType]
+    _tts: undefined.UndefinedOr[bool]
+    _mentions_everyone: undefined.UndefinedOr[bool]
+    _user_mentions: undefined.UndefinedOr[typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]]
+    _role_mentions: undefined.UndefinedOr[typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]]
+
+    @property
+    def content(self) -> undefined.UndefinedOr[str]:
+        return self._content
+
+    @property
+    def embeds(self) -> typing.Sequence[embeds_.Embed]:
+        if self._embeds:
+            assert not isinstance(self._embeds, undefined.UndefinedType)
+            return self._embeds
+
+        return ()
+
+    @property
+    def flags(self) -> typing.Union[undefined.UndefinedType, int, messages.MessageFlag]:
+        return self._flags
+
+    @property
+    def is_tts(self) -> undefined.UndefinedOr[bool]:
+        return self._tts
+
+    @property
+    def mentions_everyone(self) -> undefined.UndefinedOr[bool]:
+        return self._mentions_everyone
+
+    @property
+    def role_mentions(
+        self,
+    ) -> undefined.UndefinedOr[typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]]:
+        return self._role_mentions
+
+    @property
+    def type(self) -> base_interactions.MessageResponseTypesT:
+        return base_interactions.ResponseType.MESSAGE_CREATE
+
+    @property
+    def user_mentions(
+        self,
+    ) -> undefined.UndefinedOr[typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]]:
+        return self._user_mentions
+
+    def build(self, entity_factory: entity_factory_api.EntityFactory, /) -> typing.Dict[str, typing.Any]:
+        data: typing.Dict[str, typing.Any] = {}
+
+        if self._content is not undefined.UNDEFINED:
+            data["content"] = str(self._content)
+
+        if self._flags is not undefined.UNDEFINED:
+            data["flags"] = self._flags
+
+        if self._components is not undefined.UNDEFINED:
+            data["compontent"] = [builder.build() for builder in self._components]
+
+        if self._embeds is not undefined.UNDEFINED:
+            data["embeds"] = [entity_factory.serialize_embed(embed) for embed in self._embeds]
+
+        if not undefined.all_undefined(self.mentions_everyone, self.user_mentions, self.role_mentions):
+            data["allowed_mentions"] = mentions.generate_allowed_mentions(
+                self.mentions_everyone, undefined.UNDEFINED, self.user_mentions, self.role_mentions
+            )
+
+        return {"type": base_interactions.ResponseType.MESSAGE_CREATE, "data": data}
+
+
+def _raise_not_implemented(*args: typing.Any, **kwargs: typing.Any) -> typing.NoReturn:
+    raise NotImplementedError("This builder object is read-only")
+
+
+for _name, _value in inspect.getmembers(_InteractionMessageBuilder):
+    if _name.startswith("get_") or _name.startswith("add_") and getattr(_value, "__isabstractmethod__", False):
+        setattr(_InteractionMessageBuilder, _name, _raise_not_implemented)
+
+
+del _raise_not_implemented, _name, _value
+
+
+class InteractionContext(BaseContext, traits.InteractionContext):
+    __slots__: typing.Sequence[str] = (
+        "_hash_been_deferred",
+        "_has_responed",
+        "_interaction",
+        "_response_future",
+        "_response_lock",
+    )
 
     def __init__(
         self,
         client: traits.Client,
         /,
         interaction: command_interactions.CommandInteraction,
+        response_future: typing.Optional[asyncio.Future[special_endpoints.InteractionResponseBuilder]],
+        *,
+        component: typing.Optional[traits.Component] = None,
     ) -> None:
-        self._client = client
+        super().__init__(client, component=component)
+        self._hash_been_deferred = False
+        self._has_responed = False
         self._interaction = interaction
+        self._response_future = response_future
+        self._response_lock = asyncio.Lock()
 
     @property
     def author(self) -> users.User:
@@ -291,7 +422,7 @@ class IntegrationContext(traits.InteractionContext):
         return True
 
     @property
-    def member(self) -> typing.Optional[guilds.Member]:
+    def member(self) -> typing.Optional[base_interactions.InteractionMember]:
         return self._interaction.member
 
     @property
@@ -302,26 +433,15 @@ class IntegrationContext(traits.InteractionContext):
     def interaction(self) -> command_interactions.CommandInteraction:
         return self._interaction
 
-    async def fetch_channel(self) -> channels.PartialChannel:
-        return await self._client.rest_service.rest.fetch_channel(self._interaction.channel_id)
+    async def deferr(self) -> None:
+        self._hash_been_deferred = True
 
-    async def fetch_guild(self) -> typing.Optional[guilds.Guild]:  # TODO: or raise
-        if self._interaction.guild_id is not None:
-            return await self._client.rest_service.rest.fetch_guild(self._interaction.guild_id)
+        async with self._response_lock:
+            if self._response_future:
+                self._response_future.set_result(self.interaction.build_deferred_response())
 
-        return None
-
-    def get_channel(self) -> typing.Optional[channels.PartialChannel]:
-        if self._client.cache_service:
-            return self._client.cache_service.cache.get_guild_channel(self._interaction.channel_id)
-
-        return None
-
-    def get_guild(self) -> typing.Optional[guilds.Guild]:
-        if self._interaction.guild_id is not None and self._client.cache_service:
-            return self._client.cache_service.cache.get_guild(self._interaction.guild_id)
-
-        return None
+            else:
+                await self.interaction.create_initial_response(base_interactions.ResponseType.DEFERRED_MESSAGE_CREATE)
 
     @typing.overload
     async def respond(
@@ -386,4 +506,65 @@ class IntegrationContext(traits.InteractionContext):
             typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
         ] = undefined.UNDEFINED,
     ) -> typing.Optional[messages.Message]:
-        raise NotImplementedError
+        if component and components:
+            raise ValueError("Only one of component or components may be passed")
+
+        if embed and embeds:
+            raise ValueError("Only one of embed or embeds may be passed")
+
+        async with self._response_lock:
+            if self._has_responed:
+                return await self._interaction.execute(
+                    content=content,
+                    component=component,
+                    components=components,
+                    embed=embed,
+                    embeds=embeds,
+                    flags=flags,
+                    tts=tts,
+                    mentions_everyone=mentions_everyone,
+                    user_mentions=user_mentions,
+                    role_mentions=role_mentions,
+                )
+
+            if not self._response_future or self._hash_been_deferred:
+                self._has_responed = True
+                await self._interaction.create_initial_response(
+                    response_type=base_interactions.ResponseType.MESSAGE_CREATE,
+                    content=content,
+                    component=component,
+                    components=components,
+                    embed=embed,
+                    embeds=embeds,
+                    flags=flags,
+                    tts=tts,
+                    mentions_everyone=mentions_everyone,
+                    user_mentions=user_mentions,
+                    role_mentions=role_mentions,
+                )
+
+            else:
+                if component:
+                    assert not isinstance(component, undefined.UndefinedType)
+                    components = (component,)
+
+                if embed:
+                    assert not isinstance(embed, undefined.UndefinedType)
+                    embeds = (embed,)
+
+                self._has_responed = True
+                self._response_future.set_result(
+                    _InteractionMessageBuilder(
+                        _content=content,
+                        _components=components,
+                        _embeds=embeds,
+                        _flags=flags,
+                        _tts=tts,
+                        _mentions_everyone=mentions_everyone,
+                        _user_mentions=user_mentions,
+                        _role_mentions=role_mentions,
+                    )
+                )
+
+        if wait_for_result:
+            return await self._interaction.fetch_initial_response()

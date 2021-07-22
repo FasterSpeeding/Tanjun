@@ -43,6 +43,8 @@ import types
 import typing
 
 from hikari import errors as hikari_errors
+from hikari import snowflakes
+from hikari.interactions import commands as command_interactions
 from yuyo import backoff
 
 from tanjun import components
@@ -53,8 +55,6 @@ from tanjun import traits
 from tanjun import utilities
 
 if typing.TYPE_CHECKING:
-    from hikari.interactions import commands as command_interactions
-
     _InteractionCommandT = typing.TypeVar("_InteractionCommandT", bound="InteractionCommand[typing.Any]")
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand[typing.Any]")
     _MessageCommandGroupT = typing.TypeVar("_MessageCommandGroupT", bound="MessageCommandGroup[typing.Any]")
@@ -62,7 +62,12 @@ if typing.TYPE_CHECKING:
 
 
 CommandFunctionSigT = typing.TypeVar("CommandFunctionSigT", bound=traits.CommandFunctionSig)
-_EMPTY_HOOKS = hooks_.Hooks[typing.Any]()
+_EMPTY_DICT: typing.Final[typing.Dict[typing.Any, typing.Any]] = {}
+_EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
+_EMPTY_LIST: typing.Final[typing.List[typing.Any]] = []
+_EMPTY_RESOLVED: typing.Final[command_interactions.ResolvedOptionData] = command_interactions.ResolvedOptionData(
+    users=_EMPTY_DICT, members=_EMPTY_DICT, roles=_EMPTY_DICT, channels=_EMPTY_DICT
+)
 
 
 class _LoadableInjector(injector.InjectableCheck):
@@ -87,9 +92,6 @@ class PartialCommand(
         "_injector",
         "_metadata",
         "_needs_injector",
-        "_names",
-        "_parent",
-        "_parser",
     )
 
     def __init__(
@@ -213,6 +215,12 @@ class PartialCommand(
                 check.make_method_type(component)
 
 
+_COMMAND_OPTIONS_TYPES: typing.Final[typing.Set[command_interactions.OptionType]] = {
+    command_interactions.OptionType.SUB_COMMAND,
+    command_interactions.OptionType.SUB_COMMAND_GROUP,
+}
+
+
 class InteractionCommand(PartialCommand[CommandFunctionSigT, traits.InteractionContext], traits.InteractionCommand):
     __slots__: typing.Sequence[str] = ("_name", "_parent", "_tracked_command")
 
@@ -243,19 +251,78 @@ class InteractionCommand(PartialCommand[CommandFunctionSigT, traits.InteractionC
     def tracked_command(self) -> typing.Optional[command_interactions.Command]:
         return self._tracked_command
 
-    def _process_ctx(
-        self, ctx: traits.InteractionContext, /
-    ) -> typing.Tuple[typing.Sequence[typing.Any], typing.Mapping[str, typing.Any]]:
-        raise NotImplementedError
+    def _process_args(
+        self,
+        options: typing.Iterable[command_interactions.CommandInteractionOption],
+        option_data: command_interactions.ResolvedOptionData,
+        /,
+    ) -> typing.Dict[str, typing.Any]:
+        keyword_args: typing.Dict[str, typing.Any] = {}
+
+        for option in options:
+            if option.type in _COMMAND_OPTIONS_TYPES:
+                pass
+
+            elif option.type is command_interactions.OptionType.USER:
+                assert isinstance(option.value, str)
+                user_id = snowflakes.Snowflake(option.value)
+                keyword_args[option.name] = option_data.members.get(user_id) or option_data.users[user_id]
+
+            elif option.type is command_interactions.OptionType.CHANNEL:
+                assert isinstance(option.value, str)
+                keyword_args[option.name] = option_data.channels[snowflakes.Snowflake(option.value)]
+
+            elif option.type is command_interactions.OptionType.ROLE:
+                assert isinstance(option.value, str)
+                keyword_args[option.name] = option_data.roles[snowflakes.Snowflake(option.value)]
+
+            else:
+                keyword_args[option.name] = option.value
+
+        return keyword_args
 
     async def execute(
         self,
         ctx: traits.InteractionContext,
         /,
+        option: typing.Optional[command_interactions.CommandInteractionOption] = None,
         *,
         hooks: typing.Optional[typing.MutableSet[traits.InteractionHooks]] = None,
-    ) -> bool:
-        raise NotImplementedError
+    ) -> None:
+        try:
+            await (self._hooks or _EMPTY_HOOKS).trigger_pre_execution(ctx, hooks=hooks)
+
+            if option and option.options:
+                kwargs = self._process_args(option.options, ctx.interaction.resolved or _EMPTY_RESOLVED)
+
+            elif ctx.interaction.options:
+                kwargs = self._process_args(ctx.interaction.options, ctx.interaction.resolved or _EMPTY_RESOLVED)
+
+            else:
+                kwargs = _EMPTY_DICT
+
+            if self.needs_injector:
+                injected_values = await injector.resolve_getters(ctx, self._get_injection_getters())
+                if kwargs is _EMPTY_DICT:
+                    kwargs = injected_values
+
+                else:
+                    kwargs.update(injected_values)
+
+            await self._function(ctx, **kwargs)
+
+        except errors.CommandError as exc:
+            await ctx.respond(exc.message)
+
+        except Exception as exc:
+            await (self._hooks or _EMPTY_HOOKS).trigger_error(ctx, exc, hooks=hooks)
+            raise
+
+        else:
+            await (self._hooks or _EMPTY_HOOKS).trigger_success(ctx, hooks=hooks)
+
+        finally:
+            await (self._hooks or _EMPTY_HOOKS).trigger_post_execution(ctx, hooks=hooks)
 
 
 def as_message_command(
@@ -363,26 +430,31 @@ class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext],
         /,
         *,
         hooks: typing.Optional[typing.MutableSet[traits.MessageHooks]] = None,
-    ) -> bool:
+    ) -> None:
         try:
             if await (self._hooks or _EMPTY_HOOKS).trigger_pre_execution(ctx, hooks=hooks) is False:
-                return True
+                return None
 
             if self._parser is not None:
                 args, kwargs = await self._parser.parse(ctx)
 
             else:
-                args = []
-                kwargs = {}
+                args = _EMPTY_LIST
+                kwargs = _EMPTY_DICT
 
             if self.needs_injector:
-                kwargs.update(await injector.resolve_getters(ctx, self._get_injection_getters()))
+                injected_values = await injector.resolve_getters(ctx, self._get_injection_getters())
+                if kwargs is _EMPTY_DICT:
+                    kwargs = injected_values
+
+                else:
+                    kwargs.update(injected_values)
 
             await self._function(ctx, *args, **kwargs)
 
         except errors.CommandError as exc:
             if not exc.message:
-                return True
+                return
 
             response = exc.message if len(exc.message) <= 2000 else exc.message[:1997] + "..."
             retry = backoff.Backoff(max_retries=5, maximum=2)
@@ -419,8 +491,6 @@ class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext],
 
         finally:
             await (self._hooks or _EMPTY_HOOKS).trigger_post_execution(ctx, hooks=hooks)
-
-        return True
 
 
 class MessageCommandGroup(MessageCommand[CommandFunctionSigT], traits.MessageCommandGroup):
@@ -501,7 +571,7 @@ class MessageCommandGroup(MessageCommand[CommandFunctionSigT], traits.MessageCom
         /,
         *,
         hooks: typing.Optional[typing.MutableSet[traits.MessageHooks]] = None,
-    ) -> bool:
+    ) -> None:
         if ctx.message.content is None:
             raise ValueError("Cannot execute a command with a contentless message")
 
@@ -523,9 +593,9 @@ class MessageCommandGroup(MessageCommand[CommandFunctionSigT], traits.MessageCom
                 ctx.set_triggering_name((ctx.triggering_name or "") + (" " * space_len) + name)
                 ctx.set_content(ctx.content[space_len + len(name) :].lstrip())
                 await command.execute(ctx, hooks=hooks)
-                return True
+                return
 
-        return await super().execute(ctx, hooks=hooks)
+        await super().execute(ctx, hooks=hooks)
 
     def make_method_type(self, component: traits.Component, /) -> None:
         super().make_method_type(component)

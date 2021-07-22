@@ -351,7 +351,7 @@ class Component(injector.Injectable, traits.Component):
         *,
         hooks: typing.Optional[typing.MutableSet[traits.InteractionHooks]] = None,
     ) -> bool:
-        command = self._interaction_commands.get(ctx.triggering_name.casefold())
+        command = self._interaction_commands.get(ctx.interaction.command_name)
         if not self._is_alive or not command:
             return False
 
