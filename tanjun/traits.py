@@ -853,8 +853,8 @@ class Client(abc.ABC):
     def remove_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
-    # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
-    # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
+    # # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
+    # # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
     # @abc.abstractmethod
     # def check_message_context(
     #    self, ctx: MessageContext, /

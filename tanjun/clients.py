@@ -160,8 +160,8 @@ class Client(injector.InjectorClient, traits.Client):
         "_events",
         "_grab_mention_prefix",
         "hooks",
-        "interaction_hooks",
-        "message_hooks",
+        "_interaction_hooks",
+        "_message_hooks",
         "_metadata",
         "_prefix_getter",
         "_prefixes",
@@ -196,9 +196,9 @@ class Client(injector.InjectorClient, traits.Client):
         self._components: typing.Set[traits.Component] = set()
         self._events = events
         self._grab_mention_prefix = mention_prefix
-        self.hooks: typing.Optional[traits.AnyHooks] = None
-        self.interaction_hooks: typing.Optional[traits.InteractionHooks] = None
-        self.message_hooks: typing.Optional[traits.MessageHooks] = None
+        self._hooks: typing.Optional[traits.AnyHooks] = None
+        self._interaction_hooks: typing.Optional[traits.InteractionHooks] = None
+        self._message_hooks: typing.Optional[traits.MessageHooks] = None
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
         self._prefix_getter: typing.Optional[PrefixGetterSig] = None
         self._prefixes: typing.Set[str] = set()
@@ -257,6 +257,18 @@ class Client(injector.InjectorClient, traits.Client):
     @property
     def event_service(self) -> typing.Optional[hikari_traits.EventManagerAware]:
         return self._events
+
+    @property
+    def hooks(self) -> typing.Optional[traits.AnyHooks]:
+        return self._hooks
+
+    @property
+    def interaction_hooks(self) -> typing.Optional[traits.InteractionHooks]:
+        return self._interaction_hooks
+
+    @property
+    def message_hooks(self) -> typing.Optional[traits.MessageHooks]:
+        return self._message_hooks
 
     @property
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
@@ -453,7 +465,15 @@ class Client(injector.InjectorClient, traits.Client):
             self._events.event_manager.subscribe(event_type, self.on_message_create)
 
     def set_hooks(self: _ClientT, hooks: typing.Optional[traits.AnyHooks], /) -> _ClientT:
-        self.hooks = hooks
+        self._hooks = hooks
+        return self
+
+    def set_interaction_hooks(self: _ClientT, hooks: typing.Optional[traits.InteractionHooks], /) -> _ClientT:
+        self._interaction_hooks = hooks
+        return self
+
+    def set_message_hooks(self: _ClientT, hooks: typing.Optional[traits.MessageHooks], /) -> _ClientT:
+        self._message_hooks = hooks
         return self
 
     def load_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
@@ -493,12 +513,18 @@ class Client(injector.InjectorClient, traits.Client):
         if not await self.check(ctx):
             return
 
-        hooks: typing.Set[traits.MessageHooks] = set()
-        if self.hooks:
-            hooks.add(self.hooks)
+        hooks: typing.Optional[typing.Set[traits.MessageHooks]] = None
+        if self._hooks:
+            if not hooks:
+                hooks = set()
 
-        if self.message_hooks:
-            hooks.add(self.message_hooks)
+            hooks.add(self._hooks)
+
+        if self._message_hooks:
+            if not hooks:
+                hooks = set()
+
+            hooks.add(self._message_hooks)
 
         for component in self._components:
             if await component.execute_message(ctx, hooks=hooks):
