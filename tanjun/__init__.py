@@ -61,17 +61,19 @@ __all__: typing.Sequence[str] = [
     "Client",
     "PrefixGetterSig",
     # commands.py
-    "commands",
-    "as_command",
-    "as_group",
-    "Command",
-    "CommandGroup",
+    "as_interaction_command",
+    "as_message_command",
+    "as_message_command_group",
+    "InteractionCommand",
+    "MessageCommand",
+    "MessageCommandGroup",
     # components.py
     "components",
     "Component",
     # context.py
     "context",
-    "Context",
+    "MessageContext",
+    "InteractionContext",
     # conversion.py
     "conversion",
     "ChannelConverter",

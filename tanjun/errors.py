@@ -47,7 +47,8 @@ __all__: typing.Sequence[str] = [
 
 import typing
 
-from tanjun import traits
+if typing.TYPE_CHECKING:
+    from tanjun import traits
 
 
 class TanjunError(Exception):
@@ -109,7 +110,14 @@ class CommandError(TanjunError):
         return self.message or ""
 
 
-class FailedCheck(TanjunError, RuntimeError):
+# TODO: use this
+class InvalidCheck(TanjunError, RuntimeError):  # TODO: or/and warning?  # TODO: InvalidCheckError
+    """Error raised as an assertion that a check will never pass in the current environment."""
+
+    __slots__: typing.Sequence[str] = ()
+
+
+class FailedCheck(TanjunError, RuntimeError):  # TODO: FailedCheckError
     """Error raised as an alternative to returning `False` in a check."""
 
     __slots__: typing.Sequence[str] = ()
@@ -175,6 +183,7 @@ class ConversionError(ParserError):
     """Parameter this error was raised for."""
 
     def __init__(self, parameter: traits.Parameter, errors: typing.Iterable[ValueError], /) -> None:
+        # TODO this is probably slow
         option_or_argument = "option" if isinstance(parameter, traits.Option) else "argument"
         super().__init__(f"Couldn't convert {option_or_argument} '{parameter.key}'", parameter)
         self.errors = tuple(errors)

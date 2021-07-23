@@ -50,8 +50,7 @@ import copy
 import itertools
 import shlex
 import typing
-
-from hikari import undefined
+from collections import abc as collections
 
 from tanjun import conversion
 from tanjun import errors
@@ -62,7 +61,7 @@ if typing.TYPE_CHECKING:
     _ParameterT = typing.TypeVar("_ParameterT", bound="_Parameter")
     _ShlexParserT = typing.TypeVar("_ShlexParserT", bound="ShlexParser")
 
-CommandT = typing.TypeVar("CommandT", bound=traits.ExecutableCommand)
+CommandT = typing.TypeVar("CommandT", bound=traits.MessageCommand)
 GREEDY = "greedy"
 """Parameter flags key used for marking a parameter as "greedy".
 
@@ -116,6 +115,7 @@ class ShlexTokenizer:
         if self.__arg_buffer:
             return self.__arg_buffer.pop(0)
 
+        # TODO: this is probably slow
         while isinstance(value := self.__seek_shlex(), tuple):
             self.__options_buffer.append(value)
 
@@ -125,6 +125,7 @@ class ShlexTokenizer:
         if self.__options_buffer:
             return self.__options_buffer.pop(0)
 
+        # TODO: this is probably slow
         while isinstance(value := self.__seek_shlex(), str):
             self.__arg_buffer.append(value)
 
@@ -163,7 +164,7 @@ class ShlexTokenizer:
 
 
 async def _covert_option_or_empty(
-    ctx: traits.Context, option: traits.Option, value: typing.Optional[typing.Any], /
+    ctx: traits.MessageContext, option: traits.Option, value: typing.Optional[typing.Any], /
 ) -> typing.Any:
     if value is not None:
         return await option.convert(ctx, value)
@@ -177,7 +178,7 @@ async def _covert_option_or_empty(
 class SemanticShlex(ShlexTokenizer):
     __slots__: typing.Sequence[str] = ("__ctx",)
 
-    def __init__(self, ctx: traits.Context, /) -> None:
+    def __init__(self, ctx: traits.MessageContext, /) -> None:
         super().__init__(ctx.content)
         self.__ctx = ctx
 
@@ -221,8 +222,8 @@ class SemanticShlex(ShlexTokenizer):
         if is_multi and (values := list(values_iter)):
             return await asyncio.gather(*(_covert_option_or_empty(self.__ctx, option, value) for value in values))
 
-        if not is_multi and (value := next(values_iter, undefined.UNDEFINED)) is not undefined.UNDEFINED:
-            if next(values_iter, undefined.UNDEFINED) is not undefined.UNDEFINED:
+        if not is_multi and (value := next(values_iter, ...)) is not ...:
+            if next(values_iter, ...) is not ...:
                 raise errors.TooManyArgumentsError(f"Option `{option.key}` can only take a single value", option)
 
             return await _covert_option_or_empty(self.__ctx, option, value)
@@ -239,7 +240,7 @@ def with_argument(
     /,
     converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
     *,
-    default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+    default: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
 ) -> typing.Callable[[CommandT], CommandT]:
     """Add an argument to a command or command descriptor through a decorator call.
@@ -278,7 +279,7 @@ def with_argument(
 
     @tanjun.parsing.with_argument("command", converters=(int,), default=42)
     @tanjun.parsing.with_parser
-    @tanjun.component.as_command("command")
+    @tanjun.component.as_message_command("command")
     async def command(self, ctx: tanjun.traits.Context, /, argument: int):
         ...
     ```
@@ -300,7 +301,7 @@ def with_greedy_argument(
     /,
     converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
     *,
-    default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+    default: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
 ) -> typing.Callable[[CommandT], CommandT]:
     """Add a greedy argument to a command or command descriptor through a decorator call.
@@ -348,7 +349,7 @@ def with_greedy_argument(
 
     @tanjun.parsing.with_greedy_argument("command", converters=(StringView,))
     @tanjun.parsing.with_parser
-    @tanjun.component.as_command("command")
+    @tanjun.component.as_message_command("command")
     async def command(self, ctx: tanjun.traits.Context, /, argument: StringView):
         ...
     ```
@@ -365,7 +366,7 @@ def with_multi_argument(
     /,
     converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
     *,
-    default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+    default: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
 ) -> typing.Callable[[CommandT], CommandT]:
     """Add a greedy argument to a command or command descriptor through a decorator call.
@@ -414,7 +415,7 @@ def with_multi_argument(
 
     @tanjun.parsing.with_multi_argument("command", converters=(int,))
     @tanjun.parsing.with_parser
-    @tanjun.component.as_command("command")
+    @tanjun.component.as_message_command("command")
     async def command(self, ctx: tanjun.traits.Context, /, argument: typing.Sequence[int]):
         ...
     ```
@@ -426,6 +427,7 @@ def with_multi_argument(
     return with_argument(key, converters=converters, default=default, flags=flags)
 
 
+# TODO: add default getter
 def with_option(
     key: str,
     name: str,
@@ -433,7 +435,7 @@ def with_option(
     *names: str,
     converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
     default: typing.Any,
-    empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+    empty_value: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
 ) -> typing.Callable[[CommandT], CommandT]:
     """Add an option to a command or command descriptor through a decorator call.
@@ -478,7 +480,7 @@ def with_option(
 
     @tanjun.parsing.with_option("command", converters=(int,), default=42)
     @tanjun.parsing.with_parser
-    @tanjun.component.as_command("command")
+    @tanjun.component.as_message_command("command")
     async def command(self, ctx: tanjun.traits.Context, /, argument: int):
         ...
     ```
@@ -502,7 +504,7 @@ def with_multi_option(
     *names: str,
     converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
     default: typing.Any,
-    empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+    empty_value: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
     flags: typing.Optional[typing.MutableMapping[str, typing.Any]] = None,
 ) -> typing.Callable[[CommandT], CommandT]:
     """Add an multi-option to a command or command descriptor through a decorator call.
@@ -553,7 +555,7 @@ def with_multi_option(
 
     @tanjun.parsing.with_multi_option("command", converters=(int,), default=())
     @tanjun.parsing.with_parser
-    @tanjun.component.as_command("command")
+    @tanjun.component.as_message_command("command")
     async def command(self, ctx: tanjun.traits.Context, /, argument: typing.Sequence[int]):
         ...
     ```
@@ -566,7 +568,15 @@ def with_multi_option(
 
 
 class _Parameter(injector_.Injectable, traits.Parameter):
-    __slots__: typing.Sequence[str] = ("_client", "_component", "_converters", "default", "_flags", "_injector", "key")
+    __slots__: typing.Sequence[str] = (
+        "_client",
+        "_component",
+        "_converters",
+        "_default",
+        "_flags",
+        "_injector",
+        "_key",
+    )
 
     def __init__(
         self,
@@ -574,22 +584,22 @@ class _Parameter(injector_.Injectable, traits.Parameter):
         /,
         *,
         converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
-        default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+        default: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
     ) -> None:
         self._client: typing.Optional[traits.Client] = None
         self._component: typing.Optional[traits.Component] = None
         self._converters: typing.Optional[typing.List[injector_.InjectableConverter[typing.Any]]] = None
-        self.default = default
+        self._default = default
         self._flags = dict(flags) if flags else {}
         self._injector: typing.Optional[injector_.InjectorClient] = None
-        self.key = key
+        self._key = key
 
         if key.startswith("-"):
             raise ValueError("parameter key cannot start with `-`")
 
         if converters is not None:
-            if isinstance(converters, typing.Iterable):
+            if isinstance(converters, collections.Iterable):
                 for converter in converters:
                     self.add_converter(converter)
 
@@ -597,15 +607,23 @@ class _Parameter(injector_.Injectable, traits.Parameter):
                 self.add_converter(converters)
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__} <{self.key}>"
+        return f"{type(self).__name__} <{self._key}>"
 
     @property
     def converters(self) -> typing.Optional[typing.Sequence[traits.ConverterSig]]:
         return tuple(converter.callback for converter in self._converters) if self._converters is not None else None
 
     @property
+    def default(self) -> typing.Union[typing.Any, traits.UndefinedDefaultT]:
+        return self._default
+
+    @property
     def flags(self) -> typing.MutableMapping[str, typing.Any]:
         return self._flags
+
+    @property
+    def key(self) -> str:
+        return self._key
 
     @property
     def needs_injector(self) -> bool:
@@ -634,7 +652,7 @@ class _Parameter(injector_.Injectable, traits.Parameter):
         if self._converters is None:
             raise ValueError("No converters set")
 
-        self._converters.remove(converter)  # type: ignore[arg-type]
+        self._converters.remove(converter)  # type: ignore # reportGeneralTypeIssues
 
         if not self._converters:
             self._converters = None
@@ -699,7 +717,7 @@ class Argument(_Parameter, traits.Argument):
         /,
         *,
         converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
-        default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+        default: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
     ) -> None:
         if flags and MULTI in flags and GREEDY in flags:
@@ -709,7 +727,7 @@ class Argument(_Parameter, traits.Argument):
 
 
 class Option(_Parameter, traits.Option):
-    __slots__: typing.Sequence[str] = ("empty_value", "names")
+    __slots__: typing.Sequence[str] = ("_empty_value", "_names")
 
     def __init__(
         self,
@@ -717,24 +735,30 @@ class Option(_Parameter, traits.Option):
         name: str,
         *names: str,
         converters: typing.Union[typing.Iterable[traits.ConverterSig], traits.ConverterSig, None] = None,
-        default: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+        default: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
         flags: typing.Optional[typing.Mapping[str, typing.Any]] = None,
-        empty_value: typing.Union[typing.Any, traits.UndefinedDefault] = traits.UNDEFINED_DEFAULT,
+        empty_value: typing.Union[typing.Any, traits.UndefinedDefaultT] = traits.UNDEFINED_DEFAULT,
     ) -> None:
-        names = [name, *names]
-
-        if not all(n.startswith("-") for n in names):
+        if not name.startswith("-") or not all(n.startswith("-") for n in names):
             raise ValueError("All option names must start with `-`")
 
         if flags and GREEDY in flags:
             raise ValueError("Option cannot be greedy")
 
-        self.empty_value = empty_value
-        self.names = names
+        self._empty_value = empty_value
+        self._names = [name, *names]
         super().__init__(key, converters=converters, default=default, flags=flags)
 
+    @property
+    def empty_value(self) -> typing.Union[typing.Any, traits.UndefinedDefaultT]:
+        return self._empty_value
+
+    @property
+    def names(self) -> typing.Sequence[str]:
+        return self._names.copy()
+
     def __repr__(self) -> str:
-        return f"{type(self).__name__} <{self.key}, {self.names}>"
+        return f"{type(self).__name__} <{self.key}, {self._names}>"
 
 
 class ShlexParser(injector_.Injectable, traits.Parser):
@@ -840,7 +864,7 @@ class ShlexParser(injector_.Injectable, traits.Parser):
             parameter.bind_component(component)
 
     async def parse(
-        self, ctx: traits.Context, /
+        self, ctx: traits.MessageContext, /
     ) -> typing.Tuple[typing.List[typing.Any], typing.Dict[str, typing.Any]]:
         # <<inherited docstring from tanjun.traits.ShlexParser>>.
         parser = SemanticShlex(ctx)
@@ -852,8 +876,7 @@ class ShlexParser(injector_.Injectable, traits.Parser):
 # Unlike the other decorators in this module, this can only be applied to a command descriptor.
 def with_parser(command: CommandT, /) -> CommandT:
     """Add a shlex parser descriptor to a command descriptor."""
-    command.parser = ShlexParser()
-    return command
+    return command.set_parser(ShlexParser())
 
 
 def with_typed_parameters(command: CommandT, /, *, ignore_self: bool) -> CommandT:

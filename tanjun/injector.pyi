@@ -68,7 +68,7 @@ class Getter(typing.Generic[_T]):
         name: str,
         /,
         *,
-        injecting: typing.Literal[True] = True,
+        injecting: typing.Literal[True] = ...,
     ) -> None: ...
     @typing.overload
     def __init__(
@@ -141,7 +141,7 @@ class BaseInjectableValue(Injectable, typing.Generic[_T]):
     callback: CallbackSig[_T]
     injector: typing.Optional[InjectorClient]
     is_async: typing.Optional[bool]
-    def __init__(self, callback: CallbackSig[_T], *, injector: typing.Optional[InjectorClient] = None) -> None: ...
+    def __init__(self, callback: CallbackSig[_T], *, injector: typing.Optional[InjectorClient] = ...) -> None: ...
     def __eq__(self, other: typing.Any) -> bool: ...
     def __hash__(self) -> int: ...
     @property

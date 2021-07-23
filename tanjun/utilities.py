@@ -43,7 +43,10 @@ __all__: typing.Sequence[str] = [
 ]
 
 import asyncio
+import functools
+import operator
 import typing
+from collections import abc as collections
 
 from hikari import channels
 from hikari import errors as hikari_errors
@@ -94,20 +97,11 @@ async def await_if_async(
     """
     result = callback(*args)
 
-    if isinstance(result, typing.Awaitable):
+    if isinstance(result, collections.Awaitable):  # TODO: this is probably slow
         # For some reason MYPY thinks this returns typing.Any
         return typing.cast(_ValueT, await result)
 
     return result
-
-
-async def _wrap_check(check: typing.Awaitable[bool]) -> bool:
-    # We raise on `False` to let asyncio.gather stop execution on the first failed
-    # check rather than waiting for all checks to fail.
-    if not await check:
-        raise tanjun_errors.FailedCheck()
-
-    return True
 
 
 async def gather_checks(checks: typing.Iterable[injector.InjectableCheck], ctx: tanjun_traits.Context) -> bool:
@@ -137,7 +131,7 @@ async def gather_checks(checks: typing.Iterable[injector.InjectableCheck], ctx: 
 
 async def fetch_resource(
     retry: backoff.Backoff, call: typing.Callable[..., typing.Awaitable[_ResourceT]], *args: typing.Any
-) -> _ResourceT:
+) -> _ResourceT:  # TODO: replace this
     """A utility function for retrying a request used by Tanjun internally."""
     retry.reset()
     async for _ in retry:
@@ -157,13 +151,8 @@ async def fetch_resource(
         return await call(*args)
 
 
-ALL_PERMISSIONS = permissions_.Permissions.NONE
+ALL_PERMISSIONS = functools.reduce(operator.__xor__, permissions_.Permissions)
 """All of the known permissions based on the linked version of Hikari."""
-
-for _permission in permissions_.Permissions:
-    ALL_PERMISSIONS |= _permission
-
-del _permission
 
 
 def _calculate_channel_overwrites(
@@ -202,6 +191,7 @@ def _calculate_role_permissions(
     return permissions
 
 
+# TODO: implicitly handle more special cases?
 def calculate_permissions(
     member: guilds.Member,
     guild: guilds.Guild,
