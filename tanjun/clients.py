@@ -241,7 +241,7 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
         event_managed: bool = True,
         mention_prefix: bool = False,
     ) -> Client:
-        return cls(
+        client = cls(
             rest=bot.rest,
             cache=bot.cache,
             events=bot.event_manager,
@@ -249,10 +249,12 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
             event_managed=event_managed,
             mention_prefix=mention_prefix,
         )
+        return client.add_hikari_trait_injectors(bot)
 
     @classmethod
     def from_rest_bot(cls, bot: hikari_traits.RESTBotAware, /) -> Client:
-        return cls(rest=bot.rest, server=bot.interaction_server)
+        client = cls(rest=bot.rest, server=bot.interaction_server)
+        return client.add_hikari_trait_injectors(bot)
 
     @property
     def accepts(self) -> AcceptsEnum:
