@@ -440,7 +440,7 @@ class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext],
             # the former before the latter when triggered with the latter, leading to the command potentially being
             # inconsistently parsed.
             if name == own_name or name.startswith(own_name) and name[len(own_name)] == " ":
-                return name
+                return own_name
 
         return None
 

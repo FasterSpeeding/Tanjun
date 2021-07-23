@@ -326,7 +326,7 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
 
     def add_hikari_trait_injectors(self: _ClientT, bot: hikari_traits.RESTAware, /) -> _ClientT:
         for _, member in inspect.getmembers(hikari_traits):
-            if isinstance(bot, member):
+            if inspect.isclass(member) and isinstance(bot, member):
                 self.add_type_dependency(member, lambda: bot)
 
         return self
@@ -562,7 +562,6 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
             return
 
         ctx.set_content(ctx.content.lstrip()[len(prefix) :].lstrip()).set_triggering_prefix(prefix)
-
         if not await self.check(ctx):
             return
 

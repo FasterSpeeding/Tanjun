@@ -262,7 +262,7 @@ class InjectorClient:
             return
 
         for name, parameter in parameters:
-            if parameter.default is parameter.default:
+            if parameter.default is parameter.empty:
                 continue
 
             if not isinstance(parameter.default, Injected):
