@@ -73,9 +73,12 @@ if typing.TYPE_CHECKING:
     from hikari import snowflakes
     from hikari import traits
     from hikari import users
-    from hikari.api import event_manager
-    from hikari.api import shard as shard_
-    from hikari.api import special_endpoints
+    from hikari.api import cache as cache_api
+    from hikari.api import event_manager as event_manager_api
+    from hikari.api import interaction_server as interaction_server_api
+    from hikari.api import rest as rest_api
+    from hikari.api import shard as shard_api
+    from hikari.api import special_endpoints as special_endpoints_api
     from hikari.events import base_events
     from hikari.interactions import bases as base_interactions
     from hikari.interactions import commands as command_interactions
@@ -147,7 +150,7 @@ class Context(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def cache_service(self) -> typing.Optional[traits.CacheAware]:
+    def cache_service(self) -> typing.Optional[cache_api.Cache]:
         raise NotImplementedError
 
     @property
@@ -174,7 +177,7 @@ class Context(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def event_service(self) -> typing.Optional[traits.EventManagerAware]:
+    def event_service(self) -> typing.Optional[event_manager_api.EventManager]:
         raise NotImplementedError
 
     @property
@@ -195,12 +198,12 @@ class Context(abc.ABC):
     # TODO: rename to server_app
     @property
     @abc.abstractmethod
-    def server_service(self) -> typing.Optional[traits.InteractionServerAware]:
+    def server_service(self) -> typing.Optional[interaction_server_api.InteractionServer]:
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
-    def rest_service(self) -> traits.RESTAware:
+    def rest_service(self) -> rest_api.RESTClient:
         raise NotImplementedError
 
     @property
@@ -240,8 +243,10 @@ class Context(abc.ABC):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: typing.Literal[False] = False,
-        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[
+            typing.Sequence[special_endpoints_api.ComponentBuilder]
+        ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -262,8 +267,10 @@ class Context(abc.ABC):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: typing.Literal[True],
-        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[
+            typing.Sequence[special_endpoints_api.ComponentBuilder]
+        ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -283,8 +290,10 @@ class Context(abc.ABC):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: bool = False,
-        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[
+            typing.Sequence[special_endpoints_api.ComponentBuilder]
+        ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -319,7 +328,7 @@ class MessageContext(Context, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def shard(self) -> typing.Optional[shard_.GatewayShard]:
+    def shard(self) -> typing.Optional[shard_api.GatewayShard]:
         raise NotImplementedError
 
     @property
@@ -352,8 +361,10 @@ class MessageContext(Context, abc.ABC):
         wait_for_result: bool = True,
         attachment: undefined.UndefinedOr[files.Resourceish] = undefined.UNDEFINED,
         attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[
+            typing.Sequence[special_endpoints_api.ComponentBuilder]
+        ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -395,8 +406,10 @@ class InteractionContext(Context, abc.ABC):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: typing.Literal[False] = False,
-        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[
+            typing.Sequence[special_endpoints_api.ComponentBuilder]
+        ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
@@ -418,8 +431,10 @@ class InteractionContext(Context, abc.ABC):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: typing.Literal[True],
-        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[
+            typing.Sequence[special_endpoints_api.ComponentBuilder]
+        ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
@@ -440,8 +455,10 @@ class InteractionContext(Context, abc.ABC):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: bool = False,
-        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[
+            typing.Sequence[special_endpoints_api.ComponentBuilder]
+        ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
@@ -765,7 +782,7 @@ class Component(abc.ABC):
     @abc.abstractmethod
     def listeners(
         self,
-    ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_manager.CallbackT[typing.Any]]]:
+    ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_manager_api.CallbackT[typing.Any]]]:
         raise NotImplementedError
 
     @property
@@ -820,7 +837,7 @@ class Client(abc.ABC):
     # TODO: rename to cache_app
     @property
     @abc.abstractmethod
-    def cache_service(self) -> typing.Optional[traits.CacheAware]:
+    def cache_service(self) -> typing.Optional[cache_api.Cache]:
         raise NotImplementedError
 
     @property
@@ -831,7 +848,7 @@ class Client(abc.ABC):
     # TODO: rename to dispatch_app
     @property
     @abc.abstractmethod
-    def event_service(self) -> typing.Optional[traits.EventManagerAware]:
+    def event_service(self) -> typing.Optional[event_manager_api.EventManager]:
         raise NotImplementedError
 
     @property
@@ -847,13 +864,13 @@ class Client(abc.ABC):
     # TODO: rename to rest_app
     @property
     @abc.abstractmethod
-    def rest_service(self) -> traits.RESTAware:
+    def rest_service(self) -> rest_api.RESTClient:
         raise NotImplementedError
 
     # TODO: rename to server_app
     @property
     @abc.abstractmethod
-    def server_service(self) -> typing.Optional[traits.InteractionServerAware]:
+    def server_service(self) -> typing.Optional[interaction_server_api.InteractionServer]:
         raise NotImplementedError
 
     # TODO: rename to shard_app

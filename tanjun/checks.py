@@ -62,8 +62,9 @@ from tanjun import utilities
 
 if typing.TYPE_CHECKING:
     from hikari import applications
-    from hikari import traits as hikari_traits
     from hikari import users
+    from hikari.api import cache as cache_api
+    from hikari.api import rest as rest_api
 
     from tanjun import traits as tanjun_traits
 
@@ -92,11 +93,11 @@ class ApplicationOwnerCheck:
     def _is_expired(self) -> bool:
         return time.perf_counter() - self._time >= self._expire
 
-    async def _try_fetch(self, rest: hikari_traits.RESTAware, /) -> applications.Application:  # type: ignore[return]
+    async def _try_fetch(self, rest: rest_api.RESTClient, /) -> applications.Application:  # type: ignore[return]
         retry = backoff.Backoff()
         async for _ in retry:
             try:
-                self._application = await rest.rest.fetch_application()  # TODO: or fetch authroization
+                self._application = await rest.fetch_application()  # TODO: or fetch authroization
                 return self._application
 
             except (hikari_errors.RateLimitedError, hikari_errors.RateLimitTooLongError) as exc:
@@ -114,7 +115,7 @@ class ApplicationOwnerCheck:
                 return self._application
 
             try:
-                application = await ctx.client.rest_service.rest.fetch_application()
+                application = await ctx.client.rest_service.fetch_application()
                 self._application = application
 
             except (
@@ -166,7 +167,7 @@ class ApplicationOwnerCheck:
 
     async def update(
         self,
-        rest: hikari_traits.RESTAware,
+        rest: rest_api.RESTClient,
         /,
         *,
         timeout: typing.Optional[datetime.timedelta] = datetime.timedelta(seconds=30),
@@ -178,11 +179,11 @@ class ApplicationOwnerCheck:
 async def nsfw_check(ctx: tanjun_traits.Context, /) -> bool:
     channel: typing.Optional[channels.PartialChannel] = None
     if ctx.client.cache_service:
-        channel = ctx.client.cache_service.cache.get_guild_channel(ctx.channel_id)
+        channel = ctx.client.cache_service.get_guild_channel(ctx.channel_id)
 
     if not channel:
         retry = backoff.Backoff(maximum=5, max_retries=4)
-        channel = await utilities.fetch_resource(retry, ctx.client.rest_service.rest.fetch_channel, ctx.channel_id)
+        channel = await utilities.fetch_resource(retry, ctx.client.rest_service.fetch_channel, ctx.channel_id)
 
     return channel.is_nsfw or False if isinstance(channel, channels.GuildChannel) else True
 
@@ -244,26 +245,24 @@ class OwnPermissionsCheck(PermissionCheck):
     async def _get_member(self, ctx: tanjun_traits.Context, guild_id: snowflakes.Snowflake, /) -> guilds.Member:
         user = await self._get_user(ctx.client.cache_service, ctx.client.rest_service)
 
-        if ctx.client.cache_service and (member := ctx.client.cache_service.cache.get_member(guild_id, user.id)):
+        if ctx.client.cache_service and (member := ctx.client.cache_service.get_member(guild_id, user.id)):
             return member
 
         retry = backoff.Backoff(maximum=5, max_retries=4)
-        return await utilities.fetch_resource(retry, ctx.client.rest_service.rest.fetch_member, guild_id, user.id)
+        return await utilities.fetch_resource(retry, ctx.client.rest_service.fetch_member, guild_id, user.id)
 
-    async def _get_user(
-        self, cache_service: typing.Optional[hikari_traits.CacheAware], rest_service: hikari_traits.RESTAware, /
-    ) -> users.User:
+    async def _get_user(self, cache: typing.Optional[cache_api.Cache], rest: rest_api.RESTClient, /) -> users.User:
         if not self._me:
             async with self._lock:
                 if self._me:
                     return self._me
 
-                if cache_service and (user := cache_service.cache.get_me()):
+                if cache and (user := cache.get_me()):
                     self._me = user
 
                 else:
                     retry = backoff.Backoff(maximum=5, max_retries=4)
-                    raw_user = await utilities.fetch_resource(retry, rest_service.rest.fetch_my_user)
+                    raw_user = await utilities.fetch_resource(retry, rest.fetch_my_user)
                     self._me = raw_user
 
         return self._me
