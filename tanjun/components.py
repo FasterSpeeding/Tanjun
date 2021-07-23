@@ -45,7 +45,7 @@ from tanjun import traits
 from tanjun import utilities
 
 if typing.TYPE_CHECKING:
-    from hikari.api import event_manager as event_manager_
+    from hikari.api import event_manager as event_manager_api
 
     _InteractionCommandT = typing.TypeVar("_InteractionCommandT", bound=traits.InteractionCommand)
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound=traits.MessageCommand)
@@ -93,7 +93,7 @@ class Component(injector.Injectable, traits.Component):
         self._interaction_commands: typing.Dict[str, traits.InteractionCommand] = {}
         self._interaction_hooks = interaction_hooks
         self._listeners: typing.Set[
-            typing.Tuple[typing.Type[base_events.Event], event_manager_.CallbackT[typing.Any]]
+            typing.Tuple[typing.Type[base_events.Event], event_manager_api.CallbackT[typing.Any]]
         ] = set()
         self._message_commands: typing.Set[traits.MessageCommand] = set()
         self._message_hooks = message_hooks
@@ -155,7 +155,7 @@ class Component(injector.Injectable, traits.Component):
     @property
     def listeners(
         self,
-    ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_manager_.CallbackT[typing.Any]]]:
+    ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_manager_api.CallbackT[typing.Any]]]:
         return self._listeners.copy()
 
     @property
@@ -227,37 +227,38 @@ class Component(injector.Injectable, traits.Component):
 
     def add_listener(
         self: _ComponentT,
-        event: typing.Type[event_manager_.EventT_inv],
-        listener: event_manager_.CallbackT[event_manager_.EventT_inv],
+        event: typing.Type[event_manager_api.EventT_inv],
+        listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
         /,
     ) -> _ComponentT:
         self._listeners.add((event, listener))
 
-        if self._is_alive and self._client and self._client.event_service:
-            self._client.event_service.event_manager.subscribe(event, listener)
+        if self._is_alive and self._client and self._client.events:
+            self._client.events.subscribe(event, listener)
 
         return self
 
     def remove_listener(
         self,
-        event: typing.Type[event_manager_.EventT_inv],
-        listener: event_manager_.CallbackT[event_manager_.EventT_inv],
+        event: typing.Type[event_manager_api.EventT_inv],
+        listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
         /,
     ) -> None:
         self._listeners.remove((event, listener))
 
-        if self._is_alive and self._client and self._client.event_service:
-            self._client.event_service.event_manager.unsubscribe(event, listener)
+        if self._is_alive and self._client and self._client.events:
+            self._client.events.unsubscribe(event, listener)
 
     # TODO: make event optional?
     def with_listener(
-        self, event_type: typing.Type[event_manager_.EventT_inv]
+        self, event_type: typing.Type[event_manager_api.EventT_inv]
     ) -> typing.Callable[
-        [event_manager_.CallbackT[event_manager_.EventT_inv]], event_manager_.CallbackT[event_manager_.EventT_inv]
+        [event_manager_api.CallbackT[event_manager_api.EventT_inv]],
+        event_manager_api.CallbackT[event_manager_api.EventT_inv],
     ]:
         def decorator(
-            callback: event_manager_.CallbackT[event_manager_.EventT_inv],
-        ) -> event_manager_.CallbackT[event_manager_.EventT_inv]:
+            callback: event_manager_api.CallbackT[event_manager_api.EventT_inv],
+        ) -> event_manager_api.CallbackT[event_manager_api.EventT_inv]:
             self.add_listener(event_type, callback)
             return callback
 
@@ -282,9 +283,9 @@ class Component(injector.Injectable, traits.Component):
 
         self._client = client
 
-        if self._client.event_service:
+        if self._client.events:
             for event_, listener in self._listeners:
-                self._client.event_service.event_manager.subscribe(event_, listener)
+                self._client.events.subscribe(event_, listener)
 
         for command in self._message_commands:
             command.bind_client(client)
@@ -307,9 +308,9 @@ class Component(injector.Injectable, traits.Component):
 
     def _try_unsubscribe(
         self,
-        event_manager: event_manager_.EventManager,
-        event_type: typing.Type[event_manager_.EventT_co],
-        callback: event_manager_.CallbackT[event_manager_.EventT_co],
+        event_manager: event_manager_api.EventManager,
+        event_type: typing.Type[event_manager_api.EventT_co],
+        callback: event_manager_api.CallbackT[event_manager_api.EventT_co],
     ) -> None:
         try:
             event_manager.unsubscribe(event_type, callback)
@@ -322,9 +323,9 @@ class Component(injector.Injectable, traits.Component):
             return
 
         self._is_alive = False
-        if self._client and self._client.event_service:
+        if self._client and self._client.events:
             for event_, listener in self._listeners:
-                self._try_unsubscribe(self._client.event_service.event_manager, event_, listener)
+                self._try_unsubscribe(self._client.events, event_, listener)
 
     async def open(self) -> None:
         if self._is_alive:
@@ -334,14 +335,14 @@ class Component(injector.Injectable, traits.Component):
         # This is duplicated between both open and bind_cluster to ensure that these are registered
         # as soon as possible the first time this is binded to a client and that these are
         # re-registered everytime an object is restarted.
-        if self._client and self._client.event_service:
+        if self._client and self._client.events:
             for event_, listener in self._listeners:
                 try:
-                    self._try_unsubscribe(self._client.event_service.event_manager, event_, listener)
+                    self._try_unsubscribe(self._client.events, event_, listener)
                 except (LookupError, ValueError):  # TODO: what does hikari raise?
                     continue
 
-                self._client.event_service.event_manager.subscribe(event_, listener)
+                self._client.events.subscribe(event_, listener)
 
         self._is_alive = True
 

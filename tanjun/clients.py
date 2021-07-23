@@ -53,7 +53,7 @@ from yuyo import backoff
 
 from tanjun import context
 from tanjun import injector
-from tanjun import traits
+from tanjun import traits as tanjun_traits
 from tanjun import utilities
 
 if typing.TYPE_CHECKING:
@@ -61,7 +61,10 @@ if typing.TYPE_CHECKING:
     import types
 
     from hikari import users
-    from hikari.api import event_manager as event_manager_
+    from hikari.api import cache as cache_api
+    from hikari.api import event_manager as event_manager_api
+    from hikari.api import interaction_server as interaction_server_api
+    from hikari.api import rest as rest_api
 
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
 
@@ -73,7 +76,7 @@ This will be expected to initiate and resources like components to the client
 through the use of it's protocol methods.
 """
 
-PrefixGetterSig = typing.Callable[[traits.Context], typing.Awaitable[typing.Iterable[str]]]
+PrefixGetterSig = typing.Callable[[tanjun_traits.Context], typing.Awaitable[typing.Iterable[str]]]
 """Type hint of a callable used to get the prefix(es) for a specific guild.
 
 This should be an asynchronous callable which takes one positional argument of
@@ -149,11 +152,11 @@ _ACCEPTS_EVENT_TYPE_MAPPING: typing.Dict[
 }
 
 
-def _check_human(ctx: traits.Context, /) -> bool:
+def _check_human(ctx: tanjun_traits.Context, /) -> bool:
     return ctx.is_human
 
 
-class Client(injector.InjectorClient, traits.Client):
+class Client(injector.InjectorClient, tanjun_traits.Client):
     __slots__: typing.Sequence[str] = (
         "_accepts",
         "_cache",
@@ -174,20 +177,15 @@ class Client(injector.InjectorClient, traits.Client):
 
     def __init__(
         self,
-        rest: hikari_traits.RESTAware,
-        /,
-        cache: typing.Optional[hikari_traits.CacheAware] = None,
-        events: typing.Optional[hikari_traits.EventManagerAware] = None,
-        server: typing.Optional[hikari_traits.InteractionServerAware] = None,
+        rest: rest_api.RESTClient,
+        cache: typing.Optional[cache_api.Cache] = None,
+        events: typing.Optional[event_manager_api.EventManager] = None,
+        server: typing.Optional[interaction_server_api.InteractionServer] = None,
         shard: typing.Optional[hikari_traits.ShardAware] = None,
         *,
         event_managed: typing.Optional[bool] = None,
         mention_prefix: bool = False,
     ) -> None:
-        cache = utilities.try_find_type(hikari_traits.CacheAware, cache, events, rest, server, shard)
-        events = utilities.try_find_type(hikari_traits.EventManagerAware, events, cache, rest, server, shard)
-        server = utilities.try_find_type(hikari_traits.InteractionServerAware, server, cache, events, rest, shard)
-        shard = utilities.try_find_type(hikari_traits.ShardAware, shard, cache, events, rest, server)
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
         # TODO: warn if server and dispatch both None but don't error
 
@@ -195,12 +193,12 @@ class Client(injector.InjectorClient, traits.Client):
         self._accepts = AcceptsEnum.ALL if events else AcceptsEnum.NONE
         self._checks: typing.Set[injector.InjectableCheck] = set()
         self._cache = cache
-        self._components: typing.Set[traits.Component] = set()
+        self._components: typing.Set[tanjun_traits.Component] = set()
         self._events = events
         self._grab_mention_prefix = mention_prefix
-        self._hooks: typing.Optional[traits.AnyHooks] = None
-        self._interaction_hooks: typing.Optional[traits.InteractionHooks] = None
-        self._message_hooks: typing.Optional[traits.MessageHooks] = None
+        self._hooks: typing.Optional[tanjun_traits.AnyHooks] = None
+        self._interaction_hooks: typing.Optional[tanjun_traits.InteractionHooks] = None
+        self._message_hooks: typing.Optional[tanjun_traits.MessageHooks] = None
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
         self._prefix_getter: typing.Optional[PrefixGetterSig] = None
         self._prefixes: typing.Set[str] = set()
@@ -213,8 +211,8 @@ class Client(injector.InjectorClient, traits.Client):
             if not self._events:
                 raise ValueError("Client cannot be event managed without an event manager")
 
-            self._events.event_manager.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
-            self._events.event_manager.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
+            self._events.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
+            self._events.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
 
         # InjectorClient.__init__
         super().__init__(self)
@@ -234,6 +232,30 @@ class Client(injector.InjectorClient, traits.Client):
     def __repr__(self) -> str:
         return f"CommandClient <{type(self).__name__!r}, {len(self._components)} components, {self._prefixes}>"
 
+    @classmethod
+    def from_gateway_bot(
+        cls,
+        bot: hikari_traits.GatewayBotAware,
+        /,
+        *,
+        event_managed: bool = True,
+        mention_prefix: bool = False,
+    ) -> Client:
+        client = cls(
+            rest=bot.rest,
+            cache=bot.cache,
+            events=bot.event_manager,
+            shard=bot,
+            event_managed=event_managed,
+            mention_prefix=mention_prefix,
+        )
+        return client.add_hikari_trait_injectors(bot)
+
+    @classmethod
+    def from_rest_bot(cls, bot: hikari_traits.RESTBotAware, /) -> Client:
+        client = cls(rest=bot.rest, server=bot.interaction_server)
+        return client.add_hikari_trait_injectors(bot)
+
     @property
     def accepts(self) -> AcceptsEnum:
         """The type of message create events this command client accepts for execution."""
@@ -245,31 +267,31 @@ class Client(injector.InjectorClient, traits.Client):
         return _check_human in self._checks  # type: ignore[comparison-overlap]
 
     @property
-    def cache_service(self) -> typing.Optional[hikari_traits.CacheAware]:
+    def cache(self) -> typing.Optional[cache_api.Cache]:
         return self._cache
 
     @property
-    def checks(self) -> typing.AbstractSet[traits.CheckSig]:
+    def checks(self) -> typing.AbstractSet[tanjun_traits.CheckSig]:
         return {check.callback for check in self._checks}
 
     @property
-    def components(self) -> typing.AbstractSet[traits.Component]:
+    def components(self) -> typing.AbstractSet[tanjun_traits.Component]:
         return self._components.copy()
 
     @property
-    def event_service(self) -> typing.Optional[hikari_traits.EventManagerAware]:
+    def events(self) -> typing.Optional[event_manager_api.EventManager]:
         return self._events
 
     @property
-    def hooks(self) -> typing.Optional[traits.AnyHooks]:
+    def hooks(self) -> typing.Optional[tanjun_traits.AnyHooks]:
         return self._hooks
 
     @property
-    def interaction_hooks(self) -> typing.Optional[traits.InteractionHooks]:
+    def interaction_hooks(self) -> typing.Optional[tanjun_traits.InteractionHooks]:
         return self._interaction_hooks
 
     @property
-    def message_hooks(self) -> typing.Optional[traits.MessageHooks]:
+    def message_hooks(self) -> typing.Optional[tanjun_traits.MessageHooks]:
         return self._message_hooks
 
     @property
@@ -285,15 +307,15 @@ class Client(injector.InjectorClient, traits.Client):
         return self._prefixes.copy()
 
     @property
-    def rest_service(self) -> hikari_traits.RESTAware:
+    def rest(self) -> rest_api.RESTClient:
         return self._rest
 
     @property
-    def server_service(self) -> typing.Optional[hikari_traits.InteractionServerAware]:
+    def server(self) -> typing.Optional[interaction_server_api.InteractionServer]:
         return self._server
 
     @property
-    def shard_service(self) -> typing.Optional[hikari_traits.ShardAware]:
+    def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
         return self._shards
 
     async def _on_starting_event(self, _: lifetime_events.StartingEvent, /) -> None:
@@ -301,6 +323,13 @@ class Client(injector.InjectorClient, traits.Client):
 
     async def _on_stopping_event(self, _: lifetime_events.StoppingEvent, /) -> None:
         await self.close()
+
+    def add_hikari_trait_injectors(self: _ClientT, bot: hikari_traits.RESTAware, /) -> _ClientT:
+        for _, member in inspect.getmembers(hikari_traits):
+            if inspect.isclass(member) and isinstance(bot, member):
+                self.add_type_dependency(member, lambda: bot)
+
+        return self
 
     def set_accepts(self: _ClientT, accepts: AcceptsEnum, /) -> _ClientT:
         if accepts.get_event_type() and not self._events:
@@ -321,21 +350,21 @@ class Client(injector.InjectorClient, traits.Client):
 
         return self
 
-    def add_check(self: _ClientT, check: traits.CheckSig, /) -> _ClientT:
+    def add_check(self: _ClientT, check: tanjun_traits.CheckSig, /) -> _ClientT:
         self._checks.add(injector.InjectableCheck(check, injector=self))
         return self
 
-    def remove_check(self, check: traits.CheckSig, /) -> None:
+    def remove_check(self, check: tanjun_traits.CheckSig, /) -> None:
         self._checks.remove(check)  # type: ignore[arg-type]
 
-    def with_check(self, check: traits.CheckSigT, /) -> traits.CheckSigT:
+    def with_check(self, check: tanjun_traits.CheckSigT, /) -> tanjun_traits.CheckSigT:
         self.add_check(check)
         return check
 
-    async def check(self, ctx: traits.Context, /) -> bool:
+    async def check(self, ctx: tanjun_traits.Context, /) -> bool:
         return await utilities.gather_checks(self._checks, ctx)
 
-    def add_component(self: _ClientT, component: traits.Component, /) -> _ClientT:
+    def add_component(self: _ClientT, component: tanjun_traits.Component, /) -> _ClientT:
         if isinstance(component, injector.Injectable):
             component.set_injector(self)
 
@@ -343,38 +372,39 @@ class Client(injector.InjectorClient, traits.Client):
         self._components.add(component)
         return self
 
-    def remove_component(self, component: traits.Component, /) -> None:
+    def remove_component(self, component: tanjun_traits.Component, /) -> None:
         self._components.remove(component)
 
     def add_listener(
         self: _ClientT,
-        event: typing.Type[event_manager_.EventT_inv],
-        listener: event_manager_.CallbackT[event_manager_.EventT_inv],
+        event: typing.Type[event_manager_api.EventT_inv],
+        listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
         /,
     ) -> _ClientT:
-        if self.event_service:
-            self.event_service.event_manager.subscribe(event, listener)
+        if self._events:
+            self._events.subscribe(event, listener)
 
         return self
 
     def remove_listener(
         self,
-        event: typing.Type[event_manager_.EventT_inv],
-        listener: event_manager_.CallbackT[event_manager_.EventT_inv],
+        event: typing.Type[event_manager_api.EventT_inv],
+        listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
         /,
     ) -> None:
-        if self.event_service:
-            self.event_service.event_manager.unsubscribe(event, listener)
+        if self._events:
+            self._events.unsubscribe(event, listener)
 
     # TODO: make event optional?
     def with_listener(
-        self, event: typing.Type[event_manager_.EventT_inv]
+        self, event: typing.Type[event_manager_api.EventT_inv]
     ) -> typing.Callable[
-        [event_manager_.CallbackT[event_manager_.EventT_inv]], event_manager_.CallbackT[event_manager_.EventT_inv]
+        [event_manager_api.CallbackT[event_manager_api.EventT_inv]],
+        event_manager_api.CallbackT[event_manager_api.EventT_inv],
     ]:
         def add_listener_(
-            listener: event_manager_.CallbackT[event_manager_.EventT_inv],
-        ) -> event_manager_.CallbackT[event_manager_.EventT_inv]:
+            listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
+        ) -> event_manager_api.CallbackT[event_manager_api.EventT_inv]:
             self.add_listener(event, listener)
             return listener
 
@@ -402,14 +432,14 @@ class Client(injector.InjectorClient, traits.Client):
         return getter
 
     def check_message_context(
-        self, ctx: traits.MessageContext, /
-    ) -> typing.AsyncIterator[typing.Tuple[str, traits.MessageCommand]]:
+        self, ctx: tanjun_traits.MessageContext, /
+    ) -> typing.AsyncIterator[typing.Tuple[str, tanjun_traits.MessageCommand]]:
         return utilities.async_chain(component.check_message_context(ctx) for component in self._components)
 
-    def check_message_name(self, name: str, /) -> typing.Iterator[typing.Tuple[str, traits.MessageCommand]]:
+    def check_message_name(self, name: str, /) -> typing.Iterator[typing.Tuple[str, tanjun_traits.MessageCommand]]:
         return itertools.chain.from_iterable(component.check_message_name(name) for component in self._components)
 
-    async def _check_prefix(self, ctx: traits.MessageContext, /) -> typing.Optional[str]:
+    async def _check_prefix(self, ctx: tanjun_traits.MessageContext, /) -> typing.Optional[str]:
         if self._prefix_getter:
             for prefix in await self._prefix_getter(ctx):
                 if ctx.content.startswith(prefix):
@@ -423,9 +453,9 @@ class Client(injector.InjectorClient, traits.Client):
 
     def _try_unsubscribe(
         self,
-        event_manager: event_manager_.EventManager,
-        event_type: typing.Type[event_manager_.EventT_co],
-        callback: event_manager_.CallbackT[event_manager_.EventT_co],
+        event_manager: event_manager_api.EventManager,
+        event_type: typing.Type[event_manager_api.EventT_co],
+        callback: event_manager_api.CallbackT[event_manager_api.EventT_co],
     ) -> None:
         try:
             event_manager.unsubscribe(event_type, callback)
@@ -438,27 +468,27 @@ class Client(injector.InjectorClient, traits.Client):
 
         if deregister_listener and self._events:
             if event_type := self._accepts.get_event_type():
-                self._try_unsubscribe(self._events.event_manager, event_type, self.on_message_create_event)
+                self._try_unsubscribe(self._events, event_type, self.on_message_create_event)
 
             self._try_unsubscribe(
-                self._events.event_manager, interaction_events.InteractionCreateEvent, self.on_interaction_create_event
+                self._events, interaction_events.InteractionCreateEvent, self.on_interaction_create_event
             )
 
             if self._server:
-                self._server.interaction_server.set_listener(commands.CommandInteraction, None)
+                self._server.set_listener(commands.CommandInteraction, None)
 
     async def open(self, *, register_listener: bool = True) -> None:
         if self._grab_mention_prefix:
             user: typing.Optional[users.User] = None
             if self._cache:
-                user = self._cache.cache.get_me()
+                user = self._cache.get_me()
 
             if not user:
                 retry = backoff.Backoff(max_retries=4, maximum=30)
 
                 async for _ in retry:
                     try:
-                        user = await self._rest.rest.fetch_my_user()
+                        user = await self._rest.fetch_my_user()
                         break
 
                     except (hikari_errors.RateLimitedError, hikari_errors.RateLimitTooLongError) as exc:
@@ -471,7 +501,7 @@ class Client(injector.InjectorClient, traits.Client):
                         continue
 
                 else:
-                    user = await self._rest.rest.fetch_my_user()
+                    user = await self._rest.fetch_my_user()
 
             self._prefixes.add(f"<@{user.id}>")
             self._prefixes.add(f"<@!{user.id}>")
@@ -481,26 +511,22 @@ class Client(injector.InjectorClient, traits.Client):
 
         if register_listener and self._events:
             if event_type := self._accepts.get_event_type():
-                self._events.event_manager.subscribe(event_type, self.on_message_create_event)
+                self._events.subscribe(event_type, self.on_message_create_event)
 
-            self._events.event_manager.subscribe(
-                interaction_events.InteractionCreateEvent, self.on_interaction_create_event
-            )
+            self._events.subscribe(interaction_events.InteractionCreateEvent, self.on_interaction_create_event)
 
         if self._server:
-            self._server.interaction_server.set_listener(
-                commands.CommandInteraction, self.on_interaction_create_request
-            )
+            self._server.set_listener(commands.CommandInteraction, self.on_interaction_create_request)
 
-    def set_hooks(self: _ClientT, hooks: typing.Optional[traits.AnyHooks], /) -> _ClientT:
+    def set_hooks(self: _ClientT, hooks: typing.Optional[tanjun_traits.AnyHooks], /) -> _ClientT:
         self._hooks = hooks
         return self
 
-    def set_interaction_hooks(self: _ClientT, hooks: typing.Optional[traits.InteractionHooks], /) -> _ClientT:
+    def set_interaction_hooks(self: _ClientT, hooks: typing.Optional[tanjun_traits.InteractionHooks], /) -> _ClientT:
         self._interaction_hooks = hooks
         return self
 
-    def set_message_hooks(self: _ClientT, hooks: typing.Optional[traits.MessageHooks], /) -> _ClientT:
+    def set_message_hooks(self: _ClientT, hooks: typing.Optional[tanjun_traits.MessageHooks], /) -> _ClientT:
         self._message_hooks = hooks
         return self
 
@@ -536,11 +562,10 @@ class Client(injector.InjectorClient, traits.Client):
             return
 
         ctx.set_content(ctx.content.lstrip()[len(prefix) :].lstrip()).set_triggering_prefix(prefix)
-
         if not await self.check(ctx):
             return
 
-        hooks: typing.Optional[typing.Set[traits.MessageHooks]] = None
+        hooks: typing.Optional[typing.Set[tanjun_traits.MessageHooks]] = None
         if self._hooks:
             if not hooks:
                 hooks = set()
@@ -562,7 +587,7 @@ class Client(injector.InjectorClient, traits.Client):
             return
 
         ctx = context.InteractionContext(self, event.interaction).start_defer_timer(2.5)
-        hooks: typing.Optional[typing.Set[traits.InteractionHooks]] = None
+        hooks: typing.Optional[typing.Set[tanjun_traits.InteractionHooks]] = None
         if self._hooks:
             if not hooks:
                 hooks = set()
@@ -583,7 +608,7 @@ class Client(injector.InjectorClient, traits.Client):
         self, interaction: commands.CommandInteraction, /
     ) -> typing.Union[context.ResponseTypeT]:
         ctx = context.InteractionContext(self, interaction).start_defer_timer(2.5)
-        hooks: typing.Optional[typing.Set[traits.InteractionHooks]] = None
+        hooks: typing.Optional[typing.Set[tanjun_traits.InteractionHooks]] = None
         if self._hooks:
             if not hooks:
                 hooks = set()

@@ -40,7 +40,7 @@ import typing
 
 from hikari import snowflakes
 from hikari import undefined
-from hikari.api import special_endpoints
+from hikari.api import special_endpoints as special_endpoints_api
 from hikari.interactions import bases as base_interactions
 from hikari.internal import mentions
 
@@ -54,8 +54,12 @@ if typing.TYPE_CHECKING:
     from hikari import messages
     from hikari import traits as hikari_traits
     from hikari import users
+    from hikari.api import cache as cache_api
     from hikari.api import entity_factory as entity_factory_api
-    from hikari.api import shard as shard_
+    from hikari.api import event_manager as event_manager_api
+    from hikari.api import interaction_server as interaction_server_api
+    from hikari.api import rest as rest_api
+    from hikari.api import shard as shard_api
     from hikari.interactions import commands as command_interactions
 
     _BaseContextT = typing.TypeVar("_BaseContextT", bound="BaseContext")
@@ -63,7 +67,9 @@ if typing.TYPE_CHECKING:
     _MessageContextT = typing.TypeVar("_MessageContextT", bound="MessageContext")
 
 
-ResponseTypeT = typing.Union[special_endpoints.InteractionMessageBuilder, special_endpoints.InteractionDeferredBuilder]
+ResponseTypeT = typing.Union[
+    special_endpoints_api.InteractionMessageBuilder, special_endpoints_api.InteractionDeferredBuilder
+]
 
 
 class BaseContext(traits.Context):
@@ -82,8 +88,8 @@ class BaseContext(traits.Context):
         self._component = component
 
     @property
-    def cache_service(self) -> typing.Optional[hikari_traits.CacheAware]:
-        return self._client.cache_service
+    def cache(self) -> typing.Optional[cache_api.Cache]:
+        return self._client.cache
 
     @property
     def client(self) -> traits.Client:
@@ -94,44 +100,44 @@ class BaseContext(traits.Context):
         return self._component
 
     @property
-    def event_service(self) -> typing.Optional[hikari_traits.EventManagerAware]:
-        return self._client.event_service
+    def events(self) -> typing.Optional[event_manager_api.EventManager]:
+        return self._client.events
 
     # TODO: rename to server_app
     @property
-    def server_service(self) -> typing.Optional[hikari_traits.InteractionServerAware]:
-        return self._client.server_service
+    def server(self) -> typing.Optional[interaction_server_api.InteractionServer]:
+        return self._client.server
 
     @property
-    def rest_service(self) -> hikari_traits.RESTAware:
-        return self._client.rest_service
+    def rest(self) -> rest_api.RESTClient:
+        return self._client.rest
 
     @property
-    def shard_service(self) -> typing.Optional[hikari_traits.ShardAware]:
-        return self._client.shard_service
+    def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
+        return self._client.shards
 
     def set_component(self: _BaseContextT, component: typing.Optional[traits.Component], /) -> _BaseContextT:
         self._component = component
         return self
 
     def get_channel(self) -> typing.Optional[channels.PartialChannel]:
-        if self._client.cache_service:
-            return self._client.cache_service.cache.get_guild_channel(self.channel_id)
+        if self._client.cache:
+            return self._client.cache.get_guild_channel(self.channel_id)
 
         return None
 
     def get_guild(self) -> typing.Optional[guilds.Guild]:
-        if self.guild_id is not None and self._client.cache_service:
-            return self._client.cache_service.cache.get_guild(self.guild_id)
+        if self.guild_id is not None and self._client.cache:
+            return self._client.cache.get_guild(self.guild_id)
 
         return None
 
     async def fetch_channel(self) -> channels.PartialChannel:
-        return await self._client.rest_service.rest.fetch_channel(self.channel_id)
+        return await self._client.rest.fetch_channel(self.channel_id)
 
     async def fetch_guild(self) -> typing.Optional[guilds.Guild]:  # TODO: or raise?
         if self.guild_id is not None:
-            return await self._client.rest_service.rest.fetch_guild(self.guild_id)
+            return await self._client.rest.fetch_guild(self.guild_id)
 
         return None
 
@@ -215,17 +221,17 @@ class MessageContext(BaseContext, traits.MessageContext):
         return self._triggering_prefix
 
     @property
-    def shard(self) -> typing.Optional[shard_.GatewayShard]:
-        if not self._client.shard_service:
+    def shard(self) -> typing.Optional[shard_api.GatewayShard]:
+        if not self._client.shards:
             return None
 
         if self._message.guild_id is not None:
-            shard_id = snowflakes.calculate_shard_id(self._client.shard_service, self._message.guild_id)
+            shard_id = snowflakes.calculate_shard_id(self._client.shards, self._message.guild_id)
 
         else:
             shard_id = 0
 
-        return self._client.shard_service.shards[shard_id]
+        return self._client.shards.shards[shard_id]
 
     def set_command(self: _MessageContextT, command: traits.MessageCommand, /) -> _MessageContextT:
         self._command = command
@@ -250,8 +256,10 @@ class MessageContext(BaseContext, traits.MessageContext):
         wait_for_result: bool = True,
         attachment: undefined.UndefinedOr[files.Resourceish] = undefined.UNDEFINED,
         attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[
+            typing.Sequence[special_endpoints_api.ComponentBuilder]
+        ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -285,7 +293,7 @@ class MessageContext(BaseContext, traits.MessageContext):
 
 
 @dataclasses.dataclass
-class _InteractionMessageBuilder(special_endpoints.InteractionMessageBuilder):
+class _InteractionMessageBuilder(special_endpoints_api.InteractionMessageBuilder):
     __slots__ = (
         "_flags",
         "_is_tts",
@@ -297,7 +305,7 @@ class _InteractionMessageBuilder(special_endpoints.InteractionMessageBuilder):
     )
 
     _content: undefined.UndefinedOr[str]
-    _components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]]
+    _components: undefined.UndefinedOr[typing.Sequence[special_endpoints_api.ComponentBuilder]]
     _embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]]
     _flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType]
     _tts: undefined.UndefinedOr[bool]
@@ -468,8 +476,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: typing.Literal[False] = False,
-        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[
+            typing.Sequence[special_endpoints_api.ComponentBuilder]
+        ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
@@ -490,8 +500,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: typing.Literal[True],
-        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[
+            typing.Sequence[special_endpoints_api.ComponentBuilder]
+        ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
@@ -511,8 +523,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: bool = False,
-        component: undefined.UndefinedOr[special_endpoints.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[typing.Sequence[special_endpoints.ComponentBuilder]] = undefined.UNDEFINED,
+        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[
+            typing.Sequence[special_endpoints_api.ComponentBuilder]
+        ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
