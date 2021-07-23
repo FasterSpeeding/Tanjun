@@ -133,7 +133,6 @@ class Component(injector.Injectable, traits.Component):
         """
         return self._is_alive
 
-    # TODO: should this accept all 3 different kind of hooks?
     @property
     def interaction_hooks(self) -> typing.Optional[traits.InteractionHooks]:
         return self._interaction_hooks

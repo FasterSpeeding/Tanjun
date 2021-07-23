@@ -103,7 +103,6 @@ class BaseContext(traits.Context):
     def events(self) -> typing.Optional[event_manager_api.EventManager]:
         return self._client.events
 
-    # TODO: rename to server_app
     @property
     def server(self) -> typing.Optional[interaction_server_api.InteractionServer]:
         return self._client.server

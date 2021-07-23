@@ -31,7 +31,14 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["AcceptsEnum", "as_loader", "Client", "LoadableSig", "PrefixGetterSig"]
+__all__: typing.Sequence[str] = [
+    "AcceptsEnum",
+    "as_loader",
+    "Client",
+    "LoadableSig",
+    "PrefixGetterSig",
+    "PrefixGetterSigT",
+]
 
 import asyncio
 import enum
@@ -82,6 +89,8 @@ PrefixGetterSig = typing.Callable[[tanjun_traits.Context], typing.Awaitable[typi
 This should be an asynchronous callable which takes one positional argument of
 type `tanjun.traits.Context` and returns an iterable of strings.
 """
+
+PrefixGetterSigT = typing.TypeVar("PrefixGetterSigT", bound="PrefixGetterSig")
 
 
 class _LoadableDescriptor:  # Slots mess with functools.update_wrapper
@@ -426,8 +435,7 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
         self._prefix_getter = getter
         return self
 
-    # TODO: use generic callable type var here instead?
-    def with_prefix_getter(self, getter: PrefixGetterSig) -> PrefixGetterSig:
+    def with_prefix_getter(self, getter: PrefixGetterSigT, /) -> PrefixGetterSigT:
         self.set_prefix_getter(getter)
         return getter
 

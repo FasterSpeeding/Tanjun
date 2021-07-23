@@ -195,7 +195,6 @@ class Context(abc.ABC):
     def member(self) -> typing.Optional[guilds.Member]:
         raise NotImplementedError
 
-    # TODO: rename to server_app
     @property
     @abc.abstractmethod
     def server(self) -> typing.Optional[interaction_server_api.InteractionServer]:
@@ -568,10 +567,6 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def with_check(self, check: CheckSig, /) -> CheckSig:
-        raise NotImplementedError
-
-    @abc.abstractmethod
     async def check_context(self, ctx: MessageContext, /) -> typing.Optional[str]:
         raise NotImplementedError
 
@@ -648,17 +643,6 @@ class InteractionCommandGroup(InteractionCommand, abc.ABC):
 
     @abc.abstractmethod
     def remove_command(self, command: InteractionCommand, /) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def with_command(
-        self,
-        name: str,
-        /,
-        *names: str,
-        checks: typing.Optional[typing.Iterable[CheckSig]] = None,
-        hooks: typing.Optional[InteractionHooks] = None,
-    ) -> typing.Callable[[CommandFunctionSig], CommandFunctionSig]:
         raise NotImplementedError
 
 
@@ -748,18 +732,6 @@ class MessageCommandGroup(MessageCommand, abc.ABC):
     def remove_command(self, command: MessageCommand, /) -> None:
         raise NotImplementedError
 
-    @abc.abstractmethod
-    def with_command(
-        self,
-        name: str,
-        /,
-        *names: str,
-        checks: typing.Optional[typing.Iterable[CheckSig]] = None,
-        hooks: typing.Optional[MessageHooks] = None,
-        parser: typing.Optional[Parser] = None,
-    ) -> typing.Callable[[CommandFunctionSig], CommandFunctionSig]:
-        raise NotImplementedError
-
 
 class Component(abc.ABC):
     __slots__: typing.Sequence[str] = ()
@@ -834,7 +806,6 @@ class Component(abc.ABC):
 class Client(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
-    # TODO: rename to cache_app
     @property
     @abc.abstractmethod
     def cache(self) -> typing.Optional[cache_api.Cache]:
@@ -845,7 +816,6 @@ class Client(abc.ABC):
     def components(self) -> typing.AbstractSet[Component]:
         raise NotImplementedError
 
-    # TODO: rename to dispatch_app
     @property
     @abc.abstractmethod
     def events(self) -> typing.Optional[event_manager_api.EventManager]:
@@ -861,19 +831,16 @@ class Client(abc.ABC):
     def prefixes(self) -> typing.AbstractSet[str]:
         raise NotImplementedError
 
-    # TODO: rename to rest_app
     @property
     @abc.abstractmethod
     def rest(self) -> rest_api.RESTClient:
         raise NotImplementedError
 
-    # TODO: rename to server_app
     @property
     @abc.abstractmethod
     def server(self) -> typing.Optional[interaction_server_api.InteractionServer]:
         raise NotImplementedError
 
-    # TODO: rename to shard_app
     @property
     @abc.abstractmethod
     def shards(self) -> typing.Optional[traits.ShardAware]:

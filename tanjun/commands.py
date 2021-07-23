@@ -65,6 +65,7 @@ if typing.TYPE_CHECKING:
     _PartialCommandT = typing.TypeVar("_PartialCommandT", bound="PartialCommand[typing.Any, typing.Any]")
 
 
+AnyMessageCommandT = typing.TypeVar("AnyMessageCommandT", bound=traits.MessageCommand)
 CommandFunctionSigT = typing.TypeVar("CommandFunctionSigT", bound=traits.CommandFunctionSig)
 _EMPTY_DICT: typing.Final[typing.Dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
@@ -561,20 +562,9 @@ class MessageCommandGroup(MessageCommand[CommandFunctionSigT], traits.MessageCom
         self._commands.remove(command)
         command.set_parent(None)
 
-    def with_command(
-        self,
-        name: str,
-        /,
-        *names: str,
-        checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.MessageHooks] = None,
-        parser: typing.Optional[traits.Parser] = None,
-    ) -> typing.Callable[[traits.CommandFunctionSig], traits.CommandFunctionSig]:
-        def decorator(function: traits.CommandFunctionSig, /) -> traits.CommandFunctionSig:
-            self.add_command(MessageCommand(function, name, *names, checks=checks, hooks=hooks, parser=parser))
-            return function
-
-        return decorator
+    def with_command(self, command: AnyMessageCommandT) -> AnyMessageCommandT:
+        self.add_command(command)
+        return command
 
     def bind_client(self, client: traits.Client, /) -> None:
         super().bind_client(client)
