@@ -39,7 +39,6 @@ __all__: typing.Sequence[str] = [
     "ALL_PERMISSIONS",
     "calculate_permissions",
     "fetch_permissions",
-    "try_find_type",
 ]
 
 import asyncio
@@ -317,11 +316,3 @@ async def fetch_permissions(
         raise ValueError("Channel doesn't match up with the member's guild")
 
     return _calculate_channel_overwrites(found_channel, member, permissions)
-
-
-def try_find_type(cls: typing.Type[_ValueT], *values: typing.Any) -> typing.Optional[_ValueT]:
-    for value in values:
-        if isinstance(value, cls):
-            return value
-
-    return None
