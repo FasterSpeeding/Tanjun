@@ -53,6 +53,7 @@ import typing
 from hikari import traits as hikari_traits
 from hikari.api import cache as cache_api
 from hikari.api import event_manager as event_manager_api
+from hikari.api import interaction_server as interaction_server_api
 from hikari.api import rest as rest_api
 
 from . import conversion
@@ -291,6 +292,7 @@ _TYPE_GETTER_OVERRIDES: typing.Dict[
     rest_api.RESTClient: lambda ctx, _, __: ctx.rest,
     hikari_traits.ShardAware: lambda ctx, _, __: ctx.shards or UNDEFINED,
     event_manager_api.EventManager: lambda ctx, _, __: ctx.events or UNDEFINED,
+    interaction_server_api.InteractionServer: lambda ctx, _, __: ctx.server or UNDEFINED,
 }
 
 
