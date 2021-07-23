@@ -115,7 +115,7 @@ class ApplicationOwnerCheck:
                 return self._application
 
             try:
-                application = await ctx.client.rest_service.fetch_application()
+                application = await ctx.client.rest.fetch_application()
                 self._application = application
 
             except (
@@ -126,12 +126,12 @@ class ApplicationOwnerCheck:
                 # If we can't fetch this information straight away and don't have a stale state to go off then we
                 # have to retry before returning.
                 if not self._application:
-                    application = await asyncio.wait_for(self._try_fetch(ctx.client.rest_service), 10)
+                    application = await asyncio.wait_for(self._try_fetch(ctx.client.rest), 10)
 
                 # Otherwise we create a task to ensure that we will still try to refresh the stored state in the future
                 # while returning the stale state to ensure that the command execution doesn't stall.
                 else:
-                    asyncio.create_task(asyncio.wait_for(self._try_fetch(ctx.client.rest_service), self._expire * 0.80))
+                    asyncio.create_task(asyncio.wait_for(self._try_fetch(ctx.client.rest), self._expire * 0.80))
                     application = self._application
 
             self._time = time.perf_counter()
@@ -149,7 +149,7 @@ class ApplicationOwnerCheck:
         timeout: typing.Optional[datetime.timedelta] = datetime.timedelta(seconds=30),
     ) -> None:
         try:
-            await self.update(client.rest_service, timeout=timeout)
+            await self.update(client.rest, timeout=timeout)
 
         except asyncio.TimeoutError:
             pass
@@ -178,12 +178,12 @@ class ApplicationOwnerCheck:
 
 async def nsfw_check(ctx: tanjun_traits.Context, /) -> bool:
     channel: typing.Optional[channels.PartialChannel] = None
-    if ctx.client.cache_service:
-        channel = ctx.client.cache_service.get_guild_channel(ctx.channel_id)
+    if ctx.client.cache:
+        channel = ctx.client.cache.get_guild_channel(ctx.channel_id)
 
     if not channel:
         retry = backoff.Backoff(maximum=5, max_retries=4)
-        channel = await utilities.fetch_resource(retry, ctx.client.rest_service.fetch_channel, ctx.channel_id)
+        channel = await utilities.fetch_resource(retry, ctx.client.rest.fetch_channel, ctx.channel_id)
 
     return channel.is_nsfw or False if isinstance(channel, channels.GuildChannel) else True
 
@@ -243,13 +243,13 @@ class OwnPermissionsCheck(PermissionCheck):
         return await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
     async def _get_member(self, ctx: tanjun_traits.Context, guild_id: snowflakes.Snowflake, /) -> guilds.Member:
-        user = await self._get_user(ctx.client.cache_service, ctx.client.rest_service)
+        user = await self._get_user(ctx.client.cache, ctx.client.rest)
 
-        if ctx.client.cache_service and (member := ctx.client.cache_service.get_member(guild_id, user.id)):
+        if ctx.client.cache and (member := ctx.client.cache.get_member(guild_id, user.id)):
             return member
 
         retry = backoff.Backoff(maximum=5, max_retries=4)
-        return await utilities.fetch_resource(retry, ctx.client.rest_service.fetch_member, guild_id, user.id)
+        return await utilities.fetch_resource(retry, ctx.client.rest.fetch_member, guild_id, user.id)
 
     async def _get_user(self, cache: typing.Optional[cache_api.Cache], rest: rest_api.RESTClient, /) -> users.User:
         if not self._me:

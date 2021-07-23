@@ -82,16 +82,16 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
 
     def bind_client(self, client: traits.Client, /) -> None:
         cache_bound = self.cache_bound
-        if cache_bound and not client.cache_service:
+        if cache_bound and not client.cache:
             warnings.warn(
                 f"Registered converter {self!r} will always fail with a stateless client.",
                 category=tanjun_errors.StateWarning,
             )
             return
 
-        if cache_bound and client.shard_service:  # TODO: alternative message when not state bound and wrong intents
+        if cache_bound and client.shards:  # TODO: alternative message when not state bound and wrong intents
             required_intents = self.intents
-            if (required_intents & client.shard_service.intents) != required_intents:
+            if (required_intents & client.shards.intents) != required_intents:
                 warnings.warn(
                     f"Registered converter {type(self).__name__!r} will not run as expected "
                     f"when {required_intents!r} intent(s) are not declared",
@@ -152,9 +152,9 @@ class ChannelConverter(BaseConverter[channels.GuildChannel]):
         return True
 
     async def convert(self, ctx: traits.Context, argument: str, /) -> channels.GuildChannel:
-        if ctx.client.cache_service:
+        if ctx.client.cache:
             channel_id = parse_channel_id(argument, message="No valid channel mention or ID  found")
-            if channel := ctx.client.cache_service.get_guild_channel(channel_id):
+            if channel := ctx.client.cache.get_guild_channel(channel_id):
                 return channel
 
         raise ValueError("Couldn't find channel")
@@ -207,9 +207,9 @@ class EmojiConverter(BaseConverter[emojis.KnownCustomEmoji]):
         return True
 
     async def convert(self, ctx: traits.Context, argument: str, /) -> emojis.KnownCustomEmoji:
-        if ctx.client.cache_service:
+        if ctx.client.cache:
             emoji_id = parse_emoji_id(argument, message="No valid emoji or emoji ID found")
-            if emoji := ctx.client.cache_service.get_emoji(emoji_id):
+            if emoji := ctx.client.cache.get_emoji(emoji_id):
                 return emoji
 
         raise ValueError("Couldn't find emoji")
@@ -235,9 +235,9 @@ class GuildConverter(BaseConverter[guilds.GatewayGuild]):
         return True
 
     async def convert(self, ctx: traits.Context, argument: str, /) -> guilds.GatewayGuild:
-        if ctx.client.cache_service:
+        if ctx.client.cache:
             guild_id = parse_snowflake(argument, message="No valid guild ID found")
-            if guild := ctx.client.cache_service.get_guild(guild_id):
+            if guild := ctx.client.cache.get_guild(guild_id):
                 return guild
 
         raise ValueError("Couldn't find guild")
@@ -263,8 +263,8 @@ class InviteConverter(BaseConverter[invites.InviteWithMetadata]):
         return True
 
     async def convert(self, ctx: traits.Context, argument: str, /) -> invites.InviteWithMetadata:
-        if ctx.client.cache_service:
-            if invite := ctx.client.cache_service.get_invite(argument):
+        if ctx.client.cache:
+            if invite := ctx.client.cache.get_invite(argument):
                 return invite
 
         raise ValueError("Couldn't find invite")
@@ -293,9 +293,9 @@ class MemberConverter(BaseConverter[guilds.Member]):
         if ctx.guild_id is None:
             raise ValueError("Cannot get a member from a DM channel")
 
-        if ctx.client.cache_service:
+        if ctx.client.cache:
             member_id = parse_user_id(argument, message="No valid user mention or ID found")
-            if member := ctx.client.cache_service.get_member(ctx.guild_id, member_id):
+            if member := ctx.client.cache.get_member(ctx.guild_id, member_id):
                 return member
 
         raise ValueError("Couldn't find member in this guild")
@@ -324,9 +324,9 @@ class PresenceConverter(BaseConverter[presences.MemberPresence]):
         if ctx.guild_id is None:
             raise ValueError("Cannot get a presence from a DM channel")
 
-        if ctx.client.cache_service:
+        if ctx.client.cache:
             user_id = parse_user_id(argument, message="No valid member mention or ID  found")
-            if user := ctx.client.cache_service.get_presence(ctx.guild_id, user_id):
+            if user := ctx.client.cache.get_presence(ctx.guild_id, user_id):
                 return user
 
         raise ValueError("Couldn't find presence in current guild")
@@ -340,9 +340,9 @@ class RoleConverter(BaseConverter[guilds.Role]):
         return True
 
     async def convert(self, ctx: traits.Context, argument: str, /) -> guilds.Role:
-        if ctx.client.cache_service:
+        if ctx.client.cache:
             role_id = parse_role_id(argument, message="No valid role mention or ID  found")
-            if role := ctx.client.cache_service.get_role(role_id):
+            if role := ctx.client.cache.get_role(role_id):
                 return role
 
         raise ValueError("Couldn't find role")
@@ -426,9 +426,9 @@ class UserConverter(BaseConverter[users.User]):
         return True
 
     async def convert(self, ctx: traits.Context, argument: str, /) -> users.User:
-        if ctx.client.cache_service:
+        if ctx.client.cache:
             user_id = parse_user_id(argument, message="No valid user mention or ID  found")
-            if user := ctx.client.cache_service.get_user(user_id):
+            if user := ctx.client.cache.get_user(user_id):
                 return user
 
         raise ValueError("Couldn't find user")
@@ -457,9 +457,9 @@ class VoiceStateConverter(BaseConverter[voices.VoiceState]):
         if ctx.guild_id is None:
             raise ValueError("Cannot get a voice state from a DM channel")
 
-        if ctx.client.cache_service:
+        if ctx.client.cache:
             user_id = parse_user_id(argument, message="No valid user mention or ID  found")
-            if user := ctx.client.cache_service.get_voice_state(ctx.guild_id, user_id):
+            if user := ctx.client.cache.get_voice_state(ctx.guild_id, user_id):
                 return user
 
         raise ValueError("Voice state couldn't be found for current guild")

@@ -233,8 +233,8 @@ class Component(injector.Injectable, traits.Component):
     ) -> _ComponentT:
         self._listeners.add((event, listener))
 
-        if self._is_alive and self._client and self._client.event_service:
-            self._client.event_service.subscribe(event, listener)
+        if self._is_alive and self._client and self._client.events:
+            self._client.events.subscribe(event, listener)
 
         return self
 
@@ -246,8 +246,8 @@ class Component(injector.Injectable, traits.Component):
     ) -> None:
         self._listeners.remove((event, listener))
 
-        if self._is_alive and self._client and self._client.event_service:
-            self._client.event_service.unsubscribe(event, listener)
+        if self._is_alive and self._client and self._client.events:
+            self._client.events.unsubscribe(event, listener)
 
     # TODO: make event optional?
     def with_listener(
@@ -283,9 +283,9 @@ class Component(injector.Injectable, traits.Component):
 
         self._client = client
 
-        if self._client.event_service:
+        if self._client.events:
             for event_, listener in self._listeners:
-                self._client.event_service.subscribe(event_, listener)
+                self._client.events.subscribe(event_, listener)
 
         for command in self._message_commands:
             command.bind_client(client)
@@ -323,9 +323,9 @@ class Component(injector.Injectable, traits.Component):
             return
 
         self._is_alive = False
-        if self._client and self._client.event_service:
+        if self._client and self._client.events:
             for event_, listener in self._listeners:
-                self._try_unsubscribe(self._client.event_service, event_, listener)
+                self._try_unsubscribe(self._client.events, event_, listener)
 
     async def open(self) -> None:
         if self._is_alive:
@@ -335,14 +335,14 @@ class Component(injector.Injectable, traits.Component):
         # This is duplicated between both open and bind_cluster to ensure that these are registered
         # as soon as possible the first time this is binded to a client and that these are
         # re-registered everytime an object is restarted.
-        if self._client and self._client.event_service:
+        if self._client and self._client.events:
             for event_, listener in self._listeners:
                 try:
-                    self._try_unsubscribe(self._client.event_service, event_, listener)
+                    self._try_unsubscribe(self._client.events, event_, listener)
                 except (LookupError, ValueError):  # TODO: what does hikari raise?
                     continue
 
-                self._client.event_service.subscribe(event_, listener)
+                self._client.events.subscribe(event_, listener)
 
         self._is_alive = True
 

@@ -265,7 +265,7 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
         return _check_human in self._checks  # type: ignore[comparison-overlap]
 
     @property
-    def cache_service(self) -> typing.Optional[cache_api.Cache]:
+    def cache(self) -> typing.Optional[cache_api.Cache]:
         return self._cache
 
     @property
@@ -277,7 +277,7 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
         return self._components.copy()
 
     @property
-    def event_service(self) -> typing.Optional[event_manager_api.EventManager]:
+    def events(self) -> typing.Optional[event_manager_api.EventManager]:
         return self._events
 
     @property
@@ -305,15 +305,15 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
         return self._prefixes.copy()
 
     @property
-    def rest_service(self) -> rest_api.RESTClient:
+    def rest(self) -> rest_api.RESTClient:
         return self._rest
 
     @property
-    def server_service(self) -> typing.Optional[interaction_server_api.InteractionServer]:
+    def server(self) -> typing.Optional[interaction_server_api.InteractionServer]:
         return self._server
 
     @property
-    def shard_service(self) -> typing.Optional[hikari_traits.ShardAware]:
+    def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
         return self._shards
 
     async def _on_starting_event(self, _: lifetime_events.StartingEvent, /) -> None:

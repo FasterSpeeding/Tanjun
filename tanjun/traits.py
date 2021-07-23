@@ -150,7 +150,7 @@ class Context(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def cache_service(self) -> typing.Optional[cache_api.Cache]:
+    def cache(self) -> typing.Optional[cache_api.Cache]:
         raise NotImplementedError
 
     @property
@@ -177,7 +177,7 @@ class Context(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def event_service(self) -> typing.Optional[event_manager_api.EventManager]:
+    def events(self) -> typing.Optional[event_manager_api.EventManager]:
         raise NotImplementedError
 
     @property
@@ -198,17 +198,17 @@ class Context(abc.ABC):
     # TODO: rename to server_app
     @property
     @abc.abstractmethod
-    def server_service(self) -> typing.Optional[interaction_server_api.InteractionServer]:
+    def server(self) -> typing.Optional[interaction_server_api.InteractionServer]:
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
-    def rest_service(self) -> rest_api.RESTClient:
+    def rest(self) -> rest_api.RESTClient:
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
-    def shard_service(self) -> typing.Optional[traits.ShardAware]:
+    def shards(self) -> typing.Optional[traits.ShardAware]:
         raise NotImplementedError
 
     @property
@@ -837,7 +837,7 @@ class Client(abc.ABC):
     # TODO: rename to cache_app
     @property
     @abc.abstractmethod
-    def cache_service(self) -> typing.Optional[cache_api.Cache]:
+    def cache(self) -> typing.Optional[cache_api.Cache]:
         raise NotImplementedError
 
     @property
@@ -848,7 +848,7 @@ class Client(abc.ABC):
     # TODO: rename to dispatch_app
     @property
     @abc.abstractmethod
-    def event_service(self) -> typing.Optional[event_manager_api.EventManager]:
+    def events(self) -> typing.Optional[event_manager_api.EventManager]:
         raise NotImplementedError
 
     @property
@@ -864,19 +864,19 @@ class Client(abc.ABC):
     # TODO: rename to rest_app
     @property
     @abc.abstractmethod
-    def rest_service(self) -> rest_api.RESTClient:
+    def rest(self) -> rest_api.RESTClient:
         raise NotImplementedError
 
     # TODO: rename to server_app
     @property
     @abc.abstractmethod
-    def server_service(self) -> typing.Optional[interaction_server_api.InteractionServer]:
+    def server(self) -> typing.Optional[interaction_server_api.InteractionServer]:
         raise NotImplementedError
 
     # TODO: rename to shard_app
     @property
     @abc.abstractmethod
-    def shard_service(self) -> typing.Optional[traits.ShardAware]:
+    def shards(self) -> typing.Optional[traits.ShardAware]:
         raise NotImplementedError
 
     @abc.abstractmethod
