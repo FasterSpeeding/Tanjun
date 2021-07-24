@@ -561,7 +561,7 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
 
         return self
 
-    async def on_message_create_event(self, event: message_events.MessageCreateEvent) -> None:
+    async def on_message_create_event(self, event: message_events.MessageCreateEvent, /) -> None:
         if event.message.content is None:
             return
 

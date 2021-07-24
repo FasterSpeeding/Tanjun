@@ -235,6 +235,70 @@ class Context(abc.ABC):
     def get_guild(self) -> typing.Optional[guilds.Guild]:
         raise NotImplementedError
 
+    @abc.abstractmethod
+    async def delete_initial_response(self) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def delete_last_response(self) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def edit_initial_response(
+        self,
+        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        *,
+        attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
+        attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
+        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[
+            typing.Sequence[special_endpoints_api.ComponentBuilder]
+        ] = undefined.UNDEFINED,
+        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
+        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        replace_attachments: bool = False,
+        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        user_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
+        ] = undefined.UNDEFINED,
+        role_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
+        ] = undefined.UNDEFINED,
+    ) -> messages.Message:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def edit_last_response(
+        self,
+        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        *,
+        attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
+        attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
+        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[
+            typing.Sequence[special_endpoints_api.ComponentBuilder]
+        ] = undefined.UNDEFINED,
+        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
+        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        replace_attachments: bool = False,
+        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        user_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
+        ] = undefined.UNDEFINED,
+        role_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
+        ] = undefined.UNDEFINED,
+    ) -> messages.Message:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def fetch_initial_response(self) -> typing.Optional[messages.Message]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def fetch_last_response(self) -> typing.Optional[messages.Message]:
+        raise NotImplementedError
+
     @typing.overload
     @abc.abstractmethod
     async def respond(
@@ -248,7 +312,6 @@ class Context(abc.ABC):
         ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         user_mentions: undefined.UndefinedOr[
             typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
@@ -272,7 +335,6 @@ class Context(abc.ABC):
         ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         user_mentions: undefined.UndefinedOr[
             typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
@@ -295,7 +357,6 @@ class Context(abc.ABC):
         ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         user_mentions: undefined.UndefinedOr[
             typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
@@ -398,6 +459,54 @@ class InteractionContext(Context, abc.ABC):
     def member(self) -> typing.Optional[base_interactions.InteractionMember]:
         raise NotImplementedError
 
+    @abc.abstractmethod
+    async def create_followup(
+        self,
+        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        *,
+        attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
+        attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
+        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[
+            typing.Sequence[special_endpoints_api.ComponentBuilder]
+        ] = undefined.UNDEFINED,
+        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
+        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        user_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
+        ] = undefined.UNDEFINED,
+        role_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
+        ] = undefined.UNDEFINED,
+        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        flags: typing.Union[undefined.UndefinedType, int, messages.MessageFlag] = undefined.UNDEFINED,
+    ) -> messages.Message:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def create_initial_response(
+        self,
+        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        *,
+        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        components: undefined.UndefinedOr[
+            typing.Sequence[special_endpoints_api.ComponentBuilder]
+        ] = undefined.UNDEFINED,
+        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
+        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        user_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
+        ] = undefined.UNDEFINED,
+        role_mentions: undefined.UndefinedOr[
+            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
+        ] = undefined.UNDEFINED,
+        flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
+        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+    ) -> None:
+        raise NotImplementedError
+
     @typing.overload
     @abc.abstractmethod
     async def respond(
@@ -411,8 +520,6 @@ class InteractionContext(Context, abc.ABC):
         ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
-        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         user_mentions: undefined.UndefinedOr[
             typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
@@ -436,8 +543,6 @@ class InteractionContext(Context, abc.ABC):
         ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
-        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         user_mentions: undefined.UndefinedOr[
             typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
@@ -460,8 +565,6 @@ class InteractionContext(Context, abc.ABC):
         ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
-        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         user_mentions: undefined.UndefinedOr[
             typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
