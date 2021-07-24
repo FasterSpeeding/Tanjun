@@ -53,13 +53,13 @@ from hikari import permissions as permissions_
 from hikari import snowflakes
 from yuyo import backoff
 
-from tanjun import errors as tanjun_errors
+from . import errors as tanjun_errors
 
 if typing.TYPE_CHECKING:
     from hikari import guilds
 
-    from tanjun import injector
-    from tanjun import traits as tanjun_traits
+    from . import injector
+    from . import traits as tanjun_traits
 
 
 _ResourceT = typing.TypeVar("_ResourceT")

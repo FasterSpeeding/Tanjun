@@ -43,7 +43,7 @@ from hikari.api import special_endpoints as special_endpoints_api
 from hikari.impl import special_endpoints as special_endpoints_impl
 from hikari.interactions import bases as base_interactions
 
-from tanjun import traits
+from . import traits
 
 if typing.TYPE_CHECKING:
     from hikari import channels

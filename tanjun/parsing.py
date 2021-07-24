@@ -52,10 +52,10 @@ import shlex
 import typing
 from collections import abc as collections
 
-from tanjun import conversion
-from tanjun import errors
-from tanjun import injector as injector_
-from tanjun import traits
+from . import conversion
+from . import errors
+from . import injector as injector_
+from . import traits
 
 if typing.TYPE_CHECKING:
     _ParameterT = typing.TypeVar("_ParameterT", bound="_Parameter")

@@ -83,7 +83,7 @@ if typing.TYPE_CHECKING:
     from hikari.interactions import bases as base_interactions
     from hikari.interactions import commands as command_interactions
 
-    from tanjun import errors
+    from . import errors
 
 _T = typing.TypeVar("_T")
 

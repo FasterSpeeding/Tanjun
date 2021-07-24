@@ -137,17 +137,17 @@ __all__: typing.Sequence[str] = [
 
 import typing
 
-from tanjun import traits
-from tanjun.checks import *
-from tanjun.clients import *
-from tanjun.commands import *
-from tanjun.components import *
-from tanjun.context import *
-from tanjun.conversion import *
-from tanjun.errors import *
-from tanjun.hooks import *
-from tanjun.injector import *
-from tanjun.parsing import *
+from . import traits
+from .checks import *
+from .clients import *
+from .commands import *
+from .components import *
+from .context import *
+from .conversion import *
+from .errors import *
+from .hooks import *
+from .injector import *
+from .parsing import *
 
 __author__ = "Faster Speeding"
 __ci__ = ""

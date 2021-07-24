@@ -40,9 +40,9 @@ import typing
 
 from hikari.events import base_events
 
-from tanjun import injector
-from tanjun import traits
-from tanjun import utilities
+from . import injector
+from . import traits
+from . import utilities
 
 if typing.TYPE_CHECKING:
     from hikari.api import event_manager as event_manager_api

@@ -37,9 +37,9 @@ import asyncio
 import copy
 import typing
 
-from tanjun import errors
-from tanjun import traits
-from tanjun import utilities
+from . import errors
+from . import traits
+from . import utilities
 
 if typing.TypeVar:
     _HooksT = typing.TypeVar("_HooksT", bound="Hooks[typing.Any]")

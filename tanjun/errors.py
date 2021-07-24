@@ -49,7 +49,7 @@ __all__: typing.Sequence[str] = [
 import typing
 
 if typing.TYPE_CHECKING:
-    from tanjun import traits
+    from . import traits
 
 
 class TanjunError(Exception):

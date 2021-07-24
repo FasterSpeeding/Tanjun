@@ -51,12 +51,12 @@ from hikari import snowflakes
 from hikari.interactions import commands as command_interactions
 from yuyo import backoff
 
-from tanjun import components
-from tanjun import errors
-from tanjun import hooks as hooks_
-from tanjun import injector
-from tanjun import traits
-from tanjun import utilities
+from . import components
+from . import errors
+from . import hooks as hooks_
+from . import injector
+from . import traits
+from . import utilities
 
 if typing.TYPE_CHECKING:
     _InteractionCommandT = typing.TypeVar("_InteractionCommandT", bound="InteractionCommand[typing.Any]")

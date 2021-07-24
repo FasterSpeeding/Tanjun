@@ -65,10 +65,10 @@ from hikari import snowflakes
 from hikari import users
 from hikari import voices
 
-from tanjun import errors as tanjun_errors
+from . import errors as tanjun_errors
 
 if typing.TYPE_CHECKING:
-    from tanjun import traits
+    from . import traits
 
 _ValueT = typing.TypeVar("_ValueT")
 

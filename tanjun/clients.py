@@ -58,11 +58,11 @@ from hikari.events import message_events
 from hikari.interactions import commands
 from yuyo import backoff
 
-from tanjun import context
-from tanjun import errors as tanjun_errors
-from tanjun import injector
-from tanjun import traits as tanjun_traits
-from tanjun import utilities
+from . import context
+from . import errors as tanjun_errors
+from . import injector
+from . import traits as tanjun_traits
+from . import utilities
 
 if typing.TYPE_CHECKING:
     import pathlib
