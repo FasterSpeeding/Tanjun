@@ -100,12 +100,9 @@ ConverterSig = typing.Callable[..., typing.Union[typing.Awaitable[typing.Any], t
 This must be a callable or asynchronous callable which takes one position
 `str` argument and returns the resultant value.
 """
-# TODO: be more specific about the structure of command functions using a callable protocol
 
-
-# TODO: MessageCommandFunctionT vs InteractionCommandFunctionT
-CommandFunctionSig = typing.Callable[..., typing.Awaitable[None]]
-"""Type hint of the function a `Command` instance will operate on.
+CommandCallbackSig = typing.Callable[..., typing.Awaitable[None]]
+"""Type hint of the callback a `Command` instance will operate on.
 
 This will be called when executing a command and will need to take at least one
 positional argument of type `Context` where any other required or optional
@@ -123,7 +120,7 @@ CheckSig = typing.Callable[..., typing.Union[bool, typing.Awaitable[bool]]]
 This may be registered with a `ExecutableCommand` to add a rule which decides whether
 it should execute for each context passed to it. This should take one positional
 argument of type `Context` and may either be a synchronous or asynchronous
-function which returns `bool` where returning `False` or
+callback which returns `bool` where returning `False` or
 raising `tanjun.errors.FailedCheck` will indicate that the current context
 shouldn't lead to an execution.
 """
@@ -739,6 +736,11 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
 
     @property
     @abc.abstractmethod
+    def callback(self) -> CommandCallbackSig:
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
     def checks(self) -> typing.Collection[CheckSig]:
         raise NotImplementedError
 
@@ -780,11 +782,6 @@ class InteractionCommand(ExecutableCommand[InteractionContext], abc.ABC):
     @property
     @abc.abstractmethod
     def component(self) -> typing.Optional[Component]:
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def function(self) -> CommandFunctionSig:
         raise NotImplementedError
 
     @property
@@ -849,11 +846,6 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
     @property
     @abc.abstractmethod
     def component(self) -> typing.Optional[Component]:
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def function(self) -> CommandFunctionSig:
         raise NotImplementedError
 
     @property
@@ -963,7 +955,7 @@ class Component(abc.ABC):
     def bind_client(self, client: Client, /) -> None:
         raise NotImplementedError
 
-    # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
+    # As far as MYPY is concerned, unless you explicitly yield within an async callback typed as returning an
     # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
     @abc.abstractmethod
     def check_message_context(
@@ -1051,7 +1043,7 @@ class Client(abc.ABC):
     def remove_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
-    # As far as MYPY is concerned, unless you explicitly yield within an async function typed as returning an
+    # As far as MYPY is concerned, unless you explicitly yield within an async callback typed as returning an
     # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
     @abc.abstractmethod
     def check_message_context(self, ctx: MessageContext, /) -> typing.AsyncIterator[typing.Tuple[str, MessageCommand]]:

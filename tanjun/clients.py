@@ -76,7 +76,7 @@ if typing.TYPE_CHECKING:
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
 
 LoadableSig = typing.Callable[["Client"], None]
-"""Type hint of the function used to load resources into a Tanjun client.
+"""Type hint of the callback used to load resources into a Tanjun client.
 
 This should take one positional argument of type `Client` and return nothing.
 This will be expected to initiate and resources like components to the client
@@ -94,31 +94,31 @@ PrefixGetterSigT = typing.TypeVar("PrefixGetterSigT", bound="PrefixGetterSig")
 
 
 class _LoadableDescriptor:  # Slots mess with functools.update_wrapper
-    def __init__(self, function: LoadableSig, /) -> None:
-        self._function = function
-        functools.update_wrapper(self, function)
+    def __init__(self, callback: LoadableSig, /) -> None:
+        self._callback = callback
+        functools.update_wrapper(self, callback)
 
-    def __call__(self, client: Client, /) -> None:
-        self._function(client)
+    def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
+        self._callback(*args, **kwargs)
 
 
-def as_loader(function: LoadableSig, /) -> LoadableSig:
-    """Mark a function as being used to load Tanjun utilities from a module.
+def as_loader(callback: LoadableSig, /) -> LoadableSig:
+    """Mark a callback as being used to load Tanjun utilities from a module.
 
     Parameters
     ----------
-    function : LoadableSig
-        The function used to load Tanjun utilities from the a module. This
+    callback : LoadableSig
+        The callback used to load Tanjun utilities from a module. This
         should take one argument of type `tanjun.traits.Client`, return nothing
         and will be expected to initiate and add utilities such as components
-        to the provided client using it's protocol methods.
+        to the provided client using it's abstract methods.
 
     Returns
     -------
     LoadableSig
-        The decorated load function.
+        The decorated load callback.
     """
-    return _LoadableDescriptor(function)
+    return _LoadableDescriptor(callback)
 
 
 class AcceptsEnum(str, enum.Enum):

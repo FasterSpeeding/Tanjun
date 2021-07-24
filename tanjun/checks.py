@@ -373,7 +373,7 @@ def with_author_permission_check(
     Returns
     -------
     typing.Callable[[CommandT], CommandT]
-        A command decorator function which adds the check.
+        A command decorator callback which adds the check.
     """
 
     def decorator(command: CommandT, /) -> CommandT:
@@ -399,7 +399,7 @@ def with_own_permission_check(
     Returns
     -------
     typing.Callable[[CommandT], CommandT]
-        A command decorator function which adds the check.
+        A command decorator callback which adds the check.
     """
 
     def decorator(command: CommandT, /) -> CommandT:
@@ -420,7 +420,7 @@ def with_check(check: tanjun_traits.CheckSig, /) -> typing.Callable[[CommandT], 
     Returns
     -------
     typing.Callable[[CommandT], CommandT]
-        A command decorator function which adds the check.
+        A command decorator callback which adds the check.
     """
 
     def decorator(command: CommandT, /) -> CommandT:

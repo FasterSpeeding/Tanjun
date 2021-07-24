@@ -255,7 +255,7 @@ def with_argument(
     ----------
     key : str
         The string identifier of this argument (may be used to pass the result
-        of this argument to the command's function during execution).
+        of this argument to the command's callback during execution).
     converters : typing.Union[tanjun.traits.ConverterSig, typing.Iterable[tanjun.traits.ConverterSig], None]
         The converter(s) this argument should use to handle values passed to it
         during parsing, this may be left as `None to indicate that
@@ -269,7 +269,7 @@ def with_argument(
     Returns
     -------
     typing.Callable[[CommandT], CommandT]:
-        A command or command descriptor decorator function which will add this
+        A command or command descriptor decorator callback which will add this
         argument.
 
     Examples
@@ -322,7 +322,7 @@ def with_greedy_argument(
     ----------
     key : str
         The string identifier of this argument (may be used to pass the result
-        of this argument to the command's function during execution).
+        of this argument to the command's callback during execution).
 
     Other Parameters
     ----------------
@@ -339,7 +339,7 @@ def with_greedy_argument(
     Returns
     -------
     typing.Callable[[CommandT], CommandT]:
-        A command or command descriptor decorator function which will add this
+        A command or command descriptor decorator callback which will add this
         argument.
 
     Examples
@@ -375,7 +375,7 @@ def with_multi_argument(
         A multi argument will consume the remaining positional arguments and pass
         them to the converters through multiple calls while also requiring that
         at least one more positional argument is remaining unless a default is
-        set and passing through the results to the command's function as a
+        set and passing through the results to the command's callback as a
         sequence.
 
     !!! info
@@ -388,7 +388,7 @@ def with_multi_argument(
     ----------
     key : str
         The string identifier of this argument (may be used to pass the result
-        of this argument to the command's function during execution).
+        of this argument to the command's callback during execution).
 
     Other Parameters
     ----------------
@@ -405,7 +405,7 @@ def with_multi_argument(
     Returns
     -------
     typing.Callable[[CommandT], CommandT]:
-        A command or command descriptor decorator function which will add this
+        A command or command descriptor decorator callback which will add this
         argument.
 
     Examples
@@ -444,7 +444,7 @@ def with_option(
     ----------
     key : str
         The string identifier of this option which will be used to pass the
-        result of this argument to the command's function during execution as
+        result of this argument to the command's callback during execution as
         a keyword argument.
     name : str
         The name of this option used for identifying it in the parsed content.
@@ -472,7 +472,7 @@ def with_option(
     Returns
     -------
     typing.Callable[[CommandT], CommandT]:
-        A command or command descriptor decorator function which will add this
+        A command or command descriptor decorator callback which will add this
         option.
 
     Examples
@@ -521,7 +521,7 @@ def with_multi_option(
     ----------
     key : str
         The string identifier of this option which will be used to pass the
-        result of this argument to the command's function during execution as
+        result of this argument to the command's callback during execution as
         a keyword argument.
     name : str
         The name of this option used for identifying it in the parsed content.
@@ -547,7 +547,7 @@ def with_multi_option(
     Returns
     -------
     typing.Callable[[CommandT], CommandT]:
-        A command or command descriptor decorator function which will add this
+        A command or command descriptor decorator callback which will add this
         option.
 
     Examples
@@ -882,16 +882,16 @@ def with_parser(command: CommandT, /) -> CommandT:
 
 
 def with_typed_parameters(command: CommandT, /, *, ignore_self: bool) -> CommandT:
-    # TODO: implement this to enable generating parameters from a function's signature.
+    # TODO: implement this to enable generating parameters from a callback's signature.
     if command.parser is None:
         raise RuntimeError("Cannot generate parameters for a command with no parser")
 
-    if command.function is None:
-        raise RuntimeError("Cannot generate parameters for a command with no function")
+    if command.callback is None:
+        raise RuntimeError("Cannot generate parameters for a command with no callback")
 
     raise NotImplementedError
 
 
 def verify_parameters(command: CommandT, /) -> CommandT:
-    # TODO: implement this to verify the parameters of a command against the function signature
+    # TODO: implement this to verify the parameters of a command against the callback signature
     return command

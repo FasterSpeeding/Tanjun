@@ -137,14 +137,14 @@ def check_injecting(callback: CallbackSig[typing.Any], /) -> bool:
 
 
 class Injected(typing.Generic[_T]):
-    __slots__: typing.Sequence[str] = ("type", "callback")
+    __slots__: typing.Sequence[str] = ("callback", "type")
 
     def __init__(
         self,
         *,
         callback: UndefinedOr[CallbackSig[_T]] = UNDEFINED,
         type: UndefinedOr[typing.Type[_T]] = UNDEFINED,
-    ) -> None:  # TODO: add defaulct/factory to this?
+    ) -> None:  # TODO: add default/factory to this?
         if callback is UNDEFINED and type is UNDEFINED:
             raise ValueError("Must specify one of `callback` or `type`")
 
@@ -319,11 +319,11 @@ class BaseInjectableValue(Injectable, typing.Generic[_T]):
         self.is_async: typing.Optional[bool] = None
         self._needs_injector = check_injecting(self.callback)
 
-    # This is delegated to the callback function in-order to delegate set behaviour for this class to the function.
+    # This is delegated to the callback callback in-order to delegate set behaviour for this class to the callback.
     def __eq__(self, other: typing.Any) -> bool:
         return bool(self.callback == other)
 
-    # This is delegated to the callback function in-order to delegate set behaviour for this class to the function.
+    # This is delegated to the callback callback in-order to delegate set behaviour for this class to the callback.
     def __hash__(self) -> int:
         return hash(self.callback)
 
@@ -349,7 +349,7 @@ class BaseInjectableValue(Injectable, typing.Generic[_T]):
     async def call(self, *args: typing.Any, ctx: tanjun_traits.Context) -> _T:
         if self._needs_injector:
             if self.injector is None:
-                raise RuntimeError("Cannot call this injectable function before the injector has been set")
+                raise RuntimeError("Cannot call this injectable callback before the injector has been set")
 
             if self._cached_getters is None:
                 self._cached_getters = list(self.injector.resolve_callback_to_getters(self.callback))

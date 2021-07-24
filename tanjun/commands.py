@@ -66,7 +66,7 @@ if typing.TYPE_CHECKING:
 
 
 AnyMessageCommandT = typing.TypeVar("AnyMessageCommandT", bound=traits.MessageCommand)
-CommandFunctionSigT = typing.TypeVar("CommandFunctionSigT", bound=traits.CommandFunctionSig)
+CommandCallbackSigT = typing.TypeVar("CommandCallbackSigT", bound=traits.CommandCallbackSig)
 _EMPTY_DICT: typing.Final[typing.Dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 _EMPTY_LIST: typing.Final[typing.List[typing.Any]] = []
@@ -86,13 +86,13 @@ class _LoadableInjector(injector.InjectableCheck):
 
 
 class PartialCommand(
-    injector.Injectable, traits.ExecutableCommand[traits.ContextT], typing.Generic[CommandFunctionSigT, traits.ContextT]
+    injector.Injectable, traits.ExecutableCommand[traits.ContextT], typing.Generic[CommandCallbackSigT, traits.ContextT]
 ):
     __slots__: typing.Sequence[str] = (
         "_cached_getters",
+        "_callback",
         "_checks",
         "_component",
-        "_function",
         "_hooks",
         "_injector",
         "_metadata",
@@ -101,22 +101,26 @@ class PartialCommand(
 
     def __init__(
         self,
-        function: CommandFunctionSigT,
+        callback: CommandCallbackSigT,
         /,
         checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.Hooks[traits.ContextT]] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
     ) -> None:
         self._cached_getters: typing.Optional[typing.List[injector.Getter[typing.Any]]] = None
+        self._callback: CommandCallbackSigT = callback
         self._checks: typing.Set[injector.InjectableCheck] = (
             set(injector.InjectableCheck(check) for check in checks) if checks else set()
         )
         self._component: typing.Optional[traits.Component] = None
-        self._function: CommandFunctionSigT = function
         self._hooks = hooks
         self._injector: typing.Optional[injector.InjectorClient] = None
         self._metadata = dict(metadata) if metadata else {}
         self._needs_injector: typing.Optional[bool] = None
+
+    @property
+    def callback(self) -> CommandCallbackSigT:
+        return self.callback
 
     @property
     def checks(self) -> typing.AbstractSet[traits.CheckSig]:
@@ -125,10 +129,6 @@ class PartialCommand(
     @property
     def component(self) -> typing.Optional[traits.Component]:
         return self._component
-
-    @property
-    def function(self) -> CommandFunctionSigT:
-        return self._function
 
     @property
     def hooks(self) -> typing.Optional[traits.Hooks[traits.ContextT]]:
@@ -141,23 +141,23 @@ class PartialCommand(
     @property
     def needs_injector(self) -> bool:
         if self._needs_injector is None:
-            self._needs_injector = injector.check_injecting(self._function)
+            self._needs_injector = injector.check_injecting(self._callback)
 
         return self._needs_injector
 
     if typing.TYPE_CHECKING:
-        __call__: CommandFunctionSigT
+        __call__: CommandCallbackSigT
 
     else:
 
         async def __call__(self, *args, **kwargs) -> None:
-            await self._function(*args, **kwargs)
+            await self._callback(*args, **kwargs)
 
     def copy(self: _PartialCommandT, *, _new: bool = True) -> _PartialCommandT:
         if not _new:
             self._cached_getters = None
+            self._callback = copy.copy(self._callback)
             self._checks = {check.copy() for check in self._checks}
-            self._function = copy.copy(self._function)
             self._hooks = self._hooks.copy() if self._hooks else None
             self._metadata = self._metadata.copy()
             self._needs_injector = None
@@ -200,7 +200,7 @@ class PartialCommand(
             raise ValueError("Cannot execute command without injector client")
 
         if self._cached_getters is None:
-            self._cached_getters = list(self._injector.resolve_callback_to_getters(self._function))
+            self._cached_getters = list(self._injector.resolve_callback_to_getters(self._callback))
 
             if self._needs_injector is None:
                 self._needs_injector = bool(self._cached_getters)
@@ -208,11 +208,11 @@ class PartialCommand(
         return self._cached_getters
 
     def make_method_type(self, component: traits.Component, /) -> None:
-        if isinstance(self._function, types.MethodType):
+        if isinstance(self._callback, types.MethodType):
             raise ValueError("Callback is already a method type")
 
         self._cached_getters = None
-        self._function = types.MethodType(self._function, component)  # type: ignore[assignment]
+        self._callback = types.MethodType(self._callback, component)  # type: ignore[assignment]
         self._needs_injector = None
 
         for check in self._checks:
@@ -229,19 +229,19 @@ _ICOMMAND_NAME_REG: typing.Final[typing.Pattern[str]] = re.compile(r"^[a-z0-9_-]
 
 def as_interaction_command(
     name: str, /
-) -> typing.Callable[[CommandFunctionSigT], InteractionCommand[CommandFunctionSigT]]:
-    def decorator(function: CommandFunctionSigT) -> InteractionCommand[CommandFunctionSigT]:
-        return InteractionCommand(function, name)
+) -> typing.Callable[[CommandCallbackSigT], InteractionCommand[CommandCallbackSigT]]:
+    def decorator(callback: CommandCallbackSigT, /) -> InteractionCommand[CommandCallbackSigT]:
+        return InteractionCommand(callback, name)
 
     return decorator
 
 
-class InteractionCommand(PartialCommand[CommandFunctionSigT, traits.InteractionContext], traits.InteractionCommand):
+class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionContext], traits.InteractionCommand):
     __slots__: typing.Sequence[str] = ("_name", "_parent", "_tracked_command")
 
     def __init__(
         self,
-        function: CommandFunctionSigT,
+        callback: CommandCallbackSigT,
         name: str,
         /,
         *,
@@ -249,7 +249,7 @@ class InteractionCommand(PartialCommand[CommandFunctionSigT, traits.InteractionC
         hooks: typing.Optional[traits.InteractionHooks] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
     ) -> None:
-        super().__init__(function, checks=checks, hooks=hooks, metadata=metadata)
+        super().__init__(callback, checks=checks, hooks=hooks, metadata=metadata)
         if not _ICOMMAND_NAME_REG.fullmatch(name):
             raise ValueError("Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`")
 
@@ -337,7 +337,7 @@ class InteractionCommand(PartialCommand[CommandFunctionSigT, traits.InteractionC
                 else:
                     kwargs.update(injected_values)
 
-            await self._function(ctx, **kwargs)
+            await self._callback(ctx, **kwargs)
 
         except errors.CommandError as exc:
             if exc.message:
@@ -356,8 +356,8 @@ class InteractionCommand(PartialCommand[CommandFunctionSigT, traits.InteractionC
 
 def as_message_command(
     name: str, /, *names: str
-) -> typing.Callable[[CommandFunctionSigT], MessageCommand[CommandFunctionSigT]]:
-    def decorator(callback: CommandFunctionSigT, /) -> MessageCommand[CommandFunctionSigT]:
+) -> typing.Callable[[CommandCallbackSigT], MessageCommand[CommandCallbackSigT]]:
+    def decorator(callback: CommandCallbackSigT, /) -> MessageCommand[CommandCallbackSigT]:
         return MessageCommand(callback, name, *names)
 
     return decorator
@@ -365,19 +365,19 @@ def as_message_command(
 
 def as_message_command_group(
     name: str, /, *names: str
-) -> typing.Callable[[CommandFunctionSigT], MessageCommandGroup[CommandFunctionSigT]]:
-    def decorator(callback: CommandFunctionSigT, /) -> MessageCommandGroup[CommandFunctionSigT]:
+) -> typing.Callable[[CommandCallbackSigT], MessageCommandGroup[CommandCallbackSigT]]:
+    def decorator(callback: CommandCallbackSigT, /) -> MessageCommandGroup[CommandCallbackSigT]:
         return MessageCommandGroup(callback, name, *names)
 
     return decorator
 
 
-class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext], traits.MessageCommand):
+class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext], traits.MessageCommand):
     __slots__: typing.Sequence[str] = ("_names", "_parent", "_parser")
 
     def __init__(
         self,
-        function: CommandFunctionSigT,
+        callback: CommandCallbackSigT,
         name: str,
         /,
         *names: str,
@@ -386,7 +386,7 @@ class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext],
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         parser: typing.Optional[traits.Parser] = None,
     ) -> None:
-        super().__init__(function, checks=checks, hooks=hooks, metadata=metadata)
+        super().__init__(callback, checks=checks, hooks=hooks, metadata=metadata)
         self._names = {name, *names}
         self._parent: typing.Optional[traits.MessageCommandGroup] = None
         self._parser = parser
@@ -482,7 +482,7 @@ class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext],
                 else:
                     kwargs.update(injected_values)
 
-            await self._function(ctx, *args, **kwargs)
+            await self._callback(ctx, *args, **kwargs)
 
         except errors.CommandError as exc:
             if not exc.message:
@@ -525,12 +525,12 @@ class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext],
             await (self._hooks or _EMPTY_HOOKS).trigger_post_execution(ctx, hooks=hooks)
 
 
-class MessageCommandGroup(MessageCommand[CommandFunctionSigT], traits.MessageCommandGroup):
+class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCommandGroup):
     __slots__: typing.Sequence[str] = ("_commands",)
 
     def __init__(
         self,
-        function: CommandFunctionSigT,
+        callback: CommandCallbackSigT,
         name: str,
         /,
         *names: str,
@@ -539,7 +539,7 @@ class MessageCommandGroup(MessageCommand[CommandFunctionSigT], traits.MessageCom
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
         parser: typing.Optional[traits.Parser] = None,
     ) -> None:
-        super().__init__(function, name, *names, checks=checks, hooks=hooks, metadata=metadata, parser=parser)
+        super().__init__(callback, name, *names, checks=checks, hooks=hooks, metadata=metadata, parser=parser)
         self._commands: typing.Set[traits.MessageCommand] = set()
 
     def __repr__(self) -> str:

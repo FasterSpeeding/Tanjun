@@ -55,32 +55,32 @@ CommandT = typing.TypeVar("CommandT", bound=traits.ExecutableCommand[typing.Any]
 ParserHookSig = typing.Callable[
     ["traits.ContextT", "errors.ParserError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
 ]
-"""Type hint of the function used as a parser error hook.
+"""Type hint of the callback used as a parser error hook.
 
 This will be called whenever a `tanjun.errors.ParserError` is raised during the
 command argument parsing stage, will have to take two positional arguments - of
 type `tanjun.traits.Context` and `tanjun.errors.ParserError` - and may either be
-a synchronous or asynchronous function which returns `None`
+a synchronous or asynchronous callback which returns `None`
 """
 
 ErrorHookSig = typing.Callable[
     ["traits.ContextT", BaseException], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
 ]
-"""Type hint of the function used as a unexpected command error hook.
+"""Type hint of the callback used as a unexpected command error hook.
 
 This will be called whenever a `BaseException` is raised during the
-execution stage whenever the command function raises any exception except
+execution stage whenever the command callback raises any exception except
 `tanjun.errors.CommandError`,  will have to take two positional arguments - of
 type `tanjun.traits.Context` and `BaseException` - and may either be a
-synchronous or asynchronous function which returns `None`
+synchronous or asynchronous callback which returns `None`
 """
 
 HookSig = typing.Callable[["traits.ContextT"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]]
-"""Type hint of the function used as a general command hook.
+"""Type hint of the callback used as a general command hook.
 
 This may be called during different stages of command execution (decided by
 which hook this is registered as), will have to take one positional argument of
-type `tanjun.traits.Context` and may be a synchronous or asynchronous function
+type `tanjun.traits.Context` and may be a synchronous or asynchronous callback
 which returns `None`.
 """
 
@@ -88,11 +88,11 @@ which returns `None`.
 PreExecutionHookSig = typing.Callable[
     ["traits.ContextT"], typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]
 ]
-"""Type hint of the function used as a pre-execution command hook.
+"""Type hint of the callback used as a pre-execution command hook.
 
-This will be called before command function is executed, will have to take one
+This will be called before command callback is executed, will have to take one
 positional argument of type `tanjun.traits.Context` and may be a synchronous or
-asynchronous function which returns `bool` (where returning `False` may
+asynchronous callback which returns `bool` (where returning `False` may
 cancel execution of the current command).
 """
 

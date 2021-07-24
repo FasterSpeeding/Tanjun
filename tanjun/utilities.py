@@ -76,12 +76,12 @@ async def async_chain(iterable: typing.Iterable[typing.AsyncIterable[_ValueT]]) 
 async def await_if_async(
     callback: typing.Callable[..., typing.Union[_ValueT, typing.Awaitable[_ValueT]]], *args: typing.Any
 ) -> _ValueT:
-    """Resole any awaitable returned by a function call.
+    """Resole any awaitable returned by a callback call.
 
     Parameters
     ----------
     callback : typing.Callable[..., typing.Union[_ValueT_co, typing.Awaitable[_ValueT_co]]
-        The async or non-async function to call.
+        The async or non-async callback to call.
 
     Other Parameters
     ----------------
@@ -92,7 +92,7 @@ async def await_if_async(
     Returns
     -------
     _ValueT_co
-        The resolved result of the passed function.
+        The resolved result of the passed callback.
     """
     result = callback(*args)
 
@@ -131,7 +131,7 @@ async def gather_checks(checks: typing.Iterable[injector.InjectableCheck], ctx: 
 async def fetch_resource(
     retry: backoff.Backoff, call: typing.Callable[..., typing.Awaitable[_ResourceT]], *args: typing.Any
 ) -> _ResourceT:  # TODO: replace this
-    """A utility function for retrying a request used by Tanjun internally."""
+    """A utility callback for retrying a request used by Tanjun internally."""
     retry.reset()
     async for _ in retry:
         try:
@@ -265,7 +265,7 @@ async def fetch_permissions(
         permissions.
 
     !!! note
-        This function will fallback to REST requests if cache lookups fail or
+        This callback will fallback to REST requests if cache lookups fail or
         are not possible.
 
     Returns
