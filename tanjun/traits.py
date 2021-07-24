@@ -645,7 +645,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
 
     @property
     @abc.abstractmethod
-    def checks(self) -> typing.AbstractSet[CheckSig]:
+    def checks(self) -> typing.Collection[CheckSig]:
         raise NotImplementedError
 
     @property
@@ -737,7 +737,7 @@ class InteractionCommandGroup(InteractionCommand, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def commands(self) -> typing.AbstractSet[InteractionCommand]:
+    def commands(self) -> typing.Collection[InteractionCommand]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -769,7 +769,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
 
     @property
     @abc.abstractmethod
-    def names(self) -> typing.AbstractSet[str]:
+    def names(self) -> typing.Collection[str]:
         raise NotImplementedError
 
     @property
@@ -824,7 +824,7 @@ class MessageCommandGroup(MessageCommand, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def commands(self) -> typing.AbstractSet[MessageCommand]:
+    def commands(self) -> typing.Collection[MessageCommand]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -846,18 +846,18 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def interaction_commands(self) -> typing.AbstractSet[InteractionCommand]:
+    def interaction_commands(self) -> typing.Collection[InteractionCommand]:
         raise NotImplementedError
 
     @property
-    def message_commands(self) -> typing.AbstractSet[MessageCommand]:
+    def message_commands(self) -> typing.Collection[MessageCommand]:
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def listeners(
         self,
-    ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_manager_api.CallbackT[typing.Any]]]:
+    ) -> typing.Collection[typing.Tuple[typing.Type[base_events.Event], event_manager_api.CallbackT[typing.Any]]]:
         raise NotImplementedError
 
     @property
@@ -916,7 +916,7 @@ class Client(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def components(self) -> typing.AbstractSet[Component]:
+    def components(self) -> typing.Collection[Component]:
         raise NotImplementedError
 
     @property
@@ -931,7 +931,7 @@ class Client(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def prefixes(self) -> typing.AbstractSet[str]:
+    def prefixes(self) -> typing.Collection[str]:
         raise NotImplementedError
 
     @property
@@ -1002,7 +1002,7 @@ class Parameter(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def converters(self) -> typing.Optional[typing.Sequence[ConverterSig]]:
+    def converters(self) -> typing.Optional[typing.Collection[ConverterSig]]:
         raise NotImplementedError
 
     @property
@@ -1059,7 +1059,7 @@ class Option(Parameter, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def names(self) -> typing.Sequence[str]:
+    def names(self) -> typing.Collection[str]:
         raise NotImplementedError
 
 
@@ -1068,7 +1068,7 @@ class Parser(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def parameters(self) -> typing.Sequence[Parameter]:
+    def parameters(self) -> typing.Collection[Parameter]:
         raise NotImplementedError
 
     @abc.abstractmethod

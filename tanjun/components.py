@@ -118,8 +118,8 @@ class Component(injector.Injectable, traits.Component):
         return self._hooks
 
     @property
-    def interaction_commands(self) -> typing.AbstractSet[traits.InteractionCommand]:
-        return frozenset(self._interaction_commands.values())
+    def interaction_commands(self) -> typing.ValuesView[traits.InteractionCommand]:
+        return self._interaction_commands.copy().values()
 
     @property
     def message_commands(self) -> typing.AbstractSet[traits.MessageCommand]:
