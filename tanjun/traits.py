@@ -105,7 +105,7 @@ This must be a callable or asynchronous callable which takes one position
 
 
 # TODO: MessageCommandFunctionT vs InteractionCommandFunctionT
-CommandFunctionSig = typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, None]]
+CommandFunctionSig = typing.Callable[..., typing.Awaitable[None]]
 """Type hint of the function a `Command` instance will operate on.
 
 This will be called when executing a command and will need to take at least one
