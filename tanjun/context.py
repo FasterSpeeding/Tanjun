@@ -575,6 +575,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
                     embeds = (embed,)
 
                 result = special_endpoints_impl.InteractionMessageBuilder(
+                    type=base_interactions.ResponseType.MESSAGE_CREATE,
                     content=content,
                     # components=components,
                     # embeds=embeds,
@@ -587,6 +588,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
                 if embeds is not undefined.UNDEFINED:
                     for embed in embeds:
                         result.add_embed(embed)
+
                 self._response_future.set_result(result)
 
     async def delete_initial_response(self) -> None:
