@@ -256,9 +256,9 @@ def with_argument(
     key : str
         The string identifier of this argument (may be used to pass the result
         of this argument to the command's function during execution).
-    converters : typing.Union[tanjun.traits.ConverterSig, typing.Iterable[tanjun.traits.ConverterSig], builtins.None]
+    converters : typing.Union[tanjun.traits.ConverterSig, typing.Iterable[tanjun.traits.ConverterSig], None]
         The converter(s) this argument should use to handle values passed to it
-        during parsing, this may be left as `builtins.None to indicate that
+        during parsing, this may be left as `None to indicate that
         the raw string value should be returned without conversion.
     default : typing.Any
         The default value of this argument, if left as
@@ -326,9 +326,9 @@ def with_greedy_argument(
 
     Other Parameters
     ----------------
-    converters : typing.Union[tanjun.traits.ConverterSig, typing.Iterable[tanjun.traits.ConverterSig], builtins.None]
+    converters : typing.Union[tanjun.traits.ConverterSig, typing.Iterable[tanjun.traits.ConverterSig], None]
         The converter(s) this argument should use to handle values passed to it
-        during parsing, this may be left as `builtins.None to indicate that
+        during parsing, this may be left as `None to indicate that
         the raw string value should be returned without conversion.
     default : typing.Any
         The default value of this argument, if left as
@@ -392,9 +392,9 @@ def with_multi_argument(
 
     Other Parameters
     ----------------
-    converters : typing.Union[tanjun.traits.ConverterSig, typing.Iterable[tanjun.traits.ConverterSig], builtins.None]
+    converters : typing.Union[tanjun.traits.ConverterSig, typing.Iterable[tanjun.traits.ConverterSig], None]
         The converter(s) this argument should use to handle values passed to it
-        during parsing, this may be left as `builtins.None to indicate that
+        during parsing, this may be left as `None to indicate that
         the raw string value should be returned without conversion.
     default : typing.Any
         The default value of this argument, if left as
@@ -456,10 +456,12 @@ def with_option(
     ----------------
     *names : str
         Other names of this option used for identifying it in the parsed content.
-    converters : typing.Union[tanjun.traits.ConverterSig, typing.Iterable[tanjun.traits.ConverterSig], builtins.None]
+    converters : typing.Union[tanjun.traits.ConverterSig, typing.Iterable[tanjun.traits.ConverterSig], None]
         The converter(s) this argument should use to handle values passed to it
-        during parsing, this may be left as `builtins.None to indicate that
-        the raw string value should be returned without conversion.
+        during parsing.
+
+        This may be left as `None` to indicate that the raw string value should
+        be returned without conversion.
     empty_value : typing.Any
         The value to use if this option is provided without a value. If left as
         `tanjun.traits.UNDEFINED_DEFAULT` then this option will error if it's
@@ -531,9 +533,9 @@ def with_multi_option(
     ----------------
     *names : str
         Other names of this option used for identifying it in the parsed content.
-    converters : typing.Union[tanjun.traits.ConverterSig, typing.Iterable[tanjun.traits.ConverterSig], builtins.None]
+    converters : typing.Union[tanjun.traits.ConverterSig, typing.Iterable[tanjun.traits.ConverterSig], None]
         The converter(s) this argument should use to handle values passed to it
-        during parsing, this may be left as `builtins.None to indicate that
+        during parsing, this may be left as `None to indicate that
         the raw string value should be returned without conversion.
     empty_value : typing.Any
         The value to use if this option is provided without a value. If left as

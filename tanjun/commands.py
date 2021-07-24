@@ -340,7 +340,8 @@ class InteractionCommand(PartialCommand[CommandFunctionSigT, traits.InteractionC
             await self._function(ctx, **kwargs)
 
         except errors.CommandError as exc:
-            await ctx.respond(exc.message)
+            if exc.message:
+                await ctx.respond(exc.message)
 
         except Exception as exc:
             await (self._hooks or _EMPTY_HOOKS).trigger_error(ctx, exc, hooks=hooks)
@@ -424,10 +425,12 @@ class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext],
         return self
 
     async def check_context(self, ctx: traits.MessageContext, /, *, name_prefix: str = "") -> typing.Optional[str]:
+        ctx = ctx.set_command(self)
         if name := self.check_name(ctx.content[len(name_prefix) :].lstrip()):
             if await utilities.gather_checks(self._checks, ctx):
                 return name
 
+        ctx.set_command(None)
         return None
 
     def add_name(self: _MessageCommandT, name: str, /) -> _MessageCommandT:
@@ -459,6 +462,7 @@ class MessageCommand(PartialCommand[CommandFunctionSigT, traits.MessageContext],
         *,
         hooks: typing.Optional[typing.MutableSet[traits.MessageHooks]] = None,
     ) -> None:
+        ctx = ctx.set_command(self)
         try:
             if await (self._hooks or _EMPTY_HOOKS).trigger_pre_execution(ctx, hooks=hooks) is False:
                 return None

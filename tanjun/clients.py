@@ -145,7 +145,7 @@ class AcceptsEnum(str, enum.Enum):
             The type object of the MessageCreateEvent class this mode will
             register a listener for.
 
-            This will be `builtins.None` if this mode disables listening to
+            This will be `None` if this mode disables listening to
             message create events/
         """
         return _ACCEPTS_EVENT_TYPE_MAPPING[self]

@@ -75,7 +75,7 @@ ResponseTypeT = typing.Union[
 class BaseContext(traits.Context):
     """Base class for all standard context implementations."""
 
-    __slots__: typing.Sequence[str] = ("_client", "_component")
+    __slots__: typing.Sequence[str] = ("_client", "_component", "_final")
 
     def __init__(
         self,
@@ -86,6 +86,7 @@ class BaseContext(traits.Context):
     ) -> None:
         self._client = client
         self._component = component
+        self._final = False
 
     @property
     def cache(self) -> typing.Optional[cache_api.Cache]:
@@ -115,7 +116,16 @@ class BaseContext(traits.Context):
     def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
         return self._client.shards
 
+    def _assert_not_final(self) -> None:
+        if self._final:
+            raise TypeError("Cannot modify a finalised context")
+
+    def finalise(self: _BaseContextT) -> _BaseContextT:
+        self._final = True
+        return self
+
     def set_component(self: _BaseContextT, component: typing.Optional[traits.Component], /) -> _BaseContextT:
+        self._assert_not_final()
         self._component = component
         return self
 
@@ -236,19 +246,23 @@ class MessageContext(BaseContext, traits.MessageContext):
 
         return self._client.shards.shards[shard_id]
 
-    def set_command(self: _MessageContextT, command: traits.MessageCommand, /) -> _MessageContextT:
+    def set_command(self: _MessageContextT, command: typing.Optional[traits.MessageCommand], /) -> _MessageContextT:
+        self._assert_not_final()
         self._command = command
         return self
 
     def set_content(self: _MessageContextT, content: str, /) -> _MessageContextT:
+        self._assert_not_final()
         self._content = content
         return self
 
     def set_triggering_name(self: _MessageContextT, name: str, /) -> _MessageContextT:
+        self._assert_not_final()
         self._triggering_name = name
         return self
 
     def set_triggering_prefix(self: _MessageContextT, triggering_prefix: str, /) -> _MessageContextT:
+        self._assert_not_final()
         self._triggering_prefix = triggering_prefix
         return self
 
@@ -473,12 +487,14 @@ class InteractionContext(BaseContext, traits.InteractionContext):
                 await self.interaction.create_initial_response(base_interactions.ResponseType.DEFERRED_MESSAGE_CREATE)
 
     def get_response_future(self) -> asyncio.Future[ResponseTypeT]:
+        self._assert_not_final()
         if not self._response_future:
             self._response_future = asyncio.get_running_loop().create_future()
 
         return self._response_future
 
     def start_defer_timer(self: _InteractionContextT, count_down: typing.Union[int, float], /) -> _InteractionContextT:
+        self._assert_not_final()
         if self._defer_task:
             raise ValueError("Defer timer already set")
 

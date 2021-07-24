@@ -367,7 +367,7 @@ def with_author_permission_check(
 
     Parameters
     ----------
-    permissions: typing.Union[hikari.permissions.Permissions, builtins.int]
+    permissions: typing.Union[hikari.permissions.Permissions, int]
         The permission(s) required for this command to run.
 
     Returns
@@ -393,7 +393,7 @@ def with_own_permission_check(
 
     Parameters
     ----------
-    permissions: typing.Union[hikari.permissions.Permissions, builtins.int]
+    permissions: typing.Union[hikari.permissions.Permissions, int]
         The permission(s) required for this command to run.
 
     Returns

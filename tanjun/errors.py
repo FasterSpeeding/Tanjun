@@ -83,7 +83,7 @@ class CommandError(TanjunError):
     message : typing.Optional[str]
         If this is a non-empty string then this message should will be sent as
         a response to the message that triggered the current command otherwise
-        `builtins.None` or `""` will silently end command execution.
+        `None` or `""` will silently end command execution.
     """
 
     __slots__: typing.Sequence[str] = ("message",)
@@ -92,7 +92,7 @@ class CommandError(TanjunError):
     message: typing.Optional[str]
     """The response error message.
 
-    If this is an empty string or `builtins.None` then this will silently end
+    If this is an empty string or `None` then this will silently end
     command execution otherwise Tanjun will try to send the string message in
     response.
     """
@@ -134,7 +134,7 @@ class ParserError(TanjunError, ValueError):
     message : str
         String message for this error.
     parameter : typing.Optional[traits.Parameter]
-        The parameter which caused this error, should be `builtins.None` if not
+        The parameter which caused this error, should be `None` if not
         applicable.
     """
 

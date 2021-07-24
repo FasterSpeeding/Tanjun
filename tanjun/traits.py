@@ -36,7 +36,6 @@ __all__: typing.Sequence[str] = [
     "ConverterSig",
     "CheckSig",
     "CheckSigT",
-    "ValueT_co",
     "Context",
     "Hooks",
     "AnyHooks",
@@ -99,7 +98,7 @@ ConverterSig = typing.Callable[..., typing.Union[typing.Awaitable[typing.Any], t
 """Type hint of a converter used within a parser instance.
 
 This must be a callable or asynchronous callable which takes one position
-`builtins.string` argument and returns the resultant value.
+`str` argument and returns the resultant value.
 """
 # TODO: be more specific about the structure of command functions using a callable protocol
 
@@ -124,35 +123,53 @@ CheckSig = typing.Callable[..., typing.Union[bool, typing.Awaitable[bool]]]
 This may be registered with a `ExecutableCommand` to add a rule which decides whether
 it should execute for each context passed to it. This should take one positional
 argument of type `Context` and may either be a synchronous or asynchronous
-function which returns `builtins.bool` where returning `builtins.False` or
+function which returns `bool` where returning `False` or
 raising `tanjun.errors.FailedCheck` will indicate that the current context
 shouldn't lead to an execution.
 """
-CheckSigT = typing.TypeVar("CheckSigT", bound=CheckSig)
 
-ValueT_co = typing.TypeVar("ValueT_co", covariant=True)
-"""A general type hint used for generic interfaces in Tanjun."""
+CheckSigT = typing.TypeVar("CheckSigT", bound=CheckSig)
+"""Generic equivalent of `CheckSig`"""
 
 
 class Context(abc.ABC):
-    """Traits for the context of a command execution event."""
+    """Interface for the context of a command execution."""
 
     __slots__: typing.Sequence[str] = ()
 
     @property
     @abc.abstractmethod
     def author(self) -> users.User:
-        raise NotImplementedError
+        """Object of the user who triggered this command.
+
+        Returns
+        -------
+        hikari.users.User
+            Object of the user who triggered this command.
+        """
 
     @property
     @abc.abstractmethod
     def channel_id(self) -> snowflakes.Snowflake:
-        raise NotImplementedError
+        """ID of the channel this command was triggered in.
+
+        Returns
+        -------
+        hikari.snowflakes.Snowflake
+            ID of the channel this command was triggered in.
+        """
 
     @property
     @abc.abstractmethod
     def cache(self) -> typing.Optional[cache_api.Cache]:
-        raise NotImplementedError
+        """Hikari cache instance this context's command client was initialised with.
+
+        Returns
+        -------
+        typing.Optional[hikari.api.cache.Cache]
+            Hikari cache instance this context's command client was initialised
+            with if provided, else `None`.
+        """
 
     @property
     @abc.abstractmethod
@@ -164,57 +181,133 @@ class Context(abc.ABC):
         Client
             The Tanjun `Client` implementation this context was spawned by.
         """
-        raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def component(self) -> typing.Optional[Component]:
-        raise NotImplementedError
+        """Object of the `Component` this context is bound to.
+
+        Returns
+        -------
+        typing.Optional[Component[ContextT]]
+            The component this context is bound to.
+
+            !!! note
+                This will only be `None` before this has been bound to a
+                specific command but never during command execution nor checks.
+        """
 
     @property  # TODO: can we somehow have this always be present on the command execution facing interface
     @abc.abstractmethod
     def command(self: ContextT) -> typing.Optional[ExecutableCommand[ContextT]]:
-        raise NotImplementedError
+        """Object of the command this context is bound to.
+
+        Returns
+        -------
+        typing.Optional[ExecutableCommand[ContextT]]
+            The command this context is bound to.
+
+            !!! note
+                This will only be `None` before this has been bound to a
+                specific command but never during command execution.
+        """
 
     @property
     @abc.abstractmethod
     def events(self) -> typing.Optional[event_manager_api.EventManager]:
-        raise NotImplementedError
+        """Object of the event manager this context's client was initialised with.
+
+        Returns
+        -------
+        typing.Optional[hikari.event_manager.EventManager]
+            The Hikari event manager this context's client was initialised with
+            if provided, else `None`.
+        """
 
     @property
     @abc.abstractmethod
     def guild_id(self) -> typing.Optional[snowflakes.Snowflake]:
-        raise NotImplementedError
+        """ID of the guild this command was executed in.
+
+        Returns
+        -------
+        typing.Optional[hikari.snowflakes.Snowflake]
+            ID of the guild this command was executed in.
+
+            Will be `None` for all DM command executions.
+        """
 
     @property
     @abc.abstractmethod
     def is_human(self) -> bool:
-        raise NotImplementedError
+        """Whether this command execution was triggered by a human.
+
+        Returns
+        -------
+        bool
+            Whether this command execution was triggered by a human.
+
+            Will be `False` for bot and webhook triggered commands.
+        """
 
     @property
     @abc.abstractmethod
     def member(self) -> typing.Optional[guilds.Member]:
-        raise NotImplementedError
+        """Guild member object of this command's author.
+
+        Returns
+        -------
+        typing.Optional[hikari.guilds.Member]
+            Guild member object of this command's author.
+
+            Will be `None` for DM command executions.
+        """
 
     @property
     @abc.abstractmethod
     def server(self) -> typing.Optional[interaction_server_api.InteractionServer]:
-        raise NotImplementedError
+        """Object of the Hikari interaction server provided for this context's client.
+
+        Returns
+        -------
+        typing.Optional[hikari.api.interaction_server.InteractionServer]
+            The Hikari interaction server this context's client was initialised
+            with if provided, else `None`.
+        """
 
     @property
     @abc.abstractmethod
     def rest(self) -> rest_api.RESTClient:
-        raise NotImplementedError
+        """Object of the Hikari REST client this context's client was initialised with.
+
+        Returns
+        -------
+        hikari.api.rest.RESTClient
+            The Hikari REST client this context's client was initialised with.
+        """
 
     @property
     @abc.abstractmethod
     def shards(self) -> typing.Optional[traits.ShardAware]:
-        raise NotImplementedError
+        """Object of the Hikari shard manager this context's client was initialised with.
+
+        Returns
+        -------
+        typing.Optional[hikari.traits.ShardAware]
+            The Hikari shard manager this context's client was initialised with
+            if provided, else `None`.
+        """
 
     @property
     @abc.abstractmethod
     def triggering_name(self) -> str:
-        raise NotImplementedError
+        """The command name this execution was triggered with.
+
+        Returns
+        -------
+        str
+            The command name this execution was triggered with.
+        """
 
     @abc.abstractmethod
     def set_component(self: _T, _: typing.Optional[Component], /) -> _T:
@@ -403,7 +496,7 @@ class MessageContext(Context, abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_command(self: _T, _: MessageCommand, /) -> _T:
+    def set_command(self: _T, _: typing.Optional[MessageCommand], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod

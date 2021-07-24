@@ -129,7 +129,7 @@ class Component(injector.Injectable, traits.Component):
     def is_alive(self) -> bool:
         """Whether this component is active.
 
-        When this is `builtins.False` executing the cluster will always do nothing.
+        When this is `False` executing the cluster will always do nothing.
         """
         return self._is_alive
 
@@ -384,8 +384,8 @@ class Component(injector.Injectable, traits.Component):
         async for name, command in self.check_message_context(ctx):
             ctx.set_triggering_name(name)
             ctx.set_content(ctx.content[len(name) :].lstrip())
-            # Only add our hooks and set command if we're sure we'll be executing the command here.
-            ctx.set_command(command)
+            ctx.set_component(self)
+            # Only add our hooks if we're sure we'll be executing the command here.
 
             if self._message_hooks:
                 if hooks is None:

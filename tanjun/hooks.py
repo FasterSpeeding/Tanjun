@@ -60,7 +60,7 @@ ParserHookSig = typing.Callable[
 This will be called whenever a `tanjun.errors.ParserError` is raised during the
 command argument parsing stage, will have to take two positional arguments - of
 type `tanjun.traits.Context` and `tanjun.errors.ParserError` - and may either be
-a synchronous or asynchronous function which returns `builtins.None`
+a synchronous or asynchronous function which returns `None`
 """
 
 ErrorHookSig = typing.Callable[
@@ -68,11 +68,11 @@ ErrorHookSig = typing.Callable[
 ]
 """Type hint of the function used as a unexpected command error hook.
 
-This will be called whenever a `builtins.BaseException` is raised during the
+This will be called whenever a `BaseException` is raised during the
 execution stage whenever the command function raises any exception except
 `tanjun.errors.CommandError`,  will have to take two positional arguments - of
-type `tanjun.traits.Context` and `builtins.BaseException` - and may either be a
-synchronous or asynchronous function which returns `builtins.None`
+type `tanjun.traits.Context` and `BaseException` - and may either be a
+synchronous or asynchronous function which returns `None`
 """
 
 HookSig = typing.Callable[["traits.ContextT"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]]
@@ -81,7 +81,7 @@ HookSig = typing.Callable[["traits.ContextT"], typing.Union[typing.Coroutine[typ
 This may be called during different stages of command execution (decided by
 which hook this is registered as), will have to take one positional argument of
 type `tanjun.traits.Context` and may be a synchronous or asynchronous function
-which returns `builtins.None`.
+which returns `None`.
 """
 
 
@@ -92,7 +92,7 @@ PreExecutionHookSig = typing.Callable[
 
 This will be called before command function is executed, will have to take one
 positional argument of type `tanjun.traits.Context` and may be a synchronous or
-asynchronous function which returns `builtins.bool` (where returning `False` may
+asynchronous function which returns `bool` (where returning `False` may
 cancel execution of the current command).
 """
 

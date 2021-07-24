@@ -215,7 +215,7 @@ def calculate_permissions(
     channel : typing.Optional[hikari.channels.GuildChannel]
         Object of the channel to calculate the member's permissions in.
 
-        If this is left as `builtins.None` then this will just calculate their
+        If this is left as `None` then this will just calculate their
         permissions on a guild level.
 
     Returns
@@ -261,7 +261,7 @@ async def fetch_permissions(
     ----------------
     channel : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.channels.GuildChannel]]
         The object of ID of the channel to get their permissions in.
-        If left as `builtins.None` then this will return their base guild
+        If left as `None` then this will return their base guild
         permissions.
 
     !!! note
