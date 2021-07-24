@@ -59,6 +59,7 @@ from hikari.interactions import commands
 from yuyo import backoff
 
 from tanjun import context
+from tanjun import errors as tanjun_errors
 from tanjun import injector
 from tanjun import traits as tanjun_traits
 from tanjun import utilities
@@ -371,7 +372,7 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
         return check
 
     async def check(self, ctx: tanjun_traits.Context, /) -> bool:
-        return await utilities.gather_checks(self._checks, ctx)
+        return await utilities.gather_checks(ctx, self._checks)
 
     def add_component(self: _ClientT, component: tanjun_traits.Component, /) -> _ClientT:
         if isinstance(component, injector.Injectable):
@@ -586,9 +587,13 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
 
             hooks.add(self._message_hooks)
 
-        for component in self._components:
-            if await component.execute_message(ctx, hooks=hooks):
-                break
+        try:
+            for component in self._components:
+                if await component.execute_message(ctx, hooks=hooks):
+                    break
+
+        except tanjun_errors.HaltExecution:
+            pass
 
     async def on_interaction_create_event(self, event: interaction_events.InteractionCreateEvent, /) -> None:
         if not isinstance(event.interaction, commands.CommandInteraction):
@@ -608,13 +613,15 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
 
             hooks.add(self._interaction_hooks)
 
-        for component in self._components:
-            if await component.execute_interaction(ctx, hooks=hooks):
-                break
+        try:
+            for component in self._components:
+                if await component.execute_interaction(ctx, hooks=hooks):
+                    break
 
-    async def on_interaction_create_request(
-        self, interaction: commands.CommandInteraction, /
-    ) -> typing.Union[context.ResponseTypeT]:
+        except tanjun_errors.HaltExecution:
+            pass
+
+    async def on_interaction_create_request(self, interaction: commands.CommandInteraction, /) -> context.ResponseTypeT:
         ctx = context.InteractionContext(self, interaction).start_defer_timer(2.5)
         hooks: typing.Optional[typing.Set[tanjun_traits.InteractionHooks]] = None
         if self._hooks:
@@ -630,8 +637,14 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
             hooks.add(self._interaction_hooks)
 
         future = ctx.get_response_future()
-        for component in self._components:
-            if await component.execute_interaction(ctx, hooks=hooks):
-                break
+        try:
+            for component in self._components:
+                if await component.execute_interaction(ctx, hooks=hooks):
+                    break
 
-        return await future
+            return await future
+
+        except tanjun_errors.HaltExecution:
+            future.cancel()
+            ctx.cancel_defer()
+            raise LookupError("Command not found")

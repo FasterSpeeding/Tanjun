@@ -712,7 +712,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
         /,
         *,
         hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT_contra]]] = None,
-    ) -> bool:
+    ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod

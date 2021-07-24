@@ -486,6 +486,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
             else:
                 await self.interaction.create_initial_response(base_interactions.ResponseType.DEFERRED_MESSAGE_CREATE)
 
+    def cancel_defer(self) -> None:
+        if self._defer_task:
+            self._defer_task.cancel()
+
     def get_response_future(self) -> asyncio.Future[ResponseTypeT]:
         self._assert_not_final()
         if not self._response_future:

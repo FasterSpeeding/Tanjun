@@ -31,13 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = [
-    "ErrorHookSig",
-    "Hooks",
-    "HookSig",
-    "ParserHookSig",
-    "PreExecutionHookSig",
-]
+__all__: typing.Sequence[str] = ["ErrorHookSig", "Hooks", "HookSig", "ParserHookSig"]
 
 import asyncio
 import copy
@@ -85,36 +79,13 @@ which returns `None`.
 """
 
 
-PreExecutionHookSig = typing.Callable[
-    ["traits.ContextT"], typing.Union[typing.Coroutine[typing.Any, typing.Any, bool], bool]
-]
-"""Type hint of the callback used as a pre-execution command hook.
-
-This will be called before command callback is executed, will have to take one
-positional argument of type `tanjun.traits.Context` and may be a synchronous or
-asynchronous callback which returns `bool` (where returning `False` may
-cancel execution of the current command).
-"""
-
-
-class _FailedPreError(Exception):
-    __slots__: typing.Sequence[str] = ()
-
-
-async def _wrap_pre_check(callback: PreExecutionHookSig[traits.ContextT], ctx: traits.ContextT) -> None:
-    if await utilities.await_if_async(callback, ctx):
-        return
-
-    raise _FailedPreError
-
-
 class Hooks(traits.Hooks[traits.ContextT_contra]):
     __slots__: typing.Sequence[str] = ("_error", "_parser_error", "_pre_execution", "_post_execution", "_success")
 
     def __init__(self) -> None:
         self._error: typing.Optional[ErrorHookSig[traits.ContextT_contra]] = None
         self._parser_error: typing.Optional[ParserHookSig[traits.ContextT_contra]] = None
-        self._pre_execution: typing.Optional[PreExecutionHookSig[traits.ContextT_contra]] = None
+        self._pre_execution: typing.Optional[HookSig[traits.ContextT_contra]] = None
         self._post_execution: typing.Optional[HookSig[traits.ContextT_contra]] = None
         self._success: typing.Optional[HookSig[traits.ContextT_contra]] = None
 
@@ -157,15 +128,11 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
         self.set_post_execution(hook)
         return hook
 
-    def set_pre_execution(
-        self: _HooksT, hook: typing.Optional[PreExecutionHookSig[traits.ContextT_contra]], /
-    ) -> _HooksT:
+    def set_pre_execution(self: _HooksT, hook: typing.Optional[HookSig[traits.ContextT_contra]], /) -> _HooksT:
         self._pre_execution = hook
         return self
 
-    def with_pre_execution(
-        self, hook: PreExecutionHookSig[traits.ContextT_contra], /
-    ) -> PreExecutionHookSig[traits.ContextT_contra]:
+    def with_pre_execution(self, hook: HookSig[traits.ContextT_contra], /) -> HookSig[traits.ContextT_contra]:
         self.set_pre_execution(hook)
         return hook
 
@@ -223,17 +190,12 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
         /,
         *,
         hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT_contra]]] = None,
-    ) -> bool:
-        if self._pre_execution and await utilities.await_if_async(self._pre_execution, ctx) is False:
-            return False
+    ) -> None:
+        if self._pre_execution:
+            await utilities.await_if_async(self._pre_execution, ctx)
 
         if hooks:
-            try:
-                await asyncio.gather(*(_wrap_pre_check(hook.trigger_pre_execution, ctx) for hook in hooks))
-            except _FailedPreError:
-                return False
-
-        return True
+            await asyncio.gather(*(hook.trigger_post_execution(ctx) for hook in hooks))
 
     async def trigger_success(
         self,

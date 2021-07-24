@@ -293,7 +293,7 @@ class Component(injector.Injectable, traits.Component):
         self, ctx: traits.MessageContext, /, *, name_prefix: str = ""
     ) -> typing.AsyncIterator[typing.Tuple[str, traits.MessageCommand]]:
         ctx.set_component(self)
-        if await utilities.gather_checks(self._checks, ctx):
+        if await utilities.gather_checks(ctx, self._checks):
             for command in self._message_commands:
                 if name := await command.check_context(ctx, name_prefix=name_prefix):
                     yield name, command

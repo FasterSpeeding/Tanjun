@@ -306,7 +306,7 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
         return keyword_args
 
     async def check_context(self, ctx: traits.MessageContext, /) -> typing.Optional[str]:
-        if ctx.content.startswith(self._name) and await utilities.gather_checks(self._checks, ctx):
+        if ctx.content.startswith(self._name) and await utilities.gather_checks(ctx, self._checks):
             return self._name
 
     async def execute(
@@ -342,6 +342,9 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
         except errors.CommandError as exc:
             if exc.message:
                 await ctx.respond(exc.message)
+
+        except errors.HaltExecution:
+            return
 
         except Exception as exc:
             await (self._hooks or _EMPTY_HOOKS).trigger_error(ctx, exc, hooks=hooks)
@@ -427,7 +430,7 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
     async def check_context(self, ctx: traits.MessageContext, /, *, name_prefix: str = "") -> typing.Optional[str]:
         ctx = ctx.set_command(self)
         if name := self.check_name(ctx.content[len(name_prefix) :].lstrip()):
-            if await utilities.gather_checks(self._checks, ctx):
+            if await utilities.gather_checks(ctx, self._checks):
                 return name
 
         ctx.set_command(None)
@@ -464,8 +467,7 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
     ) -> None:
         ctx = ctx.set_command(self)
         try:
-            if await (self._hooks or _EMPTY_HOOKS).trigger_pre_execution(ctx, hooks=hooks) is False:
-                return None
+            await (self._hooks or _EMPTY_HOOKS).trigger_pre_execution(ctx, hooks=hooks)
 
             if self._parser is not None:
                 args, kwargs = await self._parser.parse(ctx)
@@ -509,6 +511,9 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
 
                 else:
                     break
+
+        except errors.HaltExecution:
+            return
 
         except errors.ParserError as exc:
             await (self._hooks or _EMPTY_HOOKS).trigger_parser_error(ctx, exc, hooks=hooks)

@@ -34,6 +34,8 @@
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
+    "CallbackReturnT",
+    "CommandT",
     "with_check",
     "with_dm_check",
     "with_guild_check",
@@ -58,7 +60,8 @@ from hikari import snowflakes
 from hikari.interactions import bases as base_interactions
 from yuyo import backoff
 
-from tanjun import utilities
+from . import errors as tanjun_errors
+from . import utilities
 
 if typing.TYPE_CHECKING:
     from hikari import applications
@@ -66,21 +69,64 @@ if typing.TYPE_CHECKING:
     from hikari.api import cache as cache_api
     from hikari.api import rest as rest_api
 
-    from tanjun import traits as tanjun_traits
+    from . import traits as tanjun_traits
+
 
 CommandT = typing.TypeVar("CommandT", bound="tanjun_traits.ExecutableCommand[typing.Any]")
+CallbackReturnT = typing.Union[CommandT, typing.Callable[[CommandT], CommandT]]
+"""Type hint for the return value of decorators which optionally take keyword arguments.
+
+Examples
+--------
+Decorator functions with this as their return type may either be used as a
+decorator directly without being explicitly called:
+
+```python
+@with_dm_check
+@as_command("foo")
+def foo_command(self, ctx: Context) -> None:
+    raise NotImplemented
+```
+
+Or may be called with the listed other parameters as keyword arguments
+while decorating a function.
+
+```python
+@with_dm_check(end_execution=True)
+@as_command("foo")
+def foo_command(self, ctx: Context) -> None:
+    raise NotImplemented
+```
+"""
+
+
+def _wrap_with_kwargs(
+    command: typing.Optional[CommandT],
+    callback: typing.Callable[..., typing.Union[bool, typing.Awaitable[bool]]],
+    /,
+    **kwargs: typing.Any,
+) -> CallbackReturnT[CommandT]:
+    if command:
+        if kwargs:
+            return command.add_check(lambda ctx: callback(ctx, **kwargs))
+
+        return command.add_check(callback)
+
+    return lambda command_: command_.add_check(lambda ctx: callback(ctx, **kwargs))
 
 
 class ApplicationOwnerCheck:
-    __slots__: typing.Sequence[str] = ("_application", "_expire", "_lock", "_owner_ids", "_time")
+    __slots__: typing.Sequence[str] = ("_application", "_end_execution", "_expire", "_lock", "_owner_ids", "_time")
 
     def __init__(
         self,
         *,
+        end_execution: bool = False,
         expire_delta: datetime.timedelta = datetime.timedelta(minutes=5),
         owner_ids: typing.Optional[typing.Iterable[snowflakes.SnowflakeishOr[users.User]]] = None,
     ) -> None:
         self._application: typing.Optional[applications.Application] = None
+        self._end_execution = end_execution
         self._expire = expire_delta.total_seconds()
         self._lock = asyncio.Lock()
         self._owner_ids = tuple(snowflakes.Snowflake(id_) for id_ in owner_ids) if owner_ids else ()
@@ -160,10 +206,16 @@ class ApplicationOwnerCheck:
 
         application = await self._get_application(ctx)
 
-        if not application.team:
-            return ctx.author.id == application.owner.id
+        if application.team:
+            result = ctx.author.id in application.team.members
 
-        return ctx.author.id in application.team.members
+        else:
+            result = ctx.author.id == application.owner.id
+
+        if self._end_execution and not result:
+            raise tanjun_errors.HaltExecution
+
+        return result
 
     async def update(
         self,
@@ -176,7 +228,7 @@ class ApplicationOwnerCheck:
         await asyncio.wait_for(self._try_fetch(rest), timeout.total_seconds() if timeout else None)
 
 
-async def nsfw_check(ctx: tanjun_traits.Context, /) -> bool:
+async def nsfw_check(ctx: tanjun_traits.Context, /, *, end_execution: bool = False) -> bool:
     channel: typing.Optional[channels.PartialChannel] = None
     if ctx.client.cache:
         channel = ctx.client.cache.get_guild_channel(ctx.channel_id)
@@ -185,29 +237,47 @@ async def nsfw_check(ctx: tanjun_traits.Context, /) -> bool:
         retry = backoff.Backoff(maximum=5, max_retries=4)
         channel = await utilities.fetch_resource(retry, ctx.client.rest.fetch_channel, ctx.channel_id)
 
-    return channel.is_nsfw or False if isinstance(channel, channels.GuildChannel) else True
+    result = channel.is_nsfw or False if isinstance(channel, channels.GuildChannel) else True
+
+    if end_execution and not result:
+        raise tanjun_errors.HaltExecution
+
+    return result
 
 
-async def sfw_check(ctx: tanjun_traits.Context, /) -> bool:
-    return not await nsfw_check(ctx)
+async def sfw_check(ctx: tanjun_traits.Context, /, *, end_execution: bool = False) -> bool:
+    return not await nsfw_check(ctx, end_execution=end_execution)
 
 
-def dm_check(ctx: tanjun_traits.Context, /) -> bool:
-    return ctx.guild_id is None
+def dm_check(ctx: tanjun_traits.Context, /, *, end_execution: bool = False) -> bool:
+    result = ctx.guild_id is None
+
+    if end_execution and not result:
+        raise tanjun_errors.HaltExecution
+
+    return result
 
 
-def guild_check(ctx: tanjun_traits.Context, /) -> bool:
-    return not dm_check(ctx)
+def guild_check(ctx: tanjun_traits.Context, /, *, end_execution: bool = False) -> bool:
+    return not dm_check(ctx, end_execution=end_execution)
 
 
 class PermissionCheck(abc.ABC):
-    __slots__: typing.Sequence[str] = ("permissions",)
+    __slots__: typing.Sequence[str] = ("_end_execution", "permissions")
 
-    def __init__(self, permissions: typing.Union[permissions_.Permissions, int], /) -> None:
+    def __init__(
+        self, permissions: typing.Union[permissions_.Permissions, int], /, *, end_execution: bool = False
+    ) -> None:
+        self._end_execution = end_execution
         self.permissions = permissions_.Permissions(permissions)
 
     async def __call__(self, ctx: tanjun_traits.Context, /) -> bool:
-        return (self.permissions & await self.get_permissions(ctx)) == self.permissions
+        result = (self.permissions & await self.get_permissions(ctx)) == self.permissions
+
+        if self._end_execution and not result:
+            raise tanjun_errors.HaltExecution
+
+        return result
 
     @abc.abstractmethod
     async def get_permissions(self, ctx: tanjun_traits.Context, /) -> permissions_.Permissions:
@@ -230,8 +300,10 @@ class AuthorPermissionCheck(PermissionCheck):
 class OwnPermissionsCheck(PermissionCheck):
     __slots__: typing.Sequence[str] = ("_lock", "_me")
 
-    def __init__(self, permissions: typing.Union[permissions_.Permissions, int], /) -> None:
-        super().__init__(permissions)
+    def __init__(
+        self, permissions: typing.Union[permissions_.Permissions, int], /, *, end_execution: bool = False
+    ) -> None:
+        super().__init__(permissions, end_execution=end_execution)
         self._lock = asyncio.Lock()
         self._me: typing.Optional[users.User] = None
 
@@ -268,75 +340,189 @@ class OwnPermissionsCheck(PermissionCheck):
         return self._me
 
 
+@typing.overload
 def with_dm_check(command: CommandT, /) -> CommandT:
+    ...
+
+
+@typing.overload
+def with_dm_check(*, end_execution: bool = False) -> typing.Callable[[CommandT], CommandT]:
+    ...
+
+
+def with_dm_check(
+    command: typing.Optional[CommandT] = None, /, *, end_execution: bool = False
+) -> CallbackReturnT[CommandT]:
     """Only let a command run in a DM channel.
 
     Parameters
     ----------
-    command : CommandT
+    command : typing.Optional[CommandT]
         The command to add this check to.
+
+    Other Parameters
+    ----------------
+    end_execution: bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
+        end the execution search when it fails instead of returning `False`.
+
+        Defaults to `False`.
+
+    !!! note
+        For more information on how this is used with other parameters see
+        `CallbackReturnT`.
 
     Returns
     -------
-    CommandT
+    CallbackReturnT[CommandT]
         The command this check was added to.
     """
-    command.add_check(dm_check)
-    return command
+    return _wrap_with_kwargs(command, dm_check, end_execution=end_execution)
 
 
+@typing.overload
 def with_guild_check(command: CommandT, /) -> CommandT:
+    ...
+
+
+@typing.overload
+def with_guild_check(*, end_execution: bool = False) -> typing.Callable[[CommandT], CommandT]:
+    ...
+
+
+def with_guild_check(
+    command: typing.Optional[CommandT] = None, /, *, end_execution: bool = False
+) -> CallbackReturnT[CommandT]:
     """Only let a command run in a guild channel.
 
     Parameters
     ----------
-    command : CommandT
+    command : typing.Optional[CommandT]
         The command to add this check to.
+
+    Other Parameters
+    ----------------
+    end_execution: bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
+        end the execution search when it fails instead of returning `False`.
+
+        Defaults to `False`.
+
+    !!! note
+        For more information on how this is used with other parameters see
+        `CallbackReturnT`.
 
     Returns
     -------
-    CommandT
+    CallbackReturnT[CommandT]
         The command this check was added to.
     """
-    command.add_check(guild_check)
-    return command
+    return _wrap_with_kwargs(command, guild_check, end_execution=end_execution)
 
 
+@typing.overload
 def with_nsfw_check(command: CommandT, /) -> CommandT:
+    ...
+
+
+@typing.overload
+def with_nsfw_check(*, end_execution: bool = False) -> typing.Callable[[CommandT], CommandT]:
+    ...
+
+
+def with_nsfw_check(
+    command: typing.Optional[CommandT] = None, /, *, end_execution: bool = False
+) -> CallbackReturnT[CommandT]:
     """Only let a command run in a channel that's marked as nsfw.
 
     Parameters
     ----------
-    command : CommandT
+    command : typing.Optional[CommandT]
         The command to add this check to.
+
+    Other Parameters
+    ----------------
+    end_execution: bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
+        end the execution search when it fails instead of returning `False`.
+
+        Defaults to `False`.
+
+    !!! note
+        For more information on how this is used with other parameters see
+        `CallbackReturnT`.
 
     Returns
     -------
-    CommandT
+    CallbackReturnT[CommandT]
         The command this check was added to.
     """
-    command.add_check(nsfw_check)
-    return command
+    return _wrap_with_kwargs(command, nsfw_check, end_execution=end_execution)
 
 
+@typing.overload
 def with_sfw_check(command: CommandT, /) -> CommandT:
+    ...
+
+
+@typing.overload
+def with_sfw_check(*, end_execution: bool = False) -> typing.Callable[[CommandT], CommandT]:
+    ...
+
+
+def with_sfw_check(
+    command: typing.Optional[CommandT] = None, /, *, end_execution: bool = False
+) -> CallbackReturnT[CommandT]:
     """Only let a command run in a channel that's marked as sfw.
 
     Parameters
     ----------
-    command : CommandT
+    command : typing.Optional[CommandT]
         The command to add this check to.
+
+    Other Parameters
+    ----------------
+    end_execution: bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
+        end the execution search when it fails instead of returning `False`.
+
+        Defaults to `False`.
+
+    !!! note
+        For more information on how this is used with other parameters see
+        `CallbackReturnT`.
 
     Returns
     -------
-    CommandT
+    CallbackReturnT[CommandT]
         The command this check was added to.
     """
-    command.add_check(sfw_check)
-    return command
+    return _wrap_with_kwargs(command, sfw_check, end_execution=end_execution)
 
 
+@typing.overload
 def with_owner_check(command: CommandT, /) -> CommandT:
+    ...
+
+
+@typing.overload
+def with_owner_check(
+    *,
+    end_execution: bool = False,
+    expire_delta: datetime.timedelta = datetime.timedelta(minutes=5),
+    owner_ids: typing.Optional[typing.Iterable[snowflakes.SnowflakeishOr[users.User]]] = None,
+) -> typing.Callable[[CommandT], CommandT]:
+    ...
+
+
+def with_owner_check(
+    command: typing.Optional[CommandT] = None,
+    /,
+    *,
+    end_execution: bool = False,
+    expire_delta: datetime.timedelta = datetime.timedelta(minutes=5),
+    owner_ids: typing.Optional[typing.Iterable[snowflakes.SnowflakeishOr[users.User]]] = None,
+) -> CallbackReturnT[CommandT]:
     """Only let a command run if it's being triggered by one of the bot's owners.
 
     !!! note
@@ -345,68 +531,99 @@ def with_owner_check(command: CommandT, /) -> CommandT:
 
     Parameters
     ----------
-    command : CommandT
+    command : typing.Optional[CommandT]
         The command to add this check to.
+
+    Other Parameters
+    ----------------
+    end_execution: bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
+        end the execution search when it fails instead of returning `False`.
+
+        Defaults to `False`.
+    expire_delta: datetime.timedelta
+        How long cached application owner data should be cached for.
+
+        Defaults to 5 minutes.
+    owner_ids: typing.Optional[typing.Iterable[hikari.snowflakes.SonwflakeishOr[hikari.users.User]]]
+        Iterable of objects and IDs of other users to explicitly mark as owners
+        for this check.
+
+        !!! note
+            This will be used alongside the application's owners.
+
+    !!! note
+        For more information on how this is used with other parameters see
+        `CallbackReturnT`.
 
     Returns
     -------
-    CommandT
+    CallbackReturnT[CommandT]
         The command this check was added to.
     """
-    command.add_check(ApplicationOwnerCheck())
-    return command
+    return _wrap_with_kwargs(
+        command, ApplicationOwnerCheck(end_execution=end_execution, expire_delta=expire_delta, owner_ids=owner_ids)
+    )
 
 
 def with_author_permission_check(
-    permissions: typing.Union[permissions_.Permissions, int], /
+    permissions: typing.Union[permissions_.Permissions, int], *, end_execution: bool = False
 ) -> typing.Callable[[CommandT], CommandT]:
     """Only let a command run if the author has certain permissions in the current channel.
 
     !!! note
-        This will always pass for commands triggered in DM channels.
+        This will only pass for commands in DMs if `permissions` is valid for
+        a DM context (e.g. can't have any moderation permissions)
 
     Parameters
     ----------
     permissions: typing.Union[hikari.permissions.Permissions, int]
         The permission(s) required for this command to run.
 
+    Other Parameters
+    ----------------
+    end_execution: bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
+        end the execution search when it fails instead of returning `False`.
+
+        Defaults to `False`.
+
     Returns
     -------
     typing.Callable[[CommandT], CommandT]
         A command decorator callback which adds the check.
     """
-
-    def decorator(command: CommandT, /) -> CommandT:
-        command.add_check(AuthorPermissionCheck(permissions))
-        return command
-
-    return decorator
+    return lambda command: command.add_check(AuthorPermissionCheck(permissions, end_execution=end_execution))
 
 
 def with_own_permission_check(
-    permissions: typing.Union[permissions_.Permissions, int], /
+    permissions: typing.Union[permissions_.Permissions, int], *, end_execution: bool = False
 ) -> typing.Callable[[CommandT], CommandT]:
     """Only let a command run if we have certain permissions in the current channel.
 
     !!! note
-        This will always pass for commands triggered in DM channels.
+        This will only pass for commands in DMs if `permissions` is valid for
+        a DM context (e.g. can't have any moderation permissions)
 
     Parameters
     ----------
     permissions: typing.Union[hikari.permissions.Permissions, int]
         The permission(s) required for this command to run.
 
+    Other Parameters
+    ----------------
+    end_execution: bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
+        end the execution search when it fails instead of returning `False`.
+
+        Defaults to `False`.
+
     Returns
     -------
     typing.Callable[[CommandT], CommandT]
         A command decorator callback which adds the check.
     """
-
-    def decorator(command: CommandT, /) -> CommandT:
-        command.add_check(OwnPermissionsCheck(permissions))
-        return command
-
-    return decorator
+    return lambda command: command.add_check(OwnPermissionsCheck(permissions, end_execution=end_execution))
 
 
 def with_check(check: tanjun_traits.CheckSig, /) -> typing.Callable[[CommandT], CommandT]:
@@ -422,9 +639,4 @@ def with_check(check: tanjun_traits.CheckSig, /) -> typing.Callable[[CommandT], 
     typing.Callable[[CommandT], CommandT]
         A command decorator callback which adds the check.
     """
-
-    def decorator(command: CommandT, /) -> CommandT:
-        command.add_check(check)
-        return command
-
-    return decorator
+    return lambda command: command.add_check(check)

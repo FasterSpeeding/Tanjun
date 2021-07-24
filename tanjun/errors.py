@@ -35,6 +35,7 @@ from __future__ import annotations
 __all__: typing.Sequence[str] = [
     "CommandError",
     "ConversionError",
+    "HaltExecution",
     "FailedCheck",
     "MissingDependencyError",
     "NotEnoughArgumentsError",
@@ -59,6 +60,16 @@ class TanjunError(Exception):
 
 class TanjunWarning(RuntimeWarning):
     """The base class for all warnings raised by Tanjun."""
+
+    __slots__: typing.Sequence[str] = ()
+
+
+class HaltExecution(TanjunError):
+    """Error raised while looking for a command in-order to end-execution early.
+
+    For the most part, this will be raised during checks in-order to prevent
+    other commands from being tried.
+    """
 
     __slots__: typing.Sequence[str] = ()
 

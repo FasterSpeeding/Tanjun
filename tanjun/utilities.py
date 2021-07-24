@@ -103,15 +103,15 @@ async def await_if_async(
     return result
 
 
-async def gather_checks(checks: typing.Iterable[injector.InjectableCheck], ctx: tanjun_traits.Context) -> bool:
+async def gather_checks(ctx: tanjun_traits.Context, checks: typing.Iterable[injector.InjectableCheck]) -> bool:
     """Gather a collection of checks.
 
     Parameters
     ----------
-    checks : typing.Iterable[tanjun.injector.InjectableCheck]
-        An iterable of injectable checks.
     ctx : tanjun.traits.Context
         The context to check.
+    checks : typing.Iterable[tanjun.injector.InjectableCheck]
+        An iterable of injectable checks.
 
     Returns
     -------
