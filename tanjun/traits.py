@@ -78,7 +78,8 @@ if typing.TYPE_CHECKING:
     from hikari.api import interaction_server as interaction_server_api
     from hikari.api import rest as rest_api
     from hikari.api import shard as shard_api
-    from hikari.api import special_endpoints as special_endpoints_api
+
+    # from hikari.api import special_endpoints as special_endpoints_api
     from hikari.events import base_events
     from hikari.interactions import bases as base_interactions
     from hikari.interactions import commands as command_interactions
@@ -250,10 +251,10 @@ class Context(abc.ABC):
         *,
         attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
         attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         replace_attachments: bool = False,
@@ -274,10 +275,10 @@ class Context(abc.ABC):
         *,
         attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
         attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         replace_attachments: bool = False,
@@ -306,10 +307,10 @@ class Context(abc.ABC):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: typing.Literal[False] = False,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -329,10 +330,10 @@ class Context(abc.ABC):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: typing.Literal[True],
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -351,10 +352,10 @@ class Context(abc.ABC):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: bool = False,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -421,10 +422,10 @@ class MessageContext(Context, abc.ABC):
         wait_for_result: bool = True,
         attachment: undefined.UndefinedOr[files.Resourceish] = undefined.UNDEFINED,
         attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -466,10 +467,10 @@ class InteractionContext(Context, abc.ABC):
         *,
         attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
         attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -489,10 +490,10 @@ class InteractionContext(Context, abc.ABC):
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -514,10 +515,10 @@ class InteractionContext(Context, abc.ABC):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: typing.Literal[False] = False,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -537,10 +538,10 @@ class InteractionContext(Context, abc.ABC):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: typing.Literal[True],
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -559,10 +560,10 @@ class InteractionContext(Context, abc.ABC):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: bool = False,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,

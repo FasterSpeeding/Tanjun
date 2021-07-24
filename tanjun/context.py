@@ -34,16 +34,14 @@ from __future__ import annotations
 __all__: typing.Sequence[str] = ["InteractionContext", "MessageContext", "ResponseTypeT"]
 
 import asyncio
-import dataclasses
-import inspect
 import typing
 
 from hikari import errors as hikari_errors
 from hikari import snowflakes
 from hikari import undefined
 from hikari.api import special_endpoints as special_endpoints_api
+from hikari.impl import special_endpoints as special_endpoints_impl
 from hikari.interactions import bases as base_interactions
-from hikari.internal import mentions
 
 from tanjun import traits
 
@@ -55,8 +53,9 @@ if typing.TYPE_CHECKING:
     from hikari import messages
     from hikari import traits as hikari_traits
     from hikari import users
+
+    # from hikari.api import entity_factory as entity_factory_api
     from hikari.api import cache as cache_api
-    from hikari.api import entity_factory as entity_factory_api
     from hikari.api import event_manager as event_manager_api
     from hikari.api import interaction_server as interaction_server_api
     from hikari.api import rest as rest_api
@@ -271,10 +270,10 @@ class MessageContext(BaseContext, traits.MessageContext):
         *,
         attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
         attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         replace_attachments: bool = False,
@@ -295,8 +294,8 @@ class MessageContext(BaseContext, traits.MessageContext):
             content=content,
             attachment=attachment,
             attachments=attachments,
-            component=component,
-            components=components,
+            # component=component,
+            # components=components,
             embed=embed,
             embeds=embeds,
             replace_attachments=replace_attachments,
@@ -311,10 +310,10 @@ class MessageContext(BaseContext, traits.MessageContext):
         *,
         attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
         attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         replace_attachments: bool = False,
@@ -335,8 +334,8 @@ class MessageContext(BaseContext, traits.MessageContext):
             content=content,
             attachment=attachment,
             attachments=attachments,
-            component=component,
-            components=components,
+            # component=component,
+            # components=components,
             embed=embed,
             embeds=embeds,
             replace_attachments=replace_attachments,
@@ -360,10 +359,10 @@ class MessageContext(BaseContext, traits.MessageContext):
         wait_for_result: bool = True,
         attachment: undefined.UndefinedOr[files.Resourceish] = undefined.UNDEFINED,
         attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -383,8 +382,8 @@ class MessageContext(BaseContext, traits.MessageContext):
                 content=content,
                 attachment=attachment,
                 attachments=attachments,
-                component=component,
-                components=components,
+                # component=component,
+                # components=components,
                 embed=embed,
                 embeds=embeds,
                 tts=tts,
@@ -400,103 +399,6 @@ class MessageContext(BaseContext, traits.MessageContext):
                 self._initial_response_id = message.id
 
             return message
-
-
-@dataclasses.dataclass
-class _InteractionMessageBuilder(special_endpoints_api.InteractionMessageBuilder):
-    __slots__ = (
-        "_components",
-        "_content",
-        "_embeds",
-        "_flags",
-        "_tts",
-        "_mentions_everyone",
-        "_role_mentions",
-        "_user_mentions",
-    )
-
-    _content: undefined.UndefinedOr[str]
-    _components: undefined.UndefinedOr[typing.Sequence[special_endpoints_api.ComponentBuilder]]
-    _embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]]
-    _flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType]
-    _tts: undefined.UndefinedOr[bool]
-    _mentions_everyone: undefined.UndefinedOr[bool]
-    _user_mentions: undefined.UndefinedOr[typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]]
-    _role_mentions: undefined.UndefinedOr[typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]]
-
-    @property
-    def content(self) -> undefined.UndefinedOr[str]:
-        return self._content
-
-    @property
-    def embeds(self) -> typing.Sequence[embeds_.Embed]:
-        if self._embeds:
-            assert not isinstance(self._embeds, undefined.UndefinedType)
-            return self._embeds
-
-        return ()
-
-    @property
-    def flags(self) -> typing.Union[undefined.UndefinedType, int, messages.MessageFlag]:
-        return self._flags
-
-    @property
-    def is_tts(self) -> undefined.UndefinedOr[bool]:
-        return self._tts
-
-    @property
-    def mentions_everyone(self) -> undefined.UndefinedOr[bool]:
-        return self._mentions_everyone
-
-    @property
-    def role_mentions(
-        self,
-    ) -> undefined.UndefinedOr[typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]]:
-        return self._role_mentions
-
-    @property
-    def type(self) -> base_interactions.MessageResponseTypesT:
-        return base_interactions.ResponseType.MESSAGE_CREATE
-
-    @property
-    def user_mentions(
-        self,
-    ) -> undefined.UndefinedOr[typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]]:
-        return self._user_mentions
-
-    def build(self, entity_factory: entity_factory_api.EntityFactory, /) -> typing.Dict[str, typing.Any]:
-        data: typing.Dict[str, typing.Any] = {}
-
-        if self._content is not undefined.UNDEFINED:
-            data["content"] = str(self._content)
-
-        if self._flags is not undefined.UNDEFINED:
-            data["flags"] = self._flags
-
-        if self._components is not undefined.UNDEFINED:
-            data["compontent"] = [builder.build() for builder in self._components]
-
-        if self._embeds is not undefined.UNDEFINED:
-            data["embeds"] = [entity_factory.serialize_embed(embed) for embed in self._embeds]
-
-        if not undefined.all_undefined(self.mentions_everyone, self.user_mentions, self.role_mentions):
-            data["allowed_mentions"] = mentions.generate_allowed_mentions(
-                self.mentions_everyone, undefined.UNDEFINED, self.user_mentions, self.role_mentions
-            )
-
-        return {"type": base_interactions.ResponseType.MESSAGE_CREATE, "data": data}
-
-
-def _raise_not_implemented(*args: typing.Any, **kwargs: typing.Any) -> typing.NoReturn:
-    raise NotImplementedError("This builder object is read-only")
-
-
-for _name, _value in inspect.getmembers(_InteractionMessageBuilder):
-    if _name.startswith("get_") or _name.startswith("add_") and getattr(_value, "__isabstractmethod__", False):
-        setattr(_InteractionMessageBuilder, _name, _raise_not_implemented)
-
-
-del _raise_not_implemented, _name, _value
 
 
 class InteractionContext(BaseContext, traits.InteractionContext):
@@ -589,10 +491,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         *,
         attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
         attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -610,8 +512,8 @@ class InteractionContext(BaseContext, traits.InteractionContext):
                 content=content,
                 attachment=attachment,
                 attachments=attachments,
-                component=component,
-                components=components,
+                # component=component,
+                # components=components,
                 embed=embed,
                 embeds=embeds,
                 flags=flags,
@@ -627,10 +529,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -652,8 +554,8 @@ class InteractionContext(BaseContext, traits.InteractionContext):
                 await self._interaction.create_initial_response(
                     response_type=base_interactions.ResponseType.MESSAGE_CREATE,
                     content=content,
-                    component=component,
-                    components=components,
+                    # component=component,
+                    # components=components,
                     embed=embed,
                     embeds=embeds,
                     flags=flags,
@@ -664,26 +566,28 @@ class InteractionContext(BaseContext, traits.InteractionContext):
                 )
 
             else:
-                if component:
-                    assert not isinstance(component, undefined.UndefinedType)
-                    components = (component,)
+                # if component:
+                #     assert not isinstance(component, undefined.UndefinedType)
+                #     components = (component,)
 
                 if embed:
                     assert not isinstance(embed, undefined.UndefinedType)
                     embeds = (embed,)
 
-                self._response_future.set_result(
-                    _InteractionMessageBuilder(
-                        _content=content,
-                        _components=components,
-                        _embeds=embeds,
-                        _flags=flags,
-                        _tts=tts,
-                        _mentions_everyone=mentions_everyone,
-                        _user_mentions=user_mentions,
-                        _role_mentions=role_mentions,
-                    )
+                result = special_endpoints_impl.InteractionMessageBuilder(
+                    content=content,
+                    # components=components,
+                    # embeds=embeds,
+                    flags=flags,
+                    is_tts=tts,
+                    mentions_everyone=mentions_everyone,
+                    user_mentions=user_mentions,
+                    role_mentions=role_mentions,
                 )
+                if embeds is not undefined.UNDEFINED:
+                    for embed in embeds:
+                        result.add_embed(embed)
+                self._response_future.set_result(result)
 
     async def delete_initial_response(self) -> None:
         return await self._interaction.delete_initial_response()
@@ -700,10 +604,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         *,
         attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
         attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         replace_attachments: bool = False,
@@ -719,8 +623,8 @@ class InteractionContext(BaseContext, traits.InteractionContext):
             content=content,
             attachment=attachment,
             attachments=attachments,
-            component=component,
-            components=components,
+            # component=component,
+            # components=components,
             embed=embed,
             embeds=embeds,
             replace_attachments=replace_attachments,
@@ -735,10 +639,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         *,
         attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
         attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         replace_attachments: bool = False,
@@ -756,8 +660,8 @@ class InteractionContext(BaseContext, traits.InteractionContext):
                 content=content,
                 attachment=attachment,
                 attachments=attachments,
-                component=component,
-                components=components,
+                # component=component,
+                # components=components,
                 embed=embed,
                 embeds=embeds,
                 replace_attachments=replace_attachments,
@@ -771,8 +675,8 @@ class InteractionContext(BaseContext, traits.InteractionContext):
                 content=content,
                 attachment=attachment,
                 attachments=attachments,
-                component=component,
-                components=components,
+                # component=component,
+                # components=components,
                 embed=embed,
                 embeds=embeds,
                 replace_attachments=replace_attachments,
@@ -803,10 +707,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: typing.Literal[False] = False,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -825,10 +729,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: typing.Literal[True],
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -846,10 +750,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
         wait_for_result: bool = False,
-        component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        components: undefined.UndefinedOr[
-            typing.Sequence[special_endpoints_api.ComponentBuilder]
-        ] = undefined.UNDEFINED,
+        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
+        # components: undefined.UndefinedOr[
+        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
+        # ] = undefined.UNDEFINED,
         embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
         embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
         mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
@@ -860,8 +764,8 @@ class InteractionContext(BaseContext, traits.InteractionContext):
             typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
         ] = undefined.UNDEFINED,
     ) -> typing.Optional[messages.Message]:
-        if component and components:
-            raise ValueError("Only one of component or components may be passed")
+        # if component and components:
+        #     raise ValueError("Only one of component or components may be passed")
 
         if embed and embeds:
             raise ValueError("Only one of embed or embeds may be passed")
@@ -871,8 +775,8 @@ class InteractionContext(BaseContext, traits.InteractionContext):
 
         if self._has_responed:
             return await self.create_followup(
-                component=component,
-                components=components,
+                # component=component,
+                # components=components,
                 embed=embed,
                 embeds=embeds,
                 mentions_everyone=mentions_everyone,
@@ -887,8 +791,8 @@ class InteractionContext(BaseContext, traits.InteractionContext):
             self._has_responed = True
             await self.edit_initial_response(
                 content=content,
-                component=component,
-                components=components,
+                # component=component,
+                # components=components,
                 embed=embed,
                 embeds=embeds,
                 mentions_everyone=mentions_everyone,
@@ -899,8 +803,8 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         else:
             await self.create_initial_response(
                 content=content,
-                component=component,
-                components=components,
+                # component=component,
+                # components=components,
                 embed=embed,
                 embeds=embeds,
                 mentions_everyone=mentions_everyone,
