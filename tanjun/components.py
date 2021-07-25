@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["Component"]
+__all__: typing.Sequence[str] = ["CommandT", "Component", "LoadableProtocol", "WithCommandReturnSig"]
 
 import asyncio
 import copy
@@ -48,7 +48,10 @@ if typing.TYPE_CHECKING:
     from hikari.api import event_manager as event_manager_api
 
     _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
-    _T = typing.TypeVar("_T", bound="_T")
+    _T = typing.TypeVar("_T")
+
+
+CommandT = typing.TypeVar("CommandT", bound="traits.ExecutableCommand[typing.Any]")
 
 
 @typing.runtime_checkable
@@ -60,6 +63,23 @@ class LoadableProtocol(typing.Protocol):
 
     def load_into_component(self, component: traits.Component, /) -> typing.Optional[typing.Any]:
         raise NotImplementedError
+
+
+def _with_command(
+    add_command: typing.Callable[[CommandT], typing.Any], command: typing.Optional[CommandT], /, *, copy: bool = False
+) -> WithCommandReturnSig[CommandT]:
+    if command:
+        add_command(command.copy() if copy else command)
+        return command
+
+    def decorator(command_: CommandT, /) -> CommandT:
+        add_command(command_.copy() if copy else command_)
+        return command_
+
+    return decorator
+
+
+WithCommandReturnSig = typing.Union[CommandT, typing.Callable[[CommandT], CommandT]]
 
 
 class Component(injector.Injectable, traits.Component):
@@ -222,6 +242,45 @@ class Component(injector.Injectable, traits.Component):
 
         return decorator
 
+    def add_command(self: _ComponentT, command: traits.ExecutableCommand[typing.Any], /) -> _ComponentT:
+        if isinstance(command, traits.MessageCommand):
+            self.add_message_command(command)
+
+        elif isinstance(command, traits.InteractionCommand):
+            self.add_interaction_command(command)
+
+        else:
+            raise ValueError(
+                f"Unexpected object passed, expected a MessageCommand or InteractionCommand but got {type(command)}"
+            )
+
+        return self
+
+    def remove_command(self, command: traits.ExecutableCommand[typing.Any], /) -> None:
+        if isinstance(command, traits.MessageCommand):
+            self.remove_message_command(command)
+
+        elif isinstance(command, traits.InteractionCommand):
+            self.remove_interaction_command(command)
+
+        else:
+            raise ValueError(
+                f"Unexpected object passed, expected a MessageCommand or InteractionCommand but got {type(command)}"
+            )
+
+    @typing.overload
+    def with_command(self, command: CommandT, /) -> CommandT:
+        ...
+
+    @typing.overload
+    def with_command(self, *, copy: bool = False) -> typing.Callable[[CommandT], CommandT]:
+        ...
+
+    def with_command(
+        self, command: typing.Optional[CommandT] = None, /, *, copy: bool = False
+    ) -> WithCommandReturnSig[CommandT]:
+        return _with_command(self.add_command, command, copy=copy)
+
     def add_interaction_command(self: _ComponentT, command: traits.InteractionCommand, /) -> _ComponentT:
         if self._injector and isinstance(command, injector.Injectable):
             command.set_injector(self._injector)
@@ -232,11 +291,20 @@ class Component(injector.Injectable, traits.Component):
     def remove_interaction_command(self, command: traits.InteractionCommand, /) -> None:
         del self._interaction_commands[command.name.casefold()]
 
+    @typing.overload
+    def with_interaction_command(self, command: traits.InteractionCommandT, /) -> traits.InteractionCommandT:
+        ...
+
+    @typing.overload
     def with_interaction_command(
-        self, command: traits.InteractionCommandT, /, *, copy: bool = False
-    ) -> traits.InteractionCommandT:
-        self.add_interaction_command(command.copy() if copy else command)
-        return command
+        self, *, copy: bool = False
+    ) -> typing.Callable[[traits.InteractionCommandT], traits.InteractionCommandT]:
+        ...
+
+    def with_interaction_command(
+        self, command: typing.Optional[traits.InteractionCommandT] = None, /, *, copy: bool = False
+    ) -> WithCommandReturnSig[traits.InteractionCommandT]:
+        return _with_command(self.add_interaction_command, command, copy=copy)
 
     def add_message_command(self: _ComponentT, command: traits.MessageCommand, /) -> _ComponentT:
         if self._injector and isinstance(command, injector.Injectable):
@@ -248,9 +316,20 @@ class Component(injector.Injectable, traits.Component):
     def remove_message_command(self, command: traits.MessageCommand, /) -> None:
         self._message_commands.remove(command)
 
-    def with_message_command(self, command: traits.MessageCommandT, /, *, copy: bool = False) -> traits.MessageCommandT:
-        self.add_message_command(command.copy() if copy else command)
-        return command
+    @typing.overload
+    def with_message_command(self, command: traits.MessageCommandT, /) -> traits.MessageCommandT:
+        ...
+
+    @typing.overload
+    def with_message_command(
+        self, *, copy: bool = False
+    ) -> typing.Callable[[traits.MessageCommandT], traits.MessageCommandT]:
+        ...
+
+    def with_message_command(
+        self, command: typing.Optional[traits.MessageCommandT] = None, /, *, copy: bool = False
+    ) -> WithCommandReturnSig[traits.MessageCommandT]:
+        return _with_command(self.add_message_command, command, copy=copy)
 
     def add_listener(
         self: _ComponentT,
