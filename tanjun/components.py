@@ -232,8 +232,10 @@ class Component(injector.Injectable, traits.Component):
     def remove_interaction_command(self, command: traits.InteractionCommand, /) -> None:
         del self._interaction_commands[command.name.casefold()]
 
-    def with_interaction_command(self, command: traits.InteractionCommandT, /) -> traits.InteractionCommandT:
-        self.add_interaction_command(command)
+    def with_interaction_command(
+        self, command: traits.InteractionCommandT, /, *, copy: bool = False
+    ) -> traits.InteractionCommandT:
+        self.add_interaction_command(command.copy() if copy else command)
         return command
 
     def add_message_command(self: _ComponentT, command: traits.MessageCommand, /) -> _ComponentT:
@@ -246,8 +248,8 @@ class Component(injector.Injectable, traits.Component):
     def remove_message_command(self, command: traits.MessageCommand, /) -> None:
         self._message_commands.remove(command)
 
-    def with_message_command(self, command: traits.MessageCommandT, /) -> traits.MessageCommandT:
-        self.add_message_command(command)
+    def with_message_command(self, command: traits.MessageCommandT, /, *, copy: bool = False) -> traits.MessageCommandT:
+        self.add_message_command(command.copy() if copy else command)
         return command
 
     def add_listener(

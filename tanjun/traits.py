@@ -924,7 +924,7 @@ class Component(abc.ABC):
     def remove_interaction_command(self, command: InteractionCommand, /) -> None:
         raise NotImplementedError
 
-    def with_interaction_command(self, command: InteractionCommandT, /) -> InteractionCommandT:
+    def with_interaction_command(self, command: InteractionCommandT, /, *, copy: bool = False) -> InteractionCommandT:
         raise NotImplementedError
 
     def add_message_command(self: _T, command: MessageCommand, /) -> _T:
@@ -933,7 +933,7 @@ class Component(abc.ABC):
     def remove_message_command(self, command: MessageCommand, /) -> None:
         raise NotImplementedError
 
-    def with_message_command(self, command: MessageCommandT, /) -> MessageCommandT:
+    def with_message_command(self, command: MessageCommandT, /, *, copy: bool = False) -> MessageCommandT:
         raise NotImplementedError
 
     def add_listener(
