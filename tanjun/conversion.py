@@ -70,6 +70,9 @@ from . import errors as tanjun_errors
 if typing.TYPE_CHECKING:
     from . import traits
 
+if typing.TYPE_CHECKING:
+    from . import parsing
+
 _ValueT = typing.TypeVar("_ValueT")
 
 
@@ -361,12 +364,12 @@ class RoleConverter(BaseConverter[guilds.Role]):
 
 
 class _IDMatcher(typing.Protocol):
-    def __call__(self, value: str, *, message: str = "No valid mention or ID found") -> snowflakes.Snowflake:
+    def __call__(self, value: str, /, *, message: str = "No valid mention or ID found") -> snowflakes.Snowflake:
         raise NotImplementedError
 
 
-def make_snowflake_parser(regex: typing.Pattern[str]) -> _IDMatcher:
-    def parse(value: str, *, message: str = "No valid mention or ID found") -> snowflakes.Snowflake:
+def make_snowflake_parser(regex: typing.Pattern[str], /) -> _IDMatcher:
+    def parse(value: str, /, *, message: str = "No valid mention or ID found") -> snowflakes.Snowflake:
         result: typing.Optional[snowflakes.Snowflake] = None
         value = value.strip()
         if value.isdigit():
@@ -502,7 +505,7 @@ split_url = _build_url_parser(urllib.parse.urlsplit)
 _DATETIME_REGEX = re.compile(r"<-?t:(\d+)(?::\w)?>")
 
 
-def convert_datetime(value: str) -> datetime.datetime:
+def convert_datetime(value: str, /) -> datetime.datetime:
     try:
         timestamp = int(next(_DATETIME_REGEX.finditer(value)).groups()[0])
 
@@ -524,5 +527,5 @@ _TYPE_OVERRIDES: typing.Mapping[typing.Callable[..., typing.Any], typing.Callabl
 }
 
 
-def override_type(cls: traits.ConverterSig) -> traits.ConverterSig:
+def override_type(cls: parsing.ConverterSig, /) -> parsing.ConverterSig:
     return _TYPE_OVERRIDES.get(cls, cls)

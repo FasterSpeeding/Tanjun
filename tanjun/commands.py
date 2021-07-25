@@ -59,6 +59,8 @@ from . import traits
 from . import utilities
 
 if typing.TYPE_CHECKING:
+    from . import parsing
+
     _InteractionCommandT = typing.TypeVar("_InteractionCommandT", bound="InteractionCommand[typing.Any]")
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand[typing.Any]")
     _MessageCommandGroupT = typing.TypeVar("_MessageCommandGroupT", bound="MessageCommandGroup[typing.Any]")
@@ -193,7 +195,7 @@ class PartialCommand(
         pass
 
     def bind_component(self, component: traits.Component, /) -> None:
-        pass
+        self._component = component
 
     def _get_injection_getters(self) -> typing.Iterable[injector.Getter[typing.Any]]:
         if not self._injector:
@@ -387,7 +389,7 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.MessageHooks] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
-        parser: typing.Optional[traits.Parser] = None,
+        parser: typing.Optional[parsing.AbstractParser] = None,
     ) -> None:
         super().__init__(callback, checks=checks, hooks=hooks, metadata=metadata)
         self._names = {name, *names}
@@ -406,7 +408,7 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         return self._parent
 
     @property
-    def parser(self) -> typing.Optional[traits.Parser]:
+    def parser(self) -> typing.Optional[parsing.AbstractParser]:
         return self._parser
 
     def copy(
@@ -423,7 +425,7 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         self._parent = parent
         return self
 
-    def set_parser(self: _MessageCommandT, parser: typing.Optional[traits.Parser], /) -> _MessageCommandT:
+    def set_parser(self: _MessageCommandT, parser: typing.Optional[parsing.AbstractParser], /) -> _MessageCommandT:
         self._parser = parser
         return self
 
@@ -515,9 +517,6 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         except errors.HaltExecution:
             return
 
-        except errors.ParserError as exc:
-            await (self._hooks or _EMPTY_HOOKS).trigger_parser_error(ctx, exc, hooks=hooks)
-
         except Exception as exc:
             await (self._hooks or _EMPTY_HOOKS).trigger_error(ctx, exc, hooks=hooks)
             raise
@@ -542,7 +541,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
         checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.MessageHooks] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
-        parser: typing.Optional[traits.Parser] = None,
+        parser: typing.Optional[parsing.AbstractParser] = None,
     ) -> None:
         super().__init__(callback, name, *names, checks=checks, hooks=hooks, metadata=metadata, parser=parser)
         self._commands: typing.Set[traits.MessageCommand] = set()

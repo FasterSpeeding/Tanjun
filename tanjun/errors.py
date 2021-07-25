@@ -48,9 +48,6 @@ __all__: typing.Sequence[str] = [
 
 import typing
 
-if typing.TYPE_CHECKING:
-    from . import traits
-
 
 class TanjunError(Exception):
     """The base class for all errors raised by Tanjun."""
@@ -158,15 +155,15 @@ class ParserError(TanjunError, ValueError):
         This may be used as a command response message.
     """
 
-    parameter: typing.Optional[traits.Parameter]
-    """Parameter this was raised for.
+    parameter: typing.Optional[str]
+    """Name of the this was raised for.
 
     !!! note
         This will be `builtin.None` if it was raised while parsing the provided
         message content.
     """
 
-    def __init__(self, message: str, parameter: typing.Optional[traits.Parameter], /) -> None:
+    def __init__(self, message: str, parameter: typing.Optional[str], /) -> None:
         self.message = message
         self.parameter = parameter
 
@@ -190,13 +187,11 @@ class ConversionError(ParserError):
     errors: typing.Sequence[ValueError]
     """Sequence of the errors that were caught during conversion for this parameter."""
 
-    parameter: traits.Parameter
-    """Parameter this error was raised for."""
+    parameter: str
+    """Name of the parameter this error was raised for."""
 
-    def __init__(self, parameter: traits.Parameter, errors: typing.Iterable[ValueError], /) -> None:
-        # TODO this is probably slow
-        option_or_argument = "option" if isinstance(parameter, traits.Option) else "argument"
-        super().__init__(f"Couldn't convert {option_or_argument} '{parameter.key}'", parameter)
+    def __init__(self, parameter: str, parameter_type: str, errors: typing.Iterable[ValueError], /) -> None:
+        super().__init__(f"Couldn't convert {parameter_type} '{parameter}'", parameter)
         self.errors = tuple(errors)
 
 
@@ -211,10 +206,10 @@ class NotEnoughArgumentsError(ParserError):
 
     __slots__: typing.Sequence[str] = ()
 
-    parameter: traits.Parameter
-    """Parameter this error was raised for."""
+    parameter: str
+    """Name of the parameter this error was raised for."""
 
-    def __init__(self, message: str, parameter: traits.Parameter, /) -> None:
+    def __init__(self, message: str, parameter: str, /) -> None:
         super().__init__(message, parameter)
 
 
@@ -229,10 +224,10 @@ class TooManyArgumentsError(ParserError):
 
     __slots__: typing.Sequence[str] = ()
 
-    parameter: traits.Parameter
-    """Parameter this error was raised for."""
+    parameter: str
+    """Name of the parameter this error was raised for."""
 
-    def __init__(self, message: str, parameter: traits.Parameter, /) -> None:
+    def __init__(self, message: str, parameter: str, /) -> None:
         super().__init__(message, parameter)
 
 
