@@ -33,7 +33,6 @@
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
-    "ConverterSig",
     "CheckSig",
     "CheckSigT",
     "Context",
@@ -52,12 +51,6 @@ __all__: typing.Sequence[str] = [
     "MessageContext",
     "Component",
     "Client",
-    "UndefinedDefaultT",
-    "UNDEFINED_DEFAULT",
-    "Parameter",
-    "Argument",
-    "Option",
-    "Parser",
 ]
 
 import abc
@@ -85,7 +78,6 @@ if typing.TYPE_CHECKING:
     from hikari.interactions import bases as base_interactions
     from hikari.interactions import commands as command_interactions
 
-    from . import errors
 
 _T = typing.TypeVar("_T")
 
@@ -95,15 +87,6 @@ ContextT_contra = typing.TypeVar("ContextT_contra", bound="Context", contravaria
 MetaEventSig = typing.Callable[..., typing.Union[None, typing.Awaitable[None]]]
 MetaEventSigT = typing.TypeVar("MetaEventSigT", bound="MetaEventSig")
 
-# To allow for stateless converters we accept both "Converter[...]" and "Type[StatelessConverter[...]]" where all the
-# methods on "Type[StatelessConverter[...]]" need to be classmethods as it will not be initialised before calls are made
-# to it.
-ConverterSig = typing.Callable[..., typing.Union[typing.Awaitable[typing.Any], typing.Any]]
-"""Type hint of a converter used within a parser instance.
-
-This must be a callable or asynchronous callable which takes one position
-`str` argument and returns the resultant value.
-"""
 
 CommandCallbackSig = typing.Callable[..., typing.Awaitable[None]]
 """Type hint of the callback a `Command` instance will operate on.
@@ -690,16 +673,6 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def trigger_parser_error(
-        self,
-        ctx: ContextT_contra,
-        /,
-        exception: errors.ParserError,
-        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT_contra]]] = None,
-    ) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
     async def trigger_post_execution(
         self,
         ctx: ContextT_contra,
@@ -750,7 +723,20 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
 
     @property
     @abc.abstractmethod
+    def component(self) -> typing.Optional[Component]:
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
     def hooks(self) -> typing.Optional[Hooks[ContextT]]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def bind_client(self, client: Client, /) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def bind_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -782,11 +768,6 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
 
 class InteractionCommand(ExecutableCommand[InteractionContext], abc.ABC):
     __slots__: typing.Sequence[str] = ()
-
-    @property
-    @abc.abstractmethod
-    def component(self) -> typing.Optional[Component]:
-        raise NotImplementedError
 
     @property
     @abc.abstractmethod
@@ -849,11 +830,6 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
 
     @property
     @abc.abstractmethod
-    def component(self) -> typing.Optional[Component]:
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
         raise NotImplementedError
 
@@ -867,17 +843,8 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
     def parent(self) -> typing.Optional[MessageCommandGroup]:
         raise NotImplementedError
 
-    @property
-    @abc.abstractmethod
-    def parser(self) -> typing.Optional[Parser]:
-        raise NotImplementedError
-
     @abc.abstractmethod
     def set_parent(self: _T, _: typing.Optional[MessageCommandGroup], /) -> _T:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def set_parser(self: _T, _: typing.Optional[Parser], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -886,14 +853,6 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
 
     @abc.abstractmethod
     def remove_name(self, name: str, /) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def bind_client(self, client: Client, /) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def bind_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -1067,130 +1026,4 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     def check_message_name(self, name: str, /) -> typing.Iterator[typing.Tuple[str, MessageCommand]]:
-        raise NotImplementedError
-
-
-class UndefinedDefaultT:
-    __singleton: typing.Optional[UndefinedDefaultT] = None
-
-    def __new__(cls) -> UndefinedDefaultT:
-        if cls.__singleton is None:
-            cls.__singleton = super().__new__(cls)
-            assert isinstance(cls.__singleton, UndefinedDefaultT)
-
-        return cls.__singleton
-
-    def __repr__(self) -> str:
-        return "NOTHING"
-
-    def __bool__(self) -> typing.Literal[False]:
-        return False
-
-
-UNDEFINED_DEFAULT = UndefinedDefaultT()
-"""A singleton used to represent no default for a parameter."""
-
-
-class Parameter(abc.ABC):
-    __slots__: typing.Sequence[str] = ()
-
-    @property
-    @abc.abstractmethod
-    def converters(self) -> typing.Optional[typing.Collection[ConverterSig]]:
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def default(self) -> typing.Union[typing.Any, UndefinedDefaultT]:
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def flags(self) -> typing.MutableMapping[str, typing.Any]:
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def key(self) -> str:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def add_converter(self, converter: ConverterSig, /) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def copy(self: _T) -> _T:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def remove_converter(self, converter: ConverterSig, /) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def bind_client(self, client: Client, /) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def bind_component(self, component: Component, /) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    async def convert(self, ctx: MessageContext, value: str) -> typing.Any:
-        raise NotImplementedError
-
-
-class Argument(Parameter, abc.ABC):
-    __slots__: typing.Sequence[str] = ()
-
-
-class Option(Parameter, abc.ABC):
-    __slots__: typing.Sequence[str] = ()
-
-    @property
-    @abc.abstractmethod
-    def empty_value(self) -> typing.Union[typing.Any, UndefinedDefaultT]:
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def names(self) -> typing.Collection[str]:
-        raise NotImplementedError
-
-
-class Parser(abc.ABC):
-    __slots__: typing.Sequence[str] = ()
-
-    @property
-    @abc.abstractmethod
-    def parameters(self) -> typing.Collection[Parameter]:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def add_parameter(self, parameter: Parameter, /) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def copy(self: _T) -> _T:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def remove_parameter(self, parameter: Parameter, /) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def set_parameters(self, _: typing.Iterable[Parameter], /) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def bind_client(self, client: Client, /) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def bind_component(self, component: Component, /) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    async def parse(
-        self, ctx: MessageContext, /
-    ) -> typing.Tuple[typing.List[typing.Any], typing.Dict[str, typing.Any]]:
         raise NotImplementedError

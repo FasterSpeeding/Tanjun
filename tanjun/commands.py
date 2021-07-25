@@ -59,6 +59,8 @@ from . import traits
 from . import utilities
 
 if typing.TYPE_CHECKING:
+    from . import parsing
+
     _InteractionCommandT = typing.TypeVar("_InteractionCommandT", bound="InteractionCommand[typing.Any]")
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand[typing.Any]")
     _MessageCommandGroupT = typing.TypeVar("_MessageCommandGroupT", bound="MessageCommandGroup[typing.Any]")
@@ -120,7 +122,7 @@ class PartialCommand(
 
     @property
     def callback(self) -> CommandCallbackSigT:
-        return self.callback
+        return self._callback
 
     @property
     def checks(self) -> typing.AbstractSet[traits.CheckSig]:
@@ -193,7 +195,7 @@ class PartialCommand(
         pass
 
     def bind_component(self, component: traits.Component, /) -> None:
-        pass
+        self._component = component
 
     def _get_injection_getters(self) -> typing.Iterable[injector.Getter[typing.Any]]:
         if not self._injector:
@@ -340,8 +342,7 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
             await self._callback(ctx, **kwargs)
 
         except errors.CommandError as exc:
-            if exc.message:
-                await ctx.respond(exc.message)
+            await ctx.respond(exc.message)
 
         except errors.HaltExecution:
             return
@@ -387,7 +388,7 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.MessageHooks] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
-        parser: typing.Optional[traits.Parser] = None,
+        parser: typing.Optional[parsing.AbstractParser] = None,
     ) -> None:
         super().__init__(callback, checks=checks, hooks=hooks, metadata=metadata)
         self._names = {name, *names}
@@ -406,8 +407,18 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         return self._parent
 
     @property
-    def parser(self) -> typing.Optional[traits.Parser]:
+    def parser(self) -> typing.Optional[parsing.AbstractParser]:
         return self._parser
+
+    def bind_client(self, client: traits.Client, /) -> None:
+        super().bind_client(client)
+        if self._parser:
+            self._parser.bind_client(client)
+
+    def bind_component(self, component: traits.Component, /) -> None:
+        super().bind_component(component)
+        if self._parser:
+            self._parser.bind_component(component)
 
     def copy(
         self: _MessageCommandT, *, _new: bool = True, parent: typing.Optional[traits.MessageCommandGroup] = None
@@ -423,7 +434,7 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         self._parent = parent
         return self
 
-    def set_parser(self: _MessageCommandT, parser: typing.Optional[traits.Parser], /) -> _MessageCommandT:
+    def set_parser(self: _MessageCommandT, parser: typing.Optional[parsing.AbstractParser], /) -> _MessageCommandT:
         self._parser = parser
         return self
 
@@ -454,10 +465,6 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
     def remove_name(self, name: str, /) -> None:
         self._names.remove(name)
 
-    def bind_client(self, client: traits.Client, /) -> None:
-        if self._parser:
-            self._parser.bind_client(client)
-
     async def execute(
         self,
         ctx: traits.MessageContext,
@@ -487,9 +494,6 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
             await self._callback(ctx, *args, **kwargs)
 
         except errors.CommandError as exc:
-            if not exc.message:
-                return
-
             response = exc.message if len(exc.message) <= 2000 else exc.message[:1997] + "..."
             retry = backoff.Backoff(max_retries=5, maximum=2)
             # TODO: preemptive cache based permission checks before throwing to the REST gods.
@@ -515,9 +519,6 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         except errors.HaltExecution:
             return
 
-        except errors.ParserError as exc:
-            await (self._hooks or _EMPTY_HOOKS).trigger_parser_error(ctx, exc, hooks=hooks)
-
         except Exception as exc:
             await (self._hooks or _EMPTY_HOOKS).trigger_error(ctx, exc, hooks=hooks)
             raise
@@ -542,7 +543,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
         checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.MessageHooks] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
-        parser: typing.Optional[traits.Parser] = None,
+        parser: typing.Optional[parsing.AbstractParser] = None,
     ) -> None:
         super().__init__(callback, name, *names, checks=checks, hooks=hooks, metadata=metadata, parser=parser)
         self._commands: typing.Set[traits.MessageCommand] = set()
