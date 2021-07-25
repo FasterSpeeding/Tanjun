@@ -152,10 +152,11 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
         *,
         hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT_contra]]] = None,
     ) -> None:  # TODO: return True to indicate "raise" else False or None to suppress
-        if self._parser_error and isinstance(exception, errors.ParserError):
-            await utilities.await_if_async(self._parser_error, ctx, exception)
+        if isinstance(exception, errors.ParserError):
+            if self._parser_error:
+                await utilities.await_if_async(self._parser_error, ctx, exception)
 
-        elif not self._parser_error and self._error:
+        elif self._error:
             await utilities.await_if_async(self._error, ctx, exception)
 
         if hooks:

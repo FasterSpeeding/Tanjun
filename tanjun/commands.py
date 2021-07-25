@@ -342,8 +342,7 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
             await self._callback(ctx, **kwargs)
 
         except errors.CommandError as exc:
-            if exc.message:
-                await ctx.respond(exc.message)
+            await ctx.respond(exc.message)
 
         except errors.HaltExecution:
             return
@@ -411,6 +410,16 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
     def parser(self) -> typing.Optional[parsing.AbstractParser]:
         return self._parser
 
+    def bind_client(self, client: traits.Client, /) -> None:
+        super().bind_client(client)
+        if self._parser:
+            self._parser.bind_client(client)
+
+    def bind_component(self, component: traits.Component, /) -> None:
+        super().bind_component(component)
+        if self._parser:
+            self._parser.bind_component(component)
+
     def copy(
         self: _MessageCommandT, *, _new: bool = True, parent: typing.Optional[traits.MessageCommandGroup] = None
     ) -> _MessageCommandT:
@@ -456,10 +465,6 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
     def remove_name(self, name: str, /) -> None:
         self._names.remove(name)
 
-    def bind_client(self, client: traits.Client, /) -> None:
-        if self._parser:
-            self._parser.bind_client(client)
-
     async def execute(
         self,
         ctx: traits.MessageContext,
@@ -489,9 +494,6 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
             await self._callback(ctx, *args, **kwargs)
 
         except errors.CommandError as exc:
-            if not exc.message:
-                return
-
             response = exc.message if len(exc.message) <= 2000 else exc.message[:1997] + "..."
             retry = backoff.Backoff(max_retries=5, maximum=2)
             # TODO: preemptive cache based permission checks before throwing to the REST gods.

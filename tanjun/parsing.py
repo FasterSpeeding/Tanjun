@@ -32,9 +32,16 @@
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
+    "AbstractParser",
     "Argument",
+    "ConverterSig",
     "Option",
+    "Parameter",
+    "ParseableProto",
+    "ParseableProtoT",
     "ShlexParser",
+    "UndefinedDefaultT",
+    "UNDEFINED_DEFAULT",
     "verify_parameters",
     "with_argument",
     "with_greedy_argument",
@@ -65,7 +72,7 @@ if typing.TYPE_CHECKING:
 
 
 ParseableProtoT = typing.TypeVar("ParseableProtoT", bound="ParseableProto")
-
+"""Generic type hint of `ParseableProto`."""
 
 ConverterSig = typing.Callable[..., typing.Union[typing.Awaitable[typing.Any], typing.Any]]
 """Type hint of a converter used within a parser instance.
@@ -77,6 +84,8 @@ This must be a callable or asynchronous callable which takes one position
 
 @typing.runtime_checkable
 class ParseableProto(typing.Protocol):
+    """Protocol of a command which supports this parser interface."""
+
     __slots__ = ()
 
     @property
@@ -92,6 +101,8 @@ class ParseableProto(typing.Protocol):
 
 
 class UndefinedDefaultT:
+    """Type of the singleton value used for indicating an empty default."""
+
     __singleton: typing.Optional[UndefinedDefaultT] = None
 
     def __new__(cls) -> UndefinedDefaultT:
@@ -113,6 +124,8 @@ UNDEFINED_DEFAULT = UndefinedDefaultT()
 
 
 class AbstractParser(abc.ABC):
+    """Abstract interface of a message content parser."""
+
     __slots__: typing.Sequence[str] = ()
 
     @property

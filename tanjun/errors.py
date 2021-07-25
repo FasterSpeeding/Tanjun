@@ -97,7 +97,7 @@ class CommandError(TanjunError):
     __slots__: typing.Sequence[str] = ("message",)
 
     # None or empty string == no response
-    message: typing.Optional[str]
+    message: str
     """The response error message.
 
     If this is an empty string or `None` then this will silently end
@@ -105,9 +105,12 @@ class CommandError(TanjunError):
     response.
     """
 
-    def __init__(self, message: typing.Optional[str] = None, /) -> None:
-        if message and len(message) > 2000:
+    def __init__(self, message: str, /) -> None:
+        if len(message) > 2000:
             raise ValueError("Error message cannot be over 2_000 characters long.")
+
+        elif not message:
+            raise ValueError("Response message must have at least 1 character.")
 
         self.message = message
 
