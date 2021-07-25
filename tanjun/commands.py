@@ -122,7 +122,7 @@ class PartialCommand(
 
     @property
     def callback(self) -> CommandCallbackSigT:
-        return self.callback
+        return self._callback
 
     @property
     def checks(self) -> typing.AbstractSet[traits.CheckSig]:
