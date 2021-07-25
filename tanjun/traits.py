@@ -387,7 +387,7 @@ class Context(abc.ABC):
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
-        wait_for_result: typing.Literal[False] = False,
+        ensure_result: typing.Literal[False] = False,
         # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
         # components: undefined.UndefinedOr[
         #     typing.Sequence[special_endpoints_api.ComponentBuilder]
@@ -410,7 +410,7 @@ class Context(abc.ABC):
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
-        wait_for_result: typing.Literal[True],
+        ensure_result: typing.Literal[True],
         # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
         # components: undefined.UndefinedOr[
         #     typing.Sequence[special_endpoints_api.ComponentBuilder]
@@ -432,7 +432,7 @@ class Context(abc.ABC):
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
-        wait_for_result: bool = False,
+        ensure_result: bool = False,
         # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
         # components: undefined.UndefinedOr[
         #     typing.Sequence[special_endpoints_api.ComponentBuilder]
@@ -500,7 +500,7 @@ class MessageContext(Context, abc.ABC):
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
-        wait_for_result: bool = True,
+        ensure_result: bool = True,
         attachment: undefined.UndefinedOr[files.Resourceish] = undefined.UNDEFINED,
         attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
         # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
@@ -595,7 +595,7 @@ class InteractionContext(Context, abc.ABC):
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
-        wait_for_result: typing.Literal[False] = False,
+        ensure_result: typing.Literal[False] = False,
         # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
         # components: undefined.UndefinedOr[
         #     typing.Sequence[special_endpoints_api.ComponentBuilder]
@@ -618,7 +618,7 @@ class InteractionContext(Context, abc.ABC):
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
-        wait_for_result: typing.Literal[True],
+        ensure_result: typing.Literal[True],
         # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
         # components: undefined.UndefinedOr[
         #     typing.Sequence[special_endpoints_api.ComponentBuilder]
@@ -640,7 +640,7 @@ class InteractionContext(Context, abc.ABC):
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
-        wait_for_result: bool = False,
+        ensure_result: bool = False,
         # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
         # components: undefined.UndefinedOr[
         #     typing.Sequence[special_endpoints_api.ComponentBuilder]

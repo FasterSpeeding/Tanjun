@@ -370,7 +370,7 @@ class MessageContext(BaseContext, traits.MessageContext):
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
-        wait_for_result: bool = True,
+        ensure_result: bool = True,
         attachment: undefined.UndefinedOr[files.Resourceish] = undefined.UNDEFINED,
         attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
         # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
@@ -728,7 +728,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
-        wait_for_result: typing.Literal[False] = False,
+        ensure_result: typing.Literal[False] = False,
         # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
         # components: undefined.UndefinedOr[
         #     typing.Sequence[special_endpoints_api.ComponentBuilder]
@@ -750,7 +750,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
-        wait_for_result: typing.Literal[True],
+        ensure_result: typing.Literal[True],
         # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
         # components: undefined.UndefinedOr[
         #     typing.Sequence[special_endpoints_api.ComponentBuilder]
@@ -771,7 +771,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
         *,
-        wait_for_result: bool = False,
+        ensure_result: bool = False,
         # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
         # components: undefined.UndefinedOr[
         #     typing.Sequence[special_endpoints_api.ComponentBuilder]
@@ -834,5 +834,5 @@ class InteractionContext(BaseContext, traits.InteractionContext):
                 role_mentions=role_mentions,
             )
 
-        if wait_for_result:
+        if ensure_result:
             return await self._interaction.fetch_initial_response()
