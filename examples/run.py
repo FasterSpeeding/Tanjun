@@ -15,6 +15,6 @@ def run() -> None:
         .load_modules("examples.basic_component")
         .add_prefix(loaded_config.prefix)
         .add_type_dependency(config.ExampleConfig, lambda: loaded_config)
-        .add_type_dependency(protos.DatabaseProto, tanjun.cache_callback(impls.DatabaseProto.connect))
+        .add_type_dependency(protos.DatabaseProto, tanjun.cache_callback(impls.DatabaseImpl.connect))
     )
     bot.run()

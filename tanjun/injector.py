@@ -45,6 +45,7 @@ __all__: typing.Sequence[str] = [
 ]
 
 import abc
+import asyncio
 import collections.abc as collections
 import copy
 import inspect
@@ -406,7 +407,8 @@ class _CacheCallback(typing.Generic[_T]):
 
     def __init__(self, callback: CallbackSig[_T], /) -> None:
         self._callback = callback
-        self._result: typing.Optional[_T] = None
+        self._lock: typing.Optional[asyncio.Lock] = None
+        self._result: typing.Union[_T, Undefined] = None
 
     async def __call__(
         self,
@@ -415,7 +417,18 @@ class _CacheCallback(typing.Generic[_T]):
         ctx: tanjun_traits.Context = Injected(type=tanjun_traits.Context),  # type: ignore[assignment]
         injector: InjectorClient = Injected(type=InjectorClient),  # type: ignore[assignment]
     ) -> _T:
-        if self._result is None:
+        if self._result is not UNDEFINED:
+            assert not isinstance(self._result, Undefined)
+            return self._result
+
+        if not self._lock:
+            self._lock = asyncio.Lock()
+
+        async with self._lock:
+            if self._result is not UNDEFINED:
+                assert not isinstance(self._result, Undefined)
+                return self._result
+
             getters = injector.resolve_callback_to_getters(self._callback)
             temp_result = self._callback(*args, **await resolve_getters(ctx, getters))
 

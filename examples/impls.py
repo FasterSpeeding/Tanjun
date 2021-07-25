@@ -5,7 +5,7 @@ import tanjun
 from examples import protos
 
 
-class DatabaseProto:
+class DatabaseImpl:
     def __init__(self, connection: typing.Any) -> None:
         self._conn = connection
 

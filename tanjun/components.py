@@ -52,6 +52,7 @@ if typing.TYPE_CHECKING:
 
 
 CommandT = typing.TypeVar("CommandT", bound="traits.ExecutableCommand[typing.Any]")
+WithCommandReturnSig = typing.Union[CommandT, typing.Callable[[CommandT], CommandT]]
 
 
 @typing.runtime_checkable
@@ -77,9 +78,6 @@ def _with_command(
         return command_
 
     return decorator
-
-
-WithCommandReturnSig = typing.Union[CommandT, typing.Callable[[CommandT], CommandT]]
 
 
 class Component(injector.Injectable, traits.Component):
