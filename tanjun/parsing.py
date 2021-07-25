@@ -160,7 +160,7 @@ class AbstractParser(abc.ABC):
     @abc.abstractmethod
     async def parse(
         self, ctx: traits.MessageContext, /
-    ) -> typing.Tuple[typing.Sequence[typing.Any], typing.Mapping[str, typing.Any]]:
+    ) -> typing.Tuple[typing.List[typing.Any], typing.Dict[str, typing.Any]]:
         raise NotImplementedError
 
 

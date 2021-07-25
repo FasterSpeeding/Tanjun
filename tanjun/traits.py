@@ -44,9 +44,11 @@ __all__: typing.Sequence[str] = [
     "InteractionHooks",
     "ExecutableCommand",
     "InteractionCommand",
+    "InteractionCommandT",
     "InteractionCommandGroup",
     "InteractionContext",
     "MessageCommand",
+    "MessageCommandT",
     "MessageCommandGroup",
     "MessageContext",
     "Component",
@@ -86,6 +88,8 @@ ContextT = typing.TypeVar("ContextT", bound="Context")
 ContextT_contra = typing.TypeVar("ContextT_contra", bound="Context", contravariant=True)
 MetaEventSig = typing.Callable[..., typing.Union[None, typing.Awaitable[None]]]
 MetaEventSigT = typing.TypeVar("MetaEventSigT", bound="MetaEventSig")
+InteractionCommandT = typing.TypeVar("InteractionCommandT", bound="InteractionCommand")
+MessageCommandT = typing.TypeVar("MessageCommandT", bound="MessageCommand")
 
 
 CommandCallbackSig = typing.Callable[..., typing.Awaitable[None]]
@@ -912,6 +916,49 @@ class Component(abc.ABC):
     @property
     @abc.abstractmethod
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+        raise NotImplementedError
+
+    def add_interaction_command(self: _T, command: InteractionCommand, /) -> _T:
+        raise NotImplementedError
+
+    def remove_interaction_command(self, command: InteractionCommand, /) -> None:
+        raise NotImplementedError
+
+    def with_interaction_command(self, command: InteractionCommandT, /) -> InteractionCommandT:
+        raise NotImplementedError
+
+    def add_message_command(self: _T, command: MessageCommand, /) -> _T:
+        raise NotImplementedError
+
+    def remove_message_command(self, command: MessageCommand, /) -> None:
+        raise NotImplementedError
+
+    def with_message_command(self, command: MessageCommandT, /) -> MessageCommandT:
+        raise NotImplementedError
+
+    def add_listener(
+        self: _T,
+        event: typing.Type[event_manager_api.EventT_inv],
+        listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
+        /,
+    ) -> _T:
+        raise NotImplementedError
+
+    def remove_listener(
+        self,
+        event: typing.Type[event_manager_api.EventT_inv],
+        listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
+        /,
+    ) -> None:
+        raise NotImplementedError
+
+    # TODO: make event optional?
+    def with_listener(
+        self, event_type: typing.Type[event_manager_api.EventT_inv]
+    ) -> typing.Callable[
+        [event_manager_api.CallbackT[event_manager_api.EventT_inv]],
+        event_manager_api.CallbackT[event_manager_api.EventT_inv],
+    ]:
         raise NotImplementedError
 
     @abc.abstractmethod

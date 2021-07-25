@@ -209,7 +209,9 @@ class PartialCommand(
 
         return self._cached_getters
 
-    def make_method_type(self, component: traits.Component, /) -> None:
+    def load_into_component(
+        self, component: traits.Component, /
+    ) -> typing.Optional[PartialCommand[CommandCallbackSigT, traits.ContextT]]:
         if isinstance(self._callback, types.MethodType):
             raise ValueError("Callback is already a method type")
 
@@ -220,6 +222,8 @@ class PartialCommand(
         for check in self._checks:
             if isinstance(check, _LoadableInjector):
                 check.make_method_type(component)
+
+        return None
 
 
 _COMMAND_OPTIONS_TYPES: typing.Final[typing.Set[command_interactions.OptionType]] = {
@@ -356,6 +360,14 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
 
         finally:
             await (self._hooks or _EMPTY_HOOKS).trigger_post_execution(ctx, hooks=hooks)
+
+    def load_into_component(
+        self: _InteractionCommandT, component: traits.Component, /
+    ) -> typing.Optional[_InteractionCommandT]:
+        super().load_into_component(component)
+        if not self._parent:
+            component.add_interaction_command(self)
+            return self
 
 
 def as_message_command(
@@ -530,6 +542,14 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         finally:
             await (self._hooks or _EMPTY_HOOKS).trigger_post_execution(ctx, hooks=hooks)
 
+    def load_into_component(
+        self: _MessageCommandT, component: traits.Component, /, *, new: bool = True
+    ) -> typing.Optional[_MessageCommandT]:
+        super().load_into_component(component)
+        if not self._parent:
+            component.add_message_command(self)
+            return self
+
 
 class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCommandGroup):
     __slots__: typing.Sequence[str] = ("_commands",)
@@ -624,8 +644,13 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
 
         await super().execute(ctx, hooks=hooks)
 
-    def make_method_type(self, component: traits.Component, /) -> None:
-        super().make_method_type(component)
+    def load_into_component(
+        self: _MessageCommandGroupT, component: traits.Component, /, *, new: bool = True
+    ) -> typing.Optional[_MessageCommandGroupT]:
+        super().load_into_component(component, new=new)
         for command in self._commands:
             if isinstance(command, components.LoadableProtocol):
-                command.make_method_type(component)
+                command.load_into_component(component)
+
+        if not self._parent:
+            return self

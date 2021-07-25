@@ -47,16 +47,18 @@ from . import utilities
 if typing.TYPE_CHECKING:
     from hikari.api import event_manager as event_manager_api
 
-    _InteractionCommandT = typing.TypeVar("_InteractionCommandT", bound=traits.InteractionCommand)
-    _MessageCommandT = typing.TypeVar("_MessageCommandT", bound=traits.MessageCommand)
     _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
+    _T = typing.TypeVar("_T", bound="_T")
 
 
 @typing.runtime_checkable
 class LoadableProtocol(typing.Protocol):
     __slots__ = ()
 
-    def make_method_type(self, component: traits.Component, /) -> None:
+    def copy(self: _T) -> _T:
+        raise NotImplementedError
+
+    def load_into_component(self, component: traits.Component, /) -> typing.Optional[typing.Any]:
         raise NotImplementedError
 
 
@@ -227,10 +229,10 @@ class Component(injector.Injectable, traits.Component):
         self._interaction_commands[command.name.casefold()] = command
         return self
 
-    def remove_interaction_command(self, command: traits.InteractionCommand) -> None:
+    def remove_interaction_command(self, command: traits.InteractionCommand, /) -> None:
         del self._interaction_commands[command.name.casefold()]
 
-    def with_interaction_command(self, command: _InteractionCommandT) -> _InteractionCommandT:
+    def with_interaction_command(self, command: traits.InteractionCommandT, /) -> traits.InteractionCommandT:
         self.add_interaction_command(command)
         return command
 
@@ -244,7 +246,7 @@ class Component(injector.Injectable, traits.Component):
     def remove_message_command(self, command: traits.MessageCommand, /) -> None:
         self._message_commands.remove(command)
 
-    def with_message_command(self, command: _MessageCommandT, /) -> _MessageCommandT:
+    def with_message_command(self, command: traits.MessageCommandT, /) -> traits.MessageCommandT:
         self.add_message_command(command)
         return command
 
@@ -412,14 +414,5 @@ class Component(injector.Injectable, traits.Component):
     def _load_from_properties(self) -> None:
         for name, member in inspect.getmembers(self):
             if isinstance(member, LoadableProtocol):
-                if isinstance(member, traits.MessageCommand):
-                    message_command = member.copy()
-                    message_command.make_method_type(self)
-                    setattr(self, name, message_command)
-                    self.add_message_command(message_command)
-
-                elif isinstance(member, traits.InteractionCommand):
-                    interaction_command = member.copy()
-                    interaction_command.make_method_type(self)
-                    setattr(self, name, interaction_command)
-                    self.add_interaction_command(interaction_command)
+                if result := member.copy().load_into_component(self):
+                    setattr(self, name, result)

@@ -104,6 +104,7 @@ __all__: typing.Sequence[str] = [
     "Hooks",
     # injector.py
     "injector",
+    "cache_callback",
     "injected",
     "Injected",
     # parsing.py

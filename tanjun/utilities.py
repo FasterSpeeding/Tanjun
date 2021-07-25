@@ -281,7 +281,6 @@ async def fetch_permissions(
     guild = client.cache.get_guild(member.guild_id) if client.cache else None
     if not guild:
         guild = await fetch_resource(retry, client.rest.fetch_guild, member.guild_id)
-        assert guild is not None
         roles = guild.roles
 
     # Guild owners are implicitly admins.
