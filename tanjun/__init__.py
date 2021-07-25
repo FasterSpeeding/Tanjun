@@ -56,10 +56,9 @@ __all__: typing.Sequence[str] = [
     "with_own_permission_check",
     # clients.py
     "clients",
-    "AcceptsEnum",
     "as_loader",
     "Client",
-    "PrefixGetterSig",
+    "MessageAcceptsEnum",
     # commands.py
     "as_interaction_command",
     "as_message_command",
@@ -91,6 +90,7 @@ __all__: typing.Sequence[str] = [
     "errors",
     "CommandError",
     "ConversionError",
+    "HaltExecution",
     "FailedCheck",
     "MissingDependencyError",
     "NotEnoughArgumentsError",
@@ -101,15 +101,10 @@ __all__: typing.Sequence[str] = [
     "StateWarning",
     # hooks.py
     "hooks",
-    "ErrorHookSig",
     "Hooks",
-    "HookSig",
-    "ParserHookSig",
-    "PreExecutionHookSig",
     # injector.py
     "injector",
     "cache_callback",
-    "CallbackSig",
     "Getter",
     "Undefined",
     "UNDEFINED",

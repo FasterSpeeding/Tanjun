@@ -38,6 +38,8 @@ __all__: typing.Sequence[str] = [
     "CheckSigT",
     "Context",
     "Hooks",
+    "MetaEventSig",
+    "MetaEventSigT",
     "AnyHooks",
     "MessageHooks",
     "InteractionHooks",
@@ -90,6 +92,8 @@ _T = typing.TypeVar("_T")
 
 ContextT = typing.TypeVar("ContextT", bound="Context")
 ContextT_contra = typing.TypeVar("ContextT_contra", bound="Context", contravariant=True)
+MetaEventSig = typing.Callable[..., typing.Union[None, typing.Awaitable[None]]]
+MetaEventSigT = typing.TypeVar("MetaEventSigT", bound="MetaEventSig")
 
 # To allow for stateless converters we accept both "Converter[...]" and "Type[StatelessConverter[...]]" where all the
 # methods on "Type[StatelessConverter[...]]" need to be classmethods as it will not be initialised before calls are made
@@ -955,6 +959,10 @@ class Component(abc.ABC):
     def bind_client(self, client: Client, /) -> None:
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def unbind_client(self, client: Client, /) -> None:
+        raise NotImplementedError
+
     # As far as MYPY is concerned, unless you explicitly yield within an async callback typed as returning an
     # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
     @abc.abstractmethod
@@ -965,14 +973,6 @@ class Component(abc.ABC):
 
     @abc.abstractmethod
     def check_message_name(self, name: str, /) -> typing.Iterator[typing.Tuple[str, MessageCommand]]:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    async def close(self) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    async def open(self) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -1043,6 +1043,22 @@ class Client(abc.ABC):
     def remove_component(self, component: Component, /) -> None:
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def add_client_callback(self: _T, event_name: str, callback: MetaEventSig, /) -> _T:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_client_callbacks(self, event_name: str, /) -> typing.Collection[MetaEventSig]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def remove_client_callback(self, event_name: str, callback: MetaEventSig, /) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def with_client_callback(self, event_name: str, /) -> typing.Callable[[MetaEventSigT], MetaEventSigT]:
+        raise NotImplementedError
+
     # As far as MYPY is concerned, unless you explicitly yield within an async callback typed as returning an
     # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
     @abc.abstractmethod
@@ -1051,14 +1067,6 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     def check_message_name(self, name: str, /) -> typing.Iterator[typing.Tuple[str, MessageCommand]]:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    async def close(self) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    async def open(self) -> None:
         raise NotImplementedError
 
 

@@ -64,11 +64,11 @@ class Component(injector.Injectable, traits.Component):
     __slots__: typing.Sequence[str] = (
         "_checks",
         "_client",
+        "_client_callbacks",
         "_hooks",
         "_injector",
         "_interaction_commands",
         "_interaction_hooks",
-        "_is_alive",
         "_listeners",
         "_message_commands",
         "_message_hooks",
@@ -87,9 +87,9 @@ class Component(injector.Injectable, traits.Component):
             set(injector.InjectableCheck(check) for check in checks) if checks else set()
         )
         self._client: typing.Optional[traits.Client] = None
+        self._client_callbacks: typing.Dict[str, typing.Set[traits.MetaEventSig]] = {}
         self._hooks = hooks
         self._injector: typing.Optional[injector.InjectorClient] = None
-        self._is_alive = False
         self._interaction_commands: typing.Dict[str, traits.InteractionCommand] = {}
         self._interaction_hooks = interaction_hooks
         self._listeners: typing.Set[
@@ -124,14 +124,6 @@ class Component(injector.Injectable, traits.Component):
     @property
     def message_commands(self) -> typing.AbstractSet[traits.MessageCommand]:
         return self._message_commands.copy()
-
-    @property
-    def is_alive(self) -> bool:
-        """Whether this component is active.
-
-        When this is `False` executing the cluster will always do nothing.
-        """
-        return self._is_alive
 
     @property
     def interaction_hooks(self) -> typing.Optional[traits.InteractionHooks]:
@@ -196,6 +188,38 @@ class Component(injector.Injectable, traits.Component):
         self.add_check(check)
         return check
 
+    def add_client_callback(self: _ComponentT, event_name: str, callback: traits.MetaEventSig, /) -> _ComponentT:
+        event_name = event_name.lower()
+        try:
+            self._client_callbacks[event_name].add(callback)
+        except KeyError:
+            self._client_callbacks[event_name] = {callback}
+
+        if self._client:
+            self._client.add_client_callback(event_name, callback)
+
+        return self
+
+    def get_client_callbacks(self, event_name: str, /) -> typing.Collection[traits.MetaEventSig]:
+        event_name = event_name.lower()
+        return self._client_callbacks.get(event_name) or ()
+
+    def remove_client_callback(self, event_name: str, callback: traits.MetaEventSig, /) -> None:
+        event_name = event_name.lower()
+        self._client_callbacks[event_name].remove(callback)
+        if not self._client_callbacks[event_name]:
+            del self._client_callbacks[event_name]
+
+        if self._client:
+            self._client.remove_client_callback(event_name, callback)
+
+    def with_client_callback(self, event_name: str, /) -> typing.Callable[[traits.MetaEventSigT], traits.MetaEventSigT]:
+        def decorator(callback: traits.MetaEventSigT, /) -> traits.MetaEventSigT:
+            self.add_client_callback(event_name, callback)
+            return callback
+
+        return decorator
+
     def add_interaction_command(self: _ComponentT, command: traits.InteractionCommand, /) -> _ComponentT:
         if self._injector and isinstance(command, injector.Injectable):
             command.set_injector(self._injector)
@@ -232,7 +256,7 @@ class Component(injector.Injectable, traits.Component):
     ) -> _ComponentT:
         self._listeners.add((event, listener))
 
-        if self._is_alive and self._client and self._client.events:
+        if self._client and self._client.events:
             self._client.events.subscribe(event, listener)
 
         return self
@@ -245,7 +269,7 @@ class Component(injector.Injectable, traits.Component):
     ) -> None:
         self._listeners.remove((event, listener))
 
-        if self._is_alive and self._client and self._client.events:
+        if self._client and self._client.events:
             self._client.events.unsubscribe(event, listener)
 
     # TODO: make event optional?
@@ -282,12 +306,36 @@ class Component(injector.Injectable, traits.Component):
 
         self._client = client
 
+        for command in self._message_commands:
+            command.bind_client(client)
+
+        # TODO: warn if listeners registered without any provided dispatch handler
         if self._client.events:
             for event_, listener in self._listeners:
                 self._client.events.subscribe(event_, listener)
 
-        for command in self._message_commands:
-            command.bind_client(client)
+        for event_name, callbacks in self._client_callbacks.items():
+            for callback in callbacks:
+                self._client.add_client_callback(event_name, callback)
+
+    def unbind_client(self, client: traits.Client, /) -> None:
+        if not self._client or self._client != client:
+            raise RuntimeError("Component isn't bound to this client")
+
+        if self._client.events:
+            for event_, listener in self._listeners:
+                try:
+                    self._client.events.unsubscribe(event_, listener)
+                except (ValueError, LookupError):
+                    # TODO: add logging here
+                    pass
+
+        for event_name, callbacks in self._client_callbacks.items():
+            for callback in callbacks:
+                try:
+                    self._client.remove_client_callback(event_name, callback)
+                except (LookupError, ValueError):
+                    pass
 
     async def check_message_context(
         self, ctx: traits.MessageContext, /, *, name_prefix: str = ""
@@ -305,46 +353,6 @@ class Component(injector.Injectable, traits.Component):
             if found_name := command.check_name(name):
                 yield found_name, command
 
-    def _try_unsubscribe(
-        self,
-        event_manager: event_manager_api.EventManager,
-        event_type: typing.Type[event_manager_api.EventT_co],
-        callback: event_manager_api.CallbackT[event_manager_api.EventT_co],
-    ) -> None:
-        try:
-            event_manager.unsubscribe(event_type, callback)
-        except (ValueError, LookupError):
-            # TODO: add logging here
-            pass
-
-    async def close(self) -> None:
-        if not self._is_alive:
-            return
-
-        self._is_alive = False
-        if self._client and self._client.events:
-            for event_, listener in self._listeners:
-                self._try_unsubscribe(self._client.events, event_, listener)
-
-    async def open(self) -> None:
-        if self._is_alive:
-            return
-
-        # TODO: warn if listeners reigstered without any provided dispatch handler
-        # This is duplicated between both open and bind_cluster to ensure that these are registered
-        # as soon as possible the first time this is binded to a client and that these are
-        # re-registered everytime an object is restarted.
-        if self._client and self._client.events:
-            for event_, listener in self._listeners:
-                try:
-                    self._try_unsubscribe(self._client.events, event_, listener)
-                except (LookupError, ValueError):  # TODO: what does hikari raise?
-                    continue
-
-                self._client.events.subscribe(event_, listener)
-
-        self._is_alive = True
-
     async def execute_interaction(
         self,
         ctx: traits.InteractionContext,
@@ -353,7 +361,7 @@ class Component(injector.Injectable, traits.Component):
         hooks: typing.Optional[typing.MutableSet[traits.InteractionHooks]] = None,
     ) -> bool:
         command = self._interaction_commands.get(ctx.interaction.command_name)
-        if not self._is_alive or not command:
+        if not command:
             return False
 
         if self._interaction_hooks:
@@ -378,9 +386,6 @@ class Component(injector.Injectable, traits.Component):
         *,
         hooks: typing.Optional[typing.MutableSet[traits.MessageHooks]] = None,
     ) -> bool:
-        if not self._is_alive:
-            return False
-
         async for name, command in self.check_message_context(ctx):
             ctx.set_triggering_name(name)
             ctx.set_content(ctx.content[len(name) :].lstrip())

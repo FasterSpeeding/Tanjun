@@ -32,15 +32,16 @@
 from __future__ import annotations
 
 __all__: typing.Sequence[str] = [
-    "AcceptsEnum",
     "as_loader",
     "Client",
     "LoadableSig",
+    "MessageAcceptsEnum",
     "PrefixGetterSig",
     "PrefixGetterSigT",
 ]
 
 import asyncio
+import collections
 import enum
 import functools
 import importlib
@@ -48,6 +49,7 @@ import importlib.abc as importlib_abc
 import importlib.util as importlib_util
 import inspect
 import itertools
+import logging
 import typing
 
 from hikari import errors as hikari_errors
@@ -93,6 +95,8 @@ type `tanjun.traits.Context` and returns an iterable of strings.
 
 PrefixGetterSigT = typing.TypeVar("PrefixGetterSigT", bound="PrefixGetterSig")
 
+_LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.clients")
+
 
 class _LoadableDescriptor:  # Slots mess with functools.update_wrapper
     def __init__(self, callback: LoadableSig, /) -> None:
@@ -122,7 +126,7 @@ def as_loader(callback: LoadableSig, /) -> LoadableSig:
     return _LoadableDescriptor(callback)
 
 
-class AcceptsEnum(str, enum.Enum):
+class MessageAcceptsEnum(str, enum.Enum):
     """The possible configurations for which events `Client` should execute commands based on."""
 
     ALL = "ALL"
@@ -153,12 +157,12 @@ class AcceptsEnum(str, enum.Enum):
 
 
 _ACCEPTS_EVENT_TYPE_MAPPING: typing.Dict[
-    AcceptsEnum, typing.Optional[typing.Type[message_events.MessageCreateEvent]]
+    MessageAcceptsEnum, typing.Optional[typing.Type[message_events.MessageCreateEvent]]
 ] = {
-    AcceptsEnum.ALL: message_events.MessageCreateEvent,
-    AcceptsEnum.DM_ONLY: message_events.DMMessageCreateEvent,
-    AcceptsEnum.GUILD_ONLY: message_events.GuildMessageCreateEvent,
-    AcceptsEnum.NONE: None,
+    MessageAcceptsEnum.ALL: message_events.MessageCreateEvent,
+    MessageAcceptsEnum.DM_ONLY: message_events.DMMessageCreateEvent,
+    MessageAcceptsEnum.GUILD_ONLY: message_events.GuildMessageCreateEvent,
+    MessageAcceptsEnum.NONE: None,
 }
 
 
@@ -166,16 +170,30 @@ def _check_human(ctx: tanjun_traits.Context, /) -> bool:
     return ctx.is_human
 
 
+async def _wrap_client_callback(
+    callback: tanjun_traits.MetaEventSig, args: typing.Tuple[str, ...], kwargs: typing.Dict[str, typing.Any], /
+) -> None:
+    try:
+        result = callback(*args, **kwargs)
+        if isinstance(result, collections.Awaitable):
+            await result
+
+    except Exception as exc:
+        _LOGGER.error("Client callback raised exception", exc_info=exc)
+
+
 class Client(injector.InjectorClient, tanjun_traits.Client):
     __slots__: typing.Sequence[str] = (
         "_accepts",
         "_cache",
         "_checks",
+        "_client_callbacks",
         "_components",
         "_events",
         "_grab_mention_prefix",
         "_hooks",
         "_interaction_hooks",
+        "_is_alive",
         "_message_hooks",
         "_metadata",
         "_prefix_getter",
@@ -200,14 +218,16 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
         # TODO: warn if server and dispatch both None but don't error
 
         # TODO: separate slash and gateway checks?
-        self._accepts = AcceptsEnum.ALL if events else AcceptsEnum.NONE
-        self._checks: typing.Set[injector.InjectableCheck] = set()
+        self._accepts = MessageAcceptsEnum.ALL if events else MessageAcceptsEnum.NONE
         self._cache = cache
+        self._checks: typing.Set[injector.InjectableCheck] = set()
+        self._client_callbacks: typing.Dict[str, typing.Set[tanjun_traits.MetaEventSig]] = {}
         self._components: typing.Set[tanjun_traits.Component] = set()
         self._events = events
         self._grab_mention_prefix = mention_prefix
         self._hooks: typing.Optional[tanjun_traits.AnyHooks] = None
         self._interaction_hooks: typing.Optional[tanjun_traits.InteractionHooks] = None
+        self._is_alive = False
         self._message_hooks: typing.Optional[tanjun_traits.MessageHooks] = None
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
         self._prefix_getter: typing.Optional[PrefixGetterSig] = None
@@ -215,7 +235,6 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
         self._rest = rest
         self._server = server
         self._shards = shard
-        self.set_human_only(True)
 
         if event_managed or event_managed is None and self._events:
             if not self._events:
@@ -251,23 +270,25 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
         event_managed: bool = True,
         mention_prefix: bool = False,
     ) -> Client:
-        client = cls(
-            rest=bot.rest,
-            cache=bot.cache,
-            events=bot.event_manager,
-            shard=bot,
-            event_managed=event_managed,
-            mention_prefix=mention_prefix,
+        return (
+            cls(
+                rest=bot.rest,
+                cache=bot.cache,
+                events=bot.event_manager,
+                shard=bot,
+                event_managed=event_managed,
+                mention_prefix=mention_prefix,
+            )
+            .set_human_only(True)
+            .add_hikari_trait_injectors(bot)
         )
-        return client.add_hikari_trait_injectors(bot)
 
     @classmethod
     def from_rest_bot(cls, bot: hikari_traits.RESTBotAware, /) -> Client:
-        client = cls(rest=bot.rest, server=bot.interaction_server)
-        return client.add_hikari_trait_injectors(bot)
+        return cls(rest=bot.rest, server=bot.interaction_server).add_hikari_trait_injectors(bot)
 
     @property
-    def accepts(self) -> AcceptsEnum:
+    def message_accepts(self) -> MessageAcceptsEnum:
         """The type of message create events this command client accepts for execution."""
         return self._accepts
 
@@ -299,6 +320,11 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
     @property
     def interaction_hooks(self) -> typing.Optional[tanjun_traits.InteractionHooks]:
         return self._interaction_hooks
+
+    @property
+    def is_alive(self) -> bool:
+        """Whether this client is alive."""
+        return self._is_alive
 
     @property
     def message_hooks(self) -> typing.Optional[tanjun_traits.MessageHooks]:
@@ -341,7 +367,7 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
 
         return self
 
-    def set_accepts(self: _ClientT, accepts: AcceptsEnum, /) -> _ClientT:
+    def set_message_accepts(self: _ClientT, accepts: MessageAcceptsEnum, /) -> _ClientT:
         if accepts.get_event_type() and not self._events:
             raise ValueError("Cannot set accepts level on a client with no event manager")
 
@@ -384,41 +410,40 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
 
     def remove_component(self, component: tanjun_traits.Component, /) -> None:
         self._components.remove(component)
+        component.unbind_client(self)
 
-    def add_listener(
-        self: _ClientT,
-        event: typing.Type[event_manager_api.EventT_inv],
-        listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
-        /,
-    ) -> _ClientT:
-        if self._events:
-            self._events.subscribe(event, listener)
+    def add_client_callback(self: _ClientT, event_name: str, callback: tanjun_traits.MetaEventSig, /) -> _ClientT:
+        event_name = event_name.lower()
+        try:
+            self._client_callbacks[event_name].add(callback)
+        except KeyError:
+            self._client_callbacks[event_name] = {callback}
 
         return self
 
-    def remove_listener(
-        self,
-        event: typing.Type[event_manager_api.EventT_inv],
-        listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
-        /,
-    ) -> None:
-        if self._events:
-            self._events.unsubscribe(event, listener)
+    async def dispatch_client_callback(self, event_name: str, /, *args: typing.Any, **kwargs: typing.Any) -> None:
+        event_name = event_name.lower()
+        if callbacks := self._client_callbacks.get(event_name):
+            await asyncio.gather(_wrap_client_callback(callback, args, kwargs) for callback in callbacks)
 
-    # TODO: make event optional?
-    def with_listener(
-        self, event: typing.Type[event_manager_api.EventT_inv]
-    ) -> typing.Callable[
-        [event_manager_api.CallbackT[event_manager_api.EventT_inv]],
-        event_manager_api.CallbackT[event_manager_api.EventT_inv],
-    ]:
-        def add_listener_(
-            listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
-        ) -> event_manager_api.CallbackT[event_manager_api.EventT_inv]:
-            self.add_listener(event, listener)
-            return listener
+    def get_client_callbacks(self, event_name: str, /) -> typing.Collection[tanjun_traits.MetaEventSig]:
+        event_name = event_name.lower()
+        return self._client_callbacks.get(event_name) or ()
 
-        return add_listener_
+    def remove_client_callback(self, event_name: str, callback: tanjun_traits.MetaEventSig, /) -> None:
+        event_name = event_name.lower()
+        self._client_callbacks[event_name].remove(callback)
+        if not self._client_callbacks[event_name]:
+            del self._client_callbacks[event_name]
+
+    def with_client_callback(
+        self, event_name: str, /
+    ) -> typing.Callable[[tanjun_traits.MetaEventSigT], tanjun_traits.MetaEventSigT]:
+        def decorator(callback: tanjun_traits.MetaEventSigT, /) -> tanjun_traits.MetaEventSigT:
+            self.add_client_callback(event_name, callback)
+            return callback
+
+        return decorator
 
     def add_prefix(self: _ClientT, prefixes: typing.Union[typing.Iterable[str], str], /) -> _ClientT:
         if isinstance(prefixes, str):
@@ -473,8 +498,6 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
             pass
 
     async def close(self, *, deregister_listener: bool = True) -> None:
-        await asyncio.gather(*(component.close() for component in self._components))
-
         if deregister_listener and self._events:
             if event_type := self._accepts.get_event_type():
                 self._try_unsubscribe(self._events, event_type, self.on_message_create_event)
@@ -515,8 +538,6 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
             self._prefixes.add(f"<@{user.id}>")
             self._prefixes.add(f"<@!{user.id}>")
             self._grab_mention_prefix = False
-
-        await asyncio.gather(*(component.open() for component in self._components))
 
         if register_listener and self._events:
             if event_type := self._accepts.get_event_type():
