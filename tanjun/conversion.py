@@ -68,10 +68,8 @@ from hikari import voices
 from . import errors as tanjun_errors
 
 if typing.TYPE_CHECKING:
-    from . import traits
-
-if typing.TYPE_CHECKING:
     from . import parsing
+    from . import traits
 
 _ValueT = typing.TypeVar("_ValueT")
 

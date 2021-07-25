@@ -129,27 +129,35 @@ class AbstractParser(abc.ABC):
     __slots__: typing.Sequence[str] = ()
 
     @property
+    @abc.abstractmethod
     def parameters(self) -> typing.Sequence[Parameter]:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def add_parameter(self, parameter: typing.Union[Argument, Option], /) -> None:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def remove_parameter(self, parameter: typing.Union[Argument, Option], /) -> None:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def set_parameters(self, parameters: typing.Iterable[typing.Union[Argument, Option]], /) -> None:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def bind_client(self, client: traits.Client, /) -> None:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def bind_component(self, component: traits.Component, /) -> None:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def copy(self: _T) -> _T:
         raise NotImplementedError
 
+    @abc.abstractmethod
     async def parse(
         self, ctx: traits.MessageContext, /
     ) -> typing.Tuple[typing.Sequence[typing.Any], typing.Mapping[str, typing.Any]]:
