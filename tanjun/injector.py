@@ -403,12 +403,12 @@ class InjectableConverter(BaseInjectableValue[_T]):
 
 
 class _CacheCallback(typing.Generic[_T]):
-    __slots__: typing.Sequence[str] = ("_callback", "_result")
+    __slots__: typing.Sequence[str] = ("_callback", "_lock", "_result")
 
     def __init__(self, callback: CallbackSig[_T], /) -> None:
         self._callback = callback
         self._lock: typing.Optional[asyncio.Lock] = None
-        self._result: typing.Union[_T, Undefined] = None
+        self._result: typing.Union[_T, Undefined] = UNDEFINED
 
     async def __call__(
         self,

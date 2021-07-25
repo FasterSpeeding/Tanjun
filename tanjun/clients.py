@@ -62,7 +62,7 @@ from yuyo import backoff
 
 from . import context
 from . import errors as tanjun_errors
-from . import injector
+from . import injector as injector_
 from . import traits as tanjun_traits
 from . import utilities
 
@@ -86,11 +86,14 @@ This will be expected to initiate and resources like components to the client
 through the use of it's protocol methods.
 """
 
-PrefixGetterSig = typing.Callable[[tanjun_traits.Context], typing.Awaitable[typing.Iterable[str]]]
+PrefixGetterSig = typing.Callable[..., typing.Awaitable[typing.Iterable[str]]]
 """Type hint of a callable used to get the prefix(es) for a specific guild.
 
-This should be an asynchronous callable which takes one positional argument of
-type `tanjun.traits.Context` and returns an iterable of strings.
+This should be an asynchronous callable which returns an iterable of strings.
+
+!!! note
+    While dependency injection is supported for this, the first positional
+    argument will always be a `tanjun.traits.MessageContext`.
 """
 
 PrefixGetterSigT = typing.TypeVar("PrefixGetterSigT", bound="PrefixGetterSig")
@@ -182,7 +185,22 @@ async def _wrap_client_callback(
         _LOGGER.error("Client callback raised exception", exc_info=exc)
 
 
-class Client(injector.InjectorClient, tanjun_traits.Client):
+class _InjectablePrefixGetter(injector_.BaseInjectableValue[typing.Iterable[str]]):
+    __slots__: typing.Sequence[str] = ()
+
+    callback: PrefixGetterSig
+
+    def __init__(
+        self, callback: PrefixGetterSig, *, injector: typing.Optional[injector_.InjectorClient] = None
+    ) -> None:
+        super().__init__(callback, injector=injector)
+        self.is_async = True
+
+    async def __call__(self, ctx: tanjun_traits.Context, /) -> typing.Iterable[str]:
+        return await self.call(ctx, ctx=ctx)
+
+
+class Client(injector_.InjectorClient, tanjun_traits.Client):
     __slots__: typing.Sequence[str] = (
         "_accepts",
         "_cache",
@@ -220,7 +238,7 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
         # TODO: separate slash and gateway checks?
         self._accepts = MessageAcceptsEnum.ALL if events else MessageAcceptsEnum.NONE
         self._cache = cache
-        self._checks: typing.Set[injector.InjectableCheck] = set()
+        self._checks: typing.Set[injector_.InjectableCheck] = set()
         self._client_callbacks: typing.Dict[str, typing.Set[tanjun_traits.MetaEventSig]] = {}
         self._components: typing.Set[tanjun_traits.Component] = set()
         self._events = events
@@ -230,7 +248,7 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
         self._is_alive = False
         self._message_hooks: typing.Optional[tanjun_traits.MessageHooks] = None
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
-        self._prefix_getter: typing.Optional[PrefixGetterSig] = None
+        self._prefix_getter: typing.Optional[_InjectablePrefixGetter] = None
         self._prefixes: typing.Set[str] = set()
         self._rest = rest
         self._server = server
@@ -336,7 +354,7 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
 
     @property
     def prefix_getter(self) -> typing.Optional[PrefixGetterSig]:
-        return self._prefix_getter
+        return self._prefix_getter.callback if self._prefix_getter else None
 
     @property
     def prefixes(self) -> typing.AbstractSet[str]:
@@ -376,7 +394,7 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
 
     def set_human_only(self: _ClientT, value: bool = True) -> _ClientT:
         if value:
-            self.add_check(injector.InjectableCheck(_check_human, injector=self))
+            self.add_check(injector_.InjectableCheck(_check_human, injector=self))
 
         else:
             try:
@@ -387,7 +405,7 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
         return self
 
     def add_check(self: _ClientT, check: tanjun_traits.CheckSig, /) -> _ClientT:
-        self._checks.add(injector.InjectableCheck(check, injector=self))
+        self._checks.add(injector_.InjectableCheck(check, injector=self))
         return self
 
     def remove_check(self, check: tanjun_traits.CheckSig, /) -> None:
@@ -401,7 +419,7 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
         return await utilities.gather_checks(ctx, self._checks)
 
     def add_component(self: _ClientT, component: tanjun_traits.Component, /) -> _ClientT:
-        if isinstance(component, injector.Injectable):
+        if isinstance(component, injector_.Injectable):
             component.set_injector(self)
 
         component.bind_client(self)
@@ -458,7 +476,7 @@ class Client(injector.InjectorClient, tanjun_traits.Client):
         self._prefixes.remove(prefix)
 
     def set_prefix_getter(self: _ClientT, getter: typing.Optional[PrefixGetterSig], /) -> _ClientT:
-        self._prefix_getter = getter
+        self._prefix_getter = _InjectablePrefixGetter(getter, injector=self) if getter else None
         return self
 
     def with_prefix_getter(self, getter: PrefixGetterSigT, /) -> PrefixGetterSigT:
