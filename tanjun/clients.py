@@ -298,12 +298,12 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
                 mention_prefix=mention_prefix,
             )
             .set_human_only(True)
-            .add_hikari_trait_injectors(bot)
+            .set_hikari_trait_injectors(bot)
         )
 
     @classmethod
     def from_rest_bot(cls, bot: hikari_traits.RESTBotAware, /) -> Client:
-        return cls(rest=bot.rest, server=bot.interaction_server).add_hikari_trait_injectors(bot)
+        return cls(rest=bot.rest, server=bot.interaction_server).set_hikari_trait_injectors(bot)
 
     @property
     def message_accepts(self) -> MessageAcceptsEnum:
@@ -378,7 +378,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
     async def _on_stopping_event(self, _: lifetime_events.StoppingEvent, /) -> None:
         await self.close()
 
-    def add_hikari_trait_injectors(self: _ClientT, bot: hikari_traits.RESTAware, /) -> _ClientT:
+    def set_hikari_trait_injectors(self: _ClientT, bot: hikari_traits.RESTAware, /) -> _ClientT:
         for _, member in inspect.getmembers(hikari_traits):
             if inspect.isclass(member) and isinstance(bot, member):
                 self.add_type_dependency(member, lambda: bot)
