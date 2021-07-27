@@ -521,7 +521,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
             flags = messages.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else messages.MessageFlag.NONE
 
         in_defer_task = self._defer_task and self._defer_task is asyncio.current_task()
-        if in_defer_task:
+        if not in_defer_task:
             self.cancel_defer()
 
         async with self._response_lock:
