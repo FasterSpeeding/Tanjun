@@ -488,10 +488,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
 
     async def _auto_defer(self, countdown: typing.Union[int, float], /) -> None:
         await asyncio.sleep(countdown)
-        try:
-            await self.defer()
-        except RuntimeError:
-            pass
+        await self.defer()
 
     def cancel_defer(self) -> None:
         if self._defer_task:
@@ -523,11 +520,15 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         if flags is undefined.UNDEFINED:
             flags = messages.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else messages.MessageFlag.NONE
 
-        if self._defer_task and not self._defer_task is asyncio.current_task():
+        in_defer_task = self._defer_task and self._defer_task is asyncio.current_task()
+        if in_defer_task:
             self.cancel_defer()
 
         async with self._response_lock:
             if self._has_been_deferred:
+                if in_defer_task:
+                    return
+
                 raise RuntimeError("Context has already been responded to")
 
             self._has_been_deferred = True
