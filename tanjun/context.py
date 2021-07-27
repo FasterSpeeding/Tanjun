@@ -496,6 +496,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
     def cancel_defer(self) -> None:
         if self._defer_task:
             self._defer_task.cancel()
+            self._defer_task = None
 
     def get_response_future(self) -> asyncio.Future[ResponseTypeT]:
         self._assert_not_final()
@@ -521,6 +522,9 @@ class InteractionContext(BaseContext, traits.InteractionContext):
     ) -> None:
         if flags is undefined.UNDEFINED:
             flags = messages.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else messages.MessageFlag.NONE
+
+        if self._defer_task and not self._defer_task is asyncio.current_task():
+            self.cancel_defer()
 
         async with self._response_lock:
             if self._has_been_deferred:
