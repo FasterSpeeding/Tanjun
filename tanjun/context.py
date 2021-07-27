@@ -214,6 +214,10 @@ class MessageContext(BaseContext, traits.MessageContext):
         return self._message.guild_id
 
     @property
+    def has_responded(self) -> bool:
+        return self._initial_response_id is not None
+
+    @property
     def is_human(self) -> bool:
         return not self._message.author.is_bot and self._message.webhook_id is None
 
@@ -461,6 +465,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
     @property
     def guild_id(self) -> typing.Optional[snowflakes.Snowflake]:
         return self._interaction.guild_id
+
+    @property
+    def has_responded(self) -> bool:
+        return self._has_responded
 
     @property
     def is_human(self) -> typing.Literal[True]:

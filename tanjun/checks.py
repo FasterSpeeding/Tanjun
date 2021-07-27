@@ -213,7 +213,7 @@ class ApplicationOwnerCheck:
             result = ctx.author.id == application.owner.id
 
         if self._end_execution and not result:
-            raise tanjun_errors.HaltExecution
+            raise tanjun_errors.HaltExecutionSearch
 
         return result
 
@@ -240,7 +240,7 @@ async def nsfw_check(ctx: tanjun_traits.Context, /, *, end_execution: bool = Fal
     result = channel.is_nsfw or False if isinstance(channel, channels.GuildChannel) else True
 
     if end_execution and not result:
-        raise tanjun_errors.HaltExecution
+        raise tanjun_errors.HaltExecutionSearch
 
     return result
 
@@ -253,7 +253,7 @@ def dm_check(ctx: tanjun_traits.Context, /, *, end_execution: bool = False) -> b
     result = ctx.guild_id is None
 
     if end_execution and not result:
-        raise tanjun_errors.HaltExecution
+        raise tanjun_errors.HaltExecutionSearch
 
     return result
 
@@ -275,7 +275,7 @@ class PermissionCheck(abc.ABC):
         result = (self.permissions & await self.get_permissions(ctx)) == self.permissions
 
         if self._end_execution and not result:
-            raise tanjun_errors.HaltExecution
+            raise tanjun_errors.HaltExecutionSearch
 
         return result
 
@@ -363,7 +363,7 @@ def with_dm_check(
     Other Parameters
     ----------------
     end_execution: bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
+        Whether this check should raise `tanjun.errors.HaltExecutionSearch` to
         end the execution search when it fails instead of returning `False`.
 
         Defaults to `False`.
@@ -403,7 +403,7 @@ def with_guild_check(
     Other Parameters
     ----------------
     end_execution: bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
+        Whether this check should raise `tanjun.errors.HaltExecutionSearch` to
         end the execution search when it fails instead of returning `False`.
 
         Defaults to `False`.
@@ -443,7 +443,7 @@ def with_nsfw_check(
     Other Parameters
     ----------------
     end_execution: bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
+        Whether this check should raise `tanjun.errors.HaltExecutionSearch` to
         end the execution search when it fails instead of returning `False`.
 
         Defaults to `False`.
@@ -483,7 +483,7 @@ def with_sfw_check(
     Other Parameters
     ----------------
     end_execution: bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
+        Whether this check should raise `tanjun.errors.HaltExecutionSearch` to
         end the execution search when it fails instead of returning `False`.
 
         Defaults to `False`.
@@ -537,7 +537,7 @@ def with_owner_check(
     Other Parameters
     ----------------
     end_execution: bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
+        Whether this check should raise `tanjun.errors.HaltExecutionSearch` to
         end the execution search when it fails instead of returning `False`.
 
         Defaults to `False`.
@@ -583,7 +583,7 @@ def with_author_permission_check(
     Other Parameters
     ----------------
     end_execution: bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
+        Whether this check should raise `tanjun.errors.HaltExecutionSearch` to
         end the execution search when it fails instead of returning `False`.
 
         Defaults to `False`.
@@ -613,7 +613,7 @@ def with_own_permission_check(
     Other Parameters
     ----------------
     end_execution: bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
+        Whether this check should raise `tanjun.errors.HaltExecutionSearch` to
         end the execution search when it fails instead of returning `False`.
 
         Defaults to `False`.

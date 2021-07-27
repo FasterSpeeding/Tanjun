@@ -365,13 +365,14 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
         *,
         hooks: typing.Optional[typing.MutableSet[traits.InteractionHooks]] = None,
     ) -> None:
+        own_hooks = self._hooks or _EMPTY_HOOKS
         try:
-            await (self._hooks or _EMPTY_HOOKS).trigger_pre_execution(ctx, hooks=hooks)
+            await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
 
             if option and option.options:
                 kwargs = self._process_args(option.options, ctx.interaction.resolved or _EMPTY_RESOLVED)
 
-            elif ctx.interaction.options:
+            elif ctx.interaction.options and not option:
                 kwargs = self._process_args(ctx.interaction.options, ctx.interaction.resolved or _EMPTY_RESOLVED)
 
             else:
@@ -379,29 +380,30 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
 
             if self.needs_injector:
                 injected_values = await injector.resolve_getters(ctx, self._get_injection_getters())
-                if kwargs is _EMPTY_DICT:
-                    kwargs = injected_values
+                if kwargs:
+                    kwargs.update(injected_values)
 
                 else:
-                    kwargs.update(injected_values)
+                    kwargs = injected_values
 
             await self._callback(ctx, **kwargs)
 
         except errors.CommandError as exc:
             await ctx.respond(exc.message)
 
-        except errors.HaltExecution:
+        except errors.HaltExecutionSearch:
+            # TODO: this needs to propogate somehow
             return
 
         except Exception as exc:
-            await (self._hooks or _EMPTY_HOOKS).trigger_error(ctx, exc, hooks=hooks)
+            await own_hooks.trigger_error(ctx, exc, hooks=hooks)
             raise
 
         else:
-            await (self._hooks or _EMPTY_HOOKS).trigger_success(ctx, hooks=hooks)
+            await own_hooks.trigger_success(ctx, hooks=hooks)
 
         finally:
-            await (self._hooks or _EMPTY_HOOKS).trigger_post_execution(ctx, hooks=hooks)
+            await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
     def set_tracked_command(
         self: _InteractionCommandT, command: typing.Optional[command_interactions.Command], /
@@ -534,8 +536,9 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         hooks: typing.Optional[typing.MutableSet[traits.MessageHooks]] = None,
     ) -> None:
         ctx = ctx.set_command(self)
+        own_hooks = self._hooks or _EMPTY_HOOKS
         try:
-            await (self._hooks or _EMPTY_HOOKS).trigger_pre_execution(ctx, hooks=hooks)
+            await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
 
             if self._parser is not None:
                 args, kwargs = await self._parser.parse(ctx)
@@ -577,19 +580,16 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
                 else:
                     break
 
-        except errors.HaltExecution:
-            return
-
         except Exception as exc:
-            await (self._hooks or _EMPTY_HOOKS).trigger_error(ctx, exc, hooks=hooks)
+            await own_hooks.trigger_error(ctx, exc, hooks=hooks)
             raise
 
         else:
             # TODO: how should this be handled around CommandError?
-            await (self._hooks or _EMPTY_HOOKS).trigger_success(ctx, hooks=hooks)
+            await own_hooks.trigger_success(ctx, hooks=hooks)
 
         finally:
-            await (self._hooks or _EMPTY_HOOKS).trigger_post_execution(ctx, hooks=hooks)
+            await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
     def load_into_component(
         self: _MessageCommandT, component: traits.Component, /, *, new: bool = True

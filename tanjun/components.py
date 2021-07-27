@@ -445,9 +445,9 @@ class Component(injector.Injectable, traits.Component):
         /,
         *,
         hooks: typing.Optional[typing.MutableSet[traits.InteractionHooks]] = None,
-    ) -> bool:
+    ) -> typing.Optional[typing.Awaitable[None]]:
         if not command or not await command.check_context(ctx):
-            return False
+            return None
 
         if self._interaction_hooks:
             if hooks is None:
@@ -461,8 +461,7 @@ class Component(injector.Injectable, traits.Component):
 
             hooks.add(self._hooks)
 
-        asyncio.create_task(command.execute(ctx, hooks=hooks))
-        return True
+        return asyncio.create_task(command.execute(ctx, hooks=hooks))
 
     # To ensure that ctx.set_ephemeral_default is called as soon as possible if
     # a match is found the public function is kept sync to avoid yielding
@@ -473,7 +472,7 @@ class Component(injector.Injectable, traits.Component):
         /,
         *,
         hooks: typing.Optional[typing.MutableSet[traits.InteractionHooks]] = None,
-    ) -> typing.Coroutine[typing.Any, typing.Any, bool]:
+    ) -> typing.Coroutine[typing.Any, typing.Any, typing.Optional[typing.Awaitable[None]]]:
         if command := self._interaction_commands.get(ctx.interaction.command_name):
             ctx.set_ephemeral_default(command.defaults_to_ephemeral)
 

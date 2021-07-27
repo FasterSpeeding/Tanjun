@@ -35,6 +35,7 @@ from __future__ import annotations
 __all__: typing.Sequence[str] = [
     "CheckSig",
     "CheckSigT",
+    "ClientCallbackNames",
     "Context",
     "Hooks",
     "MetaEventSig",
@@ -56,6 +57,7 @@ __all__: typing.Sequence[str] = [
 ]
 
 import abc
+import enum
 import typing
 
 from hikari import undefined
@@ -225,6 +227,11 @@ class Context(abc.ABC):
 
             Will be `None` for all DM command executions.
         """
+
+    @property
+    @abc.abstractmethod
+    def has_responded(self) -> bool:
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
@@ -1029,7 +1036,7 @@ class Component(abc.ABC):
         /,
         *,
         hooks: typing.Optional[typing.MutableSet[InteractionHooks]] = None,
-    ) -> bool:
+    ) -> typing.Optional[typing.Awaitable[None]]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -1037,6 +1044,15 @@ class Component(abc.ABC):
         self, ctx: MessageContext, /, *, hooks: typing.Optional[typing.MutableSet[MessageHooks]] = None
     ) -> bool:
         raise NotImplementedError
+
+
+class ClientCallbackNames(str, enum.Enum):
+    CLOSED = "closed"
+    CLOSING = "closing"
+    INTERACTION_COMMAND_NOT_FOUND = "interaction_command_not_found"
+    MESSAGE_COMMAND_NOT_FOUND = "message_command_not_found"
+    STARTED = "started"
+    STARTING = "startup"
 
 
 class Client(abc.ABC):

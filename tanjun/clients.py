@@ -41,7 +41,6 @@ __all__: typing.Sequence[str] = [
 ]
 
 import asyncio
-import collections
 import enum
 import functools
 import importlib
@@ -51,6 +50,7 @@ import inspect
 import itertools
 import logging
 import typing
+from collections import abc as collections
 
 from hikari import errors as hikari_errors
 from hikari import traits as hikari_traits
@@ -178,7 +178,10 @@ def _check_human(ctx: tanjun_traits.Context, /) -> bool:
 
 
 async def _wrap_client_callback(
-    callback: tanjun_traits.MetaEventSig, args: typing.Tuple[str, ...], kwargs: typing.Dict[str, typing.Any], /
+    callback: tanjun_traits.MetaEventSig,
+    args: typing.Tuple[str, ...],
+    kwargs: typing.Dict[str, typing.Any],
+    suppress_exceptions: bool,
 ) -> None:
     try:
         result = callback(*args, **kwargs)
@@ -186,7 +189,11 @@ async def _wrap_client_callback(
             await result
 
     except Exception as exc:
-        _LOGGER.error("Client callback raised exception", exc_info=exc)
+        if suppress_exceptions:
+            _LOGGER.error("Client callback raised exception", exc_info=exc)
+
+        else:
+            raise
 
 
 class _InjectablePrefixGetter(injector_.BaseInjectableValue[typing.Iterable[str]]):
@@ -207,6 +214,7 @@ class _InjectablePrefixGetter(injector_.BaseInjectableValue[typing.Iterable[str]
 class Client(injector_.InjectorClient, tanjun_traits.Client):
     __slots__: typing.Sequence[str] = (
         "_accepts",
+        "_auto_defer_after",
         "_cache",
         "_checks",
         "_client_callbacks",
@@ -214,6 +222,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         "_events",
         "_grab_mention_prefix",
         "_hooks",
+        "_interaction_not_found",
         "_interaction_hooks",
         "_is_alive",
         "_message_hooks",
@@ -235,12 +244,14 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         *,
         event_managed: typing.Optional[bool] = None,
         mention_prefix: bool = False,
+        set_global_commands: bool = False,
     ) -> None:
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
         # TODO: warn if server and dispatch both None but don't error
 
         # TODO: separate slash and gateway checks?
         self._accepts = MessageAcceptsEnum.ALL if events else MessageAcceptsEnum.NONE
+        self._auto_defer_after: typing.Optional[float] = 2.6
         self._cache = cache
         self._checks: typing.Set[injector_.InjectableCheck] = set()
         self._client_callbacks: typing.Dict[str, typing.Set[tanjun_traits.MetaEventSig]] = {}
@@ -248,6 +259,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         self._events = events
         self._grab_mention_prefix = mention_prefix
         self._hooks: typing.Optional[tanjun_traits.AnyHooks] = None
+        self._interaction_not_found: typing.Optional[str] = "Command not found"
         self._interaction_hooks: typing.Optional[tanjun_traits.InteractionHooks] = None
         self._is_alive = False
         self._message_hooks: typing.Optional[tanjun_traits.MessageHooks] = None
@@ -265,8 +277,41 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
             self._events.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
             self._events.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
 
+        if set_global_commands:
+            self.add_client_callback(tanjun_traits.ClientCallbackNames.STARTING, self._set_global_commands_next_start)
+
         # InjectorClient.__init__
         super().__init__(self)
+
+    @classmethod
+    def from_gateway_bot(
+        cls,
+        bot: hikari_traits.GatewayBotAware,
+        /,
+        *,
+        event_managed: bool = True,
+        mention_prefix: bool = False,
+        set_global_commands: bool = False,
+    ) -> Client:
+        return (
+            cls(
+                rest=bot.rest,
+                cache=bot.cache,
+                events=bot.event_manager,
+                shard=bot,
+                event_managed=event_managed,
+                mention_prefix=mention_prefix,
+                set_global_commands=set_global_commands,
+            )
+            .set_human_only()
+            .set_hikari_trait_injectors(bot)
+        )
+
+    @classmethod
+    def from_rest_bot(cls, bot: hikari_traits.RESTBotAware, /, set_global_commands: bool = False) -> Client:
+        return cls(
+            rest=bot.rest, server=bot.interaction_server, set_global_commands=set_global_commands
+        ).set_hikari_trait_injectors(bot)
 
     async def __aenter__(self) -> Client:
         await self.open()
@@ -282,32 +327,6 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
     def __repr__(self) -> str:
         return f"CommandClient <{type(self).__name__!r}, {len(self._components)} components, {self._prefixes}>"
-
-    @classmethod
-    def from_gateway_bot(
-        cls,
-        bot: hikari_traits.GatewayBotAware,
-        /,
-        *,
-        event_managed: bool = True,
-        mention_prefix: bool = False,
-    ) -> Client:
-        return (
-            cls(
-                rest=bot.rest,
-                cache=bot.cache,
-                events=bot.event_manager,
-                shard=bot,
-                event_managed=event_managed,
-                mention_prefix=mention_prefix,
-            )
-            .set_human_only(True)
-            .set_hikari_trait_injectors(bot)
-        )
-
-    @classmethod
-    def from_rest_bot(cls, bot: hikari_traits.RESTBotAware, /) -> Client:
-        return cls(rest=bot.rest, server=bot.interaction_server).set_hikari_trait_injectors(bot)
 
     @property
     def message_accepts(self) -> MessageAcceptsEnum:
@@ -376,17 +395,41 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
     def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
         return self._shards
 
+    async def _set_global_commands_next_start(self) -> None:
+        await self.set_global_commands()
+        self.remove_client_callback(tanjun_traits.ClientCallbackNames.STARTING, self._set_global_commands_next_start)
+
     async def _on_starting_event(self, _: lifetime_events.StartingEvent, /) -> None:
         await self.open()
 
     async def _on_stopping_event(self, _: lifetime_events.StoppingEvent, /) -> None:
         await self.close()
 
+    def set_auto_defer_after(self: _ClientT, time: typing.Optional[float], /) -> _ClientT:
+        """Set when this client should automatically defer execution of commands.
+
+        Parameters
+        ----------
+        time : typing.Optional[float]
+            The time in seconds to defer interaction command responses after.
+
+            !!! note
+                If this is set to ``None``, automatic deferals will be disabled.
+                This may lead to unexpected behaviour.
+        """
+        self._auto_defer_after = float(time) if time is not None else None
+        return self
+
     def set_hikari_trait_injectors(self: _ClientT, bot: hikari_traits.RESTAware, /) -> _ClientT:
         for _, member in inspect.getmembers(hikari_traits):
             if inspect.isclass(member) and isinstance(bot, member):
                 self.add_type_dependency(member, lambda: bot)
 
+        return self
+
+    def set_interaction_not_found(self: _ClientT, message: typing.Optional[str], /) -> _ClientT:
+        """Set the message to be shown when an interaction command is not found."""
+        self._interaction_not_found = message
         return self
 
     def set_message_accepts(self: _ClientT, accepts: MessageAcceptsEnum, /) -> _ClientT:
@@ -409,7 +452,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         return self
 
     async def set_global_commands(
-        self, application: snowflakes.SnowflakeishOr[guilds.PartialApplication], /
+        self, application: typing.Optional[snowflakes.SnowflakeishOr[guilds.PartialApplication]] = None, /
     ) -> typing.Sequence[command_interactions.Command]:
         if not application:
             try:
@@ -481,10 +524,14 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
         return self
 
-    async def dispatch_client_callback(self, event_name: str, /, *args: typing.Any, **kwargs: typing.Any) -> None:
+    async def dispatch_client_callback(
+        self, event_name: str, /, *args: typing.Any, suppress_exceptions: bool = True, **kwargs: typing.Any
+    ) -> None:
         event_name = event_name.lower()
         if callbacks := self._client_callbacks.get(event_name):
-            await asyncio.gather(_wrap_client_callback(callback, args, kwargs) for callback in callbacks)
+            await asyncio.gather(
+                *(_wrap_client_callback(callback, args, kwargs, suppress_exceptions) for callback in callbacks)
+            )
 
     def get_client_callbacks(self, event_name: str, /) -> typing.Collection[tanjun_traits.MetaEventSig]:
         event_name = event_name.lower()
@@ -558,6 +605,10 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
             pass
 
     async def close(self, *, deregister_listener: bool = True) -> None:
+        if not self._is_alive:
+            raise RuntimeError("Client isn't active")
+
+        await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.CLOSING)
         if deregister_listener and self._events:
             if event_type := self._accepts.get_event_type():
                 self._try_unsubscribe(self._events, event_type, self.on_message_create_event)
@@ -568,8 +619,14 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
             if self._server:
                 self._server.set_listener(commands.CommandInteraction, None)
+        await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.CLOSED)
 
     async def open(self, *, register_listener: bool = True) -> None:
+        if self._is_alive:
+            raise RuntimeError("Client is already alive")
+
+        await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.STARTING, suppress_exceptions=False)
+        self._is_alive = True
         if self._grab_mention_prefix:
             user: typing.Optional[users.User] = None
             if self._cache:
@@ -607,6 +664,10 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
         if self._server:
             self._server.set_listener(commands.CommandInteraction, self.on_interaction_create_request)
+
+        asyncio.create_task(
+            self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.STARTED, suppress_exceptions=False)
+        )
 
     def set_hooks(self: _ClientT, hooks: typing.Optional[tanjun_traits.AnyHooks], /) -> _ClientT:
         self._hooks = hooks
@@ -673,14 +734,20 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
                 if await component.execute_message(ctx, hooks=hooks):
                     break
 
-        except tanjun_errors.HaltExecution:
+        except tanjun_errors.HaltExecutionSearch:
             pass
+
+        await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx)
 
     async def on_interaction_create_event(self, event: interaction_events.InteractionCreateEvent, /) -> None:
         if not isinstance(event.interaction, commands.CommandInteraction):
             return
 
-        ctx = context.InteractionContext(self, event.interaction).start_defer_timer(2.5)
+        ctx = context.InteractionContext(self, event.interaction)
+
+        if self._auto_defer_after is not None:
+            ctx.start_defer_timer(self._auto_defer_after)
+
         hooks: typing.Optional[typing.Set[tanjun_traits.InteractionHooks]] = None
         if self._hooks:
             if not hooks:
@@ -696,14 +763,23 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
         try:
             for component in self._components:
-                if await component.execute_interaction(ctx, hooks=hooks):
-                    break
+                if future := await component.execute_interaction(ctx, hooks=hooks):
+                    await future
 
-        except tanjun_errors.HaltExecution:
+        except tanjun_errors.HaltExecutionSearch:
             pass
 
+        await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.INTERACTION_COMMAND_NOT_FOUND, ctx)
+        if not ctx.has_responded and self._interaction_not_found:
+            await ctx.respond(self._interaction_not_found)
+        ctx.cancel_defer()
+
     async def on_interaction_create_request(self, interaction: commands.CommandInteraction, /) -> context.ResponseTypeT:
-        ctx = context.InteractionContext(self, interaction).start_defer_timer(2.5)
+        ctx = context.InteractionContext(self, interaction)
+
+        if self._auto_defer_after is not None:
+            ctx.start_defer_timer(self._auto_defer_after)
+
         hooks: typing.Optional[typing.Set[tanjun_traits.InteractionHooks]] = None
         if self._hooks:
             if not hooks:
@@ -723,11 +799,15 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
                 if await component.execute_interaction(ctx, hooks=hooks):
                     return await future
 
-        except tanjun_errors.HaltExecution:
+        except tanjun_errors.HaltExecutionSearch:
             pass
 
-        finally:
-            future.cancel()
+        async def callback(_: asyncio.Future[None]) -> None:
+            if not ctx.has_responded and self._interaction_not_found:
+                await ctx.respond(self._interaction_not_found)
             ctx.cancel_defer()
 
-        raise LookupError("Command not found") from None
+        asyncio.create_task(
+            self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.INTERACTION_COMMAND_NOT_FOUND, ctx)
+        ).add_done_callback(callback)
+        return await future

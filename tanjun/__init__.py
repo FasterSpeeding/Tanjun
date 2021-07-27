@@ -90,7 +90,7 @@ __all__: typing.Sequence[str] = [
     "errors",
     "CommandError",
     "ConversionError",
-    "HaltExecution",
+    "HaltExecutionSearch",
     "FailedCheck",
     "MissingDependencyError",
     "NotEnoughArgumentsError",
