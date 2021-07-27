@@ -74,6 +74,7 @@ if typing.TYPE_CHECKING:
     from hikari.api import interaction_server as interaction_server_api
     from hikari.api import rest as rest_api
     from hikari.api import shard as shard_api
+    from hikari.api import special_endpoints as special_endpoints_api
 
     # from hikari.api import special_endpoints as special_endpoints_api
     from hikari.events import base_events
@@ -542,6 +543,10 @@ class InteractionContext(Context, abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def set_ephemeral_default(self: _T, state: bool, /) -> _T:
+        raise NotImplementedError
+
+    @abc.abstractmethod
     async def create_followup(
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
@@ -735,6 +740,11 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
     def hooks(self) -> typing.Optional[Hooks[ContextT]]:
         raise NotImplementedError
 
+    @property
+    @abc.abstractmethod
+    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+        raise NotImplementedError
+
     @abc.abstractmethod
     def bind_client(self, client: Client, /) -> None:
         raise NotImplementedError
@@ -760,10 +770,6 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def check_context(self, ctx: MessageContext, /) -> typing.Optional[str]:
-        raise NotImplementedError
-
-    @abc.abstractmethod
     async def execute(
         self, ctx: ContextT, /, *, hooks: typing.Optional[typing.MutableSet[Hooks[ContextT]]] = None
     ) -> None:
@@ -775,7 +781,11 @@ class InteractionCommand(ExecutableCommand[InteractionContext], abc.ABC):
 
     @property
     @abc.abstractmethod
-    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+    def defaults_to_ephemeral(self) -> bool:
+        raise NotImplementedError
+
+    @property
+    def is_global(self) -> bool:
         raise NotImplementedError
 
     @property
@@ -794,17 +804,26 @@ class InteractionCommand(ExecutableCommand[InteractionContext], abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def build(self) -> special_endpoints_api.CommandBuilder:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def check_context(self, ctx: InteractionContext, /) -> bool:
+        raise NotImplementedError
+
+    @abc.abstractmethod
     async def execute(
         self,
-        ctx: ContextT,
+        ctx: InteractionContext,
         /,
         option: typing.Optional[command_interactions.CommandInteractionOption] = None,
         *,
-        hooks: typing.Optional[typing.MutableSet[Hooks[ContextT]]] = None,
+        hooks: typing.Optional[typing.MutableSet[Hooks[InteractionContext]]] = None,
     ) -> None:
         raise NotImplementedError
 
-    def set_tracked_command(self: _T, _: command_interactions.Command, /) -> _T:
+    @abc.abstractmethod
+    def set_tracked_command(self: _T, _: typing.Optional[command_interactions.Command], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod

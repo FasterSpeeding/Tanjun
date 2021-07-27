@@ -277,7 +277,7 @@ class InjectorClient:
                 yield self._make_callback_getter(parameter.default.callback, name)
 
             else:
-                assert parameter.default.type is not UNDEFINED
+                assert not isinstance(parameter.default.type, Undefined)
                 yield self._make_type_getter(parameter.default.type, name)
 
 

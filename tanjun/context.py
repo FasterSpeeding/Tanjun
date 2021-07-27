@@ -37,6 +37,7 @@ import asyncio
 import typing
 
 from hikari import errors as hikari_errors
+from hikari import messages
 from hikari import snowflakes
 from hikari import undefined
 from hikari.api import special_endpoints as special_endpoints_api
@@ -50,7 +51,6 @@ if typing.TYPE_CHECKING:
     from hikari import embeds as embeds_
     from hikari import files
     from hikari import guilds
-    from hikari import messages
     from hikari import traits as hikari_traits
     from hikari import users
 
@@ -417,9 +417,10 @@ class MessageContext(BaseContext, traits.MessageContext):
 
 class InteractionContext(BaseContext, traits.InteractionContext):
     __slots__: typing.Sequence[str] = (
+        "_defaults_to_ephemeral",
         "_defer_task",
-        "_hash_been_deferred",
-        "_has_responed",
+        "_has_been_deferred",
+        "_has_responded",
         "_interaction",
         "_last_response_id",
         "_response_future",
@@ -432,12 +433,14 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         interaction: command_interactions.CommandInteraction,
         /,
         *,
+        default_to_ephemeral: bool = False,
         component: typing.Optional[traits.Component] = None,
     ) -> None:
         super().__init__(client, component=component)
+        self._defaults_to_ephemeral = default_to_ephemeral
         self._defer_task: typing.Optional[asyncio.Task[None]] = None
-        self._hash_been_deferred = False
-        self._has_responed = False
+        self._has_been_deferred = False
+        self._has_responded = False
         self._interaction = interaction
         self._last_response_id: typing.Optional[snowflakes.Snowflake] = None
         self._response_future: typing.Optional[asyncio.Future[ResponseTypeT]] = None
@@ -477,14 +480,20 @@ class InteractionContext(BaseContext, traits.InteractionContext):
 
     async def _auto_defer(self, countdown: typing.Union[int, float], /) -> None:
         await asyncio.sleep(countdown)
-        self._hash_been_deferred = True
-
         async with self._response_lock:
+            if self._has_been_deferred:
+                return
+
+            self._has_been_deferred = True
+            flags = messages.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else messages.MessageFlag.NONE
+
             if self._response_future:
-                self._response_future.set_result(self.interaction.build_deferred_response())
+                self._response_future.set_result(self.interaction.build_deferred_response().set_flags(flags))
 
             else:
-                await self.interaction.create_initial_response(base_interactions.ResponseType.DEFERRED_MESSAGE_CREATE)
+                await self.interaction.create_initial_response(
+                    base_interactions.ResponseType.DEFERRED_MESSAGE_CREATE, flags=flags
+                )
 
     def cancel_defer(self) -> None:
         if self._defer_task:
@@ -503,6 +512,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
             raise ValueError("Defer timer already set")
 
         self._defer_task = asyncio.get_running_loop().create_task(self._auto_defer(count_down))
+        return self
+
+    def set_ephemeral_default(self: _InteractionContextT, state: bool, /) -> _InteractionContextT:
+        self._defaults_to_ephemeral = state
         return self
 
     async def create_followup(
@@ -527,6 +540,9 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         flags: typing.Union[undefined.UndefinedType, int, messages.MessageFlag] = undefined.UNDEFINED,
     ) -> messages.Message:
+        if flags is undefined.UNDEFINED and self._defaults_to_ephemeral:
+            flags = messages.MessageFlag.EPHEMERAL
+
         async with self._response_lock:
             message = await self._interaction.execute(
                 content=content,
@@ -565,11 +581,14 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
         tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
     ) -> None:
+        if flags is undefined.UNDEFINED and self._defaults_to_ephemeral:
+            flags = messages.MessageFlag.EPHEMERAL
+
         async with self._response_lock:
-            if self._has_responed:
+            if self._has_responded:
                 raise RuntimeError("Initial response has already been created")
 
-            self._has_responed = True
+            self._has_responded = True
             if not self._response_future:
                 await self._interaction.create_initial_response(
                     response_type=base_interactions.ResponseType.MESSAGE_CREATE,
@@ -692,7 +711,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
                 role_mentions=role_mentions,
             )
 
-        if self._has_responed:
+        if self._has_responded:
             return await self._interaction.edit_initial_response(
                 content=content,
                 attachment=attachment,
@@ -720,7 +739,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         if self._last_response_id is not None:
             return await self._interaction.fetch_message(self._last_response_id)
 
-        elif self._has_responed:
+        elif self._has_responded:
             return await self.fetch_initial_response()
 
     @typing.overload
@@ -795,7 +814,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         await self._response_lock.acquire()
         self._response_lock.release()
 
-        if self._has_responed:
+        if self._has_responded:
             return await self.create_followup(
                 # component=component,
                 # components=components,
@@ -806,11 +825,9 @@ class InteractionContext(BaseContext, traits.InteractionContext):
                 role_mentions=role_mentions,
             )
 
-        if self._defer_task:
-            self._defer_task.cancel()
-
-        if self._hash_been_deferred:
-            self._has_responed = True
+        self.cancel_defer()
+        if self._has_been_deferred:
+            self._has_responded = True
             await self.edit_initial_response(
                 content=content,
                 # component=component,

@@ -9,7 +9,7 @@ target-version  = ["py38"]
 include         = ".*pyi?$"
 
 [tool.pyright]
-include = ["tanjun"]
+include = ["examples", "tanjun"]
 
 reportMissingImports = true
 reportMissingTypeStubs = true

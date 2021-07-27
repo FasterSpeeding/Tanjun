@@ -70,11 +70,15 @@ if typing.TYPE_CHECKING:
     import pathlib
     import types
 
+    from hikari import guilds
+    from hikari import snowflakes
     from hikari import users
     from hikari.api import cache as cache_api
     from hikari.api import event_manager as event_manager_api
     from hikari.api import interaction_server as interaction_server_api
     from hikari.api import rest as rest_api
+    from hikari.api import special_endpoints as special_endpoints_api
+    from hikari.interactions import commands as command_interactions
 
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
 
@@ -404,6 +408,44 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
         return self
 
+    async def set_global_commands(
+        self, application: snowflakes.SnowflakeishOr[guilds.PartialApplication], /
+    ) -> typing.Sequence[command_interactions.Command]:
+        if not application:
+            try:
+                application = await self._rest.fetch_application()
+
+            except hikari_errors.UnauthorizedError:
+                application = (await self._rest.fetch_authorization()).application
+
+        found_top_names: typing.Set[str] = set()
+        conflicts: typing.Set[str] = set()
+        builders: typing.List[special_endpoints_api.CommandBuilder] = []
+
+        for command in itertools.chain.from_iterable(component.interaction_commands for component in self._components):
+            if not command.is_global:
+                continue
+
+            if command.name in found_top_names:
+                conflicts.add(command.name)
+
+            found_top_names.add(command.name)
+            builders.append(command.build())
+
+        if conflicts:
+            raise RuntimeError(
+                "Couldn't set global commands due to conflicts. The following command names have more than one command "
+                "registered for them " + ", ".join(conflicts)
+            )
+
+        commands = await self._rest.set_application_commands(application, builders)
+        names_to_commands = {command.name: command for command in commands}
+        for command in itertools.chain.from_iterable(component.interaction_commands for component in self._components):
+            if command.is_global:
+                command.set_tracked_command(names_to_commands[command.name])
+
+        return commands
+
     def add_check(self: _ClientT, check: tanjun_traits.CheckSig, /) -> _ClientT:
         self._checks.add(injector_.InjectableCheck(check, injector=self))
         return self
@@ -679,11 +721,13 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         try:
             for component in self._components:
                 if await component.execute_interaction(ctx, hooks=hooks):
-                    break
-
-            return await future
+                    return await future
 
         except tanjun_errors.HaltExecution:
+            pass
+
+        finally:
             future.cancel()
             ctx.cancel_defer()
-            raise LookupError("Command not found")
+
+        raise LookupError("Command not found") from None

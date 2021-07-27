@@ -48,6 +48,8 @@ import typing
 
 from hikari import errors as hikari_errors
 from hikari import snowflakes
+from hikari import undefined
+from hikari.impl import special_endpoints as special_endpoints_impl
 from hikari.interactions import commands as command_interactions
 from yuyo import backoff
 
@@ -59,6 +61,8 @@ from . import traits
 from . import utilities
 
 if typing.TYPE_CHECKING:
+    from hikari.api import special_endpoints as special_endpoints_api
+
     from . import parsing
 
     _InteractionCommandT = typing.TypeVar("_InteractionCommandT", bound="InteractionCommand[typing.Any]")
@@ -234,23 +238,36 @@ _ICOMMAND_NAME_REG: typing.Final[typing.Pattern[str]] = re.compile(r"^[a-z0-9_-]
 
 
 def as_interaction_command(
-    name: str, /
+    name: str, description: str, /, *, default_to_ephemeral: bool = False, is_global: bool = True
 ) -> typing.Callable[[CommandCallbackSigT], InteractionCommand[CommandCallbackSigT]]:
     def decorator(callback: CommandCallbackSigT, /) -> InteractionCommand[CommandCallbackSigT]:
-        return InteractionCommand(callback, name)
+        return InteractionCommand(
+            callback, name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global
+        )
 
     return decorator
 
 
 class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionContext], traits.InteractionCommand):
-    __slots__: typing.Sequence[str] = ("_name", "_parent", "_tracked_command")
+    __slots__: typing.Sequence[str] = (
+        "_builder",
+        "_defaults_to_ephemeral",
+        "_description",
+        "_is_global",
+        "_name",
+        "_parent",
+        "_tracked_command",
+    )
 
     def __init__(
         self,
         callback: CommandCallbackSigT,
         name: str,
+        description: str,
         /,
         *,
+        default_to_ephemeral: bool = False,
+        is_global: bool = True,
         checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.InteractionHooks] = None,
         metadata: typing.Optional[typing.MutableMapping[typing.Any, typing.Any]] = None,
@@ -259,9 +276,25 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
         if not _ICOMMAND_NAME_REG.fullmatch(name):
             raise ValueError("Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`")
 
+        self._builder = special_endpoints_impl.CommandBuilder(name, description)
+        self._defaults_to_ephemeral = default_to_ephemeral
+        self._description = description
+        self._is_global = is_global
         self._name = name
         self._parent: typing.Optional[traits.InteractionCommandGroup] = None
         self._tracked_command: typing.Optional[command_interactions.Command] = None
+
+    @property
+    def defaults_to_ephemeral(self) -> bool:
+        return self._defaults_to_ephemeral
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @property
+    def is_global(self) -> bool:
+        return self._is_global
 
     @property
     def name(self) -> str:
@@ -274,6 +307,16 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
     @property
     def tracked_command(self) -> typing.Optional[command_interactions.Command]:
         return self._tracked_command
+
+    # async def add_to_guild(self, guild: snowflakes.SnowflakeishOr[guilds.PartialGuild], /) -> command_interactions.Command:
+    #     return await self._
+
+    def build(self) -> special_endpoints_api.CommandBuilder:
+        return self._builder
+
+    def set_ephemeral_default(self: _InteractionCommandT, state: bool, /) -> _InteractionCommandT:
+        self._defaults_to_ephemeral = state
+        return self
 
     def set_parent(
         self: _InteractionCommandT, parent: typing.Optional[traits.InteractionCommandGroup], /
@@ -311,9 +354,8 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
 
         return keyword_args
 
-    async def check_context(self, ctx: traits.MessageContext, /) -> typing.Optional[str]:
-        if ctx.content.startswith(self._name) and await utilities.gather_checks(ctx, self._checks):
-            return self._name
+    async def check_context(self, ctx: traits.InteractionContext, /) -> bool:
+        return await utilities.gather_checks(ctx, self._checks)
 
     async def execute(
         self,
@@ -360,6 +402,13 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
 
         finally:
             await (self._hooks or _EMPTY_HOOKS).trigger_post_execution(ctx, hooks=hooks)
+
+    def set_tracked_command(
+        self: _InteractionCommandT, command: typing.Optional[command_interactions.Command], /
+    ) -> _InteractionCommandT:
+        self._tracked_command = command
+        self._builder.set_id(command.id if command else undefined.UNDEFINED)
+        return self
 
     def load_into_component(
         self: _InteractionCommandT, component: traits.Component, /

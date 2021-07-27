@@ -40,6 +40,8 @@ import typing
 
 from hikari.events import base_events
 
+import tanjun
+
 from . import injector
 from . import traits
 from . import utilities
@@ -118,12 +120,14 @@ class Component(injector.Injectable, traits.Component):
         self._message_commands: typing.Set[traits.MessageCommand] = set()
         self._message_hooks = message_hooks
         self._metadata: typing.Dict[typing.Any, typing.Any] = {}
-        self._load_from_properties()
+
+        if type(self) is not Component:
+            self._load_from_properties()
 
     def __repr__(self) -> str:
         count_1 = len(self._message_commands)
         count_2 = len(self._interaction_commands)
-        return f"Component <{type(self).__name__}, ({count_1}, {count_2})  commands>"
+        return f"Component <{type(self).__name__}, ({count_1}, {count_2}) commands>"
 
     @property
     def checks(self) -> typing.AbstractSet[traits.CheckSig]:
@@ -434,15 +438,15 @@ class Component(injector.Injectable, traits.Component):
             if found_name := command.check_name(name):
                 yield found_name, command
 
-    async def execute_interaction(
+    async def _execute_interaction(
         self,
         ctx: traits.InteractionContext,
+        command: typing.Optional[tanjun.traits.InteractionCommand],
         /,
         *,
         hooks: typing.Optional[typing.MutableSet[traits.InteractionHooks]] = None,
     ) -> bool:
-        command = self._interaction_commands.get(ctx.interaction.command_name)
-        if not command:
+        if not command or not await command.check_context(ctx):
             return False
 
         if self._interaction_hooks:
@@ -459,6 +463,21 @@ class Component(injector.Injectable, traits.Component):
 
         asyncio.create_task(command.execute(ctx, hooks=hooks))
         return True
+
+    # To ensure that ctx.set_ephemeral_default is called as soon as possible if
+    # a match is found the public function is kept sync to avoid yielding
+    # to the event loop until after this is set.
+    def execute_interaction(
+        self,
+        ctx: traits.InteractionContext,
+        /,
+        *,
+        hooks: typing.Optional[typing.MutableSet[traits.InteractionHooks]] = None,
+    ) -> typing.Coroutine[typing.Any, typing.Any, bool]:
+        if command := self._interaction_commands.get(ctx.interaction.command_name):
+            ctx.set_ephemeral_default(command.defaults_to_ephemeral)
+
+        return self._execute_interaction(ctx, command, hooks=hooks)
 
     async def execute_message(
         self,
