@@ -553,6 +553,11 @@ class InteractionContext(Context, abc.ABC):
     def set_ephemeral_default(self: _T, state: bool, /) -> _T:
         raise NotImplementedError
 
+    async def defer(
+        self, flags: typing.Union[undefined.UndefinedType, int, messages.MessageFlag] = undefined.UNDEFINED
+    ) -> None:
+        raise NotImplementedError
+
     @abc.abstractmethod
     async def create_followup(
         self,

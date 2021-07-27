@@ -488,20 +488,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
 
     async def _auto_defer(self, countdown: typing.Union[int, float], /) -> None:
         await asyncio.sleep(countdown)
-        async with self._response_lock:
-            if self._has_been_deferred:
-                return
-
-            self._has_been_deferred = True
-            flags = messages.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else messages.MessageFlag.NONE
-
-            if self._response_future:
-                self._response_future.set_result(self.interaction.build_deferred_response().set_flags(flags))
-
-            else:
-                await self.interaction.create_initial_response(
-                    base_interactions.ResponseType.DEFERRED_MESSAGE_CREATE, flags=flags
-                )
+        try:
+            await self.defer()
+        except RuntimeError:
+            pass
 
     def cancel_defer(self) -> None:
         if self._defer_task:
@@ -526,6 +516,25 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         self._defaults_to_ephemeral = state
         return self
 
+    async def defer(
+        self, flags: typing.Union[undefined.UndefinedType, int, messages.MessageFlag] = undefined.UNDEFINED
+    ) -> None:
+        if flags is undefined.UNDEFINED:
+            flags = messages.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else messages.MessageFlag.NONE
+
+        async with self._response_lock:
+            if self._has_been_deferred:
+                raise RuntimeError("Context has already been responded to")
+
+            self._has_been_deferred = True
+            if self._response_future:
+                self._response_future.set_result(self.interaction.build_deferred_response().set_flags(flags))
+
+            else:
+                await self.interaction.create_initial_response(
+                    base_interactions.ResponseType.DEFERRED_MESSAGE_CREATE, flags=flags
+                )
+
     async def create_followup(
         self,
         content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
@@ -548,8 +557,15 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
         flags: typing.Union[undefined.UndefinedType, int, messages.MessageFlag] = undefined.UNDEFINED,
     ) -> messages.Message:
-        if flags is undefined.UNDEFINED and self._defaults_to_ephemeral:
-            flags = messages.MessageFlag.EPHEMERAL
+        if flags is undefined.UNDEFINED:
+            flags = messages.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else messages.MessageFlag.NONE
+
+        # TODO: remove once fixed in Hikari
+        if embed is not undefined.UNDEFINED:
+            if embeds is not undefined.UNDEFINED:
+                raise ValueError("Only one of `embed` or `embeds` may be passed")
+
+            embeds = (embed,)
 
         async with self._response_lock:
             message = await self._interaction.execute(
@@ -589,8 +605,8 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
         tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
     ) -> None:
-        if flags is undefined.UNDEFINED and self._defaults_to_ephemeral:
-            flags = messages.MessageFlag.EPHEMERAL
+        if flags is undefined.UNDEFINED:
+            flags = messages.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else messages.MessageFlag.NONE
 
         async with self._response_lock:
             if self._has_responded:
