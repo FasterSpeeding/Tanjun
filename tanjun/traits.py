@@ -60,28 +60,11 @@ import abc
 import enum
 import typing
 
-from hikari import undefined
+import hikari
 
 if typing.TYPE_CHECKING:
-    from hikari import channels
-    from hikari import embeds as embeds_
-    from hikari import files
-    from hikari import guilds
-    from hikari import messages
-    from hikari import snowflakes
-    from hikari import traits
-    from hikari import users
-    from hikari.api import cache as cache_api
+    from hikari import traits as hikari_traits
     from hikari.api import event_manager as event_manager_api
-    from hikari.api import interaction_server as interaction_server_api
-    from hikari.api import rest as rest_api
-    from hikari.api import shard as shard_api
-    from hikari.api import special_endpoints as special_endpoints_api
-
-    # from hikari.api import special_endpoints as special_endpoints_api
-    from hikari.events import base_events
-    from hikari.interactions import bases as base_interactions
-    from hikari.interactions import commands as command_interactions
 
 
 _T = typing.TypeVar("_T")
@@ -130,7 +113,7 @@ class Context(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def author(self) -> users.User:
+    def author(self) -> hikari.User:
         """Object of the user who triggered this command.
 
         Returns
@@ -141,7 +124,7 @@ class Context(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def channel_id(self) -> snowflakes.Snowflake:
+    def channel_id(self) -> hikari.Snowflake:
         """ID of the channel this command was triggered in.
 
         Returns
@@ -152,7 +135,7 @@ class Context(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def cache(self) -> typing.Optional[cache_api.Cache]:
+    def cache(self) -> typing.Optional[hikari.api.Cache]:
         """Hikari cache instance this context's command client was initialised with.
 
         Returns
@@ -205,7 +188,7 @@ class Context(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def events(self) -> typing.Optional[event_manager_api.EventManager]:
+    def events(self) -> typing.Optional[hikari.api.EventManager]:
         """Object of the event manager this context's client was initialised with.
 
         Returns
@@ -217,7 +200,7 @@ class Context(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def guild_id(self) -> typing.Optional[snowflakes.Snowflake]:
+    def guild_id(self) -> typing.Optional[hikari.Snowflake]:
         """ID of the guild this command was executed in.
 
         Returns
@@ -248,7 +231,7 @@ class Context(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def member(self) -> typing.Optional[guilds.Member]:
+    def member(self) -> typing.Optional[hikari.Member]:
         """Guild member object of this command's author.
 
         Returns
@@ -261,7 +244,7 @@ class Context(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def server(self) -> typing.Optional[interaction_server_api.InteractionServer]:
+    def server(self) -> typing.Optional[hikari.api.InteractionServer]:
         """Object of the Hikari interaction server provided for this context's client.
 
         Returns
@@ -273,7 +256,7 @@ class Context(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def rest(self) -> rest_api.RESTClient:
+    def rest(self) -> hikari.api.RESTClient:
         """Object of the Hikari REST client this context's client was initialised with.
 
         Returns
@@ -284,7 +267,7 @@ class Context(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def shards(self) -> typing.Optional[traits.ShardAware]:
+    def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
         """Object of the Hikari shard manager this context's client was initialised with.
 
         Returns
@@ -310,19 +293,19 @@ class Context(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def fetch_channel(self) -> channels.PartialChannel:
+    async def fetch_channel(self) -> hikari.PartialChannel:
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def fetch_guild(self) -> typing.Optional[guilds.Guild]:  # TODO: or raise?
+    async def fetch_guild(self) -> typing.Optional[hikari.Guild]:  # TODO: or raise?
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_channel(self) -> typing.Optional[channels.PartialChannel]:
+    def get_channel(self) -> typing.Optional[hikari.PartialChannel]:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_guild(self) -> typing.Optional[guilds.Guild]:
+    def get_guild(self) -> typing.Optional[hikari.Guild]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -336,125 +319,125 @@ class Context(abc.ABC):
     @abc.abstractmethod
     async def edit_initial_response(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
-        attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> messages.Message:
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+    ) -> hikari.Message:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def edit_last_response(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
-        attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> messages.Message:
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+    ) -> hikari.Message:
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def fetch_initial_response(self) -> typing.Optional[messages.Message]:
+    async def fetch_initial_response(self) -> typing.Optional[hikari.Message]:
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def fetch_last_response(self) -> typing.Optional[messages.Message]:
+    async def fetch_last_response(self) -> typing.Optional[hikari.Message]:
         raise NotImplementedError
 
     @typing.overload
     @abc.abstractmethod
     async def respond(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[False] = False,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> typing.Optional[messages.Message]:
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+    ) -> typing.Optional[hikari.Message]:
         ...
 
     @typing.overload
     @abc.abstractmethod
     async def respond(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[True],
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> messages.Message:
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+    ) -> hikari.Message:
         ...
 
     @abc.abstractmethod
     async def respond(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = False,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> typing.Optional[messages.Message]:
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+    ) -> typing.Optional[hikari.Message]:
         raise NotImplementedError
 
 
@@ -473,12 +456,12 @@ class MessageContext(Context, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def message(self) -> messages.Message:
+    def message(self) -> hikari.Message:
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
-    def shard(self) -> typing.Optional[shard_api.GatewayShard]:
+    def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
         raise NotImplementedError
 
     @property
@@ -506,29 +489,29 @@ class MessageContext(Context, abc.ABC):
     @abc.abstractmethod
     async def respond(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = True,
-        attachment: undefined.UndefinedOr[files.Resourceish] = undefined.UNDEFINED,
-        attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        nonce: undefined.UndefinedOr[str] = undefined.UNDEFINED,
-        reply: undefined.UndefinedOr[snowflakes.SnowflakeishOr[messages.PartialMessage]] = undefined.UNDEFINED,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        mentions_reply: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> messages.Message:
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        nonce: hikari.UndefinedOr[str] = hikari.UNDEFINED,
+        reply: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialMessage]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        mentions_reply: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+    ) -> hikari.Message:
         raise NotImplementedError
 
 
@@ -541,12 +524,12 @@ class InteractionContext(Context, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def interaction(self) -> command_interactions.CommandInteraction:
+    def interaction(self) -> hikari.CommandInteraction:
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
-    def member(self) -> typing.Optional[base_interactions.InteractionMember]:
+    def member(self) -> typing.Optional[hikari.InteractionMember]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -554,55 +537,55 @@ class InteractionContext(Context, abc.ABC):
         raise NotImplementedError
 
     async def defer(
-        self, flags: typing.Union[undefined.UndefinedType, int, messages.MessageFlag] = undefined.UNDEFINED
+        self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def create_followup(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
-        attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        flags: typing.Union[undefined.UndefinedType, int, messages.MessageFlag] = undefined.UNDEFINED,
-    ) -> messages.Message:
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+        tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
+    ) -> hikari.Message:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def create_initial_response(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-        flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
-        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+        flags: typing.Union[int, hikari.MessageFlag, hikari.UndefinedType] = hikari.UNDEFINED,
+        tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
     ) -> None:
         raise NotImplementedError
 
@@ -610,68 +593,68 @@ class InteractionContext(Context, abc.ABC):
     @abc.abstractmethod
     async def respond(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[False] = False,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> typing.Optional[messages.Message]:
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+    ) -> typing.Optional[hikari.Message]:
         ...
 
     @typing.overload
     @abc.abstractmethod
     async def respond(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[True],
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> messages.Message:
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+    ) -> hikari.Message:
         ...
 
     @abc.abstractmethod
     async def respond(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = False,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> typing.Optional[messages.Message]:
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+    ) -> typing.Optional[hikari.Message]:
         raise NotImplementedError
 
 
@@ -812,11 +795,11 @@ class InteractionCommand(ExecutableCommand[InteractionContext], abc.ABC):
 
     @property
     @abc.abstractmethod
-    def tracked_command(self) -> typing.Optional[command_interactions.Command]:
+    def tracked_command(self) -> typing.Optional[hikari.Command]:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def build(self) -> special_endpoints_api.CommandBuilder:
+    def build(self) -> hikari.api.CommandBuilder:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -828,14 +811,14 @@ class InteractionCommand(ExecutableCommand[InteractionContext], abc.ABC):
         self,
         ctx: InteractionContext,
         /,
-        option: typing.Optional[command_interactions.CommandInteractionOption] = None,
+        option: typing.Optional[hikari.CommandInteractionOption] = None,
         *,
         hooks: typing.Optional[typing.MutableSet[Hooks[InteractionContext]]] = None,
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_tracked_command(self: _T, _: typing.Optional[command_interactions.Command], /) -> _T:
+    def set_tracked_command(self: _T, _: typing.Optional[hikari.Command], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -941,7 +924,7 @@ class Component(abc.ABC):
     @abc.abstractmethod
     def listeners(
         self,
-    ) -> typing.Collection[typing.Tuple[typing.Type[base_events.Event], event_manager_api.CallbackT[typing.Any]]]:
+    ) -> typing.Collection[typing.Tuple[typing.Type[hikari.Event], event_manager_api.CallbackT[typing.Any]]]:
         raise NotImplementedError
 
     @property
@@ -1065,7 +1048,7 @@ class Client(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def cache(self) -> typing.Optional[cache_api.Cache]:
+    def cache(self) -> typing.Optional[hikari.api.Cache]:
         raise NotImplementedError
 
     @property
@@ -1075,7 +1058,7 @@ class Client(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def events(self) -> typing.Optional[event_manager_api.EventManager]:
+    def events(self) -> typing.Optional[hikari.api.EventManager]:
         raise NotImplementedError
 
     @property
@@ -1090,17 +1073,17 @@ class Client(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def rest(self) -> rest_api.RESTClient:
+    def rest(self) -> hikari.api.RESTClient:
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
-    def server(self) -> typing.Optional[interaction_server_api.InteractionServer]:
+    def server(self) -> typing.Optional[hikari.api.InteractionServer]:
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
-    def shards(self) -> typing.Optional[traits.ShardAware]:
+    def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
         raise NotImplementedError
 
     @abc.abstractmethod

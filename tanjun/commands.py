@@ -46,11 +46,7 @@ import re
 import types
 import typing
 
-from hikari import errors as hikari_errors
-from hikari import snowflakes
-from hikari import undefined
-from hikari.impl import special_endpoints as special_endpoints_impl
-from hikari.interactions import commands as command_interactions
+import hikari
 from yuyo import backoff
 
 from . import components
@@ -76,7 +72,7 @@ CommandCallbackSigT = typing.TypeVar("CommandCallbackSigT", bound=traits.Command
 _EMPTY_DICT: typing.Final[typing.Dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 _EMPTY_LIST: typing.Final[typing.List[typing.Any]] = []
-_EMPTY_RESOLVED: typing.Final[command_interactions.ResolvedOptionData] = command_interactions.ResolvedOptionData(
+_EMPTY_RESOLVED: typing.Final[hikari.ResolvedOptionData] = hikari.ResolvedOptionData(
     users=_EMPTY_DICT, members=_EMPTY_DICT, roles=_EMPTY_DICT, channels=_EMPTY_DICT
 )
 
@@ -230,9 +226,9 @@ class PartialCommand(
         return None
 
 
-_COMMAND_OPTIONS_TYPES: typing.Final[typing.Set[command_interactions.OptionType]] = {
-    command_interactions.OptionType.SUB_COMMAND,
-    command_interactions.OptionType.SUB_COMMAND_GROUP,
+_COMMAND_OPTIONS_TYPES: typing.Final[typing.Set[hikari.OptionType]] = {
+    hikari.OptionType.SUB_COMMAND,
+    hikari.OptionType.SUB_COMMAND_GROUP,
 }
 _ICOMMAND_NAME_REG: typing.Final[typing.Pattern[str]] = re.compile(r"^[a-z0-9_-]{1,32}$")
 
@@ -276,13 +272,13 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
         if not _ICOMMAND_NAME_REG.fullmatch(name):
             raise ValueError("Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`")
 
-        self._builder = special_endpoints_impl.CommandBuilder(name, description)
+        self._builder = hikari.impl.CommandBuilder(name, description)
         self._defaults_to_ephemeral = default_to_ephemeral
         self._description = description
         self._is_global = is_global
         self._name = name
         self._parent: typing.Optional[traits.InteractionCommandGroup] = None
-        self._tracked_command: typing.Optional[command_interactions.Command] = None
+        self._tracked_command: typing.Optional[hikari.Command] = None
 
     @property
     def defaults_to_ephemeral(self) -> bool:
@@ -305,10 +301,10 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
         return self._parent
 
     @property
-    def tracked_command(self) -> typing.Optional[command_interactions.Command]:
+    def tracked_command(self) -> typing.Optional[hikari.Command]:
         return self._tracked_command
 
-    # async def add_to_guild(self, guild: snowflakes.SnowflakeishOr[guilds.PartialGuild], /) -> command_interactions.Command:
+    # async def add_to_guild(self, guild: hikari.SnowflakeishOr[guilds.PartialGuild], /) -> hikari.Command:
     #     return await self._
 
     def build(self) -> special_endpoints_api.CommandBuilder:
@@ -326,8 +322,8 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
 
     def _process_args(
         self,
-        options: typing.Iterable[command_interactions.CommandInteractionOption],
-        option_data: command_interactions.ResolvedOptionData,
+        options: typing.Iterable[hikari.CommandInteractionOption],
+        option_data: hikari.ResolvedOptionData,
         /,
     ) -> typing.Dict[str, typing.Any]:
         keyword_args: typing.Dict[str, typing.Any] = {}
@@ -336,18 +332,18 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
             if option.type in _COMMAND_OPTIONS_TYPES:
                 pass
 
-            elif option.type is command_interactions.OptionType.USER:
+            elif option.type is hikari.OptionType.USER:
                 assert isinstance(option.value, str)
-                user_id = snowflakes.Snowflake(option.value)
+                user_id = hikari.Snowflake(option.value)
                 keyword_args[option.name] = option_data.members.get(user_id) or option_data.users[user_id]
 
-            elif option.type is command_interactions.OptionType.CHANNEL:
+            elif option.type is hikari.OptionType.CHANNEL:
                 assert isinstance(option.value, str)
-                keyword_args[option.name] = option_data.channels[snowflakes.Snowflake(option.value)]
+                keyword_args[option.name] = option_data.channels[hikari.Snowflake(option.value)]
 
-            elif option.type is command_interactions.OptionType.ROLE:
+            elif option.type is hikari.OptionType.ROLE:
                 assert isinstance(option.value, str)
-                keyword_args[option.name] = option_data.roles[snowflakes.Snowflake(option.value)]
+                keyword_args[option.name] = option_data.roles[hikari.Snowflake(option.value)]
 
             else:
                 keyword_args[option.name] = option.value
@@ -361,7 +357,7 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
         self,
         ctx: traits.InteractionContext,
         /,
-        option: typing.Optional[command_interactions.CommandInteractionOption] = None,
+        option: typing.Optional[hikari.CommandInteractionOption] = None,
         *,
         hooks: typing.Optional[typing.MutableSet[traits.InteractionHooks]] = None,
     ) -> None:
@@ -406,10 +402,10 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
             await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
     def set_tracked_command(
-        self: _InteractionCommandT, command: typing.Optional[command_interactions.Command], /
+        self: _InteractionCommandT, command: typing.Optional[hikari.Command], /
     ) -> _InteractionCommandT:
         self._tracked_command = command
-        self._builder.set_id(command.id if command else undefined.UNDEFINED)
+        self._builder.set_id(command.id if command else hikari.UNDEFINED)
         return self
 
     def load_into_component(
@@ -565,16 +561,16 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
                 try:
                     await ctx.respond(content=response)
 
-                except (hikari_errors.RateLimitedError, hikari_errors.RateLimitTooLongError) as retry_error:
+                except (hikari.RateLimitedError, hikari.RateLimitTooLongError) as retry_error:
                     if retry_error.retry_after > 4:
                         raise
 
                     retry.set_next_backoff(retry_error.retry_after)  # TODO: check if this is too large.
 
-                except hikari_errors.InternalServerError:
+                except hikari.InternalServerError:
                     continue
 
-                except (hikari_errors.ForbiddenError, hikari_errors.NotFoundError):
+                except (hikari.ForbiddenError, hikari.NotFoundError):
                     break
 
                 else:

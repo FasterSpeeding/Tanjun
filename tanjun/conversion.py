@@ -54,18 +54,9 @@ import typing
 import urllib.parse
 import warnings
 
-from hikari import channels
-from hikari import colors
-from hikari import emojis
-from hikari import guilds
-from hikari import intents as intents_
-from hikari import invites
-from hikari import presences
-from hikari import snowflakes
-from hikari import users
-from hikari import voices
+import hikari
 
-from . import errors as tanjun_errors
+from . import errors
 
 if typing.TYPE_CHECKING:
     from . import parsing
@@ -86,7 +77,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         if cache_bound and not client.cache:
             warnings.warn(
                 f"Registered converter {self!r} will always fail with a stateless client.",
-                category=tanjun_errors.StateWarning,
+                category=errors.StateWarning,
             )
             return
 
@@ -96,7 +87,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
                 warnings.warn(
                     f"Registered converter {type(self).__name__!r} will not run as expected "
                     f"when {required_intents!r} intent(s) are not declared",
-                    category=tanjun_errors.StateWarning,
+                    category=errors.StateWarning,
                 )
 
     def bind_component(self, _: traits.Component, /) -> None:
@@ -131,7 +122,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
 
     @property
     @abc.abstractmethod
-    def intents(self) -> intents_.Intents:
+    def intents(self) -> hikari.Intents:
         raise NotImplementedError
 
     @classmethod
@@ -145,14 +136,14 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         raise NotImplementedError
 
 
-class ChannelConverter(BaseConverter[channels.GuildChannel]):
+class ChannelConverter(BaseConverter[hikari.GuildChannel]):
     __slots__: typing.Sequence[str] = ()
 
     @property
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> channels.GuildChannel:
+    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.GuildChannel:
         if ctx.client.cache:
             channel_id = parse_channel_id(argument, message="No valid channel mention or ID  found")
             if channel := ctx.client.cache.get_guild_channel(channel_id):
@@ -161,8 +152,8 @@ class ChannelConverter(BaseConverter[channels.GuildChannel]):
         raise ValueError("Couldn't find channel")
 
     @property
-    def intents(self) -> intents_.Intents:
-        return intents_.Intents.GUILDS
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.GUILDS
 
     @classmethod
     def is_inheritable(cls) -> bool:
@@ -170,10 +161,10 @@ class ChannelConverter(BaseConverter[channels.GuildChannel]):
 
     @classmethod
     def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
-        return (channels.GuildChannel,)
+        return (hikari.GuildChannel,)
 
 
-class ColorConverter(BaseConverter[colors.Color]):
+class ColorConverter(BaseConverter[hikari.Color]):
     __slots__: typing.Sequence[str] = ()
 
     @property
@@ -183,13 +174,13 @@ class ColorConverter(BaseConverter[colors.Color]):
     async def convert(self, _: traits.Context, argument: str, /) -> typing.Any:
         values = argument.split(" ")
         if all(value.isdigit() for value in values):
-            return colors.Color.of(*map(int, values))
+            return hikari.Color.of(*map(int, values))
 
-        return colors.Color.of(*values)
+        return hikari.Color.of(*values)
 
     @property
-    def intents(self) -> intents_.Intents:
-        return intents_.Intents.NONE
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.NONE
 
     @classmethod
     def is_inheritable(cls) -> bool:
@@ -197,17 +188,17 @@ class ColorConverter(BaseConverter[colors.Color]):
 
     @classmethod
     def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
-        return (colors.Color,)
+        return (hikari.Color,)
 
 
-class EmojiConverter(BaseConverter[emojis.KnownCustomEmoji]):
+class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
     __slots__: typing.Sequence[str] = ()
 
     @property
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> emojis.KnownCustomEmoji:
+    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.KnownCustomEmoji:
         if ctx.client.cache:
             emoji_id = parse_emoji_id(argument, message="No valid emoji or emoji ID found")
             if emoji := ctx.client.cache.get_emoji(emoji_id):
@@ -216,8 +207,8 @@ class EmojiConverter(BaseConverter[emojis.KnownCustomEmoji]):
         raise ValueError("Couldn't find emoji")
 
     @property
-    def intents(self) -> intents_.Intents:
-        return intents_.Intents.GUILD_EMOJIS
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.GUILD_EMOJIS
 
     @classmethod
     def is_inheritable(cls) -> bool:
@@ -225,17 +216,17 @@ class EmojiConverter(BaseConverter[emojis.KnownCustomEmoji]):
 
     @classmethod
     def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
-        return (emojis.CustomEmoji,)
+        return (hikari.CustomEmoji,)
 
 
-class GuildConverter(BaseConverter[guilds.GatewayGuild]):
+class GuildConverter(BaseConverter[hikari.GatewayGuild]):
     __slots__: typing.Sequence[str] = ()
 
     @property
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> guilds.GatewayGuild:
+    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.GatewayGuild:
         if ctx.client.cache:
             guild_id = parse_snowflake(argument, message="No valid guild ID found")
             if guild := ctx.client.cache.get_guild(guild_id):
@@ -244,8 +235,8 @@ class GuildConverter(BaseConverter[guilds.GatewayGuild]):
         raise ValueError("Couldn't find guild")
 
     @property
-    def intents(self) -> intents_.Intents:
-        return intents_.Intents.GUILDS
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.GUILDS
 
     @classmethod
     def is_inheritable(cls) -> bool:
@@ -253,17 +244,17 @@ class GuildConverter(BaseConverter[guilds.GatewayGuild]):
 
     @classmethod
     def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
-        return (guilds.Guild,)
+        return (hikari.Guild,)
 
 
-class InviteConverter(BaseConverter[invites.InviteWithMetadata]):
+class InviteConverter(BaseConverter[hikari.InviteWithMetadata]):
     __slots__: typing.Sequence[str] = ()
 
     @property
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> invites.InviteWithMetadata:
+    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.InviteWithMetadata:
         if ctx.client.cache:
             if invite := ctx.client.cache.get_invite(argument):
                 return invite
@@ -271,8 +262,8 @@ class InviteConverter(BaseConverter[invites.InviteWithMetadata]):
         raise ValueError("Couldn't find invite")
 
     @property
-    def intents(self) -> intents_.Intents:
-        return intents_.Intents.GUILD_INVITES
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.GUILD_INVITES
 
     @classmethod
     def is_inheritable(cls) -> bool:
@@ -280,17 +271,17 @@ class InviteConverter(BaseConverter[invites.InviteWithMetadata]):
 
     @classmethod
     def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
-        return (invites.Invite,)
+        return (hikari.Invite,)
 
 
-class MemberConverter(BaseConverter[guilds.Member]):
+class MemberConverter(BaseConverter[hikari.Member]):
     __slots__: typing.Sequence[str] = ()
 
     @property
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> guilds.Member:
+    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.Member:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a member from a DM channel")
 
@@ -302,8 +293,8 @@ class MemberConverter(BaseConverter[guilds.Member]):
         raise ValueError("Couldn't find member in this guild")
 
     @property
-    def intents(self) -> intents_.Intents:
-        return intents_.Intents.GUILD_MEMBERS
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.GUILD_MEMBERS
 
     @classmethod
     def is_inheritable(cls) -> bool:
@@ -311,17 +302,17 @@ class MemberConverter(BaseConverter[guilds.Member]):
 
     @classmethod
     def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
-        return (guilds.Member,)
+        return (hikari.Member,)
 
 
-class PresenceConverter(BaseConverter[presences.MemberPresence]):
+class PresenceConverter(BaseConverter[hikari.MemberPresence]):
     __slots__: typing.Sequence[str] = ()
 
     @property
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> presences.MemberPresence:
+    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.MemberPresence:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a presence from a DM channel")
 
@@ -333,14 +324,14 @@ class PresenceConverter(BaseConverter[presences.MemberPresence]):
         raise ValueError("Couldn't find presence in current guild")
 
 
-class RoleConverter(BaseConverter[guilds.Role]):
+class RoleConverter(BaseConverter[hikari.Role]):
     __slots__: typing.Sequence[str] = ()
 
     @property
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> guilds.Role:
+    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.Role:
         if ctx.client.cache:
             role_id = parse_role_id(argument, message="No valid role mention or ID  found")
             if role := ctx.client.cache.get_role(role_id):
@@ -349,8 +340,8 @@ class RoleConverter(BaseConverter[guilds.Role]):
         raise ValueError("Couldn't find role")
 
     @property
-    def intents(self) -> intents_.Intents:
-        return intents_.Intents.GUILDS
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.GUILDS
 
     @classmethod
     def is_inheritable(cls) -> bool:
@@ -358,30 +349,30 @@ class RoleConverter(BaseConverter[guilds.Role]):
 
     @classmethod
     def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
-        return (guilds.Role,)
+        return (hikari.Role,)
 
 
 class _IDMatcher(typing.Protocol):
-    def __call__(self, value: str, /, *, message: str = "No valid mention or ID found") -> snowflakes.Snowflake:
+    def __call__(self, value: str, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
         raise NotImplementedError
 
 
 def make_snowflake_parser(regex: typing.Pattern[str], /) -> _IDMatcher:
-    def parse(value: str, /, *, message: str = "No valid mention or ID found") -> snowflakes.Snowflake:
-        result: typing.Optional[snowflakes.Snowflake] = None
+    def parse(value: str, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
+        result: typing.Optional[hikari.Snowflake] = None
         value = value.strip()
         if value.isdigit():
-            result = snowflakes.Snowflake(value)
+            result = hikari.Snowflake(value)
 
         else:
             try:
-                result = snowflakes.Snowflake(next(regex.finditer(value)).groups()[0])
+                result = hikari.Snowflake(next(regex.finditer(value)).groups()[0])
 
             except StopIteration:
                 pass
 
         # We should also range check the provided ID.
-        if result is not None and snowflakes.Snowflake.min() <= result <= snowflakes.Snowflake.max():
+        if result is not None and hikari.Snowflake.min() <= result <= hikari.Snowflake.max():
             return result
 
         raise ValueError(message) from None
@@ -396,19 +387,19 @@ parse_role_id = make_snowflake_parser(re.compile(r"<@&(\d+)>"))
 parse_user_id = make_snowflake_parser(re.compile(r"<@!?(\d+)>"))
 
 
-class SnowflakeConverter(BaseConverter[snowflakes.Snowflake]):
+class SnowflakeConverter(BaseConverter[hikari.Snowflake]):
     __slots__: typing.Sequence[str] = ()
 
     @property
     def cache_bound(self) -> bool:
         return False
 
-    async def convert(self, _: traits.Context, argument: str, /) -> snowflakes.Snowflake:
+    async def convert(self, _: traits.Context, argument: str, /) -> hikari.Snowflake:
         return parse_snowflake(argument, message="No valid ID found")
 
     @property
-    def intents(self) -> intents_.Intents:
-        return intents_.Intents.NONE
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.NONE
 
     @classmethod
     def is_inheritable(cls) -> bool:
@@ -416,17 +407,17 @@ class SnowflakeConverter(BaseConverter[snowflakes.Snowflake]):
 
     @classmethod
     def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
-        return (snowflakes.Snowflake,)
+        return (hikari.Snowflake,)
 
 
-class UserConverter(BaseConverter[users.User]):
+class UserConverter(BaseConverter[hikari.User]):
     __slots__: typing.Sequence[str] = ()
 
     @property
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> users.User:
+    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.User:
         if ctx.client.cache:
             user_id = parse_user_id(argument, message="No valid user mention or ID  found")
             if user := ctx.client.cache.get_user(user_id):
@@ -435,8 +426,8 @@ class UserConverter(BaseConverter[users.User]):
         raise ValueError("Couldn't find user")
 
     @property
-    def intents(self) -> intents_.Intents:
-        return intents_.Intents.GUILD_MEMBERS
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.GUILD_MEMBERS
 
     @classmethod
     def is_inheritable(cls) -> bool:
@@ -444,17 +435,17 @@ class UserConverter(BaseConverter[users.User]):
 
     @classmethod
     def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
-        return (users.User,)
+        return (hikari.User,)
 
 
-class VoiceStateConverter(BaseConverter[voices.VoiceState]):
+class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
     __slots__: typing.Sequence[str] = ()
 
     @property
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> voices.VoiceState:
+    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.VoiceState:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a voice state from a DM channel")
 
@@ -466,8 +457,8 @@ class VoiceStateConverter(BaseConverter[voices.VoiceState]):
         raise ValueError("Voice state couldn't be found for current guild")
 
     @property
-    def intents(self) -> intents_.Intents:
-        return intents_.Intents.GUILD_VOICE_STATES
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.GUILD_VOICE_STATES
 
     @classmethod
     def is_inheritable(cls) -> bool:
@@ -475,7 +466,7 @@ class VoiceStateConverter(BaseConverter[voices.VoiceState]):
 
     @classmethod
     def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
-        return (voices.VoiceState,)
+        return (hikari.VoiceState,)
 
 
 for _cls in vars().copy().values():
@@ -518,7 +509,7 @@ _TYPE_OVERRIDES: typing.Mapping[typing.Callable[..., typing.Any], typing.Callabl
     bytes: lambda d: bytes(d, "utf-8"),
     bytearray: lambda d: bytearray(d, "utf-8"),
     datetime.datetime: convert_datetime,
-    snowflakes.Snowflake: parse_snowflake,
+    hikari.Snowflake: parse_snowflake,
     urllib.parse.DefragResult: defragment_url,
     urllib.parse.ParseResult: parse_url,
     urllib.parse.SplitResult: split_url,

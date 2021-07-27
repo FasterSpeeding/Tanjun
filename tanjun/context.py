@@ -36,40 +36,19 @@ __all__: typing.Sequence[str] = ["InteractionContext", "MessageContext", "Respon
 import asyncio
 import typing
 
-from hikari import errors as hikari_errors
-from hikari import messages
-from hikari import snowflakes
-from hikari import undefined
-from hikari.api import special_endpoints as special_endpoints_api
-from hikari.impl import special_endpoints as special_endpoints_impl
-from hikari.interactions import bases as base_interactions
+import hikari
 
 from . import traits
 
 if typing.TYPE_CHECKING:
-    from hikari import channels
-    from hikari import embeds as embeds_
-    from hikari import files
-    from hikari import guilds
     from hikari import traits as hikari_traits
-    from hikari import users
-
-    # from hikari.api import entity_factory as entity_factory_api
-    from hikari.api import cache as cache_api
-    from hikari.api import event_manager as event_manager_api
-    from hikari.api import interaction_server as interaction_server_api
-    from hikari.api import rest as rest_api
-    from hikari.api import shard as shard_api
-    from hikari.interactions import commands as command_interactions
 
     _BaseContextT = typing.TypeVar("_BaseContextT", bound="BaseContext")
     _InteractionContextT = typing.TypeVar("_InteractionContextT", bound="InteractionContext")
     _MessageContextT = typing.TypeVar("_MessageContextT", bound="MessageContext")
 
 
-ResponseTypeT = typing.Union[
-    special_endpoints_api.InteractionMessageBuilder, special_endpoints_api.InteractionDeferredBuilder
-]
+ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
 
 
 class BaseContext(traits.Context):
@@ -89,7 +68,7 @@ class BaseContext(traits.Context):
         self._final = False
 
     @property
-    def cache(self) -> typing.Optional[cache_api.Cache]:
+    def cache(self) -> typing.Optional[hikari.api.Cache]:
         return self._client.cache
 
     @property
@@ -101,15 +80,15 @@ class BaseContext(traits.Context):
         return self._component
 
     @property
-    def events(self) -> typing.Optional[event_manager_api.EventManager]:
+    def events(self) -> typing.Optional[hikari.api.EventManager]:
         return self._client.events
 
     @property
-    def server(self) -> typing.Optional[interaction_server_api.InteractionServer]:
+    def server(self) -> typing.Optional[hikari.api.InteractionServer]:
         return self._client.server
 
     @property
-    def rest(self) -> rest_api.RESTClient:
+    def rest(self) -> hikari.api.RESTClient:
         return self._client.rest
 
     @property
@@ -129,22 +108,22 @@ class BaseContext(traits.Context):
         self._component = component
         return self
 
-    def get_channel(self) -> typing.Optional[channels.PartialChannel]:
+    def get_channel(self) -> typing.Optional[hikari.PartialChannel]:
         if self._client.cache:
             return self._client.cache.get_guild_channel(self.channel_id)
 
         return None
 
-    def get_guild(self) -> typing.Optional[guilds.Guild]:
+    def get_guild(self) -> typing.Optional[hikari.Guild]:
         if self.guild_id is not None and self._client.cache:
             return self._client.cache.get_guild(self.guild_id)
 
         return None
 
-    async def fetch_channel(self) -> channels.PartialChannel:
+    async def fetch_channel(self) -> hikari.PartialChannel:
         return await self._client.rest.fetch_channel(self.channel_id)
 
-    async def fetch_guild(self) -> typing.Optional[guilds.Guild]:  # TODO: or raise?
+    async def fetch_guild(self) -> typing.Optional[hikari.Guild]:  # TODO: or raise?
         if self.guild_id is not None:
             return await self._client.rest.fetch_guild(self.guild_id)
 
@@ -170,7 +149,7 @@ class MessageContext(BaseContext, traits.MessageContext):
         client: traits.Client,
         /,
         content: str,
-        message: messages.Message,
+        message: hikari.Message,
         *,
         command: typing.Optional[traits.MessageCommand] = None,
         component: typing.Optional[traits.Component] = None,
@@ -183,8 +162,8 @@ class MessageContext(BaseContext, traits.MessageContext):
         super().__init__(client, component=component)
         self._command = command
         self._content = content
-        self._initial_response_id: typing.Optional[snowflakes.Snowflake] = None
-        self._last_response_id: typing.Optional[snowflakes.Snowflake] = None
+        self._initial_response_id: typing.Optional[hikari.Snowflake] = None
+        self._last_response_id: typing.Optional[hikari.Snowflake] = None
         self._response_lock = asyncio.Lock()
         self._message = message
         self._triggering_name = triggering_name
@@ -194,11 +173,11 @@ class MessageContext(BaseContext, traits.MessageContext):
         return f"Context <{self._message!r}, {self._command!r}>"
 
     @property
-    def author(self) -> users.User:
+    def author(self) -> hikari.User:
         return self._message.author
 
     @property
-    def channel_id(self) -> snowflakes.Snowflake:
+    def channel_id(self) -> hikari.Snowflake:
         return self._message.channel_id
 
     @property
@@ -210,7 +189,7 @@ class MessageContext(BaseContext, traits.MessageContext):
         return self._content
 
     @property
-    def guild_id(self) -> typing.Optional[snowflakes.Snowflake]:
+    def guild_id(self) -> typing.Optional[hikari.Snowflake]:
         return self._message.guild_id
 
     @property
@@ -222,11 +201,11 @@ class MessageContext(BaseContext, traits.MessageContext):
         return not self._message.author.is_bot and self._message.webhook_id is None
 
     @property
-    def member(self) -> typing.Optional[guilds.Member]:
+    def member(self) -> typing.Optional[hikari.Member]:
         return self._message.member
 
     @property
-    def message(self) -> messages.Message:
+    def message(self) -> hikari.Message:
         return self._message
 
     @property
@@ -238,12 +217,12 @@ class MessageContext(BaseContext, traits.MessageContext):
         return self._triggering_prefix
 
     @property
-    def shard(self) -> typing.Optional[shard_api.GatewayShard]:
+    def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
         if not self._client.shards:
             return None
 
         if self._message.guild_id is not None:
-            shard_id = snowflakes.calculate_shard_id(self._client.shards, self._message.guild_id)
+            shard_id = hikari.snowflakes.calculate_shard_id(self._client.shards, self._message.guild_id)
 
         else:
             shard_id = 0
@@ -284,25 +263,25 @@ class MessageContext(BaseContext, traits.MessageContext):
 
     async def edit_initial_response(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
-        attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> messages.Message:
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+    ) -> hikari.Message:
         if self._initial_response_id is None:
             raise LookupError("Context has no initial response")
 
@@ -324,25 +303,25 @@ class MessageContext(BaseContext, traits.MessageContext):
 
     async def edit_last_response(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
-        attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> messages.Message:
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+    ) -> hikari.Message:
         if self._last_response_id is None:
             raise LookupError("Context has no previous tracked response")
 
@@ -362,39 +341,39 @@ class MessageContext(BaseContext, traits.MessageContext):
             role_mentions=role_mentions,
         )
 
-    async def fetch_initial_response(self) -> typing.Optional[messages.Message]:
+    async def fetch_initial_response(self) -> typing.Optional[hikari.Message]:
         if self._initial_response_id is not None:
             return await self.client.rest.fetch_message(self._message.channel_id, self._initial_response_id)
 
-    async def fetch_last_response(self) -> typing.Optional[messages.Message]:
+    async def fetch_last_response(self) -> typing.Optional[hikari.Message]:
         if self._last_response_id is not None:
             return await self.client.rest.fetch_message(self._message.channel_id, self._last_response_id)
 
     async def respond(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = True,
-        attachment: undefined.UndefinedOr[files.Resourceish] = undefined.UNDEFINED,
-        attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        nonce: undefined.UndefinedOr[str] = undefined.UNDEFINED,
-        reply: undefined.UndefinedOr[snowflakes.SnowflakeishOr[messages.PartialMessage]] = undefined.UNDEFINED,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        mentions_reply: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> messages.Message:
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        nonce: hikari.UndefinedOr[str] = hikari.UNDEFINED,
+        reply: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialMessage]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        mentions_reply: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+    ) -> hikari.Message:
         async with self._response_lock:
             message = await self._message.respond(
                 content=content,
@@ -434,7 +413,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
     def __init__(
         self,
         client: traits.Client,
-        interaction: command_interactions.CommandInteraction,
+        interaction: hikari.CommandInteraction,
         /,
         *,
         default_to_ephemeral: bool = False,
@@ -446,16 +425,16 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         self._has_been_deferred = False
         self._has_responded = False
         self._interaction = interaction
-        self._last_response_id: typing.Optional[snowflakes.Snowflake] = None
+        self._last_response_id: typing.Optional[hikari.Snowflake] = None
         self._response_future: typing.Optional[asyncio.Future[ResponseTypeT]] = None
         self._response_lock = asyncio.Lock()
 
     @property
-    def author(self) -> users.User:
+    def author(self) -> hikari.User:
         return self._interaction.user
 
     @property
-    def channel_id(self) -> snowflakes.Snowflake:
+    def channel_id(self) -> hikari.Snowflake:
         return self._interaction.channel_id
 
     @property
@@ -463,7 +442,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         return self._client
 
     @property
-    def guild_id(self) -> typing.Optional[snowflakes.Snowflake]:
+    def guild_id(self) -> typing.Optional[hikari.Snowflake]:
         return self._interaction.guild_id
 
     @property
@@ -475,7 +454,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         return True
 
     @property
-    def member(self) -> typing.Optional[base_interactions.InteractionMember]:
+    def member(self) -> typing.Optional[hikari.InteractionMember]:
         return self._interaction.member
 
     @property
@@ -483,7 +462,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         return self._interaction.command_name
 
     @property
-    def interaction(self) -> command_interactions.CommandInteraction:
+    def interaction(self) -> hikari.CommandInteraction:
         return self._interaction
 
     async def _auto_defer(self, countdown: typing.Union[int, float], /) -> None:
@@ -515,10 +494,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         return self
 
     async def defer(
-        self, flags: typing.Union[undefined.UndefinedType, int, messages.MessageFlag] = undefined.UNDEFINED
+        self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED
     ) -> None:
-        if flags is undefined.UNDEFINED:
-            flags = messages.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else messages.MessageFlag.NONE
+        if flags is hikari.UNDEFINED:
+            flags = hikari.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else hikari.MessageFlag.NONE
 
         in_defer_task = self._defer_task and self._defer_task is asyncio.current_task()
         if not in_defer_task:
@@ -536,38 +515,36 @@ class InteractionContext(BaseContext, traits.InteractionContext):
                 self._response_future.set_result(self.interaction.build_deferred_response().set_flags(flags))
 
             else:
-                await self.interaction.create_initial_response(
-                    base_interactions.ResponseType.DEFERRED_MESSAGE_CREATE, flags=flags
-                )
+                await self.interaction.create_initial_response(hikari.ResponseType.DEFERRED_MESSAGE_CREATE, flags=flags)
 
     async def create_followup(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
-        attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        flags: typing.Union[undefined.UndefinedType, int, messages.MessageFlag] = undefined.UNDEFINED,
-    ) -> messages.Message:
-        if flags is undefined.UNDEFINED:
-            flags = messages.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else messages.MessageFlag.NONE
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+        tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
+    ) -> hikari.Message:
+        if flags is hikari.UNDEFINED:
+            flags = hikari.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else hikari.MessageFlag.NONE
 
         # TODO: remove once fixed in Hikari
-        if embed is not undefined.UNDEFINED:
-            if embeds is not undefined.UNDEFINED:
+        if embed is not hikari.UNDEFINED:
+            if embeds is not hikari.UNDEFINED:
                 raise ValueError("Only one of `embed` or `embeds` may be passed")
 
             embeds = (embed,)
@@ -592,26 +569,26 @@ class InteractionContext(BaseContext, traits.InteractionContext):
 
     async def create_initial_response(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-        flags: typing.Union[int, messages.MessageFlag, undefined.UndefinedType] = undefined.UNDEFINED,
-        tts: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+        flags: typing.Union[int, hikari.MessageFlag, hikari.UndefinedType] = hikari.UNDEFINED,
+        tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
     ) -> None:
-        if flags is undefined.UNDEFINED:
-            flags = messages.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else messages.MessageFlag.NONE
+        if flags is hikari.UNDEFINED:
+            flags = hikari.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else hikari.MessageFlag.NONE
 
         async with self._response_lock:
             if self._has_responded:
@@ -620,7 +597,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
             self._has_responded = True
             if not self._response_future:
                 await self._interaction.create_initial_response(
-                    response_type=base_interactions.ResponseType.MESSAGE_CREATE,
+                    response_type=hikari.ResponseType.MESSAGE_CREATE,
                     content=content,
                     # component=component,
                     # components=components,
@@ -635,15 +612,15 @@ class InteractionContext(BaseContext, traits.InteractionContext):
 
             else:
                 # if component:
-                #     assert not isinstance(component, undefined.UndefinedType)
+                #     assert not isinstance(component, hikari.UndefinedType)
                 #     components = (component,)
 
                 if embed:
-                    assert not isinstance(embed, undefined.UndefinedType)
+                    assert not isinstance(embed, hikari.UndefinedType)
                     embeds = (embed,)
 
-                result = special_endpoints_impl.InteractionMessageBuilder(
-                    type=base_interactions.ResponseType.MESSAGE_CREATE,
+                result = hikari.impl.InteractionMessageBuilder(
+                    type=hikari.ResponseType.MESSAGE_CREATE,
                     content=content,
                     # components=components,
                     embeds=embeds,
@@ -653,7 +630,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
                     user_mentions=user_mentions,
                     role_mentions=role_mentions,
                 )
-                if embeds is not undefined.UNDEFINED:
+                if embeds is not hikari.UNDEFINED:
                     for embed in embeds:
                         result.add_embed(embed)
 
@@ -670,25 +647,25 @@ class InteractionContext(BaseContext, traits.InteractionContext):
 
     async def edit_initial_response(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
-        attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> messages.Message:
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+    ) -> hikari.Message:
         return await self._interaction.edit_initial_response(
             content=content,
             attachment=attachment,
@@ -705,25 +682,25 @@ class InteractionContext(BaseContext, traits.InteractionContext):
 
     async def edit_last_response(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        attachment: undefined.UndefinedOr[messages.Attachment] = undefined.UNDEFINED,
-        attachments: undefined.UndefinedOr[typing.Sequence[files.Resourceish]] = undefined.UNDEFINED,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> messages.Message:
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+    ) -> hikari.Message:
         if self._last_response_id:
             return await self._interaction.edit_message(
                 self._last_response_id,
@@ -757,14 +734,14 @@ class InteractionContext(BaseContext, traits.InteractionContext):
 
         raise LookupError("Context has no previous responses")
 
-    async def fetch_initial_response(self) -> typing.Optional[messages.Message]:
+    async def fetch_initial_response(self) -> typing.Optional[hikari.Message]:
         try:
             return await self._interaction.fetch_initial_response()
 
-        except hikari_errors.NotFoundError:
+        except hikari.NotFoundError:
             return None
 
-    async def fetch_last_response(self) -> typing.Optional[messages.Message]:
+    async def fetch_last_response(self) -> typing.Optional[hikari.Message]:
         if self._last_response_id is not None:
             return await self._interaction.fetch_message(self._last_response_id)
 
@@ -774,66 +751,66 @@ class InteractionContext(BaseContext, traits.InteractionContext):
     @typing.overload
     async def respond(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[False] = False,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> typing.Optional[messages.Message]:
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+    ) -> typing.Optional[hikari.Message]:
         ...
 
     @typing.overload
     async def respond(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[True],
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> messages.Message:
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+    ) -> hikari.Message:
         ...
 
     async def respond(
         self,
-        content: undefined.UndefinedOr[typing.Any] = undefined.UNDEFINED,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = False,
-        # component: undefined.UndefinedOr[special_endpoints_api.ComponentBuilder] = undefined.UNDEFINED,
-        # components: undefined.UndefinedOr[
-        #     typing.Sequence[special_endpoints_api.ComponentBuilder]
-        # ] = undefined.UNDEFINED,
-        embed: undefined.UndefinedOr[embeds_.Embed] = undefined.UNDEFINED,
-        embeds: undefined.UndefinedOr[typing.Sequence[embeds_.Embed]] = undefined.UNDEFINED,
-        mentions_everyone: undefined.UndefinedOr[bool] = undefined.UNDEFINED,
-        user_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[users.PartialUser], bool]
-        ] = undefined.UNDEFINED,
-        role_mentions: undefined.UndefinedOr[
-            typing.Union[snowflakes.SnowflakeishSequence[guilds.PartialRole], bool]
-        ] = undefined.UNDEFINED,
-    ) -> typing.Optional[messages.Message]:
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     typing.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+    ) -> typing.Optional[hikari.Message]:
         # if component and components:
         #     raise ValueError("Only one of component or components may be passed")
 

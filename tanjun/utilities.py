@@ -47,17 +47,12 @@ import operator
 import typing
 from collections import abc as collections
 
-from hikari import channels
-from hikari import errors as hikari_errors
-from hikari import permissions as permissions_
-from hikari import snowflakes
+import hikari
 from yuyo import backoff
 
-from . import errors as tanjun_errors
+from . import errors
 
 if typing.TYPE_CHECKING:
-    from hikari import guilds
-
     from . import injector
     from . import traits as tanjun_traits
 
@@ -124,7 +119,7 @@ async def gather_checks(ctx: tanjun_traits.Context, checks: typing.Iterable[inje
         # we get this far then it's True.
         return True
 
-    except tanjun_errors.FailedCheck:
+    except errors.FailedCheck:
         return False
 
 
@@ -137,32 +132,32 @@ async def fetch_resource(
         try:
             return await call(*args)
 
-        except (hikari_errors.RateLimitedError, hikari_errors.RateLimitTooLongError) as exc:
+        except (hikari.RateLimitedError, hikari.RateLimitTooLongError) as exc:
             if exc.retry_after > 5:
                 raise
 
             retry.set_next_backoff(exc.retry_after)
 
-        except hikari_errors.InternalServerError:
+        except hikari.InternalServerError:
             continue
 
     else:
         return await call(*args)
 
 
-ALL_PERMISSIONS = functools.reduce(operator.__xor__, permissions_.Permissions)
+ALL_PERMISSIONS = functools.reduce(operator.__xor__, hikari.Permissions)
 """All of the known permissions based on the linked version of Hikari."""
 
 
 def _calculate_channel_overwrites(
-    channel: channels.GuildChannel, member: guilds.Member, permissions: permissions_.Permissions
-) -> permissions_.Permissions:
+    channel: hikari.GuildChannel, member: hikari.Member, permissions: hikari.Permissions
+) -> hikari.Permissions:
     if everyone_overwrite := channel.permission_overwrites.get(member.guild_id):
         permissions &= ~everyone_overwrite.deny
         permissions |= everyone_overwrite.allow
 
-    deny = permissions_.Permissions.NONE
-    allow = permissions_.Permissions.NONE
+    deny = hikari.Permissions.NONE
+    allow = hikari.Permissions.NONE
 
     for overwrite in filter(None, map(channel.permission_overwrites.get, member.role_ids)):
         deny |= overwrite.deny
@@ -179,8 +174,8 @@ def _calculate_channel_overwrites(
 
 
 def _calculate_role_permissions(
-    roles: typing.Mapping[snowflakes.Snowflake, guilds.Role], member: guilds.Member
-) -> permissions_.Permissions:
+    roles: typing.Mapping[hikari.Snowflake, hikari.Role], member: hikari.Member
+) -> hikari.Permissions:
     permissions = roles[member.guild_id].permissions
 
     for role in map(roles.get, member.role_ids):
@@ -192,12 +187,12 @@ def _calculate_role_permissions(
 
 # TODO: implicitly handle more special cases?
 def calculate_permissions(
-    member: guilds.Member,
-    guild: guilds.Guild,
-    roles: typing.Mapping[snowflakes.Snowflake, guilds.Role],
+    member: hikari.Member,
+    guild: hikari.Guild,
+    roles: typing.Mapping[hikari.Snowflake, hikari.Role],
     *,
-    channel: typing.Optional[channels.GuildChannel] = None,
-) -> permissions_.Permissions:
+    channel: typing.Optional[hikari.GuildChannel] = None,
+) -> hikari.Permissions:
     """Calculate the permissions a member has within a guild.
 
     Parameters
@@ -243,11 +238,11 @@ def calculate_permissions(
 
 async def fetch_permissions(
     client: tanjun_traits.Client,
-    member: guilds.Member,
+    member: hikari.Member,
     /,
     *,
-    channel: typing.Optional[snowflakes.SnowflakeishOr[channels.PartialChannel]] = None,
-) -> permissions_.Permissions:
+    channel: typing.Optional[hikari.SnowflakeishOr[hikari.PartialChannel]] = None,
+) -> hikari.Permissions:
     """Calculate the permissions a member has within a guild.
 
     Parameters
@@ -276,8 +271,8 @@ async def fetch_permissions(
     # The ordering of how this adds and removes permissions does matter.
     # For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.
     retry = backoff.Backoff(maximum=5, max_retries=4)
-    guild: typing.Optional[guilds.Guild]
-    roles: typing.Optional[typing.Mapping[snowflakes.Snowflake, guilds.Role]] = None
+    guild: typing.Optional[hikari.Guild]
+    roles: typing.Optional[typing.Mapping[hikari.Snowflake, hikari.Role]] = None
     guild = client.cache.get_guild(member.guild_id) if client.cache else None
     if not guild:
         guild = await fetch_resource(retry, client.rest.fetch_guild, member.guild_id)
@@ -299,16 +294,16 @@ async def fetch_permissions(
     if not channel:
         return permissions
 
-    found_channel: typing.Optional[channels.GuildChannel] = None
-    if isinstance(channel, channels.GuildChannel):
+    found_channel: typing.Optional[hikari.GuildChannel] = None
+    if isinstance(channel, hikari.GuildChannel):
         found_channel = channel
 
     elif client.cache:
-        found_channel = client.cache.get_guild_channel(snowflakes.Snowflake(channel))
+        found_channel = client.cache.get_guild_channel(hikari.Snowflake(channel))
 
     if not found_channel:
         raw_channel = await fetch_resource(retry, client.rest.fetch_channel, channel)
-        assert isinstance(raw_channel, channels.GuildChannel), "Cannot perform operation on a DM channel."
+        assert isinstance(raw_channel, hikari.GuildChannel), "Cannot perform operation on a DM channel."
         found_channel = raw_channel
 
     if found_channel.guild_id != guild.id:

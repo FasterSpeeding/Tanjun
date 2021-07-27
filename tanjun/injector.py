@@ -51,11 +51,8 @@ import copy
 import inspect
 import typing
 
+import hikari
 from hikari import traits as hikari_traits
-from hikari.api import cache as cache_api
-from hikari.api import event_manager as event_manager_api
-from hikari.api import interaction_server as interaction_server_api
-from hikari.api import rest as rest_api
 
 from . import conversion
 from . import errors
@@ -289,11 +286,11 @@ _TYPE_GETTER_OVERRIDES: typing.Dict[
     tanjun_traits.Component: lambda ctx, cli, type_: cli.get_component_mapping().get(type_, ctx.component) or UNDEFINED,
     tanjun_traits.Context: lambda ctx, _, __: ctx,
     InjectorClient: lambda _, cli, __: cli,
-    cache_api.Cache: lambda ctx, _, __: ctx.cache or UNDEFINED,
-    rest_api.RESTClient: lambda ctx, _, __: ctx.rest,
+    hikari.api.Cache: lambda ctx, _, __: ctx.cache or UNDEFINED,
+    hikari.api.RESTClient: lambda ctx, _, __: ctx.rest,
     hikari_traits.ShardAware: lambda ctx, _, __: ctx.shards or UNDEFINED,
-    event_manager_api.EventManager: lambda ctx, _, __: ctx.events or UNDEFINED,
-    interaction_server_api.InteractionServer: lambda ctx, _, __: ctx.server or UNDEFINED,
+    hikari.api.EventManager: lambda ctx, _, __: ctx.events or UNDEFINED,
+    hikari.api.InteractionServer: lambda ctx, _, __: ctx.server or UNDEFINED,
 }
 
 

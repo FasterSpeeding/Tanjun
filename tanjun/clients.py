@@ -52,16 +52,12 @@ import logging
 import typing
 from collections import abc as collections
 
-from hikari import errors as hikari_errors
+import hikari
 from hikari import traits as hikari_traits
-from hikari.events import interaction_events
-from hikari.events import lifetime_events
-from hikari.events import message_events
-from hikari.interactions import commands
 from yuyo import backoff
 
 from . import context
-from . import errors as tanjun_errors
+from . import errors
 from . import injector as injector_
 from . import traits as tanjun_traits
 from . import utilities
@@ -70,15 +66,7 @@ if typing.TYPE_CHECKING:
     import pathlib
     import types
 
-    from hikari import guilds
-    from hikari import snowflakes
-    from hikari import users
-    from hikari.api import cache as cache_api
     from hikari.api import event_manager as event_manager_api
-    from hikari.api import interaction_server as interaction_server_api
-    from hikari.api import rest as rest_api
-    from hikari.api import special_endpoints as special_endpoints_api
-    from hikari.interactions import commands as command_interactions
 
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
 
@@ -148,7 +136,7 @@ class MessageAcceptsEnum(str, enum.Enum):
     NONE = "NONE"
     """Set the client to not execute commands based on message create events."""
 
-    def get_event_type(self) -> typing.Optional[typing.Type[message_events.MessageCreateEvent]]:
+    def get_event_type(self) -> typing.Optional[typing.Type[hikari.MessageCreateEvent]]:
         """Get the base event type this mode listens to.
 
         Returns
@@ -164,11 +152,11 @@ class MessageAcceptsEnum(str, enum.Enum):
 
 
 _ACCEPTS_EVENT_TYPE_MAPPING: typing.Dict[
-    MessageAcceptsEnum, typing.Optional[typing.Type[message_events.MessageCreateEvent]]
+    MessageAcceptsEnum, typing.Optional[typing.Type[hikari.MessageCreateEvent]]
 ] = {
-    MessageAcceptsEnum.ALL: message_events.MessageCreateEvent,
-    MessageAcceptsEnum.DM_ONLY: message_events.DMMessageCreateEvent,
-    MessageAcceptsEnum.GUILD_ONLY: message_events.GuildMessageCreateEvent,
+    MessageAcceptsEnum.ALL: hikari.MessageCreateEvent,
+    MessageAcceptsEnum.DM_ONLY: hikari.DMMessageCreateEvent,
+    MessageAcceptsEnum.GUILD_ONLY: hikari.GuildMessageCreateEvent,
     MessageAcceptsEnum.NONE: None,
 }
 
@@ -236,10 +224,10 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
     def __init__(
         self,
-        rest: rest_api.RESTClient,
-        cache: typing.Optional[cache_api.Cache] = None,
-        events: typing.Optional[event_manager_api.EventManager] = None,
-        server: typing.Optional[interaction_server_api.InteractionServer] = None,
+        rest: hikari.api.RESTClient,
+        cache: typing.Optional[hikari.api.Cache] = None,
+        events: typing.Optional[hikari.api.EventManager] = None,
+        server: typing.Optional[hikari.api.InteractionServer] = None,
         shard: typing.Optional[hikari_traits.ShardAware] = None,
         *,
         event_managed: typing.Optional[bool] = None,
@@ -274,8 +262,8 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
             if not self._events:
                 raise ValueError("Client cannot be event managed without an event manager")
 
-            self._events.subscribe(lifetime_events.StartingEvent, self._on_starting_event)
-            self._events.subscribe(lifetime_events.StoppingEvent, self._on_stopping_event)
+            self._events.subscribe(hikari.StartingEvent, self._on_starting_event)
+            self._events.subscribe(hikari.StoppingEvent, self._on_stopping_event)
 
         if set_global_commands:
             self.add_client_callback(tanjun_traits.ClientCallbackNames.STARTING, self._set_global_commands_next_start)
@@ -339,7 +327,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         return _check_human in self._checks  # type: ignore[comparison-overlap]
 
     @property
-    def cache(self) -> typing.Optional[cache_api.Cache]:
+    def cache(self) -> typing.Optional[hikari.api.Cache]:
         return self._cache
 
     @property
@@ -351,7 +339,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         return self._components.copy()
 
     @property
-    def events(self) -> typing.Optional[event_manager_api.EventManager]:
+    def events(self) -> typing.Optional[hikari.api.EventManager]:
         return self._events
 
     @property
@@ -384,11 +372,11 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         return self._prefixes.copy()
 
     @property
-    def rest(self) -> rest_api.RESTClient:
+    def rest(self) -> hikari.api.RESTClient:
         return self._rest
 
     @property
-    def server(self) -> typing.Optional[interaction_server_api.InteractionServer]:
+    def server(self) -> typing.Optional[hikari.api.InteractionServer]:
         return self._server
 
     @property
@@ -399,10 +387,10 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         await self.set_global_commands()
         self.remove_client_callback(tanjun_traits.ClientCallbackNames.STARTING, self._set_global_commands_next_start)
 
-    async def _on_starting_event(self, _: lifetime_events.StartingEvent, /) -> None:
+    async def _on_starting_event(self, _: hikari.StartingEvent, /) -> None:
         await self.open()
 
-    async def _on_stopping_event(self, _: lifetime_events.StoppingEvent, /) -> None:
+    async def _on_stopping_event(self, _: hikari.StoppingEvent, /) -> None:
         await self.close()
 
     def set_auto_defer_after(self: _ClientT, time: typing.Optional[float], /) -> _ClientT:
@@ -452,18 +440,18 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         return self
 
     async def set_global_commands(
-        self, application: typing.Optional[snowflakes.SnowflakeishOr[guilds.PartialApplication]] = None, /
-    ) -> typing.Sequence[command_interactions.Command]:
+        self, application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None, /
+    ) -> typing.Sequence[hikari.Command]:
         if not application:
             try:
                 application = await self._rest.fetch_application()
 
-            except hikari_errors.UnauthorizedError:
+            except hikari.UnauthorizedError:
                 application = (await self._rest.fetch_authorization()).application
 
         found_top_names: typing.Set[str] = set()
         conflicts: typing.Set[str] = set()
-        builders: typing.List[special_endpoints_api.CommandBuilder] = []
+        builders: typing.List[hikari.api.CommandBuilder] = []
 
         for command in itertools.chain.from_iterable(component.interaction_commands for component in self._components):
             if not command.is_global:
@@ -594,9 +582,9 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
     def _try_unsubscribe(
         self,
-        event_manager: event_manager_api.EventManager,
-        event_type: typing.Type[event_manager_api.EventT_co],
-        callback: event_manager_api.CallbackT[event_manager_api.EventT_co],
+        event_manager: hikari.api.EventManager,
+        event_type: typing.Type[event_manager_api.EventT_inv],
+        callback: event_manager_api.CallbackT[event_manager_api.EventT_inv],
     ) -> None:
         try:
             event_manager.unsubscribe(event_type, callback)
@@ -613,12 +601,10 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
             if event_type := self._accepts.get_event_type():
                 self._try_unsubscribe(self._events, event_type, self.on_message_create_event)
 
-            self._try_unsubscribe(
-                self._events, interaction_events.InteractionCreateEvent, self.on_interaction_create_event
-            )
+            self._try_unsubscribe(self._events, hikari.InteractionCreateEvent, self.on_interaction_create_event)
 
             if self._server:
-                self._server.set_listener(commands.CommandInteraction, None)
+                self._server.set_listener(hikari.CommandInteraction, None)
         await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.CLOSED)
 
     async def open(self, *, register_listener: bool = True) -> None:
@@ -628,7 +614,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.STARTING, suppress_exceptions=False)
         self._is_alive = True
         if self._grab_mention_prefix:
-            user: typing.Optional[users.User] = None
+            user: typing.Optional[hikari.User] = None
             if self._cache:
                 user = self._cache.get_me()
 
@@ -640,13 +626,13 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
                         user = await self._rest.fetch_my_user()
                         break
 
-                    except (hikari_errors.RateLimitedError, hikari_errors.RateLimitTooLongError) as exc:
+                    except (hikari.RateLimitedError, hikari.RateLimitTooLongError) as exc:
                         if exc.retry_after > 30:
                             raise
 
                         retry.set_next_backoff(exc.retry_after)
 
-                    except hikari_errors.InternalServerError:
+                    except hikari.InternalServerError:
                         continue
 
                 else:
@@ -660,10 +646,10 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
             if event_type := self._accepts.get_event_type():
                 self._events.subscribe(event_type, self.on_message_create_event)
 
-            self._events.subscribe(interaction_events.InteractionCreateEvent, self.on_interaction_create_event)
+            self._events.subscribe(hikari.InteractionCreateEvent, self.on_interaction_create_event)
 
         if self._server:
-            self._server.set_listener(commands.CommandInteraction, self.on_interaction_create_request)
+            self._server.set_listener(hikari.CommandInteraction, self.on_interaction_create_request)
 
         asyncio.create_task(
             self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.STARTED, suppress_exceptions=False)
@@ -704,7 +690,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
         return self
 
-    async def on_message_create_event(self, event: message_events.MessageCreateEvent, /) -> None:
+    async def on_message_create_event(self, event: hikari.MessageCreateEvent, /) -> None:
         if event.message.content is None:
             return
 
@@ -734,13 +720,13 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
                 if await component.execute_message(ctx, hooks=hooks):
                     break
 
-        except tanjun_errors.HaltExecutionSearch:
+        except errors.HaltExecutionSearch:
             pass
 
         await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx)
 
-    async def on_interaction_create_event(self, event: interaction_events.InteractionCreateEvent, /) -> None:
-        if not isinstance(event.interaction, commands.CommandInteraction):
+    async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
+        if not isinstance(event.interaction, hikari.CommandInteraction):
             return
 
         ctx = context.InteractionContext(self, event.interaction)
@@ -766,7 +752,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
                 if future := await component.execute_interaction(ctx, hooks=hooks):
                     await future
 
-        except tanjun_errors.HaltExecutionSearch:
+        except errors.HaltExecutionSearch:
             pass
 
         await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.INTERACTION_COMMAND_NOT_FOUND, ctx)
@@ -774,7 +760,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
             await ctx.respond(self._interaction_not_found)
         ctx.cancel_defer()
 
-    async def on_interaction_create_request(self, interaction: commands.CommandInteraction, /) -> context.ResponseTypeT:
+    async def on_interaction_create_request(self, interaction: hikari.CommandInteraction, /) -> context.ResponseTypeT:
         ctx = context.InteractionContext(self, interaction)
 
         if self._auto_defer_after is not None:
@@ -799,7 +785,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
                 if await component.execute_interaction(ctx, hooks=hooks):
                     return await future
 
-        except tanjun_errors.HaltExecutionSearch:
+        except errors.HaltExecutionSearch:
             pass
 
         async def callback(_: asyncio.Future[None]) -> None:

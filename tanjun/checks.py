@@ -52,23 +52,13 @@ import datetime
 import time
 import typing
 
-from hikari import channels
-from hikari import errors as hikari_errors
-from hikari import guilds
-from hikari import permissions as permissions_
-from hikari import snowflakes
-from hikari.interactions import bases as base_interactions
+import hikari
 from yuyo import backoff
 
-from . import errors as tanjun_errors
+from . import errors
 from . import utilities
 
 if typing.TYPE_CHECKING:
-    from hikari import applications
-    from hikari import users
-    from hikari.api import cache as cache_api
-    from hikari.api import rest as rest_api
-
     from . import traits as tanjun_traits
 
 
@@ -123,13 +113,13 @@ class ApplicationOwnerCheck:
         *,
         end_execution: bool = False,
         expire_delta: datetime.timedelta = datetime.timedelta(minutes=5),
-        owner_ids: typing.Optional[typing.Iterable[snowflakes.SnowflakeishOr[users.User]]] = None,
+        owner_ids: typing.Optional[typing.Iterable[hikari.SnowflakeishOr[hikari.User]]] = None,
     ) -> None:
-        self._application: typing.Optional[applications.Application] = None
+        self._application: typing.Optional[hikari.Application] = None
         self._end_execution = end_execution
         self._expire = expire_delta.total_seconds()
         self._lock = asyncio.Lock()
-        self._owner_ids = tuple(snowflakes.Snowflake(id_) for id_ in owner_ids) if owner_ids else ()
+        self._owner_ids = tuple(hikari.Snowflake(id_) for id_ in owner_ids) if owner_ids else ()
         self._time = 0.0
 
     async def __call__(self, ctx: tanjun_traits.Context, /) -> bool:
@@ -139,20 +129,20 @@ class ApplicationOwnerCheck:
     def _is_expired(self) -> bool:
         return time.perf_counter() - self._time >= self._expire
 
-    async def _try_fetch(self, rest: rest_api.RESTClient, /) -> applications.Application:  # type: ignore[return]
+    async def _try_fetch(self, rest: hikari.api.RESTClient, /) -> hikari.Application:  # type: ignore[return]
         retry = backoff.Backoff()
         async for _ in retry:
             try:
                 self._application = await rest.fetch_application()  # TODO: or fetch authroization
                 return self._application
 
-            except (hikari_errors.RateLimitedError, hikari_errors.RateLimitTooLongError) as exc:
+            except (hikari.RateLimitedError, hikari.RateLimitTooLongError) as exc:
                 retry.set_next_backoff(exc.retry_after)
 
-            except hikari_errors.InternalServerError:
+            except hikari.InternalServerError:
                 continue
 
-    async def _get_application(self, ctx: tanjun_traits.Context, /) -> applications.Application:
+    async def _get_application(self, ctx: tanjun_traits.Context, /) -> hikari.Application:
         if self._application and not self._is_expired:
             return self._application
 
@@ -165,9 +155,9 @@ class ApplicationOwnerCheck:
                 self._application = application
 
             except (
-                hikari_errors.RateLimitedError,
-                hikari_errors.RateLimitTooLongError,
-                hikari_errors.InternalServerError,
+                hikari.RateLimitedError,
+                hikari.RateLimitTooLongError,
+                hikari.InternalServerError,
             ):
                 # If we can't fetch this information straight away and don't have a stale state to go off then we
                 # have to retry before returning.
@@ -213,13 +203,13 @@ class ApplicationOwnerCheck:
             result = ctx.author.id == application.owner.id
 
         if self._end_execution and not result:
-            raise tanjun_errors.HaltExecutionSearch
+            raise errors.HaltExecutionSearch
 
         return result
 
     async def update(
         self,
-        rest: rest_api.RESTClient,
+        rest: hikari.api.RESTClient,
         /,
         *,
         timeout: typing.Optional[datetime.timedelta] = datetime.timedelta(seconds=30),
@@ -229,7 +219,7 @@ class ApplicationOwnerCheck:
 
 
 async def nsfw_check(ctx: tanjun_traits.Context, /, *, end_execution: bool = False) -> bool:
-    channel: typing.Optional[channels.PartialChannel] = None
+    channel: typing.Optional[hikari.PartialChannel] = None
     if ctx.client.cache:
         channel = ctx.client.cache.get_guild_channel(ctx.channel_id)
 
@@ -237,10 +227,10 @@ async def nsfw_check(ctx: tanjun_traits.Context, /, *, end_execution: bool = Fal
         retry = backoff.Backoff(maximum=5, max_retries=4)
         channel = await utilities.fetch_resource(retry, ctx.client.rest.fetch_channel, ctx.channel_id)
 
-    result = channel.is_nsfw or False if isinstance(channel, channels.GuildChannel) else True
+    result = channel.is_nsfw or False if isinstance(channel, hikari.GuildChannel) else True
 
     if end_execution and not result:
-        raise tanjun_errors.HaltExecutionSearch
+        raise errors.HaltExecutionSearch
 
     return result
 
@@ -253,7 +243,7 @@ def dm_check(ctx: tanjun_traits.Context, /, *, end_execution: bool = False) -> b
     result = ctx.guild_id is None
 
     if end_execution and not result:
-        raise tanjun_errors.HaltExecutionSearch
+        raise errors.HaltExecutionSearch
 
     return result
 
@@ -265,33 +255,31 @@ def guild_check(ctx: tanjun_traits.Context, /, *, end_execution: bool = False) -
 class PermissionCheck(abc.ABC):
     __slots__: typing.Sequence[str] = ("_end_execution", "permissions")
 
-    def __init__(
-        self, permissions: typing.Union[permissions_.Permissions, int], /, *, end_execution: bool = False
-    ) -> None:
+    def __init__(self, permissions: typing.Union[hikari.Permissions, int], /, *, end_execution: bool = False) -> None:
         self._end_execution = end_execution
-        self.permissions = permissions_.Permissions(permissions)
+        self.permissions = hikari.Permissions(permissions)
 
     async def __call__(self, ctx: tanjun_traits.Context, /) -> bool:
         result = (self.permissions & await self.get_permissions(ctx)) == self.permissions
 
         if self._end_execution and not result:
-            raise tanjun_errors.HaltExecutionSearch
+            raise errors.HaltExecutionSearch
 
         return result
 
     @abc.abstractmethod
-    async def get_permissions(self, ctx: tanjun_traits.Context, /) -> permissions_.Permissions:
+    async def get_permissions(self, ctx: tanjun_traits.Context, /) -> hikari.Permissions:
         raise NotImplementedError
 
 
 class AuthorPermissionCheck(PermissionCheck):
     __slots__: typing.Sequence[str] = ()
 
-    async def get_permissions(self, ctx: tanjun_traits.Context, /) -> permissions_.Permissions:
+    async def get_permissions(self, ctx: tanjun_traits.Context, /) -> hikari.Permissions:
         if not ctx.member:
             return utilities.ALL_PERMISSIONS
 
-        elif isinstance(ctx.member, base_interactions.InteractionMember):
+        elif isinstance(ctx.member, hikari.InteractionMember):
             return ctx.member.permissions
 
         return await utilities.fetch_permissions(ctx.client, ctx.member, channel=ctx.channel_id)
@@ -300,21 +288,19 @@ class AuthorPermissionCheck(PermissionCheck):
 class OwnPermissionsCheck(PermissionCheck):
     __slots__: typing.Sequence[str] = ("_lock", "_me")
 
-    def __init__(
-        self, permissions: typing.Union[permissions_.Permissions, int], /, *, end_execution: bool = False
-    ) -> None:
+    def __init__(self, permissions: typing.Union[hikari.Permissions, int], /, *, end_execution: bool = False) -> None:
         super().__init__(permissions, end_execution=end_execution)
         self._lock = asyncio.Lock()
-        self._me: typing.Optional[users.User] = None
+        self._me: typing.Optional[hikari.User] = None
 
-    async def get_permissions(self, ctx: tanjun_traits.Context, /) -> permissions_.Permissions:
+    async def get_permissions(self, ctx: tanjun_traits.Context, /) -> hikari.Permissions:
         if ctx.guild_id is None:
             return utilities.ALL_PERMISSIONS
 
         member = await self._get_member(ctx, ctx.guild_id)
         return await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
-    async def _get_member(self, ctx: tanjun_traits.Context, guild_id: snowflakes.Snowflake, /) -> guilds.Member:
+    async def _get_member(self, ctx: tanjun_traits.Context, guild_id: hikari.Snowflake, /) -> hikari.Member:
         user = await self._get_user(ctx.client.cache, ctx.client.rest)
 
         if ctx.client.cache and (member := ctx.client.cache.get_member(guild_id, user.id)):
@@ -323,7 +309,7 @@ class OwnPermissionsCheck(PermissionCheck):
         retry = backoff.Backoff(maximum=5, max_retries=4)
         return await utilities.fetch_resource(retry, ctx.client.rest.fetch_member, guild_id, user.id)
 
-    async def _get_user(self, cache: typing.Optional[cache_api.Cache], rest: rest_api.RESTClient, /) -> users.User:
+    async def _get_user(self, cache: typing.Optional[hikari.api.Cache], rest: hikari.api.RESTClient, /) -> hikari.User:
         if not self._me:
             async with self._lock:
                 if self._me:
@@ -510,7 +496,7 @@ def with_owner_check(
     *,
     end_execution: bool = False,
     expire_delta: datetime.timedelta = datetime.timedelta(minutes=5),
-    owner_ids: typing.Optional[typing.Iterable[snowflakes.SnowflakeishOr[users.User]]] = None,
+    owner_ids: typing.Optional[typing.Iterable[hikari.SnowflakeishOr[hikari.User]]] = None,
 ) -> typing.Callable[[CommandT], CommandT]:
     ...
 
@@ -521,7 +507,7 @@ def with_owner_check(
     *,
     end_execution: bool = False,
     expire_delta: datetime.timedelta = datetime.timedelta(minutes=5),
-    owner_ids: typing.Optional[typing.Iterable[snowflakes.SnowflakeishOr[users.User]]] = None,
+    owner_ids: typing.Optional[typing.Iterable[hikari.SnowflakeishOr[hikari.User]]] = None,
 ) -> CallbackReturnT[CommandT]:
     """Only let a command run if it's being triggered by one of the bot's owners.
 
@@ -567,7 +553,7 @@ def with_owner_check(
 
 
 def with_author_permission_check(
-    permissions: typing.Union[permissions_.Permissions, int], *, end_execution: bool = False
+    permissions: typing.Union[hikari.Permissions, int], *, end_execution: bool = False
 ) -> typing.Callable[[CommandT], CommandT]:
     """Only let a command run if the author has certain permissions in the current channel.
 
@@ -597,7 +583,7 @@ def with_author_permission_check(
 
 
 def with_own_permission_check(
-    permissions: typing.Union[permissions_.Permissions, int], *, end_execution: bool = False
+    permissions: typing.Union[hikari.Permissions, int], *, end_execution: bool = False
 ) -> typing.Callable[[CommandT], CommandT]:
     """Only let a command run if we have certain permissions in the current channel.
 
