@@ -824,6 +824,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
 
         if self._has_responded:
             return await self.create_followup(
+                content,
                 # component=component,
                 # components=components,
                 embed=embed,
