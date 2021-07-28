@@ -32,7 +32,7 @@
 """Collection of utility functions used within Tanjun."""
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = [
+__all__: list[str] = [
     "async_chain",
     "await_if_async",
     "gather_checks",
@@ -61,7 +61,9 @@ _ResourceT = typing.TypeVar("_ResourceT")
 _ValueT = typing.TypeVar("_ValueT")
 
 
-async def async_chain(iterable: typing.Iterable[typing.AsyncIterable[_ValueT]]) -> typing.AsyncIterator[_ValueT]:
+async def async_chain(
+    iterable: collections.Iterable[collections.AsyncIterable[_ValueT]],
+) -> collections.AsyncIterator[_ValueT]:
     """Make an asynchronous iterator of the elements within multiple asynchronous iterators."""
     for async_iterable in iterable:
         async for value in async_iterable:
@@ -69,13 +71,13 @@ async def async_chain(iterable: typing.Iterable[typing.AsyncIterable[_ValueT]]) 
 
 
 async def await_if_async(
-    callback: typing.Callable[..., typing.Union[_ValueT, typing.Awaitable[_ValueT]]], *args: typing.Any
+    callback: collections.Callable[..., typing.Union[_ValueT, collections.Awaitable[_ValueT]]], *args: typing.Any
 ) -> _ValueT:
     """Resole any awaitable returned by a callback call.
 
     Parameters
     ----------
-    callback : typing.Callable[..., typing.Union[_ValueT_co, typing.Awaitable[_ValueT_co]]
+    callback : collections.abc.Callable[..., typing.Union[_ValueT_co, collections.abc.Awaitable[_ValueT_co]]
         The async or non-async callback to call.
 
     Other Parameters
@@ -98,14 +100,14 @@ async def await_if_async(
     return result
 
 
-async def gather_checks(ctx: tanjun_traits.Context, checks: typing.Iterable[injector.InjectableCheck]) -> bool:
+async def gather_checks(ctx: tanjun_traits.Context, checks: collections.Iterable[injector.InjectableCheck]) -> bool:
     """Gather a collection of checks.
 
     Parameters
     ----------
     ctx : tanjun.traits.Context
         The context to check.
-    checks : typing.Iterable[tanjun.injector.InjectableCheck]
+    checks : collections.abc.Iterable[tanjun.injector.InjectableCheck]
         An iterable of injectable checks.
 
     Returns
@@ -124,7 +126,7 @@ async def gather_checks(ctx: tanjun_traits.Context, checks: typing.Iterable[inje
 
 
 async def fetch_resource(
-    retry: backoff.Backoff, call: typing.Callable[..., typing.Awaitable[_ResourceT]], *args: typing.Any
+    retry: backoff.Backoff, call: collections.Callable[..., collections.Awaitable[_ResourceT]], *args: typing.Any
 ) -> _ResourceT:  # TODO: replace this
     """A utility callback for retrying a request used by Tanjun internally."""
     retry.reset()
@@ -174,7 +176,7 @@ def _calculate_channel_overwrites(
 
 
 def _calculate_role_permissions(
-    roles: typing.Mapping[hikari.Snowflake, hikari.Role], member: hikari.Member
+    roles: collections.Mapping[hikari.Snowflake, hikari.Role], member: hikari.Member
 ) -> hikari.Permissions:
     permissions = roles[member.guild_id].permissions
 
@@ -189,7 +191,7 @@ def _calculate_role_permissions(
 def calculate_permissions(
     member: hikari.Member,
     guild: hikari.Guild,
-    roles: typing.Mapping[hikari.Snowflake, hikari.Role],
+    roles: collections.Mapping[hikari.Snowflake, hikari.Role],
     *,
     channel: typing.Optional[hikari.GuildChannel] = None,
 ) -> hikari.Permissions:
@@ -201,7 +203,7 @@ def calculate_permissions(
         Object of the member to calculate the permissions for.
     guild : hikari.guilds.Guild
         Object of the guild to calculate their permissions within.
-    roles : typing.Mapping[hikari.snowflakes.Snowflake, hikari.guilds.Role]
+    roles : collections.abc.Mapping[hikari.snowflakes.Snowflake, hikari.guilds.Role]
         Mapping of snowflake IDs to objects of the roles within the target
         guild.
 
@@ -272,7 +274,7 @@ async def fetch_permissions(
     # For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.
     retry = backoff.Backoff(maximum=5, max_retries=4)
     guild: typing.Optional[hikari.Guild]
-    roles: typing.Optional[typing.Mapping[hikari.Snowflake, hikari.Role]] = None
+    roles: typing.Optional[collections.Mapping[hikari.Snowflake, hikari.Role]] = None
     guild = client.cache.get_guild(member.guild_id) if client.cache else None
     if not guild:
         guild = await fetch_resource(retry, client.rest.fetch_guild, member.guild_id)

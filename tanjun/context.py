@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["InteractionContext", "MessageContext", "ResponseTypeT"]
+__all__: list[str] = ["InteractionContext", "MessageContext", "ResponseTypeT"]
 
 import asyncio
 import typing
@@ -42,6 +42,8 @@ from hikari import snowflakes
 from . import traits
 
 if typing.TYPE_CHECKING:
+    from collections import abc as collections
+
     from hikari import traits as hikari_traits
 
     _BaseContextT = typing.TypeVar("_BaseContextT", bound="BaseContext")
@@ -55,7 +57,7 @@ ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.In
 class BaseContext(traits.Context):
     """Base class for all standard context implementations."""
 
-    __slots__: typing.Sequence[str] = ("_client", "_component", "_final")
+    __slots__: tuple[str, ...] = ("_client", "_component", "_final")
 
     def __init__(
         self,
@@ -134,7 +136,7 @@ class BaseContext(traits.Context):
 class MessageContext(BaseContext, traits.MessageContext):
     """Standard implementation of a command context as used within Tanjun."""
 
-    __slots__: typing.Sequence[str] = (
+    __slots__: tuple[str, ...] = (
         "_command",
         "_content",
         "_initial_response_id",
@@ -267,13 +269,13 @@ class MessageContext(BaseContext, traits.MessageContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
-        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
@@ -307,13 +309,13 @@ class MessageContext(BaseContext, traits.MessageContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
-        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
@@ -356,13 +358,13 @@ class MessageContext(BaseContext, traits.MessageContext):
         *,
         ensure_result: bool = True,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
-        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         nonce: hikari.UndefinedOr[str] = hikari.UNDEFINED,
         reply: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialMessage]] = hikari.UNDEFINED,
@@ -400,7 +402,7 @@ class MessageContext(BaseContext, traits.MessageContext):
 
 
 class InteractionContext(BaseContext, traits.InteractionContext):
-    __slots__: typing.Sequence[str] = (
+    __slots__: tuple[str, ...] = (
         "_defaults_to_ephemeral",
         "_defer_task",
         "_has_been_deferred",
@@ -549,13 +551,13 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
-        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
@@ -598,10 +600,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         *,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
@@ -673,13 +675,13 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
-        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
@@ -708,13 +710,13 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
-        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
@@ -779,10 +781,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         ensure_result: typing.Literal[False] = False,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
@@ -801,10 +803,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         ensure_result: typing.Literal[True],
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
@@ -822,10 +824,10 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         ensure_result: bool = False,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]

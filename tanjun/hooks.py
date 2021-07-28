@@ -31,11 +31,12 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["ErrorHookSig", "Hooks", "HookSig", "ParserHookSig"]
+__all__: list[str] = ["ErrorHookSig", "Hooks", "HookSig", "ParserHookSig"]
 
 import asyncio
 import copy
 import typing
+from collections import abc as collections
 
 from . import errors
 from . import traits
@@ -46,8 +47,8 @@ if typing.TypeVar:
 
 CommandT = typing.TypeVar("CommandT", bound=traits.ExecutableCommand[typing.Any])
 
-ParserHookSig = typing.Callable[
-    ["traits.ContextT", "errors.ParserError"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
+ParserHookSig = collections.Callable[
+    [traits.ContextT, errors.ParserError], typing.Union[collections.Coroutine[typing.Any, typing.Any, None], None]
 ]
 """Type hint of the callback used as a parser error hook.
 
@@ -57,8 +58,8 @@ type `tanjun.traits.Context` and `tanjun.errors.ParserError` - and may either be
 a synchronous or asynchronous callback which returns `None`
 """
 
-ErrorHookSig = typing.Callable[
-    ["traits.ContextT", BaseException], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]
+ErrorHookSig = collections.Callable[
+    [traits.ContextT, BaseException], typing.Union[collections.Coroutine[typing.Any, typing.Any, None], None]
 ]
 """Type hint of the callback used as a unexpected command error hook.
 
@@ -69,7 +70,9 @@ type `tanjun.traits.Context` and `BaseException` - and may either be a
 synchronous or asynchronous callback which returns `None`
 """
 
-HookSig = typing.Callable[["traits.ContextT"], typing.Union[typing.Coroutine[typing.Any, typing.Any, None], None]]
+HookSig = collections.Callable[
+    [traits.ContextT], typing.Union[collections.Coroutine[typing.Any, typing.Any, None], None]
+]
 """Type hint of the callback used as a general command hook.
 
 This may be called during different stages of command execution (decided by
@@ -80,7 +83,7 @@ which returns `None`.
 
 
 class Hooks(traits.Hooks[traits.ContextT_contra]):
-    __slots__: typing.Sequence[str] = ("_error", "_parser_error", "_pre_execution", "_post_execution", "_success")
+    __slots__: tuple[str, ...] = ("_error", "_parser_error", "_pre_execution", "_post_execution", "_success")
 
     def __init__(self) -> None:
         self._error: typing.Optional[ErrorHookSig[traits.ContextT_contra]] = None
@@ -150,7 +153,7 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
         /,
         exception: BaseException,
         *,
-        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[traits.Hooks[traits.ContextT_contra]]] = None,
     ) -> None:  # TODO: return True to indicate "raise" else False or None to suppress
         if isinstance(exception, errors.ParserError):
             if self._parser_error:
@@ -167,7 +170,7 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
         ctx: traits.ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[traits.Hooks[traits.ContextT_contra]]] = None,
     ) -> None:
         if self._post_execution:
             await utilities.await_if_async(self._post_execution, ctx)
@@ -180,7 +183,7 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
         ctx: traits.ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[traits.Hooks[traits.ContextT_contra]]] = None,
     ) -> None:
         if self._pre_execution:
             await utilities.await_if_async(self._pre_execution, ctx)
@@ -193,7 +196,7 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
         ctx: traits.ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[typing.AbstractSet[traits.Hooks[traits.ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[traits.Hooks[traits.ContextT_contra]]] = None,
     ) -> None:
         if self._success:
             await utilities.await_if_async(self._success, ctx)

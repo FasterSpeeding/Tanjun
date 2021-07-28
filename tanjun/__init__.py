@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = [
+__all__: list[str] = [
     # __init__.py
     "__author__",
     "__ci__",
@@ -122,8 +122,6 @@ __all__: typing.Sequence[str] = [
     # traits.py
     "traits",
 ]
-
-import typing
 
 from . import traits
 from .checks import *

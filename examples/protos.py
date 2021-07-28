@@ -3,7 +3,7 @@ import typing
 
 class GuildConfig(typing.Protocol):
     @property
-    def prefixes(self) -> typing.List[str]:
+    def prefixes(self) -> list[str]:
         raise NotImplementedError
 
 

@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = [
+__all__: list[str] = [
     "cache_callback",
     "CallbackSig",
     "Getter",
@@ -46,25 +46,26 @@ __all__: typing.Sequence[str] = [
 
 import abc
 import typing
+from collections import abc as collections
 
 from . import traits as tanjun_traits
 
 _BaseInjectableValueT = typing.TypeVar("_BaseInjectableValueT", bound=BaseInjectableValue[typing.Any])
 _T = typing.TypeVar("_T")
 _InjectorClientT = typing.TypeVar("_InjectorClientT", bound=InjectorClient)
-CallbackSig = typing.Callable[..., typing.Union[typing.Awaitable[_T], _T]]
+CallbackSig = collections.Callable[..., typing.Union[collections.Awaitable[_T], _T]]
 
 class Getter(typing.Generic[_T]):
-    __slots__: typing.Sequence[str]
-    callback: typing.Callable[
-        [tanjun_traits.Context], typing.Union[InjectableValue[_T], typing.Callable[[tanjun_traits.Context], _T]]
+    __slots__: tuple[str, ...]
+    callback: collections.Callable[
+        [tanjun_traits.Context], typing.Union[InjectableValue[_T], collections.Callable[[tanjun_traits.Context], _T]]
     ]
     name: str
     is_injecting: bool
     @typing.overload
     def __init__(
         self,
-        callback: typing.Callable[[tanjun_traits.Context], InjectableValue[_T]],
+        callback: collections.Callable[[tanjun_traits.Context], InjectableValue[_T]],
         name: str,
         /,
         *,
@@ -73,7 +74,7 @@ class Getter(typing.Generic[_T]):
     @typing.overload
     def __init__(
         self,
-        callback: typing.Callable[[tanjun_traits.Context], _T],
+        callback: collections.Callable[[tanjun_traits.Context], _T],
         name: str,
         /,
         *,
@@ -89,47 +90,49 @@ UndefinedOr = typing.Union[Undefined, _T]
 
 def check_injecting(callback: CallbackSig[typing.Any], /) -> bool: ...
 
+_TypeT = type[_T]
+
 class Injected(typing.Generic[_T]):
-    __slots__: typing.Sequence[str]
-    callback: UndefinedOr[typing.Callable[[], typing.Union[_T, typing.Awaitable[_T]]]]
-    type: UndefinedOr[typing.Type[_T]]
+    __slots__: tuple[str, ...]
+    callback: UndefinedOr[collections.Callable[[], typing.Union[_T, collections.Awaitable[_T]]]]
+    type: UndefinedOr[_TypeT[_T]]
     @typing.overload
-    def __init__(self, *, callback: typing.Callable[..., typing.Awaitable[_T]]) -> None: ...
+    def __init__(self, *, callback: collections.Callable[..., collections.Awaitable[_T]]) -> None: ...
     @typing.overload
-    def __init__(self, *, callback: typing.Callable[..., _T]) -> None: ...
+    def __init__(self, *, callback: collections.Callable[..., _T]) -> None: ...
     @typing.overload
-    def __init__(self, *, type: typing.Type[_T]) -> None: ...
+    def __init__(self, *, type: _TypeT[_T]) -> None: ...
 
 @typing.overload
-def injected(*, callback: typing.Callable[..., typing.Awaitable[_T]]) -> _T: ...
+def injected(*, callback: collections.Callable[..., collections.Awaitable[_T]]) -> _T: ...
 @typing.overload
-def injected(*, callback: typing.Callable[..., _T]) -> _T: ...
+def injected(*, callback: collections.Callable[..., _T]) -> _T: ...
 @typing.overload
-def injected(*, type: typing.Type[_T]) -> _T: ...
+def injected(*, type: type[_T]) -> _T: ...
 async def resolve_getters(
-    ctx: tanjun_traits.Context, getters: typing.Iterable[Getter[typing.Any]]
-) -> typing.Mapping[str, typing.Any]: ...
+    ctx: tanjun_traits.Context, getters: collections.Iterable[Getter[typing.Any]]
+) -> collections.Mapping[str, typing.Any]: ...
 
 class InjectorClient:
-    __slots__: typing.Sequence[str]
+    __slots__: tuple[str, ...]
     def __init__(self, client: tanjun_traits.Client, /) -> None: ...
     def add_type_dependency(
-        self: _InjectorClientT, type_: typing.Type[_T], callback: CallbackSig[_T], /
+        self: _InjectorClientT, type_: type[_T], callback: CallbackSig[_T], /
     ) -> _InjectorClientT: ...
-    def get_type_dependency(self, type_: typing.Type[_T], /) -> UndefinedOr[CallbackSig[_T]]: ...
+    def get_type_dependency(self, type_: type[_T], /) -> UndefinedOr[CallbackSig[_T]]: ...
     def add_callable_override(
         self: _InjectorClientT, callback: CallbackSig[_T], override: CallbackSig[_T], /
     ) -> _InjectorClientT: ...
     def get_callable_override(self, callback: CallbackSig[_T], /) -> typing.Optional[CallbackSig[_T]]: ...
     def get_component_mapping(
         self,
-    ) -> typing.Mapping[typing.Type[tanjun_traits.Component], tanjun_traits.Component]: ...
+    ) -> collections.Mapping[type[tanjun_traits.Component], tanjun_traits.Component]: ...
     def resolve_callback_to_getters(
         self, callback: CallbackSig[typing.Any], /
-    ) -> typing.Iterator[Getter[typing.Any]]: ...
+    ) -> collections.Iterator[Getter[typing.Any]]: ...
 
 class Injectable(abc.ABC):
-    __slots__: typing.Sequence[str]
+    __slots__: tuple[str, ...]
     @property
     @abc.abstractmethod
     def needs_injector(self) -> bool: ...
@@ -137,7 +140,7 @@ class Injectable(abc.ABC):
     def set_injector(self, client: InjectorClient, /) -> None: ...
 
 class BaseInjectableValue(Injectable, typing.Generic[_T]):
-    __slots__: typing.Sequence[str]
+    __slots__: tuple[str, ...]
     callback: CallbackSig[_T]
     injector: typing.Optional[InjectorClient]
     is_async: typing.Optional[bool]
@@ -151,15 +154,15 @@ class BaseInjectableValue(Injectable, typing.Generic[_T]):
     async def call(self, *args: typing.Any, ctx: tanjun_traits.Context) -> _T: ...
 
 class InjectableValue(BaseInjectableValue[_T]):
-    __slots__: typing.Sequence[str]
+    __slots__: tuple[str, ...]
     async def __call__(self, ctx: tanjun_traits.Context, /) -> _T: ...
 
 class InjectableCheck(BaseInjectableValue[bool]):
-    __slots__: typing.Sequence[str]
+    __slots__: tuple[str, ...]
     async def __call__(self, ctx: tanjun_traits.Context, /) -> bool: ...
 
 class InjectableConverter(BaseInjectableValue[_T]):
-    __slots__: typing.Sequence[str]
+    __slots__: tuple[str, ...]
     async def __call__(self, value: str, ctx: tanjun_traits.Context, /) -> _T: ...
 
-def cache_callback(callback: CallbackSig[_T], /) -> typing.Callable[..., typing.Awaitable[_T]]: ...
+def cache_callback(callback: CallbackSig[_T], /) -> collections.Callable[..., collections.Awaitable[_T]]: ...

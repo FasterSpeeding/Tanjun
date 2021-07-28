@@ -1,4 +1,4 @@
-import typing
+from collections import abc as collections
 
 import hikari
 
@@ -10,7 +10,7 @@ from examples import protos
 
 async def get_prefix(
     ctx: tanjun.traits.MessageContext, database: protos.DatabaseProto = tanjun.injected(type=protos.DatabaseProto)
-) -> typing.Sequence[str]:
+) -> collections.Sequence[str]:
     if ctx.guild_id and (guild_info := await database.get_guild_info(ctx.guild_id)):
         return guild_info.prefixes
 

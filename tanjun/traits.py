@@ -32,7 +32,7 @@
 """Interfaces of the objects used within Tanjun."""
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = [
+__all__: list[str] = [
     "CheckSig",
     "CheckSigT",
     "ClientCallbackNames",
@@ -59,6 +59,7 @@ __all__: typing.Sequence[str] = [
 import abc
 import enum
 import typing
+from collections import abc as collections
 
 import hikari
 
@@ -72,13 +73,13 @@ _T = typing.TypeVar("_T")
 
 ContextT = typing.TypeVar("ContextT", bound="Context")
 ContextT_contra = typing.TypeVar("ContextT_contra", bound="Context", contravariant=True)
-MetaEventSig = typing.Callable[..., typing.Union[None, typing.Awaitable[None]]]
+MetaEventSig = collections.Callable[..., typing.Union[None, collections.Awaitable[None]]]
 MetaEventSigT = typing.TypeVar("MetaEventSigT", bound="MetaEventSig")
 InteractionCommandT = typing.TypeVar("InteractionCommandT", bound="InteractionCommand")
 MessageCommandT = typing.TypeVar("MessageCommandT", bound="MessageCommand")
 
 
-CommandCallbackSig = typing.Callable[..., typing.Awaitable[None]]
+CommandCallbackSig = collections.Callable[..., collections.Awaitable[None]]
 """Type hint of the callback a `Command` instance will operate on.
 
 This will be called when executing a command and will need to take at least one
@@ -91,12 +92,12 @@ command if applicable.
 """
 
 
-CheckSig = typing.Callable[..., typing.Union[bool, typing.Awaitable[bool]]]
+CheckSig = collections.Callable[..., typing.Union[bool, collections.Awaitable[bool]]]
 """Type hint of a general context check used with Tanjun `ExecutableCommand` classes.
 
 This may be registered with a `ExecutableCommand` to add a rule which decides whether
 it should execute for each context passed to it. This should take one positional
-argument of type `Context` and may either be a synchronous or asynchronous
+argument of typ_ `Context` and may either be a synchronous or asynchronous
 callback which returns `bool` where returning `False` or
 raising `tanjun.errors.FailedCheck` will indicate that the current context
 shouldn't lead to an execution.
@@ -109,7 +110,7 @@ CheckSigT = typing.TypeVar("CheckSigT", bound=CheckSig)
 class Context(abc.ABC):
     """Interface for the context of a command execution."""
 
-    __slots__: typing.Sequence[str] = ()
+    __slots__ = ()
 
     @property
     @abc.abstractmethod
@@ -322,13 +323,13 @@ class Context(abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
-        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
@@ -346,13 +347,13 @@ class Context(abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
-        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
@@ -381,10 +382,10 @@ class Context(abc.ABC):
         ensure_result: typing.Literal[False] = False,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
@@ -404,10 +405,10 @@ class Context(abc.ABC):
         ensure_result: typing.Literal[True],
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
@@ -426,10 +427,10 @@ class Context(abc.ABC):
         ensure_result: bool = False,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
@@ -442,7 +443,7 @@ class Context(abc.ABC):
 
 
 class MessageContext(Context, abc.ABC):
-    __slots__: typing.Sequence[str] = ()
+    __slots__ = ()
 
     @property
     @abc.abstractmethod
@@ -493,13 +494,13 @@ class MessageContext(Context, abc.ABC):
         *,
         ensure_result: bool = True,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
-        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         nonce: hikari.UndefinedOr[str] = hikari.UNDEFINED,
         reply: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialMessage]] = hikari.UNDEFINED,
@@ -516,7 +517,7 @@ class MessageContext(Context, abc.ABC):
 
 
 class InteractionContext(Context, abc.ABC):
-    __slots__: typing.Sequence[str] = ()
+    __slots__ = ()
 
     @property
     def command(self) -> typing.Optional[InteractionCommand]:
@@ -551,13 +552,13 @@ class InteractionContext(Context, abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
-        attachments: hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
@@ -577,10 +578,10 @@ class InteractionContext(Context, abc.ABC):
         *,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
@@ -602,10 +603,10 @@ class InteractionContext(Context, abc.ABC):
         ensure_result: typing.Literal[False] = False,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
@@ -625,10 +626,10 @@ class InteractionContext(Context, abc.ABC):
         ensure_result: typing.Literal[True],
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
@@ -647,10 +648,10 @@ class InteractionContext(Context, abc.ABC):
         ensure_result: bool = False,
         # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         # components: hikari.UndefinedOr[
-        #     typing.Sequence[hikari.api.ComponentBuilder]
+        #     collections.Sequence[hikari.api.ComponentBuilder]
         # ] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[typing.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
@@ -663,7 +664,7 @@ class InteractionContext(Context, abc.ABC):
 
 
 class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
-    __slots__: typing.Sequence[str] = ()
+    __slots__ = ()
 
     @abc.abstractmethod
     def copy(self: _T) -> _T:
@@ -676,7 +677,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
         /,
         exception: BaseException,
         *,
-        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[Hooks[ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
@@ -686,7 +687,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
         ctx: ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[Hooks[ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
@@ -696,7 +697,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
         ctx: ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[Hooks[ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
@@ -706,7 +707,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
         ctx: ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[typing.AbstractSet[Hooks[ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[Hooks[ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
@@ -717,7 +718,7 @@ InteractionHooks = Hooks[InteractionContext]
 
 
 class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
-    __slots__: typing.Sequence[str] = ()
+    __slots__ = ()
 
     @property
     @abc.abstractmethod
@@ -726,7 +727,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
 
     @property
     @abc.abstractmethod
-    def checks(self) -> typing.Collection[CheckSig]:
+    def checks(self) -> collections.Collection[CheckSig]:
         raise NotImplementedError
 
     @property
@@ -741,7 +742,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
 
     @property
     @abc.abstractmethod
-    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+    def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -770,13 +771,13 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
 
     @abc.abstractmethod
     async def execute(
-        self, ctx: ContextT, /, *, hooks: typing.Optional[typing.MutableSet[Hooks[ContextT]]] = None
+        self, ctx: ContextT, /, *, hooks: typing.Optional[collections.MutableSet[Hooks[ContextT]]] = None
     ) -> None:
         raise NotImplementedError
 
 
 class InteractionCommand(ExecutableCommand[InteractionContext], abc.ABC):
-    __slots__: typing.Sequence[str] = ()
+    __slots__ = ()
 
     @property
     @abc.abstractmethod
@@ -817,7 +818,7 @@ class InteractionCommand(ExecutableCommand[InteractionContext], abc.ABC):
         /,
         option: typing.Optional[hikari.CommandInteractionOption] = None,
         *,
-        hooks: typing.Optional[typing.MutableSet[Hooks[InteractionContext]]] = None,
+        hooks: typing.Optional[collections.MutableSet[Hooks[InteractionContext]]] = None,
     ) -> None:
         raise NotImplementedError
 
@@ -831,11 +832,11 @@ class InteractionCommand(ExecutableCommand[InteractionContext], abc.ABC):
 
 
 class InteractionCommandGroup(InteractionCommand, abc.ABC):
-    __slots__: typing.Sequence[str] = ()
+    __slots__ = ()
 
     @property
     @abc.abstractmethod
-    def commands(self) -> typing.Collection[InteractionCommand]:
+    def commands(self) -> collections.Collection[InteractionCommand]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -848,16 +849,16 @@ class InteractionCommandGroup(InteractionCommand, abc.ABC):
 
 
 class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
-    __slots__: typing.Sequence[str] = ()
+    __slots__ = ()
 
     @property
     @abc.abstractmethod
-    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+    def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
-    def names(self) -> typing.Collection[str]:
+    def names(self) -> collections.Collection[str]:
         raise NotImplementedError
 
     @property
@@ -891,11 +892,11 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
 
 
 class MessageCommandGroup(MessageCommand, abc.ABC):
-    __slots__: typing.Sequence[str] = ()
+    __slots__ = ()
 
     @property
     @abc.abstractmethod
-    def commands(self) -> typing.Collection[MessageCommand]:
+    def commands(self) -> collections.Collection[MessageCommand]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -908,7 +909,7 @@ class MessageCommandGroup(MessageCommand, abc.ABC):
 
 
 class Component(abc.ABC):
-    __slots__: typing.Sequence[str] = ()
+    __slots__ = ()
 
     @property
     @abc.abstractmethod
@@ -917,23 +918,23 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def interaction_commands(self) -> typing.Collection[InteractionCommand]:
+    def interaction_commands(self) -> collections.Collection[InteractionCommand]:
         raise NotImplementedError
 
     @property
-    def message_commands(self) -> typing.Collection[MessageCommand]:
+    def message_commands(self) -> collections.Collection[MessageCommand]:
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
     def listeners(
         self,
-    ) -> typing.Collection[typing.Tuple[typing.Type[hikari.Event], event_manager_api.CallbackT[typing.Any]]]:
+    ) -> collections.Collection[tuple[type[hikari.Event], event_manager_api.CallbackT[typing.Any]]]:
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
-    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+    def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
         raise NotImplementedError
 
     def add_interaction_command(self: _T, command: InteractionCommand, /) -> _T:
@@ -949,12 +950,12 @@ class Component(abc.ABC):
     @typing.overload
     def with_interaction_command(
         self, *, copy: bool = False
-    ) -> typing.Callable[[InteractionCommandT], InteractionCommandT]:
+    ) -> collections.Callable[[InteractionCommandT], InteractionCommandT]:
         ...
 
     def with_interaction_command(
         self, command: InteractionCommandT = ..., /, *, copy: bool = False
-    ) -> typing.Union[InteractionCommandT, typing.Callable[[InteractionCommandT], InteractionCommandT]]:
+    ) -> typing.Union[InteractionCommandT, collections.Callable[[InteractionCommandT], InteractionCommandT]]:
         raise NotImplementedError
 
     def add_message_command(self: _T, command: MessageCommand, /) -> _T:
@@ -968,17 +969,17 @@ class Component(abc.ABC):
         ...
 
     @typing.overload
-    def with_message_command(self, *, copy: bool = False) -> typing.Callable[[MessageCommandT], MessageCommandT]:
+    def with_message_command(self, *, copy: bool = False) -> collections.Callable[[MessageCommandT], MessageCommandT]:
         ...
 
     def with_message_command(
         self, command: MessageCommandT = ..., /, *, copy: bool = False
-    ) -> typing.Union[MessageCommandT, typing.Callable[[MessageCommandT], MessageCommandT]]:
+    ) -> typing.Union[MessageCommandT, collections.Callable[[MessageCommandT], MessageCommandT]]:
         raise NotImplementedError
 
     def add_listener(
         self: _T,
-        event: typing.Type[event_manager_api.EventT_inv],
+        event: type[event_manager_api.EventT_inv],
         listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
         /,
     ) -> _T:
@@ -986,7 +987,7 @@ class Component(abc.ABC):
 
     def remove_listener(
         self,
-        event: typing.Type[event_manager_api.EventT_inv],
+        event: type[event_manager_api.EventT_inv],
         listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
         /,
     ) -> None:
@@ -994,8 +995,8 @@ class Component(abc.ABC):
 
     # TODO: make event optional?
     def with_listener(
-        self, event_type: typing.Type[event_manager_api.EventT_inv]
-    ) -> typing.Callable[
+        self, event_type: type[event_manager_api.EventT_inv]
+    ) -> collections.Callable[
         [event_manager_api.CallbackT[event_manager_api.EventT_inv]],
         event_manager_api.CallbackT[event_manager_api.EventT_inv],
     ]:
@@ -1014,11 +1015,11 @@ class Component(abc.ABC):
     @abc.abstractmethod
     def check_message_context(
         self, ctx: MessageContext, /, *, name_prefix: str = ""
-    ) -> typing.AsyncIterator[typing.Tuple[str, MessageCommand]]:
+    ) -> collections.AsyncIterator[tuple[str, MessageCommand]]:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def check_message_name(self, name: str, /) -> typing.Iterator[typing.Tuple[str, MessageCommand]]:
+    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, MessageCommand]]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -1027,13 +1028,13 @@ class Component(abc.ABC):
         ctx: InteractionContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[InteractionHooks]] = None,
-    ) -> typing.Optional[typing.Awaitable[None]]:
+        hooks: typing.Optional[collections.MutableSet[InteractionHooks]] = None,
+    ) -> typing.Optional[collections.Awaitable[None]]:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def execute_message(
-        self, ctx: MessageContext, /, *, hooks: typing.Optional[typing.MutableSet[MessageHooks]] = None
+        self, ctx: MessageContext, /, *, hooks: typing.Optional[collections.MutableSet[MessageHooks]] = None
     ) -> bool:
         raise NotImplementedError
 
@@ -1048,7 +1049,7 @@ class ClientCallbackNames(str, enum.Enum):
 
 
 class Client(abc.ABC):
-    __slots__: typing.Sequence[str] = ()
+    __slots__ = ()
 
     @property
     @abc.abstractmethod
@@ -1057,7 +1058,7 @@ class Client(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def components(self) -> typing.Collection[Component]:
+    def components(self) -> collections.Collection[Component]:
         raise NotImplementedError
 
     @property
@@ -1067,12 +1068,12 @@ class Client(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+    def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
-    def prefixes(self) -> typing.Collection[str]:
+    def prefixes(self) -> collections.Collection[str]:
         raise NotImplementedError
 
     @property
@@ -1103,7 +1104,7 @@ class Client(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_client_callbacks(self, event_name: str, /) -> typing.Collection[MetaEventSig]:
+    def get_client_callbacks(self, event_name: str, /) -> collections.Collection[MetaEventSig]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -1111,15 +1112,15 @@ class Client(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def with_client_callback(self, event_name: str, /) -> typing.Callable[[MetaEventSigT], MetaEventSigT]:
+    def with_client_callback(self, event_name: str, /) -> collections.Callable[[MetaEventSigT], MetaEventSigT]:
         raise NotImplementedError
 
     # As far as MYPY is concerned, unless you explicitly yield within an async callback typed as returning an
     # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
     @abc.abstractmethod
-    def check_message_context(self, ctx: MessageContext, /) -> typing.AsyncIterator[typing.Tuple[str, MessageCommand]]:
+    def check_message_context(self, ctx: MessageContext, /) -> collections.AsyncIterator[tuple[str, MessageCommand]]:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def check_message_name(self, name: str, /) -> typing.Iterator[typing.Tuple[str, MessageCommand]]:
+    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, MessageCommand]]:
         raise NotImplementedError

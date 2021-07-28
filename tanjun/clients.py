@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = [
+__all__: list[str] = [
     "as_loader",
     "Client",
     "LoadableSig",
@@ -70,7 +70,7 @@ if typing.TYPE_CHECKING:
 
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
 
-LoadableSig = typing.Callable[["Client"], None]
+LoadableSig = collections.Callable[["Client"], None]
 """Type hint of the callback used to load resources into a Tanjun client.
 
 This should take one positional argument of type `Client` and return nothing.
@@ -78,7 +78,7 @@ This will be expected to initiate and resources like components to the client
 through the use of it's protocol methods.
 """
 
-PrefixGetterSig = typing.Callable[..., typing.Awaitable[typing.Iterable[str]]]
+PrefixGetterSig = collections.Callable[..., collections.Awaitable[collections.Iterable[str]]]
 """Type hint of a callable used to get the prefix(es) for a specific guild.
 
 This should be an asynchronous callable which returns an iterable of strings.
@@ -136,12 +136,12 @@ class MessageAcceptsEnum(str, enum.Enum):
     NONE = "NONE"
     """Set the client to not execute commands based on message create events."""
 
-    def get_event_type(self) -> typing.Optional[typing.Type[hikari.MessageCreateEvent]]:
+    def get_event_type(self) -> typing.Optional[type[hikari.MessageCreateEvent]]:
         """Get the base event type this mode listens to.
 
         Returns
         -------
-        typing.Optional[typing.Type[hikari.message_events.MessageCreateEvent]]
+        typing.Optional[type[hikari.message_events.MessageCreateEvent]]
             The type object of the MessageCreateEvent class this mode will
             register a listener for.
 
@@ -151,9 +151,7 @@ class MessageAcceptsEnum(str, enum.Enum):
         return _ACCEPTS_EVENT_TYPE_MAPPING[self]
 
 
-_ACCEPTS_EVENT_TYPE_MAPPING: typing.Dict[
-    MessageAcceptsEnum, typing.Optional[typing.Type[hikari.MessageCreateEvent]]
-] = {
+_ACCEPTS_EVENT_TYPE_MAPPING: dict[MessageAcceptsEnum, typing.Optional[type[hikari.MessageCreateEvent]]] = {
     MessageAcceptsEnum.ALL: hikari.MessageCreateEvent,
     MessageAcceptsEnum.DM_ONLY: hikari.DMMessageCreateEvent,
     MessageAcceptsEnum.GUILD_ONLY: hikari.GuildMessageCreateEvent,
@@ -167,8 +165,8 @@ def _check_human(ctx: tanjun_traits.Context, /) -> bool:
 
 async def _wrap_client_callback(
     callback: tanjun_traits.MetaEventSig,
-    args: typing.Tuple[str, ...],
-    kwargs: typing.Dict[str, typing.Any],
+    args: tuple[str, ...],
+    kwargs: dict[str, typing.Any],
     suppress_exceptions: bool,
 ) -> None:
     try:
@@ -184,8 +182,8 @@ async def _wrap_client_callback(
             raise
 
 
-class _InjectablePrefixGetter(injector_.BaseInjectableValue[typing.Iterable[str]]):
-    __slots__: typing.Sequence[str] = ()
+class _InjectablePrefixGetter(injector_.BaseInjectableValue[collections.Iterable[str]]):
+    __slots__: tuple[str, ...] = ()
 
     callback: PrefixGetterSig
 
@@ -195,7 +193,7 @@ class _InjectablePrefixGetter(injector_.BaseInjectableValue[typing.Iterable[str]
         super().__init__(callback, injector=injector)
         self.is_async = True
 
-    async def __call__(self, ctx: tanjun_traits.Context, /) -> typing.Iterable[str]:
+    async def __call__(self, ctx: tanjun_traits.Context, /) -> collections.Iterable[str]:
         return await self.call(ctx, ctx=ctx)
 
 
@@ -258,7 +256,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         If `event_managed` is `True` when `event_manager` is `None`.
     """
 
-    __slots__: typing.Sequence[str] = (
+    __slots__: tuple[str, ...] = (
         "_accepts",
         "_auto_defer_after",
         "_cache",
@@ -299,9 +297,9 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         self._accepts = MessageAcceptsEnum.ALL if events else MessageAcceptsEnum.NONE
         self._auto_defer_after: typing.Optional[float] = 2.6
         self._cache = cache
-        self._checks: typing.Set[injector_.InjectableCheck] = set()
-        self._client_callbacks: typing.Dict[str, typing.Set[tanjun_traits.MetaEventSig]] = {}
-        self._components: typing.Set[tanjun_traits.Component] = set()
+        self._checks: set[injector_.InjectableCheck] = set()
+        self._client_callbacks: dict[str, set[tanjun_traits.MetaEventSig]] = {}
+        self._components: set[tanjun_traits.Component] = set()
         self._events = events
         self._grab_mention_prefix = mention_prefix
         self._hooks: typing.Optional[tanjun_traits.AnyHooks] = None
@@ -309,9 +307,9 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         self._interaction_hooks: typing.Optional[tanjun_traits.InteractionHooks] = None
         self._is_alive = False
         self._message_hooks: typing.Optional[tanjun_traits.MessageHooks] = None
-        self._metadata: typing.Dict[typing.Any, typing.Any] = {}
+        self._metadata: dict[typing.Any, typing.Any] = {}
         self._prefix_getter: typing.Optional[_InjectablePrefixGetter] = None
-        self._prefixes: typing.Set[str] = set()
+        self._prefixes: set[str] = set()
         self._rest = rest
         self._server = server
         self._shards = shard
@@ -413,7 +411,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
     async def __aexit__(
         self,
-        exception_type: typing.Optional[typing.Type[BaseException]],
+        exception_type: typing.Optional[type[BaseException]],
         exception: typing.Optional[BaseException],
         exception_traceback: typing.Optional[types.TracebackType],
     ) -> None:
@@ -438,12 +436,12 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         return self._cache
 
     @property
-    def checks(self) -> typing.AbstractSet[tanjun_traits.CheckSig]:
+    def checks(self) -> collections.Set[tanjun_traits.CheckSig]:
         """Set of the top level `tanjun.traits.Context` checks registered to this client.
 
         Returns
         -------
-        typing.AbstractSet[tanjun.traits.CheckSig]
+        collections.abc.Set[tanjun.traits.CheckSig]
             Set of the `tanjun.traits.Context` based checks registered for
             this client.
 
@@ -452,7 +450,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         return {check.callback for check in self._checks}
 
     @property
-    def components(self) -> typing.AbstractSet[tanjun_traits.Component]:
+    def components(self) -> collections.Set[tanjun_traits.Component]:
         # <<inherited docstring from tanjun.traits.Client>>.
         return self._components.copy()
 
@@ -509,7 +507,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         return self._message_hooks
 
     @property
-    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+    def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
         # <<inherited docstring from tanjun.traits.Client>>.
         return self._metadata
 
@@ -528,12 +526,12 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         return self._prefix_getter.callback if self._prefix_getter else None
 
     @property
-    def prefixes(self) -> typing.AbstractSet[str]:
+    def prefixes(self) -> collections.Set[str]:
         """Set of the standard prefixes set for this client.
 
         Returns
         -------
-        typing.AbstractSet[str]
+        collections.abc.Set[str]
             The standard prefixes set for this client.
         """
         return self._prefixes.copy()
@@ -653,7 +651,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
     async def set_global_commands(
         self, application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None, /
-    ) -> typing.Sequence[hikari.Command]:
+    ) -> collections.Sequence[hikari.Command]:
         """Set the global application commands for a bot based on the loaded components.
 
         !!! note
@@ -666,6 +664,11 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
             If left as `None` then this will be inferred from the authorization
             being used by `Client.rest`.
+
+        Returns
+        -------
+        collections.abc.Sequence[hikari.interactions.command.Command]
+            API representations of the set commands.
         """
         if not application:
             try:
@@ -674,9 +677,9 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
             except hikari.UnauthorizedError:
                 application = (await self._rest.fetch_authorization()).application
 
-        found_top_names: typing.Set[str] = set()
-        conflicts: typing.Set[str] = set()
-        builders: typing.List[hikari.api.CommandBuilder] = []
+        found_top_names: set[str] = set()
+        conflicts: set[str] = set()
+        builders: list[hikari.api.CommandBuilder] = []
 
         for command in itertools.chain.from_iterable(component.interaction_commands for component in self._components):
             if not command.is_global:
@@ -749,7 +752,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
                 *(_wrap_client_callback(callback, args, kwargs, suppress_exceptions) for callback in callbacks)
             )
 
-    def get_client_callbacks(self, event_name: str, /) -> typing.Collection[tanjun_traits.MetaEventSig]:
+    def get_client_callbacks(self, event_name: str, /) -> collections.Collection[tanjun_traits.MetaEventSig]:
         # <<inherited docstring from tanjun.traits.Client>>.
         event_name = event_name.lower()
         return self._client_callbacks.get(event_name) or ()
@@ -763,7 +766,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
     def with_client_callback(
         self, event_name: str, /
-    ) -> typing.Callable[[tanjun_traits.MetaEventSigT], tanjun_traits.MetaEventSigT]:
+    ) -> collections.Callable[[tanjun_traits.MetaEventSigT], tanjun_traits.MetaEventSigT]:
         # <<inherited docstring from tanjun.traits.Client>>.
         def decorator(callback: tanjun_traits.MetaEventSigT, /) -> tanjun_traits.MetaEventSigT:
             self.add_client_callback(event_name, callback)
@@ -771,7 +774,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
         return decorator
 
-    def add_prefix(self: _ClientT, prefixes: typing.Union[typing.Iterable[str], str], /) -> _ClientT:
+    def add_prefix(self: _ClientT, prefixes: typing.Union[collections.Iterable[str], str], /) -> _ClientT:
         if isinstance(prefixes, str):
             self._prefixes.add(prefixes)
 
@@ -793,10 +796,10 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
     def check_message_context(
         self, ctx: tanjun_traits.MessageContext, /
-    ) -> typing.AsyncIterator[typing.Tuple[str, tanjun_traits.MessageCommand]]:
+    ) -> collections.AsyncIterator[tuple[str, tanjun_traits.MessageCommand]]:
         return utilities.async_chain(component.check_message_context(ctx) for component in self._components)
 
-    def check_message_name(self, name: str, /) -> typing.Iterator[typing.Tuple[str, tanjun_traits.MessageCommand]]:
+    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, tanjun_traits.MessageCommand]]:
         return itertools.chain.from_iterable(component.check_message_name(name) for component in self._components)
 
     async def _check_prefix(self, ctx: tanjun_traits.MessageContext, /) -> typing.Optional[str]:
@@ -814,7 +817,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
     def _try_unsubscribe(
         self,
         event_manager: hikari.api.EventManager,
-        event_type: typing.Type[event_manager_api.EventT_inv],
+        event_type: type[event_manager_api.EventT_inv],
         callback: event_manager_api.CallbackT[event_manager_api.EventT_inv],
     ) -> None:
         try:
@@ -933,7 +936,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         if not await self.check(ctx):
             return
 
-        hooks: typing.Optional[typing.Set[tanjun_traits.MessageHooks]] = None
+        hooks: typing.Optional[set[tanjun_traits.MessageHooks]] = None
         if self._hooks:
             if not hooks:
                 hooks = set()
@@ -956,8 +959,8 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
         await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx)
 
-    def _get_interaction_hooks(self) -> typing.Optional[typing.Set[tanjun_traits.InteractionHooks]]:
-        hooks: typing.Optional[typing.Set[tanjun_traits.InteractionHooks]] = None
+    def _get_interaction_hooks(self) -> typing.Optional[set[tanjun_traits.InteractionHooks]]:
+        hooks: typing.Optional[set[tanjun_traits.InteractionHooks]] = None
 
         if self._hooks:
             if not hooks:

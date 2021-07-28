@@ -4,9 +4,9 @@ import examples.config
 import tanjun
 from examples import protos
 
+
 async def connect_to_database(*args: typing.Any, **kwargs: typing.Any) -> typing.Any:
     raise NotImplementedError  # this is a stand in for the real implementation which would be imported
-
 
 
 class DatabaseImpl:

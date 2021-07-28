@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = [
+__all__: list[str] = [
     "AbstractParser",
     "Argument",
     "ConverterSig",
@@ -74,7 +74,7 @@ if typing.TYPE_CHECKING:
 ParseableProtoT = typing.TypeVar("ParseableProtoT", bound="ParseableProto")
 """Generic type hint of `ParseableProto`."""
 
-ConverterSig = typing.Callable[..., typing.Union[typing.Awaitable[typing.Any], typing.Any]]
+ConverterSig = collections.Callable[..., typing.Union[collections.Awaitable[typing.Any], typing.Any]]
 """Type hint of a converter used within a parser instance.
 
 This must be a callable or asynchronous callable which takes one position
@@ -126,11 +126,11 @@ UNDEFINED_DEFAULT = UndefinedDefaultT()
 class AbstractParser(abc.ABC):
     """Abstract interface of a message content parser."""
 
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
     @property
     @abc.abstractmethod
-    def parameters(self) -> typing.Sequence[Parameter]:
+    def parameters(self) -> collections.Sequence[Parameter]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -142,7 +142,7 @@ class AbstractParser(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_parameters(self, parameters: typing.Iterable[typing.Union[Argument, Option]], /) -> None:
+    def set_parameters(self, parameters: collections.Iterable[typing.Union[Argument, Option]], /) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -158,25 +158,23 @@ class AbstractParser(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def parse(
-        self, ctx: traits.MessageContext, /
-    ) -> typing.Tuple[typing.List[typing.Any], typing.Dict[str, typing.Any]]:
+    async def parse(self, ctx: traits.MessageContext, /) -> tuple[list[typing.Any], dict[str, typing.Any]]:
         raise NotImplementedError
 
 
 class ShlexTokenizer:
-    __slots__: typing.Sequence[str] = ("__arg_buffer", "__last_name", "__options_buffer", "__shlex")
+    __slots__: tuple[str, ...] = ("__arg_buffer", "__last_name", "__options_buffer", "__shlex")
 
     def __init__(self, content: str, /) -> None:
-        self.__arg_buffer: typing.List[str] = []
+        self.__arg_buffer: list[str] = []
         self.__last_name: typing.Optional[str] = None
-        self.__options_buffer: typing.List[typing.Tuple[str, typing.Optional[str]]] = []
+        self.__options_buffer: list[tuple[str, typing.Optional[str]]] = []
         self.__shlex = shlex.shlex(content, posix=True)
         self.__shlex.whitespace = " "
         self.__shlex.whitespace_split = True
 
-    def collect_raw_options(self) -> typing.Mapping[str, typing.Sequence[typing.Optional[str]]]:
-        results: typing.Dict[str, typing.List[typing.Optional[str]]] = {}
+    def collect_raw_options(self) -> collections.Mapping[str, collections.Sequence[typing.Optional[str]]]:
+        results: dict[str, list[typing.Optional[str]]] = {}
 
         while (option := self.next_raw_option()) is not None:
             name, value = option
@@ -188,7 +186,7 @@ class ShlexTokenizer:
 
         return results
 
-    def iter_raw_arguments(self) -> typing.Iterator[str]:
+    def iter_raw_arguments(self) -> collections.Iterator[str]:
         while (argument := self.next_raw_argument()) is not None:
             yield argument
 
@@ -202,7 +200,7 @@ class ShlexTokenizer:
 
         return value
 
-    def next_raw_option(self) -> typing.Optional[typing.Tuple[str, typing.Optional[str]]]:
+    def next_raw_option(self) -> typing.Optional[tuple[str, typing.Optional[str]]]:
         if self.__options_buffer:
             return self.__options_buffer.pop(0)
 
@@ -212,7 +210,7 @@ class ShlexTokenizer:
 
         return value
 
-    def __seek_shlex(self) -> typing.Union[str, typing.Tuple[str, typing.Optional[str]], None]:
+    def __seek_shlex(self) -> typing.Union[str, tuple[str, typing.Optional[str]], None]:
         option_name = self.__last_name
 
         try:
@@ -257,14 +255,14 @@ async def _covert_option_or_empty(
 
 
 class SemanticShlex(ShlexTokenizer):
-    __slots__: typing.Sequence[str] = ("__ctx",)
+    __slots__: tuple[str, ...] = ("__ctx",)
 
     def __init__(self, ctx: traits.MessageContext, /) -> None:
         super().__init__(ctx.content)
         self.__ctx = ctx
 
-    async def get_arguments(self, arguments: typing.Sequence[Argument], /) -> typing.List[typing.Any]:
-        results: typing.List[typing.Any] = []
+    async def get_arguments(self, arguments: collections.Sequence[Argument], /) -> list[typing.Any]:
+        results: list[typing.Any] = []
         for argument in arguments:
             results.append(await self.__process_argument(argument))
 
@@ -273,7 +271,7 @@ class SemanticShlex(ShlexTokenizer):
 
         return results
 
-    async def get_options(self, options: typing.Sequence[Option], /) -> typing.Dict[str, typing.Any]:
+    async def get_options(self, options: collections.Sequence[Option], /) -> dict[str, typing.Any]:
         raw_options = self.collect_raw_options()
         results = asyncio.gather(*map(lambda option: self.__process_option(option, raw_options), options))
         return dict(zip((option.key for option in options), await results))
@@ -296,7 +294,7 @@ class SemanticShlex(ShlexTokenizer):
         raise errors.NotEnoughArgumentsError(f"Missing value for required argument '{argument.key}'", argument.key)
 
     async def __process_option(
-        self, option: Option, raw_options: typing.Mapping[str, typing.Sequence[typing.Optional[str]]]
+        self, option: Option, raw_options: collections.Mapping[str, collections.Sequence[typing.Optional[str]]]
     ) -> typing.Any:
         values_iter = itertools.chain.from_iterable(raw_options[name] for name in option.names if name in raw_options)
         if option.is_multi and (values := list(values_iter)):
@@ -318,12 +316,12 @@ class SemanticShlex(ShlexTokenizer):
 def with_argument(
     key: str,
     /,
-    converters: typing.Union[typing.Iterable[ConverterSig], ConverterSig, None] = None,
+    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
     *,
     default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
     greedy: bool = False,
     multi: bool = False,
-) -> typing.Callable[[ParseableProtoT], ParseableProtoT]:
+) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
     """Add an argument to a parsable command through a decorator call.
 
     !!! info
@@ -337,7 +335,7 @@ def with_argument(
     key : str
         The string identifier of this argument (may be used to pass the result
         of this argument to the command's callback during execution).
-    converters : typing.Union[ConverterSig, typing.Iterable[ConverterSig], None]
+    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig], None]
         The converter(s) this argument should use to handle values passed to it
         during parsing, this may be left as `None to indicate that
         the raw string value should be returned without conversion.
@@ -347,7 +345,7 @@ def with_argument(
 
     Returns
     -------
-    typing.Callable[[ParseableProtoT], ParseableProtoT]:
+    collections.abc.Callable[[ParseableProtoT], ParseableProtoT]:
         Decorator function for the parsable command this argument is being added to.
 
     Examples
@@ -377,10 +375,10 @@ def with_argument(
 def with_greedy_argument(
     key: str,
     /,
-    converters: typing.Union[typing.Iterable[ConverterSig], ConverterSig, None] = None,
+    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
     *,
     default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
-) -> typing.Callable[[ParseableProtoT], ParseableProtoT]:
+) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
     """Add a greedy argument to a parsable command through a decorator call.
 
     !!! note
@@ -403,7 +401,7 @@ def with_greedy_argument(
 
     Other Parameters
     ----------------
-    converters : typing.Union[ConverterSig, typing.Iterable[ConverterSig], None]
+    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig], None]
         The converter(s) this argument should use to handle values passed to it
         during parsing, this may be left as `None to indicate that
         the raw string value should be returned without conversion.
@@ -413,7 +411,7 @@ def with_greedy_argument(
 
     Returns
     -------
-    typing.Callable[[ParseableProtoT], ParseableProtoT]:
+    collections.abc.Callable[[ParseableProtoT], ParseableProtoT]:
         Decorator function for the parsable command this argument is being added to.
 
     Examples
@@ -434,10 +432,10 @@ def with_greedy_argument(
 def with_multi_argument(
     key: str,
     /,
-    converters: typing.Union[typing.Iterable[ConverterSig], ConverterSig, None] = None,
+    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
     *,
     default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
-) -> typing.Callable[[ParseableProtoT], ParseableProtoT]:
+) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
     """Add a greedy argument to a parsable command through a decorator call.
 
     !!! note
@@ -461,7 +459,7 @@ def with_multi_argument(
 
     Other Parameters
     ----------------
-    converters : typing.Union[ConverterSig, typing.Iterable[ConverterSig], None]
+    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig], None]
         The converter(s) this argument should use to handle values passed to it
         during parsing, this may be left as `None to indicate that
         the raw string value should be returned without conversion.
@@ -471,7 +469,7 @@ def with_multi_argument(
 
     Returns
     -------
-    typing.Callable[[ParseableProtoT], ParseableProtoT]:
+    collections.abc.Callable[[ParseableProtoT], ParseableProtoT]:
         Decorator function for the parsable command this argument is being added to.
 
     Examples
@@ -482,7 +480,7 @@ def with_multi_argument(
     @tanjun.parsing.with_multi_argument("command", converters=(int,))
     @tanjun.parsing.with_parser
     @tanjun.component.as_message_command("command")
-    async def command(self, ctx: tanjun.traits.Context, /, argument: typing.Sequence[int]):
+    async def command(self, ctx: tanjun.traits.Context, /, argument: collections.abc.Sequence[int]):
         ...
     ```
     """
@@ -495,11 +493,11 @@ def with_option(
     name: str,
     /,
     *names: str,
-    converters: typing.Union[typing.Iterable[ConverterSig], ConverterSig, None] = None,
+    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
     default: typing.Any,
     empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
     multi: bool = False,
-) -> typing.Callable[[ParseableProtoT], ParseableProtoT]:
+) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
     """Add an option to a parsable command through a decorator call.
 
     Parameters
@@ -518,7 +516,7 @@ def with_option(
     ----------------
     *names : str
         Other names of this option used for identifying it in the parsed content.
-    converters : typing.Union[ConverterSig, typing.Iterable[ConverterSig], None]
+    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig], None]
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
@@ -531,7 +529,7 @@ def with_option(
 
     Returns
     -------
-    typing.Callable[[ParseableProtoT], ParseableProtoT]:
+    collections.abc.Callable[[ParseableProtoT], ParseableProtoT]:
         Decorator function for the parsable command this option is being added to.
 
     Examples
@@ -563,10 +561,10 @@ def with_multi_option(
     name: str,
     /,
     *names: str,
-    converters: typing.Union[typing.Iterable[ConverterSig], ConverterSig, None] = None,
+    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
     default: typing.Any,
     empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
-) -> typing.Callable[[ParseableProtoT], ParseableProtoT]:
+) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
     """Add an multi-option to a command's parser through a decorator call.
 
     !!! note
@@ -591,7 +589,7 @@ def with_multi_option(
     ----------------
     *names : str
         Other names of this option used for identifying it in the parsed content.
-    converters : typing.Union[ConverterSig, typing.Iterable[ConverterSig], None]
+    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig], None]
         The converter(s) this argument should use to handle values passed to it
         during parsing, this may be left as `None to indicate that
         the raw string value should be returned without conversion.
@@ -602,7 +600,7 @@ def with_multi_option(
 
     Returns
     -------
-    typing.Callable[[ParseableProtoT], ParseableProtoT]:
+    collections.abc.Callable[[ParseableProtoT], ParseableProtoT]:
         Decorator function for the parsable command this option is being added to.
 
     Examples
@@ -613,7 +611,7 @@ def with_multi_option(
     @tanjun.parsing.with_multi_option("command", converters=(int,), default=())
     @tanjun.parsing.with_parser
     @tanjun.component.as_message_command("command")
-    async def command(self, ctx: tanjun.traits.Context, /, argument: typing.Sequence[int]):
+    async def command(self, ctx: tanjun.traits.Context, /, argument: collections.abc.Sequence[int]):
         ...
     ```
     """
@@ -621,7 +619,7 @@ def with_multi_option(
 
 
 class Parameter(injector_.Injectable):
-    __slots__: typing.Sequence[str] = (
+    __slots__: tuple[str, ...] = (
         "_client",
         "_component",
         "_converters",
@@ -637,14 +635,14 @@ class Parameter(injector_.Injectable):
         key: str,
         /,
         *,
-        converters: typing.Union[typing.Iterable[ConverterSig], ConverterSig, None] = None,
+        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
         greedy: bool = False,
         multi: bool = False,
     ) -> None:
         self._client: typing.Optional[traits.Client] = None
         self._component: typing.Optional[traits.Component] = None
-        self._converters: typing.Optional[typing.List[injector_.InjectableConverter[typing.Any]]] = None
+        self._converters: typing.Optional[list[injector_.InjectableConverter[typing.Any]]] = None
         self.default = default
         self._injector: typing.Optional[injector_.InjectorClient] = None
         self.is_greedy = greedy
@@ -666,7 +664,7 @@ class Parameter(injector_.Injectable):
         return f"{type(self).__name__} <{self._key}>"
 
     @property
-    def converters(self) -> typing.Optional[typing.Sequence[ConverterSig]]:
+    def converters(self) -> typing.Optional[collections.Sequence[ConverterSig]]:
         return tuple(converter.callback for converter in self._converters) if self._converters is not None else None
 
     @property
@@ -727,7 +725,7 @@ class Parameter(injector_.Injectable):
         if self._converters is None:
             return value
 
-        sources: typing.List[ValueError] = []
+        sources: list[ValueError] = []
         for converter in self._converters:
             try:
                 return await converter(value, ctx)
@@ -757,14 +755,14 @@ class Parameter(injector_.Injectable):
 
 
 class Argument(Parameter):
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
     def __init__(
         self,
         key: str,
         /,
         *,
-        converters: typing.Union[typing.Iterable[ConverterSig], ConverterSig, None] = None,
+        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
         greedy: bool = False,
         multi: bool = False,
@@ -776,14 +774,14 @@ class Argument(Parameter):
 
 
 class Option(Parameter):
-    __slots__: typing.Sequence[str] = ("_empty_value", "is_multi", "_names")
+    __slots__: tuple[str, ...] = ("_empty_value", "is_multi", "_names")
 
     def __init__(
         self,
         key: str,
         name: str,
         *names: str,
-        converters: typing.Union[typing.Iterable[ConverterSig], ConverterSig, None] = None,
+        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
         empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
         multi: bool = True,
@@ -800,7 +798,7 @@ class Option(Parameter):
         return self._empty_value
 
     @property
-    def names(self) -> typing.Sequence[str]:
+    def names(self) -> collections.Sequence[str]:
         return self._names.copy()
 
     def __repr__(self) -> str:
@@ -810,14 +808,16 @@ class Option(Parameter):
 class ShlexParser(injector_.Injectable, AbstractParser):
     """A shlex based `tanjun.traits.Parser` implementation."""
 
-    __slots__: typing.Sequence[str] = ("_arguments", "_client", "_component", "_injector", "_options")
+    __slots__: tuple[str, ...] = ("_arguments", "_client", "_component", "_injector", "_options")
 
-    def __init__(self, *, parameters: typing.Optional[typing.Iterable[typing.Union[Argument, Option]]] = None) -> None:
-        self._arguments: typing.List[Argument] = []
+    def __init__(
+        self, *, parameters: typing.Optional[collections.Iterable[typing.Union[Argument, Option]]] = None
+    ) -> None:
+        self._arguments: list[Argument] = []
         self._client: typing.Optional[traits.Client] = None
         self._component: typing.Optional[traits.Component] = None
         self._injector: typing.Optional[injector_.InjectorClient] = None
-        self._options: typing.List[Option] = []
+        self._options: list[Option] = []
 
         if parameters is not None:
             self.set_parameters(parameters)
@@ -828,7 +828,7 @@ class ShlexParser(injector_.Injectable, AbstractParser):
         return any(parameter.needs_injector for parameter in itertools.chain(self._options, self._arguments))
 
     @property
-    def parameters(self) -> typing.Sequence[Parameter]:
+    def parameters(self) -> collections.Sequence[Parameter]:
         # <<inherited docstring from AbstractParser>>.
         return (*self._arguments, *self._options)
 
@@ -879,7 +879,7 @@ class ShlexParser(injector_.Injectable, AbstractParser):
         for parameter in itertools.chain(self._options, self._arguments):
             parameter.set_injector(client)
 
-    def set_parameters(self, parameters: typing.Iterable[typing.Union[Argument, Option]], /) -> None:
+    def set_parameters(self, parameters: collections.Iterable[typing.Union[Argument, Option]], /) -> None:
         # <<inherited docstring from AbstractParser>>.
         self._arguments = []
         self._options = []
@@ -899,9 +899,7 @@ class ShlexParser(injector_.Injectable, AbstractParser):
         for parameter in itertools.chain(self._options, self._arguments):
             parameter.bind_component(component)
 
-    async def parse(
-        self, ctx: traits.MessageContext, /
-    ) -> typing.Tuple[typing.List[typing.Any], typing.Dict[str, typing.Any]]:
+    async def parse(self, ctx: traits.MessageContext, /) -> tuple[list[typing.Any], dict[str, typing.Any]]:
         # <<inherited docstring from AbstractParser>>.
         parser = SemanticShlex(ctx)
         arguments = await parser.get_arguments(self._arguments)

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length     = 120
-target-version  = ["py38"]
+target-version  = ["py39"]
 include         = ".*pyi?$"
 
 [tool.pyright]
@@ -14,7 +14,7 @@ include = ["examples", "tanjun"]
 reportMissingImports = true
 reportMissingTypeStubs = true
 
-pythonVersion = "3.8"
+pythonVersion = "3.9"
 typeCheckingMode = "strict"
 reportIncompatibleMethodOverride = "warning"  # This relies on ordering for key-word only arguments which is annoying
                                            # than it's worth

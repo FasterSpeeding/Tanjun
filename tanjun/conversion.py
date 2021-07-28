@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = [
+__all__: list[str] = [
     "ChannelConverter",
     "ColorConverter",
     "EmojiConverter",
@@ -59,6 +59,8 @@ import hikari
 from . import errors
 
 if typing.TYPE_CHECKING:
+    from collections import abc as collections
+
     from . import parsing
     from . import traits
 
@@ -66,8 +68,8 @@ _ValueT = typing.TypeVar("_ValueT")
 
 
 class BaseConverter(typing.Generic[_ValueT], abc.ABC):
-    __slots__: typing.Sequence[str] = ()
-    __implementations: typing.Set[typing.Type[BaseConverter[typing.Type[typing.Any]]]] = set()
+    __slots__: tuple[str, ...] = ()
+    __implementations: set[type[BaseConverter[type[typing.Any]]]] = set()
 
     async def __call__(self, argument: str, ctx: traits.Context) -> _ValueT:
         return await self.convert(ctx, argument)
@@ -94,9 +96,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         pass
 
     @classmethod
-    def get_from_type(
-        cls, type_: typing.Type[_ValueT]
-    ) -> typing.Optional[typing.Type[BaseConverter[typing.Type[_ValueT]]]]:
+    def get_from_type(cls, type_: type[_ValueT], /) -> typing.Optional[type[BaseConverter[type[_ValueT]]]]:
         for converter in cls.__implementations:
             is_inheritable = converter.is_inheritable()
             if is_inheritable and issubclass(type_, converter.types()):
@@ -108,7 +108,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         return None
 
     @classmethod
-    def implementations(cls) -> typing.MutableSet[typing.Type[BaseConverter[typing.Type[typing.Any]]]]:
+    def implementations(cls) -> collections.MutableSet[type[BaseConverter[type[typing.Any]]]]:
         return cls.__implementations
 
     @property
@@ -132,12 +132,12 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
+    def types(cls) -> tuple[type[typing.Any], ...]:
         raise NotImplementedError
 
 
 class ChannelConverter(BaseConverter[hikari.GuildChannel]):
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -160,12 +160,12 @@ class ChannelConverter(BaseConverter[hikari.GuildChannel]):
         return True
 
     @classmethod
-    def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
+    def types(cls) -> tuple[type[typing.Any], ...]:
         return (hikari.GuildChannel,)
 
 
 class ColorConverter(BaseConverter[hikari.Color]):
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -187,12 +187,12 @@ class ColorConverter(BaseConverter[hikari.Color]):
         return False
 
     @classmethod
-    def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
+    def types(cls) -> tuple[type[typing.Any], ...]:
         return (hikari.Color,)
 
 
 class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -215,12 +215,12 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
         return True
 
     @classmethod
-    def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
+    def types(cls) -> tuple[type[typing.Any], ...]:
         return (hikari.CustomEmoji,)
 
 
 class GuildConverter(BaseConverter[hikari.GatewayGuild]):
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -243,12 +243,12 @@ class GuildConverter(BaseConverter[hikari.GatewayGuild]):
         return True
 
     @classmethod
-    def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
+    def types(cls) -> tuple[type[typing.Any], ...]:
         return (hikari.Guild,)
 
 
 class InviteConverter(BaseConverter[hikari.InviteWithMetadata]):
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -270,12 +270,12 @@ class InviteConverter(BaseConverter[hikari.InviteWithMetadata]):
         return True
 
     @classmethod
-    def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
+    def types(cls) -> tuple[type[typing.Any], ...]:
         return (hikari.Invite,)
 
 
 class MemberConverter(BaseConverter[hikari.Member]):
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -301,12 +301,12 @@ class MemberConverter(BaseConverter[hikari.Member]):
         return False
 
     @classmethod
-    def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
+    def types(cls) -> tuple[type[typing.Any], ...]:
         return (hikari.Member,)
 
 
 class PresenceConverter(BaseConverter[hikari.MemberPresence]):
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -325,7 +325,7 @@ class PresenceConverter(BaseConverter[hikari.MemberPresence]):
 
 
 class RoleConverter(BaseConverter[hikari.Role]):
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -348,7 +348,7 @@ class RoleConverter(BaseConverter[hikari.Role]):
         return False
 
     @classmethod
-    def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
+    def types(cls) -> tuple[type[typing.Any], ...]:
         return (hikari.Role,)
 
 
@@ -357,7 +357,7 @@ class _IDMatcher(typing.Protocol):
         raise NotImplementedError
 
 
-def make_snowflake_parser(regex: typing.Pattern[str], /) -> _IDMatcher:
+def make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcher:
     def parse(value: str, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
         result: typing.Optional[hikari.Snowflake] = None
         value = value.strip()
@@ -388,7 +388,7 @@ parse_user_id = make_snowflake_parser(re.compile(r"<@!?(\d+)>"))
 
 
 class SnowflakeConverter(BaseConverter[hikari.Snowflake]):
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -406,12 +406,12 @@ class SnowflakeConverter(BaseConverter[hikari.Snowflake]):
         return False
 
     @classmethod
-    def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
+    def types(cls) -> tuple[type[typing.Any], ...]:
         return (hikari.Snowflake,)
 
 
 class UserConverter(BaseConverter[hikari.User]):
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -434,12 +434,12 @@ class UserConverter(BaseConverter[hikari.User]):
         return False
 
     @classmethod
-    def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
+    def types(cls) -> tuple[type[typing.Any], ...]:
         return (hikari.User,)
 
 
 class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -465,7 +465,7 @@ class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
         return False
 
     @classmethod
-    def types(cls) -> typing.Tuple[typing.Type[typing.Any], ...]:
+    def types(cls) -> tuple[type[typing.Any], ...]:
         return (hikari.VoiceState,)
 
 
@@ -476,7 +476,7 @@ for _cls in vars().copy().values():
 del _cls
 
 
-def _build_url_parser(callback: typing.Callable[[str], _ValueT], /) -> typing.Callable[[str], _ValueT]:
+def _build_url_parser(callback: collections.Callable[[str], _ValueT], /) -> collections.Callable[[str], _ValueT]:
     def parse(value: str, /) -> _ValueT:
         if value.startswith("<") and value.endswith(">"):
             value = value[1:-1]
@@ -504,7 +504,7 @@ def convert_datetime(value: str, /) -> datetime.datetime:
     return datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
 
 
-_TYPE_OVERRIDES: typing.Mapping[typing.Callable[..., typing.Any], typing.Callable[[str], typing.Any]] = {
+_TYPE_OVERRIDES: dict[collections.Callable[..., typing.Any], collections.Callable[[str], typing.Any]] = {
     bool: distutils.util.strtobool,
     bytes: lambda d: bytes(d, "utf-8"),
     bytearray: lambda d: bytearray(d, "utf-8"),

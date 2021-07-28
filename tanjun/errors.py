@@ -32,7 +32,7 @@
 """The errors and warnings raised within and by Tanjun."""
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = [
+__all__: list[str] = [
     "CommandError",
     "ConversionError",
     "HaltExecutionSearch",
@@ -48,17 +48,20 @@ __all__: typing.Sequence[str] = [
 
 import typing
 
+if typing.TYPE_CHECKING:
+    from collections import abc as collections
+
 
 class TanjunError(Exception):
     """The base class for all errors raised by Tanjun."""
 
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
 
 class TanjunWarning(RuntimeWarning):
     """The base class for all warnings raised by Tanjun."""
 
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
 
 class HaltExecutionSearch(TanjunError):
@@ -68,13 +71,13 @@ class HaltExecutionSearch(TanjunError):
     other commands from being tried.
     """
 
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
 
 class MissingDependencyError(TanjunError):
     """Error raised when a dependency couldn't be found."""
 
-    __slots__: typing.Sequence[str] = ("message",)
+    __slots__: tuple[str, ...] = ("message",)
 
     def __init__(self, message: str) -> None:
         self.message = message
@@ -88,13 +91,17 @@ class CommandError(TanjunError):
 
     Parameters
     ----------
-    message : typing.Optional[str]
-        If this is a non-empty string then this message should will be sent as
-        a response to the message that triggered the current command otherwise
-        `None` or `""` will silently end command execution.
+    message : str
+        String message which will be sent as a response to the message
+        that triggered the current command.
+
+    Raises
+    ------
+    ValueError
+        Raised when the message is over 2000 characters long or empty.
     """
 
-    __slots__: typing.Sequence[str] = ("message",)
+    __slots__: tuple[str, ...] = ("message",)
 
     # None or empty string == no response
     message: str
@@ -125,13 +132,13 @@ class CommandError(TanjunError):
 class InvalidCheck(TanjunError, RuntimeError):  # TODO: or/and warning?  # TODO: InvalidCheckError
     """Error raised as an assertion that a check will never pass in the current environment."""
 
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
 
 class FailedCheck(TanjunError, RuntimeError):  # TODO: FailedCheckError
     """Error raised as an alternative to returning `False` in a check."""
 
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
 
 class ParserError(TanjunError, ValueError):
@@ -149,7 +156,7 @@ class ParserError(TanjunError, ValueError):
         applicable.
     """
 
-    __slots__: typing.Sequence[str] = ("message", "parameter")
+    __slots__: tuple[str, ...] = ("message", "parameter")
 
     message: str
     """String message for this error.
@@ -181,19 +188,19 @@ class ConversionError(ParserError):
     ----------
     parameter : tanjun.traits.Parameter
         The parameter this was raised by.
-    errors : typing.Iterable[ValueError]
+    errors : collections.abc.Iterable[ValueError]
         An iterable of the source value errors which were raised during conversion/
     """
 
-    __slots__: typing.Sequence[str] = ("errors",)
+    __slots__: tuple[str, ...] = ("errors",)
 
-    errors: typing.Sequence[ValueError]
+    errors: collections.Sequence[ValueError]
     """Sequence of the errors that were caught during conversion for this parameter."""
 
     parameter: str
     """Name of the parameter this error was raised for."""
 
-    def __init__(self, parameter: str, parameter_type: str, errors: typing.Iterable[ValueError], /) -> None:
+    def __init__(self, parameter: str, parameter_type: str, errors: collections.Iterable[ValueError], /) -> None:
         super().__init__(f"Couldn't convert {parameter_type} '{parameter}'", parameter)
         self.errors = tuple(errors)
 
@@ -207,7 +214,7 @@ class NotEnoughArgumentsError(ParserError):
         The parameter this error was raised for
     """
 
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
     parameter: str
     """Name of the parameter this error was raised for."""
@@ -225,7 +232,7 @@ class TooManyArgumentsError(ParserError):
         The parameter this error was raised for
     """
 
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
     parameter: str
     """Name of the parameter this error was raised for."""
@@ -237,4 +244,4 @@ class TooManyArgumentsError(ParserError):
 class StateWarning(RuntimeWarning):
     """Warning raised when a utility is loaded without access to state stores it depends on."""
 
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()

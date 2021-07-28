@@ -31,12 +31,13 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["CommandT", "Component", "LoadableProtocol", "WithCommandReturnSig"]
+__all__: list[str] = ["CommandT", "Component", "LoadableProtocol", "WithCommandReturnSig"]
 
 import asyncio
 import copy
 import inspect
 import typing
+from collections import abc as collections
 
 from hikari.events import base_events
 
@@ -47,6 +48,7 @@ from . import traits
 from . import utilities
 
 if typing.TYPE_CHECKING:
+
     from hikari.api import event_manager as event_manager_api
 
     _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
@@ -54,7 +56,7 @@ if typing.TYPE_CHECKING:
 
 
 CommandT = typing.TypeVar("CommandT", bound="traits.ExecutableCommand[typing.Any]")
-WithCommandReturnSig = typing.Union[CommandT, typing.Callable[[CommandT], CommandT]]
+WithCommandReturnSig = typing.Union[CommandT, collections.Callable[[CommandT], CommandT]]
 
 
 @typing.runtime_checkable
@@ -69,7 +71,11 @@ class LoadableProtocol(typing.Protocol):
 
 
 def _with_command(
-    add_command: typing.Callable[[CommandT], typing.Any], command: typing.Optional[CommandT], /, *, copy: bool = False
+    add_command: collections.Callable[[CommandT], typing.Any],
+    command: typing.Optional[CommandT],
+    /,
+    *,
+    copy: bool = False,
 ) -> WithCommandReturnSig[CommandT]:
     if command:
         add_command(command.copy() if copy else command)
@@ -83,7 +89,7 @@ def _with_command(
 
 
 class Component(injector.Injectable, traits.Component):
-    __slots__: typing.Sequence[str] = (
+    __slots__: tuple[str, ...] = (
         "_checks",
         "_client",
         "_client_callbacks",
@@ -100,26 +106,24 @@ class Component(injector.Injectable, traits.Component):
     def __init__(
         self,
         *,
-        checks: typing.Optional[typing.Iterable[traits.CheckSig]] = None,
+        checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.AnyHooks] = None,
         interaction_hooks: typing.Optional[traits.InteractionHooks] = None,
         message_hooks: typing.Optional[traits.MessageHooks] = None,
     ) -> None:
-        self._checks: typing.Set[injector.InjectableCheck] = (
+        self._checks: set[injector.InjectableCheck] = (
             set(injector.InjectableCheck(check) for check in checks) if checks else set()
         )
         self._client: typing.Optional[traits.Client] = None
-        self._client_callbacks: typing.Dict[str, typing.Set[traits.MetaEventSig]] = {}
+        self._client_callbacks: dict[str, set[traits.MetaEventSig]] = {}
         self._hooks = hooks
         self._injector: typing.Optional[injector.InjectorClient] = None
-        self._interaction_commands: typing.Dict[str, traits.InteractionCommand] = {}
+        self._interaction_commands: dict[str, traits.InteractionCommand] = {}
         self._interaction_hooks = interaction_hooks
-        self._listeners: typing.Set[
-            typing.Tuple[typing.Type[base_events.Event], event_manager_api.CallbackT[typing.Any]]
-        ] = set()
-        self._message_commands: typing.Set[traits.MessageCommand] = set()
+        self._listeners: set[tuple[type[base_events.Event], event_manager_api.CallbackT[typing.Any]]] = set()
+        self._message_commands: set[traits.MessageCommand] = set()
         self._message_hooks = message_hooks
-        self._metadata: typing.Dict[typing.Any, typing.Any] = {}
+        self._metadata: dict[typing.Any, typing.Any] = {}
 
         if type(self) is not Component:
             self._load_from_properties()
@@ -130,7 +134,7 @@ class Component(injector.Injectable, traits.Component):
         return f"Component <{type(self).__name__}, ({count_1}, {count_2}) commands>"
 
     @property
-    def checks(self) -> typing.AbstractSet[traits.CheckSig]:
+    def checks(self) -> collections.Set[traits.CheckSig]:
         return {check.callback for check in self._checks}
 
     @property
@@ -142,11 +146,11 @@ class Component(injector.Injectable, traits.Component):
         return self._hooks
 
     @property
-    def interaction_commands(self) -> typing.ValuesView[traits.InteractionCommand]:
+    def interaction_commands(self) -> collections.ValuesView[traits.InteractionCommand]:
         return self._interaction_commands.copy().values()
 
     @property
-    def message_commands(self) -> typing.AbstractSet[traits.MessageCommand]:
+    def message_commands(self) -> collections.Set[traits.MessageCommand]:
         return self._message_commands.copy()
 
     @property
@@ -170,11 +174,11 @@ class Component(injector.Injectable, traits.Component):
     @property
     def listeners(
         self,
-    ) -> typing.AbstractSet[typing.Tuple[typing.Type[base_events.Event], event_manager_api.CallbackT[typing.Any]]]:
+    ) -> collections.Set[tuple[type[base_events.Event], event_manager_api.CallbackT[typing.Any]]]:
         return self._listeners.copy()
 
     @property
-    def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+    def metadata(self) -> dict[typing.Any, typing.Any]:
         return self._metadata
 
     def copy(self: _ComponentT, *, _new: bool = True) -> _ComponentT:
@@ -224,7 +228,7 @@ class Component(injector.Injectable, traits.Component):
 
         return self
 
-    def get_client_callbacks(self, event_name: str, /) -> typing.Collection[traits.MetaEventSig]:
+    def get_client_callbacks(self, event_name: str, /) -> collections.Collection[traits.MetaEventSig]:
         event_name = event_name.lower()
         return self._client_callbacks.get(event_name) or ()
 
@@ -237,7 +241,9 @@ class Component(injector.Injectable, traits.Component):
         if self._client:
             self._client.remove_client_callback(event_name, callback)
 
-    def with_client_callback(self, event_name: str, /) -> typing.Callable[[traits.MetaEventSigT], traits.MetaEventSigT]:
+    def with_client_callback(
+        self, event_name: str, /
+    ) -> collections.Callable[[traits.MetaEventSigT], traits.MetaEventSigT]:
         def decorator(callback: traits.MetaEventSigT, /) -> traits.MetaEventSigT:
             self.add_client_callback(event_name, callback)
             return callback
@@ -275,7 +281,7 @@ class Component(injector.Injectable, traits.Component):
         ...
 
     @typing.overload
-    def with_command(self, *, copy: bool = False) -> typing.Callable[[CommandT], CommandT]:
+    def with_command(self, *, copy: bool = False) -> collections.Callable[[CommandT], CommandT]:
         ...
 
     def with_command(
@@ -300,7 +306,7 @@ class Component(injector.Injectable, traits.Component):
     @typing.overload
     def with_interaction_command(
         self, *, copy: bool = False
-    ) -> typing.Callable[[traits.InteractionCommandT], traits.InteractionCommandT]:
+    ) -> collections.Callable[[traits.InteractionCommandT], traits.InteractionCommandT]:
         ...
 
     def with_interaction_command(
@@ -325,7 +331,7 @@ class Component(injector.Injectable, traits.Component):
     @typing.overload
     def with_message_command(
         self, *, copy: bool = False
-    ) -> typing.Callable[[traits.MessageCommandT], traits.MessageCommandT]:
+    ) -> collections.Callable[[traits.MessageCommandT], traits.MessageCommandT]:
         ...
 
     def with_message_command(
@@ -335,7 +341,7 @@ class Component(injector.Injectable, traits.Component):
 
     def add_listener(
         self: _ComponentT,
-        event: typing.Type[event_manager_api.EventT_inv],
+        event: type[event_manager_api.EventT_inv],
         listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
         /,
     ) -> _ComponentT:
@@ -348,7 +354,7 @@ class Component(injector.Injectable, traits.Component):
 
     def remove_listener(
         self,
-        event: typing.Type[event_manager_api.EventT_inv],
+        event: type[event_manager_api.EventT_inv],
         listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
         /,
     ) -> None:
@@ -359,8 +365,8 @@ class Component(injector.Injectable, traits.Component):
 
     # TODO: make event optional?
     def with_listener(
-        self, event_type: typing.Type[event_manager_api.EventT_inv]
-    ) -> typing.Callable[
+        self, event_type: type[event_manager_api.EventT_inv]
+    ) -> collections.Callable[
         [event_manager_api.CallbackT[event_manager_api.EventT_inv]],
         event_manager_api.CallbackT[event_manager_api.EventT_inv],
     ]:
@@ -424,7 +430,7 @@ class Component(injector.Injectable, traits.Component):
 
     async def check_message_context(
         self, ctx: traits.MessageContext, /, *, name_prefix: str = ""
-    ) -> typing.AsyncIterator[typing.Tuple[str, traits.MessageCommand]]:
+    ) -> collections.AsyncIterator[tuple[str, traits.MessageCommand]]:
         ctx.set_component(self)
         if await utilities.gather_checks(ctx, self._checks):
             for command in self._message_commands:
@@ -433,7 +439,7 @@ class Component(injector.Injectable, traits.Component):
 
         ctx.set_component(None)
 
-    def check_message_name(self, name: str, /) -> typing.Iterator[typing.Tuple[str, traits.MessageCommand]]:
+    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, traits.MessageCommand]]:
         for command in self._message_commands:
             if found_name := command.check_name(name):
                 yield found_name, command
@@ -444,8 +450,8 @@ class Component(injector.Injectable, traits.Component):
         command: typing.Optional[tanjun.traits.InteractionCommand],
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.InteractionHooks]] = None,
-    ) -> typing.Optional[typing.Awaitable[None]]:
+        hooks: typing.Optional[collections.MutableSet[traits.InteractionHooks]] = None,
+    ) -> typing.Optional[collections.Awaitable[None]]:
         if not command or not await command.check_context(ctx):
             return None
 
@@ -471,8 +477,8 @@ class Component(injector.Injectable, traits.Component):
         ctx: traits.InteractionContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.InteractionHooks]] = None,
-    ) -> typing.Coroutine[typing.Any, typing.Any, typing.Optional[typing.Awaitable[None]]]:
+        hooks: typing.Optional[collections.MutableSet[traits.InteractionHooks]] = None,
+    ) -> collections.Coroutine[typing.Any, typing.Any, typing.Optional[collections.Awaitable[None]]]:
         if command := self._interaction_commands.get(ctx.interaction.command_name):
             ctx.set_ephemeral_default(command.defaults_to_ephemeral)
 
@@ -483,7 +489,7 @@ class Component(injector.Injectable, traits.Component):
         ctx: traits.MessageContext,
         /,
         *,
-        hooks: typing.Optional[typing.MutableSet[traits.MessageHooks]] = None,
+        hooks: typing.Optional[collections.MutableSet[traits.MessageHooks]] = None,
     ) -> bool:
         async for name, command in self.check_message_context(ctx):
             ctx.set_triggering_name(name)

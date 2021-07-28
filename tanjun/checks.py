@@ -33,7 +33,7 @@
 
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = [
+__all__: list[str] = [
     "CallbackReturnT",
     "CommandT",
     "with_check",
@@ -51,6 +51,7 @@ import asyncio
 import datetime
 import time
 import typing
+from collections import abc as collections
 
 import hikari
 from yuyo import backoff
@@ -59,11 +60,12 @@ from . import errors
 from . import utilities
 
 if typing.TYPE_CHECKING:
+
     from . import traits as tanjun_traits
 
 
 CommandT = typing.TypeVar("CommandT", bound="tanjun_traits.ExecutableCommand[typing.Any]")
-CallbackReturnT = typing.Union[CommandT, typing.Callable[[CommandT], CommandT]]
+CallbackReturnT = typing.Union[CommandT, collections.Callable[[CommandT], CommandT]]
 """Type hint for the return value of decorators which optionally take keyword arguments.
 
 Examples
@@ -92,7 +94,7 @@ def foo_command(self, ctx: Context) -> None:
 
 def _wrap_with_kwargs(
     command: typing.Optional[CommandT],
-    callback: typing.Callable[..., typing.Union[bool, typing.Awaitable[bool]]],
+    callback: collections.Callable[..., typing.Union[bool, collections.Awaitable[bool]]],
     /,
     **kwargs: typing.Any,
 ) -> CallbackReturnT[CommandT]:
@@ -106,14 +108,14 @@ def _wrap_with_kwargs(
 
 
 class ApplicationOwnerCheck:
-    __slots__: typing.Sequence[str] = ("_application", "_end_execution", "_expire", "_lock", "_owner_ids", "_time")
+    __slots__: tuple[str, ...] = ("_application", "_end_execution", "_expire", "_lock", "_owner_ids", "_time")
 
     def __init__(
         self,
         *,
         end_execution: bool = False,
         expire_delta: datetime.timedelta = datetime.timedelta(minutes=5),
-        owner_ids: typing.Optional[typing.Iterable[hikari.SnowflakeishOr[hikari.User]]] = None,
+        owner_ids: typing.Optional[collections.Iterable[hikari.SnowflakeishOr[hikari.User]]] = None,
     ) -> None:
         self._application: typing.Optional[hikari.Application] = None
         self._end_execution = end_execution
@@ -253,7 +255,7 @@ def guild_check(ctx: tanjun_traits.Context, /, *, end_execution: bool = False) -
 
 
 class PermissionCheck(abc.ABC):
-    __slots__: typing.Sequence[str] = ("_end_execution", "permissions")
+    __slots__: tuple[str, ...] = ("_end_execution", "permissions")
 
     def __init__(self, permissions: typing.Union[hikari.Permissions, int], /, *, end_execution: bool = False) -> None:
         self._end_execution = end_execution
@@ -273,7 +275,7 @@ class PermissionCheck(abc.ABC):
 
 
 class AuthorPermissionCheck(PermissionCheck):
-    __slots__: typing.Sequence[str] = ()
+    __slots__: tuple[str, ...] = ()
 
     async def get_permissions(self, ctx: tanjun_traits.Context, /) -> hikari.Permissions:
         if not ctx.member:
@@ -286,7 +288,7 @@ class AuthorPermissionCheck(PermissionCheck):
 
 
 class OwnPermissionsCheck(PermissionCheck):
-    __slots__: typing.Sequence[str] = ("_lock", "_me")
+    __slots__: tuple[str, ...] = ("_lock", "_me")
 
     def __init__(self, permissions: typing.Union[hikari.Permissions, int], /, *, end_execution: bool = False) -> None:
         super().__init__(permissions, end_execution=end_execution)
@@ -332,7 +334,7 @@ def with_dm_check(command: CommandT, /) -> CommandT:
 
 
 @typing.overload
-def with_dm_check(*, end_execution: bool = False) -> typing.Callable[[CommandT], CommandT]:
+def with_dm_check(*, end_execution: bool = False) -> collections.Callable[[CommandT], CommandT]:
     ...
 
 
@@ -372,7 +374,7 @@ def with_guild_check(command: CommandT, /) -> CommandT:
 
 
 @typing.overload
-def with_guild_check(*, end_execution: bool = False) -> typing.Callable[[CommandT], CommandT]:
+def with_guild_check(*, end_execution: bool = False) -> collections.Callable[[CommandT], CommandT]:
     ...
 
 
@@ -412,7 +414,7 @@ def with_nsfw_check(command: CommandT, /) -> CommandT:
 
 
 @typing.overload
-def with_nsfw_check(*, end_execution: bool = False) -> typing.Callable[[CommandT], CommandT]:
+def with_nsfw_check(*, end_execution: bool = False) -> collections.Callable[[CommandT], CommandT]:
     ...
 
 
@@ -452,7 +454,7 @@ def with_sfw_check(command: CommandT, /) -> CommandT:
 
 
 @typing.overload
-def with_sfw_check(*, end_execution: bool = False) -> typing.Callable[[CommandT], CommandT]:
+def with_sfw_check(*, end_execution: bool = False) -> collections.Callable[[CommandT], CommandT]:
     ...
 
 
@@ -496,8 +498,8 @@ def with_owner_check(
     *,
     end_execution: bool = False,
     expire_delta: datetime.timedelta = datetime.timedelta(minutes=5),
-    owner_ids: typing.Optional[typing.Iterable[hikari.SnowflakeishOr[hikari.User]]] = None,
-) -> typing.Callable[[CommandT], CommandT]:
+    owner_ids: typing.Optional[collections.Iterable[hikari.SnowflakeishOr[hikari.User]]] = None,
+) -> collections.Callable[[CommandT], CommandT]:
     ...
 
 
@@ -507,7 +509,7 @@ def with_owner_check(
     *,
     end_execution: bool = False,
     expire_delta: datetime.timedelta = datetime.timedelta(minutes=5),
-    owner_ids: typing.Optional[typing.Iterable[hikari.SnowflakeishOr[hikari.User]]] = None,
+    owner_ids: typing.Optional[collections.Iterable[hikari.SnowflakeishOr[hikari.User]]] = None,
 ) -> CallbackReturnT[CommandT]:
     """Only let a command run if it's being triggered by one of the bot's owners.
 
@@ -531,7 +533,7 @@ def with_owner_check(
         How long cached application owner data should be cached for.
 
         Defaults to 5 minutes.
-    owner_ids: typing.Optional[typing.Iterable[hikari.snowflakes.SonwflakeishOr[hikari.users.User]]]
+    owner_ids: typing.Optional[collections.abc.Iterable[hikari.snowflakes.SonwflakeishOr[hikari.users.User]]]
         Iterable of objects and IDs of other users to explicitly mark as owners
         for this check.
 
@@ -554,7 +556,7 @@ def with_owner_check(
 
 def with_author_permission_check(
     permissions: typing.Union[hikari.Permissions, int], *, end_execution: bool = False
-) -> typing.Callable[[CommandT], CommandT]:
+) -> collections.Callable[[CommandT], CommandT]:
     """Only let a command run if the author has certain permissions in the current channel.
 
     !!! note
@@ -576,7 +578,7 @@ def with_author_permission_check(
 
     Returns
     -------
-    typing.Callable[[CommandT], CommandT]
+    collections.abc.Callable[[CommandT], CommandT]
         A command decorator callback which adds the check.
     """
     return lambda command: command.add_check(AuthorPermissionCheck(permissions, end_execution=end_execution))
@@ -584,7 +586,7 @@ def with_author_permission_check(
 
 def with_own_permission_check(
     permissions: typing.Union[hikari.Permissions, int], *, end_execution: bool = False
-) -> typing.Callable[[CommandT], CommandT]:
+) -> collections.Callable[[CommandT], CommandT]:
     """Only let a command run if we have certain permissions in the current channel.
 
     !!! note
@@ -606,13 +608,13 @@ def with_own_permission_check(
 
     Returns
     -------
-    typing.Callable[[CommandT], CommandT]
+    collections.abc.Callable[[CommandT], CommandT]
         A command decorator callback which adds the check.
     """
     return lambda command: command.add_check(OwnPermissionsCheck(permissions, end_execution=end_execution))
 
 
-def with_check(check: tanjun_traits.CheckSig, /) -> typing.Callable[[CommandT], CommandT]:
+def with_check(check: tanjun_traits.CheckSig, /) -> collections.Callable[[CommandT], CommandT]:
     """Add a generic check to a command.
 
     Parameters
@@ -622,7 +624,7 @@ def with_check(check: tanjun_traits.CheckSig, /) -> typing.Callable[[CommandT], 
 
     Returns
     -------
-    typing.Callable[[CommandT], CommandT]
+    collections.abc.Callable[[CommandT], CommandT]
         A command decorator callback which adds the check.
     """
     return lambda command: command.add_check(check)
