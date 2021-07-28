@@ -55,13 +55,13 @@ if typing.TYPE_CHECKING:
 class TanjunError(Exception):
     """The base class for all errors raised by Tanjun."""
 
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
 
 class TanjunWarning(RuntimeWarning):
     """The base class for all warnings raised by Tanjun."""
 
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
 
 class HaltExecutionSearch(TanjunError):
@@ -71,13 +71,13 @@ class HaltExecutionSearch(TanjunError):
     other commands from being tried.
     """
 
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
 
 class MissingDependencyError(TanjunError):
     """Error raised when a dependency couldn't be found."""
 
-    __slots__: tuple[str, ...] = ("message",)
+    __slots__ = ("message",)
 
     def __init__(self, message: str) -> None:
         self.message = message
@@ -101,7 +101,7 @@ class CommandError(TanjunError):
         Raised when the message is over 2000 characters long or empty.
     """
 
-    __slots__: tuple[str, ...] = ("message",)
+    __slots__ = ("message",)
 
     # None or empty string == no response
     message: str
@@ -132,13 +132,13 @@ class CommandError(TanjunError):
 class InvalidCheck(TanjunError, RuntimeError):  # TODO: or/and warning?  # TODO: InvalidCheckError
     """Error raised as an assertion that a check will never pass in the current environment."""
 
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
 
 class FailedCheck(TanjunError, RuntimeError):  # TODO: FailedCheckError
     """Error raised as an alternative to returning `False` in a check."""
 
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
 
 class ParserError(TanjunError, ValueError):
@@ -156,7 +156,7 @@ class ParserError(TanjunError, ValueError):
         applicable.
     """
 
-    __slots__: tuple[str, ...] = ("message", "parameter")
+    __slots__ = ("message", "parameter")
 
     message: str
     """String message for this error.
@@ -192,7 +192,7 @@ class ConversionError(ParserError):
         An iterable of the source value errors which were raised during conversion/
     """
 
-    __slots__: tuple[str, ...] = ("errors",)
+    __slots__ = ("errors",)
 
     errors: collections.Sequence[ValueError]
     """Sequence of the errors that were caught during conversion for this parameter."""
@@ -214,7 +214,7 @@ class NotEnoughArgumentsError(ParserError):
         The parameter this error was raised for
     """
 
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     parameter: str
     """Name of the parameter this error was raised for."""
@@ -232,7 +232,7 @@ class TooManyArgumentsError(ParserError):
         The parameter this error was raised for
     """
 
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     parameter: str
     """Name of the parameter this error was raised for."""
@@ -244,4 +244,4 @@ class TooManyArgumentsError(ParserError):
 class StateWarning(RuntimeWarning):
     """Warning raised when a utility is loaded without access to state stores it depends on."""
 
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()

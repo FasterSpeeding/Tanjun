@@ -80,7 +80,7 @@ _EMPTY_RESOLVED: typing.Final[hikari.ResolvedOptionData] = hikari.ResolvedOption
 
 
 class _LoadableInjector(injector.InjectableCheck):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     def make_method_type(self, component: traits.Component, /) -> None:
         if isinstance(self.callback, types.MethodType):
@@ -92,7 +92,7 @@ class _LoadableInjector(injector.InjectableCheck):
 class PartialCommand(
     injector.Injectable, traits.ExecutableCommand[traits.ContextT], typing.Generic[CommandCallbackSigT, traits.ContextT]
 ):
-    __slots__: tuple[str, ...] = (
+    __slots__ = (
         "_cached_getters",
         "_callback",
         "_checks",
@@ -247,7 +247,7 @@ def as_interaction_command(
 
 
 class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionContext], traits.InteractionCommand):
-    __slots__: tuple[str, ...] = (
+    __slots__ = (
         "_builder",
         "_defaults_to_ephemeral",
         "_description",
@@ -438,7 +438,7 @@ def as_message_command_group(
 
 
 class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext], traits.MessageCommand):
-    __slots__: tuple[str, ...] = ("_names", "_parent", "_parser")
+    __slots__ = ("_names", "_parent", "_parser")
 
     def __init__(
         self,
@@ -599,7 +599,7 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
 
 
 class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCommandGroup):
-    __slots__: tuple[str, ...] = ("_commands",)
+    __slots__ = ("_commands",)
 
     def __init__(
         self,

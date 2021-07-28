@@ -83,7 +83,7 @@ which returns `None`.
 
 
 class Hooks(traits.Hooks[traits.ContextT_contra]):
-    __slots__: tuple[str, ...] = ("_error", "_parser_error", "_pre_execution", "_post_execution", "_success")
+    __slots__ = ("_error", "_parser_error", "_pre_execution", "_post_execution", "_success")
 
     def __init__(self) -> None:
         self._error: typing.Optional[ErrorHookSig[traits.ContextT_contra]] = None

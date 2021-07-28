@@ -108,7 +108,7 @@ def _wrap_with_kwargs(
 
 
 class ApplicationOwnerCheck:
-    __slots__: tuple[str, ...] = ("_application", "_end_execution", "_expire", "_lock", "_owner_ids", "_time")
+    __slots__ = ("_application", "_end_execution", "_expire", "_lock", "_owner_ids", "_time")
 
     def __init__(
         self,
@@ -255,7 +255,7 @@ def guild_check(ctx: tanjun_traits.Context, /, *, end_execution: bool = False) -
 
 
 class PermissionCheck(abc.ABC):
-    __slots__: tuple[str, ...] = ("_end_execution", "permissions")
+    __slots__ = ("_end_execution", "permissions")
 
     def __init__(self, permissions: typing.Union[hikari.Permissions, int], /, *, end_execution: bool = False) -> None:
         self._end_execution = end_execution
@@ -275,7 +275,7 @@ class PermissionCheck(abc.ABC):
 
 
 class AuthorPermissionCheck(PermissionCheck):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     async def get_permissions(self, ctx: tanjun_traits.Context, /) -> hikari.Permissions:
         if not ctx.member:
@@ -288,7 +288,7 @@ class AuthorPermissionCheck(PermissionCheck):
 
 
 class OwnPermissionsCheck(PermissionCheck):
-    __slots__: tuple[str, ...] = ("_lock", "_me")
+    __slots__ = ("_lock", "_me")
 
     def __init__(self, permissions: typing.Union[hikari.Permissions, int], /, *, end_execution: bool = False) -> None:
         super().__init__(permissions, end_execution=end_execution)

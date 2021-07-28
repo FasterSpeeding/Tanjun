@@ -68,7 +68,7 @@ _ValueT = typing.TypeVar("_ValueT")
 
 
 class BaseConverter(typing.Generic[_ValueT], abc.ABC):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
     __implementations: set[type[BaseConverter[type[typing.Any]]]] = set()
 
     async def __call__(self, argument: str, ctx: traits.Context) -> _ValueT:
@@ -137,7 +137,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
 
 
 class ChannelConverter(BaseConverter[hikari.GuildChannel]):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -165,7 +165,7 @@ class ChannelConverter(BaseConverter[hikari.GuildChannel]):
 
 
 class ColorConverter(BaseConverter[hikari.Color]):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -192,7 +192,7 @@ class ColorConverter(BaseConverter[hikari.Color]):
 
 
 class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -220,7 +220,7 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
 
 
 class GuildConverter(BaseConverter[hikari.GatewayGuild]):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -248,7 +248,7 @@ class GuildConverter(BaseConverter[hikari.GatewayGuild]):
 
 
 class InviteConverter(BaseConverter[hikari.InviteWithMetadata]):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -275,7 +275,7 @@ class InviteConverter(BaseConverter[hikari.InviteWithMetadata]):
 
 
 class MemberConverter(BaseConverter[hikari.Member]):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -306,7 +306,7 @@ class MemberConverter(BaseConverter[hikari.Member]):
 
 
 class PresenceConverter(BaseConverter[hikari.MemberPresence]):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -325,7 +325,7 @@ class PresenceConverter(BaseConverter[hikari.MemberPresence]):
 
 
 class RoleConverter(BaseConverter[hikari.Role]):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -388,7 +388,7 @@ parse_user_id = make_snowflake_parser(re.compile(r"<@!?(\d+)>"))
 
 
 class SnowflakeConverter(BaseConverter[hikari.Snowflake]):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -411,7 +411,7 @@ class SnowflakeConverter(BaseConverter[hikari.Snowflake]):
 
 
 class UserConverter(BaseConverter[hikari.User]):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     @property
     def cache_bound(self) -> bool:
@@ -439,7 +439,7 @@ class UserConverter(BaseConverter[hikari.User]):
 
 
 class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     @property
     def cache_bound(self) -> bool:

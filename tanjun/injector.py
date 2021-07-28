@@ -67,7 +67,7 @@ CallbackSig = collections.Callable[..., typing.Union[collections.Awaitable[_T], 
 
 
 class Getter(typing.Generic[_T]):
-    __slots__: tuple[str, ...] = ("callback", "is_injecting", "name")
+    __slots__ = ("callback", "is_injecting", "name")
 
     @typing.overload
     def __init__(
@@ -138,7 +138,7 @@ _TypeT = type[_T]
 
 
 class Injected(typing.Generic[_T]):
-    __slots__: tuple[str, ...] = ("callback", "type")
+    __slots__ = ("callback", "type")
 
     def __init__(
         self,
@@ -184,7 +184,7 @@ async def resolve_getters(
 
 
 class InjectorClient:
-    __slots__: tuple[str, ...] = (
+    __slots__ = (
         "_callback_overrides",
         "_client",
         "_component_mapping_values",
@@ -298,7 +298,7 @@ _TYPE_GETTER_OVERRIDES: dict[
 
 
 class Injectable(abc.ABC):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     @property
     @abc.abstractmethod
@@ -311,7 +311,7 @@ class Injectable(abc.ABC):
 
 
 class BaseInjectableValue(Injectable, typing.Generic[_T]):
-    __slots__: tuple[str, ...] = ("callback", "_cached_getters", "injector", "is_async", "_needs_injector")
+    __slots__ = ("callback", "_cached_getters", "injector", "is_async", "_needs_injector")
 
     def __init__(self, callback: CallbackSig[_T], *, injector: typing.Optional[InjectorClient] = None) -> None:
         self._cached_getters: typing.Optional[list[Getter[typing.Any]]] = None
@@ -371,14 +371,14 @@ class BaseInjectableValue(Injectable, typing.Generic[_T]):
 
 
 class InjectableValue(BaseInjectableValue[_T]):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     async def __call__(self, ctx: tanjun_traits.Context, /) -> _T:
         return await self.call(ctx=ctx)
 
 
 class InjectableCheck(BaseInjectableValue[bool]):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     async def __call__(self, ctx: tanjun_traits.Context, /) -> bool:
         if result := await self.call(ctx, ctx=ctx):
@@ -388,7 +388,7 @@ class InjectableCheck(BaseInjectableValue[bool]):
 
 
 class InjectableConverter(BaseInjectableValue[_T]):
-    __slots__: tuple[str, ...] = ("_is_base_converter",)
+    __slots__ = ("_is_base_converter",)
 
     def __init__(self, callback: CallbackSig[_T], *, injector: typing.Optional[InjectorClient] = None) -> None:
         super().__init__(callback, injector=injector)
@@ -403,7 +403,7 @@ class InjectableConverter(BaseInjectableValue[_T]):
 
 
 class _CacheCallback(typing.Generic[_T]):
-    __slots__: tuple[str, ...] = ("_callback", "_lock", "_result")
+    __slots__ = ("_callback", "_lock", "_result")
 
     def __init__(self, callback: CallbackSig[_T], /) -> None:
         self._callback = callback

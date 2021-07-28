@@ -183,7 +183,7 @@ async def _wrap_client_callback(
 
 
 class _InjectablePrefixGetter(injector_.BaseInjectableValue[collections.Iterable[str]]):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     callback: PrefixGetterSig
 
@@ -256,7 +256,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         If `event_managed` is `True` when `event_manager` is `None`.
     """
 
-    __slots__: tuple[str, ...] = (
+    __slots__ = (
         "_accepts",
         "_auto_defer_after",
         "_cache",

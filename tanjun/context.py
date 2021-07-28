@@ -57,7 +57,7 @@ ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.In
 class BaseContext(traits.Context):
     """Base class for all standard context implementations."""
 
-    __slots__: tuple[str, ...] = ("_client", "_component", "_final")
+    __slots__ = ("_client", "_component", "_final")
 
     def __init__(
         self,
@@ -136,7 +136,7 @@ class BaseContext(traits.Context):
 class MessageContext(BaseContext, traits.MessageContext):
     """Standard implementation of a command context as used within Tanjun."""
 
-    __slots__: tuple[str, ...] = (
+    __slots__ = (
         "_command",
         "_content",
         "_initial_response_id",
@@ -402,13 +402,14 @@ class MessageContext(BaseContext, traits.MessageContext):
 
 
 class InteractionContext(BaseContext, traits.InteractionContext):
-    __slots__: tuple[str, ...] = (
+    __slots__ = (
         "_defaults_to_ephemeral",
         "_defer_task",
         "_has_been_deferred",
         "_has_responded",
         "_interaction",
         "_last_response_id",
+        "_not_found_message",
         "_response_future",
         "_response_lock",
     )

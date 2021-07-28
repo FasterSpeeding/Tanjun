@@ -89,7 +89,7 @@ def _with_command(
 
 
 class Component(injector.Injectable, traits.Component):
-    __slots__: tuple[str, ...] = (
+    __slots__ = (
         "_checks",
         "_client",
         "_client_callbacks",

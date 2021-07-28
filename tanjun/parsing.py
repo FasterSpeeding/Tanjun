@@ -126,7 +126,7 @@ UNDEFINED_DEFAULT = UndefinedDefaultT()
 class AbstractParser(abc.ABC):
     """Abstract interface of a message content parser."""
 
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     @property
     @abc.abstractmethod
@@ -163,7 +163,7 @@ class AbstractParser(abc.ABC):
 
 
 class ShlexTokenizer:
-    __slots__: tuple[str, ...] = ("__arg_buffer", "__last_name", "__options_buffer", "__shlex")
+    __slots__ = ("__arg_buffer", "__last_name", "__options_buffer", "__shlex")
 
     def __init__(self, content: str, /) -> None:
         self.__arg_buffer: list[str] = []
@@ -255,7 +255,7 @@ async def _covert_option_or_empty(
 
 
 class SemanticShlex(ShlexTokenizer):
-    __slots__: tuple[str, ...] = ("__ctx",)
+    __slots__ = ("__ctx",)
 
     def __init__(self, ctx: traits.MessageContext, /) -> None:
         super().__init__(ctx.content)
@@ -619,7 +619,7 @@ def with_multi_option(
 
 
 class Parameter(injector_.Injectable):
-    __slots__: tuple[str, ...] = (
+    __slots__ = (
         "_client",
         "_component",
         "_converters",
@@ -755,7 +755,7 @@ class Parameter(injector_.Injectable):
 
 
 class Argument(Parameter):
-    __slots__: tuple[str, ...] = ()
+    __slots__ = ()
 
     def __init__(
         self,
@@ -774,7 +774,7 @@ class Argument(Parameter):
 
 
 class Option(Parameter):
-    __slots__: tuple[str, ...] = ("_empty_value", "is_multi", "_names")
+    __slots__ = ("_empty_value", "is_multi", "_names")
 
     def __init__(
         self,
@@ -808,7 +808,7 @@ class Option(Parameter):
 class ShlexParser(injector_.Injectable, AbstractParser):
     """A shlex based `tanjun.traits.Parser` implementation."""
 
-    __slots__: tuple[str, ...] = ("_arguments", "_client", "_component", "_injector", "_options")
+    __slots__ = ("_arguments", "_client", "_component", "_injector", "_options")
 
     def __init__(
         self, *, parameters: typing.Optional[collections.Iterable[typing.Union[Argument, Option]]] = None

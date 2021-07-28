@@ -56,7 +56,7 @@ _InjectorClientT = typing.TypeVar("_InjectorClientT", bound=InjectorClient)
 CallbackSig = collections.Callable[..., typing.Union[collections.Awaitable[_T], _T]]
 
 class Getter(typing.Generic[_T]):
-    __slots__: tuple[str, ...]
+    __slots__: str | collections.Iterable[str]
     callback: collections.Callable[
         [tanjun_traits.Context], typing.Union[InjectableValue[_T], collections.Callable[[tanjun_traits.Context], _T]]
     ]
@@ -93,7 +93,7 @@ def check_injecting(callback: CallbackSig[typing.Any], /) -> bool: ...
 _TypeT = type[_T]
 
 class Injected(typing.Generic[_T]):
-    __slots__: tuple[str, ...]
+    __slots__: str | collections.Iterable[str]
     callback: UndefinedOr[collections.Callable[[], typing.Union[_T, collections.Awaitable[_T]]]]
     type: UndefinedOr[_TypeT[_T]]
     @typing.overload
@@ -114,7 +114,7 @@ async def resolve_getters(
 ) -> collections.Mapping[str, typing.Any]: ...
 
 class InjectorClient:
-    __slots__: tuple[str, ...]
+    __slots__: str | collections.Iterable[str]
     def __init__(self, client: tanjun_traits.Client, /) -> None: ...
     def add_type_dependency(
         self: _InjectorClientT, type_: type[_T], callback: CallbackSig[_T], /
@@ -132,7 +132,7 @@ class InjectorClient:
     ) -> collections.Iterator[Getter[typing.Any]]: ...
 
 class Injectable(abc.ABC):
-    __slots__: tuple[str, ...]
+    __slots__: str | collections.Iterable[str]
     @property
     @abc.abstractmethod
     def needs_injector(self) -> bool: ...
@@ -140,7 +140,7 @@ class Injectable(abc.ABC):
     def set_injector(self, client: InjectorClient, /) -> None: ...
 
 class BaseInjectableValue(Injectable, typing.Generic[_T]):
-    __slots__: tuple[str, ...]
+    __slots__: str | collections.Iterable[str]
     callback: CallbackSig[_T]
     injector: typing.Optional[InjectorClient]
     is_async: typing.Optional[bool]
@@ -154,15 +154,15 @@ class BaseInjectableValue(Injectable, typing.Generic[_T]):
     async def call(self, *args: typing.Any, ctx: tanjun_traits.Context) -> _T: ...
 
 class InjectableValue(BaseInjectableValue[_T]):
-    __slots__: tuple[str, ...]
+    __slots__: str | collections.Iterable[str]
     async def __call__(self, ctx: tanjun_traits.Context, /) -> _T: ...
 
 class InjectableCheck(BaseInjectableValue[bool]):
-    __slots__: tuple[str, ...]
+    __slots__: str | collections.Iterable[str]
     async def __call__(self, ctx: tanjun_traits.Context, /) -> bool: ...
 
 class InjectableConverter(BaseInjectableValue[_T]):
-    __slots__: tuple[str, ...]
+    __slots__: str | collections.Iterable[str]
     async def __call__(self, value: str, ctx: tanjun_traits.Context, /) -> _T: ...
 
 def cache_callback(callback: CallbackSig[_T], /) -> collections.Callable[..., collections.Awaitable[_T]]: ...
