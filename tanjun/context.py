@@ -37,6 +37,7 @@ import asyncio
 import typing
 
 import hikari
+from hikari import snowflakes
 
 from . import traits
 
@@ -222,7 +223,7 @@ class MessageContext(BaseContext, traits.MessageContext):
             return None
 
         if self._message.guild_id is not None:
-            shard_id = hikari.snowflakes.calculate_shard_id(self._client.shards, self._message.guild_id)
+            shard_id = snowflakes.calculate_shard_id(self._client.shards, self._message.guild_id)
 
         else:
             shard_id = 0
@@ -416,8 +417,9 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         interaction: hikari.CommandInteraction,
         /,
         *,
-        default_to_ephemeral: bool = False,
         component: typing.Optional[traits.Component] = None,
+        default_to_ephemeral: bool = False,
+        not_found_message: typing.Optional[str] = None,
     ) -> None:
         super().__init__(client, component=component)
         self._defaults_to_ephemeral = default_to_ephemeral
@@ -426,6 +428,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         self._has_responded = False
         self._interaction = interaction
         self._last_response_id: typing.Optional[hikari.Snowflake] = None
+        self._not_found_message: typing.Optional[str] = not_found_message
         self._response_future: typing.Optional[asyncio.Future[ResponseTypeT]] = None
         self._response_lock = asyncio.Lock()
 
@@ -474,12 +477,36 @@ class InteractionContext(BaseContext, traits.InteractionContext):
             self._defer_task.cancel()
             self._defer_task = None
 
+    def _get_flags(
+        self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED
+    ) -> typing.Union[hikari.UndefinedType, int, hikari.MessageFlag]:
+        if flags is hikari.UNDEFINED:
+            return hikari.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else hikari.MessageFlag.NONE
+
+        return flags
+
     def get_response_future(self) -> asyncio.Future[ResponseTypeT]:
         self._assert_not_final()
         if not self._response_future:
             self._response_future = asyncio.get_running_loop().create_future()
 
         return self._response_future
+
+    async def mark_not_found(self) -> None:
+        flags = self._get_flags(hikari.UNDEFINED)
+        async with self._response_lock:
+            if self._has_responded or not self._not_found_message:
+                return
+
+            if self._response_future:
+                self._response_future.set_result(
+                    self._interaction.build_response().set_flags(flags).set_content(self._not_found_message)
+                )
+
+            else:
+                await self._interaction.create_initial_response(
+                    hikari.ResponseType.MESSAGE_CREATE, content=self._not_found_message, flags=flags
+                )
 
     def start_defer_timer(self: _InteractionContextT, count_down: typing.Union[int, float], /) -> _InteractionContextT:
         self._assert_not_final()
@@ -496,9 +523,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
     async def defer(
         self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED
     ) -> None:
-        if flags is hikari.UNDEFINED:
-            flags = hikari.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else hikari.MessageFlag.NONE
-
+        flags = self._get_flags(flags)
         in_defer_task = self._defer_task and self._defer_task is asyncio.current_task()
         if not in_defer_task:
             self.cancel_defer()
@@ -512,10 +537,12 @@ class InteractionContext(BaseContext, traits.InteractionContext):
 
             self._has_been_deferred = True
             if self._response_future:
-                self._response_future.set_result(self.interaction.build_deferred_response().set_flags(flags))
+                self._response_future.set_result(self._interaction.build_deferred_response().set_flags(flags))
 
             else:
-                await self.interaction.create_initial_response(hikari.ResponseType.DEFERRED_MESSAGE_CREATE, flags=flags)
+                await self._interaction.create_initial_response(
+                    hikari.ResponseType.DEFERRED_MESSAGE_CREATE, flags=flags
+                )
 
     async def create_followup(
         self,
@@ -539,9 +566,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
     ) -> hikari.Message:
-        if flags is hikari.UNDEFINED:
-            flags = hikari.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else hikari.MessageFlag.NONE
-
+        flags = self._get_flags(flags)
         # TODO: remove once fixed in Hikari
         if embed is not hikari.UNDEFINED:
             if embeds is not hikari.UNDEFINED:
@@ -587,9 +612,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         flags: typing.Union[int, hikari.MessageFlag, hikari.UndefinedType] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
     ) -> None:
-        if flags is hikari.UNDEFINED:
-            flags = hikari.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else hikari.MessageFlag.NONE
-
+        flags = self._get_flags(flags)
         async with self._response_lock:
             if self._has_responded:
                 raise RuntimeError("Initial response has already been created")

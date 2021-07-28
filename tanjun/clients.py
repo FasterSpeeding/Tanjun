@@ -203,7 +203,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
     """Tanjun's standard `tanjun.traits.Client` implementation.
 
     This implementation supports dependency injection for checks, command
-    callbacks, listeners and prefix getters. For more information on how
+    callbacks, and prefix getters. For more information on how
     this works see `tanjun.injector`.
 
     !!! note
@@ -977,7 +977,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         if not isinstance(event.interaction, hikari.CommandInteraction):
             return
 
-        ctx = context.InteractionContext(self, event.interaction)
+        ctx = context.InteractionContext(self, event.interaction, not_found_message=self._interaction_not_found)
         hooks = self._get_interaction_hooks()
 
         if self._auto_defer_after is not None:
@@ -987,17 +987,17 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
             for component in self._components:
                 if future := await component.execute_interaction(ctx, hooks=hooks):
                     await future
+                    return
 
         except errors.HaltExecutionSearch:
             pass
 
         await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.INTERACTION_COMMAND_NOT_FOUND, ctx)
-        if not ctx.has_responded and self._interaction_not_found:
-            await ctx.respond(self._interaction_not_found)
+        await ctx.mark_not_found()
         ctx.cancel_defer()
 
     async def on_interaction_create_request(self, interaction: hikari.CommandInteraction, /) -> context.ResponseTypeT:
-        ctx = context.InteractionContext(self, interaction)
+        ctx = context.InteractionContext(self, interaction, not_found_message=self._interaction_not_found)
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
 
@@ -1012,8 +1012,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
             pass
 
         async def callback(_: asyncio.Future[None]) -> None:
-            if not ctx.has_responded and self._interaction_not_found:
-                await ctx.respond(self._interaction_not_found)
+            await ctx.mark_not_found()
             ctx.cancel_defer()
 
         asyncio.create_task(

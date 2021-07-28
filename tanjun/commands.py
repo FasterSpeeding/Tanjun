@@ -388,7 +388,7 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
             await ctx.respond(exc.message)
 
         except errors.HaltExecutionSearch:
-            # TODO: this needs to propogate somehow
+            await ctx.mark_not_found()
             return
 
         except Exception as exc:

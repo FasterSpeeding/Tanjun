@@ -542,6 +542,10 @@ class InteractionContext(Context, abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    async def mark_not_found(self) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
     async def create_followup(
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
