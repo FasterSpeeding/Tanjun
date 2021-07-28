@@ -200,6 +200,64 @@ class _InjectablePrefixGetter(injector_.BaseInjectableValue[typing.Iterable[str]
 
 
 class Client(injector_.InjectorClient, tanjun_traits.Client):
+    """Tanjun's standard `tanjun.traits.Client` implementation.
+
+    This implementation supports dependency injection for checks, command
+    callbacks, listeners and prefix getters. For more information on how
+    this works see `tanjun.injector`.
+
+    !!! note
+        For a quicker way to initiate this client around a standard bot aware
+        client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.
+
+    Arguments
+    ---------
+    rest: hikari.api.rest.RestClient
+        The Hikari REST client this will use.
+
+    Other Parameters
+    ----------------
+    cache: hikari.api.cache.CacheClient
+        The Hikari cache client this will use if applicable.
+    event_manager: hikari.api.event_manager.EventManagerClient
+        The Hikari event manager client this will use if applicable.
+
+        !!! note
+            This is necessary for message command dispatch and will also be
+            necessary for interaction command dispatch if `server` isn't
+            provided.
+    server: hikari.api.interaction_server.InteractionServer
+        The Hikari interaction server client this will use if applicable.
+
+        !!! note
+            This is used for interaction command dispatch if interaction
+            events aren't being received from the event manager.
+    shard: hikari.traits.ShardAware
+        The Hikari shard aware client this will use if applicable.
+    event_managed: bool
+        Whether or not this client is managed by the event manager.
+
+        An event managed client will be automatically started and closed based
+        on Hikari's lifetime events.
+
+        Defaults to `False` and can only be passed as `True` if `event_manager`
+        is also provided.
+    mention_prefix: bool
+        Whether or not mention prefixes should be automatically set when this
+        client is first started.
+
+        Defaults to `False` and it should be noted that this only applies to
+        message commands.
+    set_global_commands: bool
+        Whether or not to automatically set global slash commands when this
+        client is first started. Defaults to `False`.
+
+    Raises
+    ------
+    ValueError
+        If `event_managed` is `True` when `event_manager` is `None`.
+    """
+
     __slots__: typing.Sequence[str] = (
         "_accepts",
         "_auto_defer_after",
@@ -230,7 +288,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         server: typing.Optional[hikari.api.InteractionServer] = None,
         shard: typing.Optional[hikari_traits.ShardAware] = None,
         *,
-        event_managed: typing.Optional[bool] = None,
+        event_managed: bool = False,
         mention_prefix: bool = False,
         set_global_commands: bool = False,
     ) -> None:
@@ -258,7 +316,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         self._server = server
         self._shards = shard
 
-        if event_managed or event_managed is None and self._events:
+        if event_managed:
             if not self._events:
                 raise ValueError("Client cannot be event managed without an event manager")
 
@@ -281,6 +339,38 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         mention_prefix: bool = False,
         set_global_commands: bool = False,
     ) -> Client:
+        """Build a `Client` from a `hikari.traits.GatewayBotAware` instance.
+
+        !!! note
+            This implicitly defaults the client to human only mode and also
+            sets hikari trait injectors based on `bot`.
+
+        Parameters
+        ----------
+        bot: hikari.traits.GatewayBotAware
+            The bot client to build from.
+
+            This will be used to infer the relevant Hikari clients to use.
+
+        Other Parameters
+        ----------------
+        event_managed: bool
+            Whether or not this client is managed by the event manager.
+
+            An event managed client will be automatically started and closed
+            based on Hikari's lifetime events.
+
+            Defaults to `True`.
+        mention_prefix: bool
+            Whether or not mention prefixes should be automatically set when this
+            client is first started.
+
+            Defaults to `False` and it should be noted that this only applies to
+            message commands.
+        set_global_commands: bool
+            Whether or not to automatically set global slash commands when this
+            client is first started. Defaults to `False`.
+        """
         return (
             cls(
                 rest=bot.rest,
@@ -297,6 +387,22 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
     @classmethod
     def from_rest_bot(cls, bot: hikari_traits.RESTBotAware, /, set_global_commands: bool = False) -> Client:
+        """Build a `Client` from a `hikari.traits.RESTBotAware` instance.
+
+        !!! note
+            This implicitly sets hikari trait injectors based on `bot`.
+
+        Parameters
+        ----------
+        bot: hikari.traits.RESTBotAware
+            The bot client to build from.
+
+        Other Parameters
+        ----------------
+        set_global_commands: bool
+            Whether or not to automatically set global slash commands when this
+            client is first started. Defaults to `False`.
+        """
         return cls(
             rest=bot.rest, server=bot.interaction_server, set_global_commands=set_global_commands
         ).set_hikari_trait_injectors(bot)
@@ -328,26 +434,59 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
     @property
     def cache(self) -> typing.Optional[hikari.api.Cache]:
+        # <<inherited docstring from tanjun.traits.Client>>.
         return self._cache
 
     @property
     def checks(self) -> typing.AbstractSet[tanjun_traits.CheckSig]:
+        """Set of the top level `tanjun.traits.Context` checks registered to this client.
+
+        Returns
+        -------
+        typing.AbstractSet[tanjun.traits.CheckSig]
+            Set of the `tanjun.traits.Context` based checks registered for
+            this client.
+
+            These may be taking advantage of the standard dependency injection.
+        """
         return {check.callback for check in self._checks}
 
     @property
     def components(self) -> typing.AbstractSet[tanjun_traits.Component]:
+        # <<inherited docstring from tanjun.traits.Client>>.
         return self._components.copy()
 
     @property
     def events(self) -> typing.Optional[hikari.api.EventManager]:
+        # <<inherited docstring from tanjun.traits.Client>>.
         return self._events
 
     @property
     def hooks(self) -> typing.Optional[tanjun_traits.AnyHooks]:
+        """The top level `tanjun.traits.AnyHooks` set for this client.
+
+        These are called during both message and interaction command execution.
+
+        Returns
+        -------
+        typing.Optional[tanjun.traits.AnyHooks]
+            The top level `tanjun.traits.Context` based hooks set for this
+            client if applicable, else `None`.
+        """
         return self._hooks
 
     @property
     def interaction_hooks(self) -> typing.Optional[tanjun_traits.InteractionHooks]:
+        """The top level `tanjun.traits.InteractionHooks` set for this client.
+
+        These are only called during interaction command execution.
+
+        Returns
+        -------
+        typing.Optional[tanjun.traits.InteractionHooks]
+            The top level `tanjun.traits.InteractionContext` based hooks set
+            for this client.
+        """
         return self._interaction_hooks
 
     @property
@@ -357,30 +496,61 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
     @property
     def message_hooks(self) -> typing.Optional[tanjun_traits.MessageHooks]:
+        """The top level `tanjun.traits.MessageHooks` set for this client.
+
+        These are only called during both message command execution.
+
+        Returns
+        -------
+        typing.Optional[tanjun.traits.MessageHooks]
+            The top level `tanjun.traits.MessageContext` based hooks set for
+            this client.
+        """
         return self._message_hooks
 
     @property
     def metadata(self) -> typing.MutableMapping[typing.Any, typing.Any]:
+        # <<inherited docstring from tanjun.traits.Client>>.
         return self._metadata
 
     @property
     def prefix_getter(self) -> typing.Optional[PrefixGetterSig]:
+        """Returns the prefix getter method set for this client.
+
+        Returns
+        -------
+        typing.Optional[PrefixGetterSig]
+            The prefix getter method set for this client if applicable,
+            else `None`.
+
+            For more information on this callback's signature see `PrefixGetter`.
+        """
         return self._prefix_getter.callback if self._prefix_getter else None
 
     @property
     def prefixes(self) -> typing.AbstractSet[str]:
+        """Set of the standard prefixes set for this client.
+
+        Returns
+        -------
+        typing.AbstractSet[str]
+            The standard prefixes set for this client.
+        """
         return self._prefixes.copy()
 
     @property
     def rest(self) -> hikari.api.RESTClient:
+        # <<inherited docstring from tanjun.traits.Client>>.
         return self._rest
 
     @property
     def server(self) -> typing.Optional[hikari.api.InteractionServer]:
+        # <<inherited docstring from tanjun.traits.Client>>.
         return self._server
 
     @property
     def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
+        # <<inherited docstring from tanjun.traits.Client>>.
         return self._shards
 
     async def _set_global_commands_next_start(self) -> None:
@@ -409,6 +579,16 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         return self
 
     def set_hikari_trait_injectors(self: _ClientT, bot: hikari_traits.RESTAware, /) -> _ClientT:
+        """Set type based dependency injection based on the hikari traits found in `bot`.
+
+        This is a short hand for calling `Client.add_type_dependency` for all
+        the hikari trait types `bot` is valid for with bot.
+
+        Parameters
+        ----------
+        bot : hikari_traits.RESTAware
+            The hikari client to set dependency injectors for.
+        """
         for _, member in inspect.getmembers(hikari_traits):
             if inspect.isclass(member) and isinstance(bot, member):
                 self.add_type_dependency(member, lambda: bot)
@@ -416,11 +596,29 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         return self
 
     def set_interaction_not_found(self: _ClientT, message: typing.Optional[str], /) -> _ClientT:
-        """Set the message to be shown when an interaction command is not found."""
+        """Set the response message for when an interaction command is not found.
+
+        Parameters
+        ----------
+        message : typing.Optional[str]
+            The message to respond with when an interaction command isn't found.
+
+        !!! warning
+            Setting this to `None` may lead to unexpected behaviour (especially
+            when the client is still set to auto-defer interactions) and should
+            only be done if you know what you're doing.
+        """
         self._interaction_not_found = message
         return self
 
     def set_message_accepts(self: _ClientT, accepts: MessageAcceptsEnum, /) -> _ClientT:
+        """Set the kind of messages commands should be executed based on.
+
+        Parameters
+        ----------
+        accepts : MessageAcceptsEnum
+            The type of messages commands should be executed based on.
+        """
         if accepts.get_event_type() and not self._events:
             raise ValueError("Cannot set accepts level on a client with no event manager")
 
@@ -428,6 +626,20 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         return self
 
     def set_human_only(self: _ClientT, value: bool = True) -> _ClientT:
+        """Set whether or not message commands execution should be limited to "human" users.
+
+        !!! note
+            This doesn't apply to interaction commands as these can only be
+            triggered by a "human" (normal user account).
+
+        Parameters
+        ----------
+        value : bool
+            Whether or not message commands execution should be limited to "human" users.
+
+            Passing `True` here will prevent message commands from being executed
+            based on webhook and bot messages.
+        """
         if value:
             self.add_check(injector_.InjectableCheck(_check_human, injector=self))
 
@@ -442,6 +654,19 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
     async def set_global_commands(
         self, application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None, /
     ) -> typing.Sequence[hikari.Command]:
+        """Set the global application commands for a bot based on the loaded components.
+
+        !!! note
+            This will overwrite any previously set application commands.
+
+        Parameters
+        ----------
+        application : typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]]
+            Object or ID of the application to set the global commands for.
+
+            If left as `None` then this will be inferred from the authorization
+            being used by `Client.rest`.
+        """
         if not application:
             try:
                 application = await self._rest.fetch_application()
@@ -492,6 +717,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         return await utilities.gather_checks(ctx, self._checks)
 
     def add_component(self: _ClientT, component: tanjun_traits.Component, /) -> _ClientT:
+        # <<inherited docstring from tanjun.traits.Client>>.
         if isinstance(component, injector_.Injectable):
             component.set_injector(self)
 
@@ -500,10 +726,12 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         return self
 
     def remove_component(self, component: tanjun_traits.Component, /) -> None:
+        # <<inherited docstring from tanjun.traits.Client>>.
         self._components.remove(component)
         component.unbind_client(self)
 
     def add_client_callback(self: _ClientT, event_name: str, callback: tanjun_traits.MetaEventSig, /) -> _ClientT:
+        # <<inherited docstring from tanjun.traits.Client>>.
         event_name = event_name.lower()
         try:
             self._client_callbacks[event_name].add(callback)
@@ -522,10 +750,12 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
             )
 
     def get_client_callbacks(self, event_name: str, /) -> typing.Collection[tanjun_traits.MetaEventSig]:
+        # <<inherited docstring from tanjun.traits.Client>>.
         event_name = event_name.lower()
         return self._client_callbacks.get(event_name) or ()
 
     def remove_client_callback(self, event_name: str, callback: tanjun_traits.MetaEventSig, /) -> None:
+        # <<inherited docstring from tanjun.traits.Client>>.
         event_name = event_name.lower()
         self._client_callbacks[event_name].remove(callback)
         if not self._client_callbacks[event_name]:
@@ -534,6 +764,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
     def with_client_callback(
         self, event_name: str, /
     ) -> typing.Callable[[tanjun_traits.MetaEventSigT], tanjun_traits.MetaEventSigT]:
+        # <<inherited docstring from tanjun.traits.Client>>.
         def decorator(callback: tanjun_traits.MetaEventSigT, /) -> tanjun_traits.MetaEventSigT:
             self.add_client_callback(event_name, callback)
             return callback
@@ -725,16 +956,9 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
         await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx)
 
-    async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
-        if not isinstance(event.interaction, hikari.CommandInteraction):
-            return
-
-        ctx = context.InteractionContext(self, event.interaction)
-
-        if self._auto_defer_after is not None:
-            ctx.start_defer_timer(self._auto_defer_after)
-
+    def _get_interaction_hooks(self) -> typing.Optional[typing.Set[tanjun_traits.InteractionHooks]]:
         hooks: typing.Optional[typing.Set[tanjun_traits.InteractionHooks]] = None
+
         if self._hooks:
             if not hooks:
                 hooks = set()
@@ -746,6 +970,18 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
                 hooks = set()
 
             hooks.add(self._interaction_hooks)
+
+        return hooks
+
+    async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
+        if not isinstance(event.interaction, hikari.CommandInteraction):
+            return
+
+        ctx = context.InteractionContext(self, event.interaction)
+        hooks = self._get_interaction_hooks()
+
+        if self._auto_defer_after is not None:
+            ctx.start_defer_timer(self._auto_defer_after)
 
         try:
             for component in self._components:
@@ -762,23 +998,10 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
 
     async def on_interaction_create_request(self, interaction: hikari.CommandInteraction, /) -> context.ResponseTypeT:
         ctx = context.InteractionContext(self, interaction)
-
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
 
-        hooks: typing.Optional[typing.Set[tanjun_traits.InteractionHooks]] = None
-        if self._hooks:
-            if not hooks:
-                hooks = set()
-
-            hooks.add(self._hooks)
-
-        if self._interaction_hooks:
-            if not hooks:
-                hooks = set()
-
-            hooks.add(self._interaction_hooks)
-
+        hooks = self._get_interaction_hooks()
         future = ctx.get_response_future()
         try:
             for component in self._components:
