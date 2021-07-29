@@ -568,7 +568,7 @@ class Component(BaseComponent):
 
 
 class StrictComponent(BaseComponent):
-    __slots__ = ("_message_commands",)
+    __slots__ = ("_message_commands", "_names_to_commands")
 
     def __init__(
         self,
@@ -579,55 +579,58 @@ class StrictComponent(BaseComponent):
         message_hooks: typing.Optional[traits.MessageHooks] = None,
     ) -> None:
         super().__init__(checks=checks, hooks=hooks, interaction_hooks=interaction_hooks, message_hooks=message_hooks)
-        self._message_commands: dict[str, traits.MessageCommand] = {}
+        self._message_commands: set[traits.MessageCommand] = set()
+        self._names_to_commands: dict[str, traits.MessageCommand] = {}
 
     @property
     def _message_commands_coll(self) -> collections.Collection[traits.MessageCommand]:
-        return self._message_commands.values()
+        return self._message_commands
 
     @property
-    def message_commands(self) -> collections.ValuesView[traits.MessageCommand]:
-        return self._message_commands.copy().values()
+    def message_commands(self) -> collections.Set[traits.MessageCommand]:
+        return self._message_commands.copy()
 
     def copy(self: _StrictComponentT, *, _new: bool = True) -> _StrictComponentT:
         if not _new:
-            commands = {command: command.copy() for command in dict.fromkeys(self._message_commands.values())}
-            self._message_commands = {name: commands[command] for name, command in self._message_commands.items()}
+            commands = {command: command.copy() for command in dict.fromkeys(self._names_to_commands.values())}
+            self._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
             return super().copy(_new=_new)
 
         return super().copy(_new=_new)
 
     def add_message_command(self: _StrictComponentT, command: traits.MessageCommand, /) -> _StrictComponentT:
-        if self._injector and isinstance(command, injecting.Injectable):
-            command.set_injector(self._injector)
-
         if any(" " in name for name in command.names):
             raise ValueError("Command name cannot contain spaces for this component implementation")
 
+        if self._injector and isinstance(command, injecting.Injectable):
+            command.set_injector(self._injector)
+
+        self._message_commands.add(command)
         for name in command.names:
-            if name in self._message_commands:
+            if name in self._names_to_commands:
                 _LOGGER.info("Command name %r overwritten in component %r", name, self)
 
-            self._message_commands[name] = command
+            self._names_to_commands[name] = command
 
         command.bind_component(self)
         return self
 
     def remove_message_command(self, command: traits.MessageCommand, /) -> None:
+        self._message_commands.remove(command)
         for name in command.names:
-            if self._message_commands.get(name) == command:
-                del self._message_commands[name]
+            if self._names_to_commands.get(name) == command:
+                del self._names_to_commands[name]
 
     async def check_message_context(
         self, ctx: traits.MessageContext, /
     ) -> collections.AsyncIterator[tuple[str, traits.MessageCommand]]:
         ctx.set_component(self)
         name = ctx.content.split(" ", 1)[0]
-        if (command := self._message_commands.get(name)) and await command.check_context(ctx):
+        if (command := self._names_to_commands.get(name)) and await command.check_context(ctx):
             yield name, command
 
         ctx.set_component(None)
 
     def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, traits.MessageCommand]]:
-        if command := self._message_commands.get(name):
+        if command := self._names_to_commands.get(name):
             yield name, command
