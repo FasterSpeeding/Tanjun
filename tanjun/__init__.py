@@ -102,8 +102,8 @@ __all__: list[str] = [
     # hooks.py
     "hooks",
     "Hooks",
-    # injector.py
-    "injector",
+    # injecting.py
+    "injecting",
     "cache_callback",
     "injected",
     "Injected",
@@ -132,7 +132,7 @@ from .context import *
 from .conversion import *
 from .errors import *
 from .hooks import *
-from .injector import *
+from .injecting import *
 from .parsing import *
 
 __author__ = "Faster Speeding"

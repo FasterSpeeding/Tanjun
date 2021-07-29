@@ -62,7 +62,7 @@ from collections import abc as collections
 
 from . import conversion
 from . import errors
-from . import injector as injector_
+from . import injecting
 from . import traits
 
 if typing.TYPE_CHECKING:
@@ -618,7 +618,7 @@ def with_multi_option(
     return with_option(key, name, *names, converters=converters, default=default, empty_value=empty_value, multi=True)
 
 
-class Parameter(injector_.Injectable):
+class Parameter(injecting.Injectable):
     __slots__ = (
         "_client",
         "_component",
@@ -642,9 +642,9 @@ class Parameter(injector_.Injectable):
     ) -> None:
         self._client: typing.Optional[traits.Client] = None
         self._component: typing.Optional[traits.Component] = None
-        self._converters: typing.Optional[list[injector_.InjectableConverter[typing.Any]]] = None
+        self._converters: typing.Optional[list[injecting.InjectableConverter[typing.Any]]] = None
         self.default = default
-        self._injector: typing.Optional[injector_.InjectorClient] = None
+        self._injector: typing.Optional[injecting.InjectorClient] = None
         self.is_greedy = greedy
         self.is_multi = multi
         self._key = key
@@ -687,10 +687,10 @@ class Parameter(injector_.Injectable):
             if self._component:
                 converter.bind_component(self._component)
 
-        if not isinstance(converter, injector_.InjectableConverter):
+        if not isinstance(converter, injecting.InjectableConverter):
             # Some types like `bool` and `bytes` are overridden here for the sake of convenience.
             converter = conversion.override_type(converter)
-            converter = injector_.InjectableConverter(converter, injector=self._injector)
+            converter = injecting.InjectableConverter(converter, injector=self._injector)
 
         self._converters.append(converter)
 
@@ -736,7 +736,7 @@ class Parameter(injector_.Injectable):
         parameter_type = "option" if isinstance(self, Option) else "argument"
         raise errors.ConversionError(self.key, parameter_type, sources)
 
-    def set_injector(self, client: injector_.InjectorClient, /) -> None:
+    def set_injector(self, client: injecting.InjectorClient, /) -> None:
         if self._injector is not None:
             raise RuntimeError("Injector already set")
 
@@ -805,7 +805,7 @@ class Option(Parameter):
         return f"{type(self).__name__} <{self.key}, {self._names}>"
 
 
-class ShlexParser(injector_.Injectable, AbstractParser):
+class ShlexParser(injecting.Injectable, AbstractParser):
     """A shlex based `tanjun.traits.Parser` implementation."""
 
     __slots__ = ("_arguments", "_client", "_component", "_injector", "_options")
@@ -816,7 +816,7 @@ class ShlexParser(injector_.Injectable, AbstractParser):
         self._arguments: list[Argument] = []
         self._client: typing.Optional[traits.Client] = None
         self._component: typing.Optional[traits.Component] = None
-        self._injector: typing.Optional[injector_.InjectorClient] = None
+        self._injector: typing.Optional[injecting.InjectorClient] = None
         self._options: list[Option] = []
 
         if parameters is not None:
@@ -873,7 +873,7 @@ class ShlexParser(injector_.Injectable, AbstractParser):
         else:
             self._arguments.remove(parameter)
 
-    def set_injector(self, client: injector_.InjectorClient, /) -> None:
+    def set_injector(self, client: injecting.InjectorClient, /) -> None:
         self._injector = client
 
         for parameter in itertools.chain(self._options, self._arguments):

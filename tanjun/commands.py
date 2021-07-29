@@ -52,7 +52,7 @@ from yuyo import backoff
 from . import components
 from . import errors
 from . import hooks as hooks_
-from . import injector
+from . import injecting
 from . import traits
 from . import utilities
 
@@ -79,7 +79,7 @@ _EMPTY_RESOLVED: typing.Final[hikari.ResolvedOptionData] = hikari.ResolvedOption
 )
 
 
-class _LoadableInjector(injector.InjectableCheck):
+class _LoadableInjector(injecting.InjectableCheck):
     __slots__ = ()
 
     def make_method_type(self, component: traits.Component, /) -> None:
@@ -90,7 +90,9 @@ class _LoadableInjector(injector.InjectableCheck):
 
 
 class PartialCommand(
-    injector.Injectable, traits.ExecutableCommand[traits.ContextT], typing.Generic[CommandCallbackSigT, traits.ContextT]
+    injecting.Injectable,
+    traits.ExecutableCommand[traits.ContextT],
+    typing.Generic[CommandCallbackSigT, traits.ContextT],
 ):
     __slots__ = (
         "_cached_getters",
@@ -111,14 +113,14 @@ class PartialCommand(
         hooks: typing.Optional[traits.Hooks[traits.ContextT]] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
     ) -> None:
-        self._cached_getters: typing.Optional[list[injector.Getter[typing.Any]]] = None
+        self._cached_getters: typing.Optional[list[injecting.Getter[typing.Any]]] = None
         self._callback: CommandCallbackSigT = callback
-        self._checks: set[injector.InjectableCheck] = (
-            set(injector.InjectableCheck(check) for check in checks) if checks else set()
+        self._checks: set[injecting.InjectableCheck] = (
+            set(injecting.InjectableCheck(check) for check in checks) if checks else set()
         )
         self._component: typing.Optional[traits.Component] = None
         self._hooks = hooks
-        self._injector: typing.Optional[injector.InjectorClient] = None
+        self._injector: typing.Optional[injecting.InjectorClient] = None
         self._metadata = dict(metadata) if metadata else {}
         self._needs_injector: typing.Optional[bool] = None
 
@@ -145,7 +147,7 @@ class PartialCommand(
     @property
     def needs_injector(self) -> bool:
         if self._needs_injector is None:
-            self._needs_injector = injector.check_injecting(self._callback)
+            self._needs_injector = injecting.check_injecting(self._callback)
 
         return self._needs_injector
 
@@ -174,7 +176,7 @@ class PartialCommand(
         return self
 
     def add_check(self: _PartialCommandT, check: traits.CheckSig, /) -> _PartialCommandT:
-        self._checks.add(injector.InjectableCheck(check, injector=self._injector))
+        self._checks.add(injecting.InjectableCheck(check, injector=self._injector))
         return self
 
     def remove_check(self, check: traits.CheckSig, /) -> None:
@@ -184,7 +186,7 @@ class PartialCommand(
         self._checks.add(_LoadableInjector(check, injector=self._injector))
         return check
 
-    def set_injector(self, client: injector.InjectorClient, /) -> None:
+    def set_injector(self, client: injecting.InjectorClient, /) -> None:
         if self._injector:
             raise RuntimeError("Injector already set")
 
@@ -199,7 +201,7 @@ class PartialCommand(
     def bind_component(self, component: traits.Component, /) -> None:
         self._component = component
 
-    def _get_injection_getters(self) -> collections.Iterable[injector.Getter[typing.Any]]:
+    def _get_injection_getters(self) -> collections.Iterable[injecting.Getter[typing.Any]]:
         if not self._injector:
             raise ValueError("Cannot execute command without injector client")
 
@@ -377,7 +379,7 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
                 kwargs = _EMPTY_DICT
 
             if self.needs_injector:
-                injected_values = await injector.resolve_getters(ctx, self._get_injection_getters())
+                injected_values = await injecting.resolve_getters(ctx, self._get_injection_getters())
                 if kwargs:
                     kwargs.update(injected_values)
 
@@ -546,7 +548,7 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
                 kwargs = _EMPTY_DICT
 
             if self.needs_injector:
-                injected_values = await injector.resolve_getters(ctx, self._get_injection_getters())
+                injected_values = await injecting.resolve_getters(ctx, self._get_injection_getters())
                 if kwargs is _EMPTY_DICT:
                     kwargs = injected_values
 
@@ -648,14 +650,14 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
         for command in self._commands:
             command.bind_client(client)
 
-    def set_injector(self, client: injector.InjectorClient, /) -> None:
+    def set_injector(self, client: injecting.InjectorClient, /) -> None:
         super().set_injector(client)
 
-        if self._parser and isinstance(self._parser, injector.Injectable):
+        if self._parser and isinstance(self._parser, injecting.Injectable):
             self._parser.set_injector(client)
 
         for command in self._commands:
-            if isinstance(command, injector.Injectable):
+            if isinstance(command, injecting.Injectable):
                 command.set_injector(client)
 
     # I sure hope this plays well with command group recursion cause I am waaaaaaaaaaaaaay too lazy to test that myself.

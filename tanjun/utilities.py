@@ -53,7 +53,7 @@ from yuyo import backoff
 from . import errors
 
 if typing.TYPE_CHECKING:
-    from . import injector
+    from . import injecting
     from . import traits as tanjun_traits
 
 
@@ -100,14 +100,14 @@ async def await_if_async(
     return result
 
 
-async def gather_checks(ctx: tanjun_traits.Context, checks: collections.Iterable[injector.InjectableCheck]) -> bool:
+async def gather_checks(ctx: tanjun_traits.Context, checks: collections.Iterable[injecting.InjectableCheck]) -> bool:
     """Gather a collection of checks.
 
     Parameters
     ----------
     ctx : tanjun.traits.Context
         The context to check.
-    checks : collections.abc.Iterable[tanjun.injector.InjectableCheck]
+    checks : collections.abc.Iterable[tanjun.injecting.InjectableCheck]
         An iterable of injectable checks.
 
     Returns

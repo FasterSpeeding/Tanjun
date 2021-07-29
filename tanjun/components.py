@@ -43,7 +43,7 @@ from hikari.events import base_events
 
 import tanjun
 
-from . import injector
+from . import injecting
 from . import traits
 from . import utilities
 
@@ -88,7 +88,7 @@ def _with_command(
     return decorator
 
 
-class Component(injector.Injectable, traits.Component):
+class Component(injecting.Injectable, traits.Component):
     __slots__ = (
         "_checks",
         "_client",
@@ -111,13 +111,13 @@ class Component(injector.Injectable, traits.Component):
         interaction_hooks: typing.Optional[traits.InteractionHooks] = None,
         message_hooks: typing.Optional[traits.MessageHooks] = None,
     ) -> None:
-        self._checks: set[injector.InjectableCheck] = (
-            set(injector.InjectableCheck(check) for check in checks) if checks else set()
+        self._checks: set[injecting.InjectableCheck] = (
+            set(injecting.InjectableCheck(check) for check in checks) if checks else set()
         )
         self._client: typing.Optional[traits.Client] = None
         self._client_callbacks: dict[str, set[traits.MetaEventSig]] = {}
         self._hooks = hooks
-        self._injector: typing.Optional[injector.InjectorClient] = None
+        self._injector: typing.Optional[injecting.InjectorClient] = None
         self._interaction_commands: dict[str, traits.InteractionCommand] = {}
         self._interaction_hooks = interaction_hooks
         self._listeners: set[tuple[type[base_events.Event], event_manager_api.CallbackT[typing.Any]]] = set()
@@ -168,7 +168,7 @@ class Component(injector.Injectable, traits.Component):
             return True
 
         return any(
-            isinstance(command, injector.Injectable) and command.needs_injector for command in self._message_commands
+            isinstance(command, injecting.Injectable) and command.needs_injector for command in self._message_commands
         )
 
     @property
@@ -206,7 +206,7 @@ class Component(injector.Injectable, traits.Component):
         return self
 
     def add_check(self: _ComponentT, check: traits.CheckSig, /) -> _ComponentT:
-        self._checks.add(injector.InjectableCheck(check, injector=self._injector))
+        self._checks.add(injecting.InjectableCheck(check, injector=self._injector))
         return self
 
     def remove_check(self, check: traits.CheckSig, /) -> None:
@@ -290,7 +290,7 @@ class Component(injector.Injectable, traits.Component):
         return _with_command(self.add_command, command, copy=copy)
 
     def add_interaction_command(self: _ComponentT, command: traits.InteractionCommand, /) -> _ComponentT:
-        if self._injector and isinstance(command, injector.Injectable):
+        if self._injector and isinstance(command, injecting.Injectable):
             command.set_injector(self._injector)
 
         self._interaction_commands[command.name.casefold()] = command
@@ -315,7 +315,7 @@ class Component(injector.Injectable, traits.Component):
         return _with_command(self.add_interaction_command, command, copy=copy)
 
     def add_message_command(self: _ComponentT, command: traits.MessageCommand, /) -> _ComponentT:
-        if self._injector and isinstance(command, injector.Injectable):
+        if self._injector and isinstance(command, injecting.Injectable):
             command.set_injector(self._injector)
 
         self._message_commands.add(command)
@@ -378,7 +378,7 @@ class Component(injector.Injectable, traits.Component):
 
         return decorator
 
-    def set_injector(self, client: injector.InjectorClient, /) -> None:
+    def set_injector(self, client: injecting.InjectorClient, /) -> None:
         if self._injector:
             raise RuntimeError("Injector already set")
 
@@ -388,7 +388,7 @@ class Component(injector.Injectable, traits.Component):
             check.set_injector(client)
 
         for command in self._message_commands:
-            if isinstance(command, injector.Injectable):
+            if isinstance(command, injecting.Injectable):
                 command.set_injector(client)
 
     def bind_client(self, client: traits.Client, /) -> None:

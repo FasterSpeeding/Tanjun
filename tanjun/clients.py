@@ -58,7 +58,7 @@ from yuyo import backoff
 
 from . import context
 from . import errors
-from . import injector as injector_
+from . import injecting
 from . import traits as tanjun_traits
 from . import utilities
 
@@ -182,13 +182,13 @@ async def _wrap_client_callback(
             raise
 
 
-class _InjectablePrefixGetter(injector_.BaseInjectableValue[collections.Iterable[str]]):
+class _InjectablePrefixGetter(injecting.BaseInjectableValue[collections.Iterable[str]]):
     __slots__ = ()
 
     callback: PrefixGetterSig
 
     def __init__(
-        self, callback: PrefixGetterSig, *, injector: typing.Optional[injector_.InjectorClient] = None
+        self, callback: PrefixGetterSig, *, injector: typing.Optional[injecting.InjectorClient] = None
     ) -> None:
         super().__init__(callback, injector=injector)
         self.is_async = True
@@ -197,7 +197,7 @@ class _InjectablePrefixGetter(injector_.BaseInjectableValue[collections.Iterable
         return await self.call(ctx, ctx=ctx)
 
 
-class Client(injector_.InjectorClient, tanjun_traits.Client):
+class Client(injecting.InjectorClient, tanjun_traits.Client):
     """Tanjun's standard `tanjun.traits.Client` implementation.
 
     This implementation supports dependency injection for checks, command
@@ -297,7 +297,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         self._accepts = MessageAcceptsEnum.ALL if events else MessageAcceptsEnum.NONE
         self._auto_defer_after: typing.Optional[float] = 2.6
         self._cache = cache
-        self._checks: set[injector_.InjectableCheck] = set()
+        self._checks: set[injecting.InjectableCheck] = set()
         self._client_callbacks: dict[str, set[tanjun_traits.MetaEventSig]] = {}
         self._components: set[tanjun_traits.Component] = set()
         self._events = events
@@ -639,7 +639,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
             based on webhook and bot messages.
         """
         if value:
-            self.add_check(injector_.InjectableCheck(_check_human, injector=self))
+            self.add_check(injecting.InjectableCheck(_check_human, injector=self))
 
         else:
             try:
@@ -706,7 +706,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         return commands
 
     def add_check(self: _ClientT, check: tanjun_traits.CheckSig, /) -> _ClientT:
-        self._checks.add(injector_.InjectableCheck(check, injector=self))
+        self._checks.add(injecting.InjectableCheck(check, injector=self))
         return self
 
     def remove_check(self, check: tanjun_traits.CheckSig, /) -> None:
@@ -720,7 +720,7 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
         return await utilities.gather_checks(ctx, self._checks)
 
     def add_component(self: _ClientT, component: tanjun_traits.Component, /, *, add_injector: bool = False) -> _ClientT:
-        if isinstance(component, injector_.Injectable):
+        if isinstance(component, injecting.Injectable):
             component.set_injector(self)
 
         component.bind_client(self)
