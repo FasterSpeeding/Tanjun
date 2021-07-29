@@ -69,7 +69,7 @@ __all__: list[str] = [
     # components.py
     "components",
     "Component",
-    "NoSpaceComponent",
+    "StrictComponent",
     # context.py
     "context",
     "MessageContext",

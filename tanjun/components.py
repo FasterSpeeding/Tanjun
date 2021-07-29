@@ -36,7 +36,7 @@ __all__: list[str] = [
     "CommandT",
     "Component",
     "LoadableProtocol",
-    "NoSpaceComponent",
+    "StrictComponent",
     "WithCommandReturnSig",
 ]
 
@@ -62,7 +62,7 @@ if typing.TYPE_CHECKING:
 
     _BaseComponentT = typing.TypeVar("_BaseComponentT", bound="BaseComponent")
     _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
-    _NoSpaceComponentT = typing.TypeVar("_NoSpaceComponentT", bound="NoSpaceComponent")
+    _StrictComponentT = typing.TypeVar("_StrictComponentT", bound="StrictComponent")
     _T = typing.TypeVar("_T")
 
 
@@ -567,7 +567,7 @@ class Component(BaseComponent):
                 continue
 
 
-class NoSpaceComponent(BaseComponent):
+class StrictComponent(BaseComponent):
     __slots__ = ("_message_commands",)
 
     def __init__(
@@ -589,7 +589,7 @@ class NoSpaceComponent(BaseComponent):
     def message_commands(self) -> collections.ValuesView[traits.MessageCommand]:
         return self._message_commands.copy().values()
 
-    def copy(self: _NoSpaceComponentT, *, _new: bool = True) -> _NoSpaceComponentT:
+    def copy(self: _StrictComponentT, *, _new: bool = True) -> _StrictComponentT:
         if not _new:
             commands = {command: command.copy() for command in dict.fromkeys(self._message_commands.values())}
             self._message_commands = {name: commands[command] for name, command in self._message_commands.items()}
@@ -597,7 +597,7 @@ class NoSpaceComponent(BaseComponent):
 
         return super().copy(_new=_new)
 
-    def add_message_command(self: _NoSpaceComponentT, command: traits.MessageCommand, /) -> _NoSpaceComponentT:
+    def add_message_command(self: _StrictComponentT, command: traits.MessageCommand, /) -> _StrictComponentT:
         if self._injector and isinstance(command, injecting.Injectable):
             command.set_injector(self._injector)
 
@@ -606,7 +606,7 @@ class NoSpaceComponent(BaseComponent):
 
         for name in command.names:
             if name in self._message_commands:
-                _LOGGER.warning("Command name %r overwritten in component", name)
+                _LOGGER.info("Command name %r overwritten in component %r", name, self)
 
             self._message_commands[name] = command
 

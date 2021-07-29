@@ -940,17 +940,14 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
             return
 
         hooks: typing.Optional[set[tanjun_traits.MessageHooks]] = None
-        if self._hooks:
-            if not hooks:
-                hooks = set()
+        if self._hooks and self._message_hooks:
+            hooks = {self._hooks, self._message_hooks}
 
-            hooks.add(self._hooks)
+        elif self._hooks:
+            hooks = {self._hooks}
 
-        if self._message_hooks:
-            if not hooks:
-                hooks = set()
-
-            hooks.add(self._message_hooks)
+        elif self._message_hooks:
+            hooks = {self._message_hooks}
 
         try:
             for component in self._components:
@@ -964,18 +961,14 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
     def _get_interaction_hooks(self) -> typing.Optional[set[tanjun_traits.InteractionHooks]]:
         hooks: typing.Optional[set[tanjun_traits.InteractionHooks]] = None
+        if self._hooks and self._interaction_hooks:
+            hooks = {self._hooks, self._interaction_hooks}
 
-        if self._hooks:
-            if not hooks:
-                hooks = set()
+        elif self._hooks:
+            hooks = {self._hooks}
 
-            hooks.add(self._hooks)
-
-        if self._interaction_hooks:
-            if not hooks:
-                hooks = set()
-
-            hooks.add(self._interaction_hooks)
+        elif self._interaction_hooks:
+            hooks = {self._interaction_hooks}
 
         return hooks
 
