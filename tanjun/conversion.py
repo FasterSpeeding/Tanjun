@@ -313,16 +313,26 @@ class MemberConverter(BaseConverter[hikari.Member]):
         if ctx.guild_id is None:
             raise ValueError("Cannot get a member from a DM channel")
 
-        member_id = parse_user_id(argument, message="No valid user mention or ID found")
-        if ctx.client.cache:
-            if member := ctx.client.cache.get_member(ctx.guild_id, member_id):
-                return member
-
         try:
-            return await ctx.rest.fetch_member(ctx.guild_id, member_id)
+            member_id = parse_user_id(argument, message="No valid user mention or ID found")
 
-        except hikari.NotFoundError:
-            pass
+        except ValueError:
+            try:
+                return (await ctx.rest.search_members(ctx.guild_id, argument))[0]
+
+            except (hikari.NotFoundError, IndexError):
+                pass
+
+        else:
+            if ctx.client.cache:
+                if member := ctx.client.cache.get_member(ctx.guild_id, member_id):
+                    return member
+
+            try:
+                return await ctx.rest.fetch_member(ctx.guild_id, member_id)
+
+            except hikari.NotFoundError:
+                pass
 
         raise ValueError("Couldn't find member in this guild")
 
