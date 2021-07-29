@@ -159,7 +159,7 @@ class Injected(typing.Generic[_T]):
 def injected(
     *,
     callback: UndefinedOr[CallbackSig[_T]] = UNDEFINED,
-    type: UndefinedOr[type[_T]] = UNDEFINED,
+    type: UndefinedOr[_TypeT[_T]] = UNDEFINED,
 ) -> Injected[_T]:
     return Injected(callback=callback, type=type)
 
@@ -184,19 +184,11 @@ async def resolve_getters(
 
 
 class InjectorClient:
-    __slots__ = (
-        "_callback_overrides",
-        "_client",
-        "_component_mapping_values",
-        "_component_mapping",
-        "_type_dependencies",
-    )
+    __slots__ = ("_callback_overrides", "_client", "_type_dependencies")
 
     def __init__(self, client: tanjun_traits.Client, /) -> None:
         self._callback_overrides: dict[CallbackSig[typing.Any], InjectableValue[typing.Any]] = {}
         self._client = client
-        self._component_mapping_values: set[tanjun_traits.Component] = set()
-        self._component_mapping: dict[type[tanjun_traits.Component], tanjun_traits.Component] = {}
         self._type_dependencies: dict[type[typing.Any], InjectableValue[typing.Any]] = {}
 
     def add_type_dependency(self: _InjectorClientT, type_: type[_T], callback: CallbackSig[_T], /) -> _InjectorClientT:
@@ -205,6 +197,9 @@ class InjectorClient:
 
     def get_type_dependency(self, type_: type[_T], /) -> UndefinedOr[CallbackSig[_T]]:
         return self._type_dependencies.get(type_, UNDEFINED)
+
+    def remove_type_dependency(self, type_: type[_T], callback: CallbackSig[_T], /) -> None:
+        del self._type_dependencies[type_]
 
     def add_callable_override(
         self: _InjectorClientT, callback: CallbackSig[_T], override: CallbackSig[_T], /
@@ -215,13 +210,8 @@ class InjectorClient:
     def get_callable_override(self, callback: CallbackSig[_T], /) -> typing.Optional[CallbackSig[_T]]:
         return self._callback_overrides.get(callback)
 
-    def get_component_mapping(self) -> collections.Mapping[type[tanjun_traits.Component], tanjun_traits.Component]:
-        if self._component_mapping_values != self._client.components:
-            self._component_mapping.clear()
-            self._component_mapping = {type(component): component for component in self._client.components}
-            self._component_mapping_values = set(self._client.components)
-
-        return self._component_mapping
+    def remove_callable_override(self, callback: CallbackSig[_T], /) -> None:
+        del self._callback_overrides[callback]
 
     def _make_callback_getter(self, callback: CallbackSig[_T], name: str, /) -> Getter[_T]:
         default = InjectableValue(callback, injector=self)
@@ -286,7 +276,7 @@ _TYPE_GETTER_OVERRIDES: dict[
     collections.Callable[[tanjun_traits.Context, InjectorClient, type[typing.Any]], UndefinedOr[typing.Any]],
 ] = {
     tanjun_traits.Client: lambda ctx, _, __: ctx.client,
-    tanjun_traits.Component: lambda ctx, cli, type_: cli.get_component_mapping().get(type_, ctx.component) or UNDEFINED,
+    tanjun_traits.Component: lambda ctx, _, __: ctx.component or UNDEFINED,
     tanjun_traits.Context: lambda ctx, _, __: ctx,
     InjectorClient: lambda _, cli, __: cli,
     hikari.api.Cache: lambda ctx, _, __: ctx.cache or UNDEFINED,

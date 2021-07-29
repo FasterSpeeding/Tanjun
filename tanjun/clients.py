@@ -719,13 +719,16 @@ class Client(injector_.InjectorClient, tanjun_traits.Client):
     async def check(self, ctx: tanjun_traits.Context, /) -> bool:
         return await utilities.gather_checks(ctx, self._checks)
 
-    def add_component(self: _ClientT, component: tanjun_traits.Component, /) -> _ClientT:
-        # <<inherited docstring from tanjun.traits.Client>>.
+    def add_component(self: _ClientT, component: tanjun_traits.Component, /, *, add_injector: bool = False) -> _ClientT:
         if isinstance(component, injector_.Injectable):
             component.set_injector(self)
 
         component.bind_client(self)
         self._components.add(component)
+
+        if add_injector:
+            self.add_type_dependency(type(component), lambda: component)
+
         return self
 
     def remove_component(self, component: tanjun_traits.Component, /) -> None:
