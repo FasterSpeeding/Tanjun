@@ -678,7 +678,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
         exception: BaseException,
         *,
         hooks: typing.Optional[collections.Set[Hooks[ContextT_contra]]] = None,
-    ) -> None:
+    ) -> int:
         raise NotImplementedError
 
     @abc.abstractmethod

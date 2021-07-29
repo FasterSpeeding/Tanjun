@@ -48,7 +48,7 @@ if typing.TypeVar:
 CommandT = typing.TypeVar("CommandT", bound=traits.ExecutableCommand[typing.Any])
 
 ParserHookSig = collections.Callable[
-    [traits.ContextT, errors.ParserError], typing.Union[collections.Coroutine[typing.Any, typing.Any, None], None]
+    [traits.ContextT, errors.ParserError], typing.Union[collections.Awaitable[None], None]
 ]
 """Type hint of the callback used as a parser error hook.
 
@@ -59,7 +59,7 @@ a synchronous or asynchronous callback which returns `None`
 """
 
 ErrorHookSig = collections.Callable[
-    [traits.ContextT, BaseException], typing.Union[collections.Coroutine[typing.Any, typing.Any, None], None]
+    [traits.ContextT, BaseException], typing.Union[collections.Awaitable[typing.Optional[bool]], typing.Optional[None]]
 ]
 """Type hint of the callback used as a unexpected command error hook.
 
@@ -70,9 +70,7 @@ type `tanjun.traits.Context` and `BaseException` - and may either be a
 synchronous or asynchronous callback which returns `None`
 """
 
-HookSig = collections.Callable[
-    [traits.ContextT], typing.Union[collections.Coroutine[typing.Any, typing.Any, None], None]
-]
+HookSig = collections.Callable[[traits.ContextT], typing.Union[collections.Awaitable[None], None]]
 """Type hint of the callback used as a general command hook.
 
 This may be called during different stages of command execution (decided by
@@ -154,16 +152,24 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
         exception: BaseException,
         *,
         hooks: typing.Optional[collections.Set[traits.Hooks[traits.ContextT_contra]]] = None,
-    ) -> None:  # TODO: return True to indicate "raise" else False or None to suppress
+    ) -> int:
+        level = 0
         if isinstance(exception, errors.ParserError):
             if self._parser_error:
                 await utilities.await_if_async(self._parser_error, ctx, exception)
+                level = 100  # We don't want to re-raise a parser error if it was caught
 
         elif self._error:
-            await utilities.await_if_async(self._error, ctx, exception)
+            result = await utilities.await_if_async(self._error, ctx, exception)
+            if result is True:
+                level += 1
+            elif result is False:
+                level -= 1
 
         if hooks:
-            await asyncio.gather(*(hook.trigger_error(ctx, exception) for hook in hooks))
+            level += sum(await asyncio.gather(*(hook.trigger_error(ctx, exception) for hook in hooks)))
+
+        return level
 
     async def trigger_post_execution(
         self,

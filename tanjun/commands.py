@@ -398,8 +398,8 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
             return
 
         except Exception as exc:
-            await own_hooks.trigger_error(ctx, exc, hooks=hooks)
-            raise
+            if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:
+                raise
 
         else:
             await own_hooks.trigger_success(ctx, hooks=hooks)
@@ -562,8 +562,8 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
                     break
 
         except Exception as exc:
-            await own_hooks.trigger_error(ctx, exc, hooks=hooks)
-            raise
+            if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:
+                raise
 
         else:
             # TODO: how should this be handled around CommandError?

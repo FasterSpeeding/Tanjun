@@ -72,13 +72,13 @@ async def async_chain(
 
 
 async def await_if_async(
-    callback: collections.Callable[..., typing.Union[_ValueT, collections.Awaitable[_ValueT]]], *args: typing.Any
+    callback: collections.Callable[..., typing.Union[collections.Awaitable[_ValueT], _ValueT]], /, *args: typing.Any
 ) -> _ValueT:
     """Resole any awaitable returned by a callback call.
 
     Parameters
     ----------
-    callback : collections.abc.Callable[..., typing.Union[_ValueT_co, collections.abc.Awaitable[_ValueT_co]]
+    callback : collections.abc.Callable[..., typing.Union[collections.abc.Awaitable[_ValueT], _ValueT]
         The async or non-async callback to call.
 
     Other Parameters
@@ -89,7 +89,7 @@ async def await_if_async(
 
     Returns
     -------
-    _ValueT_co
+    _ValueT
         The resolved result of the passed callback.
     """
     result = callback(*args)
