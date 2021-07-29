@@ -42,6 +42,7 @@ __all__: list[str] = [
 ]
 
 import copy
+import logging
 import re
 import types
 import typing
@@ -77,6 +78,7 @@ _EMPTY_LIST: typing.Final[list[typing.Any]] = []
 _EMPTY_RESOLVED: typing.Final[hikari.ResolvedOptionData] = hikari.ResolvedOptionData(
     users=_EMPTY_DICT, members=_EMPTY_DICT, roles=_EMPTY_DICT, channels=_EMPTY_DICT
 )
+_LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.commands")
 
 
 class _LoadableInjector(injecting.InjectableCheck):
@@ -431,10 +433,10 @@ def as_message_command(
 
 
 def as_message_command_group(
-    name: str, /, *names: str
+    name: str, /, *names: str, strict: bool = False
 ) -> collections.Callable[[CommandCallbackSigT], MessageCommandGroup[CommandCallbackSigT]]:
     def decorator(callback: CommandCallbackSigT, /) -> MessageCommandGroup[CommandCallbackSigT]:
-        return MessageCommandGroup(callback, name, *names)
+        return MessageCommandGroup(callback, name, *names, strict=strict)
 
     return decorator
 
@@ -580,7 +582,7 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
 
 
 class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCommandGroup):
-    __slots__ = ("_commands",)
+    __slots__ = ("_commands", "_is_strict", "_names_to_commands")
 
     def __init__(
         self,
@@ -591,10 +593,13 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
         checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.MessageHooks] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
+        strict: bool = False,
         parser: typing.Optional[parsing.AbstractParser] = None,
     ) -> None:
         super().__init__(callback, name, *names, checks=checks, hooks=hooks, metadata=metadata, parser=parser)
         self._commands: set[traits.MessageCommand] = set()
+        self._is_strict = strict
+        self._names_to_commands: dict[str, traits.MessageCommand] = {}
 
     def __repr__(self) -> str:
         return f"CommandGroup <{len(self._commands)}: {self._names}>"
@@ -603,21 +608,42 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
     def commands(self) -> collections.Set[traits.MessageCommand]:
         return self._commands.copy()
 
+    @property
+    def is_strict(self) -> bool:
+        return self._is_strict
+
     def copy(
         self: _MessageCommandGroupT, *, _new: bool = True, parent: typing.Optional[traits.MessageCommandGroup] = None
     ) -> _MessageCommandGroupT:
         if not _new:
-            self._commands = {command.copy(parent=self) for command in self._commands}
+            commands = {command: command.copy(parent=self) for command in self._commands}
+            self._commands = set(commands.values())
+            self._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
 
         return super().copy(parent=parent, _new=_new)
 
     def add_command(self: _MessageCommandGroupT, command: traits.MessageCommand, /) -> _MessageCommandGroupT:
+        if self._is_strict:
+            if any(" " in name for name in command.names):
+                raise ValueError("Sub-command names may not contain spaces in a strict message command group")
+
+            for name in command.names:
+                if name in self._names_to_commands:
+                    _LOGGER.info("Command name %r overwritten in message command group %r", name, self)
+
+                self._names_to_commands[name] = command
+
         command.set_parent(self)
         self._commands.add(command)
         return self
 
     def remove_command(self, command: traits.MessageCommand, /) -> None:
         self._commands.remove(command)
+        if self._is_strict:
+            for name in command.names:
+                if self._names_to_commands.get(name) == command:
+                    del self._names_to_commands[name]
+
         command.set_parent(None)
 
     def with_command(self, command: AnyMessageCommandT) -> AnyMessageCommandT:
@@ -639,6 +665,17 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
             if isinstance(command, injecting.Injectable):
                 command.set_injector(client)
 
+    def find_command(self, content: str, /) -> collections.Iterable[tuple[str, traits.MessageCommand]]:
+        if self._is_strict:
+            name = content.split(" ")[0]
+            if command := self._names_to_commands.get(name):
+                yield name, command
+                return
+
+        for command in self._commands:
+            if (name := utilities.match_prefix_names(content, command.names)) is not None:
+                yield name, command
+
     # I sure hope this plays well with command group recursion cause I am waaaaaaaaaaaaaay too lazy to test that myself.
     async def execute(
         self,
@@ -656,9 +693,8 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
 
             hooks.add(self._hooks)
 
-        for command in self._commands:
-            name = utilities.match_prefix_names(ctx.content, command.names)
-            if name is not None and await command.check_context(ctx):
+        for name, command in self.find_command(ctx.content):
+            if await command.check_context(ctx):
                 content = ctx.message.content.lstrip()[len(ctx.triggering_prefix) :].lstrip()[
                     len(ctx.triggering_name) :
                 ]
