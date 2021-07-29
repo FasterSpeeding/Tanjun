@@ -591,7 +591,8 @@ class NoSpaceComponent(BaseComponent):
 
     def copy(self: _NoSpaceComponentT, *, _new: bool = True) -> _NoSpaceComponentT:
         if not _new:
-            self._message_commands = {name: command.copy() for name, command in self._message_commands.items()}
+            commands = {command: command.copy() for command in dict.fromkeys(self._message_commands.values())}
+            self._message_commands = {name: commands[command] for name, command in self._message_commands.items()}
             return super().copy(_new=_new)
 
         return super().copy(_new=_new)
