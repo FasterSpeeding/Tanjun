@@ -148,20 +148,23 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         raise NotImplementedError
 
 
-class ChannelConverter(BaseConverter[hikari.GuildChannel]):
+class ChannelConverter(BaseConverter[hikari.PartialChannel]):
     __slots__ = ()
 
     @property
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.GuildChannel:
-        if ctx.client.cache:
-            channel_id = parse_channel_id(argument, message="No valid channel mention or ID  found")
-            if channel := ctx.client.cache.get_guild_channel(channel_id):
-                return channel
+    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.PartialChannel:
+        channel_id = parse_channel_id(argument, message="No valid channel mention or ID  found")
+        if ctx.client.cache and (channel := ctx.client.cache.get_guild_channel(channel_id)):
+            return channel
 
-        raise ValueError("Couldn't find channel")
+        try:
+            return await ctx.rest.fetch_channel(channel_id)
+
+        except hikari.NotFoundError:
+            raise ValueError("Couldn't find channel") from None
 
     @property
     def intents(self) -> hikari.Intents:
@@ -173,7 +176,7 @@ class ChannelConverter(BaseConverter[hikari.GuildChannel]):
 
     @classmethod
     def types(cls) -> tuple[type[typing.Any], ...]:
-        return (hikari.GuildChannel,)
+        return (hikari.PartialChannel,)
 
 
 class ColorConverter(BaseConverter[hikari.Color]):
@@ -211,10 +214,17 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
         return True
 
     async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.KnownCustomEmoji:
-        if ctx.client.cache:
-            emoji_id = parse_emoji_id(argument, message="No valid emoji or emoji ID found")
-            if emoji := ctx.client.cache.get_emoji(emoji_id):
-                return emoji
+        emoji_id = parse_emoji_id(argument, message="No valid emoji or emoji ID found")
+
+        if ctx.client.cache and (emoji := ctx.client.cache.get_emoji(emoji_id)):
+            return emoji
+
+        if ctx.guild_id:
+            try:
+                return await ctx.rest.fetch_emoji(ctx.guild_id, emoji_id)
+
+            except hikari.NotFoundError:
+                pass
 
         raise ValueError("Couldn't find emoji")
 
@@ -239,10 +249,16 @@ class GuildConverter(BaseConverter[hikari.GatewayGuild]):
         return True
 
     async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.GatewayGuild:
+        guild_id = parse_snowflake(argument, message="No valid guild ID found")
         if ctx.client.cache:
-            guild_id = parse_snowflake(argument, message="No valid guild ID found")
             if guild := ctx.client.cache.get_guild(guild_id):
                 return guild
+
+        try:
+            guild = await ctx.rest.fetch_guild(guild_id)
+
+        except hikari.NotFoundError:
+            pass
 
         raise ValueError("Couldn't find guild")
 
@@ -297,10 +313,16 @@ class MemberConverter(BaseConverter[hikari.Member]):
         if ctx.guild_id is None:
             raise ValueError("Cannot get a member from a DM channel")
 
+        member_id = parse_user_id(argument, message="No valid user mention or ID found")
         if ctx.client.cache:
-            member_id = parse_user_id(argument, message="No valid user mention or ID found")
             if member := ctx.client.cache.get_member(ctx.guild_id, member_id):
                 return member
+
+        try:
+            return await ctx.rest.fetch_member(ctx.guild_id, member_id)
+
+        except hikari.NotFoundError:
+            pass
 
         raise ValueError("Couldn't find member in this guild")
 
@@ -356,10 +378,15 @@ class RoleConverter(BaseConverter[hikari.Role]):
         return True
 
     async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.Role:
+        role_id = parse_role_id(argument, message="No valid role mention or ID  found")
         if ctx.client.cache:
-            role_id = parse_role_id(argument, message="No valid role mention or ID  found")
             if role := ctx.client.cache.get_role(role_id):
                 return role
+
+        if ctx.guild_id:
+            for role in await ctx.rest.fetch_roles(ctx.guild_id):
+                if role.id == role_id:
+                    return role
 
         raise ValueError("Couldn't find role")
 
@@ -442,10 +469,16 @@ class UserConverter(BaseConverter[hikari.User]):
         return True
 
     async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.User:
+        user_id = parse_user_id(argument, message="No valid user mention or ID  found")
         if ctx.client.cache:
-            user_id = parse_user_id(argument, message="No valid user mention or ID  found")
             if user := ctx.client.cache.get_user(user_id):
                 return user
+
+        try:
+            return await ctx.rest.fetch_user(user_id)
+
+        except hikari.NotFoundError:
+            pass
 
         raise ValueError("Couldn't find user")
 
