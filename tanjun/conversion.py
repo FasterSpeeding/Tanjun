@@ -32,6 +32,7 @@
 from __future__ import annotations
 
 __all__: list[str] = [
+    "BaseConverter",
     "ChannelConverter",
     "ColorConverter",
     "EmojiConverter",
@@ -43,12 +44,23 @@ __all__: list[str] = [
     "SnowflakeConverter",
     "UserConverter",
     "VoiceStateConverter",
+    "to_channel",
+    "to_color",
+    "to_colour",
+    "to_emoji",
+    "to_guild",
+    "to_invite",
+    "to_member",
+    "to_presence",
+    "to_role",
+    "to_snowflake",
+    "to_user",
+    "to_voice_state",
 ]
 
 import abc
 import datetime
 import distutils.util
-import inspect
 import re
 import typing
 import urllib.parse
@@ -69,7 +81,7 @@ _ValueT = typing.TypeVar("_ValueT")
 
 class BaseConverter(typing.Generic[_ValueT], abc.ABC):
     __slots__ = ()
-    __implementations: set[type[BaseConverter[type[typing.Any]]]] = set()
+    __implementations: set[BaseConverter[typing.Any]] = set()
 
     async def __call__(self, argument: str, ctx: traits.Context) -> _ValueT:
         return await self.convert(ctx, argument)
@@ -96,7 +108,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         pass
 
     @classmethod
-    def get_from_type(cls, type_: type[_ValueT], /) -> typing.Optional[type[BaseConverter[type[_ValueT]]]]:
+    def get_from_type(cls, type_: type[_ValueT], /) -> typing.Optional[BaseConverter[_ValueT]]:
         for converter in cls.__implementations:
             is_inheritable = converter.is_inheritable()
             if is_inheritable and issubclass(type_, converter.types()):
@@ -108,7 +120,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         return None
 
     @classmethod
-    def implementations(cls) -> collections.MutableSet[type[BaseConverter[type[typing.Any]]]]:
+    def implementations(cls) -> collections.MutableSet[BaseConverter[typing.Any]]:
         return cls.__implementations
 
     @property
@@ -312,6 +324,18 @@ class PresenceConverter(BaseConverter[hikari.MemberPresence]):
     def cache_bound(self) -> bool:
         return True
 
+    @property
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.GUILD_PRESENCES
+
+    @classmethod
+    def is_inheritable(cls) -> bool:
+        return False
+
+    @classmethod
+    def types(cls) -> tuple[type[typing.Any], ...]:
+        return (hikari.MemberPresence,)
+
     async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.MemberPresence:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a presence from a DM channel")
@@ -469,13 +493,6 @@ class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
         return (hikari.VoiceState,)
 
 
-for _cls in vars().copy().values():
-    if inspect.isclass(_cls) and issubclass(_cls, BaseConverter):
-        BaseConverter.implementations().add(_cls)
-
-del _cls
-
-
 def _build_url_parser(callback: collections.Callable[[str], _ValueT], /) -> collections.Callable[[str], _ValueT]:
     def parse(value: str, /) -> _ValueT:
         if value.startswith("<") and value.endswith(">"):
@@ -518,3 +535,24 @@ _TYPE_OVERRIDES: dict[collections.Callable[..., typing.Any], collections.Callabl
 
 def override_type(cls: parsing.ConverterSig, /) -> parsing.ConverterSig:
     return _TYPE_OVERRIDES.get(cls, cls)
+
+
+to_channel = ChannelConverter()
+to_color = ColorConverter()
+to_colour = to_color
+to_emoji = EmojiConverter()
+to_guild = GuildConverter()
+to_invite = InviteConverter()
+to_member = MemberConverter()
+to_presence = PresenceConverter()
+to_role = RoleConverter()
+to_snowflake = SnowflakeConverter()
+to_user = UserConverter()
+to_voice_state = VoiceStateConverter()
+
+
+for _value in vars().copy().values():
+    if isinstance(_value, BaseConverter):
+        BaseConverter.implementations().add(_value)
+
+del _value

@@ -646,7 +646,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
 
         command.set_parent(None)
 
-    def with_command(self, command: AnyMessageCommandT) -> AnyMessageCommandT:
+    def with_command(self, command: AnyMessageCommandT, /) -> AnyMessageCommandT:
         self.add_command(command)
         return command
 
