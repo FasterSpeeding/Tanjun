@@ -770,6 +770,10 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
         raise NotImplementedError
 
     @abc.abstractmethod
+    async def check_context(self, ctx: ContextT, /) -> bool:
+        raise NotImplementedError
+
+    @abc.abstractmethod
     async def execute(
         self, ctx: ContextT, /, *, hooks: typing.Optional[collections.MutableSet[Hooks[ContextT]]] = None
     ) -> None:
@@ -805,10 +809,6 @@ class InteractionCommand(ExecutableCommand[InteractionContext], abc.ABC):
 
     @abc.abstractmethod
     def build(self) -> hikari.api.CommandBuilder:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    async def check_context(self, ctx: InteractionContext, /) -> bool:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -871,23 +871,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_name(self: _T, name: str, /) -> _T:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def remove_name(self, name: str, /) -> None:
-        raise NotImplementedError
-
-    @abc.abstractmethod
     def copy(self: _T, *, parent: typing.Optional[MessageCommandGroup] = None) -> _T:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    async def check_context(self, ctx: MessageContext, /, *, name_prefix: str = "") -> typing.Optional[str]:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def check_name(self, name: str, /) -> typing.Optional[str]:
         raise NotImplementedError
 
 
@@ -1013,9 +997,7 @@ class Component(abc.ABC):
     # As far as MYPY is concerned, unless you explicitly yield within an async callback typed as returning an
     # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
     @abc.abstractmethod
-    def check_message_context(
-        self, ctx: MessageContext, /, *, name_prefix: str = ""
-    ) -> collections.AsyncIterator[tuple[str, MessageCommand]]:
+    def check_message_context(self, ctx: MessageContext, /) -> collections.AsyncIterator[tuple[str, MessageCommand]]:
         raise NotImplementedError
 
     @abc.abstractmethod

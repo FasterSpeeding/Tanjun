@@ -39,6 +39,7 @@ __all__: list[str] = [
     "ALL_PERMISSIONS",
     "calculate_permissions",
     "fetch_permissions",
+    "match_prefix_names",
 ]
 
 import asyncio
@@ -145,6 +146,16 @@ async def fetch_resource(
 
     else:
         return await call(*args)
+
+
+def match_prefix_names(content: str, names: collections.Iterable[str], /) -> typing.Optional[str]:
+    for name in names:
+        # Here we enforce that a name must either be at the end of content or be followed by a space. This helps
+        # avoid issues with ambiguous naming where a command with the names "name" and "names" may sometimes hit
+        # the former before the latter when triggered with the latter, leading to the command potentially being
+        # inconsistently parsed.
+        if content == name or content.startswith(name) and content[len(name)] == " ":
+            return name
 
 
 ALL_PERMISSIONS = functools.reduce(operator.__xor__, hikari.Permissions)

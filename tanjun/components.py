@@ -31,11 +31,20 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: list[str] = ["CommandT", "Component", "LoadableProtocol", "WithCommandReturnSig"]
+__all__: list[str] = [
+    "BaseComponent",
+    "CommandT",
+    "Component",
+    "LoadableProtocol",
+    "NoSpaceComponent",
+    "WithCommandReturnSig",
+]
 
+import abc
 import asyncio
 import copy
 import inspect
+import logging
 import typing
 from collections import abc as collections
 
@@ -51,11 +60,14 @@ if typing.TYPE_CHECKING:
 
     from hikari.api import event_manager as event_manager_api
 
+    _BaseComponentT = typing.TypeVar("_BaseComponentT", bound="BaseComponent")
     _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
+    _NoSpaceComponentT = typing.TypeVar("_NoSpaceComponentT", bound="NoSpaceComponent")
     _T = typing.TypeVar("_T")
 
 
 CommandT = typing.TypeVar("CommandT", bound="traits.ExecutableCommand[typing.Any]")
+_LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.components")
 WithCommandReturnSig = typing.Union[CommandT, collections.Callable[[CommandT], CommandT]]
 
 
@@ -88,7 +100,7 @@ def _with_command(
     return decorator
 
 
-class Component(injecting.Injectable, traits.Component):
+class BaseComponent(injecting.Injectable, traits.Component):
     __slots__ = (
         "_checks",
         "_client",
@@ -98,7 +110,6 @@ class Component(injecting.Injectable, traits.Component):
         "_interaction_commands",
         "_interaction_hooks",
         "_listeners",
-        "_message_commands",
         "_message_hooks",
         "_metadata",
     )
@@ -121,7 +132,6 @@ class Component(injecting.Injectable, traits.Component):
         self._interaction_commands: dict[str, traits.InteractionCommand] = {}
         self._interaction_hooks = interaction_hooks
         self._listeners: set[tuple[type[base_events.Event], event_manager_api.CallbackT[typing.Any]]] = set()
-        self._message_commands: set[traits.MessageCommand] = set()
         self._message_hooks = message_hooks
         self._metadata: dict[typing.Any, typing.Any] = {}
 
@@ -129,9 +139,7 @@ class Component(injecting.Injectable, traits.Component):
             self._load_from_properties()
 
     def __repr__(self) -> str:
-        count_1 = len(self._message_commands)
-        count_2 = len(self._interaction_commands)
-        return f"Component <{type(self).__name__}, ({count_1}, {count_2}) commands>"
+        return f"{type(self).__name__}({self.checks=}, {self.hooks=}, {self.interaction_hooks=}, {self.message_hooks=})"
 
     @property
     def checks(self) -> collections.Set[traits.CheckSig]:
@@ -150,12 +158,13 @@ class Component(injecting.Injectable, traits.Component):
         return self._interaction_commands.copy().values()
 
     @property
-    def message_commands(self) -> collections.Set[traits.MessageCommand]:
-        return self._message_commands.copy()
-
-    @property
     def interaction_hooks(self) -> typing.Optional[traits.InteractionHooks]:
         return self._interaction_hooks
+
+    @property
+    @abc.abstractmethod
+    def _message_commands_coll(self) -> collections.Collection[traits.MessageCommand]:
+        raise NotImplementedError
 
     @property
     def message_hooks(self) -> typing.Optional[traits.MessageHooks]:
@@ -168,7 +177,8 @@ class Component(injecting.Injectable, traits.Component):
             return True
 
         return any(
-            isinstance(command, injecting.Injectable) and command.needs_injector for command in self._message_commands
+            isinstance(command, injecting.Injectable) and command.needs_injector
+            for command in self._message_commands_coll
         )
 
     @property
@@ -181,11 +191,10 @@ class Component(injecting.Injectable, traits.Component):
     def metadata(self) -> dict[typing.Any, typing.Any]:
         return self._metadata
 
-    def copy(self: _ComponentT, *, _new: bool = True) -> _ComponentT:
+    def copy(self: _BaseComponentT, *, _new: bool = True) -> _BaseComponentT:
         if not _new:
             self._checks = set(check.copy() for check in self._checks)
             self._interaction_commands = {name: command.copy() for name, command in self._interaction_commands.items()}
-            self._message_commands = {command.copy() for command in self._message_commands}
             self._hooks = self._hooks.copy() if self._hooks else None
             self._listeners = {copy.copy(listener) for listener in self._listeners}
             self._metadata = self._metadata.copy()
@@ -193,19 +202,21 @@ class Component(injecting.Injectable, traits.Component):
 
         return copy.copy(self).copy(_new=False)
 
-    def set_interaction_hooks(self: _ComponentT, hooks_: typing.Optional[traits.InteractionHooks], /) -> _ComponentT:
+    def set_interaction_hooks(
+        self: _BaseComponentT, hooks_: typing.Optional[traits.InteractionHooks], /
+    ) -> _BaseComponentT:
         self._interaction_hooks = hooks_
         return self
 
-    def set_message_hooks(self: _ComponentT, hooks_: typing.Optional[traits.MessageHooks]) -> _ComponentT:
+    def set_message_hooks(self: _BaseComponentT, hooks_: typing.Optional[traits.MessageHooks]) -> _BaseComponentT:
         self._message_hooks = hooks_
         return self
 
-    def set_hooks(self: _ComponentT, hooks: typing.Optional[traits.AnyHooks], /) -> _ComponentT:
+    def set_hooks(self: _BaseComponentT, hooks: typing.Optional[traits.AnyHooks], /) -> _BaseComponentT:
         self._hooks = hooks
         return self
 
-    def add_check(self: _ComponentT, check: traits.CheckSig, /) -> _ComponentT:
+    def add_check(self: _BaseComponentT, check: traits.CheckSig, /) -> _BaseComponentT:
         self._checks.add(injecting.InjectableCheck(check, injector=self._injector))
         return self
 
@@ -216,7 +227,9 @@ class Component(injecting.Injectable, traits.Component):
         self.add_check(check)
         return check
 
-    def add_client_callback(self: _ComponentT, event_name: str, callback: traits.MetaEventSig, /) -> _ComponentT:
+    def add_client_callback(
+        self: _BaseComponentT, event_name: str, callback: traits.MetaEventSig, /
+    ) -> _BaseComponentT:
         event_name = event_name.lower()
         try:
             self._client_callbacks[event_name].add(callback)
@@ -250,7 +263,7 @@ class Component(injecting.Injectable, traits.Component):
 
         return decorator
 
-    def add_command(self: _ComponentT, command: traits.ExecutableCommand[typing.Any], /) -> _ComponentT:
+    def add_command(self: _BaseComponentT, command: traits.ExecutableCommand[typing.Any], /) -> _BaseComponentT:
         if isinstance(command, traits.MessageCommand):
             self.add_message_command(command)
 
@@ -289,7 +302,7 @@ class Component(injecting.Injectable, traits.Component):
     ) -> WithCommandReturnSig[CommandT]:
         return _with_command(self.add_command, command, copy=copy)
 
-    def add_interaction_command(self: _ComponentT, command: traits.InteractionCommand, /) -> _ComponentT:
+    def add_interaction_command(self: _BaseComponentT, command: traits.InteractionCommand, /) -> _BaseComponentT:
         if self._injector and isinstance(command, injecting.Injectable):
             command.set_injector(self._injector)
 
@@ -314,16 +327,6 @@ class Component(injecting.Injectable, traits.Component):
     ) -> WithCommandReturnSig[traits.InteractionCommandT]:
         return _with_command(self.add_interaction_command, command, copy=copy)
 
-    def add_message_command(self: _ComponentT, command: traits.MessageCommand, /) -> _ComponentT:
-        if self._injector and isinstance(command, injecting.Injectable):
-            command.set_injector(self._injector)
-
-        self._message_commands.add(command)
-        return self
-
-    def remove_message_command(self, command: traits.MessageCommand, /) -> None:
-        self._message_commands.remove(command)
-
     @typing.overload
     def with_message_command(self, command: traits.MessageCommandT, /) -> traits.MessageCommandT:
         ...
@@ -340,11 +343,11 @@ class Component(injecting.Injectable, traits.Component):
         return _with_command(self.add_message_command, command, copy=copy)
 
     def add_listener(
-        self: _ComponentT,
+        self: _BaseComponentT,
         event: type[event_manager_api.EventT_inv],
         listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
         /,
-    ) -> _ComponentT:
+    ) -> _BaseComponentT:
         self._listeners.add((event, listener))
 
         if self._client and self._client.events:
@@ -387,7 +390,7 @@ class Component(injecting.Injectable, traits.Component):
         for check in self._checks:
             check.set_injector(client)
 
-        for command in self._message_commands:
+        for command in self._message_commands_coll:
             if isinstance(command, injecting.Injectable):
                 command.set_injector(client)
 
@@ -396,8 +399,7 @@ class Component(injecting.Injectable, traits.Component):
             raise RuntimeError("Client already set")
 
         self._client = client
-
-        for command in self._message_commands:
+        for command in self._message_commands_coll:
             command.bind_client(client)
 
         # TODO: warn if listeners registered without any provided dispatch handler
@@ -427,22 +429,6 @@ class Component(injecting.Injectable, traits.Component):
                     self._client.remove_client_callback(event_name, callback)
                 except (LookupError, ValueError):
                     pass
-
-    async def check_message_context(
-        self, ctx: traits.MessageContext, /, *, name_prefix: str = ""
-    ) -> collections.AsyncIterator[tuple[str, traits.MessageCommand]]:
-        ctx.set_component(self)
-        if await utilities.gather_checks(ctx, self._checks):
-            for command in self._message_commands:
-                if name := await command.check_context(ctx, name_prefix=name_prefix):
-                    yield name, command
-
-        ctx.set_component(None)
-
-    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, traits.MessageCommand]]:
-        for command in self._message_commands:
-            if found_name := command.check_name(name):
-                yield found_name, command
 
     async def _execute_interaction(
         self,
@@ -512,6 +498,7 @@ class Component(injecting.Injectable, traits.Component):
             await command.execute(ctx, hooks=hooks)
             return True
 
+        ctx.set_component(None)
         return False
 
     def _load_from_properties(self) -> None:
@@ -519,3 +506,127 @@ class Component(injecting.Injectable, traits.Component):
             if isinstance(member, LoadableProtocol):
                 if result := member.copy().load_into_component(self):
                     setattr(self, name, result)
+
+
+class Component(BaseComponent):
+    __slots__ = ("_message_commands",)
+
+    def __init__(
+        self,
+        *,
+        checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
+        hooks: typing.Optional[traits.AnyHooks] = None,
+        interaction_hooks: typing.Optional[traits.InteractionHooks] = None,
+        message_hooks: typing.Optional[traits.MessageHooks] = None,
+    ) -> None:
+        super().__init__(checks=checks, hooks=hooks, interaction_hooks=interaction_hooks, message_hooks=message_hooks)
+        self._message_commands: set[traits.MessageCommand] = set()
+
+    @property
+    def _message_commands_coll(self) -> collections.Collection[traits.MessageCommand]:
+        return self._message_commands
+
+    @property
+    def message_commands(self) -> collections.Set[traits.MessageCommand]:
+        return self._message_commands.copy()
+
+    def copy(self: _ComponentT, *, _new: bool = True) -> _ComponentT:  # TODO need two different type vars for these lol
+        if not _new:
+            self._message_commands = {command.copy() for command in self._message_commands}
+            return super().copy(_new=_new)
+
+        return super().copy(_new=_new)
+
+    def add_message_command(self: _ComponentT, command: traits.MessageCommand, /) -> _ComponentT:
+        if self._injector and isinstance(command, injecting.Injectable):
+            command.set_injector(self._injector)
+
+        self._message_commands.add(command)
+        command.bind_component(self)
+        return self
+
+    def remove_message_command(self, command: traits.MessageCommand, /) -> None:
+        self._message_commands.remove(command)
+
+    async def check_message_context(
+        self, ctx: traits.MessageContext, /
+    ) -> collections.AsyncIterator[tuple[str, traits.MessageCommand]]:
+        ctx.set_component(self)
+        if await utilities.gather_checks(ctx, self._checks):
+            for name, command in self.check_message_name(ctx.content):
+                if await command.check_context(ctx):
+                    yield name, command
+
+        ctx.set_component(None)
+
+    def check_message_name(self, content: str, /) -> collections.Iterator[tuple[str, traits.MessageCommand]]:
+        for command in self._message_commands:
+            if (name := utilities.match_prefix_names(content, command.names)) is not None:
+                yield name, command
+                # Don't want to match a command multiple times
+                continue
+
+
+class NoSpaceComponent(BaseComponent):
+    __slots__ = ("_message_commands",)
+
+    def __init__(
+        self,
+        *,
+        checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
+        hooks: typing.Optional[traits.AnyHooks] = None,
+        interaction_hooks: typing.Optional[traits.InteractionHooks] = None,
+        message_hooks: typing.Optional[traits.MessageHooks] = None,
+    ) -> None:
+        super().__init__(checks=checks, hooks=hooks, interaction_hooks=interaction_hooks, message_hooks=message_hooks)
+        self._message_commands: dict[str, traits.MessageCommand] = {}
+
+    @property
+    def _message_commands_coll(self) -> collections.Collection[traits.MessageCommand]:
+        return self._message_commands.values()
+
+    @property
+    def message_commands(self) -> collections.ValuesView[traits.MessageCommand]:
+        return self._message_commands.copy().values()
+
+    def copy(self: _NoSpaceComponentT, *, _new: bool = True) -> _NoSpaceComponentT:
+        if not _new:
+            self._message_commands = {name: command.copy() for name, command in self._message_commands.items()}
+            return super().copy(_new=_new)
+
+        return super().copy(_new=_new)
+
+    def add_message_command(self: _NoSpaceComponentT, command: traits.MessageCommand, /) -> _NoSpaceComponentT:
+        if self._injector and isinstance(command, injecting.Injectable):
+            command.set_injector(self._injector)
+
+        if any(" " in name for name in command.names):
+            raise ValueError("Command name cannot contain spaces for this component implementation")
+
+        for name in command.names:
+            if name in self._message_commands:
+                _LOGGER.warning("Command name %r overwritten in component", name)
+
+            self._message_commands[name] = command
+
+        command.bind_component(self)
+        return self
+
+    def remove_message_command(self, command: traits.MessageCommand, /) -> None:
+        for name in command.names:
+            if self._message_commands.get(name) == command:
+                del self._message_commands[name]
+
+    async def check_message_context(
+        self, ctx: traits.MessageContext, /
+    ) -> collections.AsyncIterator[tuple[str, traits.MessageCommand]]:
+        ctx.set_component(self)
+        name = ctx.content.split(" ", 1)[0]
+        if (command := self._message_commands.get(name)) and await command.check_context(ctx):
+            yield name, command
+
+        ctx.set_component(None)
+
+    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, traits.MessageCommand]]:
+        if command := self._message_commands.get(name):
+            yield name, command

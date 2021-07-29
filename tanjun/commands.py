@@ -501,32 +501,11 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         self._parser = parser
         return self
 
-    async def check_context(self, ctx: traits.MessageContext, /, *, name_prefix: str = "") -> typing.Optional[str]:
+    async def check_context(self, ctx: traits.MessageContext, /) -> bool:
         ctx = ctx.set_command(self)
-        if name := self.check_name(ctx.content[len(name_prefix) :].lstrip()):
-            if await utilities.gather_checks(ctx, self._checks):
-                return name
-
+        result = await utilities.gather_checks(ctx, self._checks)
         ctx.set_command(None)
-        return None
-
-    def add_name(self: _MessageCommandT, name: str, /) -> _MessageCommandT:
-        self._names.add(name)
-        return self
-
-    def check_name(self, name: str, /) -> typing.Optional[str]:
-        for own_name in self._names:
-            # Here we enforce that a name must either be at the end of content or be followed by a space. This helps
-            # avoid issues with ambiguous naming where a command with the names "name" and "names" may sometimes hit
-            # the former before the latter when triggered with the latter, leading to the command potentially being
-            # inconsistently parsed.
-            if name == own_name or name.startswith(own_name) and name[len(own_name)] == " ":
-                return own_name
-
-        return None
-
-    def remove_name(self, name: str, /) -> None:
-        self._names.remove(name)
+        return result
 
     async def execute(
         self,
@@ -678,15 +657,13 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
             hooks.add(self._hooks)
 
         for command in self._commands:
-            if name := await command.check_context(ctx):
-                # triggering_prefix should never be None here but for the sake of covering all cases if it is then we
-                # assume an empty string.
-                # If triggering_name is None then we assume an empty string for that as well.
-                content = ctx.message.content.lstrip()[len(ctx.triggering_prefix or "") :].lstrip()[
-                    len(ctx.triggering_name or "") :
+            name = utilities.match_prefix_names(ctx.content, command.names)
+            if name is not None and await command.check_context(ctx):
+                content = ctx.message.content.lstrip()[len(ctx.triggering_prefix) :].lstrip()[
+                    len(ctx.triggering_name) :
                 ]
                 space_len = len(content) - len(content.lstrip())
-                ctx.set_triggering_name((ctx.triggering_name or "") + (" " * space_len) + name)
+                ctx.set_triggering_name(ctx.triggering_name + (" " * space_len) + name)
                 ctx.set_content(ctx.content[space_len + len(name) :].lstrip())
                 await command.execute(ctx, hooks=hooks)
                 return
