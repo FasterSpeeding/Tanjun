@@ -222,18 +222,21 @@ class InjectorClient:
         return Getter(get, name, injecting=True)
 
     def _make_type_getter(self, type_: type[_T], name: str, /) -> Getter[_T]:
-        for match, function in _TYPE_GETTER_OVERRIDES.items():
+        for match, function in _TYPE_SPECIAL_CASES.items():
             if inspect.isclass(match) and issubclass(type_, match):
 
-                def get_simple(ctx: tanjun_traits.Context) -> _T:
-                    if (result := function(ctx, self, type_)) is not UNDEFINED:
+                def get_special_cased(ctx: tanjun_traits.Context) -> _T:
+                    if (result := self._type_dependencies.get(type_, ...)) is not ...:
+                        return typing.cast(_T, result)
+
+                    if (result := function(ctx, self)) is not UNDEFINED:
                         return typing.cast(_T, result)
 
                     raise errors.MissingDependencyError(
                         f"Couldn't resolve injected type {type_} to actual value"
                     ) from None
 
-                return Getter(get_simple, name, injecting=False)
+                return Getter(get_special_cased, name, injecting=False)
 
         def get_injectable(_: tanjun_traits.Context) -> InjectableValue[_T]:
             try:
@@ -271,19 +274,19 @@ class InjectorClient:
                 yield self._make_type_getter(parameter.default.type, name)
 
 
-_TYPE_GETTER_OVERRIDES: dict[
+_TYPE_SPECIAL_CASES: dict[
     type[typing.Any],
-    collections.Callable[[tanjun_traits.Context, InjectorClient, type[typing.Any]], UndefinedOr[typing.Any]],
+    collections.Callable[[tanjun_traits.Context, InjectorClient], UndefinedOr[typing.Any]],
 ] = {
-    tanjun_traits.Client: lambda ctx, _, __: ctx.client,
-    tanjun_traits.Component: lambda ctx, _, __: ctx.component or UNDEFINED,
-    tanjun_traits.Context: lambda ctx, _, __: ctx,
-    InjectorClient: lambda _, cli, __: cli,
-    hikari.api.Cache: lambda ctx, _, __: ctx.cache or UNDEFINED,
-    hikari.api.RESTClient: lambda ctx, _, __: ctx.rest,
-    hikari_traits.ShardAware: lambda ctx, _, __: ctx.shards or UNDEFINED,
-    hikari.api.EventManager: lambda ctx, _, __: ctx.events or UNDEFINED,
-    hikari.api.InteractionServer: lambda ctx, _, __: ctx.server or UNDEFINED,
+    tanjun_traits.Client: lambda ctx, _: ctx.client,
+    tanjun_traits.Component: lambda ctx, _: ctx.component or UNDEFINED,
+    tanjun_traits.Context: lambda ctx, _: ctx,
+    InjectorClient: lambda _, cli: cli,
+    hikari.api.Cache: lambda ctx, _: ctx.cache or UNDEFINED,
+    hikari.api.RESTClient: lambda ctx, _: ctx.rest,
+    hikari_traits.ShardAware: lambda ctx, _: ctx.shards or UNDEFINED,
+    hikari.api.EventManager: lambda ctx, _: ctx.events or UNDEFINED,
+    hikari.api.InteractionServer: lambda ctx, _: ctx.server or UNDEFINED,
 }
 
 
