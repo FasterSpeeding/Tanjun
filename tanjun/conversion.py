@@ -580,18 +580,18 @@ def override_type(cls: parsing.ConverterSig, /) -> parsing.ConverterSig:
     return _TYPE_OVERRIDES.get(cls, cls)
 
 
-to_channel = ChannelConverter()
-to_color = ColorConverter()
-to_colour = to_color
-to_emoji = EmojiConverter()
-to_guild = GuildConverter()
-to_invite = InviteConverter()
-to_member = MemberConverter()
-to_presence = PresenceConverter()
-to_role = RoleConverter()
-to_snowflake = SnowflakeConverter()
-to_user = UserConverter()
-to_voice_state = VoiceStateConverter()
+to_channel: typing.Final[ChannelConverter] = ChannelConverter()
+to_color: typing.Final[ColorConverter] = ColorConverter()
+to_colour: typing.Final[ColorConverter] = to_color
+to_emoji: typing.Final[EmojiConverter] = EmojiConverter()
+to_guild: typing.Final[GuildConverter] = GuildConverter()
+to_invite: typing.Final[InviteConverter] = InviteConverter()
+to_member: typing.Final[MemberConverter] = MemberConverter()
+to_presence: typing.Final[PresenceConverter] = PresenceConverter()
+to_role: typing.Final[RoleConverter] = RoleConverter()
+to_snowflake: typing.Final[SnowflakeConverter] = SnowflakeConverter()
+to_user: typing.Final[UserConverter] = UserConverter()
+to_voice_state: typing.Final[VoiceStateConverter] = VoiceStateConverter()
 
 
 for _value in vars().copy().values():
