@@ -60,19 +60,19 @@ __all__: list[str] = [
     "Client",
     "MessageAcceptsEnum",
     # commands.py
-    "as_interaction_command",
     "as_message_command",
     "as_message_command_group",
-    "InteractionCommand",
+    "as_slash_command",
     "MessageCommand",
     "MessageCommandGroup",
+    "SlashCommand",
     # components.py
     "components",
     "Component",
     # context.py
     "context",
     "MessageContext",
-    "InteractionContext",
+    "SlashContext",
     # conversion.py
     "conversion",
     "to_channel",

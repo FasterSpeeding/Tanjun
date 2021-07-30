@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: list[str] = ["InteractionContext", "MessageContext", "ResponseTypeT"]
+__all__: list[str] = ["MessageContext", "ResponseTypeT", "SlashContext"]
 
 import asyncio
 import typing
@@ -47,8 +47,8 @@ if typing.TYPE_CHECKING:
     from hikari import traits as hikari_traits
 
     _BaseContextT = typing.TypeVar("_BaseContextT", bound="BaseContext")
-    _InteractionContextT = typing.TypeVar("_InteractionContextT", bound="InteractionContext")
     _MessageContextT = typing.TypeVar("_MessageContextT", bound="MessageContext")
+    _SlashContextT = typing.TypeVar("_SlashContextT", bound="SlashContext")
 
 
 ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
@@ -401,7 +401,7 @@ class MessageContext(BaseContext, traits.MessageContext):
             return message
 
 
-class InteractionContext(BaseContext, traits.InteractionContext):
+class SlashContext(BaseContext, traits.SlashContext):
     __slots__ = (
         "_defaults_to_ephemeral",
         "_defer_task",
@@ -511,7 +511,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
                     hikari.ResponseType.MESSAGE_CREATE, content=self._not_found_message, flags=flags
                 )
 
-    def start_defer_timer(self: _InteractionContextT, count_down: typing.Union[int, float], /) -> _InteractionContextT:
+    def start_defer_timer(self: _SlashContextT, count_down: typing.Union[int, float], /) -> _SlashContextT:
         self._assert_not_final()
         if self._defer_task:
             raise ValueError("Defer timer already set")
@@ -519,7 +519,7 @@ class InteractionContext(BaseContext, traits.InteractionContext):
         self._defer_task = asyncio.get_running_loop().create_task(self._auto_defer(count_down))
         return self
 
-    def set_ephemeral_default(self: _InteractionContextT, state: bool, /) -> _InteractionContextT:
+    def set_ephemeral_default(self: _SlashContextT, state: bool, /) -> _SlashContextT:
         self._defaults_to_ephemeral = state
         return self
 

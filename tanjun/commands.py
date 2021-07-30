@@ -32,13 +32,13 @@
 from __future__ import annotations
 
 __all__: list[str] = [
-    "as_interaction_command",
     "as_message_command",
     "as_message_command_group",
-    "InteractionCommand",
+    "as_slash_command",
     "MessageCommand",
     "MessageCommandGroup",
     "PartialCommand",
+    "SlashCommand",
 ]
 
 import copy
@@ -64,10 +64,10 @@ if typing.TYPE_CHECKING:
 
     from . import parsing
 
-    _InteractionCommandT = typing.TypeVar("_InteractionCommandT", bound="InteractionCommand[typing.Any]")
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand[typing.Any]")
     _MessageCommandGroupT = typing.TypeVar("_MessageCommandGroupT", bound="MessageCommandGroup[typing.Any]")
     _PartialCommandT = typing.TypeVar("_PartialCommandT", bound="PartialCommand[typing.Any, typing.Any]")
+    _SlashCommandT = typing.TypeVar("_SlashCommandT", bound="SlashCommand[typing.Any]")
 
 
 AnyMessageCommandT = typing.TypeVar("AnyMessageCommandT", bound=traits.MessageCommand)
@@ -236,21 +236,19 @@ _COMMAND_OPTIONS_TYPES: typing.Final[set[hikari.OptionType]] = {
     hikari.OptionType.SUB_COMMAND,
     hikari.OptionType.SUB_COMMAND_GROUP,
 }
-_ICOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[a-z0-9_-]{1,32}$")
+_SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[a-z0-9_-]{1,32}$")
 
 
-def as_interaction_command(
+def as_slash_command(
     name: str, description: str, /, *, default_to_ephemeral: bool = False, is_global: bool = True
-) -> collections.Callable[[CommandCallbackSigT], InteractionCommand[CommandCallbackSigT]]:
-    def decorator(callback: CommandCallbackSigT, /) -> InteractionCommand[CommandCallbackSigT]:
-        return InteractionCommand(
-            callback, name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global
-        )
+) -> collections.Callable[[CommandCallbackSigT], SlashCommand[CommandCallbackSigT]]:
+    def decorator(callback: CommandCallbackSigT, /) -> SlashCommand[CommandCallbackSigT]:
+        return SlashCommand(callback, name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
 
     return decorator
 
 
-class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionContext], traits.InteractionCommand):
+class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], traits.SlashCommand):
     __slots__ = (
         "_builder",
         "_defaults_to_ephemeral",
@@ -271,11 +269,11 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
         default_to_ephemeral: bool = False,
         is_global: bool = True,
         checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.InteractionHooks] = None,
+        hooks: typing.Optional[traits.SlashHooks] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
     ) -> None:
         super().__init__(callback, checks=checks, hooks=hooks, metadata=metadata)
-        if not _ICOMMAND_NAME_REG.fullmatch(name):
+        if not _SCOMMAND_NAME_REG.fullmatch(name):
             raise ValueError("Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`")
 
         self._builder = hikari.impl.CommandBuilder(name, description)
@@ -283,7 +281,7 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
         self._description = description
         self._is_global = is_global
         self._name = name
-        self._parent: typing.Optional[traits.InteractionCommandGroup] = None
+        self._parent: typing.Optional[traits.SlashCommandGroup] = None
         self._tracked_command: typing.Optional[hikari.Command] = None
 
     @property
@@ -303,7 +301,7 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
         return self._name
 
     @property
-    def parent(self) -> typing.Optional[traits.InteractionCommandGroup]:
+    def parent(self) -> typing.Optional[traits.SlashCommandGroup]:
         return self._parent
 
     @property
@@ -316,13 +314,11 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
     def build(self) -> special_endpoints_api.CommandBuilder:
         return self._builder
 
-    def set_ephemeral_default(self: _InteractionCommandT, state: bool, /) -> _InteractionCommandT:
+    def set_ephemeral_default(self: _SlashCommandT, state: bool, /) -> _SlashCommandT:
         self._defaults_to_ephemeral = state
         return self
 
-    def set_parent(
-        self: _InteractionCommandT, parent: typing.Optional[traits.InteractionCommandGroup], /
-    ) -> _InteractionCommandT:
+    def set_parent(self: _SlashCommandT, parent: typing.Optional[traits.SlashCommandGroup], /) -> _SlashCommandT:
         self._parent = parent
         return self
 
@@ -356,16 +352,16 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
 
         return keyword_args
 
-    async def check_context(self, ctx: traits.InteractionContext, /) -> bool:
+    async def check_context(self, ctx: traits.SlashContext, /) -> bool:
         return await utilities.gather_checks(ctx, self._checks)
 
     async def execute(
         self,
-        ctx: traits.InteractionContext,
+        ctx: traits.SlashContext,
         /,
         option: typing.Optional[hikari.CommandInteractionOption] = None,
         *,
-        hooks: typing.Optional[collections.MutableSet[traits.InteractionHooks]] = None,
+        hooks: typing.Optional[collections.MutableSet[traits.SlashHooks]] = None,
     ) -> None:
         own_hooks = self._hooks or _EMPTY_HOOKS
         try:
@@ -407,19 +403,15 @@ class InteractionCommand(PartialCommand[CommandCallbackSigT, traits.InteractionC
         finally:
             await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
-    def set_tracked_command(
-        self: _InteractionCommandT, command: typing.Optional[hikari.Command], /
-    ) -> _InteractionCommandT:
+    def set_tracked_command(self: _SlashCommandT, command: typing.Optional[hikari.Command], /) -> _SlashCommandT:
         self._tracked_command = command
         self._builder.set_id(command.id if command else hikari.UNDEFINED)
         return self
 
-    def load_into_component(
-        self: _InteractionCommandT, component: traits.Component, /
-    ) -> typing.Optional[_InteractionCommandT]:
+    def load_into_component(self: _SlashCommandT, component: traits.Component, /) -> typing.Optional[_SlashCommandT]:
         super().load_into_component(component)
         if not self._parent:
-            component.add_interaction_command(self)
+            component.add_slash_command(self)
             return self
 
 

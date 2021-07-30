@@ -102,8 +102,8 @@ class Component(injecting.Injectable, traits.Component):
         "_client_callbacks",
         "_hooks",
         "_injector",
-        "_interaction_commands",
-        "_interaction_hooks",
+        "_slash_commands",
+        "_slash_hooks",
         "_is_strict",
         "_listeners",
         "_message_commands",
@@ -117,7 +117,7 @@ class Component(injecting.Injectable, traits.Component):
         *,
         checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.AnyHooks] = None,
-        interaction_hooks: typing.Optional[traits.InteractionHooks] = None,
+        slash_hooks: typing.Optional[traits.SlashHooks] = None,
         message_hooks: typing.Optional[traits.MessageHooks] = None,
         strict: bool = False,
     ) -> None:
@@ -128,8 +128,8 @@ class Component(injecting.Injectable, traits.Component):
         self._client_callbacks: dict[str, set[traits.MetaEventSig]] = {}
         self._hooks = hooks
         self._injector: typing.Optional[injecting.InjectorClient] = None
-        self._interaction_commands: dict[str, traits.InteractionCommand] = {}
-        self._interaction_hooks = interaction_hooks
+        self._slash_commands: dict[str, traits.SlashCommand] = {}
+        self._slash_hooks = slash_hooks
         self._is_strict = strict
         self._listeners: set[tuple[type[base_events.Event], event_manager_api.CallbackT[typing.Any]]] = set()
         self._message_commands: set[traits.MessageCommand] = set()
@@ -141,7 +141,7 @@ class Component(injecting.Injectable, traits.Component):
             self._load_from_properties()
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__}({self.checks=}, {self.hooks=}, {self.interaction_hooks=}, {self.message_hooks=})"
+        return f"{type(self).__name__}({self.checks=}, {self.hooks=}, {self.slash_hooks=}, {self.message_hooks=})"
 
     @property
     def checks(self) -> collections.Set[traits.CheckSig]:
@@ -156,12 +156,12 @@ class Component(injecting.Injectable, traits.Component):
         return self._hooks
 
     @property
-    def interaction_commands(self) -> collections.ValuesView[traits.InteractionCommand]:
-        return self._interaction_commands.copy().values()
+    def slash_commands(self) -> collections.ValuesView[traits.SlashCommand]:
+        return self._slash_commands.copy().values()
 
     @property
-    def interaction_hooks(self) -> typing.Optional[traits.InteractionHooks]:
-        return self._interaction_hooks
+    def slash_hooks(self) -> typing.Optional[traits.SlashHooks]:
+        return self._slash_hooks
 
     @property
     def message_commands(self) -> collections.Set[traits.MessageCommand]:
@@ -194,7 +194,7 @@ class Component(injecting.Injectable, traits.Component):
     def copy(self: _ComponentT, *, _new: bool = True) -> _ComponentT:
         if not _new:
             self._checks = set(check.copy() for check in self._checks)
-            self._interaction_commands = {name: command.copy() for name, command in self._interaction_commands.items()}
+            self._slash_commands = {name: command.copy() for name, command in self._slash_commands.items()}
             self._hooks = self._hooks.copy() if self._hooks else None
             self._listeners = {copy.copy(listener) for listener in self._listeners}
             commands = {command: command.copy() for command in self._message_commands}
@@ -205,8 +205,8 @@ class Component(injecting.Injectable, traits.Component):
 
         return copy.copy(self).copy(_new=False)
 
-    def set_interaction_hooks(self: _ComponentT, hooks_: typing.Optional[traits.InteractionHooks], /) -> _ComponentT:
-        self._interaction_hooks = hooks_
+    def set_slash_hooks(self: _ComponentT, hooks_: typing.Optional[traits.SlashHooks], /) -> _ComponentT:
+        self._slash_hooks = hooks_
         return self
 
     def set_message_hooks(self: _ComponentT, hooks_: typing.Optional[traits.MessageHooks]) -> _ComponentT:
@@ -266,12 +266,12 @@ class Component(injecting.Injectable, traits.Component):
         if isinstance(command, traits.MessageCommand):
             self.add_message_command(command)
 
-        elif isinstance(command, traits.InteractionCommand):
-            self.add_interaction_command(command)
+        elif isinstance(command, traits.SlashCommand):
+            self.add_slash_command(command)
 
         else:
             raise ValueError(
-                f"Unexpected object passed, expected a MessageCommand or InteractionCommand but got {type(command)}"
+                f"Unexpected object passed, expected a MessageCommand or SlashCommand but got {type(command)}"
             )
 
         return self
@@ -280,12 +280,12 @@ class Component(injecting.Injectable, traits.Component):
         if isinstance(command, traits.MessageCommand):
             self.remove_message_command(command)
 
-        elif isinstance(command, traits.InteractionCommand):
-            self.remove_interaction_command(command)
+        elif isinstance(command, traits.SlashCommand):
+            self.remove_slash_command(command)
 
         else:
             raise ValueError(
-                f"Unexpected object passed, expected a MessageCommand or InteractionCommand but got {type(command)}"
+                f"Unexpected object passed, expected a MessageCommand or SlashCommand but got {type(command)}"
             )
 
     @typing.overload
@@ -301,30 +301,30 @@ class Component(injecting.Injectable, traits.Component):
     ) -> WithCommandReturnSig[CommandT]:
         return _with_command(self.add_command, command, copy=copy)
 
-    def add_interaction_command(self: _ComponentT, command: traits.InteractionCommand, /) -> _ComponentT:
+    def add_slash_command(self: _ComponentT, command: traits.SlashCommand, /) -> _ComponentT:
         if self._injector and isinstance(command, injecting.Injectable):
             command.set_injector(self._injector)
 
-        self._interaction_commands[command.name.casefold()] = command
+        self._slash_commands[command.name.casefold()] = command
         return self
 
-    def remove_interaction_command(self, command: traits.InteractionCommand, /) -> None:
-        del self._interaction_commands[command.name.casefold()]
+    def remove_slash_command(self, command: traits.SlashCommand, /) -> None:
+        del self._slash_commands[command.name.casefold()]
 
     @typing.overload
-    def with_interaction_command(self, command: traits.InteractionCommandT, /) -> traits.InteractionCommandT:
+    def with_slash_command(self, command: traits.SlashCommandT, /) -> traits.SlashCommandT:
         ...
 
     @typing.overload
-    def with_interaction_command(
+    def with_slash_command(
         self, *, copy: bool = False
-    ) -> collections.Callable[[traits.InteractionCommandT], traits.InteractionCommandT]:
+    ) -> collections.Callable[[traits.SlashCommandT], traits.SlashCommandT]:
         ...
 
-    def with_interaction_command(
-        self, command: typing.Optional[traits.InteractionCommandT] = None, /, *, copy: bool = False
-    ) -> WithCommandReturnSig[traits.InteractionCommandT]:
-        return _with_command(self.add_interaction_command, command, copy=copy)
+    def with_slash_command(
+        self, command: typing.Optional[traits.SlashCommandT] = None, /, *, copy: bool = False
+    ) -> WithCommandReturnSig[traits.SlashCommandT]:
+        return _with_command(self.add_slash_command, command, copy=copy)
 
     def add_message_command(self: _ComponentT, command: traits.MessageCommand, /) -> _ComponentT:
         if self._is_strict:
@@ -489,20 +489,20 @@ class Component(injecting.Injectable, traits.Component):
 
     async def _execute_interaction(
         self,
-        ctx: traits.InteractionContext,
-        command: typing.Optional[tanjun.traits.InteractionCommand],
+        ctx: traits.SlashContext,
+        command: typing.Optional[tanjun.traits.SlashCommand],
         /,
         *,
-        hooks: typing.Optional[collections.MutableSet[traits.InteractionHooks]] = None,
+        hooks: typing.Optional[collections.MutableSet[traits.SlashHooks]] = None,
     ) -> typing.Optional[collections.Awaitable[None]]:
         if not command or not await command.check_context(ctx):
             return None
 
-        if self._interaction_hooks:
+        if self._slash_hooks:
             if hooks is None:
                 hooks = set()
 
-            hooks.add(self._interaction_hooks)
+            hooks.add(self._slash_hooks)
 
         if self._hooks:
             if hooks is None:
@@ -517,12 +517,12 @@ class Component(injecting.Injectable, traits.Component):
     # to the event loop until after this is set.
     def execute_interaction(
         self,
-        ctx: traits.InteractionContext,
+        ctx: traits.SlashContext,
         /,
         *,
-        hooks: typing.Optional[collections.MutableSet[traits.InteractionHooks]] = None,
+        hooks: typing.Optional[collections.MutableSet[traits.SlashHooks]] = None,
     ) -> collections.Coroutine[typing.Any, typing.Any, typing.Optional[collections.Awaitable[None]]]:
-        if command := self._interaction_commands.get(ctx.interaction.command_name):
+        if command := self._slash_commands.get(ctx.interaction.command_name):
             ctx.set_ephemeral_default(command.defaults_to_ephemeral)
 
         return self._execute_interaction(ctx, command, hooks=hooks)

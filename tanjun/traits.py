@@ -42,16 +42,16 @@ __all__: list[str] = [
     "MetaEventSigT",
     "AnyHooks",
     "MessageHooks",
-    "InteractionHooks",
+    "SlashHooks",
     "ExecutableCommand",
-    "InteractionCommand",
-    "InteractionCommandT",
-    "InteractionCommandGroup",
-    "InteractionContext",
     "MessageCommand",
     "MessageCommandT",
     "MessageCommandGroup",
     "MessageContext",
+    "SlashCommand",
+    "SlashCommandT",
+    "SlashCommandGroup",
+    "SlashContext",
     "Component",
     "Client",
 ]
@@ -75,7 +75,7 @@ ContextT = typing.TypeVar("ContextT", bound="Context")
 ContextT_contra = typing.TypeVar("ContextT_contra", bound="Context", contravariant=True)
 MetaEventSig = collections.Callable[..., typing.Union[None, collections.Awaitable[None]]]
 MetaEventSigT = typing.TypeVar("MetaEventSigT", bound="MetaEventSig")
-InteractionCommandT = typing.TypeVar("InteractionCommandT", bound="InteractionCommand")
+SlashCommandT = typing.TypeVar("SlashCommandT", bound="SlashCommand")
 MessageCommandT = typing.TypeVar("MessageCommandT", bound="MessageCommand")
 
 
@@ -516,11 +516,11 @@ class MessageContext(Context, abc.ABC):
         raise NotImplementedError
 
 
-class InteractionContext(Context, abc.ABC):
+class SlashContext(Context, abc.ABC):
     __slots__ = ()
 
     @property
-    def command(self) -> typing.Optional[InteractionCommand]:
+    def command(self) -> typing.Optional[SlashCommand]:
         raise NotImplementedError
 
     @property
@@ -714,7 +714,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
 
 AnyHooks = Hooks[Context]
 MessageHooks = Hooks[MessageContext]
-InteractionHooks = Hooks[InteractionContext]
+SlashHooks = Hooks[SlashContext]
 
 
 class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
@@ -780,7 +780,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
         raise NotImplementedError
 
 
-class InteractionCommand(ExecutableCommand[InteractionContext], abc.ABC):
+class SlashCommand(ExecutableCommand[SlashContext], abc.ABC):
     __slots__ = ()
 
     @property
@@ -799,7 +799,7 @@ class InteractionCommand(ExecutableCommand[InteractionContext], abc.ABC):
 
     @property
     @abc.abstractmethod
-    def parent(self) -> typing.Optional[InteractionCommandGroup]:
+    def parent(self) -> typing.Optional[SlashCommandGroup]:
         raise NotImplementedError
 
     @property
@@ -814,11 +814,11 @@ class InteractionCommand(ExecutableCommand[InteractionContext], abc.ABC):
     @abc.abstractmethod
     async def execute(
         self,
-        ctx: InteractionContext,
+        ctx: SlashContext,
         /,
         option: typing.Optional[hikari.CommandInteractionOption] = None,
         *,
-        hooks: typing.Optional[collections.MutableSet[Hooks[InteractionContext]]] = None,
+        hooks: typing.Optional[collections.MutableSet[Hooks[SlashContext]]] = None,
     ) -> None:
         raise NotImplementedError
 
@@ -827,24 +827,24 @@ class InteractionCommand(ExecutableCommand[InteractionContext], abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_parent(self: _T, _: typing.Optional[InteractionCommandGroup], /) -> _T:
+    def set_parent(self: _T, _: typing.Optional[SlashCommandGroup], /) -> _T:
         raise NotImplementedError
 
 
-class InteractionCommandGroup(InteractionCommand, abc.ABC):
+class SlashCommandGroup(SlashCommand, abc.ABC):
     __slots__ = ()
 
     @property
     @abc.abstractmethod
-    def commands(self) -> collections.Collection[InteractionCommand]:
+    def commands(self) -> collections.Collection[SlashCommand]:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_command(self, command: InteractionCommand, /) -> None:
+    def add_command(self, command: SlashCommand, /) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def remove_command(self, command: InteractionCommand, /) -> None:
+    def remove_command(self, command: SlashCommand, /) -> None:
         raise NotImplementedError
 
 
@@ -902,7 +902,7 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def interaction_commands(self) -> collections.Collection[InteractionCommand]:
+    def slash_commands(self) -> collections.Collection[SlashCommand]:
         raise NotImplementedError
 
     @property
@@ -921,25 +921,23 @@ class Component(abc.ABC):
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
         raise NotImplementedError
 
-    def add_interaction_command(self: _T, command: InteractionCommand, /) -> _T:
+    def add_slash_command(self: _T, command: SlashCommand, /) -> _T:
         raise NotImplementedError
 
-    def remove_interaction_command(self, command: InteractionCommand, /) -> None:
+    def remove_slash_command(self, command: SlashCommand, /) -> None:
         raise NotImplementedError
 
     @typing.overload
-    def with_interaction_command(self, command: InteractionCommandT, /) -> InteractionCommandT:
+    def with_slash_command(self, command: SlashCommandT, /) -> SlashCommandT:
         ...
 
     @typing.overload
-    def with_interaction_command(
-        self, *, copy: bool = False
-    ) -> collections.Callable[[InteractionCommandT], InteractionCommandT]:
+    def with_slash_command(self, *, copy: bool = False) -> collections.Callable[[SlashCommandT], SlashCommandT]:
         ...
 
-    def with_interaction_command(
-        self, command: InteractionCommandT = ..., /, *, copy: bool = False
-    ) -> typing.Union[InteractionCommandT, collections.Callable[[InteractionCommandT], InteractionCommandT]]:
+    def with_slash_command(
+        self, command: SlashCommandT = ..., /, *, copy: bool = False
+    ) -> typing.Union[SlashCommandT, collections.Callable[[SlashCommandT], SlashCommandT]]:
         raise NotImplementedError
 
     def add_message_command(self: _T, command: MessageCommand, /) -> _T:
@@ -1007,10 +1005,10 @@ class Component(abc.ABC):
     @abc.abstractmethod
     async def execute_interaction(
         self,
-        ctx: InteractionContext,
+        ctx: SlashContext,
         /,
         *,
-        hooks: typing.Optional[collections.MutableSet[InteractionHooks]] = None,
+        hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None,
     ) -> typing.Optional[collections.Awaitable[None]]:
         raise NotImplementedError
 
@@ -1024,8 +1022,8 @@ class Component(abc.ABC):
 class ClientCallbackNames(str, enum.Enum):
     CLOSED = "closed"
     CLOSING = "closing"
-    INTERACTION_COMMAND_NOT_FOUND = "interaction_command_not_found"
     MESSAGE_COMMAND_NOT_FOUND = "message_command_not_found"
+    SLASH_COMMAND_NOT_FOUND = "slash_command_not_found"
     STARTED = "started"
     STARTING = "startup"
 

@@ -267,7 +267,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         "_grab_mention_prefix",
         "_hooks",
         "_interaction_not_found",
-        "_interaction_hooks",
+        "_slash_hooks",
         "_is_alive",
         "_message_hooks",
         "_metadata",
@@ -304,7 +304,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         self._grab_mention_prefix = mention_prefix
         self._hooks: typing.Optional[tanjun_traits.AnyHooks] = None
         self._interaction_not_found: typing.Optional[str] = "Command not found"
-        self._interaction_hooks: typing.Optional[tanjun_traits.InteractionHooks] = None
+        self._slash_hooks: typing.Optional[tanjun_traits.SlashHooks] = None
         self._is_alive = False
         self._message_hooks: typing.Optional[tanjun_traits.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
@@ -474,18 +474,18 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         return self._hooks
 
     @property
-    def interaction_hooks(self) -> typing.Optional[tanjun_traits.InteractionHooks]:
-        """The top level `tanjun.traits.InteractionHooks` set for this client.
+    def slash_hooks(self) -> typing.Optional[tanjun_traits.SlashHooks]:
+        """The top level `tanjun.traits.SlashHooks` set for this client.
 
         These are only called during interaction command execution.
 
         Returns
         -------
-        typing.Optional[tanjun.traits.InteractionHooks]
-            The top level `tanjun.traits.InteractionContext` based hooks set
+        typing.Optional[tanjun.traits.SlashHooks]
+            The top level `tanjun.traits.SlashContext` based hooks set
             for this client.
         """
-        return self._interaction_hooks
+        return self._slash_hooks
 
     @property
     def is_alive(self) -> bool:
@@ -681,7 +681,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         conflicts: set[str] = set()
         builders: list[hikari.api.CommandBuilder] = []
 
-        for command in itertools.chain.from_iterable(component.interaction_commands for component in self._components):
+        for command in itertools.chain.from_iterable(component.slash_commands for component in self._components):
             if not command.is_global:
                 continue
 
@@ -699,7 +699,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         commands = await self._rest.set_application_commands(application, builders)
         names_to_commands = {command.name: command for command in commands}
-        for command in itertools.chain.from_iterable(component.interaction_commands for component in self._components):
+        for command in itertools.chain.from_iterable(component.slash_commands for component in self._components):
             if command.is_global:
                 command.set_tracked_command(names_to_commands[command.name])
 
@@ -896,8 +896,8 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         self._hooks = hooks
         return self
 
-    def set_interaction_hooks(self: _ClientT, hooks: typing.Optional[tanjun_traits.InteractionHooks], /) -> _ClientT:
-        self._interaction_hooks = hooks
+    def set_slash_hooks(self: _ClientT, hooks: typing.Optional[tanjun_traits.SlashHooks], /) -> _ClientT:
+        self._slash_hooks = hooks
         return self
 
     def set_message_hooks(self: _ClientT, hooks: typing.Optional[tanjun_traits.MessageHooks], /) -> _ClientT:
@@ -959,16 +959,16 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx)
 
-    def _get_interaction_hooks(self) -> typing.Optional[set[tanjun_traits.InteractionHooks]]:
-        hooks: typing.Optional[set[tanjun_traits.InteractionHooks]] = None
-        if self._hooks and self._interaction_hooks:
-            hooks = {self._hooks, self._interaction_hooks}
+    def _get_slash_hooks(self) -> typing.Optional[set[tanjun_traits.SlashHooks]]:
+        hooks: typing.Optional[set[tanjun_traits.SlashHooks]] = None
+        if self._hooks and self._slash_hooks:
+            hooks = {self._hooks, self._slash_hooks}
 
         elif self._hooks:
             hooks = {self._hooks}
 
-        elif self._interaction_hooks:
-            hooks = {self._interaction_hooks}
+        elif self._slash_hooks:
+            hooks = {self._slash_hooks}
 
         return hooks
 
@@ -976,8 +976,8 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         if not isinstance(event.interaction, hikari.CommandInteraction):
             return
 
-        ctx = context.InteractionContext(self, event.interaction, not_found_message=self._interaction_not_found)
-        hooks = self._get_interaction_hooks()
+        ctx = context.SlashContext(self, event.interaction, not_found_message=self._interaction_not_found)
+        hooks = self._get_slash_hooks()
 
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
@@ -991,16 +991,16 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         except errors.HaltExecutionSearch:
             pass
 
-        await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.INTERACTION_COMMAND_NOT_FOUND, ctx)
+        await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
         await ctx.mark_not_found()
         ctx.cancel_defer()
 
     async def on_interaction_create_request(self, interaction: hikari.CommandInteraction, /) -> context.ResponseTypeT:
-        ctx = context.InteractionContext(self, interaction, not_found_message=self._interaction_not_found)
+        ctx = context.SlashContext(self, interaction, not_found_message=self._interaction_not_found)
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
 
-        hooks = self._get_interaction_hooks()
+        hooks = self._get_slash_hooks()
         future = ctx.get_response_future()
         try:
             for component in self._components:
@@ -1015,6 +1015,6 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
             ctx.cancel_defer()
 
         asyncio.create_task(
-            self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.INTERACTION_COMMAND_NOT_FOUND, ctx)
+            self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
         ).add_done_callback(callback)
         return await future
