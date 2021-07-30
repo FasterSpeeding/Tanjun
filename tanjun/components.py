@@ -415,9 +415,13 @@ class Component(injecting.Injectable, traits.Component):
         for check in self._checks:
             check.set_injector(client)
 
-        for command in self._message_commands:
-            if isinstance(command, injecting.Injectable):
-                command.set_injector(client)
+        for mcommand in self._message_commands:
+            if isinstance(mcommand, injecting.Injectable):
+                mcommand.set_injector(client)
+
+        for icommand in self._slash_commands.values():
+            if isinstance(icommand, injecting.Injectable):
+                icommand.set_injector(client)
 
     def bind_client(self, client: traits.Client, /) -> None:
         if self._client:

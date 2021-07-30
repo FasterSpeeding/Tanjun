@@ -32,6 +32,7 @@
 from __future__ import annotations
 
 __all__: list[str] = [
+    "ArgumentT",
     "BaseConverter",
     "ChannelConverter",
     "ColorConverter",
@@ -61,6 +62,7 @@ __all__: list[str] = [
 import abc
 import datetime
 import distutils.util
+import operator
 import re
 import typing
 import urllib.parse
@@ -76,6 +78,7 @@ if typing.TYPE_CHECKING:
     from . import parsing
     from . import traits
 
+ArgumentT = typing.Union[str, int, float]
 _ValueT = typing.TypeVar("_ValueT")
 
 
@@ -83,7 +86,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
     __slots__ = ()
     __implementations: set[BaseConverter[typing.Any]] = set()
 
-    async def __call__(self, argument: str, ctx: traits.Context) -> _ValueT:
+    async def __call__(self, argument: ArgumentT, ctx: traits.Context) -> _ValueT:
         return await self.convert(ctx, argument)
 
     def bind_client(self, client: traits.Client, /) -> None:
@@ -129,7 +132,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def convert(self, ctx: traits.Context, argument: str, /) -> _ValueT:
+    async def convert(self, ctx: traits.Context, argument: ArgumentT, /) -> _ValueT:
         raise NotImplementedError
 
     @property
@@ -155,7 +158,7 @@ class ChannelConverter(BaseConverter[hikari.PartialChannel]):
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.PartialChannel:
+    async def convert(self, ctx: traits.Context, argument: ArgumentT, /) -> hikari.PartialChannel:
         channel_id = parse_channel_id(argument, message="No valid channel mention or ID  found")
         if ctx.client.cache and (channel := ctx.client.cache.get_guild_channel(channel_id)):
             return channel
@@ -186,12 +189,15 @@ class ColorConverter(BaseConverter[hikari.Color]):
     def cache_bound(self) -> bool:
         return False
 
-    async def convert(self, _: traits.Context, argument: str, /) -> typing.Any:
-        values = argument.split(" ")
-        if all(value.isdigit() for value in values):
-            return hikari.Color.of(*map(int, values))
+    async def convert(self, _: traits.Context, argument: ArgumentT, /) -> typing.Any:
+        if isinstance(argument, str):
+            values = argument.split(" ")
+            if all(value.isdigit() for value in values):
+                return hikari.Color.of(*map(int, values))
 
-        return hikari.Color.of(*values)
+            return hikari.Color.of(*values)
+
+        return hikari.Color.of(argument)
 
     @property
     def intents(self) -> hikari.Intents:
@@ -213,7 +219,7 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.KnownCustomEmoji:
+    async def convert(self, ctx: traits.Context, argument: ArgumentT, /) -> hikari.KnownCustomEmoji:
         emoji_id = parse_emoji_id(argument, message="No valid emoji or emoji ID found")
 
         if ctx.client.cache and (emoji := ctx.client.cache.get_emoji(emoji_id)):
@@ -241,21 +247,21 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
         return (hikari.CustomEmoji,)
 
 
-class GuildConverter(BaseConverter[hikari.GatewayGuild]):
+class GuildConverter(BaseConverter[hikari.Guild]):
     __slots__ = ()
 
     @property
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.GatewayGuild:
+    async def convert(self, ctx: traits.Context, argument: ArgumentT, /) -> hikari.Guild:
         guild_id = parse_snowflake(argument, message="No valid guild ID found")
         if ctx.client.cache:
             if guild := ctx.client.cache.get_guild(guild_id):
                 return guild
 
         try:
-            guild = await ctx.rest.fetch_guild(guild_id)
+            return await ctx.rest.fetch_guild(guild_id)
 
         except hikari.NotFoundError:
             pass
@@ -282,8 +288,8 @@ class InviteConverter(BaseConverter[hikari.InviteWithMetadata]):
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.InviteWithMetadata:
-        if ctx.client.cache:
+    async def convert(self, ctx: traits.Context, argument: ArgumentT, /) -> hikari.InviteWithMetadata:
+        if ctx.client.cache and isinstance(argument, str):
             if invite := ctx.client.cache.get_invite(argument):
                 return invite
 
@@ -309,7 +315,7 @@ class MemberConverter(BaseConverter[hikari.Member]):
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.Member:
+    async def convert(self, ctx: traits.Context, argument: ArgumentT, /) -> hikari.Member:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a member from a DM channel")
 
@@ -317,11 +323,12 @@ class MemberConverter(BaseConverter[hikari.Member]):
             member_id = parse_user_id(argument, message="No valid user mention or ID found")
 
         except ValueError:
-            try:
-                return (await ctx.rest.search_members(ctx.guild_id, argument))[0]
+            if isinstance(argument, str):
+                try:
+                    return (await ctx.rest.search_members(ctx.guild_id, argument))[0]
 
-            except (hikari.NotFoundError, IndexError):
-                pass
+                except (hikari.NotFoundError, IndexError):
+                    pass
 
         else:
             if ctx.client.cache:
@@ -368,7 +375,7 @@ class PresenceConverter(BaseConverter[hikari.MemberPresence]):
     def types(cls) -> tuple[type[typing.Any], ...]:
         return (hikari.MemberPresence,)
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.MemberPresence:
+    async def convert(self, ctx: traits.Context, argument: ArgumentT, /) -> hikari.MemberPresence:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a presence from a DM channel")
 
@@ -387,7 +394,7 @@ class RoleConverter(BaseConverter[hikari.Role]):
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.Role:
+    async def convert(self, ctx: traits.Context, argument: ArgumentT, /) -> hikari.Role:
         role_id = parse_role_id(argument, message="No valid role mention or ID  found")
         if ctx.client.cache:
             if role := ctx.client.cache.get_role(role_id):
@@ -414,18 +421,20 @@ class RoleConverter(BaseConverter[hikari.Role]):
 
 
 class _IDMatcher(typing.Protocol):
-    def __call__(self, value: str, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
+    def __call__(self, value: ArgumentT, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
         raise NotImplementedError
 
 
 def make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcher:
-    def parse(value: str, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
+    def parse(value: ArgumentT, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
         result: typing.Optional[hikari.Snowflake] = None
-        value = value.strip()
-        if value.isdigit():
-            result = hikari.Snowflake(value)
+        try:
+            result = hikari.Snowflake(operator.index(message))
 
-        else:
+        except (TypeError, ValueError):
+            pass
+
+        if isinstance(value, str):
             try:
                 result = hikari.Snowflake(next(regex.finditer(value)).groups()[0])
 
@@ -455,7 +464,7 @@ class SnowflakeConverter(BaseConverter[hikari.Snowflake]):
     def cache_bound(self) -> bool:
         return False
 
-    async def convert(self, _: traits.Context, argument: str, /) -> hikari.Snowflake:
+    async def convert(self, _: traits.Context, argument: ArgumentT, /) -> hikari.Snowflake:
         return parse_snowflake(argument, message="No valid ID found")
 
     @property
@@ -478,7 +487,7 @@ class UserConverter(BaseConverter[hikari.User]):
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.User:
+    async def convert(self, ctx: traits.Context, argument: ArgumentT, /) -> hikari.User:
         user_id = parse_user_id(argument, message="No valid user mention or ID  found")
         if ctx.client.cache:
             if user := ctx.client.cache.get_user(user_id):
@@ -512,7 +521,7 @@ class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
     def cache_bound(self) -> bool:
         return True
 
-    async def convert(self, ctx: traits.Context, argument: str, /) -> hikari.VoiceState:
+    async def convert(self, ctx: traits.Context, argument: ArgumentT, /) -> hikari.VoiceState:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a voice state from a DM channel")
 

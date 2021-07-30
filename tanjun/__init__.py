@@ -66,6 +66,7 @@ __all__: list[str] = [
     "MessageCommand",
     "MessageCommandGroup",
     "SlashCommand",
+    "with_slash_option",
     # components.py
     "components",
     "Component",

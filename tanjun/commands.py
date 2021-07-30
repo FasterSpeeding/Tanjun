@@ -32,6 +32,9 @@
 from __future__ import annotations
 
 __all__: list[str] = [
+    "AnyMessageCommandT",
+    "CommandCallbackSigT",
+    "ConverterSig",
     "as_message_command",
     "as_message_command_group",
     "as_slash_command",
@@ -39,18 +42,30 @@ __all__: list[str] = [
     "MessageCommandGroup",
     "PartialCommand",
     "SlashCommand",
+    "with_slash_option",
+    "with_slash_str_option",
+    "with_slash_int_option",
+    "with_slash_bool_option",
+    "with_slash_role_option",
+    "with_slash_user_option",
+    "with_slash_member_option",
+    "with_slash_channel_option",
+    "with_slash_mentionable_option",
 ]
 
 import copy
+import inspect
 import logging
 import re
 import types
 import typing
+from collections import abc as collections
 
 import hikari
 from yuyo import backoff
 
 from . import components
+from . import conversion
 from . import errors
 from . import hooks as hooks_
 from . import injecting
@@ -58,7 +73,6 @@ from . import traits
 from . import utilities
 
 if typing.TYPE_CHECKING:
-    from collections import abc as collections
 
     from hikari.api import special_endpoints as special_endpoints_api
 
@@ -72,6 +86,8 @@ if typing.TYPE_CHECKING:
 
 AnyMessageCommandT = typing.TypeVar("AnyMessageCommandT", bound=traits.MessageCommand)
 CommandCallbackSigT = typing.TypeVar("CommandCallbackSigT", bound=traits.CommandCallbackSig)
+ConverterSig = collections.Callable[..., typing.Union[collections.Awaitable[typing.Any], typing.Any]]
+"""Type hint of a converter used within a parser instance."""
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 _EMPTY_LIST: typing.Final[list[typing.Any]] = []
@@ -232,7 +248,13 @@ class PartialCommand(
         return None
 
 
-_COMMAND_OPTIONS_TYPES: typing.Final[set[hikari.OptionType]] = {
+_MEMBER_OPTION_TYPES: typing.Final[set[hikari.OptionType]] = {hikari.OptionType.USER, hikari.OptionType.MENTIONABLE}
+_OBJECT_OPTION_TYPES: typing.Final[set[hikari.OptionType]] = {
+    hikari.OptionType.USER,
+    hikari.OptionType.CHANNEL,
+    hikari.OptionType.MENTIONABLE,
+}
+_SUB_COMMAND_OPTIONS_TYPES: typing.Final[set[hikari.OptionType]] = {
     hikari.OptionType.SUB_COMMAND,
     hikari.OptionType.SUB_COMMAND_GROUP,
 }
@@ -248,6 +270,214 @@ def as_slash_command(
     return decorator
 
 
+_UNDEFINED_DEFAULT = object()
+
+
+def with_slash_option(
+    name: str,
+    description: str,
+    /,
+    *,
+    converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig, None] = None,
+    default: typing.Any = _UNDEFINED_DEFAULT,
+) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    converter: typing.Optional[ConverterSig] = None
+    specifically_member = False
+    type_ = hikari.OptionType.STRING
+    if isinstance(converters, collections.Sequence):
+        if len(converters) == 1:
+            converter = converters[0]
+
+    elif converters is not None:
+        converter = converters
+
+    # TODO: is this necessary?
+    if isinstance(converter, conversion.BaseConverter):
+        if hikari.User in converter.types():
+            type_ = hikari.OptionType.USER
+            converters = None
+
+        elif hikari.Member in converter.types():
+            type_ = hikari.OptionType.USER
+            specifically_member = True
+            converters = None
+
+        elif hikari.Role in converter.types():
+            type_ = hikari.OptionType.ROLE
+            converters = None
+
+        elif any(inspect.isclass(cls) and issubclass(cls, hikari.PartialChannel) for cls in converter.types()):
+            type_ = hikari.OptionType.CHANNEL
+            converters = None
+
+    def decorator(command: _SlashCommandT) -> _SlashCommandT:
+        return command.add_option(
+            name, description, type_, default=default, converters=converters, specifically_member=specifically_member
+        )
+
+    return decorator
+
+
+def with_slash_str_option(
+    name: str,
+    description: str,
+    /,
+    *,
+    choices: typing.Optional[collections.Iterable[tuple[str, str]]] = None,
+    converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig, None] = None,
+    default: typing.Any = _UNDEFINED_DEFAULT,
+) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    def decorator(command: _SlashCommandT) -> _SlashCommandT:
+        return command.add_option(
+            name, description, hikari.OptionType.STRING, default=default, choices=choices, converters=converters
+        )
+
+    return decorator
+
+
+def with_slash_int_option(
+    name: str,
+    description: str,
+    /,
+    *,
+    choices: typing.Optional[collections.Iterable[tuple[str, int]]] = None,
+    converters: typing.Union[collections.Collection[ConverterSig], ConverterSig, None] = None,
+    default: typing.Any = _UNDEFINED_DEFAULT,
+) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    def decorator(command: _SlashCommandT) -> _SlashCommandT:
+        return command.add_option(
+            name, description, hikari.OptionType.INTEGER, default=default, choices=choices, converters=converters
+        )
+
+    return decorator
+
+
+def with_slash_bool_option(
+    name: str,
+    description: str,
+    /,
+    *,
+    default: typing.Any = _UNDEFINED_DEFAULT,
+) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    def decorator(command: _SlashCommandT) -> _SlashCommandT:
+        return command.add_option(name, description, hikari.OptionType.BOOLEAN, default=default)
+
+    return decorator
+
+
+def with_slash_user_option(
+    name: str,
+    description: str,
+    /,
+    *,
+    default: typing.Any = _UNDEFINED_DEFAULT,
+) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    def decorator(command: _SlashCommandT) -> _SlashCommandT:
+        return command.add_option(name, description, hikari.OptionType.USER, default=default)
+
+    return decorator
+
+
+def with_slash_member_option(
+    name: str,
+    description: str,
+    /,
+    *,
+    default: typing.Any = _UNDEFINED_DEFAULT,
+) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    def decorator(command: _SlashCommandT) -> _SlashCommandT:
+        return command.add_option(name, description, hikari.OptionType.USER, default=default, specifically_member=True)
+
+    return decorator
+
+
+def with_slash_channel_option(
+    name: str,
+    description: str,
+    /,
+    *,
+    default: typing.Any = _UNDEFINED_DEFAULT,
+) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    def decorator(command: _SlashCommandT) -> _SlashCommandT:
+        return command.add_option(name, description, hikari.OptionType.CHANNEL, default=default)
+
+    return decorator
+
+
+def with_slash_role_option(
+    name: str,
+    description: str,
+    /,
+    *,
+    default: typing.Any = _UNDEFINED_DEFAULT,
+) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    def decorator(command: _SlashCommandT) -> _SlashCommandT:
+        return command.add_option(name, description, hikari.OptionType.ROLE, default=default)
+
+    return decorator
+
+
+def with_slash_mentionable_option(
+    name: str,
+    description: str,
+    /,
+    *,
+    default: typing.Any = _UNDEFINED_DEFAULT,
+) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    def decorator(command: _SlashCommandT) -> _SlashCommandT:
+        return command.add_option(name, description, hikari.OptionType.MENTIONABLE, default=default)
+
+    return decorator
+
+
+def _convert_to_injectable(converter: ConverterSig) -> injecting.InjectableConverter[typing.Any]:
+    if isinstance(converter, injecting.InjectableConverter):
+        return typing.cast("injecting.InjectableConverter[typing.Any]", converter)
+
+    return injecting.InjectableConverter(conversion.override_type(converter))
+
+
+class _TrackedOption(injecting.Injectable):
+    __slots__ = ("converters", "default", "is_specifically_member", "name", "type")
+
+    def __init__(
+        self,
+        name: str,
+        option_type: int,
+        converters: list[injecting.InjectableConverter[typing.Any]],
+        specifically_member: bool,
+        default: typing.Any = _UNDEFINED_DEFAULT,
+    ) -> None:
+        self.converters = converters
+        self.default = default
+        self.is_specifically_member = specifically_member
+        self.name = name
+        self.type = option_type
+
+    @property
+    def needs_injector(self) -> bool:
+        return any(converter.needs_injector for converter in self.converters)
+
+    async def convert(self, ctx: traits.SlashContext, value: typing.Any, /) -> typing.Any:
+        if not self.converters:
+            return value
+
+        exceptions: list[ValueError] = []
+        for converter in self.converters:
+            try:
+                return await converter(value, ctx)
+
+            except ValueError as exc:
+                exceptions.append(exc)
+
+        raise errors.ConversionError(self.name, str(self.type), exceptions)
+
+    def set_injector(self, client: injecting.InjectorClient, /) -> None:
+        super().set_injector(client)
+        for converter in self.converters:
+            converter.set_injector(client)
+
+
 class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], traits.SlashCommand):
     __slots__ = (
         "_builder",
@@ -257,6 +487,7 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         "_name",
         "_parent",
         "_tracked_command",
+        "_tracked_options",
     )
 
     def __init__(
@@ -283,6 +514,7 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         self._name = name
         self._parent: typing.Optional[traits.SlashCommandGroup] = None
         self._tracked_command: typing.Optional[hikari.Command] = None
+        self._tracked_options: dict[str, _TrackedOption] = {}
 
     @property
     def defaults_to_ephemeral(self) -> bool:
@@ -301,12 +533,68 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         return self._name
 
     @property
+    def needs_injector(self) -> bool:
+        return super().needs_injector or any(option.needs_injector for option in self._tracked_options.values())
+
+    def set_injector(self, client: injecting.InjectorClient, /) -> None:
+        super().set_injector(client)
+        for option in self._tracked_options.values():
+            option.set_injector(client)
+
+    @property
     def parent(self) -> typing.Optional[traits.SlashCommandGroup]:
         return self._parent
 
     @property
     def tracked_command(self) -> typing.Optional[hikari.Command]:
         return self._tracked_command
+
+    def add_option(
+        self: _SlashCommandT,
+        name: str,
+        description: str,
+        /,
+        type: typing.Union[hikari.OptionType, int] = hikari.OptionType.STRING,
+        *,
+        choices: typing.Optional[collections.Iterable[tuple[str, typing.Union[str, int, float]]]] = None,
+        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
+        default: typing.Any = _UNDEFINED_DEFAULT,
+        specifically_member: bool = False,
+    ) -> _SlashCommandT:
+        # TODO: validate name
+        type = hikari.OptionType(type)
+        if type in _SUB_COMMAND_OPTIONS_TYPES:
+            raise NotImplementedError
+
+        if specifically_member and type not in _MEMBER_OPTION_TYPES:
+            raise ValueError("Specifically member may only be set for a USER or MENTIONABLE option")
+
+        if not converters:
+            converters = list[injecting.InjectableConverter[typing.Any]]()
+
+        elif isinstance(converters, collections.Iterable):
+            converters = list(map(_convert_to_injectable, converters))
+
+        else:
+            converters = [_convert_to_injectable(converters)]
+
+        if converters and type in _OBJECT_OPTION_TYPES or type == hikari.OptionType.BOOLEAN:
+            raise ValueError("Converters cannot be provided for bool or object options")
+
+        choices_ = [hikari.CommandChoice(name=name, value=value) for name, value in choices] if choices else None
+        required = default is not _UNDEFINED_DEFAULT
+        self._builder.add_option(
+            hikari.CommandOption(type=type, name=name, description=description, is_required=required, choices=choices_)
+        )
+        if _SUB_COMMAND_OPTIONS_TYPES:
+            self._tracked_options[name] = _TrackedOption(
+                name=name,
+                option_type=type,
+                converters=converters,
+                default=default,
+                specifically_member=specifically_member,
+            )
+        return self
 
     # async def add_to_guild(self, guild: hikari.SnowflakeishOr[guilds.PartialGuild], /) -> hikari.Command:
     #     return await self._
@@ -322,30 +610,43 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         self._parent = parent
         return self
 
-    def _process_args(
+    async def _process_args(
         self,
+        ctx: traits.SlashContext,
         options: collections.Iterable[hikari.CommandInteractionOption],
         option_data: hikari.ResolvedOptionData,
         /,
     ) -> dict[str, typing.Any]:
         keyword_args: dict[str, typing.Any] = {}
+        options_dict = {option.name: option for option in options}
+        for tracked_option in self._tracked_options.values():
+            option = options_dict.get(tracked_option.name)
+            if not option or not option.value:
+                if tracked_option.default is _UNDEFINED_DEFAULT:
+                    raise RuntimeError(
+                        "Found value-less or missing option for a option for tracked option with no default"
+                    )
 
-        for option in options:
-            if option.type in _COMMAND_OPTIONS_TYPES:
-                pass
+                keyword_args[tracked_option.name] = tracked_option.default
 
             elif option.type is hikari.OptionType.USER:
-                assert isinstance(option.value, str)
                 user_id = hikari.Snowflake(option.value)
                 keyword_args[option.name] = option_data.members.get(user_id) or option_data.users[user_id]
 
             elif option.type is hikari.OptionType.CHANNEL:
-                assert isinstance(option.value, str)
                 keyword_args[option.name] = option_data.channels[hikari.Snowflake(option.value)]
 
             elif option.type is hikari.OptionType.ROLE:
-                assert isinstance(option.value, str)
                 keyword_args[option.name] = option_data.roles[hikari.Snowflake(option.value)]
+
+            elif option.type is hikari.OptionType.MENTIONABLE:
+                id_ = hikari.Snowflake(option.value)
+                keyword_args[option.name] = (
+                    option_data.roles.get(id_) or option_data.members.get(id_) or option_data.users[id_]
+                )
+
+            elif tracked_option.converters:
+                keyword_args[option.name] = await tracked_option.convert(ctx, option.value)
 
             else:
                 keyword_args[option.name] = option.value
@@ -368,10 +669,12 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
             await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
 
             if option and option.options:
-                kwargs = self._process_args(option.options, ctx.interaction.resolved or _EMPTY_RESOLVED)
+                kwargs = await self._process_args(ctx, option.options, ctx.interaction.resolved or _EMPTY_RESOLVED)
 
             elif ctx.interaction.options and not option:
-                kwargs = self._process_args(ctx.interaction.options, ctx.interaction.resolved or _EMPTY_RESOLVED)
+                kwargs = await self._process_args(
+                    ctx, ctx.interaction.options, ctx.interaction.resolved or _EMPTY_RESOLVED
+                )
 
             else:
                 kwargs = _EMPTY_DICT

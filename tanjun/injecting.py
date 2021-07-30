@@ -387,7 +387,7 @@ class InjectableConverter(BaseInjectableValue[_T]):
         super().__init__(callback, injector=injector)
         self._is_base_converter = isinstance(self.callback, conversion.BaseConverter)
 
-    async def __call__(self, value: str, ctx: tanjun_traits.Context, /) -> _T:
+    async def __call__(self, value: conversion.ArgumentT, ctx: tanjun_traits.Context, /) -> _T:
         if self._is_base_converter:
             assert isinstance(self.callback, conversion.BaseConverter)
             return typing.cast(_T, await self.callback(value, ctx))
