@@ -734,7 +734,7 @@ class Parameter(injecting.Injectable):
                 sources.append(exc)
 
         parameter_type = "option" if isinstance(self, Option) else "argument"
-        raise errors.ConversionError(self.key, parameter_type, sources)
+        raise errors.ConversionError(self.key, f"Couldn't convert {parameter_type} '{self.key}'", sources)
 
     def set_injector(self, client: injecting.InjectorClient, /) -> None:
         if self._injector is not None:

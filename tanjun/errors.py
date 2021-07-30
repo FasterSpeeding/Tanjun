@@ -200,8 +200,8 @@ class ConversionError(ParserError):
     parameter: str
     """Name of the parameter this error was raised for."""
 
-    def __init__(self, parameter: str, parameter_type: str, errors: collections.Iterable[ValueError], /) -> None:
-        super().__init__(f"Couldn't convert {parameter_type} '{parameter}'", parameter)
+    def __init__(self, parameter: str, message: str, /, errors: collections.Iterable[ValueError] = ()) -> None:
+        super().__init__(message, parameter)
         self.errors = tuple(errors)
 
 

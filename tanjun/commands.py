@@ -283,12 +283,9 @@ def with_slash_str_option(
     if choices:
         choices = (choice if isinstance(choice, tuple) else (choice.capitalize(), choice) for choice in choices)
 
-    def decorator(command: _SlashCommandT) -> _SlashCommandT:
-        return command.add_option(
-            name, description, hikari.OptionType.STRING, default=default, choices=choices, converters=converters
-        )
-
-    return decorator
+    return lambda c: c.add_option(
+        name, description, hikari.OptionType.STRING, default=default, choices=choices, converters=converters
+    )
 
 
 def with_slash_int_option(
@@ -300,12 +297,9 @@ def with_slash_int_option(
     converters: typing.Union[collections.Collection[ConverterSig], ConverterSig, None] = None,
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
-    def decorator(command: _SlashCommandT) -> _SlashCommandT:
-        return command.add_option(
-            name, description, hikari.OptionType.INTEGER, default=default, choices=choices, converters=converters
-        )
-
-    return decorator
+    return lambda c: c.add_option(
+        name, description, hikari.OptionType.INTEGER, default=default, choices=choices, converters=converters
+    )
 
 
 def with_slash_bool_option(
@@ -315,10 +309,7 @@ def with_slash_bool_option(
     *,
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
-    def decorator(command: _SlashCommandT) -> _SlashCommandT:
-        return command.add_option(name, description, hikari.OptionType.BOOLEAN, default=default)
-
-    return decorator
+    return lambda c: c.add_option(name, description, hikari.OptionType.BOOLEAN, default=default)
 
 
 def with_slash_user_option(
@@ -328,10 +319,7 @@ def with_slash_user_option(
     *,
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
-    def decorator(command: _SlashCommandT) -> _SlashCommandT:
-        return command.add_option(name, description, hikari.OptionType.USER, default=default)
-
-    return decorator
+    return lambda c: c.add_option(name, description, hikari.OptionType.USER, default=default)
 
 
 def with_slash_member_option(
@@ -341,10 +329,7 @@ def with_slash_member_option(
     *,
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
-    def decorator(command: _SlashCommandT) -> _SlashCommandT:
-        return command.add_option(name, description, hikari.OptionType.USER, default=default, specifically_member=True)
-
-    return decorator
+    return lambda c: c.add_option(name, description, hikari.OptionType.USER, default=default, only_member=True)
 
 
 def with_slash_channel_option(
@@ -354,10 +339,7 @@ def with_slash_channel_option(
     *,
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
-    def decorator(command: _SlashCommandT) -> _SlashCommandT:
-        return command.add_option(name, description, hikari.OptionType.CHANNEL, default=default)
-
-    return decorator
+    return lambda c: c.add_option(name, description, hikari.OptionType.CHANNEL, default=default)
 
 
 def with_slash_role_option(
@@ -367,10 +349,7 @@ def with_slash_role_option(
     *,
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
-    def decorator(command: _SlashCommandT) -> _SlashCommandT:
-        return command.add_option(name, description, hikari.OptionType.ROLE, default=default)
-
-    return decorator
+    return lambda c: c.add_option(name, description, hikari.OptionType.ROLE, default=default)
 
 
 def with_slash_mentionable_option(
@@ -380,10 +359,7 @@ def with_slash_mentionable_option(
     *,
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
-    def decorator(command: _SlashCommandT) -> _SlashCommandT:
-        return command.add_option(name, description, hikari.OptionType.MENTIONABLE, default=default)
-
-    return decorator
+    return lambda c: c.add_option(name, description, hikari.OptionType.MENTIONABLE, default=default)
 
 
 def _convert_to_injectable(converter: ConverterSig) -> injecting.InjectableConverter[typing.Any]:
@@ -394,19 +370,19 @@ def _convert_to_injectable(converter: ConverterSig) -> injecting.InjectableConve
 
 
 class _TrackedOption(injecting.Injectable):
-    __slots__ = ("converters", "default", "is_specifically_member", "name", "type")
+    __slots__ = ("converters", "default", "is_only_member", "name", "type")
 
     def __init__(
         self,
         name: str,
         option_type: int,
         converters: list[injecting.InjectableConverter[typing.Any]],
-        specifically_member: bool,
+        only_member: bool,
         default: typing.Any = _UNDEFINED_DEFAULT,
     ) -> None:
         self.converters = converters
         self.default = default
-        self.is_specifically_member = specifically_member
+        self.is_only_member = only_member
         self.name = name
         self.type = option_type
 
@@ -426,7 +402,7 @@ class _TrackedOption(injecting.Injectable):
             except ValueError as exc:
                 exceptions.append(exc)
 
-        raise errors.ConversionError(self.name, str(self.type), exceptions)
+        raise errors.ConversionError(self.name, f"Couldn't convert {self.type} '{self.name}'", errors=exceptions)
 
     def set_injector(self, client: injecting.InjectorClient, /) -> None:
         super().set_injector(client)
@@ -515,14 +491,14 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         choices: typing.Optional[collections.Iterable[tuple[str, typing.Union[str, int, float]]]] = None,
         converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
         default: typing.Any = _UNDEFINED_DEFAULT,
-        specifically_member: bool = False,
+        only_member: bool = False,
     ) -> _SlashCommandT:
         # TODO: validate name
         type = hikari.OptionType(type)
         if type in _SUB_COMMAND_OPTIONS_TYPES:
             raise NotImplementedError
 
-        if specifically_member and type not in _MEMBER_OPTION_TYPES:
+        if only_member and type not in _MEMBER_OPTION_TYPES:
             raise ValueError("Specifically member may only be set for a USER or MENTIONABLE option")
 
         if not converters:
@@ -548,7 +524,7 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
                 option_type=type,
                 converters=converters,
                 default=default,
-                specifically_member=specifically_member,
+                only_member=only_member,
             )
         return self
 
@@ -579,6 +555,10 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
             option = options_dict.get(tracked_option.name)
             if not option or not option.value:
                 if tracked_option.default is _UNDEFINED_DEFAULT:
+                    # raise errors.ConversionError(
+                    #     tracked_option.name,
+                    #     "Found value-less or missing option for a option for tracked option with no default"
+                    # )
                     raise RuntimeError(
                         "Found value-less or missing option for a option for tracked option with no default"
                     )
@@ -587,7 +567,13 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
 
             elif option.type is hikari.OptionType.USER:
                 user_id = hikari.Snowflake(option.value)
-                keyword_args[option.name] = option_data.members.get(user_id) or option_data.users[user_id]
+                member = option_data.members.get(user_id)
+                if not member and tracked_option.is_only_member:
+                    raise errors.ConversionError(
+                        tracked_option.name, f"Couldn't find member for provided user: {user_id}"
+                    )
+
+                keyword_args[option.name] = member or option_data.users[user_id]
 
             elif option.type is hikari.OptionType.CHANNEL:
                 keyword_args[option.name] = option_data.channels[hikari.Snowflake(option.value)]
@@ -597,9 +583,17 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
 
             elif option.type is hikari.OptionType.MENTIONABLE:
                 id_ = hikari.Snowflake(option.value)
-                keyword_args[option.name] = (
-                    option_data.roles.get(id_) or option_data.members.get(id_) or option_data.users[id_]
-                )
+                if role := option_data.roles.get(id_):
+                    keyword_args[option.name] = role
+
+                else:
+                    member = option_data.members.get(id_)
+                    if not member and tracked_option.is_only_member:
+                        raise errors.ConversionError(
+                            tracked_option.name, f"Couldn't find member for provided user: {id_}"
+                        )
+
+                    keyword_args[option.name] = member or option_data.users[id_]
 
             elif tracked_option.converters:
                 keyword_args[option.name] = await tracked_option.convert(ctx, option.value)
