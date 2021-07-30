@@ -276,10 +276,13 @@ def with_slash_str_option(
     description: str,
     /,
     *,
-    choices: typing.Optional[collections.Iterable[tuple[str, str]]] = None,
+    choices: typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]] = None,
     converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig, None] = None,
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    if choices:
+        choices = (choice if isinstance(choice, tuple) else (choice.capitalize(), choice) for choice in choices)
+
     def decorator(command: _SlashCommandT) -> _SlashCommandT:
         return command.add_option(
             name, description, hikari.OptionType.STRING, default=default, choices=choices, converters=converters
