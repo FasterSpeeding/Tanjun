@@ -64,6 +64,8 @@ from collections import abc as collections
 import hikari
 
 if typing.TYPE_CHECKING:
+    import datetime
+
     from hikari import traits as hikari_traits
     from hikari.api import event_manager as event_manager_api
 
@@ -186,6 +188,11 @@ class Context(abc.ABC):
                 This will only be `None` before this has been bound to a
                 specific command but never during command execution.
         """
+
+    @property
+    @abc.abstractmethod
+    def created_at(self) -> datetime.datetime:
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod

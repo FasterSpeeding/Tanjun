@@ -42,14 +42,14 @@ __all__: list[str] = [
     "MessageCommandGroup",
     "PartialCommand",
     "SlashCommand",
-    "with_slash_str_option",
-    "with_slash_int_option",
-    "with_slash_bool_option",
-    "with_slash_role_option",
-    "with_slash_user_option",
-    "with_slash_member_option",
-    "with_slash_channel_option",
-    "with_slash_mentionable_option",
+    "with_str_slash_option",
+    "with_int_slash_option",
+    "with_bool_slash_option",
+    "with_role_slash_option",
+    "with_user_slash_option",
+    "with_member_slash_option",
+    "with_channel_slash_option",
+    "with_mentionable_slash_option",
 ]
 
 import copy
@@ -271,7 +271,7 @@ def as_slash_command(
 _UNDEFINED_DEFAULT = object()
 
 
-def with_slash_str_option(
+def with_str_slash_option(
     name: str,
     description: str,
     /,
@@ -281,14 +281,14 @@ def with_slash_str_option(
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     if choices:
-        choices = (choice if isinstance(choice, tuple) else (choice.capitalize(), choice) for choice in choices)
+        new_choices = (choice if isinstance(choice, tuple) else (choice.capitalize(), choice) for choice in choices)
 
     return lambda c: c.add_option(
-        name, description, hikari.OptionType.STRING, default=default, choices=choices, converters=converters
+        name, description, hikari.OptionType.STRING, default=default, choices=new_choices, converters=converters
     )
 
 
-def with_slash_int_option(
+def with_int_slash_option(
     name: str,
     description: str,
     /,
@@ -302,7 +302,7 @@ def with_slash_int_option(
     )
 
 
-def with_slash_bool_option(
+def with_bool_slash_option(
     name: str,
     description: str,
     /,
@@ -312,7 +312,7 @@ def with_slash_bool_option(
     return lambda c: c.add_option(name, description, hikari.OptionType.BOOLEAN, default=default)
 
 
-def with_slash_user_option(
+def with_user_slash_option(
     name: str,
     description: str,
     /,
@@ -322,7 +322,7 @@ def with_slash_user_option(
     return lambda c: c.add_option(name, description, hikari.OptionType.USER, default=default)
 
 
-def with_slash_member_option(
+def with_member_slash_option(
     name: str,
     description: str,
     /,
@@ -332,7 +332,7 @@ def with_slash_member_option(
     return lambda c: c.add_option(name, description, hikari.OptionType.USER, default=default, only_member=True)
 
 
-def with_slash_channel_option(
+def with_channel_slash_option(
     name: str,
     description: str,
     /,
@@ -342,7 +342,7 @@ def with_slash_channel_option(
     return lambda c: c.add_option(name, description, hikari.OptionType.CHANNEL, default=default)
 
 
-def with_slash_role_option(
+def with_role_slash_option(
     name: str,
     description: str,
     /,
@@ -352,7 +352,7 @@ def with_slash_role_option(
     return lambda c: c.add_option(name, description, hikari.OptionType.ROLE, default=default)
 
 
-def with_slash_mentionable_option(
+def with_mentionable_slash_option(
     name: str,
     description: str,
     /,
@@ -510,7 +510,7 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         else:
             converters = [_convert_to_injectable(converters)]
 
-        if converters and type in _OBJECT_OPTION_TYPES or type == hikari.OptionType.BOOLEAN:
+        if converters and (type in _OBJECT_OPTION_TYPES or type == hikari.OptionType.BOOLEAN):
             raise ValueError("Converters cannot be provided for bool or object options")
 
         choices_ = [hikari.CommandChoice(name=name, value=value) for name, value in choices] if choices else None

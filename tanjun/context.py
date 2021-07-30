@@ -42,6 +42,7 @@ from hikari import snowflakes
 from . import traits
 
 if typing.TYPE_CHECKING:
+    import datetime
     from collections import abc as collections
 
     from hikari import traits as hikari_traits
@@ -190,6 +191,10 @@ class MessageContext(BaseContext, traits.MessageContext):
     @property
     def content(self) -> str:
         return self._content
+
+    @property
+    def created_at(self) -> datetime.datetime:
+        return self._message.created_at
 
     @property
     def guild_id(self) -> typing.Optional[hikari.Snowflake]:
@@ -446,6 +451,10 @@ class SlashContext(BaseContext, traits.SlashContext):
     @property
     def client(self) -> traits.Client:
         return self._client
+
+    @property
+    def created_at(self) -> datetime.datetime:
+        return self._interaction.created_at
 
     @property
     def guild_id(self) -> typing.Optional[hikari.Snowflake]:
