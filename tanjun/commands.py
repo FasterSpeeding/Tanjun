@@ -280,7 +280,8 @@ def with_str_slash_option(
     converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig, None] = None,
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
-    if choices:
+    new_choices: collections.Iterable[tuple[str, str]] = ()
+    if choices is not None:
         new_choices = (choice if isinstance(choice, tuple) else (choice.capitalize(), choice) for choice in choices)
 
     return lambda c: c.add_option(
