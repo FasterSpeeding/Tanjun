@@ -428,17 +428,19 @@ class _IDMatcher(typing.Protocol):
 def make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcher:
     def parse(value: ArgumentT, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
         result: typing.Optional[hikari.Snowflake] = None
-        try:
-            result = hikari.Snowflake(operator.index(message))
-
-        except (TypeError, ValueError):
-            pass
-
         if isinstance(value, str):
-            try:
-                result = hikari.Snowflake(next(regex.finditer(value)).groups()[0])
+            if value.isdigit():
+                result = hikari.Snowflake(value)
 
-            except StopIteration:
+            else:
+                capture = next(regex.finditer(value), None)
+                result = hikari.Snowflake(capture.groups()[0]) if capture else None
+
+        if result is None:
+            try:
+                result = hikari.Snowflake(operator.index(message))
+
+            except (TypeError, ValueError):
                 pass
 
         # We should also range check the provided ID.
