@@ -42,14 +42,12 @@ __all__: list[str] = [
     "ShlexParser",
     "UndefinedDefaultT",
     "UNDEFINED_DEFAULT",
-    "verify_parameters",
     "with_argument",
     "with_greedy_argument",
     "with_multi_argument",
     "with_option",
     "with_multi_option",
     "with_parser",
-    "with_typed_parameters",
 ]
 
 import abc
@@ -910,19 +908,3 @@ class ShlexParser(injecting.Injectable, AbstractParser):
 def with_parser(command: ParseableProtoT, /) -> ParseableProtoT:
     """Add a shlex parser command parser to a supported command."""
     return command.set_parser(ShlexParser())
-
-
-def with_typed_parameters(command: ParseableProtoT, /, *, ignore_self: bool) -> ParseableProtoT:
-    # TODO: implement this to enable generating parameters from a callback's signature.
-    if command.parser is None:
-        raise RuntimeError("Cannot generate parameters for a command with no parser")
-
-    if command.callback is None:
-        raise RuntimeError("Cannot generate parameters for a command with no callback")
-
-    raise NotImplementedError
-
-
-def verify_parameters(command: ParseableProtoT, /) -> ParseableProtoT:
-    # TODO: implement this to verify the parameters of a command against the callback signature
-    return command

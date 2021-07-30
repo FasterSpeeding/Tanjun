@@ -120,14 +120,12 @@ __all__: list[str] = [
     "Argument",
     "Option",
     "ShlexParser",
-    "verify_parameters",
     "with_argument",
     "with_greedy_argument",
     "with_multi_argument",
     "with_option",
     "with_multi_option",
     "with_parser",
-    "with_typed_parameters",
     # traits.py
     "traits",
 ]
