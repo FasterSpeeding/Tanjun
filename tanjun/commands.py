@@ -619,12 +619,10 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         try:
             await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
 
-            if option and option.options:
-                kwargs = await self._process_args(ctx, option.options, ctx.interaction.resolved or _EMPTY_RESOLVED)
-
-            elif ctx.interaction.options and not option:
+            if self._tracked_options:
+                options = option.options if option else None
                 kwargs = await self._process_args(
-                    ctx, ctx.interaction.options, ctx.interaction.resolved or _EMPTY_RESOLVED
+                    ctx, options or ctx.interaction.options or _EMPTY_LIST, ctx.interaction.resolved or _EMPTY_RESOLVED
                 )
 
             else:
