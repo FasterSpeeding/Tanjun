@@ -42,7 +42,6 @@ __all__: list[str] = [
     "MessageCommandGroup",
     "PartialCommand",
     "SlashCommand",
-    "with_slash_option",
     "with_slash_str_option",
     "with_slash_int_option",
     "with_slash_bool_option",
@@ -54,7 +53,6 @@ __all__: list[str] = [
 ]
 
 import copy
-import inspect
 import logging
 import re
 import types
@@ -271,51 +269,6 @@ def as_slash_command(
 
 
 _UNDEFINED_DEFAULT = object()
-
-
-def with_slash_option(
-    name: str,
-    description: str,
-    /,
-    *,
-    converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig, None] = None,
-    default: typing.Any = _UNDEFINED_DEFAULT,
-) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
-    converter: typing.Optional[ConverterSig] = None
-    specifically_member = False
-    type_ = hikari.OptionType.STRING
-    if isinstance(converters, collections.Sequence):
-        if len(converters) == 1:
-            converter = converters[0]
-
-    elif converters is not None:
-        converter = converters
-
-    # TODO: is this necessary?
-    if isinstance(converter, conversion.BaseConverter):
-        if hikari.User in converter.types():
-            type_ = hikari.OptionType.USER
-            converters = None
-
-        elif hikari.Member in converter.types():
-            type_ = hikari.OptionType.USER
-            specifically_member = True
-            converters = None
-
-        elif hikari.Role in converter.types():
-            type_ = hikari.OptionType.ROLE
-            converters = None
-
-        elif any(inspect.isclass(cls) and issubclass(cls, hikari.PartialChannel) for cls in converter.types()):
-            type_ = hikari.OptionType.CHANNEL
-            converters = None
-
-    def decorator(command: _SlashCommandT) -> _SlashCommandT:
-        return command.add_option(
-            name, description, type_, default=default, converters=converters, specifically_member=specifically_member
-        )
-
-    return decorator
 
 
 def with_slash_str_option(
