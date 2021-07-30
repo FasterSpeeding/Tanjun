@@ -515,7 +515,7 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
             raise ValueError("Converters cannot be provided for bool or object options")
 
         choices_ = [hikari.CommandChoice(name=name, value=value) for name, value in choices] if choices else None
-        required = default is not _UNDEFINED_DEFAULT
+        required = default is _UNDEFINED_DEFAULT
         self._builder.add_option(
             hikari.CommandOption(type=type, name=name, description=description, is_required=required, choices=choices_)
         )

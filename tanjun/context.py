@@ -676,6 +676,10 @@ class SlashContext(BaseContext, traits.SlashContext):
 
     async def delete_last_response(self) -> None:
         if self._last_response_id is None:
+            if self._has_responded:
+                await self._interaction.delete_initial_response()
+                return
+
             raise LookupError("Context has no last response")
 
         await self._interaction.delete_message(self._last_response_id)
