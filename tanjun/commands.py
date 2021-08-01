@@ -317,10 +317,10 @@ def as_slash_command(
             the command should be bulk set by `tanjun.Client.set_global_commands`
             or when `set_global_commands` is True
     sort_options : bool
-        Whether this command should sort the set options based on whether
+        Whether this command should sort its set options based on whether
         they're required.
 
-        If this is `True` then options are re-sorted to meet the requirement
+        If this is `True` then the options are re-sorted to meet the requirement
         from Discord that required command options be listed before optional
         ones.
 
