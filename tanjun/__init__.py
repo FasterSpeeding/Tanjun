@@ -99,7 +99,7 @@ __all__: list[str] = [
     "errors",
     "CommandError",
     "ConversionError",
-    "HaltExecutionSearch",
+    "HaltExecution",
     "FailedCheck",
     "MissingDependencyError",
     "NotEnoughArgumentsError",

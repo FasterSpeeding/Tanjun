@@ -658,7 +658,7 @@ class SlashContext(BaseContext, traits.SlashContext):
                     type=hikari.ResponseType.MESSAGE_CREATE,
                     content=content,
                     # components=components,
-                    embeds=embeds,
+                    # embeds=embeds,
                     flags=flags,
                     is_tts=tts,
                     mentions_everyone=mentions_everyone,

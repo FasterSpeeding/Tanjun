@@ -48,6 +48,7 @@ __all__: list[str] = [
 
 import abc
 import asyncio
+import dataclasses
 import datetime
 import time
 import typing
@@ -92,6 +93,23 @@ def foo_command(self, ctx: Context) -> None:
 """
 
 
+@dataclasses.dataclass(frozen=True)
+class _WrappedKwargs:
+    callback: collections.Callable[..., typing.Union[bool, collections.Awaitable[bool]]]
+    _kwargs: dict[str, typing.Any]
+
+    def __call__(self, ctx: tanjun_traits.Context) -> typing.Union[bool, collections.Awaitable[bool]]:
+        return self.callback(ctx, **self._kwargs)
+
+    # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
+    def __eq__(self, other: typing.Any) -> bool:
+        return bool(self.callback == other)
+
+    # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
+    def __hash__(self) -> int:
+        return hash(self.callback)
+
+
 def _wrap_with_kwargs(
     command: typing.Optional[CommandT],
     callback: collections.Callable[..., typing.Union[bool, collections.Awaitable[bool]]],
@@ -100,25 +118,37 @@ def _wrap_with_kwargs(
 ) -> CallbackReturnT[CommandT]:
     if command:
         if kwargs:
-            return command.add_check(lambda ctx: callback(ctx, **kwargs))
+            return command.add_check(_WrappedKwargs(callback, kwargs))
 
         return command.add_check(callback)
 
-    return lambda command_: command_.add_check(lambda ctx: callback(ctx, **kwargs))
+    return lambda command_: command_.add_check(_WrappedKwargs(callback, kwargs))
+
+
+def _handle_result(value: bool, end_exceution: bool, error_message: typing.Optional[str], /) -> bool:
+    if not value:
+        if error_message:
+            raise errors.CommandError(error_message)
+        if end_exceution:
+            raise errors.HaltExecution
+
+    return value
 
 
 class ApplicationOwnerCheck:
-    __slots__ = ("_application", "_end_execution", "_expire", "_lock", "_owner_ids", "_time")
+    __slots__ = ("_application", "_end_execution", "_error_message", "_expire", "_lock", "_owner_ids", "_time")
 
     def __init__(
         self,
         *,
         end_execution: bool = False,
+        error_message: typing.Optional[str] = "Only bot owners can use this command",
         expire_delta: datetime.timedelta = datetime.timedelta(minutes=5),
         owner_ids: typing.Optional[collections.Iterable[hikari.SnowflakeishOr[hikari.User]]] = None,
     ) -> None:
         self._application: typing.Optional[hikari.Application] = None
         self._end_execution = end_execution
+        self._error_message = error_message
         self._expire = expire_delta.total_seconds()
         self._lock = asyncio.Lock()
         self._owner_ids = tuple(hikari.Snowflake(id_) for id_ in owner_ids) if owner_ids else ()
@@ -204,10 +234,7 @@ class ApplicationOwnerCheck:
         else:
             result = ctx.author.id == application.owner.id
 
-        if self._end_execution and not result:
-            raise errors.HaltExecutionSearch
-
-        return result
+        return _handle_result(result, self._end_execution, self._error_message)
 
     async def update(
         self,
@@ -220,7 +247,7 @@ class ApplicationOwnerCheck:
         await asyncio.wait_for(self._try_fetch(rest), timeout.total_seconds() if timeout else None)
 
 
-async def nsfw_check(ctx: tanjun_traits.Context, /, *, end_execution: bool = False) -> bool:
+async def _get_is_nsfw(ctx: tanjun_traits.Context, /) -> bool:
     channel: typing.Optional[hikari.PartialChannel] = None
     if ctx.client.cache:
         channel = ctx.client.cache.get_guild_channel(ctx.channel_id)
@@ -229,45 +256,68 @@ async def nsfw_check(ctx: tanjun_traits.Context, /, *, end_execution: bool = Fal
         retry = backoff.Backoff(maximum=5, max_retries=4)
         channel = await utilities.fetch_resource(retry, ctx.client.rest.fetch_channel, ctx.channel_id)
 
-    result = channel.is_nsfw or False if isinstance(channel, hikari.GuildChannel) else True
-
-    if end_execution and not result:
-        raise errors.HaltExecutionSearch
-
-    return result
+    return channel.is_nsfw or False if isinstance(channel, hikari.GuildChannel) else True
 
 
-async def sfw_check(ctx: tanjun_traits.Context, /, *, end_execution: bool = False) -> bool:
-    return not await nsfw_check(ctx, end_execution=end_execution)
+async def nsfw_check(
+    ctx: tanjun_traits.Context,
+    /,
+    *,
+    end_execution: bool = False,
+    error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
+) -> bool:
+
+    return _handle_result(await _get_is_nsfw(ctx), end_execution, error_message)
 
 
-def dm_check(ctx: tanjun_traits.Context, /, *, end_execution: bool = False) -> bool:
-    result = ctx.guild_id is None
+async def sfw_check(
+    ctx: tanjun_traits.Context,
+    /,
+    *,
+    end_execution: bool = False,
+    error_message: typing.Optional[str] = "Command can only be used in SFW channels",
+) -> bool:
+    return _handle_result(not await _get_is_nsfw(ctx), end_execution, error_message)
 
-    if end_execution and not result:
-        raise errors.HaltExecutionSearch
 
-    return result
+def dm_check(
+    ctx: tanjun_traits.Context,
+    /,
+    *,
+    end_execution: bool = False,
+    error_message: typing.Optional[str] = "Command can only be used in DMs",
+) -> bool:
+    return _handle_result(ctx.guild_id is None, end_execution, error_message)
 
 
-def guild_check(ctx: tanjun_traits.Context, /, *, end_execution: bool = False) -> bool:
-    return not dm_check(ctx, end_execution=end_execution)
+def guild_check(
+    ctx: tanjun_traits.Context,
+    /,
+    *,
+    end_execution: bool = False,
+    error_message: typing.Optional[str] = "Command can only be used in guild channels",
+) -> bool:
+    return _handle_result(ctx.guild_id is not None, end_execution, error_message)
 
 
 class PermissionCheck(abc.ABC):
-    __slots__ = ("_end_execution", "permissions")
+    __slots__ = ("_end_execution", "_error_message", "permissions")
 
-    def __init__(self, permissions: typing.Union[hikari.Permissions, int], /, *, end_execution: bool = False) -> None:
+    def __init__(
+        self,
+        permissions: typing.Union[hikari.Permissions, int],
+        /,
+        *,
+        end_execution: bool = False,
+        error_message: typing.Optional[str],
+    ) -> None:
         self._end_execution = end_execution
+        self._error_message = error_message
         self.permissions = hikari.Permissions(permissions)
 
     async def __call__(self, ctx: tanjun_traits.Context, /) -> bool:
         result = (self.permissions & await self.get_permissions(ctx)) == self.permissions
-
-        if self._end_execution and not result:
-            raise errors.HaltExecutionSearch
-
-        return result
+        return _handle_result(result, self._end_execution, self._error_message)
 
     @abc.abstractmethod
     async def get_permissions(self, ctx: tanjun_traits.Context, /) -> hikari.Permissions:
@@ -276,6 +326,16 @@ class PermissionCheck(abc.ABC):
 
 class AuthorPermissionCheck(PermissionCheck):
     __slots__ = ()
+
+    def __init__(
+        self,
+        permissions: typing.Union[hikari.Permissions, int],
+        /,
+        *,
+        end_execution: bool = False,
+        error_message: typing.Optional[str] = "You don't have the permissions required to use this command",
+    ) -> None:
+        super().__init__(permissions, end_execution=end_execution, error_message=error_message)
 
     async def get_permissions(self, ctx: tanjun_traits.Context, /) -> hikari.Permissions:
         if not ctx.member:
@@ -290,8 +350,15 @@ class AuthorPermissionCheck(PermissionCheck):
 class OwnPermissionsCheck(PermissionCheck):
     __slots__ = ("_lock", "_me")
 
-    def __init__(self, permissions: typing.Union[hikari.Permissions, int], /, *, end_execution: bool = False) -> None:
-        super().__init__(permissions, end_execution=end_execution)
+    def __init__(
+        self,
+        permissions: typing.Union[hikari.Permissions, int],
+        /,
+        *,
+        end_execution: bool = False,
+        error_message: typing.Optional[str] = "Bot doesn't have the permissions required to run this command",
+    ) -> None:
+        super().__init__(permissions, end_execution=end_execution, error_message=error_message)
         self._lock = asyncio.Lock()
         self._me: typing.Optional[hikari.User] = None
 
@@ -334,12 +401,18 @@ def with_dm_check(command: CommandT, /) -> CommandT:
 
 
 @typing.overload
-def with_dm_check(*, end_execution: bool = False) -> collections.Callable[[CommandT], CommandT]:
+def with_dm_check(
+    *, end_execution: bool = False, error_message: typing.Optional[str] = "Command can only be used in DMs"
+) -> collections.Callable[[CommandT], CommandT]:
     ...
 
 
 def with_dm_check(
-    command: typing.Optional[CommandT] = None, /, *, end_execution: bool = False
+    command: typing.Optional[CommandT] = None,
+    /,
+    *,
+    end_execution: bool = False,
+    error_message: typing.Optional[str] = "Command can only be used in DMs",
 ) -> CallbackReturnT[CommandT]:
     """Only let a command run in a DM channel.
 
@@ -350,11 +423,19 @@ def with_dm_check(
 
     Other Parameters
     ----------------
-    end_execution: bool
-        Whether this check should raise `tanjun.errors.HaltExecutionSearch` to
+    end_execution : bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
         end the execution search when it fails instead of returning `False`.
 
         Defaults to `False`.
+    error_message : typing.Optional[str]
+        The error message to send in response as a command error if the check fails.
+
+        Defaults to "Command can only be used in DMs" and setting this to `None`
+        will disable the error message allowing the command search to continue.
+
+    !!! note
+        error_message takes priority over end_execution.
 
     !!! note
         For more information on how this is used with other parameters see
@@ -365,7 +446,7 @@ def with_dm_check(
     CallbackReturnT[CommandT]
         The command this check was added to.
     """
-    return _wrap_with_kwargs(command, dm_check, end_execution=end_execution)
+    return _wrap_with_kwargs(command, dm_check, end_execution=end_execution, error_message=error_message)
 
 
 @typing.overload
@@ -374,12 +455,18 @@ def with_guild_check(command: CommandT, /) -> CommandT:
 
 
 @typing.overload
-def with_guild_check(*, end_execution: bool = False) -> collections.Callable[[CommandT], CommandT]:
+def with_guild_check(
+    *, end_execution: bool = False, error_message: typing.Optional[str] = "Command can only be used in guild channels"
+) -> collections.Callable[[CommandT], CommandT]:
     ...
 
 
 def with_guild_check(
-    command: typing.Optional[CommandT] = None, /, *, end_execution: bool = False
+    command: typing.Optional[CommandT] = None,
+    /,
+    *,
+    end_execution: bool = False,
+    error_message: typing.Optional[str] = "Command can only be used in guild channels",
 ) -> CallbackReturnT[CommandT]:
     """Only let a command run in a guild channel.
 
@@ -390,11 +477,19 @@ def with_guild_check(
 
     Other Parameters
     ----------------
-    end_execution: bool
-        Whether this check should raise `tanjun.errors.HaltExecutionSearch` to
+    end_execution : bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
         end the execution search when it fails instead of returning `False`.
 
         Defaults to `False`.
+    error_message : typing.Optional[str]
+        The error message to send in response as a command error if the check fails.
+
+        Defaults to "Command can only be used in DMs" and setting this to `None`
+        will disable the error message allowing the command search to continue.
+
+    !!! note
+        error_message takes priority over end_execution.
 
     !!! note
         For more information on how this is used with other parameters see
@@ -405,7 +500,7 @@ def with_guild_check(
     CallbackReturnT[CommandT]
         The command this check was added to.
     """
-    return _wrap_with_kwargs(command, guild_check, end_execution=end_execution)
+    return _wrap_with_kwargs(command, guild_check, end_execution=end_execution, error_message=error_message)
 
 
 @typing.overload
@@ -414,12 +509,18 @@ def with_nsfw_check(command: CommandT, /) -> CommandT:
 
 
 @typing.overload
-def with_nsfw_check(*, end_execution: bool = False) -> collections.Callable[[CommandT], CommandT]:
+def with_nsfw_check(
+    *, end_execution: bool = False, error_message: typing.Optional[str] = "Command can only be used in NSFW channels"
+) -> collections.Callable[[CommandT], CommandT]:
     ...
 
 
 def with_nsfw_check(
-    command: typing.Optional[CommandT] = None, /, *, end_execution: bool = False
+    command: typing.Optional[CommandT] = None,
+    /,
+    *,
+    end_execution: bool = False,
+    error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
 ) -> CallbackReturnT[CommandT]:
     """Only let a command run in a channel that's marked as nsfw.
 
@@ -430,11 +531,19 @@ def with_nsfw_check(
 
     Other Parameters
     ----------------
-    end_execution: bool
-        Whether this check should raise `tanjun.errors.HaltExecutionSearch` to
+    end_execution : bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
         end the execution search when it fails instead of returning `False`.
 
         Defaults to `False`.
+    error_message : typing.Optional[str]
+        The error message to send in response as a command error if the check fails.
+
+        Defaults to "Command can only be used in DMs" and setting this to `None`
+        will disable the error message allowing the command search to continue.
+
+    !!! note
+        error_message takes priority over end_execution.
 
     !!! note
         For more information on how this is used with other parameters see
@@ -445,7 +554,7 @@ def with_nsfw_check(
     CallbackReturnT[CommandT]
         The command this check was added to.
     """
-    return _wrap_with_kwargs(command, nsfw_check, end_execution=end_execution)
+    return _wrap_with_kwargs(command, nsfw_check, end_execution=end_execution, error_message=error_message)
 
 
 @typing.overload
@@ -459,7 +568,11 @@ def with_sfw_check(*, end_execution: bool = False) -> collections.Callable[[Comm
 
 
 def with_sfw_check(
-    command: typing.Optional[CommandT] = None, /, *, end_execution: bool = False
+    command: typing.Optional[CommandT] = None,
+    /,
+    *,
+    end_execution: bool = False,
+    error_message: typing.Optional[str] = "Command can only be used in SFW channels",
 ) -> CallbackReturnT[CommandT]:
     """Only let a command run in a channel that's marked as sfw.
 
@@ -470,11 +583,19 @@ def with_sfw_check(
 
     Other Parameters
     ----------------
-    end_execution: bool
-        Whether this check should raise `tanjun.errors.HaltExecutionSearch` to
+    end_execution : bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
         end the execution search when it fails instead of returning `False`.
 
         Defaults to `False`.
+    error_message : typing.Optional[str]
+        The error message to send in response as a command error if the check fails.
+
+        Defaults to "Command can only be used in DMs" and setting this to `None`
+        will disable the error message allowing the command search to continue.
+
+    !!! note
+        error_message takes priority over end_execution.
 
     !!! note
         For more information on how this is used with other parameters see
@@ -485,7 +606,7 @@ def with_sfw_check(
     CallbackReturnT[CommandT]
         The command this check was added to.
     """
-    return _wrap_with_kwargs(command, sfw_check, end_execution=end_execution)
+    return _wrap_with_kwargs(command, sfw_check, end_execution=end_execution, error_message=error_message)
 
 
 @typing.overload
@@ -508,6 +629,7 @@ def with_owner_check(
     /,
     *,
     end_execution: bool = False,
+    error_message: typing.Optional[str] = "Only bot owners can use this command",
     expire_delta: datetime.timedelta = datetime.timedelta(minutes=5),
     owner_ids: typing.Optional[collections.Iterable[hikari.SnowflakeishOr[hikari.User]]] = None,
 ) -> CallbackReturnT[CommandT]:
@@ -524,11 +646,16 @@ def with_owner_check(
 
     Other Parameters
     ----------------
-    end_execution: bool
-        Whether this check should raise `tanjun.errors.HaltExecutionSearch` to
+    end_execution : bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
         end the execution search when it fails instead of returning `False`.
 
         Defaults to `False`.
+    error_message : typing.Optional[str]
+        The error message to send in response as a command error if the check fails.
+
+        Defaults to "Command can only be used in DMs" and setting this to `None`
+        will disable the error message allowing the command search to continue.
     expire_delta: datetime.timedelta
         How long cached application owner data should be cached for.
 
@@ -541,6 +668,8 @@ def with_owner_check(
             This will be used alongside the application's owners.
 
     !!! note
+        error_message takes priority over end_execution.
+    !!! note
         For more information on how this is used with other parameters see
         `CallbackReturnT`.
 
@@ -550,12 +679,18 @@ def with_owner_check(
         The command this check was added to.
     """
     return _wrap_with_kwargs(
-        command, ApplicationOwnerCheck(end_execution=end_execution, expire_delta=expire_delta, owner_ids=owner_ids)
+        command,
+        ApplicationOwnerCheck(
+            end_execution=end_execution, error_message=error_message, expire_delta=expire_delta, owner_ids=owner_ids
+        ),
     )
 
 
 def with_author_permission_check(
-    permissions: typing.Union[hikari.Permissions, int], *, end_execution: bool = False
+    permissions: typing.Union[hikari.Permissions, int],
+    *,
+    end_execution: bool = False,
+    error_message: typing.Optional[str] = "You don't have the permissions required to use this command",
 ) -> collections.Callable[[CommandT], CommandT]:
     """Only let a command run if the author has certain permissions in the current channel.
 
@@ -570,22 +705,35 @@ def with_author_permission_check(
 
     Other Parameters
     ----------------
-    end_execution: bool
-        Whether this check should raise `tanjun.errors.HaltExecutionSearch` to
+    end_execution : bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
         end the execution search when it fails instead of returning `False`.
 
         Defaults to `False`.
+    error_message : typing.Optional[str]
+        The error message to send in response as a command error if the check fails.
+
+        Defaults to "Command can only be used in DMs" and setting this to `None`
+        will disable the error message allowing the command search to continue.
+
+    !!! note
+        error_message takes priority over end_execution.
 
     Returns
     -------
     collections.abc.Callable[[CommandT], CommandT]
         A command decorator callback which adds the check.
     """
-    return lambda command: command.add_check(AuthorPermissionCheck(permissions, end_execution=end_execution))
+    return lambda command: command.add_check(
+        AuthorPermissionCheck(permissions, end_execution=end_execution, error_message=error_message)
+    )
 
 
 def with_own_permission_check(
-    permissions: typing.Union[hikari.Permissions, int], *, end_execution: bool = False
+    permissions: typing.Union[hikari.Permissions, int],
+    *,
+    end_execution: bool = False,
+    error_message: typing.Optional[str] = "Bot doesn't have the permissions required to run this command",
 ) -> collections.Callable[[CommandT], CommandT]:
     """Only let a command run if we have certain permissions in the current channel.
 
@@ -600,18 +748,28 @@ def with_own_permission_check(
 
     Other Parameters
     ----------------
-    end_execution: bool
-        Whether this check should raise `tanjun.errors.HaltExecutionSearch` to
+    end_execution : bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
         end the execution search when it fails instead of returning `False`.
 
         Defaults to `False`.
+    error_message : typing.Optional[str]
+        The error message to send in response as a command error if the check fails.
+
+        Defaults to "Command can only be used in DMs" and setting this to `None`
+        will disable the error message allowing the command search to continue.
+
+    !!! note
+        error_message takes priority over end_execution.
 
     Returns
     -------
     collections.abc.Callable[[CommandT], CommandT]
         A command decorator callback which adds the check.
     """
-    return lambda command: command.add_check(OwnPermissionsCheck(permissions, end_execution=end_execution))
+    return lambda command: command.add_check(
+        OwnPermissionsCheck(permissions, end_execution=end_execution, error_message=error_message)
+    )
 
 
 def with_check(check: tanjun_traits.CheckSig, /) -> collections.Callable[[CommandT], CommandT]:

@@ -950,8 +950,12 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
                 if await component.execute_message(ctx, hooks=hooks):
                     break
 
-        except errors.HaltExecutionSearch:
+        except errors.HaltExecution:
             pass
+
+        except errors.CommandError as exc:
+            await ctx.respond(exc.message)
+            return
 
         await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx)
 
@@ -995,8 +999,12 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
                     await future
                     return
 
-        except errors.HaltExecutionSearch:
+        except errors.HaltExecution:
             pass
+
+        except errors.CommandError as exc:
+            await ctx.respond(exc.message)
+            return
 
         await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
         await ctx.mark_not_found()
@@ -1026,8 +1034,15 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
                 if await component.execute_interaction(ctx, hooks=hooks):
                     return await future
 
-        except errors.HaltExecutionSearch:
+        except errors.HaltExecution:
             pass
+
+        except errors.CommandError as exc:
+            # Under very specific timing there may be another future which could set a result while we await
+            # ctx.respond therefore we create a task to avoid any erronous behaviour from this trying to create
+            # another response before it's returned the initial response.
+            asyncio.create_task(ctx.respond(exc.message))
+            return await future
 
         async def callback(_: asyncio.Future[None]) -> None:
             await ctx.mark_not_found()

@@ -1003,9 +1003,10 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         except errors.CommandError as exc:
             await ctx.respond(exc.message)
 
-        except errors.HaltExecutionSearch:
+        except errors.HaltExecution:
+            # Unlike a message command, this won't necessarily reach the client level try except
+            # block so we have to handle this here.
             await ctx.mark_not_found()
-            return
 
         except Exception as exc:
             if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:
@@ -1208,6 +1209,9 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
 
                 else:
                     break
+
+        except errors.HaltExecution:
+            raise
 
         except Exception as exc:
             if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:

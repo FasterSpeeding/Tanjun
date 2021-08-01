@@ -313,11 +313,11 @@ class BaseInjectableValue(Injectable, typing.Generic[_T]):
         self.is_async: typing.Optional[bool] = None
         self._needs_injector = check_injecting(self.callback)
 
-    # This is delegated to the callback callback in-order to delegate set behaviour for this class to the callback.
+    # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
     def __eq__(self, other: typing.Any) -> bool:
         return bool(self.callback == other)
 
-    # This is delegated to the callback callback in-order to delegate set behaviour for this class to the callback.
+    # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
     def __hash__(self) -> int:
         return hash(self.callback)
 

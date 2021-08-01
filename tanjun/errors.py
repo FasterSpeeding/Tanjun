@@ -35,7 +35,7 @@ from __future__ import annotations
 __all__: list[str] = [
     "CommandError",
     "ConversionError",
-    "HaltExecutionSearch",
+    "HaltExecution",
     "FailedCheck",
     "MissingDependencyError",
     "NotEnoughArgumentsError",
@@ -64,7 +64,7 @@ class TanjunWarning(RuntimeWarning):
     __slots__ = ()
 
 
-class HaltExecutionSearch(TanjunError):
+class HaltExecution(TanjunError):
     """Error raised while looking for a command in-order to end-execution early.
 
     For the most part, this will be raised during checks in-order to prevent
