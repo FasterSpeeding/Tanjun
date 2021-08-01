@@ -276,7 +276,13 @@ _SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[a-z0-9_-]{1,3
 
 
 def as_slash_command(
-    name: str, description: str, /, *, default_to_ephemeral: bool = False, is_global: bool = True
+    name: str,
+    description: str,
+    /,
+    *,
+    default_to_ephemeral: bool = False,
+    is_global: bool = True,
+    sort_options: bool = True,
 ) -> collections.Callable[[CommandCallbackSigT], SlashCommand[CommandCallbackSigT]]:
     """build a `SlashCommand` by decorating a function.
 
@@ -310,13 +316,22 @@ def as_slash_command(
             Under the current implementation, this is used to determine whether
             the command should be bulk set by `tanjun.Client.set_global_commands`
             or when `set_global_commands` is True
+    sort_options : bool
+        Whether this command should sort the set options based on whether
+        they're required.
+
+        If this is `True` then options are re-sorted to meet the requirement
+        from Discord that required command options be listed before optional
+        ones.
 
     Returns
     -------
     collections.abc.Callable[[CommandCallbackSigT], SlashCommand[CommandCallbackSigT]]
         The decorator callback used to build the command to a `SlashCommand`.
     """
-    return lambda c: SlashCommand(c, name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
+    return lambda c: SlashCommand(
+        c, name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global, sort_options=sort_options
+    )
 
 
 _UNDEFINED_DEFAULT = object()
@@ -752,6 +767,39 @@ class _TrackedOption(injecting.Injectable):
             converter.set_injector(client)
 
 
+_CommandBuilderT = typing.TypeVar("_CommandBuilderT", bound="_CommandBuilder")
+
+
+class _CommandBuilder(hikari.impl.CommandBuilder):
+    __slots__ = ("_has_been_sorted", "_sort_options")
+
+    def __init__(self, name: str, description: str, sort_options: bool) -> None:
+        super().__init__(name, description)
+        self._has_been_sorted = True
+        self._sort_options = sort_options
+
+    def add_option(self: _CommandBuilderT, option: hikari.CommandOption) -> _CommandBuilderT:
+        if self._options:
+            self._has_been_sorted = False
+
+        return super().add_option(option)  # type: ignore
+
+    def build(self, entity_factory: hikari.api.EntityFactory, /) -> dict[str, typing.Any]:
+        if self._sort_options and not self._has_been_sorted:
+            required: list[hikari.CommandOption] = []
+            not_required: list[hikari.CommandOption] = []
+            for option in self._options:
+                if option.is_required:
+                    required.append(option)
+                else:
+                    not_required.append(option)
+
+            self._options = [*required, *not_required]
+            self._has_been_sorted = True
+
+        return super().build(entity_factory)
+
+
 class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], traits.SlashCommand):
     __slots__ = (
         "_builder",
@@ -776,12 +824,13 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.SlashHooks] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
+        sort_options: bool = True,
     ) -> None:
         super().__init__(callback, checks=checks, hooks=hooks, metadata=metadata)
         if not _SCOMMAND_NAME_REG.fullmatch(name):
             raise ValueError("Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`")
 
-        self._builder = hikari.impl.CommandBuilder(name, description)
+        self._builder = _CommandBuilder(name, description, sort_options)
         self._defaults_to_ephemeral = default_to_ephemeral
         self._description = description
         self._is_global = is_global
