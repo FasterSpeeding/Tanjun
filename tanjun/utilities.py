@@ -37,7 +37,10 @@ __all__: list[str] = [
     "await_if_async",
     "gather_checks",
     "ALL_PERMISSIONS",
+    "DM_PERMISSIONS",
+    "calculate_everyone_permissions",
     "calculate_permissions",
+    "fetch_everyone_permissions",
     "fetch_permissions",
     "match_prefix_names",
 ]
@@ -161,6 +164,18 @@ def match_prefix_names(content: str, names: collections.Iterable[str], /) -> typ
 ALL_PERMISSIONS = functools.reduce(operator.__xor__, hikari.Permissions)
 """All of the known permissions based on the linked version of Hikari."""
 
+DM_PERMISSIONS = (
+    hikari.Permissions.ADD_REACTIONS
+    | hikari.Permissions.VIEW_CHANNEL
+    | hikari.Permissions.SEND_MESSAGES
+    | hikari.Permissions.EMBED_LINKS
+    | hikari.Permissions.ATTACH_FILES
+    | hikari.Permissions.READ_MESSAGE_HISTORY
+    | hikari.Permissions.USE_EXTERNAL_EMOJIS
+    | hikari.Permissions.USE_APPLICATION_COMMANDS
+)
+"""Bitfield of the permissions which are accessibly within DM channels."""
+
 
 def _calculate_channel_overwrites(
     channel: hikari.GuildChannel, member: hikari.Member, permissions: hikari.Permissions
@@ -249,6 +264,24 @@ def calculate_permissions(
     return _calculate_channel_overwrites(channel, member, permissions)
 
 
+async def _fetch_channel(
+    client: tanjun_traits.Client, retry: backoff.Backoff, channel: hikari.SnowflakeishOr[hikari.PartialChannel]
+) -> hikari.GuildChannel:
+    if isinstance(channel, hikari.GuildChannel):
+        return channel
+
+    found_channel = None
+    if client.cache:
+        found_channel = client.cache.get_guild_channel(hikari.Snowflake(channel))
+
+    if not found_channel:
+        raw_channel = await fetch_resource(retry, client.rest.fetch_channel, channel)
+        assert isinstance(raw_channel, hikari.GuildChannel), "Cannot perform operation on a DM channel."
+        found_channel = raw_channel
+
+    return found_channel
+
+
 async def fetch_permissions(
     client: tanjun_traits.Client,
     member: hikari.Member,
@@ -257,6 +290,10 @@ async def fetch_permissions(
     channel: typing.Optional[hikari.SnowflakeishOr[hikari.PartialChannel]] = None,
 ) -> hikari.Permissions:
     """Calculate the permissions a member has within a guild.
+
+    !!! note
+        This callback will fallback to REST requests if cache lookups fail or
+        are not possible.
 
     Parameters
     ----------
@@ -271,10 +308,6 @@ async def fetch_permissions(
         The object of ID of the channel to get their permissions in.
         If left as `None` then this will return their base guild
         permissions.
-
-    !!! note
-        This callback will fallback to REST requests if cache lookups fail or
-        are not possible.
 
     Returns
     -------
@@ -307,19 +340,113 @@ async def fetch_permissions(
     if not channel:
         return permissions
 
-    found_channel: typing.Optional[hikari.GuildChannel] = None
-    if isinstance(channel, hikari.GuildChannel):
-        found_channel = channel
-
-    elif client.cache:
-        found_channel = client.cache.get_guild_channel(hikari.Snowflake(channel))
-
-    if not found_channel:
-        raw_channel = await fetch_resource(retry, client.rest.fetch_channel, channel)
-        assert isinstance(raw_channel, hikari.GuildChannel), "Cannot perform operation on a DM channel."
-        found_channel = raw_channel
-
-    if found_channel.guild_id != guild.id:
+    channel = await _fetch_channel(client, retry, channel)
+    if channel.guild_id != guild.id:
         raise ValueError("Channel doesn't match up with the member's guild")
 
-    return _calculate_channel_overwrites(found_channel, member, permissions)
+    return _calculate_channel_overwrites(channel, member, permissions)
+
+
+def calculate_everyone_permissions(
+    everyone_role: hikari.Role,
+    /,
+    *,
+    channel: typing.Optional[hikari.GuildChannel] = None,
+) -> hikari.Permissions:
+    """Calculate a guild's default permissions within the guild or for a specifc channel.
+
+    Parameters
+    ----------
+    everyone_role : hikari.guilds.Role
+        The guild's default @everyone role.
+
+    Other Parameters
+    ----------------
+    channel : typing.Optional[hikari.channels.GuildChannel]
+        The channel to calculate the permissions for.
+
+        If this is left as `None` then this will just calculate the default
+        permissions on a guild level.
+
+    Returns
+    -------
+    hikari.permissions.Permissions
+        The calculated permissions.
+    """
+    # The ordering of how this adds and removes permissions does matter.
+    # For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.
+    permissions = everyone_role.permissions
+    # Admin permission overrides all overwrites and is only applicable to roles.
+    if permissions & permissions.ADMINISTRATOR:
+        return ALL_PERMISSIONS
+
+    if not channel:
+        return permissions
+
+    if everyone_overwrite := channel.permission_overwrites.get(everyone_role.guild_id):
+        permissions &= ~everyone_overwrite.deny
+        permissions |= everyone_overwrite.allow
+
+    return permissions
+
+
+async def fetch_everyone_permissions(
+    client: tanjun_traits.Client,
+    guild_id: hikari.Snowflake,
+    /,
+    *,
+    channel: typing.Optional[hikari.SnowflakeishOr[hikari.PartialChannel]] = None,
+) -> hikari.Permissions:
+    """Calculate the permissions a guild's default @everyone role has within a guild or for a specifc channel.
+
+    !!! note
+        This callback will fallback to REST requests if cache lookups fail or
+        are not possible.
+
+    Parameters
+    ----------
+    client : tanjun.traits.Client
+        The Tanjun client to use for lookups.
+    guild_id : hikari.snowflakes.Snowflake
+        ID of the guild to calculate the default permissions for.
+
+    Other Parameters
+    ----------------
+    channel : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.channels.PartialChannel]]
+        The channel to calculate the permissions for.
+
+        If this is left as `None` then this will just calculate the default
+        permissions on a guild level.
+
+
+    Returns
+    -------
+    hikari.permissions.Permissions
+        The calculated permissions.
+    """
+    # The ordering of how this adds and removes permissions does matter.
+    # For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.
+    retry = backoff.Backoff(maximum=5, max_retries=4)
+    role = client.cache.get_role(guild_id) if client.cache else None
+    if not role:
+        for role in await fetch_resource(retry, client.rest.fetch_roles, guild_id):
+            if role.id == guild_id:
+                break
+
+        else:
+            raise RuntimeError("Failed to find guild's @everyone role")
+
+    permissions = role.permissions
+    # Admin permission overrides all overwrites and is only applicable to roles.
+    if permissions & permissions.ADMINISTRATOR:
+        return ALL_PERMISSIONS
+
+    if not channel:
+        return permissions
+
+    channel = await _fetch_channel(client, retry, channel)
+    if everyone_overwrite := channel.permission_overwrites.get(guild_id):
+        permissions &= ~everyone_overwrite.deny
+        permissions |= everyone_overwrite.allow
+
+    return permissions

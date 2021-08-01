@@ -339,7 +339,13 @@ class AuthorPermissionCheck(PermissionCheck):
 
     async def get_permissions(self, ctx: tanjun_traits.Context, /) -> hikari.Permissions:
         if not ctx.member:
-            return utilities.ALL_PERMISSIONS
+            # If there's no member when this is within a guild then it's likely
+            # something like a webhook or guild visitor with no real permissions
+            # outside of some basic set of send messages
+            if ctx.guild_id:
+                return await utilities.fetch_everyone_permissions(ctx.client, ctx.guild_id, channel=ctx.channel_id)
+
+            return utilities.DM_PERMISSIONS
 
         elif isinstance(ctx.member, hikari.InteractionMember):
             return ctx.member.permissions
@@ -364,7 +370,7 @@ class OwnPermissionsCheck(PermissionCheck):
 
     async def get_permissions(self, ctx: tanjun_traits.Context, /) -> hikari.Permissions:
         if ctx.guild_id is None:
-            return utilities.ALL_PERMISSIONS
+            return utilities.DM_PERMISSIONS
 
         member = await self._get_member(ctx, ctx.guild_id)
         return await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
