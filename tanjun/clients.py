@@ -31,14 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: list[str] = [
-    "as_loader",
-    "Client",
-    "LoadableSig",
-    "MessageAcceptsEnum",
-    "PrefixGetterSig",
-    "PrefixGetterSigT",
-]
+__all__: list[str] = ["as_loader", "Client", "LoadableSig", "MessageAcceptsEnum", "PrefixGetterSig", "PrefixGetterSigT"]
 
 import asyncio
 import enum
@@ -720,6 +713,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         return await utilities.gather_checks(ctx, self._checks)
 
     def add_component(self: _ClientT, component: tanjun_traits.Component, /, *, add_injector: bool = False) -> _ClientT:
+        # <<inherited docstring from tanjun.traits.Client>>.
         if isinstance(component, injecting.Injectable):
             component.set_injector(self)
 
@@ -800,9 +794,11 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
     def check_message_context(
         self, ctx: tanjun_traits.MessageContext, /
     ) -> collections.AsyncIterator[tuple[str, tanjun_traits.MessageCommand]]:
+        # <<inherited docstring from tanjun.traits.Client>>.
         return utilities.async_chain(component.check_message_context(ctx) for component in self._components)
 
     def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, tanjun_traits.MessageCommand]]:
+        # <<inherited docstring from tanjun.traits.Client>>.
         return itertools.chain.from_iterable(component.check_message_name(name) for component in self._components)
 
     async def _check_prefix(self, ctx: tanjun_traits.MessageContext, /) -> typing.Optional[str]:
@@ -973,6 +969,17 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         return hooks
 
     async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
+        """Listener function for executing slash commands based on Gateway events.
+
+        Parameters
+        ----------
+        event : hikari.events.interaction_events.InteractionCreateEvent
+            The event to execute commands based on.
+
+            !!! note
+                Any event where `event.interaction` is not
+                `hikari.interactions.commands.CommandInteraction` will be ignored.
+        """
         if not isinstance(event.interaction, hikari.CommandInteraction):
             return
 
@@ -996,6 +1003,18 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         ctx.cancel_defer()
 
     async def on_interaction_create_request(self, interaction: hikari.CommandInteraction, /) -> context.ResponseTypeT:
+        """Listener function for executing slash commands based on received REST requests.
+
+        Parameters
+        ----------
+        interaction : hikari.interactions.commands.CommandInteraction
+            The interaction to execute a command based on.
+
+        Returns
+        -------
+        tanjun.context.ResponseType
+            The initial response to send back to Discord.
+        """
         ctx = context.SlashContext(self, interaction, not_found_message=self._interaction_not_found)
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)

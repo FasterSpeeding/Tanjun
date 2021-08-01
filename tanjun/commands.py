@@ -110,6 +110,8 @@ class PartialCommand(
     traits.ExecutableCommand[traits.ContextT],
     typing.Generic[CommandCallbackSigT, traits.ContextT],
 ):
+    """Base class for the standard ExecutableCommand implementations."""
+
     __slots__ = (
         "_cached_getters",
         "_callback",
@@ -142,26 +144,32 @@ class PartialCommand(
 
     @property
     def callback(self) -> CommandCallbackSigT:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         return self._callback
 
     @property
     def checks(self) -> collections.Set[traits.CheckSig]:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         return {check.callback for check in self._checks}
 
     @property
     def component(self) -> typing.Optional[traits.Component]:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         return self._component
 
     @property
     def hooks(self) -> typing.Optional[traits.Hooks[traits.ContextT]]:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         return self._hooks
 
     @property
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         return self._metadata
 
     @property
     def needs_injector(self) -> bool:
+        # <<inherited docstring from tanjun.injecting.Injectable>>.
         if self._needs_injector is None:
             self._needs_injector = injecting.check_injecting(self._callback)
 
@@ -176,6 +184,7 @@ class PartialCommand(
             await self._callback(*args, **kwargs)
 
     def copy(self: _PartialCommandT, *, _new: bool = True) -> _PartialCommandT:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         if not _new:
             self._cached_getters = None
             self._callback = copy.copy(self._callback)
@@ -188,14 +197,17 @@ class PartialCommand(
         return copy.copy(self).copy(_new=False)
 
     def set_hooks(self: _PartialCommandT, hooks: typing.Optional[traits.Hooks[traits.ContextT]], /) -> _PartialCommandT:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         self._hooks = hooks
         return self
 
     def add_check(self: _PartialCommandT, check: traits.CheckSig, /) -> _PartialCommandT:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         self._checks.add(injecting.InjectableCheck(check, injector=self._injector))
         return self
 
     def remove_check(self, check: traits.CheckSig, /) -> None:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         self._checks.remove(check)  # type: ignore[arg-type]
 
     def with_check(self, check: traits.CheckSigT, /) -> traits.CheckSigT:
@@ -203,6 +215,7 @@ class PartialCommand(
         return check
 
     def set_injector(self, client: injecting.InjectorClient, /) -> None:
+        # <<inherited docstring from tanjun.injecting.Injectable>>.
         if self._injector:
             raise RuntimeError("Injector already set")
 
@@ -212,12 +225,15 @@ class PartialCommand(
             check.set_injector(client)
 
     def bind_client(self, client: traits.Client, /) -> None:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         pass
 
     def bind_component(self, component: traits.Component, /) -> None:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         self._component = component
 
     def _get_injection_getters(self) -> collections.Iterable[injecting.Getter[typing.Any]]:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         if not self._injector:
             raise ValueError("Cannot execute command without injector client")
 
@@ -262,10 +278,45 @@ _SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[a-z0-9_-]{1,3
 def as_slash_command(
     name: str, description: str, /, *, default_to_ephemeral: bool = False, is_global: bool = True
 ) -> collections.Callable[[CommandCallbackSigT], SlashCommand[CommandCallbackSigT]]:
-    def decorator(callback: CommandCallbackSigT, /) -> SlashCommand[CommandCallbackSigT]:
-        return SlashCommand(callback, name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
+    """build a `SlashCommand` by decorating a function.
 
-    return decorator
+    Examples
+    --------
+    ```py
+    @as_slash_command("ping", "Get the bot's latency")
+    async def ping_command(self, ctx: tanjun.traits.SlashContext) -> None:
+        start_time = time.perf_counter()
+        await ctx.rest.fetch_my_user()
+        time_taken = (time.perf_counter() - start_time) * 1_000
+        await ctx.respond(f"PONG\n - REST: {time_taken:.0f}mss")
+    ```
+
+    Parameters
+    ----------
+    name : str
+        The command's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+    description : str
+        The command's description.
+        This should be inclusively between 1-100 characters in length.
+
+    Other Parameters
+    ----------------
+    default_to_ephemeral : bool
+        Whether this command's responses should default to ephemeral unless flags
+        are set to override this. This defaults to `False`.
+    is_global : bool
+        Whether this command is a global command. Defaults to `True`.
+        !!! note
+            Under the current implementation, this is used to determine whether
+            the command should be bulk set by `tanjun.Client.set_global_commands`
+            or when `set_global_commands` is True
+
+    Returns
+    -------
+    collections.abc.Callable[[CommandCallbackSigT], SlashCommand[CommandCallbackSigT]]
+        The decorator callback used to build the command to a `SlashCommand`.
+    """
+    return lambda c: SlashCommand(c, name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global)
 
 
 _UNDEFINED_DEFAULT = object()
@@ -280,6 +331,56 @@ def with_str_slash_option(
     converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig, None] = None,
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    """Add a string option to a slash command.
+
+    Example
+    -------
+    ```py
+    @with_str_slash_option("name", "A name.")
+    @as_slash_command("command", "A command")
+    async def command(self, ctx: tanjun.traits.SlashContext, name: str) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    name : str
+        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+    description : str
+        The option's description.
+        This should be inclusively between 1-100 characters in length.
+
+    Other Parameters
+    ----------------
+    choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]]
+        The option's choices.
+
+        This may be either one or multiple `tuple[opton_name, option_value]`
+        Where both option_name and option_value should be strings of up to 100
+        characters.
+
+        !!! note
+            As a shorthand, this also supports passing strings in place of
+            tuples each string will be used as both the choice's name and value
+            (with the name being capitalised).
+    converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]
+        The option's converters.
+
+        This may be either one or multiple `ConverterSig` callbacks used to
+        convert the option's value to the final form.
+        If this is `None`, the option will not be converted.
+
+        !!! note
+            Only the first converter to pass will be used.
+    default : typing.Any
+        The option's default value.
+        If this is left as undefined then this option will be required.
+
+    Returns
+    -------
+    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+        Decorator callback which adds the option to the command.
+    """
     new_choices: collections.Iterable[tuple[str, str]] = ()
     if choices is not None:
         new_choices = (choice if isinstance(choice, tuple) else (choice.capitalize(), choice) for choice in choices)
@@ -298,6 +399,51 @@ def with_int_slash_option(
     converters: typing.Union[collections.Collection[ConverterSig], ConverterSig, None] = None,
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    """Add an integer option to a slash command.
+
+    Example
+    -------
+    ```py
+    @with_int_slash_option("int_value", "Int value.")
+    @as_slash_command("command", "A command")
+    async def command(self, ctx: tanjun.traits.SlashContext, int_value: int) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    name : str
+        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+    description : str
+        The option's description.
+        This should be inclusively between 1-100 characters in length.
+
+    Other Parameters
+    ----------------
+    choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, int]]]]
+        The option's choices.
+
+        This may be either one or multiple `tuple[opton_name, option_value]`
+        where option_name should be a string of up to 100 characters and
+        option_value should be an integer.
+    converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]
+        The option's converters.
+
+        This may be either one or multiple `ConverterSig` callbacks used to
+        convert the option's value to the final form.
+        If this is `None`, the option will not be converted.
+
+        !!! note
+            Only the first converter to pass will be used.
+    default : typing.Any
+        The option's default value.
+        If this is left as undefined then this option will be required.
+
+    Returns
+    -------
+    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+        Decorator callback which adds the option to the command.
+    """
     return lambda c: c.add_option(
         name, description, hikari.OptionType.INTEGER, default=default, choices=choices, converters=converters
     )
@@ -310,6 +456,36 @@ def with_bool_slash_option(
     *,
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    """Add a boolean option to a slash command.
+
+    Example
+    -------
+    ```py
+    @with_bool_slash_option("flag", "Whether this flag should be enabled.", default=False)
+    @as_slash_command("command", "A command")
+    async def command(self, ctx: tanjun.traits.SlashContext, flag: bool) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    name : str
+        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+    description : str
+        The option's description.
+        This should be inclusively between 1-100 characters in length.
+
+    Other Parameters
+    ----------------
+    default : typing.Any
+        The option's default value.
+        If this is left as undefined then this option will be required.
+
+    Returns
+    -------
+    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+        Decorator callback which adds the option to the command.
+    """
     return lambda c: c.add_option(name, description, hikari.OptionType.BOOLEAN, default=default)
 
 
@@ -320,6 +496,41 @@ def with_user_slash_option(
     *,
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    """Add a user option to a slash command.
+
+    !!! note
+        This may result in `hikari.interactions.commands.InteractionMember` or
+        `hikari.users.User` if the user isn't in the current guild or if this
+        command was executed in a DM channel.
+
+    Example
+    -------
+    ```py
+    @with_channel_slash_option("user", "user to target.")
+    @as_slash_command("command", "A command")
+    async def command(self, ctx: tanjun.traits.SlashContext, user: Union[InteractionMember, User]) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    name : str
+        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+    description : str
+        The option's description.
+        This should be inclusively between 1-100 characters in length.
+
+    Other Parameters
+    ----------------
+    default : typing.Any
+        The option's default value.
+        If this is left as undefined then this option will be required.
+
+    Returns
+    -------
+    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+        Decorator callback which adds the option to the command.
+    """
     return lambda c: c.add_option(name, description, hikari.OptionType.USER, default=default)
 
 
@@ -330,6 +541,39 @@ def with_member_slash_option(
     *,
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    """Add a member option to a slash command.
+
+    !!! note
+        This will always result in `hikari.interactions.commands.InteractionMember`.
+
+    Example
+    -------
+    ```py
+    @with_channel_slash_option("member", "member to target.")
+    @as_slash_command("command", "A command")
+    async def command(self, ctx: tanjun.traits.SlashContext, member: hikari.InteractionMember) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    name : str
+        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+    description : str
+        The option's description.
+        This should be inclusively between 1-100 characters in length.
+
+    Other Parameters
+    ----------------
+    default : typing.Any
+        The option's default value.
+        If this is left as undefined then this option will be required.
+
+    Returns
+    -------
+    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+        Decorator callback which adds the option to the command.
+    """
     return lambda c: c.add_option(name, description, hikari.OptionType.USER, default=default, only_member=True)
 
 
@@ -340,6 +584,39 @@ def with_channel_slash_option(
     *,
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    """Add a channel option to a slash command.
+
+    !!! note
+        This will always result in `hikari.interactions.commands.InteractionChannel`.
+
+    Example
+    -------
+    ```py
+    @with_channel_slash_option("channel", "channel to target.")
+    @as_slash_command("command", "A command")
+    async def command(self, ctx: tanjun.traits.SlashContext, channel: hikari.InteractionChannel) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    name : str
+        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+    description : str
+        The option's description.
+        This should be inclusively between 1-100 characters in length.
+
+    Parameters
+    ----------
+    default : typing.Any
+        The option's default value.
+        If this is left as undefined then this option will be required.
+
+    Returns
+    -------
+    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+        Decorator callback which adds the option to the command.
+    """
     return lambda c: c.add_option(name, description, hikari.OptionType.CHANNEL, default=default)
 
 
@@ -350,6 +627,36 @@ def with_role_slash_option(
     *,
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    """Add a role option to a slash command.
+
+    Example
+    -------
+    ```py
+    @with_role_slash_option("role", "Role to target.")
+    @as_slash_command("command", "A command")
+    async def command(self, ctx: tanjun.traits.SlashContext, role: hikari.Role) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    name : str
+        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+    description : str
+        The option's description.
+        This should be inclusively between 1-100 characters in length.
+
+    Other Parameters
+    ----------------
+    default : typing.Any
+        The option's default value.
+        If this is left as undefined then this option will be required.
+
+    Returns
+    -------
+    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+        Decorator callback which adds the option to the command.
+    """
     return lambda c: c.add_option(name, description, hikari.OptionType.ROLE, default=default)
 
 
@@ -360,6 +667,40 @@ def with_mentionable_slash_option(
     *,
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    """Add a mentionable option to a slash command.
+
+    !!! note
+        This may taget roles, guild members or users and results in
+        `Union[hikari.User, hikari.InteractionMember, hikari.Role]`.
+
+    Example
+    -------
+    ```py
+    @with_mentionable_slash_option("mentionable", "Mentionable entity to target.")
+    @as_slash_command("command", "A command")
+    async def command(self, ctx: tanjun.traits.SlashContext, mentionable: [Role, InteractionMember, User]) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    name : str
+        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+    description : str
+        The option's description.
+        This should be inclusively between 1-100 characters in length.
+
+    Other Parameters
+    ----------------
+    default : typing.Any
+        The option's default value.
+        If this is left as undefined then this option will be required.
+
+    Returns
+    -------
+    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+        Decorator callback which adds the option to the command.
+    """
     return lambda c: c.add_option(name, description, hikari.OptionType.MENTIONABLE, default=default)
 
 
@@ -451,35 +792,43 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
 
     @property
     def defaults_to_ephemeral(self) -> bool:
+        # <<inherited docstring from tanjun.traits.SlashCommand>>.
         return self._defaults_to_ephemeral
 
     @property
     def description(self) -> str:
+        # <<inherited docstring from tanjun.traits.SlashCommand>>.
         return self._description
 
     @property
     def is_global(self) -> bool:
+        # <<inherited docstring from tanjun.traits.SlashCommand>>.
         return self._is_global
 
     @property
     def name(self) -> str:
+        # <<inherited docstring from tanjun.traits.SlashCommand>>.
         return self._name
 
     @property
     def needs_injector(self) -> bool:
+        # <<inherited docstring from tanjun.injecting.Injectable>>.
         return super().needs_injector or any(option.needs_injector for option in self._tracked_options.values())
 
     def set_injector(self, client: injecting.InjectorClient, /) -> None:
+        # <<inherited docstring from tanjun.injecting.Injectable>>.
         super().set_injector(client)
         for option in self._tracked_options.values():
             option.set_injector(client)
 
     @property
     def parent(self) -> typing.Optional[traits.SlashCommandGroup]:
+        # <<inherited docstring from tanjun.traits.SlashCommand>>.
         return self._parent
 
     @property
     def tracked_command(self) -> typing.Optional[hikari.Command]:
+        # <<inherited docstring from tanjun.traits.SlashCommand>>.
         return self._tracked_command
 
     def add_option(
@@ -533,13 +882,24 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
     #     return await self._
 
     def build(self) -> special_endpoints_api.CommandBuilder:
+        # <<inherited docstring from tanjun.traits.SlashCommand>>.
         return self._builder
 
     def set_ephemeral_default(self: _SlashCommandT, state: bool, /) -> _SlashCommandT:
+        """Set whether this command's responses should default to ephemeral.
+
+
+        Parameters
+        ----------
+        bool
+            Whether this command's responses should default to ephemeral.
+            This will be overridden by any response calls which specify flags.
+        """
         self._defaults_to_ephemeral = state
         return self
 
     def set_parent(self: _SlashCommandT, parent: typing.Optional[traits.SlashCommandGroup], /) -> _SlashCommandT:
+        # <<inherited docstring from tanjun.traits.SlashCommand>>.
         self._parent = parent
         return self
 
@@ -605,6 +965,7 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         return keyword_args
 
     async def check_context(self, ctx: traits.SlashContext, /) -> bool:
+        # <<inherited docstring from tanjun.traits.SlashCommand>>.
         return await utilities.gather_checks(ctx, self._checks)
 
     async def execute(
@@ -615,6 +976,7 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         *,
         hooks: typing.Optional[collections.MutableSet[traits.SlashHooks]] = None,
     ) -> None:
+        # <<inherited docstring from tanjun.traits.SlashCommand>>.
         own_hooks = self._hooks or _EMPTY_HOOKS
         try:
             await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
@@ -656,11 +1018,13 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
             await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
     def set_tracked_command(self: _SlashCommandT, command: typing.Optional[hikari.Command], /) -> _SlashCommandT:
+        # <<inherited docstring from tanjun.traits.SlashCommand>>.
         self._tracked_command = command
         self._builder.set_id(command.id if command else hikari.UNDEFINED)
         return self
 
     def load_into_component(self: _SlashCommandT, component: traits.Component, /) -> typing.Optional[_SlashCommandT]:
+        # <<inherited docstring from PartialCommand>>.
         super().load_into_component(component)
         if not self._parent:
             component.add_slash_command(self)
@@ -670,19 +1034,51 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
 def as_message_command(
     name: str, /, *names: str
 ) -> collections.Callable[[CommandCallbackSigT], MessageCommand[CommandCallbackSigT]]:
-    def decorator(callback: CommandCallbackSigT, /) -> MessageCommand[CommandCallbackSigT]:
-        return MessageCommand(callback, name, *names)
+    """Build a message command from a decorated callback.
 
-    return decorator
+    Parameters
+    ----------
+    name : str
+        The command name.
+
+    Other Parameters
+    ----------------
+    names : str
+        Variable positional arguments of other names for the command.
+
+    Returns
+    -------
+    collections.abc.Callable[[CommandCallbackSigT], MessageCommand[CommandCallbackSigT]]
+        Decorator callback used to build a MessageCommand` from the decorated callback.
+    """
+    return lambda callback: MessageCommand(callback, name, *names)
 
 
 def as_message_command_group(
     name: str, /, *names: str, strict: bool = False
 ) -> collections.Callable[[CommandCallbackSigT], MessageCommandGroup[CommandCallbackSigT]]:
-    def decorator(callback: CommandCallbackSigT, /) -> MessageCommandGroup[CommandCallbackSigT]:
-        return MessageCommandGroup(callback, name, *names, strict=strict)
+    """Build a message command group from a decorated callback.
 
-    return decorator
+    Parameters
+    ----------
+    name : str
+        The command name.
+
+    Other Parameters
+    ----------------
+    names : str
+        Variable positional arguments of other names for the command.
+    strict : bool
+        Whether this command group should only allow commands without spaces in their names.
+
+        This allows for a more optimised command search pattern to be used.
+
+    Returns
+    -------
+    collections.abc.Callable[[CommandCallbackSigT], MessageCommandGroup[CommandCallbackSigT]]
+        Decorator callback used to build a `MessageCommandGroup` from the decorated callback.
+    """
+    return lambda callback: MessageCommandGroup(callback, name, *names, strict=strict)
 
 
 class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext], traits.MessageCommand):
@@ -708,11 +1104,13 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         return f"Command <{self._names}>"
 
     @property
+    # <<inherited docstring from tanjun.traits.MessageCommand>>.
     def names(self) -> collections.Set[str]:
         return self._names.copy()
 
     @property
     def parent(self) -> typing.Optional[traits.MessageCommandGroup]:
+        # <<inherited docstring from tanjun.traits.MessageCommand>>.
         return self._parent
 
     @property
@@ -720,11 +1118,13 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         return self._parser
 
     def bind_client(self, client: traits.Client, /) -> None:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         super().bind_client(client)
         if self._parser:
             self._parser.bind_client(client)
 
     def bind_component(self, component: traits.Component, /) -> None:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         super().bind_component(component)
         if self._parser:
             self._parser.bind_component(component)
@@ -732,6 +1132,7 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
     def copy(
         self: _MessageCommandT, *, _new: bool = True, parent: typing.Optional[traits.MessageCommandGroup] = None
     ) -> _MessageCommandT:
+        # <<inherited docstring from tanjun.traits.MessageCommand>>.
         if not _new:
             self._names = self._names.copy()
             self._parent = parent
@@ -740,6 +1141,7 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         return super().copy(_new=_new)
 
     def set_parent(self: _MessageCommandT, parent: typing.Optional[traits.MessageCommandGroup], /) -> _MessageCommandT:
+        # <<inherited docstring from tanjun.traits.MessageCommand>>.
         self._parent = parent
         return self
 
@@ -748,6 +1150,7 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         return self
 
     async def check_context(self, ctx: traits.MessageContext, /) -> bool:
+        # <<inherited docstring from tanjun.traits.MessageCommand>>.
         ctx = ctx.set_command(self)
         result = await utilities.gather_checks(ctx, self._checks)
         ctx.set_command(None)
@@ -760,6 +1163,7 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         *,
         hooks: typing.Optional[collections.MutableSet[traits.MessageHooks]] = None,
     ) -> None:
+        # <<inherited docstring from tanjun.traits.MessageCommand>>.
         ctx = ctx.set_command(self)
         own_hooks = self._hooks or _EMPTY_HOOKS
         try:
@@ -819,6 +1223,7 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
     def load_into_component(
         self: _MessageCommandT, component: traits.Component, /, *, new: bool = True
     ) -> typing.Optional[_MessageCommandT]:
+        # <<inherited docstring from PartialCommand>>.
         super().load_into_component(component)
         if not self._parent:
             component.add_message_command(self)
@@ -850,6 +1255,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
 
     @property
     def commands(self) -> collections.Set[traits.MessageCommand]:
+        # <<inherited docstring from tanjun.traits.MessageCommandGroup>>.
         return self._commands.copy()
 
     @property
@@ -859,6 +1265,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
     def copy(
         self: _MessageCommandGroupT, *, _new: bool = True, parent: typing.Optional[traits.MessageCommandGroup] = None
     ) -> _MessageCommandGroupT:
+        # <<inherited docstring from tanjun.traits.MessageCommand>>.
         if not _new:
             commands = {command: command.copy(parent=self) for command in self._commands}
             self._commands = set(commands.values())
@@ -867,6 +1274,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
         return super().copy(parent=parent, _new=_new)
 
     def add_command(self: _MessageCommandGroupT, command: traits.MessageCommand, /) -> _MessageCommandGroupT:
+        # <<inherited docstring from tanjun.traits.MessageCommandGroup>>.
         if self._is_strict:
             if any(" " in name for name in command.names):
                 raise ValueError("Sub-command names may not contain spaces in a strict message command group")
@@ -882,6 +1290,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
         return self
 
     def remove_command(self, command: traits.MessageCommand, /) -> None:
+        # <<inherited docstring from tanjun.traits.MessageCommandGroup>>.
         self._commands.remove(command)
         if self._is_strict:
             for name in command.names:
@@ -895,9 +1304,16 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
         return command
 
     def bind_client(self, client: traits.Client, /) -> None:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         super().bind_client(client)
         for command in self._commands:
             command.bind_client(client)
+
+    def bind_component(self, component: traits.Component, /) -> None:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+        super().bind_component(component)
+        for command in self._commands:
+            command.bind_component(component)
 
     def set_injector(self, client: injecting.InjectorClient, /) -> None:
         super().set_injector(client)
@@ -928,6 +1344,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
         *,
         hooks: typing.Optional[collections.MutableSet[traits.MessageHooks]] = None,
     ) -> None:
+        # <<inherited docstring from tanjun.traits.MessageCommand>>.
         if ctx.message.content is None:
             raise ValueError("Cannot execute a command with a contentless message")
 
@@ -953,6 +1370,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
     def load_into_component(
         self: _MessageCommandGroupT, component: traits.Component, /, *, new: bool = True
     ) -> typing.Optional[_MessageCommandGroupT]:
+        # <<inherited docstring from PartialCommand>>.
         super().load_into_component(component, new=new)
         for command in self._commands:
             if isinstance(command, components.LoadableProtocol):

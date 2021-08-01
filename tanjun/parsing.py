@@ -337,6 +337,10 @@ def with_argument(
         The converter(s) this argument should use to handle values passed to it
         during parsing, this may be left as `None to indicate that
         the raw string value should be returned without conversion.
+
+        !!! note
+            Only the first converter to pass will be used.
+
     default : typing.Any
         The default value of this argument, if left as
         `UNDEFINED_DEFAULT` then this will have no default.
@@ -401,8 +405,13 @@ def with_greedy_argument(
     ----------------
     converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig], None]
         The converter(s) this argument should use to handle values passed to it
-        during parsing, this may be left as `None to indicate that
-        the raw string value should be returned without conversion.
+        during parsing.
+
+        This may be left as `None` to indicate that the raw string value should
+        be returned without conversion.
+
+        !!! note
+            Only the first converter to pass will be used.
     default : typing.Any
         The default value of this argument, if left as
         `UNDEFINED_DEFAULT` then this will have no default.
@@ -459,8 +468,13 @@ def with_multi_argument(
     ----------------
     converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig], None]
         The converter(s) this argument should use to handle values passed to it
-        during parsing, this may be left as `None to indicate that
-        the raw string value should be returned without conversion.
+        during parsing.
+
+        This may be left as `None` to indicate that the raw string value should
+        be returned without conversion.
+
+        !!! note
+            Only the first converter to pass will be used.
     default : typing.Any
         The default value of this argument, if left as
         `UNDEFINED_DEFAULT` then this will have no default.
@@ -520,6 +534,9 @@ def with_option(
 
         This may be left as `None` to indicate that the raw string value should
         be returned without conversion.
+
+        !!! note
+            Only the first converter to pass will be used.
     empty_value : typing.Any
         The value to use if this option is provided without a value. If left as
         `UNDEFINED_DEFAULT` then this option will error if it's
@@ -589,8 +606,13 @@ def with_multi_option(
         Other names of this option used for identifying it in the parsed content.
     converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig], None]
         The converter(s) this argument should use to handle values passed to it
-        during parsing, this may be left as `None to indicate that
-        the raw string value should be returned without conversion.
+        during parsing.
+
+        This may be left as `None` to indicate that the raw string value should
+        be returned without conversion.
+
+        !!! note
+            Only the first converter to pass will be used.
     empty_value : typing.Any
         The value to use if this option is provided without a value. If left as
         `UNDEFINED_DEFAULT` then this option will error if it's

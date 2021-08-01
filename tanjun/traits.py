@@ -192,7 +192,14 @@ class Context(abc.ABC):
     @property
     @abc.abstractmethod
     def created_at(self) -> datetime.datetime:
-        raise NotImplementedError
+        """When this context was created.
+
+        Returns
+        -------
+        datetime.datetime
+            When this context was created.
+            This will either refer to a message or integration's creation date.
+        """
 
     @property
     @abc.abstractmethod
@@ -222,7 +229,13 @@ class Context(abc.ABC):
     @property
     @abc.abstractmethod
     def has_responded(self) -> bool:
-        raise NotImplementedError
+        """Whether an initial response has been made for this context.
+
+        Returns
+        -------
+        bool
+            Whether an initial response has been made for this context.
+        """
 
     @property
     @abc.abstractmethod
@@ -544,6 +557,7 @@ class SlashContext(Context, abc.ABC):
     def set_ephemeral_default(self: _T, state: bool, /) -> _T:
         raise NotImplementedError
 
+    @abc.abstractmethod
     async def defer(
         self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED
     ) -> None:
@@ -913,6 +927,7 @@ class Component(abc.ABC):
         raise NotImplementedError
 
     @property
+    @abc.abstractmethod
     def message_commands(self) -> collections.Collection[MessageCommand]:
         raise NotImplementedError
 
@@ -928,44 +943,55 @@ class Component(abc.ABC):
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def add_slash_command(self: _T, command: SlashCommand, /) -> _T:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def remove_slash_command(self, command: SlashCommand, /) -> None:
         raise NotImplementedError
 
     @typing.overload
+    @abc.abstractmethod
     def with_slash_command(self, command: SlashCommandT, /) -> SlashCommandT:
         ...
 
     @typing.overload
+    @abc.abstractmethod
     def with_slash_command(self, *, copy: bool = False) -> collections.Callable[[SlashCommandT], SlashCommandT]:
         ...
 
+    @abc.abstractmethod
     def with_slash_command(
         self, command: SlashCommandT = ..., /, *, copy: bool = False
     ) -> typing.Union[SlashCommandT, collections.Callable[[SlashCommandT], SlashCommandT]]:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def add_message_command(self: _T, command: MessageCommand, /) -> _T:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def remove_message_command(self, command: MessageCommand, /) -> None:
         raise NotImplementedError
 
     @typing.overload
+    @abc.abstractmethod
     def with_message_command(self, command: MessageCommandT, /) -> MessageCommandT:
         ...
 
     @typing.overload
+    @abc.abstractmethod
     def with_message_command(self, *, copy: bool = False) -> collections.Callable[[MessageCommandT], MessageCommandT]:
         ...
 
+    @abc.abstractmethod
     def with_message_command(
         self, command: MessageCommandT = ..., /, *, copy: bool = False
     ) -> typing.Union[MessageCommandT, collections.Callable[[MessageCommandT], MessageCommandT]]:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def add_listener(
         self: _T,
         event: type[event_manager_api.EventT_inv],
@@ -974,6 +1000,7 @@ class Component(abc.ABC):
     ) -> _T:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def remove_listener(
         self,
         event: type[event_manager_api.EventT_inv],
@@ -983,6 +1010,7 @@ class Component(abc.ABC):
         raise NotImplementedError
 
     # TODO: make event optional?
+    @abc.abstractmethod
     def with_listener(
         self, event_type: type[event_manager_api.EventT_inv]
     ) -> collections.Callable[

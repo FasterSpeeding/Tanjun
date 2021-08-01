@@ -31,12 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: list[str] = [
-    "CommandT",
-    "Component",
-    "LoadableProtocol",
-    "WithCommandReturnSig",
-]
+__all__: list[str] = ["CommandT", "Component", "LoadableProtocol", "WithCommandReturnSig"]
 
 import asyncio
 import copy
@@ -88,11 +83,7 @@ def _with_command(
         add_command(command.copy() if copy else command)
         return command
 
-    def decorator(command_: CommandT, /) -> CommandT:
-        add_command(command_.copy() if copy else command_)
-        return command_
-
-    return decorator
+    return lambda command_: add_command(command_.copy() if copy else command_)
 
 
 class Component(injecting.Injectable, traits.Component):
@@ -102,14 +93,14 @@ class Component(injecting.Injectable, traits.Component):
         "_client_callbacks",
         "_hooks",
         "_injector",
-        "_slash_commands",
-        "_slash_hooks",
         "_is_strict",
         "_listeners",
         "_message_commands",
         "_message_hooks",
         "_metadata",
         "_names_to_commands",
+        "_slash_commands",
+        "_slash_hooks",
     )
 
     def __init__(
@@ -128,14 +119,14 @@ class Component(injecting.Injectable, traits.Component):
         self._client_callbacks: dict[str, set[traits.MetaEventSig]] = {}
         self._hooks = hooks
         self._injector: typing.Optional[injecting.InjectorClient] = None
-        self._slash_commands: dict[str, traits.SlashCommand] = {}
-        self._slash_hooks = slash_hooks
         self._is_strict = strict
         self._listeners: set[tuple[type[base_events.Event], event_manager_api.CallbackT[typing.Any]]] = set()
         self._message_commands: set[traits.MessageCommand] = set()
         self._message_hooks = message_hooks
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._names_to_commands: dict[str, traits.MessageCommand] = {}
+        self._slash_commands: dict[str, traits.SlashCommand] = {}
+        self._slash_hooks = slash_hooks
 
         if type(self) is not Component:
             self._load_from_properties()
