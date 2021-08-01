@@ -203,29 +203,29 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
     Arguments
     ---------
-    rest: hikari.api.rest.RestClient
+    rest : hikari.api.rest.RestClient
         The Hikari REST client this will use.
 
     Other Parameters
     ----------------
-    cache: hikari.api.cache.CacheClient
+    cache : hikari.api.cache.CacheClient
         The Hikari cache client this will use if applicable.
-    event_manager: hikari.api.event_manager.EventManagerClient
+    event_manager : hikari.api.event_manager.EventManagerClient
         The Hikari event manager client this will use if applicable.
 
         !!! note
             This is necessary for message command dispatch and will also be
             necessary for interaction command dispatch if `server` isn't
             provided.
-    server: hikari.api.interaction_server.InteractionServer
+    server : hikari.api.interaction_server.InteractionServer
         The Hikari interaction server client this will use if applicable.
 
         !!! note
             This is used for interaction command dispatch if interaction
             events aren't being received from the event manager.
-    shard: hikari.traits.ShardAware
+    shard : hikari.traits.ShardAware
         The Hikari shard aware client this will use if applicable.
-    event_managed: bool
+    event_managed : bool
         Whether or not this client is managed by the event manager.
 
         An event managed client will be automatically started and closed based
@@ -233,15 +233,21 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         Defaults to `False` and can only be passed as `True` if `event_manager`
         is also provided.
-    mention_prefix: bool
+    mention_prefix : bool
         Whether or not mention prefixes should be automatically set when this
         client is first started.
 
         Defaults to `False` and it should be noted that this only applies to
         message commands.
-    set_global_commands: bool
+    set_global_commands : typing.Union[hikari.Snowflake, bool]
         Whether or not to automatically set global slash commands when this
         client is first started. Defaults to `False`.
+
+        If a snowflake ID is passed here then the global commands will be
+        set on this specific guild at startup rather than globally. This
+        can be useful for testing/debug purposes as slash commands may take
+        up to an hour to propogate globally but will immediately propogate
+        when set on a specific guild.
 
     Raises
     ------
@@ -253,6 +259,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         "_accepts",
         "_auto_defer_after",
         "_cache",
+        "_cached_application_id",
         "_checks",
         "_client_callbacks",
         "_components",
@@ -281,7 +288,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         *,
         event_managed: bool = False,
         mention_prefix: bool = False,
-        set_global_commands: bool = False,
+        set_global_commands: typing.Union[hikari.Snowflake, bool] = False,
     ) -> None:
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
         # TODO: warn if server and dispatch both None but don't error
@@ -290,6 +297,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         self._accepts = MessageAcceptsEnum.ALL if events else MessageAcceptsEnum.NONE
         self._auto_defer_after: typing.Optional[float] = 2.6
         self._cache = cache
+        self._cached_application_id: typing.Optional[hikari.Snowflake] = None
         self._checks: set[injecting.InjectableCheck] = set()
         self._client_callbacks: dict[str, set[tanjun_traits.MetaEventSig]] = {}
         self._components: set[tanjun_traits.Component] = set()
@@ -315,7 +323,18 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
             self._events.subscribe(hikari.StoppingEvent, self._on_stopping_event)
 
         if set_global_commands:
-            self.add_client_callback(tanjun_traits.ClientCallbackNames.STARTING, self._set_global_commands_next_start)
+
+            async def _set_global_commands_next_start() -> None:
+                guild = (
+                    hikari.UNDEFINED if isinstance(set_global_commands, bool) else hikari.Snowflake(set_global_commands)
+                )
+                await self.set_global_commands(guild=guild)
+                self.remove_client_callback(tanjun_traits.ClientCallbackNames.STARTING, _set_global_commands_next_start)
+
+            self.add_client_callback(
+                tanjun_traits.ClientCallbackNames.STARTING,
+                _set_global_commands_next_start,
+            )
 
         # InjectorClient.__init__
         super().__init__(self)
@@ -328,7 +347,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         *,
         event_managed: bool = True,
         mention_prefix: bool = False,
-        set_global_commands: bool = False,
+        set_global_commands: typing.Union[hikari.Snowflake, bool] = False,
     ) -> Client:
         """Build a `Client` from a `hikari.traits.GatewayBotAware` instance.
 
@@ -338,29 +357,35 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         Parameters
         ----------
-        bot: hikari.traits.GatewayBotAware
+        bot : hikari.traits.GatewayBotAware
             The bot client to build from.
 
             This will be used to infer the relevant Hikari clients to use.
 
         Other Parameters
         ----------------
-        event_managed: bool
+        event_managed : bool
             Whether or not this client is managed by the event manager.
 
             An event managed client will be automatically started and closed
             based on Hikari's lifetime events.
 
             Defaults to `True`.
-        mention_prefix: bool
+        mention_prefix : bool
             Whether or not mention prefixes should be automatically set when this
             client is first started.
 
             Defaults to `False` and it should be noted that this only applies to
             message commands.
-        set_global_commands: bool
+        set_global_commands : typing.Union[hikari.Snowflake, bool] bool
             Whether or not to automatically set global slash commands when this
             client is first started. Defaults to `False`.
+
+            If a snowflake ID is passed here then the global commands will be
+            set on this specific guild at startup rather than globally. This
+            can be useful for testing/debug purposes as slash commands may take
+            up to an hour to propogate globally but will immediately propogate
+            when set on a specific guild.
         """
         return (
             cls(
@@ -377,7 +402,12 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         )
 
     @classmethod
-    def from_rest_bot(cls, bot: hikari_traits.RESTBotAware, /, set_global_commands: bool = False) -> Client:
+    def from_rest_bot(
+        cls,
+        bot: hikari_traits.RESTBotAware,
+        /,
+        set_global_commands: typing.Union[hikari.Snowflake, bool] = False,
+    ) -> Client:
         """Build a `Client` from a `hikari.traits.RESTBotAware` instance.
 
         !!! note
@@ -385,14 +415,20 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         Parameters
         ----------
-        bot: hikari.traits.RESTBotAware
+        bot : hikari.traits.RESTBotAware
             The bot client to build from.
 
         Other Parameters
         ----------------
-        set_global_commands: bool
+        set_global_commands : typing.Union[hikari.Snowflake, bool] bool
             Whether or not to automatically set global slash commands when this
             client is first started. Defaults to `False`.
+
+            If a snowflake ID is passed here then the global commands will be
+            set on this specific guild at startup rather than globally. This
+            can be useful for testing/debug purposes as slash commands may take
+            up to an hour to propogate globally but will immediately propogate
+            when set on a specific guild.
         """
         return cls(
             rest=bot.rest, server=bot.interaction_server, set_global_commands=set_global_commands
@@ -544,10 +580,6 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         # <<inherited docstring from tanjun.traits.Client>>.
         return self._shards
 
-    async def _set_global_commands_next_start(self) -> None:
-        await self.set_global_commands()
-        self.remove_client_callback(tanjun_traits.ClientCallbackNames.STARTING, self._set_global_commands_next_start)
-
     async def _on_starting_event(self, _: hikari.StartingEvent, /) -> None:
         await self.open()
 
@@ -643,7 +675,11 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         return self
 
     async def set_global_commands(
-        self, application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None, /
+        self,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        /,
+        *,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> collections.Sequence[hikari.Command]:
         """Set the global application commands for a bot based on the loaded components.
 
@@ -658,17 +694,23 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
             If left as `None` then this will be inferred from the authorization
             being used by `Client.rest`.
 
+        Other Parameters
+        ----------------
+        guild : hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]]
+            Object or ID of the guild to set the global commands to.
+
+            !!! note
+                This can be useful for testing/debug purposes as slash commands
+                may take up to an hour to propogate globally but will
+                immediately propogate when set on a specific guild.
+
         Returns
         -------
         collections.abc.Sequence[hikari.interactions.command.Command]
             API representations of the set commands.
         """
         if not application:
-            try:
-                application = await self._rest.fetch_application()
-
-            except hikari.UnauthorizedError:
-                application = (await self._rest.fetch_authorization()).application
+            application = self._cached_application_id or await self.fetch_rest_application_id()
 
         found_top_names: set[str] = set()
         conflicts: set[str] = set()
@@ -690,7 +732,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
                 "registered for them " + ", ".join(conflicts)
             )
 
-        commands = await self._rest.set_application_commands(application, builders)
+        commands = await self._rest.set_application_commands(application, builders, guild=guild)
         names_to_commands = {command.name: command for command in commands}
         for command in itertools.chain.from_iterable(component.slash_commands for component in self._components):
             if command.is_global:
@@ -887,6 +929,19 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         asyncio.create_task(
             self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.STARTED, suppress_exceptions=False)
         )
+
+    async def fetch_rest_application_id(self) -> hikari.Snowflake:
+        if self._cached_application_id:
+            return self._cached_application_id
+
+        if self._rest.token_type == hikari.TokenType.BOT:
+            application = await self._rest.fetch_application()
+
+        else:
+            application = (await self._rest.fetch_authorization()).application
+
+        self._cached_application_id = hikari.Snowflake(application)
+        return self._cached_application_id
 
     def set_hooks(self: _ClientT, hooks: typing.Optional[tanjun_traits.AnyHooks], /) -> _ClientT:
         self._hooks = hooks
