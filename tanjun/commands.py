@@ -878,9 +878,6 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
             )
         return self
 
-    # async def add_to_guild(self, guild: hikari.SnowflakeishOr[guilds.PartialGuild], /) -> hikari.Command:
-    #     return await self._
-
     def build(self) -> special_endpoints_api.CommandBuilder:
         # <<inherited docstring from tanjun.traits.SlashCommand>>.
         return self._builder

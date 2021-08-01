@@ -586,6 +586,62 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
     async def _on_stopping_event(self, _: hikari.StoppingEvent, /) -> None:
         await self.close()
 
+    async def declare_slash_command(
+        self,
+        command: tanjun_traits.SlashCommand,
+        /,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+    ) -> hikari.Command:
+        builder = command.build()
+        response = await self._rest.create_application_command(
+            application or self._cached_application_id or await self.fetch_rest_application_id(),
+            guild=guild,
+            name=builder.name,
+            description=builder.description,
+            options=builder.options,
+        )
+        command.set_tracked_command(response)  # TODO: is this fine?
+        return response
+
+    async def declare_slash_commands(
+        self,
+        commands: collections.Iterable[tanjun_traits.SlashCommand],
+        /,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+    ) -> collections.Sequence[hikari.Command]:
+        names_to_commands: dict[str, tanjun_traits.SlashCommand] = {}
+        found_top_names: set[str] = set()
+        conflicts: set[str] = set()
+        builders: list[hikari.api.CommandBuilder] = []
+
+        for command in commands:
+            names_to_commands[command.name] = command
+            if command.name in found_top_names:
+                conflicts.add(command.name)
+
+            found_top_names.add(command.name)
+            builders.append(command.build())
+
+        if conflicts:
+            raise RuntimeError(
+                "Couldn't declare commands due to conflicts. The following command names have more than one command "
+                "registered for them " + ", ".join(conflicts)
+            )
+
+        if not application:
+            application = self._cached_application_id or await self.fetch_rest_application_id()
+
+        responses = await self._rest.set_application_commands(application, builders, guild=guild)
+        for response in responses:
+            if command := names_to_commands[response.name]:
+                command.set_tracked_command(response)  # TODO: is this fine?
+
+        return responses
+
     def set_auto_defer_after(self: _ClientT, time: typing.Optional[float], /) -> _ClientT:
         """Set when this client should automatically defer execution of commands.
 
@@ -676,9 +732,8 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
     async def set_global_commands(
         self,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
-        /,
         *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> collections.Sequence[hikari.Command]:
         """Set the global application commands for a bot based on the loaded components.
@@ -686,16 +741,13 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         !!! note
             This will overwrite any previously set application commands.
 
-        Parameters
-        ----------
+        Other Parameters
+        ----------------
         application : typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]]
             Object or ID of the application to set the global commands for.
 
             If left as `None` then this will be inferred from the authorization
             being used by `Client.rest`.
-
-        Other Parameters
-        ----------------
         guild : hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]]
             Object or ID of the guild to set the global commands to.
 
@@ -709,36 +761,12 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         collections.abc.Sequence[hikari.interactions.command.Command]
             API representations of the set commands.
         """
-        if not application:
-            application = self._cached_application_id or await self.fetch_rest_application_id()
-
-        found_top_names: set[str] = set()
-        conflicts: set[str] = set()
-        builders: list[hikari.api.CommandBuilder] = []
-
-        for command in itertools.chain.from_iterable(component.slash_commands for component in self._components):
-            if not command.is_global:
-                continue
-
-            if command.name in found_top_names:
-                conflicts.add(command.name)
-
-            found_top_names.add(command.name)
-            builders.append(command.build())
-
-        if conflicts:
-            raise RuntimeError(
-                "Couldn't set global commands due to conflicts. The following command names have more than one command "
-                "registered for them " + ", ".join(conflicts)
-            )
-
-        commands = await self._rest.set_application_commands(application, builders, guild=guild)
-        names_to_commands = {command.name: command for command in commands}
-        for command in itertools.chain.from_iterable(component.slash_commands for component in self._components):
-            if command.is_global:
-                command.set_tracked_command(names_to_commands[command.name])
-
-        return commands
+        commands = (
+            command
+            for command in itertools.chain.from_iterable(component.slash_commands for component in self._components)
+            if command.is_global
+        )
+        return await self.declare_slash_commands(commands, application=application, guild=guild)
 
     def add_check(self: _ClientT, check: tanjun_traits.CheckSig, /) -> _ClientT:
         self._checks.add(injecting.InjectableCheck(check, injector=self))
