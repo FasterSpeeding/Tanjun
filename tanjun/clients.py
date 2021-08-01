@@ -871,6 +871,9 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         # <<inherited docstring from tanjun.traits.Client>>.
         return itertools.chain.from_iterable(component.check_message_name(name) for component in self._components)
 
+    def check_slash_name(self, name: str, /) -> collections.Iterator[tanjun_traits.SlashCommand]:
+        return itertools.chain.from_iterable(component.check_slash_name(name) for component in self._components)
+
     async def _check_prefix(self, ctx: tanjun_traits.MessageContext, /) -> typing.Optional[str]:
         if self._prefix_getter:
             for prefix in await self._prefix_getter(ctx):

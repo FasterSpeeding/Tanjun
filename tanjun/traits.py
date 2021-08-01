@@ -1038,6 +1038,10 @@ class Component(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def check_slash_name(self, content: str, /) -> collections.Iterator[SlashCommand]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
     async def execute_interaction(
         self,
         ctx: SlashContext,
@@ -1138,4 +1142,8 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, MessageCommand]]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def check_slash_name(self, name: str, /) -> collections.Iterator[SlashCommand]:
         raise NotImplementedError

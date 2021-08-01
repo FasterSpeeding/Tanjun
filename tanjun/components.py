@@ -482,6 +482,10 @@ class Component(injecting.Injectable, traits.Component):
                 # Don't want to match a command multiple times
                 continue
 
+    def check_slash_name(self, name: str, /) -> collections.Iterator[traits.SlashCommand]:
+        if command := self._slash_commands.get(name):
+            yield command
+
     async def _execute_interaction(
         self,
         ctx: traits.SlashContext,
