@@ -314,7 +314,7 @@ class SemanticShlex(ShlexTokenizer):
 def with_argument(
     key: str,
     /,
-    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
+    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
     *,
     default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
     greedy: bool = False,
@@ -333,14 +333,15 @@ def with_argument(
     key : str
         The string identifier of this argument (may be used to pass the result
         of this argument to the command's callback during execution).
-    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig], None]
+    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
         The converter(s) this argument should use to handle values passed to it
-        during parsing, this may be left as `None to indicate that
-        the raw string value should be returned without conversion.
+        during parsing.
+
+        If not specified then this indicates that the raw string value should
+        be returned without conversion.
 
         !!! note
             Only the first converter to pass will be used.
-
     default : typing.Any
         The default value of this argument, if left as
         `UNDEFINED_DEFAULT` then this will have no default.
@@ -377,7 +378,7 @@ def with_argument(
 def with_greedy_argument(
     key: str,
     /,
-    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
+    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
     *,
     default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
 ) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
@@ -403,11 +404,11 @@ def with_greedy_argument(
 
     Other Parameters
     ----------------
-    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig], None]
+    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
-        This may be left as `None` to indicate that the raw string value should
+        If not specified then this indicates that the raw string value should
         be returned without conversion.
 
         !!! note
@@ -439,7 +440,7 @@ def with_greedy_argument(
 def with_multi_argument(
     key: str,
     /,
-    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
+    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
     *,
     default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
 ) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
@@ -466,11 +467,11 @@ def with_multi_argument(
 
     Other Parameters
     ----------------
-    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig], None]
+    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
-        This may be left as `None` to indicate that the raw string value should
+        If not specified then this indicates that the raw string value should
         be returned without conversion.
 
         !!! note
@@ -505,7 +506,7 @@ def with_option(
     name: str,
     /,
     *names: str,
-    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
+    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
     default: typing.Any,
     empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
     multi: bool = False,
@@ -528,11 +529,11 @@ def with_option(
     ----------------
     *names : str
         Other names of this option used for identifying it in the parsed content.
-    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig], None]
+    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
-        This may be left as `None` to indicate that the raw string value should
+        If not specified then this indicates that the raw string value should
         be returned without conversion.
 
         !!! note
@@ -576,7 +577,7 @@ def with_multi_option(
     name: str,
     /,
     *names: str,
-    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
+    converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
     default: typing.Any,
     empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
 ) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
@@ -604,11 +605,11 @@ def with_multi_option(
     ----------------
     *names : str
         Other names of this option used for identifying it in the parsed content.
-    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig], None]
+    converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
-        This may be left as `None` to indicate that the raw string value should
+        If not specified then this indicates that the raw string value should
         be returned without conversion.
 
         !!! note
@@ -639,30 +640,21 @@ def with_multi_option(
 
 
 class Parameter(injecting.Injectable):
-    __slots__ = (
-        "_client",
-        "_component",
-        "_converters",
-        "default",
-        "_injector",
-        "is_greedy",
-        "is_multi",
-        "_key",
-    )
+    __slots__ = ("_client", "_component", "_converters", "default", "_injector", "is_greedy", "is_multi", "_key")
 
     def __init__(
         self,
         key: str,
         /,
         *,
-        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
+        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
         greedy: bool = False,
         multi: bool = False,
     ) -> None:
         self._client: typing.Optional[traits.Client] = None
         self._component: typing.Optional[traits.Component] = None
-        self._converters: typing.Optional[list[injecting.InjectableConverter[typing.Any]]] = None
+        self._converters: list[injecting.InjectableConverter[typing.Any]] = []
         self.default = default
         self._injector: typing.Optional[injecting.InjectorClient] = None
         self.is_greedy = greedy
@@ -672,20 +664,19 @@ class Parameter(injecting.Injectable):
         if key.startswith("-"):
             raise ValueError("parameter key cannot start with `-`")
 
-        if converters is not None:
-            if isinstance(converters, collections.Iterable):
-                for converter in converters:
-                    self.add_converter(converter)
+        if isinstance(converters, collections.Iterable):
+            for converter in converters:
+                self.add_converter(converter)
 
-            else:
-                self.add_converter(converters)
+        else:
+            self.add_converter(converters)
 
     def __repr__(self) -> str:
         return f"{type(self).__name__} <{self._key}>"
 
     @property
-    def converters(self) -> typing.Optional[collections.Sequence[ConverterSig]]:
-        return tuple(converter.callback for converter in self._converters) if self._converters is not None else None
+    def converters(self) -> collections.Sequence[ConverterSig]:
+        return tuple(converter.callback for converter in self._converters)
 
     @property
     def key(self) -> str:
@@ -694,12 +685,9 @@ class Parameter(injecting.Injectable):
     @property
     def needs_injector(self) -> bool:
         # TODO: cache this value?
-        return any(converter.needs_injector for converter in self._converters) if self._converters else False
+        return any(converter.needs_injector for converter in self._converters)
 
     def add_converter(self, converter: ConverterSig, /) -> None:
-        if self._converters is None:
-            self._converters = []
-
         if isinstance(converter, conversion.BaseConverter):
             if self._client:
                 converter.bind_client(self._client)
@@ -720,29 +708,20 @@ class Parameter(injecting.Injectable):
 
         self._converters.remove(converter)  # type: ignore # reportGeneralTypeIssues
 
-        if not self._converters:
-            self._converters = None
-
     def bind_client(self, client: traits.Client, /) -> None:
-        if not self._converters:
-            return
-
         self._client = client
         for converter in self._converters:
             if isinstance(converter.callback, conversion.BaseConverter):
                 converter.callback.bind_client(client)
 
     def bind_component(self, component: traits.Component, /) -> None:
-        if not self._converters:
-            return
-
         self._component = component
         for converter in self._converters:
             if isinstance(converter.callback, conversion.BaseConverter):
                 converter.callback.bind_component(component)
 
     async def convert(self, ctx: traits.Context, value: str) -> typing.Any:
-        if self._converters is None:
+        if not self._converters:
             return value
 
         sources: list[ValueError] = []
@@ -761,13 +740,12 @@ class Parameter(injecting.Injectable):
             raise RuntimeError("Injector already set")
 
         self._injector = client
-        if self._converters:
-            for converter in self._converters:
-                converter.set_injector(client)
+        for converter in self._converters:
+            converter.set_injector(client)
 
     def copy(self: _ParameterT, *, _new: bool = True) -> _ParameterT:
         if not _new:
-            self._converters = [converter.copy() for converter in self._converters] if self._converters else None
+            self._converters = [converter.copy() for converter in self._converters]
             return self
 
         result = copy.copy(self).copy(_new=False)
@@ -782,7 +760,7 @@ class Argument(Parameter):
         key: str,
         /,
         *,
-        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
+        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
         greedy: bool = False,
         multi: bool = False,
@@ -801,7 +779,7 @@ class Option(Parameter):
         key: str,
         name: str,
         *names: str,
-        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
+        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
         default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
         empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
         multi: bool = True,

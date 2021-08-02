@@ -343,7 +343,7 @@ def with_str_slash_option(
     /,
     *,
     choices: typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]] = None,
-    converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig, None] = None,
+    converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig] = (),
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a string option to a slash command.
@@ -378,12 +378,12 @@ def with_str_slash_option(
             As a shorthand, this also supports passing strings in place of
             tuples each string will be used as both the choice's name and value
             (with the name being capitalised).
-    converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]
+    converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig]
         The option's converters.
 
         This may be either one or multiple `ConverterSig` callbacks used to
         convert the option's value to the final form.
-        If this is `None`, the option will not be converted.
+        If this is not specified then the option will not be converted.
 
         !!! note
             Only the first converter to pass will be used.
@@ -411,7 +411,7 @@ def with_int_slash_option(
     /,
     *,
     choices: typing.Optional[collections.Iterable[tuple[str, int]]] = None,
-    converters: typing.Union[collections.Collection[ConverterSig], ConverterSig, None] = None,
+    converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
     default: typing.Any = _UNDEFINED_DEFAULT,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add an integer option to a slash command.
@@ -446,7 +446,7 @@ def with_int_slash_option(
 
         This may be either one or multiple `ConverterSig` callbacks used to
         convert the option's value to the final form.
-        If this is `None`, the option will not be converted.
+        If this is not specified then the option will not be converted.
 
         !!! note
             Only the first converter to pass will be used.
@@ -888,9 +888,10 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         type: typing.Union[hikari.OptionType, int] = hikari.OptionType.STRING,
         *,
         choices: typing.Optional[collections.Iterable[tuple[str, typing.Union[str, int, float]]]] = None,
-        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig, None] = None,
+        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
         default: typing.Any = _UNDEFINED_DEFAULT,
         only_member: bool = False,
+        pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
         # TODO: validate name
         type = hikari.OptionType(type)
@@ -900,10 +901,7 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         if only_member and type not in _MEMBER_OPTION_TYPES:
             raise ValueError("Specifically member may only be set for a USER or MENTIONABLE option")
 
-        if not converters:
-            converters = list[injecting.InjectableConverter[typing.Any]]()
-
-        elif isinstance(converters, collections.Iterable):
+        if isinstance(converters, collections.Iterable):
             converters = list(map(_convert_to_injectable, converters))
 
         else:
@@ -917,7 +915,7 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         self._builder.add_option(
             hikari.CommandOption(type=type, name=name, description=description, is_required=required, choices=choices_)
         )
-        if _SUB_COMMAND_OPTIONS_TYPES:
+        if pass_as_kwarg:
             self._tracked_options[name] = _TrackedOption(
                 name=name,
                 option_type=type,
