@@ -31,7 +31,15 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: list[str] = ["as_loader", "Client", "LoadableSig", "MessageAcceptsEnum", "PrefixGetterSig", "PrefixGetterSigT"]
+__all__: list[str] = [
+    "as_loader",
+    "Client",
+    "ClientCallbackNames",
+    "LoadableSig",
+    "MessageAcceptsEnum",
+    "PrefixGetterSig",
+    "PrefixGetterSigT",
+]
 
 import asyncio
 import enum
@@ -112,6 +120,15 @@ def as_loader(callback: LoadableSig, /) -> LoadableSig:
         The decorated load callback.
     """
     return _LoadableDescriptor(callback)
+
+
+class ClientCallbackNames(str, enum.Enum):
+    CLOSED = "closed"
+    CLOSING = "closing"
+    MESSAGE_COMMAND_NOT_FOUND = "message_command_not_found"
+    SLASH_COMMAND_NOT_FOUND = "slash_command_not_found"
+    STARTED = "started"
+    STARTING = "startup"
 
 
 class MessageAcceptsEnum(str, enum.Enum):
@@ -329,10 +346,10 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
                     hikari.UNDEFINED if isinstance(set_global_commands, bool) else hikari.Snowflake(set_global_commands)
                 )
                 await self.set_global_commands(guild=guild)
-                self.remove_client_callback(tanjun_traits.ClientCallbackNames.STARTING, _set_global_commands_next_start)
+                self.remove_client_callback(ClientCallbackNames.STARTING, _set_global_commands_next_start)
 
             self.add_client_callback(
-                tanjun_traits.ClientCallbackNames.STARTING,
+                ClientCallbackNames.STARTING,
                 _set_global_commands_next_start,
             )
 
@@ -902,7 +919,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         if not self._is_alive:
             raise RuntimeError("Client isn't active")
 
-        await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.CLOSING)
+        await self.dispatch_client_callback(ClientCallbackNames.CLOSING)
         if deregister_listener and self._events:
             if event_type := self._accepts.get_event_type():
                 self._try_unsubscribe(self._events, event_type, self.on_message_create_event)
@@ -911,13 +928,13 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
             if self._server:
                 self._server.set_listener(hikari.CommandInteraction, None)
-        await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.CLOSED)
+        await self.dispatch_client_callback(ClientCallbackNames.CLOSED)
 
     async def open(self, *, register_listener: bool = True) -> None:
         if self._is_alive:
             raise RuntimeError("Client is already alive")
 
-        await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.STARTING, suppress_exceptions=False)
+        await self.dispatch_client_callback(ClientCallbackNames.STARTING, suppress_exceptions=False)
         self._is_alive = True
         if self._grab_mention_prefix:
             user: typing.Optional[hikari.User] = None
@@ -957,9 +974,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         if self._server:
             self._server.set_listener(hikari.CommandInteraction, self.on_interaction_create_request)
 
-        asyncio.create_task(
-            self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.STARTED, suppress_exceptions=False)
-        )
+        asyncio.create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED, suppress_exceptions=False))
 
     async def fetch_rest_application_id(self) -> hikari.Snowflake:
         if self._cached_application_id:
@@ -1043,7 +1058,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
             await ctx.respond(exc.message)
             return
 
-        await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx)
+        await self.dispatch_client_callback(ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx)
 
     def _get_slash_hooks(self) -> typing.Optional[set[tanjun_traits.SlashHooks]]:
         hooks: typing.Optional[set[tanjun_traits.SlashHooks]] = None
@@ -1092,7 +1107,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
             await ctx.respond(exc.message)
             return
 
-        await self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
+        await self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
         await ctx.mark_not_found()
         ctx.cancel_defer()
 
@@ -1135,6 +1150,6 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
             ctx.cancel_defer()
 
         asyncio.create_task(
-            self.dispatch_client_callback(tanjun_traits.ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
+            self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
         ).add_done_callback(callback)
         return await future

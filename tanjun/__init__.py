@@ -58,6 +58,7 @@ __all__: list[str] = [
     "clients",
     "as_loader",
     "Client",
+    "ClientCallbackNames",
     "MessageAcceptsEnum",
     # commands.py
     "as_message_command",

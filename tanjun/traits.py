@@ -35,7 +35,6 @@ from __future__ import annotations
 __all__: list[str] = [
     "CheckSig",
     "CheckSigT",
-    "ClientCallbackNames",
     "Context",
     "Hooks",
     "MetaEventSig",
@@ -57,7 +56,6 @@ __all__: list[str] = [
 ]
 
 import abc
-import enum
 import typing
 from collections import abc as collections
 
@@ -1056,15 +1054,6 @@ class Component(abc.ABC):
         self, ctx: MessageContext, /, *, hooks: typing.Optional[collections.MutableSet[MessageHooks]] = None
     ) -> bool:
         raise NotImplementedError
-
-
-class ClientCallbackNames(str, enum.Enum):
-    CLOSED = "closed"
-    CLOSING = "closing"
-    MESSAGE_COMMAND_NOT_FOUND = "message_command_not_found"
-    SLASH_COMMAND_NOT_FOUND = "slash_command_not_found"
-    STARTED = "started"
-    STARTING = "startup"
 
 
 class Client(abc.ABC):
