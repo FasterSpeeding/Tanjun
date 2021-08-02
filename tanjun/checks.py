@@ -95,10 +95,10 @@ def foo_command(self, ctx: Context) -> None:
 
 @dataclasses.dataclass(frozen=True)
 class _WrappedKwargs:
-    callback: collections.Callable[..., typing.Union[bool, collections.Awaitable[bool]]]
+    callback: tanjun_traits.CheckSig
     _kwargs: dict[str, typing.Any]
 
-    def __call__(self, ctx: tanjun_traits.Context) -> typing.Union[bool, collections.Awaitable[bool]]:
+    def __call__(self, ctx: tanjun_traits.Context, /) -> tanjun_traits.MaybeAwaitableT[bool]:
         return self.callback(ctx, **self._kwargs)
 
     # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
@@ -112,7 +112,7 @@ class _WrappedKwargs:
 
 def _wrap_with_kwargs(
     command: typing.Optional[CommandT],
-    callback: collections.Callable[..., typing.Union[bool, collections.Awaitable[bool]]],
+    callback: tanjun_traits.CheckSig,
     /,
     **kwargs: typing.Any,
 ) -> CallbackReturnT[CommandT]:
@@ -675,6 +675,7 @@ def with_owner_check(
 
     !!! note
         error_message takes priority over end_execution.
+
     !!! note
         For more information on how this is used with other parameters see
         `CallbackReturnT`.

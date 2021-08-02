@@ -152,6 +152,20 @@ async def fetch_resource(
 
 
 def match_prefix_names(content: str, names: collections.Iterable[str], /) -> typing.Optional[str]:
+    """Search for a matching name in a string.
+
+    Parameters
+    ----------
+    content : str
+        The string to match names against.
+    names : collections.abc.Iterable[str]
+        The names to search for.
+
+    Returns
+    -------
+    typing.Optional[str]
+        The name that matched or None if no name matched.
+    """
     for name in names:
         # Here we enforce that a name must either be at the end of content or be followed by a space. This helps
         # avoid issues with ambiguous naming where a command with the names "name" and "names" may sometimes hit

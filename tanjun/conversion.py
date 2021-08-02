@@ -51,6 +51,7 @@ __all__: list[str] = [
     "to_emoji",
     "to_guild",
     "to_invite",
+    "to_invite_with_metadata",
     "to_member",
     "to_presence",
     "to_role",
@@ -281,7 +282,34 @@ class GuildConverter(BaseConverter[hikari.Guild]):
         return (hikari.Guild,)
 
 
-class InviteConverter(BaseConverter[hikari.InviteWithMetadata]):
+class InviteConverter(BaseConverter[hikari.Invite]):
+    __slots__ = ()
+
+    @property
+    def cache_bound(self) -> bool:
+        return True
+
+    async def convert(self, ctx: traits.Context, argument: ArgumentT, /) -> hikari.Invite:
+        if ctx.client.cache and isinstance(argument, str):
+            if invite := ctx.client.cache.get_invite(argument):
+                return invite
+
+        raise ValueError("Couldn't find invite")
+
+    @property
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.GUILD_INVITES
+
+    @classmethod
+    def is_inheritable(cls) -> bool:
+        return False
+
+    @classmethod
+    def types(cls) -> tuple[type[typing.Any], ...]:
+        return (hikari.Invite,)
+
+
+class InviteWithMetadataConverter(BaseConverter[hikari.InviteWithMetadata]):
     __slots__ = ()
 
     @property
@@ -301,11 +329,11 @@ class InviteConverter(BaseConverter[hikari.InviteWithMetadata]):
 
     @classmethod
     def is_inheritable(cls) -> bool:
-        return True
+        return False
 
     @classmethod
     def types(cls) -> tuple[type[typing.Any], ...]:
-        return (hikari.Invite,)
+        return (hikari.InviteWithMetadata,)
 
 
 class MemberConverter(BaseConverter[hikari.Member]):
@@ -592,17 +620,47 @@ def override_type(cls: parsing.ConverterSig, /) -> parsing.ConverterSig:
 
 
 to_channel: typing.Final[ChannelConverter] = ChannelConverter()
+"""Convert user input to a `hikari.channels.PartialChannel` object."""
+
 to_color: typing.Final[ColorConverter] = ColorConverter()
+"""Convert user input to a `hikari.colors.Color` object."""
+
 to_colour: typing.Final[ColorConverter] = to_color
+"""Convert user input to a `hikari.colors.Color` object."""
+
 to_emoji: typing.Final[EmojiConverter] = EmojiConverter()
+"""Convert user input to a cached `hikari.emojis.KnownCustomEmoji` object."""
+
 to_guild: typing.Final[GuildConverter] = GuildConverter()
+"""Convert user input to a `hikari.guilds.Guild` object."""
+
 to_invite: typing.Final[InviteConverter] = InviteConverter()
+"""Convert user input to a cached `hikari.invites.InviteWithMetadata` object."""
+
+to_invite_with_metadata: typing.Final[InviteWithMetadataConverter] = InviteWithMetadataConverter()
+"""Convert user input to a `hikari.invites.Invite` object."""
+
 to_member: typing.Final[MemberConverter] = MemberConverter()
+"""Convert user input to a `hikari.guilds.Member` object."""
+
 to_presence: typing.Final[PresenceConverter] = PresenceConverter()
+"""Convert user input to a cached `hikari.presences.MemberPresence`."""
+
 to_role: typing.Final[RoleConverter] = RoleConverter()
+"""Convert user input to a `hikari.guilds.Role` object."""
+
 to_snowflake: typing.Final[SnowflakeConverter] = SnowflakeConverter()
+"""Convert user input to a `hikari.snowflakes.Snowflake`.
+
+!!! note
+    This also range validates the input.
+"""
+
 to_user: typing.Final[UserConverter] = UserConverter()
+"""Convert user input to a `hikari.users.User` object."""
+
 to_voice_state: typing.Final[VoiceStateConverter] = VoiceStateConverter()
+"""Convert user input to a cached `hikari.voices.VoiceState`."""
 
 
 for _value in vars().copy().values():

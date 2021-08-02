@@ -126,11 +126,40 @@ class ClientCallbackNames(str, enum.Enum):
     """Enum of the client callback names dispatched by the standard `Client`."""
 
     CLOSED = "closed"
+    """Sent when the client has finished closing.
+
+    No positional arguments are provided for this event.
+    """
+
     CLOSING = "closing"
+    """Sent when the client is initially instructed to close.
+
+    No positional arguments are provided for this event.
+    """
+
     MESSAGE_COMMAND_NOT_FOUND = "message_command_not_found"
+    """Sent when a message command is not found.
+
+    `tanjun.traits.MessageContext` is provided as the first positional argument.
+    """
+
     SLASH_COMMAND_NOT_FOUND = "slash_command_not_found"
+    """Sent when a slash command is not found.
+
+    `tanjun.traits.MessageContext` is provided as the first positional argument.
+    """
+
     STARTED = "started"
+    """Sent when the client has finished starting.
+
+    No positional arguments are provided for this event.
+    """
+
     STARTING = "startup"
+    """Sent when the client is initially instructed to start.
+
+    No positional arguments are provided for this event.
+    """
 
 
 class MessageAcceptsEnum(str, enum.Enum):
@@ -265,8 +294,13 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         If a snowflake ID is passed here then the global commands will be
         set on this specific guild at startup rather than globally. This
         can be useful for testing/debug purposes as slash commands may take
-        up to an hour to propogate globally but will immediately propogate
+        up to an hour to propagate globally but will immediately propagate
         when set on a specific guild.
+
+        !!! note
+            The endpoint this uses has a strict ratelimit which, as of writing,
+            only allows for 2 request per minute (with that ratelimit either
+            being per-guild if targetting a specific guild otherwise globally).
 
     Raises
     ------
@@ -288,6 +322,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         "_interaction_not_found",
         "_slash_hooks",
         "_is_alive",
+        "_is_closing",
         "_message_hooks",
         "_metadata",
         "_prefix_getter",
@@ -326,6 +361,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         self._interaction_not_found: typing.Optional[str] = "Command not found"
         self._slash_hooks: typing.Optional[tanjun_traits.SlashHooks] = None
         self._is_alive = False
+        self._is_closing = False
         self._message_hooks: typing.Optional[tanjun_traits.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._prefix_getter: typing.Optional[_InjectablePrefixGetter] = None
@@ -405,6 +441,11 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
             can be useful for testing/debug purposes as slash commands may take
             up to an hour to propogate globally but will immediately propogate
             when set on a specific guild.
+
+            !!! note
+                The endpoint this uses has a strict ratelimit which, as of writing,
+                only allows for 2 request per minute (with that ratelimit either
+                being per-guild if targetting a specific guild otherwise globally).
         """
         return (
             cls(
@@ -448,6 +489,12 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
             can be useful for testing/debug purposes as slash commands may take
             up to an hour to propogate globally but will immediately propogate
             when set on a specific guild.
+
+            !!! note
+                The endpoint this uses has a strict ratelimit which, as of writing,
+                only allows for 2 request per minute (with that ratelimit either
+                being per-guild if targetting a specific guild otherwise globally).
+
         """
         return cls(
             rest=bot.rest, server=bot.interaction_server, set_global_commands=set_global_commands
@@ -613,6 +660,30 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> hikari.Command:
+        """Declare a single slash command for a bot.
+
+        Parameters
+        ----------
+        command : tanjun.traits.SlashCommand
+            The command to register.
+
+        Other Parameters
+        ----------------
+        application : typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]]
+            The application to register the command with.
+
+            If left as `None` then this will be infered from the authorization
+            being used by `Client.rest`.
+        guild : typing.Optional[hikari.SnowflakeishOr[hikari.PartialGuild]]
+            Object or ID of the guild to register the command with.
+
+            If left as `None` then the command will be registered globally.
+
+        Returns
+        -------
+        hikari.interactions.commands.Command
+            API representation of the command that was registered.
+        """
         builder = command.build()
         response = await self._rest.create_application_command(
             application or self._cached_application_id or await self.fetch_rest_application_id(),
@@ -632,6 +703,35 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> collections.Sequence[hikari.Command]:
+        """Declare a collection of slash commands for a bot.
+
+        !!! note
+            The endpoint this uses has a strict ratelimit which, as of writing,
+            only allows for 2 request per minute (with that ratelimit either
+            being per-guild if targetting a specific guild otherwise globally).
+
+        Parameters
+        ----------
+        commands : collections.abc.Iterable[tanjun.traits.SlashCommand]
+            Iterable of the commands to register.
+
+        Other Parameters
+        ----------------
+        application : typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]]
+            The application to register the commands with.
+
+            If left as `None` then this will be infered from the authorization
+            being used by `Client.rest`.
+        guild : typing.Optional[hikari.SnowflakeishOr[hikari.PartialGuild]]
+            Object or ID of the guild to register the commands with.
+
+            If left as `None` then the commands will be registered globally.
+
+        Returns
+        -------
+        collections.abc.Sequence[hikari.interactions.commands.Command]
+            API representations of the commands which were registered.
+        """
         names_to_commands: dict[str, tanjun_traits.SlashCommand] = {}
         found_top_names: set[str] = set()
         conflicts: set[str] = set()
@@ -749,6 +849,36 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         return self
 
+    async def clear_commands(
+        self,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+    ) -> None:
+        """Clear the commands declared either globally or for a specific guild.
+
+        !!! note
+            The endpoint this uses has a strict ratelimit which, as of writing,
+            only allows for 2 request per minute (with that ratelimit either
+            being per-guild if targetting a specific guild otherwise globally).
+
+        Other Parameters
+        ----------------
+        application : typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]]
+            The application to clear commands for.
+
+            If left as `None` then this will be infered from the authorization
+            being used by `Client.rest`.
+        guild : hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]]
+            Object or ID of the guild to clear commands for.
+
+            If left as `None` global commands will be cleared.
+        """
+        if application is None:
+            application = self._cached_application_id or await self.fetch_rest_application_id()
+
+        await self._rest.set_application_commands(application, (), guild=guild)
+
     async def set_global_commands(
         self,
         *,
@@ -758,7 +888,13 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         """Set the global application commands for a bot based on the loaded components.
 
         !!! note
-            This will overwrite any previously set application commands.
+            This will overwrite any previously set application commands and
+            only targets commands marked as global.
+
+        !!! note
+            The endpoint this uses has a strict ratelimit which, as of writing,
+            only allows for 2 request per minute (with that ratelimit either
+            being per-guild if targetting a specific guild otherwise globally).
 
         Other Parameters
         ----------------
@@ -769,6 +905,8 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
             being used by `Client.rest`.
         guild : hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]]
             Object or ID of the guild to set the global commands to.
+
+            If left as `None` global commands will be set.
 
             !!! note
                 This can be useful for testing/debug purposes as slash commands
@@ -921,6 +1059,13 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         if not self._is_alive:
             raise RuntimeError("Client isn't active")
 
+        if self._is_closing:
+            event = asyncio.Event()
+            self.add_client_callback(ClientCallbackNames.CLOSED, event.set)
+            await event.wait()
+            return
+
+        self._is_closing = True
         await self.dispatch_client_callback(ClientCallbackNames.CLOSING)
         if deregister_listener and self._events:
             if event_type := self._accepts.get_event_type():
@@ -930,14 +1075,18 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
             if self._server:
                 self._server.set_listener(hikari.CommandInteraction, None)
+
+        self._is_alive = False
         await self.dispatch_client_callback(ClientCallbackNames.CLOSED)
+        self._is_closing = False
 
     async def open(self, *, register_listener: bool = True) -> None:
         if self._is_alive:
             raise RuntimeError("Client is already alive")
 
-        await self.dispatch_client_callback(ClientCallbackNames.STARTING, suppress_exceptions=False)
         self._is_alive = True
+        self._is_closing = False
+        await self.dispatch_client_callback(ClientCallbackNames.STARTING, suppress_exceptions=False)
         if self._grab_mention_prefix:
             user: typing.Optional[hikari.User] = None
             if self._cache:

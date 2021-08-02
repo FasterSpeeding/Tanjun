@@ -77,6 +77,15 @@ which returns `None`.
 
 
 class Hooks(traits.Hooks[traits.ContextT_contra]):
+    """Standard implementation of `tanjun.traits.Hooks` used for command execution.
+
+    !!! note
+        This implementation adds a concept of parser errors which won't be
+        dispatched to general "error" hooks and do not share the error
+        suppression semantics as they favour to always suppress the error
+        if a registered handler is found.
+    """
+
     __slots__ = ("_error", "_parser_error", "_pre_execution", "_post_execution", "_success")
 
     def __init__(self) -> None:
@@ -93,10 +102,37 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
         )
 
     def add_to_command(self, command: CommandT, /) -> CommandT:
+        """Add this hook object to a command.
+
+        !!! note
+            This will likely override any previously added hooks.
+
+        Example
+        -------
+        This method may be used as a command decorator:
+
+        ```py
+        @standard_hooks.add_to_command
+        @as_message_command("command")
+        async def command_command(ctx: tanjun.traits.Context) -> None:
+            await ctx.respond("You've called a command!")
+        ```
+
+        Parameters
+        ----------
+        command : tanjun.traits.ExecutableCommand[typing.Any]
+            The command to add the hooks to.
+
+        Returns
+        -------
+        tanjun.traits.ExecutableCommand[typing.Any]
+            The command with the hooks added.
+        """
         command.set_hooks(self)
         return command
 
     def copy(self: _HooksT) -> _HooksT:
+        """Copy this hook object."""
         return copy.deepcopy(self)
 
     def set_on_error(self: _HooksT, hook: typing.Optional[ErrorHookSig[traits.ContextT_contra]], /) -> _HooksT:
@@ -149,6 +185,7 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
         *,
         hooks: typing.Optional[collections.Set[traits.Hooks[traits.ContextT_contra]]] = None,
     ) -> int:
+        # <<inherited docstring from tanjun.traits.Hooks>>.
         level = 0
         if isinstance(exception, errors.ParserError):
             if self._parser_error:
@@ -174,6 +211,7 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
         *,
         hooks: typing.Optional[collections.Set[traits.Hooks[traits.ContextT_contra]]] = None,
     ) -> None:
+        # <<inherited docstring from tanjun.traits.Hooks>>.
         if self._post_execution:
             await utilities.await_if_async(self._post_execution, ctx)
 
@@ -187,6 +225,7 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
         *,
         hooks: typing.Optional[collections.Set[traits.Hooks[traits.ContextT_contra]]] = None,
     ) -> None:
+        # <<inherited docstring from tanjun.traits.Hooks>>.
         if self._pre_execution:
             await utilities.await_if_async(self._pre_execution, ctx)
 
@@ -200,6 +239,7 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
         *,
         hooks: typing.Optional[collections.Set[traits.Hooks[traits.ContextT_contra]]] = None,
     ) -> None:
+        # <<inherited docstring from tanjun.traits.Hooks>>.
         if self._success:
             await utilities.await_if_async(self._success, ctx)
 

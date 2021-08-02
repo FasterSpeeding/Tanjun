@@ -90,6 +90,7 @@ __all__: list[str] = [
     "to_emoji",
     "to_guild",
     "to_invite",
+    "to_invite_with_metadata",
     "to_member",
     "to_presence",
     "to_role",
