@@ -47,9 +47,7 @@ if typing.TypeVar:
 
 CommandT = typing.TypeVar("CommandT", bound=traits.ExecutableCommand[typing.Any])
 
-ParserHookSig = collections.Callable[
-    [traits.ContextT, errors.ParserError], typing.Union[collections.Awaitable[None], None]
-]
+ParserHookSig = collections.Callable[[traits.ContextT, errors.ParserError], traits.MaybeAwaitableT[None]]
 """Type hint of the callback used as a parser error hook.
 
 This will be called whenever a `tanjun.errors.ParserError` is raised during the
@@ -58,9 +56,7 @@ type `tanjun.traits.Context` and `tanjun.errors.ParserError` - and may either be
 a synchronous or asynchronous callback which returns `None`
 """
 
-ErrorHookSig = collections.Callable[
-    [traits.ContextT, BaseException], typing.Union[collections.Awaitable[typing.Optional[bool]], typing.Optional[None]]
-]
+ErrorHookSig = collections.Callable[[traits.ContextT, BaseException], traits.MaybeAwaitableT[typing.Optional[bool]]]
 """Type hint of the callback used as a unexpected command error hook.
 
 This will be called whenever a `BaseException` is raised during the
@@ -70,7 +66,7 @@ type `tanjun.traits.Context` and `BaseException` - and may either be a
 synchronous or asynchronous callback which returns `None`
 """
 
-HookSig = collections.Callable[[traits.ContextT], typing.Union[collections.Awaitable[None], None]]
+HookSig = collections.Callable[[traits.ContextT], traits.MaybeAwaitableT[None]]
 """Type hint of the callback used as a general command hook.
 
 This may be called during different stages of command execution (decided by

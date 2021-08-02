@@ -84,7 +84,7 @@ if typing.TYPE_CHECKING:
 
 AnyMessageCommandT = typing.TypeVar("AnyMessageCommandT", bound=traits.MessageCommand)
 CommandCallbackSigT = typing.TypeVar("CommandCallbackSigT", bound=traits.CommandCallbackSig)
-ConverterSig = collections.Callable[..., typing.Union[collections.Awaitable[typing.Any], typing.Any]]
+ConverterSig = collections.Callable[..., traits.MaybeAwaitableT[typing.Any]]
 """Type hint of a converter used within a parser instance."""
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()

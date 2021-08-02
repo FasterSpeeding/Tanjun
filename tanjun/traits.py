@@ -43,6 +43,7 @@ __all__: list[str] = [
     "MessageHooks",
     "SlashHooks",
     "ExecutableCommand",
+    "MaybeAwaitableT",
     "MessageCommand",
     "MessageCommandT",
     "MessageCommandGroup",
@@ -71,9 +72,12 @@ if typing.TYPE_CHECKING:
 _T = typing.TypeVar("_T")
 
 
+MaybeAwaitableT = typing.Union[_T, collections.Awaitable[_T]]
+"""Type hint for a value which may need to be awaited to be resolved."""
+
 ContextT = typing.TypeVar("ContextT", bound="Context")
 ContextT_contra = typing.TypeVar("ContextT_contra", bound="Context", contravariant=True)
-MetaEventSig = collections.Callable[..., typing.Union[None, collections.Awaitable[None]]]
+MetaEventSig = collections.Callable[..., MaybeAwaitableT[None]]
 MetaEventSigT = typing.TypeVar("MetaEventSigT", bound="MetaEventSig")
 SlashCommandT = typing.TypeVar("SlashCommandT", bound="SlashCommand")
 MessageCommandT = typing.TypeVar("MessageCommandT", bound="MessageCommand")
@@ -92,7 +96,7 @@ command if applicable.
 """
 
 
-CheckSig = collections.Callable[..., typing.Union[bool, collections.Awaitable[bool]]]
+CheckSig = collections.Callable[..., MaybeAwaitableT[bool]]
 """Type hint of a general context check used with Tanjun `ExecutableCommand` classes.
 
 This may be registered with a `ExecutableCommand` to add a rule which decides whether

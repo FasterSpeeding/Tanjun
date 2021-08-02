@@ -75,13 +75,13 @@ async def async_chain(
 
 
 async def await_if_async(
-    callback: collections.Callable[..., typing.Union[collections.Awaitable[_ValueT], _ValueT]], /, *args: typing.Any
+    callback: collections.Callable[..., tanjun_traits.MaybeAwaitableT[_ValueT]], /, *args: typing.Any
 ) -> _ValueT:
     """Resole any awaitable returned by a callback call.
 
     Parameters
     ----------
-    callback : collections.abc.Callable[..., typing.Union[collections.abc.Awaitable[_ValueT], _ValueT]
+    callback : collections.abc.Callable[..., tanjun.traits.MaybeAwaitableT[_ValueT]]
         The async or non-async callback to call.
 
     Other Parameters

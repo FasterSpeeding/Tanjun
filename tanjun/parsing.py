@@ -72,7 +72,7 @@ if typing.TYPE_CHECKING:
 ParseableProtoT = typing.TypeVar("ParseableProtoT", bound="ParseableProto")
 """Generic type hint of `ParseableProto`."""
 
-ConverterSig = collections.Callable[..., typing.Union[collections.Awaitable[typing.Any], typing.Any]]
+ConverterSig = collections.Callable[..., traits.MaybeAwaitableT[typing.Any]]
 """Type hint of a converter used within a parser instance.
 
 This must be a callable or asynchronous callable which takes one position

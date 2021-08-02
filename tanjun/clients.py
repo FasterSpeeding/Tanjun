@@ -123,6 +123,8 @@ def as_loader(callback: LoadableSig, /) -> LoadableSig:
 
 
 class ClientCallbackNames(str, enum.Enum):
+    """Enum of the client callback names dispatched by the standard `Client`."""
+
     CLOSED = "closed"
     CLOSING = "closing"
     MESSAGE_COMMAND_NOT_FOUND = "message_command_not_found"

@@ -55,7 +55,7 @@ _BaseInjectableValueT = typing.TypeVar("_BaseInjectableValueT", bound=BaseInject
 _T = typing.TypeVar("_T")
 _InjectorClientT = typing.TypeVar("_InjectorClientT", bound=InjectorClient)
 _ValueT = typing.TypeVar("_ValueT", bound=typing.Union[float, int, str])
-CallbackSig = collections.Callable[..., typing.Union[collections.Awaitable[_T], _T]]
+CallbackSig = collections.Callable[..., tanjun_traits.MaybeAwaitableT[_T]]
 
 class Getter(typing.Generic[_T]):
     __slots__: typing.Union[str, collections.Iterable[str]]
@@ -96,7 +96,7 @@ _TypeT = type[_T]
 
 class Injected(typing.Generic[_T]):
     __slots__: typing.Union[str, collections.Iterable[str]]
-    callback: UndefinedOr[collections.Callable[[], typing.Union[_T, collections.Awaitable[_T]]]]
+    callback: UndefinedOr[collections.Callable[[], tanjun_traits.MaybeAwaitableT[_T]]]
     type: UndefinedOr[_TypeT[_T]]
     @typing.overload
     def __init__(self, *, callback: collections.Callable[..., collections.Awaitable[_T]]) -> None: ...

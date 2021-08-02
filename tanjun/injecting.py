@@ -63,7 +63,7 @@ if typing.TYPE_CHECKING:
 
 _InjectorClientT = typing.TypeVar("_InjectorClientT", bound="InjectorClient")
 _T = typing.TypeVar("_T")
-CallbackSig = collections.Callable[..., typing.Union[collections.Awaitable[_T], _T]]
+CallbackSig = collections.Callable[..., tanjun_traits.MaybeAwaitableT[_T]]
 
 
 class Getter(typing.Generic[_T]):
