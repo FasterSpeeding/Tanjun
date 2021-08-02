@@ -1055,7 +1055,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
             # TODO: add logging here
             pass
 
-    async def close(self, *, deregister_listener: bool = True) -> None:
+    async def close(self, *, deregister_listeners: bool = True) -> None:
         if not self._is_alive:
             raise RuntimeError("Client isn't active")
 
@@ -1070,20 +1070,20 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         self._is_closing = True
         await self.dispatch_client_callback(ClientCallbackNames.CLOSING)
-        if deregister_listener and self._events:
+        if deregister_listeners and self._events:
             if event_type := self._accepts.get_event_type():
                 self._try_unsubscribe(self._events, event_type, self.on_message_create_event)
 
             self._try_unsubscribe(self._events, hikari.InteractionCreateEvent, self.on_interaction_create_event)
 
-            if self._server:
-                self._server.set_listener(hikari.CommandInteraction, None)
+        if deregister_listeners and self._server:
+            self._server.set_listener(hikari.CommandInteraction, None)
 
         self._is_alive = False
         await self.dispatch_client_callback(ClientCallbackNames.CLOSED)
         self._is_closing = False
 
-    async def open(self, *, register_listener: bool = True) -> None:
+    async def open(self, *, register_listeners: bool = True) -> None:
         if self._is_alive:
             raise RuntimeError("Client is already alive")
 
@@ -1119,13 +1119,13 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
             self._prefixes.add(f"<@!{user.id}>")
             self._grab_mention_prefix = False
 
-        if register_listener and self._events:
+        if register_listeners and self._events:
             if event_type := self._accepts.get_event_type():
                 self._events.subscribe(event_type, self.on_message_create_event)
 
             self._events.subscribe(hikari.InteractionCreateEvent, self.on_interaction_create_event)
 
-        if self._server:
+        if register_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, self.on_interaction_create_request)
 
         asyncio.create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED, suppress_exceptions=False))
