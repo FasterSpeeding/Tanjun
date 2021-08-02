@@ -1062,7 +1062,10 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         if self._is_closing:
             event = asyncio.Event()
             self.add_client_callback(ClientCallbackNames.CLOSED, event.set)
-            await event.wait()
+            try:
+                await event.wait()
+            finally:
+                self.remove_client_callback(ClientCallbackNames.CLOSED, event.set)
             return
 
         self._is_closing = True
