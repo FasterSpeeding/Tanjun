@@ -383,7 +383,7 @@ def with_str_slash_option(
 
         This may be either one or multiple `ConverterSig` callbacks used to
         convert the option's value to the final form.
-        If this is not specified then the option will not be converted.
+        If no converters are provided then the raw value will be passed.
 
         !!! note
             Only the first converter to pass will be used.
@@ -446,7 +446,7 @@ def with_int_slash_option(
 
         This may be either one or multiple `ConverterSig` callbacks used to
         convert the option's value to the final form.
-        If this is not specified then the option will not be converted.
+        If no converters are provided then the raw value will be passed.
 
         !!! note
             Only the first converter to pass will be used.

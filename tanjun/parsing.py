@@ -337,8 +337,7 @@ def with_argument(
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
-        If not specified then this indicates that the raw string value should
-        be returned without conversion.
+        If no converters are provided then the raw string value will be passed.
 
         !!! note
             Only the first converter to pass will be used.
@@ -408,8 +407,7 @@ def with_greedy_argument(
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
-        If not specified then this indicates that the raw string value should
-        be returned without conversion.
+        If no converters are provided then the raw string value will be passed.
 
         !!! note
             Only the first converter to pass will be used.
@@ -471,8 +469,7 @@ def with_multi_argument(
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
-        If not specified then this indicates that the raw string value should
-        be returned without conversion.
+        If no converters are provided then the raw string value will be passed.
 
         !!! note
             Only the first converter to pass will be used.
@@ -533,8 +530,7 @@ def with_option(
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
-        If not specified then this indicates that the raw string value should
-        be returned without conversion.
+        If no converters are provided then the raw string value will be passed.
 
         !!! note
             Only the first converter to pass will be used.
@@ -609,8 +605,7 @@ def with_multi_option(
         The converter(s) this argument should use to handle values passed to it
         during parsing.
 
-        If not specified then this indicates that the raw string value should
-        be returned without conversion.
+        If no converters are provided then the raw string value will be passed.
 
         !!! note
             Only the first converter to pass will be used.
