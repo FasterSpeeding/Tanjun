@@ -280,6 +280,7 @@ def as_slash_command(
     description: str,
     /,
     *,
+    command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
     default_to_ephemeral: bool = False,
     is_global: bool = True,
     sort_options: bool = True,
@@ -307,6 +308,12 @@ def as_slash_command(
 
     Other Parameters
     ----------------
+    command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]
+        ID of the global command this should be tracking.
+
+        This is useful when bulk updating the commands as if the ID isn't
+        specified then any previously set permissions may be lost (i.e. if the
+        command's name is changed).
     default_to_ephemeral : bool
         Whether this command's responses should default to ephemeral unless flags
         are set to override this. This defaults to `False`.
@@ -330,7 +337,13 @@ def as_slash_command(
         The decorator callback used to build the command to a `SlashCommand`.
     """
     return lambda c: SlashCommand(
-        c, name, description, default_to_ephemeral=default_to_ephemeral, is_global=is_global, sort_options=sort_options
+        c,
+        name,
+        description,
+        command_id=command_id,
+        default_to_ephemeral=default_to_ephemeral,
+        is_global=is_global,
+        sort_options=sort_options,
     )
 
 
@@ -773,8 +786,15 @@ _CommandBuilderT = typing.TypeVar("_CommandBuilderT", bound="_CommandBuilder")
 class _CommandBuilder(hikari.impl.CommandBuilder):
     __slots__ = ("_has_been_sorted", "_sort_options")
 
-    def __init__(self, name: str, description: str, sort_options: bool) -> None:
-        super().__init__(name, description)
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        sort_options: bool,
+        *,
+        id: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,
+    ) -> None:
+        super().__init__(name, description, id=id)
         self._has_been_sorted = True
         self._sort_options = sort_options
 
@@ -799,16 +819,24 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
 
         return super().build(entity_factory)
 
+    def copy(self) -> _CommandBuilder:
+        builder = _CommandBuilder(self.name, self.description, self._sort_options, id=self.id)
+
+        for option in self._options:
+            builder.add_option(option)
+
+        return builder
+
 
 class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], traits.SlashCommand):
     __slots__ = (
         "_builder",
+        "_command_id",
         "_defaults_to_ephemeral",
         "_description",
         "_is_global",
         "_name",
         "_parent",
-        "_tracked_command",
         "_tracked_options",
     )
 
@@ -819,6 +847,7 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         description: str,
         /,
         *,
+        command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
         default_to_ephemeral: bool = False,
         is_global: bool = True,
         checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
@@ -830,13 +859,18 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         if not _SCOMMAND_NAME_REG.fullmatch(name):
             raise ValueError("Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`")
 
+        command_id = hikari.Snowflake(command_id) if command_id else None
         self._builder = _CommandBuilder(name, description, sort_options)
+
+        if command_id:
+            self._builder = self._builder.set_id(command_id)
+
+        self._command_id = command_id
         self._defaults_to_ephemeral = default_to_ephemeral
         self._description = description
         self._is_global = is_global
         self._name = name
         self._parent: typing.Optional[traits.SlashCommandGroup] = None
-        self._tracked_command: typing.Optional[hikari.Command] = None
         self._tracked_options: dict[str, _TrackedOption] = {}
 
     @property
@@ -864,21 +898,14 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         # <<inherited docstring from tanjun.injecting.Injectable>>.
         return super().needs_injector or any(option.needs_injector for option in self._tracked_options.values())
 
-    def set_injector(self, client: injecting.InjectorClient, /) -> None:
-        # <<inherited docstring from tanjun.injecting.Injectable>>.
-        super().set_injector(client)
-        for option in self._tracked_options.values():
-            option.set_injector(client)
-
     @property
     def parent(self) -> typing.Optional[traits.SlashCommandGroup]:
         # <<inherited docstring from tanjun.traits.SlashCommand>>.
         return self._parent
 
     @property
-    def tracked_command(self) -> typing.Optional[hikari.Command]:
-        # <<inherited docstring from tanjun.traits.SlashCommand>>.
-        return self._tracked_command
+    def tracked_command_id(self) -> typing.Optional[hikari.Snowflake]:
+        return self._command_id
 
     def add_option(
         self: _SlashCommandT,
@@ -927,7 +954,26 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
 
     def build(self) -> special_endpoints_api.CommandBuilder:
         # <<inherited docstring from tanjun.traits.SlashCommand>>.
-        return self._builder
+        return self._builder.copy()
+
+    def set_tracked_command(
+        self: _SlashCommandT, command_id: hikari.SnowflakeishOr[hikari.Command], /
+    ) -> _SlashCommandT:
+        """Set the ID of the global command this should be tracking.
+
+        !!! note
+            This is useful when bulk updating the commands as if the ID isn't
+            specified then any previously set permissions may be lost (i.e. if the
+            command's name is changed).
+
+        Parameters
+        ----------
+        command_id : hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]
+            object or ID of the global command this should be tracking.
+        """
+        self._command_id = hikari.Snowflake(command_id)
+        self._builder = self._builder.set_id(self._command_id)
+        return self
 
     def set_ephemeral_default(self: _SlashCommandT, state: bool, /) -> _SlashCommandT:
         """Set whether this command's responses should default to ephemeral.
@@ -941,6 +987,12 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         """
         self._defaults_to_ephemeral = state
         return self
+
+    def set_injector(self, client: injecting.InjectorClient, /) -> None:
+        # <<inherited docstring from tanjun.injecting.Injectable>>.
+        super().set_injector(client)
+        for option in self._tracked_options.values():
+            option.set_injector(client)
 
     def set_parent(self: _SlashCommandT, parent: typing.Optional[traits.SlashCommandGroup], /) -> _SlashCommandT:
         # <<inherited docstring from tanjun.traits.SlashCommand>>.
@@ -1061,12 +1113,6 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
 
         finally:
             await own_hooks.trigger_post_execution(ctx, hooks=hooks)
-
-    def set_tracked_command(self: _SlashCommandT, command: typing.Optional[hikari.Command], /) -> _SlashCommandT:
-        # <<inherited docstring from tanjun.traits.SlashCommand>>.
-        self._tracked_command = command
-        self._builder.set_id(command.id if command else hikari.UNDEFINED)
-        return self
 
     def load_into_component(self: _SlashCommandT, component: traits.Component, /) -> typing.Optional[_SlashCommandT]:
         # <<inherited docstring from PartialCommand>>.

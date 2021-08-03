@@ -656,6 +656,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         self,
         command: tanjun_traits.SlashCommand,
         /,
+        command_id: typing.Optional[hikari.Snowflake] = None,
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
@@ -667,14 +668,22 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         command : tanjun.traits.SlashCommand
             The command to register.
 
+        !!! note
+            This ignores any ID that's been set on `tanjun.traits.SlashCommand`.
+
         Other Parameters
         ----------------
-        application : typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]]
+        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
             The application to register the command with.
 
-            If left as `None` then this will be infered from the authorization
+            If left as `None` then this will be inferred from the authorization
             being used by `Client.rest`.
-        guild : typing.Optional[hikari.SnowflakeishOr[hikari.PartialGuild]]
+        command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]
+            Object or ID of the command to update.
+
+            !!! note
+                Providing this when updating a command helps avoid
+        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
             Object or ID of the guild to register the command with.
 
             If left as `None` then the command will be registered globally.
@@ -685,14 +694,26 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
             API representation of the command that was registered.
         """
         builder = command.build()
-        response = await self._rest.create_application_command(
-            application or self._cached_application_id or await self.fetch_rest_application_id(),
-            guild=guild,
-            name=builder.name,
-            description=builder.description,
-            options=builder.options,
-        )
-        command.set_tracked_command(response)  # TODO: is this fine?
+        if command_id:
+            response = await self._rest.create_application_command(
+                application or self._cached_application_id or await self.fetch_rest_application_id(),
+                guild=guild,
+                name=builder.name,
+                description=builder.description,
+                options=builder.options,
+            )
+
+        else:
+            response = await self._rest.create_application_command(
+                application or self._cached_application_id or await self.fetch_rest_application_id(),
+                guild=guild,
+                name=builder.name,
+                description=builder.description,
+                options=builder.options,
+            )
+
+        if not guild:
+            command.set_tracked_command(response)  # TODO: is this fine?
         return response
 
     async def declare_slash_commands(
@@ -708,7 +729,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         !!! note
             The endpoint this uses has a strict ratelimit which, as of writing,
             only allows for 2 request per minute (with that ratelimit either
-            being per-guild if targetting a specific guild otherwise globally).
+            being per-guild if targeting a specific guild otherwise globally).
 
         Parameters
         ----------
@@ -717,12 +738,12 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         Other Parameters
         ----------------
-        application : typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]]
+        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
             The application to register the commands with.
 
-            If left as `None` then this will be infered from the authorization
+            If left as `None` then this will be inferred from the authorization
             being used by `Client.rest`.
-        guild : typing.Optional[hikari.SnowflakeishOr[hikari.PartialGuild]]
+        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
             Object or ID of the guild to register the commands with.
 
             If left as `None` then the commands will be registered globally.
@@ -756,7 +777,8 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         responses = await self._rest.set_application_commands(application, builders, guild=guild)
         for response in responses:
-            if command := names_to_commands[response.name]:
+            command = names_to_commands[response.name]
+            if not guild:
                 command.set_tracked_command(response)  # TODO: is this fine?
 
         return responses
@@ -864,12 +886,12 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         Other Parameters
         ----------------
-        application : typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]]
+        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
             The application to clear commands for.
 
-            If left as `None` then this will be infered from the authorization
+            If left as `None` then this will be inferred from the authorization
             being used by `Client.rest`.
-        guild : hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]]
+        guild : hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
             Object or ID of the guild to clear commands for.
 
             If left as `None` global commands will be cleared.
@@ -898,12 +920,12 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         Other Parameters
         ----------------
-        application : typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]]
+        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
             Object or ID of the application to set the global commands for.
 
             If left as `None` then this will be inferred from the authorization
             being used by `Client.rest`.
-        guild : hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]]
+        guild : hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
             Object or ID of the guild to set the global commands to.
 
             If left as `None` global commands will be set.
@@ -1089,7 +1111,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         self._is_alive = True
         self._is_closing = False
-        await self.dispatch_client_callback(ClientCallbackNames.STARTING, suppress_exceptions=False)
+        await self.dispatch_client_callback(ClientCallbackNames.STARTING)
         if self._grab_mention_prefix:
             user: typing.Optional[hikari.User] = None
             if self._cache:
@@ -1128,7 +1150,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         if register_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, self.on_interaction_create_request)
 
-        asyncio.create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED, suppress_exceptions=False))
+        asyncio.create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED))
 
     async def fetch_rest_application_id(self) -> hikari.Snowflake:
         if self._cached_application_id:

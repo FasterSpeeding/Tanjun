@@ -827,7 +827,7 @@ class SlashCommand(ExecutableCommand[SlashContext], abc.ABC):
 
     @property
     @abc.abstractmethod
-    def tracked_command(self) -> typing.Optional[hikari.Command]:
+    def tracked_command_id(self) -> typing.Optional[hikari.Snowflake]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -846,12 +846,18 @@ class SlashCommand(ExecutableCommand[SlashContext], abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_tracked_command(self: _T, _: typing.Optional[hikari.Command], /) -> _T:
+    def set_parent(self: _T, _: typing.Optional[SlashCommandGroup], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_parent(self: _T, _: typing.Optional[SlashCommandGroup], /) -> _T:
-        raise NotImplementedError
+    def set_tracked_command(self: _T, command: hikari.SnowflakeishOr[hikari.Command], /) -> _T:
+        """Set the global command this tracks.
+
+        Parameters
+        ----------
+        command : hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]
+            Object or ID of the command this tracks.
+        """
 
 
 class SlashCommandGroup(SlashCommand, abc.ABC):
