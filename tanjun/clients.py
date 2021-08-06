@@ -238,6 +238,11 @@ class _InjectablePrefixGetter(injecting.BaseInjectableValue[collections.Iterable
         return await self.call(ctx, ctx=ctx)
 
 
+class _CommandAwareBadRequestError(hikari.BadRequestError):
+    def __init__(self):
+        ...
+
+
 class Client(injecting.InjectorClient, tanjun_traits.Client):
     """Tanjun's standard `tanjun.traits.Client` implementation.
 
@@ -775,7 +780,12 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         if not application:
             application = self._cached_application_id or await self.fetch_rest_application_id()
 
-        responses = await self._rest.set_application_commands(application, builders, guild=guild)
+        try:
+            responses = await self._rest.set_application_commands(application, builders, guild=guild)
+
+        except hikari.BadRequestError as exc:
+            raise
+
         for response in responses:
             command = names_to_commands[response.name]
             if not guild:
