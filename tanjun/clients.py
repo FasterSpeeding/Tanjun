@@ -654,7 +654,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
     async def declare_slash_command(
         self,
-        command: tanjun_traits.SlashCommand,
+        command: tanjun_traits.BaseSlashCommand,
         /,
         command_id: typing.Optional[hikari.Snowflake] = None,
         *,
@@ -665,11 +665,11 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         Parameters
         ----------
-        command : tanjun.traits.SlashCommand
+        command : tanjun.traits.BaseSlashCommand
             The command to register.
 
         !!! note
-            This ignores any ID that's been set on `tanjun.traits.SlashCommand`.
+            This ignores any ID that's been set on `tanjun.traits.BaseSlashCommand`.
 
         Other Parameters
         ----------------
@@ -718,7 +718,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
     async def declare_slash_commands(
         self,
-        commands: collections.Iterable[tanjun_traits.SlashCommand],
+        commands: collections.Iterable[tanjun_traits.BaseSlashCommand],
         /,
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
@@ -733,7 +733,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         Parameters
         ----------
-        commands : collections.abc.Iterable[tanjun.traits.SlashCommand]
+        commands : collections.abc.Iterable[tanjun.traits.BaseSlashCommand]
             Iterable of the commands to register.
 
         Other Parameters
@@ -753,7 +753,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         collections.abc.Sequence[hikari.interactions.commands.Command]
             API representations of the commands which were registered.
         """
-        names_to_commands: dict[str, tanjun_traits.SlashCommand] = {}
+        names_to_commands: dict[str, tanjun_traits.BaseSlashCommand] = {}
         found_top_names: set[str] = set()
         conflicts: set[str] = set()
         builders: list[hikari.api.CommandBuilder] = []
@@ -1050,7 +1050,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         # <<inherited docstring from tanjun.traits.Client>>.
         return itertools.chain.from_iterable(component.check_message_name(name) for component in self._components)
 
-    def check_slash_name(self, name: str, /) -> collections.Iterator[tanjun_traits.SlashCommand]:
+    def check_slash_name(self, name: str, /) -> collections.Iterator[tanjun_traits.BaseSlashCommand]:
         return itertools.chain.from_iterable(component.check_slash_name(name) for component in self._components)
 
     async def _check_prefix(self, ctx: tanjun_traits.MessageContext, /) -> typing.Optional[str]:

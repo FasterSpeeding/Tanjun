@@ -684,17 +684,19 @@ class SlashContext(BaseContext, traits.SlashContext):
                     assert not isinstance(embed, hikari.UndefinedType)
                     embeds = (embed,)
 
+                # Pyright doesn't properly support attrs and doesn't account for _ being removed from field
+                # pre-fix in init.
                 result = hikari.impl.InteractionMessageBuilder(
-                    type=hikari.ResponseType.MESSAGE_CREATE,
-                    content=content,
-                    # components=components,
-                    # embeds=embeds,
-                    flags=flags,
-                    is_tts=tts,
-                    mentions_everyone=mentions_everyone,
-                    user_mentions=user_mentions,
-                    role_mentions=role_mentions,
-                )
+                    type=hikari.ResponseType.MESSAGE_CREATE,  # type: ignore
+                    content=content,  # type: ignore
+                    # components=components,  # type: ignore
+                    # embeds=embeds,  # type: ignore
+                    flags=flags,  # type: ignore
+                    is_tts=tts,  # type: ignore
+                    mentions_everyone=mentions_everyone,  # type: ignore
+                    user_mentions=user_mentions,  # type: ignore
+                    role_mentions=role_mentions,  # type: ignore
+                )  # type: ignore
                 if embeds is not hikari.UNDEFINED:
                     for embed in embeds:
                         result.add_embed(embed)
