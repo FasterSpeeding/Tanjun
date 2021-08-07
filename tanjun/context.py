@@ -408,6 +408,7 @@ class MessageContext(BaseContext, traits.MessageContext):
 
 class SlashContext(BaseContext, traits.SlashContext):
     __slots__ = (
+        "_command",
         "_defaults_to_ephemeral",
         "_defer_task",
         "_has_been_deferred",
@@ -425,11 +426,13 @@ class SlashContext(BaseContext, traits.SlashContext):
         interaction: hikari.CommandInteraction,
         /,
         *,
+        command: typing.Optional[traits.SlashCommand] = None,
         component: typing.Optional[traits.Component] = None,
         default_to_ephemeral: bool = False,
         not_found_message: typing.Optional[str] = None,
     ) -> None:
         super().__init__(client, component=component)
+        self._command = command
         self._defaults_to_ephemeral = default_to_ephemeral
         self._defer_task: typing.Optional[asyncio.Task[None]] = None
         self._has_been_deferred = False
@@ -453,12 +456,24 @@ class SlashContext(BaseContext, traits.SlashContext):
         return self._client
 
     @property
+    def command(self) -> typing.Optional[traits.SlashCommand]:
+        return self._command
+
+    @property
     def created_at(self) -> datetime.datetime:
         return self._interaction.created_at
 
     @property
+    def defaults_to_ephemeral(self) -> bool:
+        return self._defaults_to_ephemeral
+
+    @property
     def guild_id(self) -> typing.Optional[hikari.Snowflake]:
         return self._interaction.guild_id
+
+    @property
+    def has_been_deferred(self) -> bool:
+        return self._has_been_deferred
 
     @property
     def has_responded(self) -> bool:
@@ -504,10 +519,16 @@ class SlashContext(BaseContext, traits.SlashContext):
 
         return self._response_future
 
-    async def mark_not_found(self) -> None:
-        flags = self._get_flags(hikari.UNDEFINED)
+    async def mark_not_found(
+        self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED
+    ) -> None:
+        flags = flags if flags is not hikari.UNDEFINED else self._get_flags(hikari.UNDEFINED)
         async with self._response_lock:
             if self._has_responded or not self._not_found_message:
+                return
+
+            if self._has_been_deferred:
+                await self._interaction.edit_initial_response(content=self._not_found_message)
                 return
 
             if self._response_future:
@@ -526,6 +547,10 @@ class SlashContext(BaseContext, traits.SlashContext):
             raise ValueError("Defer timer already set")
 
         self._defer_task = asyncio.get_running_loop().create_task(self._auto_defer(count_down))
+        return self
+
+    def set_command(self: _SlashContextT, command: typing.Optional[traits.SlashCommand], /) -> _SlashContextT:
+        self._command = command
         return self
 
     def set_ephemeral_default(self: _SlashContextT, state: bool, /) -> _SlashContextT:
@@ -628,6 +653,11 @@ class SlashContext(BaseContext, traits.SlashContext):
         async with self._response_lock:
             if self._has_responded:
                 raise RuntimeError("Initial response has already been created")
+
+            if self._has_been_deferred:
+                raise RuntimeError(
+                    "edit_initial_response must be used to set the initial response after a context has been deferred"
+                )
 
             self._has_responded = True
             if not self._response_future:

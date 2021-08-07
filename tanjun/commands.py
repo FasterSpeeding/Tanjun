@@ -1062,7 +1062,10 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
 
     async def check_context(self, ctx: traits.SlashContext, /) -> bool:
         # <<inherited docstring from tanjun.traits.SlashCommand>>.
-        return await utilities.gather_checks(ctx, self._checks)
+        ctx = ctx.set_command(self)
+        result = await utilities.gather_checks(ctx, self._checks)
+        ctx.set_command(None)
+        return result
 
     async def execute(
         self,
@@ -1073,6 +1076,7 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         hooks: typing.Optional[collections.MutableSet[traits.SlashHooks]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.traits.SlashCommand>>.
+        ctx = ctx.set_command(self)
         own_hooks = self._hooks or _EMPTY_HOOKS
         try:
             await own_hooks.trigger_pre_execution(ctx, hooks=hooks)

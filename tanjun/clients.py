@@ -349,7 +349,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         # TODO: separate slash and gateway checks?
         self._accepts = MessageAcceptsEnum.ALL if events else MessageAcceptsEnum.NONE
-        self._auto_defer_after: typing.Optional[float] = 2.6
+        self._auto_defer_after: typing.Optional[float] = 2.0
         self._cache = cache
         self._cached_application_id: typing.Optional[hikari.Snowflake] = None
         self._checks: set[injecting.InjectableCheck] = set()

@@ -542,8 +542,42 @@ class SlashContext(Context, abc.ABC):
     __slots__ = ()
 
     @property
+    @abc.abstractmethod
     def command(self) -> typing.Optional[SlashCommand]:
         raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def defaults_to_ephemeral(self) -> bool:
+        """Whether the context is marked as defaulting to ephemeral response.
+
+        This effects calls to `SlashContext.create_followup`,
+        `SlashContext.create_initial_response`, `SlashContext.defer` and
+        `SlashContext.respond` unless the `flags` field is provided for the
+        methods which support it.
+
+        Returns
+        -------
+        bool
+            Whether the context is marked as defaulting to ephemeral responses.
+        """
+
+    @property
+    @abc.abstractmethod
+    def has_been_deferred(self) -> bool:
+        """Whether the initial response for this context has been deferred.
+
+        !!! warning
+            If this is `True` when `SlashContext.has_responded` is `False`
+            then `SlashContext.edit_initial_response` will need to be used
+            to create the initial response rather than
+            `SlashContext.create_initial_response`.
+
+        Returns
+        -------
+        bool
+            Whether the initial response for this context has been deferred.
+        """
 
     @property
     @abc.abstractmethod
@@ -553,6 +587,10 @@ class SlashContext(Context, abc.ABC):
     @property
     @abc.abstractmethod
     def member(self) -> typing.Optional[hikari.InteractionMember]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def set_command(self: _T, _: typing.Optional[SlashCommand], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
