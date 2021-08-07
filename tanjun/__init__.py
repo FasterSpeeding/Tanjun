@@ -112,7 +112,10 @@ __all__: list[str] = [
     "StateWarning",
     # hooks.py
     "hooks",
+    "AnyHooks",
     "Hooks",
+    "MessageHooks",
+    "SlashHooks",
     # injecting.py
     "injecting",
     "cache_callback",

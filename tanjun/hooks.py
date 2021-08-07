@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: list[str] = ["ErrorHookSig", "Hooks", "HookSig", "ParserHookSig"]
+__all__: list[str] = ["AnyHooks", "ErrorHookSig", "Hooks", "HookSig", "MessageHooks", "ParserHookSig", "SlashHooks"]
 
 import asyncio
 import copy
@@ -245,3 +245,8 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
 
         if hooks:
             await asyncio.gather(*(hook.trigger_success(ctx) for hook in hooks))
+
+
+AnyHooks = Hooks[traits.Context]
+MessageHooks = Hooks[traits.MessageContext]
+SlashHooks = Hooks[traits.SlashContext]
