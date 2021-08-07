@@ -520,7 +520,7 @@ class SlashContext(BaseContext, traits.SlashContext):
         return self._response_future
 
     async def mark_not_found(
-        self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED
+        self, *, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED
     ) -> None:
         flags = flags if flags is not hikari.UNDEFINED else self._get_flags(hikari.UNDEFINED)
         async with self._response_lock:
