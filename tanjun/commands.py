@@ -819,7 +819,7 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
 
         return super().build(entity_factory)
 
-    def copy(self) -> _CommandBuilder:
+    def copy(self) -> _CommandBuilder:  # TODO: can we just del _CommandBuilder.__copy__ to go back to the default?
         builder = _CommandBuilder(self.name, self.description, self._sort_options, id=self.id)
 
         for option in self._options:
