@@ -38,6 +38,7 @@ __all__: list[str] = [
     "as_message_command",
     "as_message_command_group",
     "as_slash_command",
+    "slash_command_group",
     "MessageCommand",
     "MessageCommandGroup",
     "PartialCommand",
@@ -224,6 +225,24 @@ _SUB_COMMAND_OPTIONS_TYPES: typing.Final[set[hikari.OptionType]] = {
     hikari.OptionType.SUB_COMMAND_GROUP,
 }
 _SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[a-z0-9_-]{1,32}$")
+
+
+def slash_command_group(
+    name: str,
+    description: str,
+    /,
+    *,
+    command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
+    default_to_ephemeral: bool = False,
+    is_global: bool = True,
+) -> SlashCommandGroup:
+    return SlashCommandGroup(
+        name,
+        description,
+        command_id=command_id,
+        default_to_ephemeral=default_to_ephemeral,
+        is_global=is_global,
+    )
 
 
 def as_slash_command(
@@ -735,7 +754,7 @@ _CommandBuilderT = typing.TypeVar("_CommandBuilderT", bound="_CommandBuilder")
 
 
 class _CommandBuilder(hikari.impl.CommandBuilder):
-    __slots__ = ("_has_been_sorted", "_sort_options")
+    __slots__ = ("_has_been_sorted", "_options_dict", "_sort_options")
 
     def __init__(
         self,
@@ -747,13 +766,20 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
     ) -> None:
         super().__init__(name, description, id=id)  # type: ignore
         self._has_been_sorted = True
+        self._options_dict: dict[str, hikari.CommandOption] = {}
         self._sort_options = sort_options
 
     def add_option(self: _CommandBuilderT, option: hikari.CommandOption) -> _CommandBuilderT:
         if self._options:
             self._has_been_sorted = False
 
-        return super().add_option(option)  # type: ignore  # Pyright seems to mis-handle the typevars here
+        self._options_dict[option.name] = option
+        super().add_option(option)
+        return self
+
+    def remove_option(self, name: str, /) -> None:
+        option = self._options_dict.pop(name)
+        self._options.remove(option)
 
     def build(self, entity_factory: hikari.api.EntityFactory, /) -> dict[str, typing.Any]:
         if self._sort_options and not self._has_been_sorted:
@@ -905,11 +931,8 @@ class BaseSlashCommand(PartialCommand[traits.SlashContext], traits.BaseSlashComm
     ) -> _BaseSlashCommandT:
         # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         if not _new:
-            self._cached_getters = None
-            self._callback = copy.copy(self._callback)
-            self._needs_injector = None
             self._parent = parent
-            super().copy(_new=_new)
+            return super().copy(_new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
 
         return super().copy(_new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
 
@@ -937,7 +960,6 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
         checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.SlashHooks] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
-        sort_options: bool = True,
     ) -> None:
         super().__init__(
             name,
@@ -948,7 +970,7 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
             checks=checks,
             hooks=hooks,
             metadata=metadata,
-            sort_options=sort_options,
+            sort_options=False,
         )
         self._commands: dict[str, traits.BaseSlashCommand] = {}
 
@@ -961,10 +983,35 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
             raise ValueError("Cannot add a slash command group to a nested slash command group")
 
         self._commands[command.name] = command
+        option_type = (
+            hikari.OptionType.SUB_COMMAND_GROUP
+            if isinstance(command, traits.SlashCommandGroup)
+            else hikari.OptionType.SUB_COMMAND
+        )
+        builder = command.build()
+        self._builder.add_option(
+            hikari.CommandOption(
+                type=option_type,
+                name=command.name,
+                description=builder.description,
+                is_required=False,
+                options=builder.options,
+            )
+        )
         return self
+
+    def copy(
+        self: _SlashCommandGroupT, *, _new: bool = True, parent: typing.Optional[traits.SlashCommandGroup] = None
+    ) -> _SlashCommandGroupT:
+        if not _new:
+            self._commands = {name: command.copy() for name, command in self._commands.items()}
+            return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars
+
+        return copy.copy(self).copy(_new=False, parent=parent)
 
     def remove_command(self, command: traits.BaseSlashCommand, /) -> None:
         del self._commands[command.name]
+        self._builder.remove_option(command.name)
 
     def with_command(self, command: traits.BaseSlashCommandT, /) -> traits.BaseSlashCommandT:
         self.add_command(command)
@@ -974,13 +1021,27 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
         self,
         ctx: traits.SlashContext,
         /,
+        option: typing.Optional[hikari.CommandInteractionOption] = None,
         *,
         hooks: typing.Optional[collections.MutableSet[traits.SlashHooks]] = None,
     ) -> None:
         if not await self.check_context(ctx):
             return
 
-        raise NotImplementedError
+        if not option and ctx.interaction.options:
+            option = ctx.interaction.options[0]
+
+        elif option and option.options:
+            option = option.options[0]
+
+        else:
+            raise RuntimeError("Missing sub-command option")
+
+        if command := self._commands.get(option.name):
+            await command.execute(ctx, option=option, hooks=hooks)
+            return
+
+        await ctx.mark_not_found()
 
 
 class SlashCommand(BaseSlashCommand, traits.SlashCommand, typing.Generic[CommandCallbackSigT]):
@@ -1215,6 +1276,18 @@ class SlashCommand(BaseSlashCommand, traits.SlashCommand, typing.Generic[Command
         finally:
             await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
+    def copy(
+        self: _SlashCommandT, *, _new: bool = True, parent: typing.Optional[traits.SlashCommandGroup] = None
+    ) -> _SlashCommandT:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+        if not _new:
+            self._cached_getters = None
+            self._callback = copy.copy(self._callback)
+            self._needs_injector = None
+            return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars
+
+        return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars here
+
     def load_into_component(self: _SlashCommandT, component: traits.Component, /) -> typing.Optional[_SlashCommandT]:
         if isinstance(self._callback, types.MethodType):
             raise ValueError("Callback is already a method type")
@@ -1351,7 +1424,7 @@ class MessageCommand(PartialCommand[traits.MessageContext], traits.MessageComman
             self._needs_injector = None
             self._parent = parent
             self._parser = self._parser.copy() if self._parser else None
-            super().copy(_new=_new)
+            return super().copy(_new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
 
         return super().copy(_new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
 
@@ -1507,7 +1580,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
             commands = {command: command.copy(parent=self) for command in self._commands}
             self._commands = set(commands.values())
             self._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
-            super().copy(parent=parent, _new=_new)
+            return super().copy(parent=parent, _new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars
 
         return super().copy(parent=parent, _new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
 

@@ -842,11 +842,6 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
 
     @property
     @abc.abstractmethod
-    def callback(self) -> CommandCallbackSig:
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
     def defaults_to_ephemeral(self) -> bool:
         raise NotImplementedError
 
@@ -878,6 +873,7 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
         self,
         ctx: SlashContext,
         /,
+        option: typing.Optional[hikari.CommandInteractionOption] = None,
         *,
         hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None,
     ) -> None:
@@ -901,15 +897,9 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
 class SlashCommand(BaseSlashCommand, abc.ABC):
     __slots__ = ()
 
+    @property
     @abc.abstractmethod
-    async def execute(
-        self,
-        ctx: SlashContext,
-        /,
-        option: typing.Optional[hikari.CommandInteractionOption] = None,
-        *,
-        hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None,
-    ) -> None:
+    def callback(self) -> CommandCallbackSig:
         raise NotImplementedError
 
 
