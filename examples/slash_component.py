@@ -35,26 +35,39 @@ async def nsfw_command(ctx: tanjun.traits.Context) -> None:
 
 # While slash command groups may be nested, this only works up to one level.
 top_group = component.with_slash_command(tanjun.slash_command_group("places", "get info about places"))
-nested_group = top_group.with_command(tanjun.slash_command_group("hi", "say hello or something!"))
+nested_group = top_group.with_command(tanjun.slash_command_group("interaction", "say hello or something!"))
 
 
 @nested_group.with_command
 @tanjun.with_str_slash_option("name", "Kimi no na wa")
 @tanjun.as_slash_command("hi", "hello")
-async def test_op_hi_command(ctx: tanjun.traits.Context, name: str) -> None:
+async def hi_command(ctx: tanjun.traits.Context, name: str) -> None:
     await ctx.respond(f"Hi, {name}")
 
 
 @top_group.with_command
 @tanjun.as_slash_command("japan", "nihon is my city")
-async def test_japan_command(ctx: tanjun.traits.Context) -> None:
+async def japan_command(ctx: tanjun.traits.Context) -> None:
     await ctx.respond("Nihongo ga dekimasu ka?")
 
 
 @top_group.with_command
 @tanjun.as_slash_command("europe", "IDK how to describe Europe... big?")
-async def test_europe_command(ctx: tanjun.traits.Context) -> None:
+async def europe_command(ctx: tanjun.traits.Context) -> None:
     await ctx.respond("I don't know how to describe Europe... small?")
+
+
+# The previous code leads to top_group having the following structure
+#
+# places (command group)
+# |
+# |__ japan (command)
+# |
+# |__ europe (command)
+# |
+# |__ interaction (command group)
+#    |
+#    |__ hi (command)
 
 
 @component.with_command
