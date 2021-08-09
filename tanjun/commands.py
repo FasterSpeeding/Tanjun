@@ -727,7 +727,7 @@ def with_mentionable_slash_option(
     """Add a mentionable option to a slash command.
 
     !!! note
-        This may taget roles, guild members or users and results in
+        This may target roles, guild members or users and results in
         `Union[hikari.User, hikari.InteractionMember, hikari.Role]`.
 
     Example

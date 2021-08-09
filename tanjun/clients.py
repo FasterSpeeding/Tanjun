@@ -300,7 +300,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         !!! note
             The endpoint this uses has a strict ratelimit which, as of writing,
             only allows for 2 request per minute (with that ratelimit either
-            being per-guild if targetting a specific guild otherwise globally).
+            being per-guild if targeting a specific guild otherwise globally).
 
     Raises
     ------
@@ -439,13 +439,13 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
             If a snowflake ID is passed here then the global commands will be
             set on this specific guild at startup rather than globally. This
             can be useful for testing/debug purposes as slash commands may take
-            up to an hour to propogate globally but will immediately propogate
+            up to an hour to propagate globally but will immediately propagate
             when set on a specific guild.
 
             !!! note
                 The endpoint this uses has a strict ratelimit which, as of writing,
                 only allows for 2 request per minute (with that ratelimit either
-                being per-guild if targetting a specific guild otherwise globally).
+                being per-guild if targeting a specific guild otherwise globally).
         """
         return (
             cls(
@@ -487,13 +487,13 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
             If a snowflake ID is passed here then the global commands will be
             set on this specific guild at startup rather than globally. This
             can be useful for testing/debug purposes as slash commands may take
-            up to an hour to propogate globally but will immediately propogate
+            up to an hour to propagate globally but will immediately propagate
             when set on a specific guild.
 
             !!! note
                 The endpoint this uses has a strict ratelimit which, as of writing,
                 only allows for 2 request per minute (with that ratelimit either
-                being per-guild if targetting a specific guild otherwise globally).
+                being per-guild if targeting a specific guild otherwise globally).
 
         """
         return cls(
@@ -792,7 +792,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
             The time in seconds to defer interaction command responses after.
 
             !!! note
-                If this is set to ``None``, automatic deferals will be disabled.
+                If this is set to `None` then automatic deferrals will be disabled.
                 This may lead to unexpected behaviour.
         """
         self._auto_defer_after = float(time) if time is not None else None
@@ -882,7 +882,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         !!! note
             The endpoint this uses has a strict ratelimit which, as of writing,
             only allows for 2 request per minute (with that ratelimit either
-            being per-guild if targetting a specific guild otherwise globally).
+            being per-guild if targeting a specific guild otherwise globally).
 
         Other Parameters
         ----------------
@@ -916,7 +916,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         !!! note
             The endpoint this uses has a strict ratelimit which, as of writing,
             only allows for 2 request per minute (with that ratelimit either
-            being per-guild if targetting a specific guild otherwise globally).
+            being per-guild if targeting a specific guild otherwise globally).
 
         Other Parameters
         ----------------
@@ -932,8 +932,8 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
             !!! note
                 This can be useful for testing/debug purposes as slash commands
-                may take up to an hour to propogate globally but will
-                immediately propogate when set on a specific guild.
+                may take up to an hour to propagate globally but will
+                immediately propagate when set on a specific guild.
 
         Returns
         -------
@@ -1316,7 +1316,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         except errors.CommandError as exc:
             # Under very specific timing there may be another future which could set a result while we await
-            # ctx.respond therefore we create a task to avoid any erronous behaviour from this trying to create
+            # ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create
             # another response before it's returned the initial response.
             asyncio.create_task(ctx.respond(exc.message))
             return await future

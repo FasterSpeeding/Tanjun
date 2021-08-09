@@ -367,7 +367,7 @@ def calculate_everyone_permissions(
     *,
     channel: typing.Optional[hikari.GuildChannel] = None,
 ) -> hikari.Permissions:
-    """Calculate a guild's default permissions within the guild or for a specifc channel.
+    """Calculate a guild's default permissions within the guild or for a specific channel.
 
     Parameters
     ----------
@@ -411,7 +411,7 @@ async def fetch_everyone_permissions(
     *,
     channel: typing.Optional[hikari.SnowflakeishOr[hikari.PartialChannel]] = None,
 ) -> hikari.Permissions:
-    """Calculate the permissions a guild's default @everyone role has within a guild or for a specifc channel.
+    """Calculate the permissions a guild's default @everyone role has within a guild or for a specific channel.
 
     !!! note
         This callback will fallback to REST requests if cache lookups fail or

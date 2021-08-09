@@ -1,17 +1,19 @@
-# As a note, a slash command context should always be responded to and leaving
-# as leaving it without a response will leave the command call either marked
-# as loading for 15 minutes if it's been deferred or marked as failed after
+# As a note, a slash command context should always be responded to as leaving
+# it without a response will leave the command call either marked as loading
+# for 15 minutes (if it's been deferred) or marked as failed after
 # 3 seconds (by default slash commands are automatically deferred before the
 # 3 second expire mark but this doesn't negate the need to give an actual
 # response).
 #
 # For most of these examples `tanjun.traits.SlashContext.respond` is used for
-# for responding to interactions, this abstracts away the interactions response
-# flow by tracking state on Context object to decide how to respond.
-# While the lower level approache may also be used for responding it is
-# generally recommended that you use the relevant lower level methods on
+# responding to interactions, this abstracts away the interactions response
+# flow by tracking state on the Context object in-order to decide how to
+# respond. While the lower level approache may also be used for responding it
+# is generally recommended that you use the relevant lower level methods on
 # `tanun.traits.SlashContext` to allow state to still be tracked and ensure
-# better compatability.
+# better compatibility.
+import asyncio
+
 import hikari
 
 import tanjun
@@ -19,11 +21,11 @@ import tanjun
 component = tanjun.Component()
 
 
-# Here we declare a command as defaulting to ephemeral,
-# This means that all calls made to SlashContext's message creating methods
-# (e.g. respond, create_initial_respones and create_followup) will be ephemeral
-# unless `flags` is specified (including calls made by command checks and
-# the CommandError handler).
+# Here we declare a command as defaulting to ephemeral, this means that all
+# calls made to SlashContext's message creating methods (e.g. respond,
+# create_initial_respones and create_followup) will be ephemeral unless `flags`
+# is specified (including calls made by command checks and the CommandError
+# handler).
 @component.with_slash_command
 @tanjun.as_slash_command("nsfw", "A NSFW command", default_to_ephemeral=True)
 async def nsfw_command(ctx: tanjun.traits.Context) -> None:
@@ -50,34 +52,35 @@ async def test_japan_command(ctx: tanjun.traits.Context) -> None:
 
 
 @top_group.with_command
-@tanjun.as_slash_command("europe", "IDK how to describe europe... big?")
+@tanjun.as_slash_command("europe", "IDK how to describe Europe... big?")
 async def test_europe_command(ctx: tanjun.traits.Context) -> None:
-    await ctx.respond("I don't know how to describe europe... big?")
+    await ctx.respond("I don't know how to describe Europe... small?")
 
 
 @component.with_command
-@tanjun.as_slash_command("lower", "Lower level command which takes advantage of slash command specific impl detail")
+@tanjun.as_slash_command("lower", "Lower level command which takes advantage of slash command specific detail")
 async def lower_command(ctx: tanjun.traits.SlashContext) -> None:
-    # Since the SlashContext.respond can't have `flags` as an argument
-    # providing the flags for the initial response requires lower level usage.
+    # Since SlashContext.respond can't have `flags` as an argument, providing
+    # the flags when creating the initial response requires lower level usage.
     #
     # As a note, you can only create the initial response for a slash command
     # context once and any further calls will result in an error being raised.
-    # to create follow ups see `tanjun.traits.SlashContext.create_followup`.
+    # To create follow up responses see `tanjun.traits.SlashContext.create_followup`.
     #
     # As another note, an initial response for a slash context must be created
-    # within 3 seconds of the interaction being received otherwise it  will
+    # within 3 seconds of the interaction being received otherwise it will
     # either be automatically deferred or expire (if automatic deferral is
-    # disabled or not enabled). In the case that an interaction is deferred then
+    # disabled). In the case that an interaction is deferred then
     # `tanjun.traits.SlashContext.edit_initial_response` or
     # `tanjun.traits.SlashContext.respond` should be used to edit an initial
     # response in. `tanjun.traits.SlashContext.defer` may be used to
     # defer an interaction in the case that automatic deferral is disabled or
-    # the response is always going to be defered.
+    # the response is always going to be deferred.
     await ctx.create_initial_response("I'm sorry, Dave", flags=hikari.MessageFlag.EPHEMERAL, tts=True)
 
-    # Since the SlashContext.respond can't have `attachments` as an argument,
-    # providing attachments requires impl detail specific and lower level usage.
+    # Since SlashContext.respond can't have `attachments` as an argument,
+    # providing attachments requires the usage of slash command specific and
+    # lower level detail.
     #
     # As a note, you can only create followup responses after an initial response
     # has been made and any pre-mature calls will result in errors being raised.
@@ -87,15 +90,15 @@ async def lower_command(ctx: tanjun.traits.SlashContext) -> None:
     )
 
 
-# Here's another lower level usage example except this one explicitly defers.
+# Here's a lower level usage example which explicitly defers the initial response.
 # This will have to be done within clients where automatic deferral is disabled
 # if a command (including the relevant converters and checks) takes more than 3
-# seconds to execute to avoid erronous behaviour.
+# seconds to execute to avoid errenous behaviour.
 @component.with_command
 @tanjun.as_slash_command("defer", "Lower level command which explicitly defers")
 async def defer_command(ctx: tanjun.traits.SlashContext) -> None:
     await ctx.defer()
-    ... # Work which may take a while
+    await asyncio.sleep(5)  # Do some work which may take a while
     # Either edit_initial_response or respond may be used here.
     await ctx.edit_initial_response("Done 👍")
 
