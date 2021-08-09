@@ -1046,7 +1046,7 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
             self._commands = {name: command.copy() for name, command in self._commands.items()}
             return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars
 
-        return copy.copy(self).copy(_new=False, parent=parent)
+        return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars
 
     def add_command(self: _SlashCommandGroupT, command: traits.BaseSlashCommand, /) -> _SlashCommandGroupT:
         """Add a slash command to this group.
