@@ -8,6 +8,7 @@ from tanjun import utilities
 def async_iter_mock(*values):
     return mock.Mock(__aiter__=mock.Mock(return_value=mock.Mock(__anext__=mock.AsyncMock(side_effect=values))))
 
+
 @pytest.mark.asyncio()
 async def test_async_chain():
     resources = (
@@ -68,6 +69,7 @@ async def test_gather_checks():
     check_1.assert_awaited_once_with(mock_ctx)
     check_2.assert_awaited_once_with(mock_ctx)
     check_3.assert_awaited_once_with(mock_ctx)
+
 
 @pytest.mark.asyncio()
 async def test_fetch_resource():

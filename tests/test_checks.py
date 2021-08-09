@@ -1,6 +1,6 @@
+import contextlib
 import datetime
 
-import  contextlib
 import mock
 import pytest
 from hikari import permissions
@@ -11,7 +11,7 @@ from tanjun import traits
 
 @pytest.fixture()
 def command():
-    command_ =mock.Mock(traits.ExecutableCommand)
+    command_ = mock.Mock(traits.ExecutableCommand)
     command_.add_check.return_value = command_
     return command_
 
@@ -98,6 +98,7 @@ def test_with_dm_check(command):
         command.add_check.assert_called_once()
         dm_check.assert_called_once_with(mock_ctx, end_execution=False)
 
+
 def test_with_dm_check_with_keyword_arguments(command):
     mock_ctx = object()
     with mock.patch.object(checks, "dm_check") as dm_check:
@@ -117,6 +118,7 @@ def test_with_guild_check(command):
         command.add_check.assert_called_once()
         guild_check.assert_called_once_with(mock_ctx, end_execution=False)
 
+
 def test_with_guild_check_with_keyword_arguments(command):
     mock_ctx = object()
     with mock.patch.object(checks, "guild_check") as guild_check:
@@ -125,7 +127,6 @@ def test_with_guild_check_with_keyword_arguments(command):
 
         command.add_check.assert_called_once()
         guild_check.assert_called_once_with(mock_ctx, end_execution=True)
-
 
 
 @pytest.mark.asyncio()
@@ -150,7 +151,6 @@ async def test_with_nsfw_check_with_keyword_arguments(command):
         nsfw_check.assert_awaited_once_with(mock_ctx, end_execution=True)
 
 
-
 @pytest.mark.asyncio()
 async def test_sfw_check(command):
     mock_ctx = object()
@@ -160,6 +160,7 @@ async def test_sfw_check(command):
 
         command.add_check.assert_called_once()
         sfw_check.assert_awaited_once_with(mock_ctx, end_execution=False)
+
 
 @pytest.mark.asyncio()
 async def test_sfw_check_with_keyword_arguments(command):
@@ -185,7 +186,12 @@ def test_with_owner_check(command):
 def test_with_owner_check_with_keyword_arguments(command):
     mock_check = object()
     with mock.patch.object(checks, "ApplicationOwnerCheck", return_value=mock_check):
-        assert checks.with_owner_check(end_execution=True, expire_delta=datetime.timedelta(minutes=10), owner_ids=(123,))(command) is command
+        assert (
+            checks.with_owner_check(end_execution=True, expire_delta=datetime.timedelta(minutes=10), owner_ids=(123,))(
+                command
+            )
+            is command
+        )
 
         command.add_check.assert_called_once()
         checks.ApplicationOwnerCheck.assert_called_once_with(

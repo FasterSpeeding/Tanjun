@@ -125,7 +125,7 @@ class Component(injecting.Injectable, traits.Component):
         self._message_hooks = message_hooks
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._names_to_commands: dict[str, traits.MessageCommand] = {}
-        self._slash_commands: dict[str, traits.SlashCommand] = {}
+        self._slash_commands: dict[str, traits.BaseSlashCommand] = {}
         self._slash_hooks = slash_hooks
 
         if type(self) is not Component:
@@ -147,7 +147,7 @@ class Component(injecting.Injectable, traits.Component):
         return self._hooks
 
     @property
-    def slash_commands(self) -> collections.ValuesView[traits.SlashCommand]:
+    def slash_commands(self) -> collections.ValuesView[traits.BaseSlashCommand]:
         return self._slash_commands.copy().values()
 
     @property
@@ -257,12 +257,12 @@ class Component(injecting.Injectable, traits.Component):
         if isinstance(command, traits.MessageCommand):
             self.add_message_command(command)
 
-        elif isinstance(command, traits.SlashCommand):
+        elif isinstance(command, traits.BaseSlashCommand):
             self.add_slash_command(command)
 
         else:
             raise ValueError(
-                f"Unexpected object passed, expected a MessageCommand or SlashCommand but got {type(command)}"
+                f"Unexpected object passed, expected a MessageCommand or BaseSlashCommand but got {type(command)}"
             )
 
         return self
@@ -271,12 +271,12 @@ class Component(injecting.Injectable, traits.Component):
         if isinstance(command, traits.MessageCommand):
             self.remove_message_command(command)
 
-        elif isinstance(command, traits.SlashCommand):
+        elif isinstance(command, traits.BaseSlashCommand):
             self.remove_slash_command(command)
 
         else:
             raise ValueError(
-                f"Unexpected object passed, expected a MessageCommand or SlashCommand but got {type(command)}"
+                f"Unexpected object passed, expected a MessageCommand or BaseSlashCommand but got {type(command)}"
             )
 
     @typing.overload
@@ -292,29 +292,29 @@ class Component(injecting.Injectable, traits.Component):
     ) -> WithCommandReturnSig[CommandT]:
         return _with_command(self.add_command, command, copy=copy)
 
-    def add_slash_command(self: _ComponentT, command: traits.SlashCommand, /) -> _ComponentT:
+    def add_slash_command(self: _ComponentT, command: traits.BaseSlashCommand, /) -> _ComponentT:
         if self._injector and isinstance(command, injecting.Injectable):
             command.set_injector(self._injector)
 
         self._slash_commands[command.name.casefold()] = command
         return self
 
-    def remove_slash_command(self, command: traits.SlashCommand, /) -> None:
+    def remove_slash_command(self, command: traits.BaseSlashCommand, /) -> None:
         del self._slash_commands[command.name.casefold()]
 
     @typing.overload
-    def with_slash_command(self, command: traits.SlashCommandT, /) -> traits.SlashCommandT:
+    def with_slash_command(self, command: traits.BaseSlashCommandT, /) -> traits.BaseSlashCommandT:
         ...
 
     @typing.overload
     def with_slash_command(
         self, *, copy: bool = False
-    ) -> collections.Callable[[traits.SlashCommandT], traits.SlashCommandT]:
+    ) -> collections.Callable[[traits.BaseSlashCommandT], traits.BaseSlashCommandT]:
         ...
 
     def with_slash_command(
-        self, command: typing.Optional[traits.SlashCommandT] = None, /, *, copy: bool = False
-    ) -> WithCommandReturnSig[traits.SlashCommandT]:
+        self, command: typing.Optional[traits.BaseSlashCommandT] = None, /, *, copy: bool = False
+    ) -> WithCommandReturnSig[traits.BaseSlashCommandT]:
         return _with_command(self.add_slash_command, command, copy=copy)
 
     def add_message_command(self: _ComponentT, command: traits.MessageCommand, /) -> _ComponentT:
@@ -492,14 +492,14 @@ class Component(injecting.Injectable, traits.Component):
                 # Don't want to match a command multiple times
                 continue
 
-    def check_slash_name(self, name: str, /) -> collections.Iterator[traits.SlashCommand]:
+    def check_slash_name(self, name: str, /) -> collections.Iterator[traits.BaseSlashCommand]:
         if command := self._slash_commands.get(name):
             yield command
 
     async def _execute_interaction(
         self,
         ctx: traits.SlashContext,
-        command: typing.Optional[tanjun.traits.SlashCommand],
+        command: typing.Optional[tanjun.traits.BaseSlashCommand],
         /,
         *,
         hooks: typing.Optional[collections.MutableSet[traits.SlashHooks]] = None,

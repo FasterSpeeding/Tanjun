@@ -33,6 +33,7 @@
 from __future__ import annotations
 
 __all__: list[str] = [
+    "BaseSlashCommandT",
     "CheckSig",
     "CheckSigT",
     "Context",
@@ -48,8 +49,8 @@ __all__: list[str] = [
     "MessageCommandT",
     "MessageCommandGroup",
     "MessageContext",
+    "BaseSlashCommand",
     "SlashCommand",
-    "SlashCommandT",
     "SlashCommandGroup",
     "SlashContext",
     "Component",
@@ -79,7 +80,7 @@ ContextT = typing.TypeVar("ContextT", bound="Context")
 ContextT_contra = typing.TypeVar("ContextT_contra", bound="Context", contravariant=True)
 MetaEventSig = collections.Callable[..., MaybeAwaitableT[None]]
 MetaEventSigT = typing.TypeVar("MetaEventSigT", bound="MetaEventSig")
-SlashCommandT = typing.TypeVar("SlashCommandT", bound="SlashCommand")
+BaseSlashCommandT = typing.TypeVar("BaseSlashCommandT", bound="BaseSlashCommand")
 MessageCommandT = typing.TypeVar("MessageCommandT", bound="MessageCommand")
 
 
@@ -543,7 +544,7 @@ class SlashContext(Context, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def command(self) -> typing.Optional[SlashCommand]:
+    def command(self) -> typing.Optional[BaseSlashCommand]:
         raise NotImplementedError
 
     @property
@@ -590,7 +591,7 @@ class SlashContext(Context, abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_command(self: _T, _: typing.Optional[SlashCommand], /) -> _T:
+    def set_command(self: _T, _: typing.Optional[BaseSlashCommand], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -783,11 +784,6 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
 
     @property
     @abc.abstractmethod
-    def callback(self) -> CommandCallbackSig:
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
     def checks(self) -> collections.Collection[CheckSig]:
         raise NotImplementedError
 
@@ -841,7 +837,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
         raise NotImplementedError
 
 
-class SlashCommand(ExecutableCommand[SlashContext], abc.ABC):
+class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
     __slots__ = ()
 
     @property
@@ -879,7 +875,7 @@ class SlashCommand(ExecutableCommand[SlashContext], abc.ABC):
         /,
         option: typing.Optional[hikari.CommandInteractionOption] = None,
         *,
-        hooks: typing.Optional[collections.MutableSet[Hooks[SlashContext]]] = None,
+        hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None,
     ) -> None:
         raise NotImplementedError
 
@@ -898,25 +894,43 @@ class SlashCommand(ExecutableCommand[SlashContext], abc.ABC):
         """
 
 
-class SlashCommandGroup(SlashCommand, abc.ABC):
+class SlashCommand(BaseSlashCommand, abc.ABC):
     __slots__ = ()
 
     @property
     @abc.abstractmethod
-    def commands(self) -> collections.Collection[SlashCommand]:
+    def callback(self) -> CommandCallbackSig:
+        raise NotImplementedError
+
+
+class SlashCommandGroup(BaseSlashCommand, abc.ABC):
+    __slots__ = ()
+
+    @property
+    @abc.abstractmethod
+    def commands(self) -> collections.Collection[BaseSlashCommand]:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_command(self, command: SlashCommand, /) -> None:
+    def add_command(self: _T, command: BaseSlashCommand, /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def remove_command(self, command: SlashCommand, /) -> None:
+    def remove_command(self, command: BaseSlashCommand, /) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def with_command(self, command: BaseSlashCommandT, /) -> BaseSlashCommandT:
         raise NotImplementedError
 
 
 class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
     __slots__ = ()
+
+    @property
+    @abc.abstractmethod
+    def callback(self) -> CommandCallbackSig:
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
@@ -958,6 +972,10 @@ class MessageCommandGroup(MessageCommand, abc.ABC):
     def remove_command(self, command: MessageCommand, /) -> None:
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def with_command(self, command: MessageCommandT, /) -> MessageCommandT:
+        raise NotImplementedError
+
 
 class Component(abc.ABC):
     __slots__ = ()
@@ -969,7 +987,7 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def slash_commands(self) -> collections.Collection[SlashCommand]:
+    def slash_commands(self) -> collections.Collection[BaseSlashCommand]:
         raise NotImplementedError
 
     @property
@@ -990,27 +1008,27 @@ class Component(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_slash_command(self: _T, command: SlashCommand, /) -> _T:
+    def add_slash_command(self: _T, command: BaseSlashCommand, /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def remove_slash_command(self, command: SlashCommand, /) -> None:
+    def remove_slash_command(self, command: BaseSlashCommand, /) -> None:
         raise NotImplementedError
 
     @typing.overload
     @abc.abstractmethod
-    def with_slash_command(self, command: SlashCommandT, /) -> SlashCommandT:
+    def with_slash_command(self, command: BaseSlashCommandT, /) -> BaseSlashCommandT:
         ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_slash_command(self, *, copy: bool = False) -> collections.Callable[[SlashCommandT], SlashCommandT]:
+    def with_slash_command(self, *, copy: bool = False) -> collections.Callable[[BaseSlashCommandT], BaseSlashCommandT]:
         ...
 
     @abc.abstractmethod
     def with_slash_command(
-        self, command: SlashCommandT = ..., /, *, copy: bool = False
-    ) -> typing.Union[SlashCommandT, collections.Callable[[SlashCommandT], SlashCommandT]]:
+        self, command: BaseSlashCommandT = ..., /, *, copy: bool = False
+    ) -> typing.Union[BaseSlashCommandT, collections.Callable[[BaseSlashCommandT], BaseSlashCommandT]]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -1084,7 +1102,7 @@ class Component(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def check_slash_name(self, content: str, /) -> collections.Iterator[SlashCommand]:
+    def check_slash_name(self, content: str, /) -> collections.Iterator[BaseSlashCommand]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -1182,5 +1200,5 @@ class Client(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def check_slash_name(self, name: str, /) -> collections.Iterator[SlashCommand]:
+    def check_slash_name(self, name: str, /) -> collections.Iterator[BaseSlashCommand]:
         raise NotImplementedError

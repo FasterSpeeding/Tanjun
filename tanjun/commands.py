@@ -38,10 +38,13 @@ __all__: list[str] = [
     "as_message_command",
     "as_message_command_group",
     "as_slash_command",
+    "slash_command_group",
     "MessageCommand",
     "MessageCommandGroup",
     "PartialCommand",
+    "BaseSlashCommand",
     "SlashCommand",
+    "SlashCommandGroup",
     "with_str_slash_option",
     "with_int_slash_option",
     "with_bool_slash_option",
@@ -78,8 +81,10 @@ if typing.TYPE_CHECKING:
 
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand[typing.Any]")
     _MessageCommandGroupT = typing.TypeVar("_MessageCommandGroupT", bound="MessageCommandGroup[typing.Any]")
-    _PartialCommandT = typing.TypeVar("_PartialCommandT", bound="PartialCommand[typing.Any, typing.Any]")
+    _PartialCommandT = typing.TypeVar("_PartialCommandT", bound="PartialCommand[typing.Any]")
+    _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound="BaseSlashCommand")
     _SlashCommandT = typing.TypeVar("_SlashCommandT", bound="SlashCommand[typing.Any]")
+    _SlashCommandGroupT = typing.TypeVar("_SlashCommandGroupT", bound="SlashCommandGroup")
 
 
 AnyMessageCommandT = typing.TypeVar("AnyMessageCommandT", bound=traits.MessageCommand)
@@ -108,31 +113,18 @@ class _LoadableInjector(injecting.InjectableCheck):
 class PartialCommand(
     injecting.Injectable,
     traits.ExecutableCommand[traits.ContextT],
-    typing.Generic[CommandCallbackSigT, traits.ContextT],
 ):
     """Base class for the standard ExecutableCommand implementations."""
 
-    __slots__ = (
-        "_cached_getters",
-        "_callback",
-        "_checks",
-        "_component",
-        "_hooks",
-        "_injector",
-        "_metadata",
-        "_needs_injector",
-    )
+    __slots__ = ("_checks", "_component", "_hooks", "_injector", "_metadata")
 
     def __init__(
         self,
-        callback: CommandCallbackSigT,
-        /,
+        *,
         checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
         hooks: typing.Optional[traits.Hooks[traits.ContextT]] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
     ) -> None:
-        self._cached_getters: typing.Optional[list[injecting.Getter[typing.Any]]] = None
-        self._callback: CommandCallbackSigT = callback
         self._checks: set[injecting.InjectableCheck] = (
             set(injecting.InjectableCheck(check) for check in checks) if checks else set()
         )
@@ -140,12 +132,6 @@ class PartialCommand(
         self._hooks = hooks
         self._injector: typing.Optional[injecting.InjectorClient] = None
         self._metadata = dict(metadata) if metadata else {}
-        self._needs_injector: typing.Optional[bool] = None
-
-    @property
-    def callback(self) -> CommandCallbackSigT:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
-        return self._callback
 
     @property
     def checks(self) -> collections.Set[traits.CheckSig]:
@@ -170,28 +156,14 @@ class PartialCommand(
     @property
     def needs_injector(self) -> bool:
         # <<inherited docstring from tanjun.injecting.Injectable>>.
-        if self._needs_injector is None:
-            self._needs_injector = injecting.check_injecting(self._callback)
-
-        return self._needs_injector
-
-    if typing.TYPE_CHECKING:
-        __call__: CommandCallbackSigT
-
-    else:
-
-        async def __call__(self, *args, **kwargs) -> None:
-            await self._callback(*args, **kwargs)
+        return any(check.needs_injector for check in self._checks)
 
     def copy(self: _PartialCommandT, *, _new: bool = True) -> _PartialCommandT:
         # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         if not _new:
-            self._cached_getters = None
-            self._callback = copy.copy(self._callback)
             self._checks = {check.copy() for check in self._checks}
             self._hooks = self._hooks.copy() if self._hooks else None
             self._metadata = self._metadata.copy()
-            self._needs_injector = None
             return self
 
         return copy.copy(self).copy(_new=False)
@@ -232,29 +204,9 @@ class PartialCommand(
         # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
         self._component = component
 
-    def _get_injection_getters(self) -> collections.Iterable[injecting.Getter[typing.Any]]:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
-        if not self._injector:
-            raise ValueError("Cannot execute command without injector client")
-
-        if self._cached_getters is None:
-            self._cached_getters = list(self._injector.resolve_callback_to_getters(self._callback))
-
-            if self._needs_injector is None:
-                self._needs_injector = bool(self._cached_getters)
-
-        return self._cached_getters
-
     def load_into_component(
-        self, component: traits.Component, /
-    ) -> typing.Optional[PartialCommand[CommandCallbackSigT, traits.ContextT]]:
-        if isinstance(self._callback, types.MethodType):
-            raise ValueError("Callback is already a method type")
-
-        self._cached_getters = None
-        self._callback = types.MethodType(self._callback, component)  # type: ignore[assignment]
-        self._needs_injector = None
-
+        self: _PartialCommandT, component: traits.Component, /
+    ) -> typing.Optional[_PartialCommandT]:
         for check in self._checks:
             if isinstance(check, _LoadableInjector):
                 check.make_method_type(component)
@@ -273,6 +225,82 @@ _SUB_COMMAND_OPTIONS_TYPES: typing.Final[set[hikari.OptionType]] = {
     hikari.OptionType.SUB_COMMAND_GROUP,
 }
 _SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[a-z0-9_-]{1,32}$")
+
+
+def slash_command_group(
+    name: str,
+    description: str,
+    /,
+    *,
+    command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
+    default_to_ephemeral: bool = False,
+    is_global: bool = True,
+) -> SlashCommandGroup:
+    """Create a slash command group.
+
+    !!! note
+        Unlike message command grups, slash command groups cannot
+        be callable functions themselves.
+
+    Examples
+    --------
+    Sub-commands can be added to the created slash command object through
+    the following decorator based approach:
+    ```python
+    help_group = tanjun.slash_command_group("help", "get help")
+
+    @help_group.with_command
+    @tanjun.with_str_slash_option("commad_name", "command name")
+    @tanjun.as_slash_command("command", "Get help with a command")
+    async def help_command_command(ctx: tanjun.traits.SlashContext, command_name: str) -> None:
+        ...
+
+    @help_group.with_command
+    @tanjun.as_slash_command("me", "help me")
+    async def help_me_command(ctx: tanjun.traits.SlashContext) -> None:
+        ...
+
+    component = tanjun.Component().add_slash_command_command(help_group)
+    ```
+
+    Arguments
+    ---------
+    name : str
+        The name of the command group.
+    description : str
+        The description of the command group.
+
+    Other Parameters
+    ----------------
+    command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.Command]]
+        Object or ID of the command the group tracks.
+
+        This is useful when bulk updating the commands as if the ID isn't
+        specified then any previously set permissions may be lost (i.e. if the
+        command's name is changed).
+    default_to_ephemeral : bool
+        Whether this command's responses should default to ephemeral unless flags
+        are set to override this. This defaults to `False`.
+    is_global : bool
+        Whether this command is a global command. Defaults to `True`.
+
+        !!! note
+            Under the current implementation, this is used to determine whether
+            the command should be bulk set by `tanjun.Client.set_global_commands`
+            or when `set_global_commands` is True
+
+    Returns
+    -------
+    SlashCommandGroup
+        The command group.
+    """
+    return SlashCommandGroup(
+        name,
+        description,
+        command_id=command_id,
+        default_to_ephemeral=default_to_ephemeral,
+        is_global=is_global,
+    )
 
 
 def as_slash_command(
@@ -319,6 +347,7 @@ def as_slash_command(
         are set to override this. This defaults to `False`.
     is_global : bool
         Whether this command is a global command. Defaults to `True`.
+
         !!! note
             Under the current implementation, this is used to determine whether
             the command should be bulk set by `tanjun.Client.set_global_commands`
@@ -794,7 +823,7 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
         *,
         id: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,
     ) -> None:
-        super().__init__(name, description, id=id)
+        super().__init__(name, description, id=id)  # type: ignore
         self._has_been_sorted = True
         self._sort_options = sort_options
 
@@ -802,7 +831,8 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
         if self._options:
             self._has_been_sorted = False
 
-        return super().add_option(option)  # type: ignore
+        super().add_option(option)
+        return self
 
     def build(self, entity_factory: hikari.api.EntityFactory, /) -> dict[str, typing.Any]:
         if self._sort_options and not self._has_been_sorted:
@@ -828,21 +858,11 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
         return builder
 
 
-class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], traits.SlashCommand):
-    __slots__ = (
-        "_builder",
-        "_command_id",
-        "_defaults_to_ephemeral",
-        "_description",
-        "_is_global",
-        "_name",
-        "_parent",
-        "_tracked_options",
-    )
+class BaseSlashCommand(PartialCommand[traits.SlashContext], traits.BaseSlashCommand):
+    __slots__ = ("_command_id", "_defaults_to_ephemeral", "_description", "_is_global", "_name", "_parent")
 
     def __init__(
         self,
-        callback: CommandCallbackSigT,
         name: str,
         description: str,
         /,
@@ -855,57 +875,321 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
         sort_options: bool = True,
     ) -> None:
-        super().__init__(callback, checks=checks, hooks=hooks, metadata=metadata)
+        super().__init__(checks=checks, hooks=hooks, metadata=metadata)
         if not _SCOMMAND_NAME_REG.fullmatch(name):
             raise ValueError("Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`")
 
-        command_id = hikari.Snowflake(command_id) if command_id else None
-        self._builder = _CommandBuilder(name, description, sort_options)
-
-        if command_id:
-            self._builder = self._builder.set_id(command_id)
-
-        self._command_id = command_id
+        self._command_id = hikari.Snowflake(command_id) if command_id else None
         self._defaults_to_ephemeral = default_to_ephemeral
         self._description = description
         self._is_global = is_global
         self._name = name
         self._parent: typing.Optional[traits.SlashCommandGroup] = None
-        self._tracked_options: dict[str, _TrackedOption] = {}
 
     @property
     def defaults_to_ephemeral(self) -> bool:
-        # <<inherited docstring from tanjun.traits.SlashCommand>>.
+        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
         return self._defaults_to_ephemeral
 
     @property
     def description(self) -> str:
-        # <<inherited docstring from tanjun.traits.SlashCommand>>.
+        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
         return self._description
 
     @property
     def is_global(self) -> bool:
-        # <<inherited docstring from tanjun.traits.SlashCommand>>.
+        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
         return self._is_global
 
     @property
     def name(self) -> str:
-        # <<inherited docstring from tanjun.traits.SlashCommand>>.
+        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
         return self._name
 
     @property
-    def needs_injector(self) -> bool:
-        # <<inherited docstring from tanjun.injecting.Injectable>>.
-        return super().needs_injector or any(option.needs_injector for option in self._tracked_options.values())
-
-    @property
     def parent(self) -> typing.Optional[traits.SlashCommandGroup]:
-        # <<inherited docstring from tanjun.traits.SlashCommand>>.
+        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
         return self._parent
 
     @property
     def tracked_command_id(self) -> typing.Optional[hikari.Snowflake]:
         return self._command_id
+
+    def set_tracked_command(
+        self: _BaseSlashCommandT, command_id: hikari.SnowflakeishOr[hikari.Command], /
+    ) -> _BaseSlashCommandT:
+        """Set the ID of the global command this should be tracking.
+
+        !!! note
+            This is useful when bulk updating the commands as if the ID isn't
+            specified then any previously set permissions may be lost (i.e. if the
+            command's name is changed).
+
+        Parameters
+        ----------
+        command_id : hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]
+            object or ID of the global command this should be tracking.
+        """
+        self._command_id = hikari.Snowflake(command_id)
+        return self
+
+    def set_ephemeral_default(self: _BaseSlashCommandT, state: bool, /) -> _BaseSlashCommandT:
+        """Set whether this command's responses should default to ephemeral.
+
+
+        Parameters
+        ----------
+        bool
+            Whether this command's responses should default to ephemeral.
+            This will be overridden by any response calls which specify flags.
+        """
+        self._defaults_to_ephemeral = state
+        return self
+
+    def set_parent(
+        self: _BaseSlashCommandT, parent: typing.Optional[traits.SlashCommandGroup], /
+    ) -> _BaseSlashCommandT:
+        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
+        self._parent = parent
+        return self
+
+    async def check_context(self, ctx: traits.SlashContext, /) -> bool:
+        # <<inherited docstring from tanjun.traits.SlashCommand>>.
+        ctx = ctx.set_command(self)
+        result = await utilities.gather_checks(ctx, self._checks)
+        ctx.set_command(None)
+        return result
+
+    def copy(
+        self: _BaseSlashCommandT, *, _new: bool = True, parent: typing.Optional[traits.SlashCommandGroup] = None
+    ) -> _BaseSlashCommandT:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+        if not _new:
+            self._parent = parent
+            return super().copy(_new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
+
+        return super().copy(_new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
+
+    def load_into_component(
+        self: _BaseSlashCommandT, component: traits.Component, /
+    ) -> typing.Optional[_BaseSlashCommandT]:
+        super().load_into_component(component)
+        if not self._parent:
+            component.add_slash_command(self)
+            return self
+
+
+class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
+    __slots__ = ("_commands",)
+
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        /,
+        *,
+        command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
+        default_to_ephemeral: bool = False,
+        is_global: bool = True,
+        checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
+        hooks: typing.Optional[traits.SlashHooks] = None,
+        metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
+    ) -> None:
+        super().__init__(
+            name,
+            description,
+            command_id=command_id,
+            default_to_ephemeral=default_to_ephemeral,
+            is_global=is_global,
+            checks=checks,
+            hooks=hooks,
+            metadata=metadata,
+            sort_options=False,
+        )
+        self._commands: dict[str, traits.BaseSlashCommand] = {}
+
+    @property
+    def commands(self) -> collections.ValuesView[traits.BaseSlashCommand]:
+        # <<inherited docstring from tanjun.traits.SlashCommandGroup>>.
+        return self._commands.copy().values()
+
+    def build(self) -> special_endpoints_api.CommandBuilder:
+        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
+        builder = _CommandBuilder(self._name, self._description, False)
+        if self._command_id:
+            builder.set_id(self._command_id)
+
+        for command in self._commands.values():
+            option_type = (
+                hikari.OptionType.SUB_COMMAND_GROUP
+                if isinstance(command, traits.SlashCommandGroup)
+                else hikari.OptionType.SUB_COMMAND
+            )
+            command_builder = command.build()
+            builder.add_option(
+                hikari.CommandOption(
+                    type=option_type,
+                    name=command.name,
+                    description=command_builder.description,
+                    is_required=False,
+                    options=command_builder.options,
+                )
+            )
+
+        return builder
+
+    def copy(
+        self: _SlashCommandGroupT, *, _new: bool = True, parent: typing.Optional[traits.SlashCommandGroup] = None
+    ) -> _SlashCommandGroupT:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+        if not _new:
+            self._commands = {name: command.copy() for name, command in self._commands.items()}
+            return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars
+
+        return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars
+
+    def add_command(self: _SlashCommandGroupT, command: traits.BaseSlashCommand, /) -> _SlashCommandGroupT:
+        """Add a slash command to this group.
+
+        Parameters
+        ----------
+        command : tanjun.traits.BaseSlashCommand
+            Command to add to this group.
+
+            !!! warning
+                Command groups are only supported within top-level groups.
+
+        Returns
+        -------
+        Self
+            Object of this group to enable chained calls.
+        """
+        if self._parent and isinstance(command, traits.SlashCommandGroup):
+            raise ValueError("Cannot add a slash command group to a nested slash command group")
+
+        self._commands[command.name] = command
+        return self
+
+    def remove_command(self, command: traits.BaseSlashCommand, /) -> None:
+        """Remove a command from this group.
+
+        Parameters
+        ----------
+        command : tanjun.traits.BaseSlashCommand
+            Command to remove from this group.
+        """
+        del self._commands[command.name]
+
+    def with_command(self, command: traits.BaseSlashCommandT, /) -> traits.BaseSlashCommandT:
+        """Add a slash command to this group through a decorator call.
+
+        Parameters
+        ----------
+        command : tanjun.traits.BaseSlashCommand
+            Command to add to this group.
+
+        Returns
+        -------
+        tanjun.traits.BaseSlashCommand
+            Command which was added to this group.
+        """
+        self.add_command(command)
+        return command
+
+    async def execute(
+        self,
+        ctx: traits.SlashContext,
+        /,
+        option: typing.Optional[hikari.CommandInteractionOption] = None,
+        *,
+        hooks: typing.Optional[collections.MutableSet[traits.SlashHooks]] = None,
+    ) -> None:
+        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
+        if not await self.check_context(ctx):
+            return
+
+        if not option and ctx.interaction.options:
+            option = ctx.interaction.options[0]
+
+        elif option and option.options:
+            option = option.options[0]
+
+        else:
+            raise RuntimeError("Missing sub-command option")
+
+        if command := self._commands.get(option.name):
+            await command.execute(ctx, option=option, hooks=hooks)
+            return
+
+        await ctx.mark_not_found()
+
+
+class SlashCommand(BaseSlashCommand, traits.SlashCommand, typing.Generic[CommandCallbackSigT]):
+    __slots__ = ("_builder", "_callback", "_cached_getters", "_needs_injector", "_tracked_options")
+
+    def __init__(
+        self,
+        callback: CommandCallbackSigT,
+        name: str,
+        description: str,
+        /,
+        *,
+        checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
+        command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
+        default_to_ephemeral: bool = False,
+        is_global: bool = True,
+        hooks: typing.Optional[traits.SlashHooks] = None,
+        metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
+        sort_options: bool = True,
+    ) -> None:
+        super().__init__(
+            name,
+            description,
+            checks=checks,
+            command_id=command_id,
+            default_to_ephemeral=default_to_ephemeral,
+            hooks=hooks,
+            is_global=is_global,
+            metadata=metadata,
+            sort_options=sort_options,
+        )
+
+        self._builder = _CommandBuilder(name, description, sort_options)
+        if self._command_id:
+            self._builder = self._builder.set_id(self._command_id)
+
+        self._callback: CommandCallbackSigT = callback
+        self._cached_getters: typing.Optional[list[injecting.Getter[typing.Any]]] = None
+        self._needs_injector: typing.Optional[bool] = None
+        self._tracked_options: dict[str, _TrackedOption] = {}
+        if not _SCOMMAND_NAME_REG.fullmatch(name):
+            raise ValueError("Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`")
+
+    if typing.TYPE_CHECKING:
+        __call__: CommandCallbackSigT
+
+    else:
+
+        async def __call__(self, *args, **kwargs) -> None:
+            await self._callback(*args, **kwargs)
+
+    @property
+    def callback(self) -> CommandCallbackSigT:
+        # <<inherited docstring from tanjun.traits.SlashCommand>>.
+        return self._callback
+
+    @property
+    def needs_injector(self) -> bool:
+        # <<inherited docstring from tanjun.injecting.Injectable>>.
+        return (
+            injecting.check_injecting(self._callback)
+            or any(option.needs_injector for option in self._tracked_options.values())
+            or super().needs_injector
+        )
+
+    def build(self) -> special_endpoints_api.CommandBuilder:
+        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
+        return self._builder.copy()
 
     def add_option(
         self: _SlashCommandT,
@@ -952,52 +1236,11 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
             )
         return self
 
-    def build(self) -> special_endpoints_api.CommandBuilder:
-        # <<inherited docstring from tanjun.traits.SlashCommand>>.
-        return self._builder.copy()
-
-    def set_tracked_command(
-        self: _SlashCommandT, command_id: hikari.SnowflakeishOr[hikari.Command], /
-    ) -> _SlashCommandT:
-        """Set the ID of the global command this should be tracking.
-
-        !!! note
-            This is useful when bulk updating the commands as if the ID isn't
-            specified then any previously set permissions may be lost (i.e. if the
-            command's name is changed).
-
-        Parameters
-        ----------
-        command_id : hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]
-            object or ID of the global command this should be tracking.
-        """
-        self._command_id = hikari.Snowflake(command_id)
-        self._builder = self._builder.set_id(self._command_id)
-        return self
-
-    def set_ephemeral_default(self: _SlashCommandT, state: bool, /) -> _SlashCommandT:
-        """Set whether this command's responses should default to ephemeral.
-
-
-        Parameters
-        ----------
-        bool
-            Whether this command's responses should default to ephemeral.
-            This will be overridden by any response calls which specify flags.
-        """
-        self._defaults_to_ephemeral = state
-        return self
-
     def set_injector(self, client: injecting.InjectorClient, /) -> None:
         # <<inherited docstring from tanjun.injecting.Injectable>>.
         super().set_injector(client)
         for option in self._tracked_options.values():
             option.set_injector(client)
-
-    def set_parent(self: _SlashCommandT, parent: typing.Optional[traits.SlashCommandGroup], /) -> _SlashCommandT:
-        # <<inherited docstring from tanjun.traits.SlashCommand>>.
-        self._parent = parent
-        return self
 
     async def _process_args(
         self,
@@ -1016,9 +1259,7 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
                     #     tracked_option.name,
                     #     "Found value-less or missing option for a option for tracked option with no default"
                     # )
-                    raise RuntimeError(
-                        "Found value-less or missing option for a option for tracked option with no default"
-                    )
+                    raise RuntimeError("Found value-less or missing option for a tracked option with no default")
 
                 keyword_args[tracked_option.name] = tracked_option.default
 
@@ -1060,12 +1301,17 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
 
         return keyword_args
 
-    async def check_context(self, ctx: traits.SlashContext, /) -> bool:
-        # <<inherited docstring from tanjun.traits.SlashCommand>>.
-        ctx = ctx.set_command(self)
-        result = await utilities.gather_checks(ctx, self._checks)
-        ctx.set_command(None)
-        return result
+    def _get_injection_getters(self) -> collections.Iterable[injecting.Getter[typing.Any]]:
+        if not self._injector:
+            raise ValueError("Cannot execute command without injector client")
+
+        if self._cached_getters is None:
+            self._cached_getters = list(self._injector.resolve_callback_to_getters(self._callback))
+
+            if self._needs_injector is None:
+                self._needs_injector = bool(self._cached_getters)
+
+        return self._cached_getters
 
     async def execute(
         self,
@@ -1075,7 +1321,7 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         *,
         hooks: typing.Optional[collections.MutableSet[traits.SlashHooks]] = None,
     ) -> None:
-        # <<inherited docstring from tanjun.traits.SlashCommand>>.
+        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
         ctx = ctx.set_command(self)
         own_hooks = self._hooks or _EMPTY_HOOKS
         try:
@@ -1118,9 +1364,27 @@ class SlashCommand(PartialCommand[CommandCallbackSigT, traits.SlashContext], tra
         finally:
             await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
+    def copy(
+        self: _SlashCommandT, *, _new: bool = True, parent: typing.Optional[traits.SlashCommandGroup] = None
+    ) -> _SlashCommandT:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+        if not _new:
+            self._cached_getters = None
+            self._callback = copy.copy(self._callback)
+            self._needs_injector = None
+            return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars
+
+        return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars here
+
     def load_into_component(self: _SlashCommandT, component: traits.Component, /) -> typing.Optional[_SlashCommandT]:
-        # <<inherited docstring from PartialCommand>>.
+        if isinstance(self._callback, types.MethodType):
+            raise ValueError("Callback is already a method type")
+
         super().load_into_component(component)
+        self._cached_getters = None
+        self._callback = types.MethodType(self._callback, component)  # type: ignore[assignment]
+        self._needs_injector = None
+
         if not self._parent:
             component.add_slash_command(self)
             return self
@@ -1176,8 +1440,8 @@ def as_message_command_group(
     return lambda callback: MessageCommandGroup(callback, name, *names, strict=strict)
 
 
-class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext], traits.MessageCommand):
-    __slots__ = ("_names", "_parent", "_parser")
+class MessageCommand(PartialCommand[traits.MessageContext], traits.MessageCommand, typing.Generic[CommandCallbackSigT]):
+    __slots__ = ("_cached_getters", "_callback", "_names", "_needs_injector", "_parent", "_parser")
 
     def __init__(
         self,
@@ -1190,7 +1454,10 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
         parser: typing.Optional[parsing.AbstractParser] = None,
     ) -> None:
-        super().__init__(callback, checks=checks, hooks=hooks, metadata=metadata)
+        super().__init__(checks=checks, hooks=hooks, metadata=metadata)
+        self._callback: CommandCallbackSigT = callback
+        self._cached_getters: typing.Optional[list[injecting.Getter[typing.Any]]] = None
+        self._needs_injector: typing.Optional[bool] = None
         self._names = {name, *names}
         self._parent: typing.Optional[traits.MessageCommandGroup] = None
         self._parser = parser
@@ -1199,9 +1466,19 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         return f"Command <{self._names}>"
 
     @property
+    def callback(self) -> CommandCallbackSigT:
+        # <<inherited docstring from tanjun.traits.MessageCommand>>.
+        return self._callback
+
+    @property
     # <<inherited docstring from tanjun.traits.MessageCommand>>.
     def names(self) -> collections.Set[str]:
         return self._names.copy()
+
+    @property
+    def needs_injector(self) -> bool:
+        # <<inherited docstring from tanjun.injecting.Injectable>>.
+        return injecting.check_injecting(self._callback) or super().needs_injector
 
     @property
     def parent(self) -> typing.Optional[traits.MessageCommandGroup]:
@@ -1229,11 +1506,15 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
     ) -> _MessageCommandT:
         # <<inherited docstring from tanjun.traits.MessageCommand>>.
         if not _new:
+            self._cached_getters = None
+            self._callback = copy.copy(self._callback)
             self._names = self._names.copy()
+            self._needs_injector = None
             self._parent = parent
             self._parser = self._parser.copy() if self._parser else None
+            return super().copy(_new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
 
-        return super().copy(_new=_new)
+        return super().copy(_new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
 
     def set_parent(self: _MessageCommandT, parent: typing.Optional[traits.MessageCommandGroup], /) -> _MessageCommandT:
         # <<inherited docstring from tanjun.traits.MessageCommand>>.
@@ -1318,11 +1599,30 @@ class MessageCommand(PartialCommand[CommandCallbackSigT, traits.MessageContext],
         finally:
             await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
+    def _get_injection_getters(self) -> collections.Iterable[injecting.Getter[typing.Any]]:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+        if not self._injector:
+            raise ValueError("Cannot execute command without injector client")
+
+        if self._cached_getters is None:
+            self._cached_getters = list(self._injector.resolve_callback_to_getters(self._callback))
+
+            if self._needs_injector is None:
+                self._needs_injector = bool(self._cached_getters)
+
+        return self._cached_getters
+
     def load_into_component(
-        self: _MessageCommandT, component: traits.Component, /, *, new: bool = True
+        self: _MessageCommandT, component: traits.Component, /
     ) -> typing.Optional[_MessageCommandT]:
-        # <<inherited docstring from PartialCommand>>.
+        if isinstance(self._callback, types.MethodType):
+            raise ValueError("Callback is already a method type")
+
         super().load_into_component(component)
+        self._cached_getters = None
+        self._callback = types.MethodType(self._callback, component)  # type: ignore[assignment]
+        self._needs_injector = None
+
         if not self._parent:
             component.add_message_command(self)
             return self
@@ -1368,8 +1668,9 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
             commands = {command: command.copy(parent=self) for command in self._commands}
             self._commands = set(commands.values())
             self._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
+            return super().copy(parent=parent, _new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars
 
-        return super().copy(parent=parent, _new=_new)
+        return super().copy(parent=parent, _new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
 
     def add_command(self: _MessageCommandGroupT, command: traits.MessageCommand, /) -> _MessageCommandGroupT:
         # <<inherited docstring from tanjun.traits.MessageCommandGroup>>.
@@ -1466,10 +1767,9 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
         await super().execute(ctx, hooks=hooks)
 
     def load_into_component(
-        self: _MessageCommandGroupT, component: traits.Component, /, *, new: bool = True
+        self: _MessageCommandGroupT, component: traits.Component, /
     ) -> typing.Optional[_MessageCommandGroupT]:
-        # <<inherited docstring from PartialCommand>>.
-        super().load_into_component(component, new=new)
+        super().load_into_component(component)
         for command in self._commands:
             if isinstance(command, components.LoadableProtocol):
                 command.load_into_component(component)

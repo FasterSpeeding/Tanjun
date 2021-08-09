@@ -665,6 +665,6 @@ to_voice_state: typing.Final[VoiceStateConverter] = VoiceStateConverter()
 
 for _value in vars().copy().values():
     if isinstance(_value, BaseConverter):
-        BaseConverter.implementations().add(_value)
+        BaseConverter.implementations().add(typing.cast("BaseConverter[typing.Any]", _value))
 
 del _value
