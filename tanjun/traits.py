@@ -321,7 +321,7 @@ class Context(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def fetch_guild(self) -> typing.Optional[hikari.Guild]:  # TODO: or raise?
+    async def fetch_guild(self) -> typing.Optional[hikari.Guild]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -891,129 +891,334 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
         ----------
         command : hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]
             Object or ID of the command this tracks.
+
+        Returns
+        -------
+        Self
+            The command instance to enable chained calls.
         """
 
 
 class SlashCommand(BaseSlashCommand, abc.ABC):
+    """A command that can be executed in a slash context."""
+
     __slots__ = ()
 
     @property
     @abc.abstractmethod
     def callback(self) -> CommandCallbackSig:
-        raise NotImplementedError
+        """The callback to call when the command is executed.
+
+        Returns
+        -------
+        CommandCallbackSig
+            The command's callback.
+        """
 
 
 class SlashCommandGroup(BaseSlashCommand, abc.ABC):
+    """Standard interface of a slash command group.
+
+    !!! note
+        Unlike `MessageCommandGroup`, slash command groups do not have
+        their own callback.
+    """
+
     __slots__ = ()
 
     @property
     @abc.abstractmethod
     def commands(self) -> collections.Collection[BaseSlashCommand]:
-        raise NotImplementedError
+        """Collection of the commands in this group.
+
+        Returns
+        -------
+        commands : collections.abc.Collection[BaseSlashCommand]
+            The commands in this group.
+        """
 
     @abc.abstractmethod
     def add_command(self: _T, command: BaseSlashCommand, /) -> _T:
-        raise NotImplementedError
+        """Add a command to this group.
+
+        Parameters
+        ----------
+        command : BaseSlashCommand
+            The command to add.
+
+        Returns
+        -------
+        Self
+            The command group instance to enable chained calls.
+        """
 
     @abc.abstractmethod
     def remove_command(self, command: BaseSlashCommand, /) -> None:
-        raise NotImplementedError
+        """Remove a command from this group.
+
+        Parameters
+        ----------
+        command : BaseSlashCommand
+            The command to remove.
+        """
 
     @abc.abstractmethod
     def with_command(self, command: BaseSlashCommandT, /) -> BaseSlashCommandT:
-        raise NotImplementedError
+        """Add a command to this group through a decorator call.
+
+        Parameters
+        ----------
+        command : BaseSlashCommand
+            The command to add.
+
+        Returns
+        -------
+        BaseSlashCommand
+            The added command.
+        """
 
 
 class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
+    """Standard interface of a message command."""
+
     __slots__ = ()
 
     @property
     @abc.abstractmethod
     def callback(self) -> CommandCallbackSig:
-        raise NotImplementedError
+        """The callback to call when the command is executed.
+
+        !!! note
+            For command groups, this is called when none of the inner-commands
+            matches the message.
+
+        Returns
+        -------
+        CommandCallbackSig
+            The callback to call when the command is executed.
+        """
 
     @property
     @abc.abstractmethod
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
-        raise NotImplementedError
+        """Mapping of the metadata set for this command.
+
+        Returns
+        -------
+        collections.abc.MutableMapping[typing.Any, typing.Any]
+            The metadata set for this component.
+
+            Any modifications made to this mutable mapping will be preserved by
+            the command.
+        """
 
     @property
     @abc.abstractmethod
     def names(self) -> collections.Collection[str]:
-        raise NotImplementedError
+        """Collection of this command's names.
+
+        Returns
+        -------
+        collections.abc.Collection[str]
+            The names of this command.
+        """
 
     @property
     @abc.abstractmethod
     def parent(self) -> typing.Optional[MessageCommandGroup]:
-        raise NotImplementedError
+        """The parent group of this command.
+
+        Returns
+        -------
+        typing.Optional[MessageCommandGroup]
+            The parent group of this command if it's owned by a group.
+        """
 
     @abc.abstractmethod
     def set_parent(self: _T, _: typing.Optional[MessageCommandGroup], /) -> _T:
-        raise NotImplementedError
+        """Set the parent of this command.
+
+        Parameters
+        ----------
+        parent : typing.Optional[MessageCommandGroup]
+            The parent of this command.
+
+        Returns
+        -------
+        Self
+            The command instance to enable chained calls.
+        """
 
     @abc.abstractmethod
     def copy(self: _T, *, parent: typing.Optional[MessageCommandGroup] = None) -> _T:
-        raise NotImplementedError
+        """Create a copy of this command.
+
+        Other Parameters
+        ----------------
+        parent : typing.Optional[MessageCommandGroup]
+            The parent of the copy.
+
+        Returns
+        -------
+        Self
+            The copy.
+        """
 
 
 class MessageCommandGroup(MessageCommand, abc.ABC):
+    """Standard interface of a message command group."""
+
     __slots__ = ()
 
     @property
     @abc.abstractmethod
     def commands(self) -> collections.Collection[MessageCommand]:
-        raise NotImplementedError
+        """Collection of the commands in this group.
+
+        !!! note
+            This may include command groups.
+
+        Returns
+        -------
+        commands : collections.abc.Collection[MessageCommand]
+            The commands in this group.
+        """
 
     @abc.abstractmethod
     def add_command(self: _T, command: MessageCommand, /) -> _T:
-        raise NotImplementedError
+        """Add a command to this group.
+
+        Parameters
+        ----------
+        command : MessageCommand
+            The command to add.
+
+        Returns
+        -------
+        Self
+            The group instance to enable chained calls.
+        """
 
     @abc.abstractmethod
     def remove_command(self, command: MessageCommand, /) -> None:
-        raise NotImplementedError
+        """Remove a command from this group.
+
+        Parameters
+        ----------
+        command : MessageCommand
+            The command to remove.
+        """
 
     @abc.abstractmethod
     def with_command(self, command: MessageCommandT, /) -> MessageCommandT:
-        raise NotImplementedError
+        """Add a command to this group through a decorator call.
+
+        Parameters
+        ----------
+        command : MessageCommand
+            The command to add.
+
+        Returns
+        -------
+        MessageCommand
+            The added command.
+        """
 
 
 class Component(abc.ABC):
+    """Standard interface of a Tanjun component.
+
+    This is a collection of message and slash commands, and listeners
+    with logic for command search + execution and loading the listeners
+    into a tanjun client.
+    """
+
     __slots__ = ()
 
     @property
     @abc.abstractmethod
     def client(self) -> typing.Optional[Client]:
-        raise NotImplementedError
+        """The Tanjun client this component is bound to.
+
+        Returns
+        -------
+        client : typing.Optional[Client]
+            The client this component is bound to.
+        """
 
     @property
     @abc.abstractmethod
     def slash_commands(self) -> collections.Collection[BaseSlashCommand]:
-        raise NotImplementedError
+        """Collections of the slash commands in this component.
+
+        Returns
+        -------
+        collections.abc.Collection[BaseSlashCommand]
+            The slash commands in this component.
+        """
 
     @property
     @abc.abstractmethod
     def message_commands(self) -> collections.Collection[MessageCommand]:
-        raise NotImplementedError
+        """Collection of the message commands in this component.
+
+        Returns
+        -------
+        collections.abc.Collection[MessageCommand]
+            The message commands in this component.
+        """
 
     @property
     @abc.abstractmethod
     def listeners(
         self,
     ) -> collections.Collection[tuple[type[hikari.Event], event_manager_api.CallbackT[typing.Any]]]:
-        raise NotImplementedError
+        """Collection of tuples of (event, callback) for all listeners in this component.
+
+        Returns
+        -------
+        collections.abc.Collection[tuple[type[hikari.Event], hikari.api.event_manager.CallbackT[typing.Any]]]
+            The listeners in this component.
+        """
 
     @property
     @abc.abstractmethod
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
-        raise NotImplementedError
+        """Mapping of the metadata set for this component.
+
+        Returns
+        -------
+        collections.abc.MutableMapping[typing.Any, typing.Any]
+            The metadata set for this component.
+
+            Any modifications made to this mutable mapping will be preserved by
+            the component.
+        """
 
     @abc.abstractmethod
     def add_slash_command(self: _T, command: BaseSlashCommand, /) -> _T:
-        raise NotImplementedError
+        """Add a slash command to this component.
+
+        Parameters
+        ----------
+        command : BaseSlashCommand
+            The command to add.
+
+        Returns
+        -------
+        Self
+            The component to enable chained calls.
+        """
 
     @abc.abstractmethod
     def remove_slash_command(self, command: BaseSlashCommand, /) -> None:
-        raise NotImplementedError
+        """Remove a slash command from this component.
+
+        Parameters
+        ----------
+        command : BaseSlashCommand
+            The command to remove.
+        """
 
     @typing.overload
     @abc.abstractmethod
@@ -1029,15 +1234,48 @@ class Component(abc.ABC):
     def with_slash_command(
         self, command: BaseSlashCommandT = ..., /, *, copy: bool = False
     ) -> typing.Union[BaseSlashCommandT, collections.Callable[[BaseSlashCommandT], BaseSlashCommandT]]:
-        raise NotImplementedError
+        """Add a slash command to this component through a decorator call.
+
+        Parameters
+        ----------
+        command : BaseSlashCommandT
+            The command to add.
+
+        Other Parameters
+        ----------------
+        copy : bool
+            Whether to copy the command before adding it.
+
+        Returns
+        -------
+        BaseSlashCommandT
+            The added command.
+        """
 
     @abc.abstractmethod
     def add_message_command(self: _T, command: MessageCommand, /) -> _T:
-        raise NotImplementedError
+        """Add a message command to this component.
+
+        Parameters
+        ----------
+        command : MessageCommand
+            The command to add.
+
+        Returns
+        -------
+        Self
+            The component to enable chained calls.
+        """
 
     @abc.abstractmethod
     def remove_message_command(self, command: MessageCommand, /) -> None:
-        raise NotImplementedError
+        """Remove a message command from this component.
+
+        Parameters
+        ----------
+        command : MessageCommand
+            The command to remove.
+        """
 
     @typing.overload
     @abc.abstractmethod
@@ -1053,7 +1291,23 @@ class Component(abc.ABC):
     def with_message_command(
         self, command: MessageCommandT = ..., /, *, copy: bool = False
     ) -> typing.Union[MessageCommandT, collections.Callable[[MessageCommandT], MessageCommandT]]:
-        raise NotImplementedError
+        """Add a message command to this component through a decorator call.
+
+        Parameters
+        ----------
+        command : MessageCommandT
+            The command to add.
+
+        Other Parameters
+        ----------------
+        copy : bool
+            Whether to copy the command before adding it.
+
+        Returns
+        -------
+        MessageCommandT
+            The added command.
+        """
 
     @abc.abstractmethod
     def add_listener(
@@ -1062,7 +1316,20 @@ class Component(abc.ABC):
         listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
         /,
     ) -> _T:
-        raise NotImplementedError
+        """Add a listener to this component.
+
+        Parameters
+        ----------
+        event : type[hikari.api.event_manager.EventT_inv]
+            The event to listen for.
+        listener : hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]
+            The listener to add.
+
+        Returns
+        -------
+        Self
+            The component to enable chained calls.
+        """
 
     @abc.abstractmethod
     def remove_listener(
@@ -1071,7 +1338,15 @@ class Component(abc.ABC):
         listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
         /,
     ) -> None:
-        raise NotImplementedError
+        """Remove a listener from this component.
+
+        Parameters
+        ----------
+        event : type[hikari.api.event_manager.EventT_inv]
+            The event to listen for.
+        listener : hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]
+            The listener to remove.
+        """
 
     # TODO: make event optional?
     @abc.abstractmethod
@@ -1081,7 +1356,21 @@ class Component(abc.ABC):
         [event_manager_api.CallbackT[event_manager_api.EventT_inv]],
         event_manager_api.CallbackT[event_manager_api.EventT_inv],
     ]:
-        raise NotImplementedError
+        """Add a listener to this component through a decorator call.
+
+        Parameters
+        ----------
+        event_type : type[hikari.api.event_manager.EventT_inv]
+            The event to listen for.
+
+        Returns
+        -------
+        collections.Callable[
+            [hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]],
+            hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],
+        ]
+            Decorator callback which takes listener to add.
+        """
 
     @abc.abstractmethod
     def bind_client(self, client: Client, /) -> None:
@@ -1123,47 +1412,115 @@ class Component(abc.ABC):
 
 
 class Client(abc.ABC):
+    """Abstract interface of a Tanjun client.
+
+    This should manage both message and slash command execution based on the
+    provided hikari clients.
+    """
+
     __slots__ = ()
 
     @property
     @abc.abstractmethod
     def cache(self) -> typing.Optional[hikari.api.Cache]:
-        raise NotImplementedError
+        """Hikari cache instance this command client was initialised with.
+
+        Returns
+        -------
+        typing.Optional[hikari.api.cache.Cache]
+            Hikari cache instance this command client was initialised
+            with if provided, else `None`.
+        """
 
     @property
     @abc.abstractmethod
     def components(self) -> collections.Collection[Component]:
-        raise NotImplementedError
+        """Collection of the components this command client is using.
+
+        Returns
+        -------
+        collections.api.Collection[tanjun.traits.Component]
+            Collection of the components this command client is using.
+        """
 
     @property
     @abc.abstractmethod
     def events(self) -> typing.Optional[hikari.api.EventManager]:
-        raise NotImplementedError
+        """Object of the event manager this client was initialised with.
+
+        This is used for executing message commands if set.
+
+        Returns
+        -------
+        typing.Optional[hikari.event_manager.EventManager]
+            The Hikari event manager this client was initialised with
+            if provided, else `None`.
+        """
 
     @property
     @abc.abstractmethod
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
-        raise NotImplementedError
+        """Mapping of the metadata set for this client.
+
+        Returns
+        -------
+        collections.abc.MutableMapping[typing.Any, typing.Any]
+            The metadata set for this client.
+
+            Any modifications made to this mutable mapping will be preserved by
+            the client.
+        """
 
     @property
     @abc.abstractmethod
     def prefixes(self) -> collections.Collection[str]:
-        raise NotImplementedError
+        """Collection of the prefixes set for this client.
+
+        These are only use during message command execution to match commands
+        to this command client.
+
+        Returns
+        -------
+        collcetions.abc.Collection[str]
+            Collection of the prefixes set for this client.
+        """
 
     @property
     @abc.abstractmethod
     def rest(self) -> hikari.api.RESTClient:
-        raise NotImplementedError
+        """Object of the Hikari REST client this client was initialised with.
+
+        Returns
+        -------
+        hikari.api.rest.RESTClient
+            The Hikari REST client this client was initialised with.
+        """
 
     @property
     @abc.abstractmethod
     def server(self) -> typing.Optional[hikari.api.InteractionServer]:
-        raise NotImplementedError
+        """Object of the Hikari interaction server provided for this client.
+
+        This is used for executing slash commands if set.
+
+        Returns
+        -------
+        typing.Optional[hikari.api.interaction_server.InteractionServer]
+            The Hikari interaction server this client was initialised
+            with if provided, else `None`.
+        """
 
     @property
     @abc.abstractmethod
     def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
-        raise NotImplementedError
+        """Object of the Hikari shard manager this client was initialised with.
+
+        Returns
+        -------
+        typing.Optional[hikari.traits.ShardAware]
+            The Hikari shard manager this client was initialised with
+            if provided, else `None`.
+        """
 
     @abc.abstractmethod
     def add_component(self: _T, component: Component, /) -> _T:
