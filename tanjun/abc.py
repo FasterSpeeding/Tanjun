@@ -471,32 +471,74 @@ class MessageContext(Context, abc.ABC):
     @property
     @abc.abstractmethod
     def command(self) -> typing.Optional[MessageCommand]:
-        raise NotImplementedError
+        """The command that was invoked.
+
+        Returns
+        -------
+        typing.Optional[MessageCommand]
+            The command that was invoked.
+
+            This is always set during command, command check and parser
+            converter execution but isn't guaranteed during client callback
+            nor client/component check execution.
+        """
 
     @property
     @abc.abstractmethod
     def content(self) -> str:
-        raise NotImplementedError
+        """The content of the context's message minus the triggering name and prefix.
+
+        Returns
+        -------
+        str
+            The content the of the context's message minus the triggering name
+            and prefix.
+        """
 
     @property
     @abc.abstractmethod
     def message(self) -> hikari.Message:
-        raise NotImplementedError
+        """The message that triggered the context.
+
+        Returns
+        -------
+        hikari.Message
+            The message that triggered the context.
+        """
 
     @property
     @abc.abstractmethod
     def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
-        raise NotImplementedError
+        """The shard that triggered the context.
+
+        Returns
+        -------
+        typing.Optional[hikari.api.GatewayShard]
+            The shard that triggered the context if `ctx.shards` is set.
+            Otherwise, returns `None`.
+        """
 
     @property
     @abc.abstractmethod
     def triggering_prefix(self) -> str:
-        raise NotImplementedError
+        """The prefix that triggered the context.
+
+        Returns
+        -------
+        str
+            The prefix that triggered the context.
+        """
 
     @property
     @abc.abstractmethod
     def triggering_name(self) -> str:
-        raise NotImplementedError
+        """The command name that triggered the context.
+
+        Returns
+        -------
+        str
+            The command name that triggered the context.
+        """
 
     @abc.abstractmethod
     def set_command(self: _T, _: typing.Optional[MessageCommand], /) -> _T:
@@ -545,7 +587,17 @@ class SlashContext(Context, abc.ABC):
     @property
     @abc.abstractmethod
     def command(self) -> typing.Optional[BaseSlashCommand]:
-        raise NotImplementedError
+        """The command that was invoked.
+
+        Returns
+        -------
+        typing.Optional[BaseSlashCommand]
+            The command that was invoked.
+
+            This should always be set during command, command check execution
+            and command hook execution but isn't guaranteed for client callbacks
+            nor component/client checks.
+        """
 
     @property
     @abc.abstractmethod
@@ -583,30 +635,67 @@ class SlashContext(Context, abc.ABC):
     @property
     @abc.abstractmethod
     def interaction(self) -> hikari.CommandInteraction:
-        raise NotImplementedError
+        """The interaction this context is for.
+
+        Returns
+        -------
+        hikari.CommandInteraction
+            The interaction this context is for.
+        """
 
     @property
     @abc.abstractmethod
     def member(self) -> typing.Optional[hikari.InteractionMember]:
-        raise NotImplementedError
+        """Object of the member that triggered this command if this is in a guild.
+
+        Returns
+        -------
+        typing.Optional[hikari.InteractionMember]
+            The member that triggered this command if this is in a guild.
+        """
 
     @abc.abstractmethod
     def set_command(self: _T, _: typing.Optional[BaseSlashCommand], /) -> _T:
-        raise NotImplementedError
+        """Set the command for this context.
+
+        Parameters
+        ----------
+        command : typing.Optional[BaseSlashCommand]
+            The command this context is for.
+        """
 
     @abc.abstractmethod
     def set_ephemeral_default(self: _T, state: bool, /) -> _T:
-        raise NotImplementedError
+        """Set the ephemeral default state for this context.
+
+        Parameters
+        ----------
+        state : bool
+            The new ephemeral default state.
+
+            If this is `True` then all calls to the response creating methods
+            on this context will default to being ephemeral.
+        """
 
     @abc.abstractmethod
     async def defer(
         self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED
     ) -> None:
-        raise NotImplementedError
+        """Defer the initial response for this context.
+
+        Other Parameters
+        ----------------
+        flags : typing.Union[hikari.UndefinedType, int, hikari.MessageFlag]
+            The flags to use for the initial response.
+        """
 
     @abc.abstractmethod
     async def mark_not_found(self) -> None:
-        raise NotImplementedError
+        """Mark this context as not found.
+
+        Dependent on how the client is configured this may lead to a not found
+        response message being sent.
+        """
 
     @abc.abstractmethod
     async def create_followup(
@@ -774,33 +863,67 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
         raise NotImplementedError
 
 
-AnyHooks = Hooks[Context]
+AnyHooks = Hooks[Context]  #
+"""Execution hooks for any context."""
+
 MessageHooks = Hooks[MessageContext]
+"""Execution hooks for messages commands."""
+
 SlashHooks = Hooks[SlashContext]
+"""Execution hooks for slash commands."""
 
 
 class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
+    """Base class for all commands that can be executed."""
+
     __slots__ = ()
 
     @property
     @abc.abstractmethod
     def checks(self) -> collections.Collection[CheckSig]:
-        raise NotImplementedError
+        """Collection of checks that must be met before the command can be executed.
+
+        Returns
+        -------
+        collections.abc.Collection[CheckSig]
+            The checks that must be met before the command can be executed.
+        """
 
     @property
     @abc.abstractmethod
     def component(self) -> typing.Optional[Component]:
-        raise NotImplementedError
+        """The component that the command is registered with.
+
+        Returns
+        -------
+        typing.Optional[Component]
+            The component that the command is registered with.
+        """
 
     @property
     @abc.abstractmethod
     def hooks(self) -> typing.Optional[Hooks[ContextT]]:
-        raise NotImplementedError
+        """The hooks that are triggered when the command is executed.
+
+        Returns
+        -------
+        typing.Optional[Hooks[ContextT]]
+            The hooks that are triggered when the command is executed if set.
+        """
 
     @property
     @abc.abstractmethod
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
-        raise NotImplementedError
+        """Mapping of the metadata set for this command.
+
+        Returns
+        -------
+        collections.abc.MutableMapping[typing.Any, typing.Any]
+            The metadata set for this component.
+
+            Any modifications made to this mutable mapping will be preserved by
+            the command.
+        """
 
     @abc.abstractmethod
     def bind_client(self, client: Client, /) -> None:
@@ -812,19 +935,53 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
 
     @abc.abstractmethod
     def copy(self: _T) -> _T:
-        raise NotImplementedError
+        """Create a copy of this command.
+
+        Returns
+        -------
+        Self
+            A copy of this command.
+        """
 
     @abc.abstractmethod
     def set_hooks(self: _T, _: typing.Optional[Hooks[ContextT]], /) -> _T:
-        raise NotImplementedError
+        """Set the hooks that are triggered when the command is executed.
+
+        Parameters
+        ----------
+        hooks : typing.Optional[Hooks[ContextT]]
+            The hooks that are triggered when the command is executed.
+
+        Returns
+        -------
+        Self
+            This command to enable chained calls
+        """
 
     @abc.abstractmethod
-    def add_check(self: _T, check: CheckSig, /) -> _T:
-        raise NotImplementedError
+    def add_check(self: _T, check: CheckSig, /) -> _T:  # TODO: remove or add with_check?
+        """Add a check to the command.
+
+        Parameters
+        ----------
+        check : CheckSig
+            The check to add.
+
+        Returns
+        -------
+        Self
+            This command to enable chained calls
+        """
 
     @abc.abstractmethod
     def remove_check(self, check: CheckSig, /) -> None:
-        raise NotImplementedError
+        """Remove a check from the command.
+
+        Parameters
+        ----------
+        check : CheckSig
+            The check to remove.
+        """
 
     @abc.abstractmethod
     async def check_context(self, ctx: ContextT, /) -> bool:
@@ -838,35 +995,86 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
 
 
 class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
+    """Base class for all slash command classes."""
+
     __slots__ = ()
 
     @property
     @abc.abstractmethod
     def defaults_to_ephemeral(self) -> bool:
-        raise NotImplementedError
+        """Whether calls to this command should default to ephemeral mode.
+
+        This indicates whether calls to `SlashContext.respond`,
+        `SlashContext.create_initial_response` and `SlashContext.create_followup`
+        on context objects which are linked to this command should default to
+        ephemeral unless `flags` is explicitly passed.
+
+        Returns
+        -------
+        bool
+            Whether calls to this command should default to ephemeral mode.
+        """
 
     @property
     def is_global(self) -> bool:
-        raise NotImplementedError
+        """Whether the command should be declared globally or not.
+
+        !!! note
+            For commands within command groups the state of this flag
+            is inherited regardless of what it's set as on the child command.
+
+
+        Returns
+        -------
+        bool
+            Whether the command should be declared globally or not.
+        """
 
     @property
     @abc.abstractmethod
     def name(self) -> str:
-        raise NotImplementedError
+        """The name of the command.
+
+        Returns
+        -------
+        str
+            The name of the command.
+        """
 
     @property
     @abc.abstractmethod
     def parent(self) -> typing.Optional[SlashCommandGroup]:
-        raise NotImplementedError
+        """Object of the group this command is in.
+
+        Returns
+        -------
+        typing.Optional[SlashCommandGroup]
+            The group this command is in, if relevant else `None`.
+        """
 
     @property
     @abc.abstractmethod
     def tracked_command_id(self) -> typing.Optional[hikari.Snowflake]:
-        raise NotImplementedError
+        """ID of the actual command this object tracks if set.
+
+        This will be used when this command is used in bulk declarations.
+
+        Returns
+        -------
+        typing.Optional[hikari.snowflakes.Snowflake]
+            The ID of the actual command this object tracks.
+        """
 
     @abc.abstractmethod
     def build(self) -> hikari.api.CommandBuilder:
-        raise NotImplementedError
+        """Returns a builder object for this command.
+
+        Returns
+        -------
+        hikari.api.special_endpoints.CommandBuilder
+            A builder object for this command. Use to declare this command on
+            globally or for a specific guild.
+        """
 
     @abc.abstractmethod
     async def execute(
@@ -996,20 +1204,6 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
         -------
         CommandCallbackSig
             The callback to call when the command is executed.
-        """
-
-    @property
-    @abc.abstractmethod
-    def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
-        """Mapping of the metadata set for this command.
-
-        Returns
-        -------
-        collections.abc.MutableMapping[typing.Any, typing.Any]
-            The metadata set for this component.
-
-            Any modifications made to this mutable mapping will be preserved by
-            the command.
         """
 
     @property
