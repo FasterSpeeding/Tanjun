@@ -1,8 +1,8 @@
 import tanjun
 
 component = tanjun.Component()
-top_group = component.with_slash_command(tanjun.slash_command_group("test", "testicles"))
-nested_group = top_group.with_command(tanjun.slash_command_group("op", "heeey, sexy ladies!"))
+top_group = component.with_slash_command(tanjun.slash_command_group("places", "get info about places"))
+nested_group = top_group.with_command(tanjun.slash_command_group("hi", "say hello or something!"))
 # While slash command groups may be nested, this only works up to one level.
 
 
