@@ -813,7 +813,7 @@ _CommandBuilderT = typing.TypeVar("_CommandBuilderT", bound="_CommandBuilder")
 
 
 class _CommandBuilder(hikari.impl.CommandBuilder):
-    __slots__ = ("_has_been_sorted", "_options_dict", "_sort_options")
+    __slots__ = ("_has_been_sorted", "_sort_options")
 
     def __init__(
         self,
@@ -825,20 +825,14 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
     ) -> None:
         super().__init__(name, description, id=id)  # type: ignore
         self._has_been_sorted = True
-        self._options_dict: dict[str, hikari.CommandOption] = {}
         self._sort_options = sort_options
 
     def add_option(self: _CommandBuilderT, option: hikari.CommandOption) -> _CommandBuilderT:
         if self._options:
             self._has_been_sorted = False
 
-        self._options_dict[option.name] = option
         super().add_option(option)
         return self
-
-    def remove_option(self, name: str, /) -> None:
-        option = self._options_dict.pop(name)
-        self._options.remove(option)
 
     def build(self, entity_factory: hikari.api.EntityFactory, /) -> dict[str, typing.Any]:
         if self._sort_options and not self._has_been_sorted:
@@ -865,15 +859,7 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
 
 
 class BaseSlashCommand(PartialCommand[traits.SlashContext], traits.BaseSlashCommand):
-    __slots__ = (
-        "_builder",
-        "_command_id",
-        "_defaults_to_ephemeral",
-        "_description",
-        "_is_global",
-        "_name",
-        "_parent",
-    )
+    __slots__ = ("_command_id", "_defaults_to_ephemeral", "_description", "_is_global", "_name", "_parent")
 
     def __init__(
         self,
@@ -893,13 +879,7 @@ class BaseSlashCommand(PartialCommand[traits.SlashContext], traits.BaseSlashComm
         if not _SCOMMAND_NAME_REG.fullmatch(name):
             raise ValueError("Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`")
 
-        command_id = hikari.Snowflake(command_id) if command_id else None
-        self._builder = _CommandBuilder(name, description, sort_options)
-
-        if command_id:
-            self._builder = self._builder.set_id(command_id)
-
-        self._command_id = command_id
+        self._command_id = hikari.Snowflake(command_id) if command_id else None
         self._defaults_to_ephemeral = default_to_ephemeral
         self._description = description
         self._is_global = is_global
@@ -935,10 +915,6 @@ class BaseSlashCommand(PartialCommand[traits.SlashContext], traits.BaseSlashComm
     def tracked_command_id(self) -> typing.Optional[hikari.Snowflake]:
         return self._command_id
 
-    def build(self) -> special_endpoints_api.CommandBuilder:
-        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
-        return self._builder.copy()
-
     def set_tracked_command(
         self: _BaseSlashCommandT, command_id: hikari.SnowflakeishOr[hikari.Command], /
     ) -> _BaseSlashCommandT:
@@ -955,7 +931,6 @@ class BaseSlashCommand(PartialCommand[traits.SlashContext], traits.BaseSlashComm
             object or ID of the global command this should be tracking.
         """
         self._command_id = hikari.Snowflake(command_id)
-        self._builder = self._builder.set_id(self._command_id)
         return self
 
     def set_ephemeral_default(self: _BaseSlashCommandT, state: bool, /) -> _BaseSlashCommandT:
@@ -1038,6 +1013,31 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
         # <<inherited docstring from tanjun.traits.SlashCommandGroup>>.
         return self._commands.copy().values()
 
+    def build(self) -> special_endpoints_api.CommandBuilder:
+        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
+        builder = _CommandBuilder(self._name, self._description, False)
+        if self._command_id:
+            builder.set_id(self._command_id)
+
+        for command in self._commands.values():
+            option_type = (
+                hikari.OptionType.SUB_COMMAND_GROUP
+                if isinstance(command, traits.SlashCommandGroup)
+                else hikari.OptionType.SUB_COMMAND
+            )
+            command_builder = command.build()
+            builder.add_option(
+                hikari.CommandOption(
+                    type=option_type,
+                    name=command.name,
+                    description=command_builder.description,
+                    is_required=False,
+                    options=command_builder.options,
+                )
+            )
+
+        return builder
+
     def copy(
         self: _SlashCommandGroupT, *, _new: bool = True, parent: typing.Optional[traits.SlashCommandGroup] = None
     ) -> _SlashCommandGroupT:
@@ -1068,21 +1068,6 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
             raise ValueError("Cannot add a slash command group to a nested slash command group")
 
         self._commands[command.name] = command
-        option_type = (
-            hikari.OptionType.SUB_COMMAND_GROUP
-            if isinstance(command, traits.SlashCommandGroup)
-            else hikari.OptionType.SUB_COMMAND
-        )
-        builder = command.build()
-        self._builder.add_option(
-            hikari.CommandOption(
-                type=option_type,
-                name=command.name,
-                description=builder.description,
-                is_required=False,
-                options=builder.options,
-            )
-        )
         return self
 
     def remove_command(self, command: traits.BaseSlashCommand, /) -> None:
@@ -1094,7 +1079,6 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
             Command to remove from this group.
         """
         del self._commands[command.name]
-        self._builder.remove_option(command.name)
 
     def with_command(self, command: traits.BaseSlashCommandT, /) -> traits.BaseSlashCommandT:
         """Add a slash command to this group through a decorator call.
@@ -1141,7 +1125,7 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
 
 
 class SlashCommand(BaseSlashCommand, traits.SlashCommand, typing.Generic[CommandCallbackSigT]):
-    __slots__ = ("_callback", "_cached_getters", "_needs_injector", "_tracked_options")
+    __slots__ = ("_builder", "_callback", "_cached_getters", "_needs_injector", "_tracked_options")
 
     def __init__(
         self,
@@ -1169,6 +1153,10 @@ class SlashCommand(BaseSlashCommand, traits.SlashCommand, typing.Generic[Command
             metadata=metadata,
             sort_options=sort_options,
         )
+
+        self._builder = _CommandBuilder(name, description, sort_options)
+        if self._command_id:
+            self._builder = self._builder.set_id(self._command_id)
 
         self._callback: CommandCallbackSigT = callback
         self._cached_getters: typing.Optional[list[injecting.Getter[typing.Any]]] = None
@@ -1198,6 +1186,10 @@ class SlashCommand(BaseSlashCommand, traits.SlashCommand, typing.Generic[Command
             or any(option.needs_injector for option in self._tracked_options.values())
             or super().needs_injector
         )
+
+    def build(self) -> special_endpoints_api.CommandBuilder:
+        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
+        return self._builder.copy()
 
     def add_option(
         self: _SlashCommandT,
