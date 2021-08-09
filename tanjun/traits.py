@@ -544,7 +544,7 @@ class SlashContext(Context, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def command(self) -> typing.Optional[SlashCommand]:
+    def command(self) -> typing.Optional[BaseSlashCommand]:
         raise NotImplementedError
 
     @property
@@ -591,7 +591,7 @@ class SlashContext(Context, abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_command(self: _T, _: typing.Optional[SlashCommand], /) -> _T:
+    def set_command(self: _T, _: typing.Optional[BaseSlashCommand], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod

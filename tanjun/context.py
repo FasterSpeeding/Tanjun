@@ -426,7 +426,7 @@ class SlashContext(BaseContext, traits.SlashContext):
         interaction: hikari.CommandInteraction,
         /,
         *,
-        command: typing.Optional[traits.SlashCommand] = None,
+        command: typing.Optional[traits.BaseSlashCommand] = None,
         component: typing.Optional[traits.Component] = None,
         default_to_ephemeral: bool = False,
         not_found_message: typing.Optional[str] = None,
@@ -456,7 +456,7 @@ class SlashContext(BaseContext, traits.SlashContext):
         return self._client
 
     @property
-    def command(self) -> typing.Optional[traits.SlashCommand]:
+    def command(self) -> typing.Optional[traits.BaseSlashCommand]:
         return self._command
 
     @property
@@ -549,7 +549,7 @@ class SlashContext(BaseContext, traits.SlashContext):
         self._defer_task = asyncio.get_running_loop().create_task(self._auto_defer(count_down))
         return self
 
-    def set_command(self: _SlashContextT, command: typing.Optional[traits.SlashCommand], /) -> _SlashContextT:
+    def set_command(self: _SlashContextT, command: typing.Optional[traits.BaseSlashCommand], /) -> _SlashContextT:
         self._command = command
         return self
 
