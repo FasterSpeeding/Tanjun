@@ -2,10 +2,10 @@ import time
 
 import tanjun
 
-basic_component = tanjun.Component()
+component = tanjun.Component()
 
 
-@basic_component.with_command
+@component.with_command
 @tanjun.as_message_command("ping")
 async def ping(ctx: tanjun.traits.Context, /) -> None:
     # As a note, for brevity any hidden Discord REST error handling logic hasn't been included here.
@@ -48,4 +48,4 @@ async def note_remove(ctx: tanjun.traits.Context, name: str, force: bool) -> Non
 # right configurations setup.)
 @tanjun.as_loader
 def load_examples(client: tanjun.traits.Client) -> None:
-    client.add_component(basic_component.copy())
+    client.add_component(component.copy())

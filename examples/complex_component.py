@@ -1,10 +1,10 @@
 import tanjun
 from examples import protos
 
-complex_component = tanjun.Component()
+component = tanjun.Component()
 
 
-@complex_component.with_command
+@component.with_command
 @tanjun.with_guild_check
 @tanjun.as_message_command("guild")
 async def guild_command(
@@ -20,7 +20,7 @@ async def guild_command(
     ...  # TODO: implement response
 
 
-@complex_component.with_command
+@component.with_command
 @tanjun.as_message_command_group("user")
 async def user(
     ctx: tanjun.traits.MessageContext, database: protos.DatabaseProto = tanjun.injected(type=protos.DatabaseProto)
@@ -47,4 +47,4 @@ async def remove_self(
 # right configurations setup.)
 @tanjun.as_loader
 def load_examples(client: tanjun.traits.Client) -> None:
-    client.add_component(complex_component.copy())
+    client.add_component(component.copy())

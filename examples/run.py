@@ -24,6 +24,7 @@ def run() -> None:
         tanjun.Client.from_gateway_bot(bot)
         .load_modules("examples.complex_component")
         .load_modules("examples.basic_component")
+        .load_modules("examples.slash_component")
         .add_prefix(loaded_config.prefix)
         .set_prefix_getter(get_prefix)
         .add_type_dependency(config.ExampleConfig, lambda: loaded_config)
