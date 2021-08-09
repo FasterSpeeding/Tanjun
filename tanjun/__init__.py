@@ -67,8 +67,6 @@ __all__: list[str] = [
     "slash_command_group",
     "MessageCommand",
     "MessageCommandGroup",
-    "PartialCommand",
-    "BaseSlashCommand",
     "SlashCommand",
     "SlashCommandGroup",
     "with_str_slash_option",
