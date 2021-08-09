@@ -175,10 +175,10 @@ def match_prefix_names(content: str, names: collections.Iterable[str], /) -> typ
             return name
 
 
-ALL_PERMISSIONS = functools.reduce(operator.__xor__, hikari.Permissions)
-"""All of the known permissions based on the linked version of Hikari."""
+ALL_PERMISSIONS: typing.Final[hikari.Permissions] = functools.reduce(operator.__xor__, hikari.Permissions)
+"""All of all the known permissions based on the linked version of Hikari."""
 
-DM_PERMISSIONS = (
+DM_PERMISSIONS: typing.Final[hikari.Permissions] = (
     hikari.Permissions.ADD_REACTIONS
     | hikari.Permissions.VIEW_CHANNEL
     | hikari.Permissions.SEND_MESSAGES

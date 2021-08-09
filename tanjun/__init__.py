@@ -61,9 +61,6 @@ __all__: list[str] = [
     "ClientCallbackNames",
     "MessageAcceptsEnum",
     # commands.py
-    "AnyMessageCommandT",
-    "CommandCallbackSigT",
-    "ConverterSig",
     "as_message_command",
     "as_message_command_group",
     "as_slash_command",

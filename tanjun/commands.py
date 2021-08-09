@@ -236,6 +236,64 @@ def slash_command_group(
     default_to_ephemeral: bool = False,
     is_global: bool = True,
 ) -> SlashCommandGroup:
+    """Create a slash command group.
+
+    !!! note
+        Unlike message command grups, slash command groups cannot
+        be callable functions themselves.
+
+    Examples
+    --------
+    Sub-commands can be added to the created slash command object through
+    the following decorator based approach:
+    ```python
+    help_group = tanjun.slash_command_group("help", "get help")
+
+    @help_group.with_command
+    @tanjun.with_str_slash_option("commad_name", "command name")
+    @tanjun.as_slash_command("command", "Get help with a command")
+    async def help_command_command(ctx: tanjun.traits.SlashContext, command_name: str) -> None:
+        ...
+
+    @help_group.with_command
+    @tanjun.as_slash_command("me", "help me")
+    async def help_me_command(ctx: tanjun.traits.SlashContext) -> None:
+        ...
+
+    component = tanjun.Component().add_slash_command_command(help_group)
+    ```
+
+    Arguments
+    ---------
+    name : str
+        The name of the command group.
+    description : str
+        The description of the command group.
+
+    Other Parameters
+    ----------------
+    command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.Command]]
+        Object or ID of the command the group tracks.
+
+        This is useful when bulk updating the commands as if the ID isn't
+        specified then any previously set permissions may be lost (i.e. if the
+        command's name is changed).
+    default_to_ephemeral : bool
+        Whether this command's responses should default to ephemeral unless flags
+        are set to override this. This defaults to `False`.
+    is_global : bool
+        Whether this command is a global command. Defaults to `True`.
+
+        !!! note
+            Under the current implementation, this is used to determine whether
+            the command should be bulk set by `tanjun.Client.set_global_commands`
+            or when `set_global_commands` is True
+
+    Returns
+    -------
+    SlashCommandGroup
+        The command group.
+    """
     return SlashCommandGroup(
         name,
         description,
@@ -289,6 +347,7 @@ def as_slash_command(
         are set to override this. This defaults to `False`.
     is_global : bool
         Whether this command is a global command. Defaults to `True`.
+
         !!! note
             Under the current implementation, this is used to determine whether
             the command should be bulk set by `tanjun.Client.set_global_commands`
@@ -976,9 +1035,35 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
 
     @property
     def commands(self) -> collections.ValuesView[traits.BaseSlashCommand]:
+        # <<inherited docstring from tanjun.traits.SlashCommandGroup>>.
         return self._commands.copy().values()
 
+    def copy(
+        self: _SlashCommandGroupT, *, _new: bool = True, parent: typing.Optional[traits.SlashCommandGroup] = None
+    ) -> _SlashCommandGroupT:
+        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+        if not _new:
+            self._commands = {name: command.copy() for name, command in self._commands.items()}
+            return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars
+
+        return copy.copy(self).copy(_new=False, parent=parent)
+
     def add_command(self: _SlashCommandGroupT, command: traits.BaseSlashCommand, /) -> _SlashCommandGroupT:
+        """Add a slash command to this group.
+
+        Parameters
+        ----------
+        command : tanjun.traits.BaseSlashCommand
+            Command to add to this group.
+
+            !!! warning
+                Command groups are only supported within top-level groups.
+
+        Returns
+        -------
+        Self
+            Object of this group to enable chained calls.
+        """
         if self._parent and isinstance(command, traits.SlashCommandGroup):
             raise ValueError("Cannot add a slash command group to a nested slash command group")
 
@@ -1000,20 +1085,30 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
         )
         return self
 
-    def copy(
-        self: _SlashCommandGroupT, *, _new: bool = True, parent: typing.Optional[traits.SlashCommandGroup] = None
-    ) -> _SlashCommandGroupT:
-        if not _new:
-            self._commands = {name: command.copy() for name, command in self._commands.items()}
-            return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars
-
-        return copy.copy(self).copy(_new=False, parent=parent)
-
     def remove_command(self, command: traits.BaseSlashCommand, /) -> None:
+        """Remove a command from this group.
+
+        Parameters
+        ----------
+        command : tanjun.traits.BaseSlashCommand
+            Command to remove from this group.
+        """
         del self._commands[command.name]
         self._builder.remove_option(command.name)
 
     def with_command(self, command: traits.BaseSlashCommandT, /) -> traits.BaseSlashCommandT:
+        """Add a slash command to this group through a decorator call.
+
+        Parameters
+        ----------
+        command : tanjun.traits.BaseSlashCommand
+            Command to add to this group.
+
+        Returns
+        -------
+        tanjun.traits.BaseSlashCommand
+            Command which was added to this group.
+        """
         self.add_command(command)
         return command
 
@@ -1025,6 +1120,7 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
         *,
         hooks: typing.Optional[collections.MutableSet[traits.SlashHooks]] = None,
     ) -> None:
+        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
         if not await self.check_context(ctx):
             return
 
