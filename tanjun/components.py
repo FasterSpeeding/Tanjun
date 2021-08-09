@@ -450,6 +450,9 @@ class Component(injecting.Injectable, traits.Component):
                 except (LookupError, ValueError):
                     pass
 
+    async def _check_context(self, ctx: traits.Context, /) -> bool:
+        return await utilities.gather_checks(ctx, self._checks)
+
     async def check_message_context(
         self, ctx: traits.MessageContext, /
     ) -> collections.AsyncIterator[tuple[str, traits.MessageCommand]]:
@@ -457,15 +460,22 @@ class Component(injecting.Injectable, traits.Component):
 
         if self._is_strict:
             name = ctx.content.split(" ", 1)[0]
-            if (command := self._names_to_commands.get(name)) and await command.check_context(ctx):
+            command = self._names_to_commands.get(name)
+            if command and await self._check_context(ctx) and await command.check_context(ctx):
                 yield name, command
                 ctx.set_component(None)
                 return
 
-        if await utilities.gather_checks(ctx, self._checks):
-            for name, command in self.check_message_name(ctx.content):
-                if await command.check_context(ctx):
-                    yield name, command
+        checks_run = False
+        for name, command in self.check_message_name(ctx.content):
+            if not checks_run:
+                if not await self._check_context(ctx):
+                    return
+
+                checks_run = True
+
+            if await command.check_context(ctx):
+                yield name, command
 
         ctx.set_component(None)
 
@@ -494,7 +504,7 @@ class Component(injecting.Injectable, traits.Component):
         *,
         hooks: typing.Optional[collections.MutableSet[traits.SlashHooks]] = None,
     ) -> typing.Optional[collections.Awaitable[None]]:
-        if not command or not await command.check_context(ctx):
+        if not command or not await self._check_context(ctx) or not await command.check_context(ctx):
             return None
 
         if self._slash_hooks:
