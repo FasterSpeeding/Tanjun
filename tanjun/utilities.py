@@ -57,8 +57,8 @@ from yuyo import backoff
 from . import errors
 
 if typing.TYPE_CHECKING:
+    from . import abc
     from . import injecting
-    from . import traits as tanjun_traits
 
 
 _ResourceT = typing.TypeVar("_ResourceT")
@@ -75,13 +75,13 @@ async def async_chain(
 
 
 async def await_if_async(
-    callback: collections.Callable[..., tanjun_traits.MaybeAwaitableT[_ValueT]], /, *args: typing.Any
+    callback: collections.Callable[..., abc.MaybeAwaitableT[_ValueT]], /, *args: typing.Any
 ) -> _ValueT:
     """Resole any awaitable returned by a callback call.
 
     Parameters
     ----------
-    callback : collections.abc.Callable[..., tanjun.traits.MaybeAwaitableT[_ValueT]]
+    callback : collections.abc.Callable[..., tanjun.abc.MaybeAwaitableT[_ValueT]]
         The async or non-async callback to call.
 
     Other Parameters
@@ -104,12 +104,12 @@ async def await_if_async(
     return result
 
 
-async def gather_checks(ctx: tanjun_traits.Context, checks: collections.Iterable[injecting.InjectableCheck]) -> bool:
+async def gather_checks(ctx: abc.Context, checks: collections.Iterable[injecting.InjectableCheck]) -> bool:
     """Gather a collection of checks.
 
     Parameters
     ----------
-    ctx : tanjun.traits.Context
+    ctx : tanjun.abc.Context
         The context to check.
     checks : collections.abc.Iterable[tanjun.injecting.InjectableCheck]
         An iterable of injectable checks.
@@ -279,7 +279,7 @@ def calculate_permissions(
 
 
 async def _fetch_channel(
-    client: tanjun_traits.Client, retry: backoff.Backoff, channel: hikari.SnowflakeishOr[hikari.PartialChannel]
+    client: abc.Client, retry: backoff.Backoff, channel: hikari.SnowflakeishOr[hikari.PartialChannel]
 ) -> hikari.GuildChannel:
     if isinstance(channel, hikari.GuildChannel):
         return channel
@@ -297,7 +297,7 @@ async def _fetch_channel(
 
 
 async def fetch_permissions(
-    client: tanjun_traits.Client,
+    client: abc.Client,
     member: hikari.Member,
     /,
     *,
@@ -311,7 +311,7 @@ async def fetch_permissions(
 
     Parameters
     ----------
-    client : tanjun.traits.Client
+    client : tanjun.abc.Client
         The Tanjun client to use for lookups.
     member : hikari.guilds.Member
         The object of the member to calculate the permissions for.
@@ -405,7 +405,7 @@ def calculate_everyone_permissions(
 
 
 async def fetch_everyone_permissions(
-    client: tanjun_traits.Client,
+    client: abc.Client,
     guild_id: hikari.Snowflake,
     /,
     *,
@@ -419,7 +419,7 @@ async def fetch_everyone_permissions(
 
     Parameters
     ----------
-    client : tanjun.traits.Client
+    client : tanjun.abc.Client
         The Tanjun client to use for lookups.
     guild_id : hikari.snowflakes.Snowflake
         ID of the guild to calculate the default permissions for.

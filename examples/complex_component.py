@@ -8,7 +8,7 @@ component = tanjun.Component()
 @tanjun.with_guild_check
 @tanjun.as_message_command("guild")
 async def guild_command(
-    ctx: tanjun.traits.MessageContext, database: protos.DatabaseProto = tanjun.injected(type=protos.DatabaseProto)
+    ctx: tanjun.abc.MessageContext, database: protos.DatabaseProto = tanjun.injected(type=protos.DatabaseProto)
 ):
     assert ctx.guild_id is not None  # This is checked by the "with_guild_check"
     guild_info = await database.get_guild_info(ctx.guild_id)
@@ -23,7 +23,7 @@ async def guild_command(
 @component.with_command
 @tanjun.as_message_command_group("user")
 async def user(
-    ctx: tanjun.traits.MessageContext, database: protos.DatabaseProto = tanjun.injected(type=protos.DatabaseProto)
+    ctx: tanjun.abc.MessageContext, database: protos.DatabaseProto = tanjun.injected(type=protos.DatabaseProto)
 ) -> None:
     user = await database.get_user_info(ctx.author.id)
 
@@ -37,7 +37,7 @@ async def user(
 @user.with_command
 @tanjun.as_message_command("remove self")
 async def remove_self(
-    ctx: tanjun.traits.MessageContext, database: protos.DatabaseProto = tanjun.injected(type=protos.DatabaseProto)
+    ctx: tanjun.abc.MessageContext, database: protos.DatabaseProto = tanjun.injected(type=protos.DatabaseProto)
 ) -> None:
     await database.remove_user(ctx.author.id)
 
@@ -46,5 +46,5 @@ async def remove_self(
 # components into a bot from a link (assuming the environment has all the
 # right configurations setup.)
 @tanjun.as_loader
-def load_examples(client: tanjun.traits.Client) -> None:
+def load_examples(client: tanjun.abc.Client) -> None:
     client.add_component(component.copy())

@@ -65,12 +65,12 @@ from collections import abc as collections
 import hikari
 from yuyo import backoff
 
+from . import abc
 from . import components
 from . import conversion
 from . import errors
 from . import hooks as hooks_
 from . import injecting
-from . import traits
 from . import utilities
 
 if typing.TYPE_CHECKING:
@@ -87,9 +87,9 @@ if typing.TYPE_CHECKING:
     _SlashCommandGroupT = typing.TypeVar("_SlashCommandGroupT", bound="SlashCommandGroup")
 
 
-AnyMessageCommandT = typing.TypeVar("AnyMessageCommandT", bound=traits.MessageCommand)
-CommandCallbackSigT = typing.TypeVar("CommandCallbackSigT", bound=traits.CommandCallbackSig)
-ConverterSig = collections.Callable[..., traits.MaybeAwaitableT[typing.Any]]
+AnyMessageCommandT = typing.TypeVar("AnyMessageCommandT", bound=abc.MessageCommand)
+CommandCallbackSigT = typing.TypeVar("CommandCallbackSigT", bound=abc.CommandCallbackSig)
+ConverterSig = collections.Callable[..., abc.MaybeAwaitableT[typing.Any]]
 """Type hint of a converter used within a parser instance."""
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
@@ -103,7 +103,7 @@ _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.command
 class _LoadableInjector(injecting.InjectableCheck):
     __slots__ = ()
 
-    def make_method_type(self, component: traits.Component, /) -> None:
+    def make_method_type(self, component: abc.Component, /) -> None:
         if isinstance(self.callback, types.MethodType):
             raise ValueError("Callback is already a method type")
 
@@ -112,7 +112,7 @@ class _LoadableInjector(injecting.InjectableCheck):
 
 class PartialCommand(
     injecting.Injectable,
-    traits.ExecutableCommand[traits.ContextT],
+    abc.ExecutableCommand[abc.ContextT],
 ):
     """Base class for the standard ExecutableCommand implementations."""
 
@@ -121,36 +121,36 @@ class PartialCommand(
     def __init__(
         self,
         *,
-        checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.Hooks[traits.ContextT]] = None,
+        checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
+        hooks: typing.Optional[abc.Hooks[abc.ContextT]] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
     ) -> None:
         self._checks: set[injecting.InjectableCheck] = (
             set(injecting.InjectableCheck(check) for check in checks) if checks else set()
         )
-        self._component: typing.Optional[traits.Component] = None
+        self._component: typing.Optional[abc.Component] = None
         self._hooks = hooks
         self._injector: typing.Optional[injecting.InjectorClient] = None
         self._metadata = dict(metadata) if metadata else {}
 
     @property
-    def checks(self) -> collections.Set[traits.CheckSig]:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+    def checks(self) -> collections.Set[abc.CheckSig]:
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return {check.callback for check in self._checks}
 
     @property
-    def component(self) -> typing.Optional[traits.Component]:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+    def component(self) -> typing.Optional[abc.Component]:
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return self._component
 
     @property
-    def hooks(self) -> typing.Optional[traits.Hooks[traits.ContextT]]:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+    def hooks(self) -> typing.Optional[abc.Hooks[abc.ContextT]]:
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return self._hooks
 
     @property
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return self._metadata
 
     @property
@@ -159,7 +159,7 @@ class PartialCommand(
         return any(check.needs_injector for check in self._checks)
 
     def copy(self: _PartialCommandT, *, _new: bool = True) -> _PartialCommandT:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         if not _new:
             self._checks = {check.copy() for check in self._checks}
             self._hooks = self._hooks.copy() if self._hooks else None
@@ -168,21 +168,21 @@ class PartialCommand(
 
         return copy.copy(self).copy(_new=False)
 
-    def set_hooks(self: _PartialCommandT, hooks: typing.Optional[traits.Hooks[traits.ContextT]], /) -> _PartialCommandT:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+    def set_hooks(self: _PartialCommandT, hooks: typing.Optional[abc.Hooks[abc.ContextT]], /) -> _PartialCommandT:
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._hooks = hooks
         return self
 
-    def add_check(self: _PartialCommandT, check: traits.CheckSig, /) -> _PartialCommandT:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+    def add_check(self: _PartialCommandT, check: abc.CheckSig, /) -> _PartialCommandT:
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._checks.add(injecting.InjectableCheck(check, injector=self._injector))
         return self
 
-    def remove_check(self, check: traits.CheckSig, /) -> None:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+    def remove_check(self, check: abc.CheckSig, /) -> None:
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._checks.remove(check)  # type: ignore[arg-type]
 
-    def with_check(self, check: traits.CheckSigT, /) -> traits.CheckSigT:
+    def with_check(self, check: abc.CheckSigT, /) -> abc.CheckSigT:
         self._checks.add(_LoadableInjector(check, injector=self._injector))
         return check
 
@@ -196,17 +196,15 @@ class PartialCommand(
         for check in self._checks:
             check.set_injector(client)
 
-    def bind_client(self, client: traits.Client, /) -> None:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+    def bind_client(self, client: abc.Client, /) -> None:
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         pass
 
-    def bind_component(self, component: traits.Component, /) -> None:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+    def bind_component(self, component: abc.Component, /) -> None:
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._component = component
 
-    def load_into_component(
-        self: _PartialCommandT, component: traits.Component, /
-    ) -> typing.Optional[_PartialCommandT]:
+    def load_into_component(self: _PartialCommandT, component: abc.Component, /) -> typing.Optional[_PartialCommandT]:
         for check in self._checks:
             if isinstance(check, _LoadableInjector):
                 check.make_method_type(component)
@@ -258,12 +256,12 @@ def slash_command_group(
     @help_group.with_command
     @tanjun.with_str_slash_option("commad_name", "command name")
     @tanjun.as_slash_command("command", "Get help with a command")
-    async def help_command_command(ctx: tanjun.traits.SlashContext, command_name: str) -> None:
+    async def help_command_command(ctx: tanjun.abc.SlashContext, command_name: str) -> None:
         ...
 
     @help_group.with_command
     @tanjun.as_slash_command("me", "help me")
-    async def help_me_command(ctx: tanjun.traits.SlashContext) -> None:
+    async def help_me_command(ctx: tanjun.abc.SlashContext) -> None:
         ...
 
     component = tanjun.Component().add_slash_command_command(help_group)
@@ -325,7 +323,7 @@ def as_slash_command(
     --------
     ```py
     @as_slash_command("ping", "Get the bot's latency")
-    async def ping_command(self, ctx: tanjun.traits.SlashContext) -> None:
+    async def ping_command(self, ctx: tanjun.abc.SlashContext) -> None:
         start_time = time.perf_counter()
         await ctx.rest.fetch_my_user()
         time_taken = (time.perf_counter() - start_time) * 1_000
@@ -401,7 +399,7 @@ def with_str_slash_option(
     ```py
     @with_str_slash_option("name", "A name.")
     @as_slash_command("command", "A command")
-    async def command(self, ctx: tanjun.traits.SlashContext, name: str) -> None:
+    async def command(self, ctx: tanjun.abc.SlashContext, name: str) -> None:
         ...
     ```
 
@@ -469,7 +467,7 @@ def with_int_slash_option(
     ```py
     @with_int_slash_option("int_value", "Int value.")
     @as_slash_command("command", "A command")
-    async def command(self, ctx: tanjun.traits.SlashContext, int_value: int) -> None:
+    async def command(self, ctx: tanjun.abc.SlashContext, int_value: int) -> None:
         ...
     ```
 
@@ -526,7 +524,7 @@ def with_bool_slash_option(
     ```py
     @with_bool_slash_option("flag", "Whether this flag should be enabled.", default=False)
     @as_slash_command("command", "A command")
-    async def command(self, ctx: tanjun.traits.SlashContext, flag: bool) -> None:
+    async def command(self, ctx: tanjun.abc.SlashContext, flag: bool) -> None:
         ...
     ```
 
@@ -571,7 +569,7 @@ def with_user_slash_option(
     ```py
     @with_channel_slash_option("user", "user to target.")
     @as_slash_command("command", "A command")
-    async def command(self, ctx: tanjun.traits.SlashContext, user: Union[InteractionMember, User]) -> None:
+    async def command(self, ctx: tanjun.abc.SlashContext, user: Union[InteractionMember, User]) -> None:
         ...
     ```
 
@@ -614,7 +612,7 @@ def with_member_slash_option(
     ```py
     @with_channel_slash_option("member", "member to target.")
     @as_slash_command("command", "A command")
-    async def command(self, ctx: tanjun.traits.SlashContext, member: hikari.InteractionMember) -> None:
+    async def command(self, ctx: tanjun.abc.SlashContext, member: hikari.InteractionMember) -> None:
         ...
     ```
 
@@ -657,7 +655,7 @@ def with_channel_slash_option(
     ```py
     @with_channel_slash_option("channel", "channel to target.")
     @as_slash_command("command", "A command")
-    async def command(self, ctx: tanjun.traits.SlashContext, channel: hikari.InteractionChannel) -> None:
+    async def command(self, ctx: tanjun.abc.SlashContext, channel: hikari.InteractionChannel) -> None:
         ...
     ```
 
@@ -697,7 +695,7 @@ def with_role_slash_option(
     ```py
     @with_role_slash_option("role", "Role to target.")
     @as_slash_command("command", "A command")
-    async def command(self, ctx: tanjun.traits.SlashContext, role: hikari.Role) -> None:
+    async def command(self, ctx: tanjun.abc.SlashContext, role: hikari.Role) -> None:
         ...
     ```
 
@@ -741,7 +739,7 @@ def with_mentionable_slash_option(
     ```py
     @with_mentionable_slash_option("mentionable", "Mentionable entity to target.")
     @as_slash_command("command", "A command")
-    async def command(self, ctx: tanjun.traits.SlashContext, mentionable: [Role, InteractionMember, User]) -> None:
+    async def command(self, ctx: tanjun.abc.SlashContext, mentionable: [Role, InteractionMember, User]) -> None:
         ...
     ```
 
@@ -795,7 +793,7 @@ class _TrackedOption(injecting.Injectable):
     def needs_injector(self) -> bool:
         return any(converter.needs_injector for converter in self.converters)
 
-    async def convert(self, ctx: traits.SlashContext, value: typing.Any, /) -> typing.Any:
+    async def convert(self, ctx: abc.SlashContext, value: typing.Any, /) -> typing.Any:
         if not self.converters:
             return value
 
@@ -864,7 +862,7 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
         return builder
 
 
-class BaseSlashCommand(PartialCommand[traits.SlashContext], traits.BaseSlashCommand):
+class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
     __slots__ = ("_command_id", "_defaults_to_ephemeral", "_description", "_is_global", "_name", "_parent")
 
     def __init__(
@@ -876,8 +874,8 @@ class BaseSlashCommand(PartialCommand[traits.SlashContext], traits.BaseSlashComm
         command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
         default_to_ephemeral: bool = False,
         is_global: bool = True,
-        checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.SlashHooks] = None,
+        checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
+        hooks: typing.Optional[abc.SlashHooks] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
         sort_options: bool = True,
     ) -> None:
@@ -890,31 +888,31 @@ class BaseSlashCommand(PartialCommand[traits.SlashContext], traits.BaseSlashComm
         self._description = description
         self._is_global = is_global
         self._name = name
-        self._parent: typing.Optional[traits.SlashCommandGroup] = None
+        self._parent: typing.Optional[abc.SlashCommandGroup] = None
 
     @property
     def defaults_to_ephemeral(self) -> bool:
-        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._defaults_to_ephemeral
 
     @property
     def description(self) -> str:
-        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._description
 
     @property
     def is_global(self) -> bool:
-        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._is_global
 
     @property
     def name(self) -> str:
-        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._name
 
     @property
-    def parent(self) -> typing.Optional[traits.SlashCommandGroup]:
-        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
+    def parent(self) -> typing.Optional[abc.SlashCommandGroup]:
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._parent
 
     @property
@@ -952,24 +950,22 @@ class BaseSlashCommand(PartialCommand[traits.SlashContext], traits.BaseSlashComm
         self._defaults_to_ephemeral = state
         return self
 
-    def set_parent(
-        self: _BaseSlashCommandT, parent: typing.Optional[traits.SlashCommandGroup], /
-    ) -> _BaseSlashCommandT:
-        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
+    def set_parent(self: _BaseSlashCommandT, parent: typing.Optional[abc.SlashCommandGroup], /) -> _BaseSlashCommandT:
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         self._parent = parent
         return self
 
-    async def check_context(self, ctx: traits.SlashContext, /) -> bool:
-        # <<inherited docstring from tanjun.traits.SlashCommand>>.
+    async def check_context(self, ctx: abc.SlashContext, /) -> bool:
+        # <<inherited docstring from tanjun.abc.SlashCommand>>.
         ctx = ctx.set_command(self)
         result = await utilities.gather_checks(ctx, self._checks)
         ctx.set_command(None)
         return result
 
     def copy(
-        self: _BaseSlashCommandT, *, _new: bool = True, parent: typing.Optional[traits.SlashCommandGroup] = None
+        self: _BaseSlashCommandT, *, _new: bool = True, parent: typing.Optional[abc.SlashCommandGroup] = None
     ) -> _BaseSlashCommandT:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         if not _new:
             self._parent = parent
             return super().copy(_new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
@@ -977,7 +973,7 @@ class BaseSlashCommand(PartialCommand[traits.SlashContext], traits.BaseSlashComm
         return super().copy(_new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
 
     def load_into_component(
-        self: _BaseSlashCommandT, component: traits.Component, /
+        self: _BaseSlashCommandT, component: abc.Component, /
     ) -> typing.Optional[_BaseSlashCommandT]:
         super().load_into_component(component)
         if not self._parent:
@@ -985,7 +981,7 @@ class BaseSlashCommand(PartialCommand[traits.SlashContext], traits.BaseSlashComm
             return self
 
 
-class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
+class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
     __slots__ = ("_commands",)
 
     def __init__(
@@ -997,8 +993,8 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
         command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
         default_to_ephemeral: bool = False,
         is_global: bool = True,
-        checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.SlashHooks] = None,
+        checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
+        hooks: typing.Optional[abc.SlashHooks] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
     ) -> None:
         super().__init__(
@@ -1012,15 +1008,15 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
             metadata=metadata,
             sort_options=False,
         )
-        self._commands: dict[str, traits.BaseSlashCommand] = {}
+        self._commands: dict[str, abc.BaseSlashCommand] = {}
 
     @property
-    def commands(self) -> collections.ValuesView[traits.BaseSlashCommand]:
-        # <<inherited docstring from tanjun.traits.SlashCommandGroup>>.
+    def commands(self) -> collections.ValuesView[abc.BaseSlashCommand]:
+        # <<inherited docstring from tanjun.abc.SlashCommandGroup>>.
         return self._commands.copy().values()
 
     def build(self) -> special_endpoints_api.CommandBuilder:
-        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         builder = _CommandBuilder(self._name, self._description, False)
         if self._command_id:
             builder.set_id(self._command_id)
@@ -1028,7 +1024,7 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
         for command in self._commands.values():
             option_type = (
                 hikari.OptionType.SUB_COMMAND_GROUP
-                if isinstance(command, traits.SlashCommandGroup)
+                if isinstance(command, abc.SlashCommandGroup)
                 else hikari.OptionType.SUB_COMMAND
             )
             command_builder = command.build()
@@ -1045,21 +1041,21 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
         return builder
 
     def copy(
-        self: _SlashCommandGroupT, *, _new: bool = True, parent: typing.Optional[traits.SlashCommandGroup] = None
+        self: _SlashCommandGroupT, *, _new: bool = True, parent: typing.Optional[abc.SlashCommandGroup] = None
     ) -> _SlashCommandGroupT:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         if not _new:
             self._commands = {name: command.copy() for name, command in self._commands.items()}
             return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars
 
         return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars
 
-    def add_command(self: _SlashCommandGroupT, command: traits.BaseSlashCommand, /) -> _SlashCommandGroupT:
+    def add_command(self: _SlashCommandGroupT, command: abc.BaseSlashCommand, /) -> _SlashCommandGroupT:
         """Add a slash command to this group.
 
         Parameters
         ----------
-        command : tanjun.traits.BaseSlashCommand
+        command : tanjun.abc.BaseSlashCommand
             Command to add to this group.
 
             !!! warning
@@ -1070,33 +1066,33 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
         Self
             Object of this group to enable chained calls.
         """
-        if self._parent and isinstance(command, traits.SlashCommandGroup):
+        if self._parent and isinstance(command, abc.SlashCommandGroup):
             raise ValueError("Cannot add a slash command group to a nested slash command group")
 
         self._commands[command.name] = command
         return self
 
-    def remove_command(self, command: traits.BaseSlashCommand, /) -> None:
+    def remove_command(self, command: abc.BaseSlashCommand, /) -> None:
         """Remove a command from this group.
 
         Parameters
         ----------
-        command : tanjun.traits.BaseSlashCommand
+        command : tanjun.abc.BaseSlashCommand
             Command to remove from this group.
         """
         del self._commands[command.name]
 
-    def with_command(self, command: traits.BaseSlashCommandT, /) -> traits.BaseSlashCommandT:
+    def with_command(self, command: abc.BaseSlashCommandT, /) -> abc.BaseSlashCommandT:
         """Add a slash command to this group through a decorator call.
 
         Parameters
         ----------
-        command : tanjun.traits.BaseSlashCommand
+        command : tanjun.abc.BaseSlashCommand
             Command to add to this group.
 
         Returns
         -------
-        tanjun.traits.BaseSlashCommand
+        tanjun.abc.BaseSlashCommand
             Command which was added to this group.
         """
         self.add_command(command)
@@ -1104,13 +1100,13 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
 
     async def execute(
         self,
-        ctx: traits.SlashContext,
+        ctx: abc.SlashContext,
         /,
         option: typing.Optional[hikari.CommandInteractionOption] = None,
         *,
-        hooks: typing.Optional[collections.MutableSet[traits.SlashHooks]] = None,
+        hooks: typing.Optional[collections.MutableSet[abc.SlashHooks]] = None,
     ) -> None:
-        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         if not await self.check_context(ctx):
             return
 
@@ -1130,7 +1126,7 @@ class SlashCommandGroup(BaseSlashCommand, traits.SlashCommandGroup):
         await ctx.mark_not_found()
 
 
-class SlashCommand(BaseSlashCommand, traits.SlashCommand, typing.Generic[CommandCallbackSigT]):
+class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCallbackSigT]):
     __slots__ = ("_builder", "_callback", "_cached_getters", "_needs_injector", "_tracked_options")
 
     def __init__(
@@ -1140,11 +1136,11 @@ class SlashCommand(BaseSlashCommand, traits.SlashCommand, typing.Generic[Command
         description: str,
         /,
         *,
-        checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
+        checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
         command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
         default_to_ephemeral: bool = False,
         is_global: bool = True,
-        hooks: typing.Optional[traits.SlashHooks] = None,
+        hooks: typing.Optional[abc.SlashHooks] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
         sort_options: bool = True,
     ) -> None:
@@ -1181,7 +1177,7 @@ class SlashCommand(BaseSlashCommand, traits.SlashCommand, typing.Generic[Command
 
     @property
     def callback(self) -> CommandCallbackSigT:
-        # <<inherited docstring from tanjun.traits.SlashCommand>>.
+        # <<inherited docstring from tanjun.abc.SlashCommand>>.
         return self._callback
 
     @property
@@ -1194,7 +1190,7 @@ class SlashCommand(BaseSlashCommand, traits.SlashCommand, typing.Generic[Command
         )
 
     def build(self) -> special_endpoints_api.CommandBuilder:
-        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._builder.copy()
 
     def add_option(
@@ -1250,7 +1246,7 @@ class SlashCommand(BaseSlashCommand, traits.SlashCommand, typing.Generic[Command
 
     async def _process_args(
         self,
-        ctx: traits.SlashContext,
+        ctx: abc.SlashContext,
         options: collections.Iterable[hikari.CommandInteractionOption],
         option_data: hikari.ResolvedOptionData,
         /,
@@ -1321,13 +1317,13 @@ class SlashCommand(BaseSlashCommand, traits.SlashCommand, typing.Generic[Command
 
     async def execute(
         self,
-        ctx: traits.SlashContext,
+        ctx: abc.SlashContext,
         /,
         option: typing.Optional[hikari.CommandInteractionOption] = None,
         *,
-        hooks: typing.Optional[collections.MutableSet[traits.SlashHooks]] = None,
+        hooks: typing.Optional[collections.MutableSet[abc.SlashHooks]] = None,
     ) -> None:
-        # <<inherited docstring from tanjun.traits.BaseSlashCommand>>.
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         ctx = ctx.set_command(self)
         own_hooks = self._hooks or _EMPTY_HOOKS
         try:
@@ -1371,9 +1367,9 @@ class SlashCommand(BaseSlashCommand, traits.SlashCommand, typing.Generic[Command
             await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
     def copy(
-        self: _SlashCommandT, *, _new: bool = True, parent: typing.Optional[traits.SlashCommandGroup] = None
+        self: _SlashCommandT, *, _new: bool = True, parent: typing.Optional[abc.SlashCommandGroup] = None
     ) -> _SlashCommandT:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         if not _new:
             self._cached_getters = None
             self._callback = copy.copy(self._callback)
@@ -1382,7 +1378,7 @@ class SlashCommand(BaseSlashCommand, traits.SlashCommand, typing.Generic[Command
 
         return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars here
 
-    def load_into_component(self: _SlashCommandT, component: traits.Component, /) -> typing.Optional[_SlashCommandT]:
+    def load_into_component(self: _SlashCommandT, component: abc.Component, /) -> typing.Optional[_SlashCommandT]:
         if isinstance(self._callback, types.MethodType):
             raise ValueError("Callback is already a method type")
 
@@ -1446,7 +1442,7 @@ def as_message_command_group(
     return lambda callback: MessageCommandGroup(callback, name, *names, strict=strict)
 
 
-class MessageCommand(PartialCommand[traits.MessageContext], traits.MessageCommand, typing.Generic[CommandCallbackSigT]):
+class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typing.Generic[CommandCallbackSigT]):
     __slots__ = ("_cached_getters", "_callback", "_names", "_needs_injector", "_parent", "_parser")
 
     def __init__(
@@ -1455,8 +1451,8 @@ class MessageCommand(PartialCommand[traits.MessageContext], traits.MessageComman
         name: str,
         /,
         *names: str,
-        checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.MessageHooks] = None,
+        checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
+        hooks: typing.Optional[abc.MessageHooks] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
         parser: typing.Optional[parsing.AbstractParser] = None,
     ) -> None:
@@ -1465,7 +1461,7 @@ class MessageCommand(PartialCommand[traits.MessageContext], traits.MessageComman
         self._cached_getters: typing.Optional[list[injecting.Getter[typing.Any]]] = None
         self._needs_injector: typing.Optional[bool] = None
         self._names = {name, *names}
-        self._parent: typing.Optional[traits.MessageCommandGroup] = None
+        self._parent: typing.Optional[abc.MessageCommandGroup] = None
         self._parser = parser
 
     def __repr__(self) -> str:
@@ -1473,11 +1469,11 @@ class MessageCommand(PartialCommand[traits.MessageContext], traits.MessageComman
 
     @property
     def callback(self) -> CommandCallbackSigT:
-        # <<inherited docstring from tanjun.traits.MessageCommand>>.
+        # <<inherited docstring from tanjun.abc.MessageCommand>>.
         return self._callback
 
     @property
-    # <<inherited docstring from tanjun.traits.MessageCommand>>.
+    # <<inherited docstring from tanjun.abc.MessageCommand>>.
     def names(self) -> collections.Set[str]:
         return self._names.copy()
 
@@ -1487,30 +1483,30 @@ class MessageCommand(PartialCommand[traits.MessageContext], traits.MessageComman
         return injecting.check_injecting(self._callback) or super().needs_injector
 
     @property
-    def parent(self) -> typing.Optional[traits.MessageCommandGroup]:
-        # <<inherited docstring from tanjun.traits.MessageCommand>>.
+    def parent(self) -> typing.Optional[abc.MessageCommandGroup]:
+        # <<inherited docstring from tanjun.abc.MessageCommand>>.
         return self._parent
 
     @property
     def parser(self) -> typing.Optional[parsing.AbstractParser]:
         return self._parser
 
-    def bind_client(self, client: traits.Client, /) -> None:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+    def bind_client(self, client: abc.Client, /) -> None:
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         super().bind_client(client)
         if self._parser:
             self._parser.bind_client(client)
 
-    def bind_component(self, component: traits.Component, /) -> None:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+    def bind_component(self, component: abc.Component, /) -> None:
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         super().bind_component(component)
         if self._parser:
             self._parser.bind_component(component)
 
     def copy(
-        self: _MessageCommandT, *, _new: bool = True, parent: typing.Optional[traits.MessageCommandGroup] = None
+        self: _MessageCommandT, *, _new: bool = True, parent: typing.Optional[abc.MessageCommandGroup] = None
     ) -> _MessageCommandT:
-        # <<inherited docstring from tanjun.traits.MessageCommand>>.
+        # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if not _new:
             self._cached_getters = None
             self._callback = copy.copy(self._callback)
@@ -1522,8 +1518,8 @@ class MessageCommand(PartialCommand[traits.MessageContext], traits.MessageComman
 
         return super().copy(_new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
 
-    def set_parent(self: _MessageCommandT, parent: typing.Optional[traits.MessageCommandGroup], /) -> _MessageCommandT:
-        # <<inherited docstring from tanjun.traits.MessageCommand>>.
+    def set_parent(self: _MessageCommandT, parent: typing.Optional[abc.MessageCommandGroup], /) -> _MessageCommandT:
+        # <<inherited docstring from tanjun.abc.MessageCommand>>.
         self._parent = parent
         return self
 
@@ -1531,8 +1527,8 @@ class MessageCommand(PartialCommand[traits.MessageContext], traits.MessageComman
         self._parser = parser
         return self
 
-    async def check_context(self, ctx: traits.MessageContext, /) -> bool:
-        # <<inherited docstring from tanjun.traits.MessageCommand>>.
+    async def check_context(self, ctx: abc.MessageContext, /) -> bool:
+        # <<inherited docstring from tanjun.abc.MessageCommand>>.
         ctx = ctx.set_command(self)
         result = await utilities.gather_checks(ctx, self._checks)
         ctx.set_command(None)
@@ -1540,12 +1536,12 @@ class MessageCommand(PartialCommand[traits.MessageContext], traits.MessageComman
 
     async def execute(
         self,
-        ctx: traits.MessageContext,
+        ctx: abc.MessageContext,
         /,
         *,
-        hooks: typing.Optional[collections.MutableSet[traits.MessageHooks]] = None,
+        hooks: typing.Optional[collections.MutableSet[abc.MessageHooks]] = None,
     ) -> None:
-        # <<inherited docstring from tanjun.traits.MessageCommand>>.
+        # <<inherited docstring from tanjun.abc.MessageCommand>>.
         ctx = ctx.set_command(self)
         own_hooks = self._hooks or _EMPTY_HOOKS
         try:
@@ -1606,7 +1602,7 @@ class MessageCommand(PartialCommand[traits.MessageContext], traits.MessageComman
             await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
     def _get_injection_getters(self) -> collections.Iterable[injecting.Getter[typing.Any]]:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         if not self._injector:
             raise ValueError("Cannot execute command without injector client")
 
@@ -1618,9 +1614,7 @@ class MessageCommand(PartialCommand[traits.MessageContext], traits.MessageComman
 
         return self._cached_getters
 
-    def load_into_component(
-        self: _MessageCommandT, component: traits.Component, /
-    ) -> typing.Optional[_MessageCommandT]:
+    def load_into_component(self: _MessageCommandT, component: abc.Component, /) -> typing.Optional[_MessageCommandT]:
         if isinstance(self._callback, types.MethodType):
             raise ValueError("Callback is already a method type")
 
@@ -1634,7 +1628,7 @@ class MessageCommand(PartialCommand[traits.MessageContext], traits.MessageComman
             return self
 
 
-class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCommandGroup):
+class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageCommandGroup):
     __slots__ = ("_commands", "_is_strict", "_names_to_commands")
 
     def __init__(
@@ -1643,23 +1637,23 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
         name: str,
         /,
         *names: str,
-        checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.MessageHooks] = None,
+        checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
+        hooks: typing.Optional[abc.MessageHooks] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
         strict: bool = False,
         parser: typing.Optional[parsing.AbstractParser] = None,
     ) -> None:
         super().__init__(callback, name, *names, checks=checks, hooks=hooks, metadata=metadata, parser=parser)
-        self._commands: set[traits.MessageCommand] = set()
+        self._commands: set[abc.MessageCommand] = set()
         self._is_strict = strict
-        self._names_to_commands: dict[str, traits.MessageCommand] = {}
+        self._names_to_commands: dict[str, abc.MessageCommand] = {}
 
     def __repr__(self) -> str:
         return f"CommandGroup <{len(self._commands)}: {self._names}>"
 
     @property
-    def commands(self) -> collections.Set[traits.MessageCommand]:
-        # <<inherited docstring from tanjun.traits.MessageCommandGroup>>.
+    def commands(self) -> collections.Set[abc.MessageCommand]:
+        # <<inherited docstring from tanjun.abc.MessageCommandGroup>>.
         return self._commands.copy()
 
     @property
@@ -1667,9 +1661,9 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
         return self._is_strict
 
     def copy(
-        self: _MessageCommandGroupT, *, _new: bool = True, parent: typing.Optional[traits.MessageCommandGroup] = None
+        self: _MessageCommandGroupT, *, _new: bool = True, parent: typing.Optional[abc.MessageCommandGroup] = None
     ) -> _MessageCommandGroupT:
-        # <<inherited docstring from tanjun.traits.MessageCommand>>.
+        # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if not _new:
             commands = {command: command.copy(parent=self) for command in self._commands}
             self._commands = set(commands.values())
@@ -1678,8 +1672,8 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
 
         return super().copy(parent=parent, _new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
 
-    def add_command(self: _MessageCommandGroupT, command: traits.MessageCommand, /) -> _MessageCommandGroupT:
-        # <<inherited docstring from tanjun.traits.MessageCommandGroup>>.
+    def add_command(self: _MessageCommandGroupT, command: abc.MessageCommand, /) -> _MessageCommandGroupT:
+        # <<inherited docstring from tanjun.abc.MessageCommandGroup>>.
         if self._is_strict:
             if any(" " in name for name in command.names):
                 raise ValueError("Sub-command names may not contain spaces in a strict message command group")
@@ -1694,8 +1688,8 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
         self._commands.add(command)
         return self
 
-    def remove_command(self, command: traits.MessageCommand, /) -> None:
-        # <<inherited docstring from tanjun.traits.MessageCommandGroup>>.
+    def remove_command(self, command: abc.MessageCommand, /) -> None:
+        # <<inherited docstring from tanjun.abc.MessageCommandGroup>>.
         self._commands.remove(command)
         if self._is_strict:
             for name in command.names:
@@ -1708,14 +1702,14 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
         self.add_command(command)
         return command
 
-    def bind_client(self, client: traits.Client, /) -> None:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+    def bind_client(self, client: abc.Client, /) -> None:
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         super().bind_client(client)
         for command in self._commands:
             command.bind_client(client)
 
-    def bind_component(self, component: traits.Component, /) -> None:
-        # <<inherited docstring from tanjun.traits.ExecutableCommand>>.
+    def bind_component(self, component: abc.Component, /) -> None:
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         super().bind_component(component)
         for command in self._commands:
             command.bind_component(component)
@@ -1730,7 +1724,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
             if isinstance(command, injecting.Injectable):
                 command.set_injector(client)
 
-    def find_command(self, content: str, /) -> collections.Iterable[tuple[str, traits.MessageCommand]]:
+    def find_command(self, content: str, /) -> collections.Iterable[tuple[str, abc.MessageCommand]]:
         if self._is_strict:
             name = content.split(" ")[0]
             if command := self._names_to_commands.get(name):
@@ -1744,12 +1738,12 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
     # I sure hope this plays well with command group recursion cause I am waaaaaaaaaaaaaay too lazy to test that myself.
     async def execute(
         self,
-        ctx: traits.MessageContext,
+        ctx: abc.MessageContext,
         /,
         *,
-        hooks: typing.Optional[collections.MutableSet[traits.MessageHooks]] = None,
+        hooks: typing.Optional[collections.MutableSet[abc.MessageHooks]] = None,
     ) -> None:
-        # <<inherited docstring from tanjun.traits.MessageCommand>>.
+        # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if ctx.message.content is None:
             raise ValueError("Cannot execute a command with a contentless message")
 
@@ -1773,7 +1767,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], traits.MessageCom
         await super().execute(ctx, hooks=hooks)
 
     def load_into_component(
-        self: _MessageCommandGroupT, component: traits.Component, /
+        self: _MessageCommandGroupT, component: abc.Component, /
     ) -> typing.Optional[_MessageCommandGroupT]:
         super().load_into_component(component)
         for command in self._commands:

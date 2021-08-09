@@ -58,10 +58,10 @@ import shlex
 import typing
 from collections import abc as collections
 
+from . import abc as tanjun_abc
 from . import conversion
 from . import errors
 from . import injecting
-from . import traits
 
 if typing.TYPE_CHECKING:
     _ParameterT = typing.TypeVar("_ParameterT", bound="Parameter")
@@ -72,7 +72,7 @@ if typing.TYPE_CHECKING:
 ParseableProtoT = typing.TypeVar("ParseableProtoT", bound="ParseableProto")
 """Generic type hint of `ParseableProto`."""
 
-ConverterSig = collections.Callable[..., traits.MaybeAwaitableT[typing.Any]]
+ConverterSig = collections.Callable[..., tanjun_abc.MaybeAwaitableT[typing.Any]]
 """Type hint of a converter used within a parser instance.
 
 This must be a callable or asynchronous callable which takes one position
@@ -87,7 +87,7 @@ class ParseableProto(typing.Protocol):
     __slots__ = ()
 
     @property
-    def callback(self) -> traits.CommandCallbackSig:
+    def callback(self) -> tanjun_abc.CommandCallbackSig:
         raise NotImplementedError
 
     @property
@@ -144,11 +144,11 @@ class AbstractParser(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def bind_client(self, client: traits.Client, /) -> None:
+    def bind_client(self, client: tanjun_abc.Client, /) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def bind_component(self, component: traits.Component, /) -> None:
+    def bind_component(self, component: tanjun_abc.Component, /) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -156,7 +156,7 @@ class AbstractParser(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def parse(self, ctx: traits.MessageContext, /) -> tuple[list[typing.Any], dict[str, typing.Any]]:
+    async def parse(self, ctx: tanjun_abc.MessageContext, /) -> tuple[list[typing.Any], dict[str, typing.Any]]:
         raise NotImplementedError
 
 
@@ -241,7 +241,7 @@ class ShlexTokenizer:
 
 
 async def _covert_option_or_empty(
-    ctx: traits.MessageContext, option: Option, value: typing.Optional[typing.Any], /
+    ctx: tanjun_abc.MessageContext, option: Option, value: typing.Optional[typing.Any], /
 ) -> typing.Any:
     if value is not None:
         return await option.convert(ctx, value)
@@ -255,7 +255,7 @@ async def _covert_option_or_empty(
 class SemanticShlex(ShlexTokenizer):
     __slots__ = ("__ctx",)
 
-    def __init__(self, ctx: traits.MessageContext, /) -> None:
+    def __init__(self, ctx: tanjun_abc.MessageContext, /) -> None:
         super().__init__(ctx.content)
         self.__ctx = ctx
 
@@ -358,7 +358,7 @@ def with_argument(
     @tanjun.parsing.with_argument("command", converters=(int,), default=42)
     @tanjun.parsing.with_parser
     @tanjun.component.as_message_command("command")
-    async def command(self, ctx: tanjun.traits.Context, /, argument: int):
+    async def command(self, ctx: tanjun.abc.Context, /, argument: int):
         ...
     ```
     """
@@ -428,7 +428,7 @@ def with_greedy_argument(
     @tanjun.parsing.with_greedy_argument("command", converters=(StringView,))
     @tanjun.parsing.with_parser
     @tanjun.component.as_message_command("command")
-    async def command(self, ctx: tanjun.traits.Context, /, argument: StringView):
+    async def command(self, ctx: tanjun.abc.Context, /, argument: StringView):
         ...
     ```
     """
@@ -490,7 +490,7 @@ def with_multi_argument(
     @tanjun.parsing.with_multi_argument("command", converters=(int,))
     @tanjun.parsing.with_parser
     @tanjun.component.as_message_command("command")
-    async def command(self, ctx: tanjun.traits.Context, /, argument: collections.abc.Sequence[int]):
+    async def command(self, ctx: tanjun.abc.Context, /, argument: collections.abc.Sequence[int]):
         ...
     ```
     """
@@ -552,7 +552,7 @@ def with_option(
     @tanjun.parsing.with_option("command", converters=(int,), default=42)
     @tanjun.parsing.with_parser
     @tanjun.component.as_message_command("command")
-    async def command(self, ctx: tanjun.traits.Context, /, argument: int):
+    async def command(self, ctx: tanjun.abc.Context, /, argument: int):
         ...
     ```
     """
@@ -627,7 +627,7 @@ def with_multi_option(
     @tanjun.parsing.with_multi_option("command", converters=(int,), default=())
     @tanjun.parsing.with_parser
     @tanjun.component.as_message_command("command")
-    async def command(self, ctx: tanjun.traits.Context, /, argument: collections.abc.Sequence[int]):
+    async def command(self, ctx: tanjun.abc.Context, /, argument: collections.abc.Sequence[int]):
         ...
     ```
     """
@@ -647,8 +647,8 @@ class Parameter(injecting.Injectable):
         greedy: bool = False,
         multi: bool = False,
     ) -> None:
-        self._client: typing.Optional[traits.Client] = None
-        self._component: typing.Optional[traits.Component] = None
+        self._client: typing.Optional[tanjun_abc.Client] = None
+        self._component: typing.Optional[tanjun_abc.Component] = None
         self._converters: list[injecting.InjectableConverter[typing.Any]] = []
         self.default = default
         self._injector: typing.Optional[injecting.InjectorClient] = None
@@ -703,19 +703,19 @@ class Parameter(injecting.Injectable):
 
         self._converters.remove(converter)  # type: ignore # reportGeneralTypeIssues
 
-    def bind_client(self, client: traits.Client, /) -> None:
+    def bind_client(self, client: tanjun_abc.Client, /) -> None:
         self._client = client
         for converter in self._converters:
             if isinstance(converter.callback, conversion.BaseConverter):
                 converter.callback.bind_client(client)
 
-    def bind_component(self, component: traits.Component, /) -> None:
+    def bind_component(self, component: tanjun_abc.Component, /) -> None:
         self._component = component
         for converter in self._converters:
             if isinstance(converter.callback, conversion.BaseConverter):
                 converter.callback.bind_component(component)
 
-    async def convert(self, ctx: traits.Context, value: str) -> typing.Any:
+    async def convert(self, ctx: tanjun_abc.Context, value: str) -> typing.Any:
         if not self._converters:
             return value
 
@@ -799,7 +799,7 @@ class Option(Parameter):
 
 
 class ShlexParser(injecting.Injectable, AbstractParser):
-    """A shlex based `tanjun.traits.Parser` implementation."""
+    """A shlex based `tanjun.abc.Parser` implementation."""
 
     __slots__ = ("_arguments", "_client", "_component", "_injector", "_options")
 
@@ -807,8 +807,8 @@ class ShlexParser(injecting.Injectable, AbstractParser):
         self, *, parameters: typing.Optional[collections.Iterable[typing.Union[Argument, Option]]] = None
     ) -> None:
         self._arguments: list[Argument] = []
-        self._client: typing.Optional[traits.Client] = None
-        self._component: typing.Optional[traits.Component] = None
+        self._client: typing.Optional[tanjun_abc.Client] = None
+        self._component: typing.Optional[tanjun_abc.Component] = None
         self._injector: typing.Optional[injecting.InjectorClient] = None
         self._options: list[Option] = []
 
@@ -880,19 +880,19 @@ class ShlexParser(injecting.Injectable, AbstractParser):
         for parameter in parameters:
             self.add_parameter(parameter)
 
-    def bind_client(self, client: traits.Client, /) -> None:
+    def bind_client(self, client: tanjun_abc.Client, /) -> None:
         # <<inherited docstring from AbstractParser>>.
         self._client = client
         for parameter in itertools.chain(self._options, self._arguments):
             parameter.bind_client(client)
 
-    def bind_component(self, component: traits.Component, /) -> None:
+    def bind_component(self, component: tanjun_abc.Component, /) -> None:
         # <<inherited docstring from AbstractParser>>.
         self._component = component
         for parameter in itertools.chain(self._options, self._arguments):
             parameter.bind_component(component)
 
-    async def parse(self, ctx: traits.MessageContext, /) -> tuple[list[typing.Any], dict[str, typing.Any]]:
+    async def parse(self, ctx: tanjun_abc.MessageContext, /) -> tuple[list[typing.Any], dict[str, typing.Any]]:
         # <<inherited docstring from AbstractParser>>.
         parser = SemanticShlex(ctx)
         arguments = await parser.get_arguments(self._arguments)

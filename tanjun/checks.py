@@ -62,10 +62,10 @@ from . import utilities
 
 if typing.TYPE_CHECKING:
 
-    from . import traits as tanjun_traits
+    from . import abc as tanjun_abc
 
 
-CommandT = typing.TypeVar("CommandT", bound="tanjun_traits.ExecutableCommand[typing.Any]")
+CommandT = typing.TypeVar("CommandT", bound="tanjun_abc.ExecutableCommand[typing.Any]")
 CallbackReturnT = typing.Union[CommandT, collections.Callable[[CommandT], CommandT]]
 """Type hint for the return value of decorators which optionally take keyword arguments.
 
@@ -95,10 +95,10 @@ def foo_command(self, ctx: Context) -> None:
 
 @dataclasses.dataclass(frozen=True)
 class _WrappedKwargs:
-    callback: tanjun_traits.CheckSig
+    callback: tanjun_abc.CheckSig
     _kwargs: dict[str, typing.Any]
 
-    def __call__(self, ctx: tanjun_traits.Context, /) -> tanjun_traits.MaybeAwaitableT[bool]:
+    def __call__(self, ctx: tanjun_abc.Context, /) -> tanjun_abc.MaybeAwaitableT[bool]:
         return self.callback(ctx, **self._kwargs)
 
     # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
@@ -112,7 +112,7 @@ class _WrappedKwargs:
 
 def _wrap_with_kwargs(
     command: typing.Optional[CommandT],
-    callback: tanjun_traits.CheckSig,
+    callback: tanjun_abc.CheckSig,
     /,
     **kwargs: typing.Any,
 ) -> CallbackReturnT[CommandT]:
@@ -154,7 +154,7 @@ class ApplicationOwnerCheck:
         self._owner_ids = tuple(hikari.Snowflake(id_) for id_ in owner_ids) if owner_ids else ()
         self._time = 0.0
 
-    async def __call__(self, ctx: tanjun_traits.Context, /) -> bool:
+    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
         return await self.check(ctx)
 
     @property
@@ -174,7 +174,7 @@ class ApplicationOwnerCheck:
             except hikari.InternalServerError:
                 continue
 
-    async def _get_application(self, ctx: tanjun_traits.Context, /) -> hikari.Application:
+    async def _get_application(self, ctx: tanjun_abc.Context, /) -> hikari.Application:
         if self._application and not self._is_expired:
             return self._application
 
@@ -211,7 +211,7 @@ class ApplicationOwnerCheck:
 
     async def open(
         self,
-        client: tanjun_traits.Client,
+        client: tanjun_abc.Client,
         /,
         *,
         timeout: typing.Optional[datetime.timedelta] = datetime.timedelta(seconds=30),
@@ -222,7 +222,7 @@ class ApplicationOwnerCheck:
         except asyncio.TimeoutError:
             pass
 
-    async def check(self, ctx: tanjun_traits.Context, /) -> bool:
+    async def check(self, ctx: tanjun_abc.Context, /) -> bool:
         if ctx.author.id in self._owner_ids:
             return True
 
@@ -247,7 +247,7 @@ class ApplicationOwnerCheck:
         await asyncio.wait_for(self._try_fetch(rest), timeout.total_seconds() if timeout else None)
 
 
-async def _get_is_nsfw(ctx: tanjun_traits.Context, /) -> bool:
+async def _get_is_nsfw(ctx: tanjun_abc.Context, /) -> bool:
     channel: typing.Optional[hikari.PartialChannel] = None
     if ctx.client.cache:
         channel = ctx.client.cache.get_guild_channel(ctx.channel_id)
@@ -260,7 +260,7 @@ async def _get_is_nsfw(ctx: tanjun_traits.Context, /) -> bool:
 
 
 async def nsfw_check(
-    ctx: tanjun_traits.Context,
+    ctx: tanjun_abc.Context,
     /,
     *,
     end_execution: bool = False,
@@ -271,7 +271,7 @@ async def nsfw_check(
 
 
 async def sfw_check(
-    ctx: tanjun_traits.Context,
+    ctx: tanjun_abc.Context,
     /,
     *,
     end_execution: bool = False,
@@ -281,7 +281,7 @@ async def sfw_check(
 
 
 def dm_check(
-    ctx: tanjun_traits.Context,
+    ctx: tanjun_abc.Context,
     /,
     *,
     end_execution: bool = False,
@@ -291,7 +291,7 @@ def dm_check(
 
 
 def guild_check(
-    ctx: tanjun_traits.Context,
+    ctx: tanjun_abc.Context,
     /,
     *,
     end_execution: bool = False,
@@ -315,12 +315,12 @@ class PermissionCheck(abc.ABC):
         self._error_message = error_message
         self.permissions = hikari.Permissions(permissions)
 
-    async def __call__(self, ctx: tanjun_traits.Context, /) -> bool:
+    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
         result = (self.permissions & await self.get_permissions(ctx)) == self.permissions
         return _handle_result(result, self._end_execution, self._error_message)
 
     @abc.abstractmethod
-    async def get_permissions(self, ctx: tanjun_traits.Context, /) -> hikari.Permissions:
+    async def get_permissions(self, ctx: tanjun_abc.Context, /) -> hikari.Permissions:
         raise NotImplementedError
 
 
@@ -337,7 +337,7 @@ class AuthorPermissionCheck(PermissionCheck):
     ) -> None:
         super().__init__(permissions, end_execution=end_execution, error_message=error_message)
 
-    async def get_permissions(self, ctx: tanjun_traits.Context, /) -> hikari.Permissions:
+    async def get_permissions(self, ctx: tanjun_abc.Context, /) -> hikari.Permissions:
         if not ctx.member:
             # If there's no member when this is within a guild then it's likely
             # something like a webhook or guild visitor with no real permissions
@@ -368,14 +368,14 @@ class OwnPermissionsCheck(PermissionCheck):
         self._lock = asyncio.Lock()
         self._me: typing.Optional[hikari.User] = None
 
-    async def get_permissions(self, ctx: tanjun_traits.Context, /) -> hikari.Permissions:
+    async def get_permissions(self, ctx: tanjun_abc.Context, /) -> hikari.Permissions:
         if ctx.guild_id is None:
             return utilities.DM_PERMISSIONS
 
         member = await self._get_member(ctx, ctx.guild_id)
         return await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
-    async def _get_member(self, ctx: tanjun_traits.Context, guild_id: hikari.Snowflake, /) -> hikari.Member:
+    async def _get_member(self, ctx: tanjun_abc.Context, guild_id: hikari.Snowflake, /) -> hikari.Member:
         user = await self._get_user(ctx.client.cache, ctx.client.rest)
 
         if ctx.client.cache and (member := ctx.client.cache.get_member(guild_id, user.id)):
@@ -779,12 +779,12 @@ def with_own_permission_check(
     )
 
 
-def with_check(check: tanjun_traits.CheckSig, /) -> collections.Callable[[CommandT], CommandT]:
+def with_check(check: tanjun_abc.CheckSig, /) -> collections.Callable[[CommandT], CommandT]:
     """Add a generic check to a command.
 
     Parameters
     ----------
-    check : tanjun.traits.CheckSig
+    check : tanjun.abc.CheckSig
         The check to add to this command.
 
     Returns

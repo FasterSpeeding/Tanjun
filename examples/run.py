@@ -9,7 +9,7 @@ from examples import protos
 
 
 async def get_prefix(
-    ctx: tanjun.traits.MessageContext, database: protos.DatabaseProto = tanjun.injected(type=protos.DatabaseProto)
+    ctx: tanjun.abc.MessageContext, database: protos.DatabaseProto = tanjun.injected(type=protos.DatabaseProto)
 ) -> collections.Sequence[str]:
     if ctx.guild_id and (guild_info := await database.get_guild_info(ctx.guild_id)):
         return guild_info.prefixes

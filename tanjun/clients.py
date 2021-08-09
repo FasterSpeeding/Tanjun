@@ -57,10 +57,10 @@ import hikari
 from hikari import traits as hikari_traits
 from yuyo import backoff
 
+from . import abc as tanjun_abc
 from . import context
 from . import errors
 from . import injecting
-from . import traits as tanjun_traits
 from . import utilities
 
 if typing.TYPE_CHECKING:
@@ -86,7 +86,7 @@ This should be an asynchronous callable which returns an iterable of strings.
 
 !!! note
     While dependency injection is supported for this, the first positional
-    argument will always be a `tanjun.traits.MessageContext`.
+    argument will always be a `tanjun.abc.MessageContext`.
 """
 
 PrefixGetterSigT = typing.TypeVar("PrefixGetterSigT", bound="PrefixGetterSig")
@@ -110,7 +110,7 @@ def as_loader(callback: LoadableSig, /) -> LoadableSig:
     ----------
     callback : LoadableSig
         The callback used to load Tanjun utilities from a module. This
-        should take one argument of type `tanjun.traits.Client`, return nothing
+        should take one argument of type `tanjun.abc.Client`, return nothing
         and will be expected to initiate and add utilities such as components
         to the provided client using it's abstract methods.
 
@@ -140,13 +140,13 @@ class ClientCallbackNames(str, enum.Enum):
     MESSAGE_COMMAND_NOT_FOUND = "message_command_not_found"
     """Sent when a message command is not found.
 
-    `tanjun.traits.MessageContext` is provided as the first positional argument.
+    `tanjun.abc.MessageContext` is provided as the first positional argument.
     """
 
     SLASH_COMMAND_NOT_FOUND = "slash_command_not_found"
     """Sent when a slash command is not found.
 
-    `tanjun.traits.MessageContext` is provided as the first positional argument.
+    `tanjun.abc.MessageContext` is provided as the first positional argument.
     """
 
     STARTED = "started"
@@ -200,12 +200,12 @@ _ACCEPTS_EVENT_TYPE_MAPPING: dict[MessageAcceptsEnum, typing.Optional[type[hikar
 }
 
 
-def _check_human(ctx: tanjun_traits.Context, /) -> bool:
+def _check_human(ctx: tanjun_abc.Context, /) -> bool:
     return ctx.is_human
 
 
 async def _wrap_client_callback(
-    callback: tanjun_traits.MetaEventSig,
+    callback: tanjun_abc.MetaEventSig,
     args: tuple[str, ...],
     kwargs: dict[str, typing.Any],
     suppress_exceptions: bool,
@@ -234,12 +234,12 @@ class _InjectablePrefixGetter(injecting.BaseInjectableValue[collections.Iterable
         super().__init__(callback, injector=injector)
         self.is_async = True
 
-    async def __call__(self, ctx: tanjun_traits.Context, /) -> collections.Iterable[str]:
+    async def __call__(self, ctx: tanjun_abc.Context, /) -> collections.Iterable[str]:
         return await self.call(ctx, ctx=ctx)
 
 
-class Client(injecting.InjectorClient, tanjun_traits.Client):
-    """Tanjun's standard `tanjun.traits.Client` implementation.
+class Client(injecting.InjectorClient, tanjun_abc.Client):
+    """Tanjun's standard `tanjun.abc.Client` implementation.
 
     This implementation supports dependency injection for checks, command
     callbacks, and prefix getters. For more information on how
@@ -353,16 +353,16 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         self._cache = cache
         self._cached_application_id: typing.Optional[hikari.Snowflake] = None
         self._checks: set[injecting.InjectableCheck] = set()
-        self._client_callbacks: dict[str, set[tanjun_traits.MetaEventSig]] = {}
-        self._components: set[tanjun_traits.Component] = set()
+        self._client_callbacks: dict[str, set[tanjun_abc.MetaEventSig]] = {}
+        self._components: set[tanjun_abc.Component] = set()
         self._events = events
         self._grab_mention_prefix = mention_prefix
-        self._hooks: typing.Optional[tanjun_traits.AnyHooks] = None
+        self._hooks: typing.Optional[tanjun_abc.AnyHooks] = None
         self._interaction_not_found: typing.Optional[str] = "Command not found"
-        self._slash_hooks: typing.Optional[tanjun_traits.SlashHooks] = None
+        self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
         self._is_alive = False
         self._is_closing = False
-        self._message_hooks: typing.Optional[tanjun_traits.MessageHooks] = None
+        self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._prefix_getter: typing.Optional[_InjectablePrefixGetter] = None
         self._prefixes: set[str] = set()
@@ -527,17 +527,17 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
     @property
     def cache(self) -> typing.Optional[hikari.api.Cache]:
-        # <<inherited docstring from tanjun.traits.Client>>.
+        # <<inherited docstring from tanjun.abc.Client>>.
         return self._cache
 
     @property
-    def checks(self) -> collections.Set[tanjun_traits.CheckSig]:
-        """Set of the top level `tanjun.traits.Context` checks registered to this client.
+    def checks(self) -> collections.Set[tanjun_abc.CheckSig]:
+        """Set of the top level `tanjun.abc.Context` checks registered to this client.
 
         Returns
         -------
-        collections.abc.Set[tanjun.traits.CheckSig]
-            Set of the `tanjun.traits.Context` based checks registered for
+        collections.abc.Set[tanjun.abc.CheckSig]
+            Set of the `tanjun.abc.Context` based checks registered for
             this client.
 
             These may be taking advantage of the standard dependency injection.
@@ -545,39 +545,39 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         return {check.callback for check in self._checks}
 
     @property
-    def components(self) -> collections.Set[tanjun_traits.Component]:
-        # <<inherited docstring from tanjun.traits.Client>>.
+    def components(self) -> collections.Set[tanjun_abc.Component]:
+        # <<inherited docstring from tanjun.abc.Client>>.
         return self._components.copy()
 
     @property
     def events(self) -> typing.Optional[hikari.api.EventManager]:
-        # <<inherited docstring from tanjun.traits.Client>>.
+        # <<inherited docstring from tanjun.abc.Client>>.
         return self._events
 
     @property
-    def hooks(self) -> typing.Optional[tanjun_traits.AnyHooks]:
-        """The top level `tanjun.traits.AnyHooks` set for this client.
+    def hooks(self) -> typing.Optional[tanjun_abc.AnyHooks]:
+        """The top level `tanjun.abc.AnyHooks` set for this client.
 
         These are called during both message and interaction command execution.
 
         Returns
         -------
-        typing.Optional[tanjun.traits.AnyHooks]
-            The top level `tanjun.traits.Context` based hooks set for this
+        typing.Optional[tanjun.abc.AnyHooks]
+            The top level `tanjun.abc.Context` based hooks set for this
             client if applicable, else `None`.
         """
         return self._hooks
 
     @property
-    def slash_hooks(self) -> typing.Optional[tanjun_traits.SlashHooks]:
-        """The top level `tanjun.traits.SlashHooks` set for this client.
+    def slash_hooks(self) -> typing.Optional[tanjun_abc.SlashHooks]:
+        """The top level `tanjun.abc.SlashHooks` set for this client.
 
         These are only called during interaction command execution.
 
         Returns
         -------
-        typing.Optional[tanjun.traits.SlashHooks]
-            The top level `tanjun.traits.SlashContext` based hooks set
+        typing.Optional[tanjun.abc.SlashHooks]
+            The top level `tanjun.abc.SlashContext` based hooks set
             for this client.
         """
         return self._slash_hooks
@@ -588,22 +588,22 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         return self._is_alive
 
     @property
-    def message_hooks(self) -> typing.Optional[tanjun_traits.MessageHooks]:
-        """The top level `tanjun.traits.MessageHooks` set for this client.
+    def message_hooks(self) -> typing.Optional[tanjun_abc.MessageHooks]:
+        """The top level `tanjun.abc.MessageHooks` set for this client.
 
         These are only called during both message command execution.
 
         Returns
         -------
-        typing.Optional[tanjun.traits.MessageHooks]
-            The top level `tanjun.traits.MessageContext` based hooks set for
+        typing.Optional[tanjun.abc.MessageHooks]
+            The top level `tanjun.abc.MessageContext` based hooks set for
             this client.
         """
         return self._message_hooks
 
     @property
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
-        # <<inherited docstring from tanjun.traits.Client>>.
+        # <<inherited docstring from tanjun.abc.Client>>.
         return self._metadata
 
     @property
@@ -633,17 +633,17 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
     @property
     def rest(self) -> hikari.api.RESTClient:
-        # <<inherited docstring from tanjun.traits.Client>>.
+        # <<inherited docstring from tanjun.abc.Client>>.
         return self._rest
 
     @property
     def server(self) -> typing.Optional[hikari.api.InteractionServer]:
-        # <<inherited docstring from tanjun.traits.Client>>.
+        # <<inherited docstring from tanjun.abc.Client>>.
         return self._server
 
     @property
     def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
-        # <<inherited docstring from tanjun.traits.Client>>.
+        # <<inherited docstring from tanjun.abc.Client>>.
         return self._shards
 
     async def _on_starting_event(self, _: hikari.StartingEvent, /) -> None:
@@ -654,7 +654,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
     async def declare_slash_command(
         self,
-        command: tanjun_traits.BaseSlashCommand,
+        command: tanjun_abc.BaseSlashCommand,
         /,
         command_id: typing.Optional[hikari.Snowflake] = None,
         *,
@@ -665,11 +665,11 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         Parameters
         ----------
-        command : tanjun.traits.BaseSlashCommand
+        command : tanjun.abc.BaseSlashCommand
             The command to register.
 
         !!! note
-            This ignores any ID that's been set on `tanjun.traits.BaseSlashCommand`.
+            This ignores any ID that's been set on `tanjun.abc.BaseSlashCommand`.
 
         Other Parameters
         ----------------
@@ -718,7 +718,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
     async def declare_slash_commands(
         self,
-        commands: collections.Iterable[tanjun_traits.BaseSlashCommand],
+        commands: collections.Iterable[tanjun_abc.BaseSlashCommand],
         /,
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
@@ -733,7 +733,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         Parameters
         ----------
-        commands : collections.abc.Iterable[tanjun.traits.BaseSlashCommand]
+        commands : collections.abc.Iterable[tanjun.abc.BaseSlashCommand]
             Iterable of the commands to register.
 
         Other Parameters
@@ -753,7 +753,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         collections.abc.Sequence[hikari.interactions.commands.Command]
             API representations of the commands which were registered.
         """
-        names_to_commands: dict[str, tanjun_traits.BaseSlashCommand] = {}
+        names_to_commands: dict[str, tanjun_abc.BaseSlashCommand] = {}
         found_top_names: set[str] = set()
         conflicts: set[str] = set()
         builders: list[hikari.api.CommandBuilder] = []
@@ -947,22 +947,22 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         )
         return await self.declare_slash_commands(commands, application=application, guild=guild)
 
-    def add_check(self: _ClientT, check: tanjun_traits.CheckSig, /) -> _ClientT:
+    def add_check(self: _ClientT, check: tanjun_abc.CheckSig, /) -> _ClientT:
         self._checks.add(injecting.InjectableCheck(check, injector=self))
         return self
 
-    def remove_check(self, check: tanjun_traits.CheckSig, /) -> None:
+    def remove_check(self, check: tanjun_abc.CheckSig, /) -> None:
         self._checks.remove(check)  # type: ignore[arg-type]
 
-    def with_check(self, check: tanjun_traits.CheckSigT, /) -> tanjun_traits.CheckSigT:
+    def with_check(self, check: tanjun_abc.CheckSigT, /) -> tanjun_abc.CheckSigT:
         self.add_check(check)
         return check
 
-    async def check(self, ctx: tanjun_traits.Context, /) -> bool:
+    async def check(self, ctx: tanjun_abc.Context, /) -> bool:
         return await utilities.gather_checks(ctx, self._checks)
 
-    def add_component(self: _ClientT, component: tanjun_traits.Component, /, *, add_injector: bool = False) -> _ClientT:
-        # <<inherited docstring from tanjun.traits.Client>>.
+    def add_component(self: _ClientT, component: tanjun_abc.Component, /, *, add_injector: bool = False) -> _ClientT:
+        # <<inherited docstring from tanjun.abc.Client>>.
         if isinstance(component, injecting.Injectable):
             component.set_injector(self)
 
@@ -974,13 +974,13 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         return self
 
-    def remove_component(self, component: tanjun_traits.Component, /) -> None:
-        # <<inherited docstring from tanjun.traits.Client>>.
+    def remove_component(self, component: tanjun_abc.Component, /) -> None:
+        # <<inherited docstring from tanjun.abc.Client>>.
         self._components.remove(component)
         component.unbind_client(self)
 
-    def add_client_callback(self: _ClientT, event_name: str, callback: tanjun_traits.MetaEventSig, /) -> _ClientT:
-        # <<inherited docstring from tanjun.traits.Client>>.
+    def add_client_callback(self: _ClientT, event_name: str, callback: tanjun_abc.MetaEventSig, /) -> _ClientT:
+        # <<inherited docstring from tanjun.abc.Client>>.
         event_name = event_name.lower()
         try:
             self._client_callbacks[event_name].add(callback)
@@ -998,13 +998,13 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
                 *(_wrap_client_callback(callback, args, kwargs, suppress_exceptions) for callback in callbacks)
             )
 
-    def get_client_callbacks(self, event_name: str, /) -> collections.Collection[tanjun_traits.MetaEventSig]:
-        # <<inherited docstring from tanjun.traits.Client>>.
+    def get_client_callbacks(self, event_name: str, /) -> collections.Collection[tanjun_abc.MetaEventSig]:
+        # <<inherited docstring from tanjun.abc.Client>>.
         event_name = event_name.lower()
         return self._client_callbacks.get(event_name) or ()
 
-    def remove_client_callback(self, event_name: str, callback: tanjun_traits.MetaEventSig, /) -> None:
-        # <<inherited docstring from tanjun.traits.Client>>.
+    def remove_client_callback(self, event_name: str, callback: tanjun_abc.MetaEventSig, /) -> None:
+        # <<inherited docstring from tanjun.abc.Client>>.
         event_name = event_name.lower()
         self._client_callbacks[event_name].remove(callback)
         if not self._client_callbacks[event_name]:
@@ -1012,9 +1012,9 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
     def with_client_callback(
         self, event_name: str, /
-    ) -> collections.Callable[[tanjun_traits.MetaEventSigT], tanjun_traits.MetaEventSigT]:
-        # <<inherited docstring from tanjun.traits.Client>>.
-        def decorator(callback: tanjun_traits.MetaEventSigT, /) -> tanjun_traits.MetaEventSigT:
+    ) -> collections.Callable[[tanjun_abc.MetaEventSigT], tanjun_abc.MetaEventSigT]:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        def decorator(callback: tanjun_abc.MetaEventSigT, /) -> tanjun_abc.MetaEventSigT:
             self.add_client_callback(event_name, callback)
             return callback
 
@@ -1041,19 +1041,19 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         return getter
 
     def check_message_context(
-        self, ctx: tanjun_traits.MessageContext, /
-    ) -> collections.AsyncIterator[tuple[str, tanjun_traits.MessageCommand]]:
-        # <<inherited docstring from tanjun.traits.Client>>.
+        self, ctx: tanjun_abc.MessageContext, /
+    ) -> collections.AsyncIterator[tuple[str, tanjun_abc.MessageCommand]]:
+        # <<inherited docstring from tanjun.abc.Client>>.
         return utilities.async_chain(component.check_message_context(ctx) for component in self._components)
 
-    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, tanjun_traits.MessageCommand]]:
-        # <<inherited docstring from tanjun.traits.Client>>.
+    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, tanjun_abc.MessageCommand]]:
+        # <<inherited docstring from tanjun.abc.Client>>.
         return itertools.chain.from_iterable(component.check_message_name(name) for component in self._components)
 
-    def check_slash_name(self, name: str, /) -> collections.Iterator[tanjun_traits.BaseSlashCommand]:
+    def check_slash_name(self, name: str, /) -> collections.Iterator[tanjun_abc.BaseSlashCommand]:
         return itertools.chain.from_iterable(component.check_slash_name(name) for component in self._components)
 
-    async def _check_prefix(self, ctx: tanjun_traits.MessageContext, /) -> typing.Optional[str]:
+    async def _check_prefix(self, ctx: tanjun_abc.MessageContext, /) -> typing.Optional[str]:
         if self._prefix_getter:
             for prefix in await self._prefix_getter(ctx):
                 if ctx.content.startswith(prefix):
@@ -1165,15 +1165,15 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         self._cached_application_id = hikari.Snowflake(application)
         return self._cached_application_id
 
-    def set_hooks(self: _ClientT, hooks: typing.Optional[tanjun_traits.AnyHooks], /) -> _ClientT:
+    def set_hooks(self: _ClientT, hooks: typing.Optional[tanjun_abc.AnyHooks], /) -> _ClientT:
         self._hooks = hooks
         return self
 
-    def set_slash_hooks(self: _ClientT, hooks: typing.Optional[tanjun_traits.SlashHooks], /) -> _ClientT:
+    def set_slash_hooks(self: _ClientT, hooks: typing.Optional[tanjun_abc.SlashHooks], /) -> _ClientT:
         self._slash_hooks = hooks
         return self
 
-    def set_message_hooks(self: _ClientT, hooks: typing.Optional[tanjun_traits.MessageHooks], /) -> _ClientT:
+    def set_message_hooks(self: _ClientT, hooks: typing.Optional[tanjun_abc.MessageHooks], /) -> _ClientT:
         self._message_hooks = hooks
         return self
 
@@ -1212,7 +1212,7 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
         if not await self.check(ctx):
             return
 
-        hooks: typing.Optional[set[tanjun_traits.MessageHooks]] = None
+        hooks: typing.Optional[set[tanjun_abc.MessageHooks]] = None
         if self._hooks and self._message_hooks:
             hooks = {self._hooks, self._message_hooks}
 
@@ -1236,8 +1236,8 @@ class Client(injecting.InjectorClient, tanjun_traits.Client):
 
         await self.dispatch_client_callback(ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx)
 
-    def _get_slash_hooks(self) -> typing.Optional[set[tanjun_traits.SlashHooks]]:
-        hooks: typing.Optional[set[tanjun_traits.SlashHooks]] = None
+    def _get_slash_hooks(self) -> typing.Optional[set[tanjun_abc.SlashHooks]]:
+        hooks: typing.Optional[set[tanjun_abc.SlashHooks]] = None
         if self._hooks and self._slash_hooks:
             hooks = {self._hooks, self._slash_hooks}
 

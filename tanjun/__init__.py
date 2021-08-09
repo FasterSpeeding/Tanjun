@@ -44,6 +44,8 @@ __all__: list[str] = [
     "__url__",
     "__version__",
     "__git_sha1__",
+    # abc.py
+    "abc",
     # checks.py
     "checks",
     "with_check",
@@ -133,11 +135,9 @@ __all__: list[str] = [
     "with_option",
     "with_multi_option",
     "with_parser",
-    # traits.py
-    "traits",
 ]
 
-from . import traits
+from . import abc
 from .checks import *
 from .clients import *
 from .commands import *

@@ -7,7 +7,7 @@ component = tanjun.Component()
 
 @component.with_command
 @tanjun.as_message_command("ping")
-async def ping(ctx: tanjun.traits.Context, /) -> None:
+async def ping(ctx: tanjun.abc.Context, /) -> None:
     # As a note, for brevity any hidden Discord REST error handling logic hasn't been included here.
     # For more information on how Discord REST errors may be handled see
     # https://fasterspeeding.github.io/Yuyo/backoff.html
@@ -19,7 +19,7 @@ async def ping(ctx: tanjun.traits.Context, /) -> None:
 
 
 @tanjun.as_message_command_group("note", "notes")
-async def note(ctx: tanjun.traits.Context) -> None:
+async def note(ctx: tanjun.abc.Context) -> None:
     await ctx.respond("You have zero notes")
 
 
@@ -28,7 +28,7 @@ async def note(ctx: tanjun.traits.Context) -> None:
 @tanjun.with_argument("name")
 @tanjun.with_parser
 @tanjun.as_message_command("add", "create")
-async def note_add(ctx: tanjun.traits.Context, name: str, value: str) -> None:
+async def note_add(ctx: tanjun.abc.Context, name: str, value: str) -> None:
     ...  # Actual implementation
     await ctx.respond(f"Added {name} note with value {value}")
 
@@ -38,7 +38,7 @@ async def note_add(ctx: tanjun.traits.Context, name: str, value: str) -> None:
 @tanjun.with_argument("name")
 @tanjun.with_parser
 @tanjun.as_message_command("remove", "delete")
-async def note_remove(ctx: tanjun.traits.Context, name: str, force: bool) -> None:
+async def note_remove(ctx: tanjun.abc.Context, name: str, force: bool) -> None:
     ...  # Actual implementation
     await ctx.respond(f"Force removed {name} note" if force else f"Removed {name} note")
 
@@ -47,5 +47,5 @@ async def note_remove(ctx: tanjun.traits.Context, name: str, force: bool) -> Non
 # components into a bot from a link (assuming the environment has all the
 # right configurations setup.)
 @tanjun.as_loader
-def load_examples(client: tanjun.traits.Client) -> None:
+def load_examples(client: tanjun.abc.Client) -> None:
     client.add_component(component.copy())

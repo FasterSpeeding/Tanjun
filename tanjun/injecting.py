@@ -54,16 +54,16 @@ import typing
 import hikari
 from hikari import traits as hikari_traits
 
+from . import abc as tanjun_abc
 from . import conversion
 from . import errors
-from . import traits as tanjun_traits
 
 if typing.TYPE_CHECKING:
     _BaseInjectableValueT = typing.TypeVar("_BaseInjectableValueT", bound="BaseInjectableValue[typing.Any]")
 
 _InjectorClientT = typing.TypeVar("_InjectorClientT", bound="InjectorClient")
 _T = typing.TypeVar("_T")
-CallbackSig = collections.Callable[..., tanjun_traits.MaybeAwaitableT[_T]]
+CallbackSig = collections.Callable[..., tanjun_abc.MaybeAwaitableT[_T]]
 
 
 class Getter(typing.Generic[_T]):
@@ -72,7 +72,7 @@ class Getter(typing.Generic[_T]):
     @typing.overload
     def __init__(
         self,
-        callback: collections.Callable[[tanjun_traits.Context], InjectableValue[_T]],
+        callback: collections.Callable[[tanjun_abc.Context], InjectableValue[_T]],
         name: str,
         /,
         *,
@@ -83,7 +83,7 @@ class Getter(typing.Generic[_T]):
     @typing.overload
     def __init__(
         self,
-        callback: collections.Callable[[tanjun_traits.Context], _T],
+        callback: collections.Callable[[tanjun_abc.Context], _T],
         name: str,
         /,
         *,
@@ -93,7 +93,7 @@ class Getter(typing.Generic[_T]):
 
     def __init__(
         self,
-        callback: collections.Callable[[tanjun_traits.Context], typing.Union[_T, InjectableValue[_T]]],
+        callback: collections.Callable[[tanjun_abc.Context], typing.Union[_T, InjectableValue[_T]]],
         name: str,
         /,
         *,
@@ -165,7 +165,7 @@ def injected(
 
 
 async def resolve_getters(
-    ctx: tanjun_traits.Context, getters: collections.Iterable[Getter[typing.Any]]
+    ctx: tanjun_abc.Context, getters: collections.Iterable[Getter[typing.Any]]
 ) -> collections.Mapping[str, typing.Any]:
     results: dict[str, typing.Any] = {}
 
@@ -186,7 +186,7 @@ async def resolve_getters(
 class InjectorClient:
     __slots__ = ("_callback_overrides", "_client", "_type_dependencies")
 
-    def __init__(self, client: tanjun_traits.Client, /) -> None:
+    def __init__(self, client: tanjun_abc.Client, /) -> None:
         self._callback_overrides: dict[CallbackSig[typing.Any], InjectableValue[typing.Any]] = {}
         self._client = client
         self._type_dependencies: dict[type[typing.Any], InjectableValue[typing.Any]] = {}
@@ -216,7 +216,7 @@ class InjectorClient:
     def _make_callback_getter(self, callback: CallbackSig[_T], name: str, /) -> Getter[_T]:
         default = InjectableValue(callback, injector=self)
 
-        def get(_: tanjun_traits.Context) -> InjectableValue[_T]:
+        def get(_: tanjun_abc.Context) -> InjectableValue[_T]:
             return self._callback_overrides.get(callback, default)
 
         return Getter(get, name, injecting=True)
@@ -225,7 +225,7 @@ class InjectorClient:
         for match, function in _TYPE_SPECIAL_CASES.items():
             if inspect.isclass(match) and issubclass(type_, match):
 
-                def get_special_cased(ctx: tanjun_traits.Context) -> _T:
+                def get_special_cased(ctx: tanjun_abc.Context) -> _T:
                     if (result := self._type_dependencies.get(type_, ...)) is not ...:
                         return typing.cast(_T, result)
 
@@ -238,7 +238,7 @@ class InjectorClient:
 
                 return Getter(get_special_cased, name, injecting=False)
 
-        def get_injectable(_: tanjun_traits.Context) -> InjectableValue[_T]:
+        def get_injectable(_: tanjun_abc.Context) -> InjectableValue[_T]:
             try:
                 return self._type_dependencies[type_]
 
@@ -276,11 +276,11 @@ class InjectorClient:
 
 _TYPE_SPECIAL_CASES: dict[
     type[typing.Any],
-    collections.Callable[[tanjun_traits.Context, InjectorClient], UndefinedOr[typing.Any]],
+    collections.Callable[[tanjun_abc.Context, InjectorClient], UndefinedOr[typing.Any]],
 ] = {
-    tanjun_traits.Client: lambda ctx, _: ctx.client,
-    tanjun_traits.Component: lambda ctx, _: ctx.component or UNDEFINED,
-    tanjun_traits.Context: lambda ctx, _: ctx,
+    tanjun_abc.Client: lambda ctx, _: ctx.client,
+    tanjun_abc.Component: lambda ctx, _: ctx.component or UNDEFINED,
+    tanjun_abc.Context: lambda ctx, _: ctx,
     InjectorClient: lambda _, cli: cli,
     hikari.api.Cache: lambda ctx, _: ctx.cache or UNDEFINED,
     hikari.api.RESTClient: lambda ctx, _: ctx.rest,
@@ -340,7 +340,7 @@ class BaseInjectableValue(Injectable, typing.Generic[_T]):
 
         self.injector = client
 
-    async def call(self, *args: typing.Any, ctx: tanjun_traits.Context) -> _T:
+    async def call(self, *args: typing.Any, ctx: tanjun_abc.Context) -> _T:
         if self._needs_injector:
             if self.injector is None:
                 raise RuntimeError("Cannot call this injectable callback before the injector has been set")
@@ -366,14 +366,14 @@ class BaseInjectableValue(Injectable, typing.Generic[_T]):
 class InjectableValue(BaseInjectableValue[_T]):
     __slots__ = ()
 
-    async def __call__(self, ctx: tanjun_traits.Context, /) -> _T:
+    async def __call__(self, ctx: tanjun_abc.Context, /) -> _T:
         return await self.call(ctx=ctx)
 
 
 class InjectableCheck(BaseInjectableValue[bool]):
     __slots__ = ()
 
-    async def __call__(self, ctx: tanjun_traits.Context, /) -> bool:
+    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
         if result := await self.call(ctx, ctx=ctx):
             return result
 
@@ -387,7 +387,7 @@ class InjectableConverter(BaseInjectableValue[_T]):
         super().__init__(callback, injector=injector)
         self._is_base_converter = isinstance(self.callback, conversion.BaseConverter)
 
-    async def __call__(self, value: conversion.ArgumentT, ctx: tanjun_traits.Context, /) -> _T:
+    async def __call__(self, value: conversion.ArgumentT, ctx: tanjun_abc.Context, /) -> _T:
         if self._is_base_converter:
             assert isinstance(self.callback, conversion.BaseConverter)
             return typing.cast(_T, await self.callback(value, ctx))
@@ -407,7 +407,7 @@ class _CacheCallback(typing.Generic[_T]):
         self,
         # Positional arg(s) may be guaranteed under some contexts so we want to pass those through.
         *args: typing.Any,
-        ctx: tanjun_traits.Context = Injected(type=tanjun_traits.Context),  # type: ignore[assignment]
+        ctx: tanjun_abc.Context = Injected(type=tanjun_abc.Context),  # type: ignore[assignment]
         injector: InjectorClient = Injected(type=InjectorClient),  # type: ignore[assignment]
     ) -> _T:
         if self._result is not UNDEFINED:

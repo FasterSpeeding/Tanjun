@@ -48,26 +48,26 @@ import abc
 import typing
 from collections import abc as collections
 
+from . import abc as tanjun_abc
 from . import conversion
-from . import traits as tanjun_traits
 
 _BaseInjectableValueT = typing.TypeVar("_BaseInjectableValueT", bound=BaseInjectableValue[typing.Any])
 _T = typing.TypeVar("_T")
 _InjectorClientT = typing.TypeVar("_InjectorClientT", bound=InjectorClient)
 _ValueT = typing.TypeVar("_ValueT", bound=typing.Union[float, int, str])
-CallbackSig = collections.Callable[..., tanjun_traits.MaybeAwaitableT[_T]]
+CallbackSig = collections.Callable[..., tanjun_abc.MaybeAwaitableT[_T]]
 
 class Getter(typing.Generic[_T]):
     __slots__: typing.Union[str, collections.Iterable[str]]
     callback: collections.Callable[
-        [tanjun_traits.Context], typing.Union[InjectableValue[_T], collections.Callable[[tanjun_traits.Context], _T]]
+        [tanjun_abc.Context], typing.Union[InjectableValue[_T], collections.Callable[[tanjun_abc.Context], _T]]
     ]
     name: str
     is_injecting: bool
     @typing.overload
     def __init__(
         self,
-        callback: collections.Callable[[tanjun_traits.Context], InjectableValue[_T]],
+        callback: collections.Callable[[tanjun_abc.Context], InjectableValue[_T]],
         name: str,
         /,
         *,
@@ -76,7 +76,7 @@ class Getter(typing.Generic[_T]):
     @typing.overload
     def __init__(
         self,
-        callback: collections.Callable[[tanjun_traits.Context], _T],
+        callback: collections.Callable[[tanjun_abc.Context], _T],
         name: str,
         /,
         *,
@@ -96,7 +96,7 @@ _TypeT = type[_T]
 
 class Injected(typing.Generic[_T]):
     __slots__: typing.Union[str, collections.Iterable[str]]
-    callback: UndefinedOr[collections.Callable[[], tanjun_traits.MaybeAwaitableT[_T]]]
+    callback: UndefinedOr[collections.Callable[[], tanjun_abc.MaybeAwaitableT[_T]]]
     type: UndefinedOr[_TypeT[_T]]
     @typing.overload
     def __init__(self, *, callback: collections.Callable[..., collections.Awaitable[_T]]) -> None: ...
@@ -112,12 +112,12 @@ def injected(*, callback: collections.Callable[..., _T]) -> _T: ...
 @typing.overload
 def injected(*, type: _TypeT[_T]) -> _T: ...
 async def resolve_getters(
-    ctx: tanjun_traits.Context, getters: collections.Iterable[Getter[typing.Any]]
+    ctx: tanjun_abc.Context, getters: collections.Iterable[Getter[typing.Any]]
 ) -> collections.Mapping[str, typing.Any]: ...
 
 class InjectorClient:
     __slots__: typing.Union[str, collections.Iterable[str]]
-    def __init__(self, client: tanjun_traits.Client, /) -> None: ...
+    def __init__(self, client: tanjun_abc.Client, /) -> None: ...
     def add_type_dependency(
         self: _InjectorClientT, type_: type[_T], callback: CallbackSig[_T], /
     ) -> _InjectorClientT: ...
@@ -152,18 +152,18 @@ class BaseInjectableValue(Injectable, typing.Generic[_T]):
     def needs_injector(self) -> bool: ...
     def copy(self: _BaseInjectableValueT) -> _BaseInjectableValueT: ...
     def set_injector(self, client: InjectorClient) -> None: ...
-    async def call(self, *args: typing.Any, ctx: tanjun_traits.Context) -> _T: ...
+    async def call(self, *args: typing.Any, ctx: tanjun_abc.Context) -> _T: ...
 
 class InjectableValue(BaseInjectableValue[_T]):
     __slots__: typing.Union[str, collections.Iterable[str]]
-    async def __call__(self, ctx: tanjun_traits.Context, /) -> _T: ...
+    async def __call__(self, ctx: tanjun_abc.Context, /) -> _T: ...
 
 class InjectableCheck(BaseInjectableValue[bool]):
     __slots__: typing.Union[str, collections.Iterable[str]]
-    async def __call__(self, ctx: tanjun_traits.Context, /) -> bool: ...
+    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool: ...
 
 class InjectableConverter(BaseInjectableValue[_T]):
     __slots__: typing.Union[str, collections.Iterable[str]]
-    async def __call__(self, value: conversion.ArgumentT, ctx: tanjun_traits.Context, /) -> _T: ...
+    async def __call__(self, value: conversion.ArgumentT, ctx: tanjun_abc.Context, /) -> _T: ...
 
 def cache_callback(callback: CallbackSig[_T], /) -> collections.Callable[..., collections.Awaitable[_T]]: ...

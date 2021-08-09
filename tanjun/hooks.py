@@ -38,46 +38,46 @@ import copy
 import typing
 from collections import abc as collections
 
+from . import abc
 from . import errors
-from . import traits
 from . import utilities
 
 if typing.TypeVar:
     _HooksT = typing.TypeVar("_HooksT", bound="Hooks[typing.Any]")
 
-CommandT = typing.TypeVar("CommandT", bound=traits.ExecutableCommand[typing.Any])
+CommandT = typing.TypeVar("CommandT", bound=abc.ExecutableCommand[typing.Any])
 
-ParserHookSig = collections.Callable[[traits.ContextT, errors.ParserError], traits.MaybeAwaitableT[None]]
+ParserHookSig = collections.Callable[[abc.ContextT, errors.ParserError], abc.MaybeAwaitableT[None]]
 """Type hint of the callback used as a parser error hook.
 
 This will be called whenever a `tanjun.errors.ParserError` is raised during the
 command argument parsing stage, will have to take two positional arguments - of
-type `tanjun.traits.Context` and `tanjun.errors.ParserError` - and may either be
+type `tanjun.abc.Context` and `tanjun.errors.ParserError` - and may either be
 a synchronous or asynchronous callback which returns `None`
 """
 
-ErrorHookSig = collections.Callable[[traits.ContextT, BaseException], traits.MaybeAwaitableT[typing.Optional[bool]]]
+ErrorHookSig = collections.Callable[[abc.ContextT, BaseException], abc.MaybeAwaitableT[typing.Optional[bool]]]
 """Type hint of the callback used as a unexpected command error hook.
 
 This will be called whenever a `BaseException` is raised during the
 execution stage whenever the command callback raises any exception except
 `tanjun.errors.CommandError`,  will have to take two positional arguments - of
-type `tanjun.traits.Context` and `BaseException` - and may either be a
+type `tanjun.abc.Context` and `BaseException` - and may either be a
 synchronous or asynchronous callback which returns `None`
 """
 
-HookSig = collections.Callable[[traits.ContextT], traits.MaybeAwaitableT[None]]
+HookSig = collections.Callable[[abc.ContextT], abc.MaybeAwaitableT[None]]
 """Type hint of the callback used as a general command hook.
 
 This may be called during different stages of command execution (decided by
 which hook this is registered as), will have to take one positional argument of
-type `tanjun.traits.Context` and may be a synchronous or asynchronous callback
+type `tanjun.abc.Context` and may be a synchronous or asynchronous callback
 which returns `None`.
 """
 
 
-class Hooks(traits.Hooks[traits.ContextT_contra]):
-    """Standard implementation of `tanjun.traits.Hooks` used for command execution.
+class Hooks(abc.Hooks[abc.ContextT_contra]):
+    """Standard implementation of `tanjun.abc.Hooks` used for command execution.
 
     !!! note
         This implementation adds a concept of parser errors which won't be
@@ -89,11 +89,11 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
     __slots__ = ("_error", "_parser_error", "_pre_execution", "_post_execution", "_success")
 
     def __init__(self) -> None:
-        self._error: typing.Optional[ErrorHookSig[traits.ContextT_contra]] = None
-        self._parser_error: typing.Optional[ParserHookSig[traits.ContextT_contra]] = None
-        self._pre_execution: typing.Optional[HookSig[traits.ContextT_contra]] = None
-        self._post_execution: typing.Optional[HookSig[traits.ContextT_contra]] = None
-        self._success: typing.Optional[HookSig[traits.ContextT_contra]] = None
+        self._error: typing.Optional[ErrorHookSig[abc.ContextT_contra]] = None
+        self._parser_error: typing.Optional[ParserHookSig[abc.ContextT_contra]] = None
+        self._pre_execution: typing.Optional[HookSig[abc.ContextT_contra]] = None
+        self._post_execution: typing.Optional[HookSig[abc.ContextT_contra]] = None
+        self._success: typing.Optional[HookSig[abc.ContextT_contra]] = None
 
     def __repr__(self) -> str:
         return (
@@ -114,18 +114,18 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
         ```py
         @standard_hooks.add_to_command
         @as_message_command("command")
-        async def command_command(ctx: tanjun.traits.Context) -> None:
+        async def command_command(ctx: tanjun.abc.Context) -> None:
             await ctx.respond("You've called a command!")
         ```
 
         Parameters
         ----------
-        command : tanjun.traits.ExecutableCommand[typing.Any]
+        command : tanjun.abc.ExecutableCommand[typing.Any]
             The command to add the hooks to.
 
         Returns
         -------
-        tanjun.traits.ExecutableCommand[typing.Any]
+        tanjun.abc.ExecutableCommand[typing.Any]
             The command with the hooks added.
         """
         command.set_hooks(self)
@@ -135,57 +135,55 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
         """Copy this hook object."""
         return copy.deepcopy(self)
 
-    def set_on_error(self: _HooksT, hook: typing.Optional[ErrorHookSig[traits.ContextT_contra]], /) -> _HooksT:
+    def set_on_error(self: _HooksT, hook: typing.Optional[ErrorHookSig[abc.ContextT_contra]], /) -> _HooksT:
         self._error = hook
         return self
 
-    def with_on_error(self, hook: ErrorHookSig[traits.ContextT_contra], /) -> ErrorHookSig[traits.ContextT_contra]:
+    def with_on_error(self, hook: ErrorHookSig[abc.ContextT_contra], /) -> ErrorHookSig[abc.ContextT_contra]:
         self.set_on_error(hook)
         return hook
 
-    def set_on_parser_error(self: _HooksT, hook: typing.Optional[ParserHookSig[traits.ContextT_contra]], /) -> _HooksT:
+    def set_on_parser_error(self: _HooksT, hook: typing.Optional[ParserHookSig[abc.ContextT_contra]], /) -> _HooksT:
         self._parser_error = hook
         return self
 
-    def with_on_parser_error(
-        self, hook: ParserHookSig[traits.ContextT_contra], /
-    ) -> ParserHookSig[traits.ContextT_contra]:
+    def with_on_parser_error(self, hook: ParserHookSig[abc.ContextT_contra], /) -> ParserHookSig[abc.ContextT_contra]:
         self.set_on_parser_error(hook)
         return hook
 
-    def set_post_execution(self: _HooksT, hook: typing.Optional[HookSig[traits.ContextT_contra]], /) -> _HooksT:
+    def set_post_execution(self: _HooksT, hook: typing.Optional[HookSig[abc.ContextT_contra]], /) -> _HooksT:
         self._post_execution = hook
         return self
 
-    def with_post_execution(self, hook: HookSig[traits.ContextT_contra], /) -> HookSig[traits.ContextT_contra]:
+    def with_post_execution(self, hook: HookSig[abc.ContextT_contra], /) -> HookSig[abc.ContextT_contra]:
         self.set_post_execution(hook)
         return hook
 
-    def set_pre_execution(self: _HooksT, hook: typing.Optional[HookSig[traits.ContextT_contra]], /) -> _HooksT:
+    def set_pre_execution(self: _HooksT, hook: typing.Optional[HookSig[abc.ContextT_contra]], /) -> _HooksT:
         self._pre_execution = hook
         return self
 
-    def with_pre_execution(self, hook: HookSig[traits.ContextT_contra], /) -> HookSig[traits.ContextT_contra]:
+    def with_pre_execution(self, hook: HookSig[abc.ContextT_contra], /) -> HookSig[abc.ContextT_contra]:
         self.set_pre_execution(hook)
         return hook
 
-    def set_on_success(self: _HooksT, hook: typing.Optional[HookSig[traits.ContextT_contra]], /) -> _HooksT:
+    def set_on_success(self: _HooksT, hook: typing.Optional[HookSig[abc.ContextT_contra]], /) -> _HooksT:
         self._success = hook
         return self
 
-    def with_on_success(self, hook: HookSig[traits.ContextT_contra], /) -> HookSig[traits.ContextT_contra]:
+    def with_on_success(self, hook: HookSig[abc.ContextT_contra], /) -> HookSig[abc.ContextT_contra]:
         self.set_on_success(hook)
         return hook
 
     async def trigger_error(
         self,
-        ctx: traits.ContextT_contra,
+        ctx: abc.ContextT_contra,
         /,
         exception: BaseException,
         *,
-        hooks: typing.Optional[collections.Set[traits.Hooks[traits.ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[abc.Hooks[abc.ContextT_contra]]] = None,
     ) -> int:
-        # <<inherited docstring from tanjun.traits.Hooks>>.
+        # <<inherited docstring from tanjun.abc.Hooks>>.
         level = 0
         if isinstance(exception, errors.ParserError):
             if self._parser_error:
@@ -206,12 +204,12 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
 
     async def trigger_post_execution(
         self,
-        ctx: traits.ContextT_contra,
+        ctx: abc.ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[collections.Set[traits.Hooks[traits.ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[abc.Hooks[abc.ContextT_contra]]] = None,
     ) -> None:
-        # <<inherited docstring from tanjun.traits.Hooks>>.
+        # <<inherited docstring from tanjun.abc.Hooks>>.
         if self._post_execution:
             await utilities.await_if_async(self._post_execution, ctx)
 
@@ -220,12 +218,12 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
 
     async def trigger_pre_execution(
         self,
-        ctx: traits.ContextT_contra,
+        ctx: abc.ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[collections.Set[traits.Hooks[traits.ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[abc.Hooks[abc.ContextT_contra]]] = None,
     ) -> None:
-        # <<inherited docstring from tanjun.traits.Hooks>>.
+        # <<inherited docstring from tanjun.abc.Hooks>>.
         if self._pre_execution:
             await utilities.await_if_async(self._pre_execution, ctx)
 
@@ -234,12 +232,12 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
 
     async def trigger_success(
         self,
-        ctx: traits.ContextT_contra,
+        ctx: abc.ContextT_contra,
         /,
         *,
-        hooks: typing.Optional[collections.Set[traits.Hooks[traits.ContextT_contra]]] = None,
+        hooks: typing.Optional[collections.Set[abc.Hooks[abc.ContextT_contra]]] = None,
     ) -> None:
-        # <<inherited docstring from tanjun.traits.Hooks>>.
+        # <<inherited docstring from tanjun.abc.Hooks>>.
         if self._success:
             await utilities.await_if_async(self._success, ctx)
 
@@ -247,6 +245,6 @@ class Hooks(traits.Hooks[traits.ContextT_contra]):
             await asyncio.gather(*(hook.trigger_success(ctx) for hook in hooks))
 
 
-AnyHooks = Hooks[traits.Context]
-MessageHooks = Hooks[traits.MessageContext]
-SlashHooks = Hooks[traits.SlashContext]
+AnyHooks = Hooks[abc.Context]
+MessageHooks = Hooks[abc.MessageContext]
+SlashHooks = Hooks[abc.SlashContext]

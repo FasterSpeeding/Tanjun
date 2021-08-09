@@ -5,20 +5,20 @@ import mock
 import pytest
 from hikari import permissions
 
+from tanjun import abc
 from tanjun import checks
-from tanjun import traits
 
 
 @pytest.fixture()
 def command():
-    command_ = mock.Mock(traits.ExecutableCommand)
+    command_ = mock.Mock(abc.ExecutableCommand)
     command_.add_check.return_value = command_
     return command_
 
 
 @pytest.fixture()
 def context():
-    return mock.Mock(traits.Context)
+    return mock.Mock(abc.Context)
 
 
 class TestApplicationOwnerCheck:

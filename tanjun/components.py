@@ -44,8 +44,8 @@ from hikari.events import base_events
 
 import tanjun
 
+from . import abc
 from . import injecting
-from . import traits
 from . import utilities
 
 if typing.TYPE_CHECKING:
@@ -56,7 +56,7 @@ if typing.TYPE_CHECKING:
     _T = typing.TypeVar("_T")
 
 
-CommandT = typing.TypeVar("CommandT", bound="traits.ExecutableCommand[typing.Any]")
+CommandT = typing.TypeVar("CommandT", bound="abc.ExecutableCommand[typing.Any]")
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.components")
 WithCommandReturnSig = typing.Union[CommandT, collections.Callable[[CommandT], CommandT]]
 
@@ -68,7 +68,7 @@ class LoadableProtocol(typing.Protocol):
     def copy(self: _T) -> _T:
         raise NotImplementedError
 
-    def load_into_component(self, component: traits.Component, /) -> typing.Optional[typing.Any]:
+    def load_into_component(self, component: abc.Component, /) -> typing.Optional[typing.Any]:
         raise NotImplementedError
 
 
@@ -86,7 +86,7 @@ def _with_command(
     return lambda command_: add_command(command_.copy() if copy else command_)
 
 
-class Component(injecting.Injectable, traits.Component):
+class Component(injecting.Injectable, abc.Component):
     __slots__ = (
         "_checks",
         "_client",
@@ -106,26 +106,26 @@ class Component(injecting.Injectable, traits.Component):
     def __init__(
         self,
         *,
-        checks: typing.Optional[collections.Iterable[traits.CheckSig]] = None,
-        hooks: typing.Optional[traits.AnyHooks] = None,
-        slash_hooks: typing.Optional[traits.SlashHooks] = None,
-        message_hooks: typing.Optional[traits.MessageHooks] = None,
+        checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
+        hooks: typing.Optional[abc.AnyHooks] = None,
+        slash_hooks: typing.Optional[abc.SlashHooks] = None,
+        message_hooks: typing.Optional[abc.MessageHooks] = None,
         strict: bool = False,
     ) -> None:
         self._checks: set[injecting.InjectableCheck] = (
             set(injecting.InjectableCheck(check) for check in checks) if checks else set()
         )
-        self._client: typing.Optional[traits.Client] = None
-        self._client_callbacks: dict[str, set[traits.MetaEventSig]] = {}
+        self._client: typing.Optional[abc.Client] = None
+        self._client_callbacks: dict[str, set[abc.MetaEventSig]] = {}
         self._hooks = hooks
         self._injector: typing.Optional[injecting.InjectorClient] = None
         self._is_strict = strict
         self._listeners: set[tuple[type[base_events.Event], event_manager_api.CallbackT[typing.Any]]] = set()
-        self._message_commands: set[traits.MessageCommand] = set()
+        self._message_commands: set[abc.MessageCommand] = set()
         self._message_hooks = message_hooks
         self._metadata: dict[typing.Any, typing.Any] = {}
-        self._names_to_commands: dict[str, traits.MessageCommand] = {}
-        self._slash_commands: dict[str, traits.BaseSlashCommand] = {}
+        self._names_to_commands: dict[str, abc.MessageCommand] = {}
+        self._slash_commands: dict[str, abc.BaseSlashCommand] = {}
         self._slash_hooks = slash_hooks
 
         if type(self) is not Component:
@@ -135,31 +135,31 @@ class Component(injecting.Injectable, traits.Component):
         return f"{type(self).__name__}({self.checks=}, {self.hooks=}, {self.slash_hooks=}, {self.message_hooks=})"
 
     @property
-    def checks(self) -> collections.Set[traits.CheckSig]:
+    def checks(self) -> collections.Set[abc.CheckSig]:
         return {check.callback for check in self._checks}
 
     @property
-    def client(self) -> typing.Optional[traits.Client]:
+    def client(self) -> typing.Optional[abc.Client]:
         return self._client
 
     @property
-    def hooks(self) -> typing.Optional[traits.AnyHooks]:
+    def hooks(self) -> typing.Optional[abc.AnyHooks]:
         return self._hooks
 
     @property
-    def slash_commands(self) -> collections.ValuesView[traits.BaseSlashCommand]:
+    def slash_commands(self) -> collections.ValuesView[abc.BaseSlashCommand]:
         return self._slash_commands.copy().values()
 
     @property
-    def slash_hooks(self) -> typing.Optional[traits.SlashHooks]:
+    def slash_hooks(self) -> typing.Optional[abc.SlashHooks]:
         return self._slash_hooks
 
     @property
-    def message_commands(self) -> collections.Set[traits.MessageCommand]:
+    def message_commands(self) -> collections.Set[abc.MessageCommand]:
         return self._message_commands.copy()
 
     @property
-    def message_hooks(self) -> typing.Optional[traits.MessageHooks]:
+    def message_hooks(self) -> typing.Optional[abc.MessageHooks]:
         return self._message_hooks
 
     @property
@@ -196,30 +196,30 @@ class Component(injecting.Injectable, traits.Component):
 
         return copy.copy(self).copy(_new=False)
 
-    def set_slash_hooks(self: _ComponentT, hooks_: typing.Optional[traits.SlashHooks], /) -> _ComponentT:
+    def set_slash_hooks(self: _ComponentT, hooks_: typing.Optional[abc.SlashHooks], /) -> _ComponentT:
         self._slash_hooks = hooks_
         return self
 
-    def set_message_hooks(self: _ComponentT, hooks_: typing.Optional[traits.MessageHooks]) -> _ComponentT:
+    def set_message_hooks(self: _ComponentT, hooks_: typing.Optional[abc.MessageHooks]) -> _ComponentT:
         self._message_hooks = hooks_
         return self
 
-    def set_hooks(self: _ComponentT, hooks: typing.Optional[traits.AnyHooks], /) -> _ComponentT:
+    def set_hooks(self: _ComponentT, hooks: typing.Optional[abc.AnyHooks], /) -> _ComponentT:
         self._hooks = hooks
         return self
 
-    def add_check(self: _ComponentT, check: traits.CheckSig, /) -> _ComponentT:
+    def add_check(self: _ComponentT, check: abc.CheckSig, /) -> _ComponentT:
         self._checks.add(injecting.InjectableCheck(check, injector=self._injector))
         return self
 
-    def remove_check(self, check: traits.CheckSig, /) -> None:
+    def remove_check(self, check: abc.CheckSig, /) -> None:
         self._checks.remove(check)  # type: ignore[arg-type]
 
-    def with_check(self, check: traits.CheckSigT, /) -> traits.CheckSigT:
+    def with_check(self, check: abc.CheckSigT, /) -> abc.CheckSigT:
         self.add_check(check)
         return check
 
-    def add_client_callback(self: _ComponentT, event_name: str, callback: traits.MetaEventSig, /) -> _ComponentT:
+    def add_client_callback(self: _ComponentT, event_name: str, callback: abc.MetaEventSig, /) -> _ComponentT:
         event_name = event_name.lower()
         try:
             self._client_callbacks[event_name].add(callback)
@@ -231,11 +231,11 @@ class Component(injecting.Injectable, traits.Component):
 
         return self
 
-    def get_client_callbacks(self, event_name: str, /) -> collections.Collection[traits.MetaEventSig]:
+    def get_client_callbacks(self, event_name: str, /) -> collections.Collection[abc.MetaEventSig]:
         event_name = event_name.lower()
         return self._client_callbacks.get(event_name) or ()
 
-    def remove_client_callback(self, event_name: str, callback: traits.MetaEventSig, /) -> None:
+    def remove_client_callback(self, event_name: str, callback: abc.MetaEventSig, /) -> None:
         event_name = event_name.lower()
         self._client_callbacks[event_name].remove(callback)
         if not self._client_callbacks[event_name]:
@@ -244,20 +244,18 @@ class Component(injecting.Injectable, traits.Component):
         if self._client:
             self._client.remove_client_callback(event_name, callback)
 
-    def with_client_callback(
-        self, event_name: str, /
-    ) -> collections.Callable[[traits.MetaEventSigT], traits.MetaEventSigT]:
-        def decorator(callback: traits.MetaEventSigT, /) -> traits.MetaEventSigT:
+    def with_client_callback(self, event_name: str, /) -> collections.Callable[[abc.MetaEventSigT], abc.MetaEventSigT]:
+        def decorator(callback: abc.MetaEventSigT, /) -> abc.MetaEventSigT:
             self.add_client_callback(event_name, callback)
             return callback
 
         return decorator
 
-    def add_command(self: _ComponentT, command: traits.ExecutableCommand[typing.Any], /) -> _ComponentT:
-        if isinstance(command, traits.MessageCommand):
+    def add_command(self: _ComponentT, command: abc.ExecutableCommand[typing.Any], /) -> _ComponentT:
+        if isinstance(command, abc.MessageCommand):
             self.add_message_command(command)
 
-        elif isinstance(command, traits.BaseSlashCommand):
+        elif isinstance(command, abc.BaseSlashCommand):
             self.add_slash_command(command)
 
         else:
@@ -267,11 +265,11 @@ class Component(injecting.Injectable, traits.Component):
 
         return self
 
-    def remove_command(self, command: traits.ExecutableCommand[typing.Any], /) -> None:
-        if isinstance(command, traits.MessageCommand):
+    def remove_command(self, command: abc.ExecutableCommand[typing.Any], /) -> None:
+        if isinstance(command, abc.MessageCommand):
             self.remove_message_command(command)
 
-        elif isinstance(command, traits.BaseSlashCommand):
+        elif isinstance(command, abc.BaseSlashCommand):
             self.remove_slash_command(command)
 
         else:
@@ -292,32 +290,32 @@ class Component(injecting.Injectable, traits.Component):
     ) -> WithCommandReturnSig[CommandT]:
         return _with_command(self.add_command, command, copy=copy)
 
-    def add_slash_command(self: _ComponentT, command: traits.BaseSlashCommand, /) -> _ComponentT:
+    def add_slash_command(self: _ComponentT, command: abc.BaseSlashCommand, /) -> _ComponentT:
         if self._injector and isinstance(command, injecting.Injectable):
             command.set_injector(self._injector)
 
         self._slash_commands[command.name.casefold()] = command
         return self
 
-    def remove_slash_command(self, command: traits.BaseSlashCommand, /) -> None:
+    def remove_slash_command(self, command: abc.BaseSlashCommand, /) -> None:
         del self._slash_commands[command.name.casefold()]
 
     @typing.overload
-    def with_slash_command(self, command: traits.BaseSlashCommandT, /) -> traits.BaseSlashCommandT:
+    def with_slash_command(self, command: abc.BaseSlashCommandT, /) -> abc.BaseSlashCommandT:
         ...
 
     @typing.overload
     def with_slash_command(
         self, *, copy: bool = False
-    ) -> collections.Callable[[traits.BaseSlashCommandT], traits.BaseSlashCommandT]:
+    ) -> collections.Callable[[abc.BaseSlashCommandT], abc.BaseSlashCommandT]:
         ...
 
     def with_slash_command(
-        self, command: typing.Optional[traits.BaseSlashCommandT] = None, /, *, copy: bool = False
-    ) -> WithCommandReturnSig[traits.BaseSlashCommandT]:
+        self, command: typing.Optional[abc.BaseSlashCommandT] = None, /, *, copy: bool = False
+    ) -> WithCommandReturnSig[abc.BaseSlashCommandT]:
         return _with_command(self.add_slash_command, command, copy=copy)
 
-    def add_message_command(self: _ComponentT, command: traits.MessageCommand, /) -> _ComponentT:
+    def add_message_command(self: _ComponentT, command: abc.MessageCommand, /) -> _ComponentT:
         if self._is_strict:
             if any(" " in name for name in command.names):
                 raise ValueError("Command name cannot contain spaces for this component implementation")
@@ -335,7 +333,7 @@ class Component(injecting.Injectable, traits.Component):
         command.bind_component(self)
         return self
 
-    def remove_message_command(self, command: traits.MessageCommand, /) -> None:
+    def remove_message_command(self, command: abc.MessageCommand, /) -> None:
         self._message_commands.remove(command)
 
         if self._is_strict:
@@ -344,18 +342,18 @@ class Component(injecting.Injectable, traits.Component):
                     del self._names_to_commands[name]
 
     @typing.overload
-    def with_message_command(self, command: traits.MessageCommandT, /) -> traits.MessageCommandT:
+    def with_message_command(self, command: abc.MessageCommandT, /) -> abc.MessageCommandT:
         ...
 
     @typing.overload
     def with_message_command(
         self, *, copy: bool = False
-    ) -> collections.Callable[[traits.MessageCommandT], traits.MessageCommandT]:
+    ) -> collections.Callable[[abc.MessageCommandT], abc.MessageCommandT]:
         ...
 
     def with_message_command(
-        self, command: typing.Optional[traits.MessageCommandT] = None, /, *, copy: bool = False
-    ) -> WithCommandReturnSig[traits.MessageCommandT]:
+        self, command: typing.Optional[abc.MessageCommandT] = None, /, *, copy: bool = False
+    ) -> WithCommandReturnSig[abc.MessageCommandT]:
         return _with_command(self.add_message_command, command, copy=copy)
 
     def add_listener(
@@ -414,7 +412,7 @@ class Component(injecting.Injectable, traits.Component):
             if isinstance(icommand, injecting.Injectable):
                 icommand.set_injector(client)
 
-    def bind_client(self, client: traits.Client, /) -> None:
+    def bind_client(self, client: abc.Client, /) -> None:
         if self._client:
             raise RuntimeError("Client already set")
 
@@ -431,7 +429,7 @@ class Component(injecting.Injectable, traits.Component):
             for callback in callbacks:
                 self._client.add_client_callback(event_name, callback)
 
-    def unbind_client(self, client: traits.Client, /) -> None:
+    def unbind_client(self, client: abc.Client, /) -> None:
         if not self._client or self._client != client:
             raise RuntimeError("Component isn't bound to this client")
 
@@ -450,12 +448,12 @@ class Component(injecting.Injectable, traits.Component):
                 except (LookupError, ValueError):
                     pass
 
-    async def _check_context(self, ctx: traits.Context, /) -> bool:
+    async def _check_context(self, ctx: abc.Context, /) -> bool:
         return await utilities.gather_checks(ctx, self._checks)
 
     async def check_message_context(
-        self, ctx: traits.MessageContext, /
-    ) -> collections.AsyncIterator[tuple[str, traits.MessageCommand]]:
+        self, ctx: abc.MessageContext, /
+    ) -> collections.AsyncIterator[tuple[str, abc.MessageCommand]]:
         ctx.set_component(self)
 
         if self._is_strict:
@@ -479,7 +477,7 @@ class Component(injecting.Injectable, traits.Component):
 
         ctx.set_component(None)
 
-    def check_message_name(self, content: str, /) -> collections.Iterator[tuple[str, traits.MessageCommand]]:
+    def check_message_name(self, content: str, /) -> collections.Iterator[tuple[str, abc.MessageCommand]]:
         if self._is_strict:
             name = content.split(" ", 1)[0]
             if command := self._names_to_commands.get(name):
@@ -492,17 +490,17 @@ class Component(injecting.Injectable, traits.Component):
                 # Don't want to match a command multiple times
                 continue
 
-    def check_slash_name(self, name: str, /) -> collections.Iterator[traits.BaseSlashCommand]:
+    def check_slash_name(self, name: str, /) -> collections.Iterator[abc.BaseSlashCommand]:
         if command := self._slash_commands.get(name):
             yield command
 
     async def _execute_interaction(
         self,
-        ctx: traits.SlashContext,
-        command: typing.Optional[tanjun.traits.BaseSlashCommand],
+        ctx: abc.SlashContext,
+        command: typing.Optional[tanjun.abc.BaseSlashCommand],
         /,
         *,
-        hooks: typing.Optional[collections.MutableSet[traits.SlashHooks]] = None,
+        hooks: typing.Optional[collections.MutableSet[abc.SlashHooks]] = None,
     ) -> typing.Optional[collections.Awaitable[None]]:
         if not command or not await self._check_context(ctx) or not await command.check_context(ctx):
             return None
@@ -526,10 +524,10 @@ class Component(injecting.Injectable, traits.Component):
     # to the event loop until after this is set.
     def execute_interaction(
         self,
-        ctx: traits.SlashContext,
+        ctx: abc.SlashContext,
         /,
         *,
-        hooks: typing.Optional[collections.MutableSet[traits.SlashHooks]] = None,
+        hooks: typing.Optional[collections.MutableSet[abc.SlashHooks]] = None,
     ) -> collections.Coroutine[typing.Any, typing.Any, typing.Optional[collections.Awaitable[None]]]:
         if command := self._slash_commands.get(ctx.interaction.command_name):
             ctx.set_ephemeral_default(command.defaults_to_ephemeral)
@@ -538,10 +536,10 @@ class Component(injecting.Injectable, traits.Component):
 
     async def execute_message(
         self,
-        ctx: traits.MessageContext,
+        ctx: abc.MessageContext,
         /,
         *,
-        hooks: typing.Optional[collections.MutableSet[traits.MessageHooks]] = None,
+        hooks: typing.Optional[collections.MutableSet[abc.MessageHooks]] = None,
     ) -> bool:
         async for name, command in self.check_message_context(ctx):
             ctx.set_triggering_name(name)

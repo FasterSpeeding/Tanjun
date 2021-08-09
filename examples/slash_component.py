@@ -5,7 +5,7 @@
 # 3 second expire mark but this doesn't negate the need to give an actual
 # response).
 #
-# For most of these examples `tanjun.traits.SlashContext.respond` is used for
+# For most of these examples `tanjun.abc.SlashContext.respond` is used for
 # responding to interactions, this abstracts away the interactions response
 # flow by tracking state on the Context object in-order to decide how to
 # respond. While the lower level approache may also be used for responding it
@@ -28,7 +28,7 @@ component = tanjun.Component()
 # handler).
 @component.with_slash_command
 @tanjun.as_slash_command("nsfw", "A NSFW command", default_to_ephemeral=True)
-async def nsfw_command(ctx: tanjun.traits.Context) -> None:
+async def nsfw_command(ctx: tanjun.abc.Context) -> None:
     # Thx to default_to_ephemeral=True, this response will be ephemeral
     await ctx.respond("nsfw stuff")
 
@@ -41,19 +41,19 @@ nested_group = top_group.with_command(tanjun.slash_command_group("interaction", 
 @nested_group.with_command
 @tanjun.with_str_slash_option("name", "Kimi no na wa")
 @tanjun.as_slash_command("hi", "hello")
-async def hi_command(ctx: tanjun.traits.Context, name: str) -> None:
+async def hi_command(ctx: tanjun.abc.Context, name: str) -> None:
     await ctx.respond(f"Hi, {name}")
 
 
 @top_group.with_command
 @tanjun.as_slash_command("japan", "nihon is my city")
-async def japan_command(ctx: tanjun.traits.Context) -> None:
+async def japan_command(ctx: tanjun.abc.Context) -> None:
     await ctx.respond("Nihongo ga dekimasu ka?")
 
 
 @top_group.with_command
 @tanjun.as_slash_command("europe", "IDK how to describe Europe... big?")
-async def europe_command(ctx: tanjun.traits.Context) -> None:
+async def europe_command(ctx: tanjun.abc.Context) -> None:
     await ctx.respond("I don't know how to describe Europe... small?")
 
 
@@ -72,21 +72,21 @@ async def europe_command(ctx: tanjun.traits.Context) -> None:
 
 @component.with_command
 @tanjun.as_slash_command("lower", "Lower level command which takes advantage of slash command specific detail")
-async def lower_command(ctx: tanjun.traits.SlashContext) -> None:
+async def lower_command(ctx: tanjun.abc.SlashContext) -> None:
     # Since SlashContext.respond can't have `flags` as an argument, providing
     # the flags when creating the initial response requires lower level usage.
     #
     # As a note, you can only create the initial response for a slash command
     # context once and any further calls will result in an error being raised.
-    # To create follow up responses see `tanjun.traits.SlashContext.create_followup`.
+    # To create follow up responses see `tanjun.abc.SlashContext.create_followup`.
     #
     # As another note, an initial response for a slash context must be created
     # within 3 seconds of the interaction being received otherwise it will
     # either be automatically deferred or expire (if automatic deferral is
     # disabled). In the case that an interaction is deferred then
-    # `tanjun.traits.SlashContext.edit_initial_response` or
-    # `tanjun.traits.SlashContext.respond` should be used to edit an initial
-    # response in. `tanjun.traits.SlashContext.defer` may be used to
+    # `tanjun.abc.SlashContext.edit_initial_response` or
+    # `tanjun.abc.SlashContext.respond` should be used to edit an initial
+    # response in. `tanjun.abc.SlashContext.defer` may be used to
     # defer an interaction in the case that automatic deferral is disabled or
     # the response is always going to be deferred.
     await ctx.create_initial_response("I'm sorry, Dave", flags=hikari.MessageFlag.EPHEMERAL, tts=True)
@@ -109,7 +109,7 @@ async def lower_command(ctx: tanjun.traits.SlashContext) -> None:
 # seconds to execute to avoid errenous behaviour.
 @component.with_command
 @tanjun.as_slash_command("defer", "Lower level command which explicitly defers")
-async def defer_command(ctx: tanjun.traits.SlashContext) -> None:
+async def defer_command(ctx: tanjun.abc.SlashContext) -> None:
     await ctx.defer()
     await asyncio.sleep(5)  # Do some work which may take a while
     # Either edit_initial_response or respond may be used here.
@@ -120,5 +120,5 @@ async def defer_command(ctx: tanjun.traits.SlashContext) -> None:
 # components into a bot from a link (assuming the environment has all the
 # right configurations setup.)
 @tanjun.as_loader
-def load_examples(client: tanjun.traits.Client) -> None:
+def load_examples(client: tanjun.abc.Client) -> None:
     client.add_component(component.copy())

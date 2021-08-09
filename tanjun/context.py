@@ -39,7 +39,7 @@ import typing
 import hikari
 from hikari import snowflakes
 
-from . import traits
+from . import abc as tanjun_abc
 
 if typing.TYPE_CHECKING:
     import datetime
@@ -55,17 +55,17 @@ if typing.TYPE_CHECKING:
 ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
 
 
-class BaseContext(traits.Context):
+class BaseContext(tanjun_abc.Context):
     """Base class for all standard context implementations."""
 
     __slots__ = ("_client", "_component", "_final")
 
     def __init__(
         self,
-        client: traits.Client,
+        client: tanjun_abc.Client,
         /,
         *,
-        component: typing.Optional[traits.Component] = None,
+        component: typing.Optional[tanjun_abc.Component] = None,
     ) -> None:
         self._client = client
         self._component = component
@@ -76,11 +76,11 @@ class BaseContext(traits.Context):
         return self._client.cache
 
     @property
-    def client(self) -> traits.Client:
+    def client(self) -> tanjun_abc.Client:
         return self._client
 
     @property
-    def component(self) -> typing.Optional[traits.Component]:
+    def component(self) -> typing.Optional[tanjun_abc.Component]:
         return self._component
 
     @property
@@ -107,7 +107,7 @@ class BaseContext(traits.Context):
         self._final = True
         return self
 
-    def set_component(self: _BaseContextT, component: typing.Optional[traits.Component], /) -> _BaseContextT:
+    def set_component(self: _BaseContextT, component: typing.Optional[tanjun_abc.Component], /) -> _BaseContextT:
         self._assert_not_final()
         self._component = component
         return self
@@ -134,7 +134,7 @@ class BaseContext(traits.Context):
         return None
 
 
-class MessageContext(BaseContext, traits.MessageContext):
+class MessageContext(BaseContext, tanjun_abc.MessageContext):
     """Standard implementation of a command context as used within Tanjun."""
 
     __slots__ = (
@@ -150,13 +150,13 @@ class MessageContext(BaseContext, traits.MessageContext):
 
     def __init__(
         self,
-        client: traits.Client,
+        client: tanjun_abc.Client,
         /,
         content: str,
         message: hikari.Message,
         *,
-        command: typing.Optional[traits.MessageCommand] = None,
-        component: typing.Optional[traits.Component] = None,
+        command: typing.Optional[tanjun_abc.MessageCommand] = None,
+        component: typing.Optional[tanjun_abc.Component] = None,
         triggering_name: str = "",
         triggering_prefix: str = "",
     ) -> None:
@@ -185,7 +185,7 @@ class MessageContext(BaseContext, traits.MessageContext):
         return self._message.channel_id
 
     @property
-    def command(self) -> typing.Optional[traits.MessageCommand]:
+    def command(self) -> typing.Optional[tanjun_abc.MessageCommand]:
         return self._command
 
     @property
@@ -237,7 +237,7 @@ class MessageContext(BaseContext, traits.MessageContext):
 
         return self._client.shards.shards[shard_id]
 
-    def set_command(self: _MessageContextT, command: typing.Optional[traits.MessageCommand], /) -> _MessageContextT:
+    def set_command(self: _MessageContextT, command: typing.Optional[tanjun_abc.MessageCommand], /) -> _MessageContextT:
         self._assert_not_final()
         self._command = command
         return self
@@ -406,7 +406,7 @@ class MessageContext(BaseContext, traits.MessageContext):
             return message
 
 
-class SlashContext(BaseContext, traits.SlashContext):
+class SlashContext(BaseContext, tanjun_abc.SlashContext):
     __slots__ = (
         "_command",
         "_defaults_to_ephemeral",
@@ -422,12 +422,12 @@ class SlashContext(BaseContext, traits.SlashContext):
 
     def __init__(
         self,
-        client: traits.Client,
+        client: tanjun_abc.Client,
         interaction: hikari.CommandInteraction,
         /,
         *,
-        command: typing.Optional[traits.BaseSlashCommand] = None,
-        component: typing.Optional[traits.Component] = None,
+        command: typing.Optional[tanjun_abc.BaseSlashCommand] = None,
+        component: typing.Optional[tanjun_abc.Component] = None,
         default_to_ephemeral: bool = False,
         not_found_message: typing.Optional[str] = None,
     ) -> None:
@@ -452,11 +452,11 @@ class SlashContext(BaseContext, traits.SlashContext):
         return self._interaction.channel_id
 
     @property
-    def client(self) -> traits.Client:
+    def client(self) -> tanjun_abc.Client:
         return self._client
 
     @property
-    def command(self) -> typing.Optional[traits.BaseSlashCommand]:
+    def command(self) -> typing.Optional[tanjun_abc.BaseSlashCommand]:
         return self._command
 
     @property
@@ -549,7 +549,7 @@ class SlashContext(BaseContext, traits.SlashContext):
         self._defer_task = asyncio.get_running_loop().create_task(self._auto_defer(count_down))
         return self
 
-    def set_command(self: _SlashContextT, command: typing.Optional[traits.BaseSlashCommand], /) -> _SlashContextT:
+    def set_command(self: _SlashContextT, command: typing.Optional[tanjun_abc.BaseSlashCommand], /) -> _SlashContextT:
         self._command = command
         return self
 

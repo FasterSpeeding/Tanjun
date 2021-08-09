@@ -151,8 +151,8 @@ class ParserError(TanjunError, ValueError):
     ----------
     message : str
         String message for this error.
-    parameter : typing.Optional[traits.Parameter]
-        The parameter which caused this error, should be `None` if not
+    parameter : typing.Optional[str]
+        Name of the parameter which caused this error, should be `None` if not
         applicable.
     """
 
@@ -186,7 +186,7 @@ class ConversionError(ParserError):
 
     Parameters
     ----------
-    parameter : tanjun.traits.Parameter
+    parameter : tanjun.abc.Parameter
         The parameter this was raised by.
     errors : collections.abc.Iterable[ValueError]
         An iterable of the source value errors which were raised during conversion/
@@ -210,7 +210,7 @@ class NotEnoughArgumentsError(ParserError):
 
     Parameters
     ----------
-    parameter : tanjun.traits.Parameter
+    parameter : tanjun.abc.Parameter
         The parameter this error was raised for
     """
 
@@ -228,7 +228,7 @@ class TooManyArgumentsError(ParserError):
 
     Parameters
     ----------
-    parameter : tanjun.traits.Parameter
+    parameter : tanjun.abc.Parameter
         The parameter this error was raised for
     """
 
