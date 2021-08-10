@@ -113,7 +113,7 @@ class Component(injecting.Injectable, abc.Component):
         strict: bool = False,
     ) -> None:
         self._checks: set[injecting.InjectableCheck] = (
-            set(injecting.InjectableCheck(check) for check in checks) if checks else set()
+            {injecting.InjectableCheck(check) for check in checks} if checks else set()
         )
         self._client: typing.Optional[abc.Client] = None
         self._client_callbacks: dict[str, set[abc.MetaEventSig]] = {}
@@ -184,7 +184,7 @@ class Component(injecting.Injectable, abc.Component):
 
     def copy(self: _ComponentT, *, _new: bool = True) -> _ComponentT:
         if not _new:
-            self._checks = set(check.copy() for check in self._checks)
+            self._checks = {check.copy() for check in self._checks}
             self._slash_commands = {name: command.copy() for name, command in self._slash_commands.items()}
             self._hooks = self._hooks.copy() if self._hooks else None
             self._listeners = {copy.copy(listener) for listener in self._listeners}

@@ -598,7 +598,7 @@ def convert_datetime(value: str, /) -> datetime.datetime:
         timestamp = int(next(_DATETIME_REGEX.finditer(value)).groups()[0])
 
     except StopIteration:
-        raise ValueError("Not a valid datetime")
+        raise ValueError("Not a valid datetime") from None
 
     return datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
 

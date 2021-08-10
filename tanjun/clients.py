@@ -517,7 +517,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     @property
     def message_accepts(self) -> MessageAcceptsEnum:
-        """The type of message create events this command client accepts for execution."""
+        """Type of message create events this command client accepts for execution."""
         return self._accepts
 
     @property
@@ -556,7 +556,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     @property
     def hooks(self) -> typing.Optional[tanjun_abc.AnyHooks]:
-        """The top level `tanjun.abc.AnyHooks` set for this client.
+        """Top level `tanjun.abc.AnyHooks` set for this client.
 
         These are called during both message and interaction command execution.
 
@@ -570,7 +570,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     @property
     def slash_hooks(self) -> typing.Optional[tanjun_abc.SlashHooks]:
-        """The top level `tanjun.abc.SlashHooks` set for this client.
+        """Top level `tanjun.abc.SlashHooks` set for this client.
 
         These are only called during interaction command execution.
 
@@ -589,7 +589,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     @property
     def message_hooks(self) -> typing.Optional[tanjun_abc.MessageHooks]:
-        """The top level `tanjun.abc.MessageHooks` set for this client.
+        """Get the top level `tanjun.abc.MessageHooks` set for this client.
 
         These are only called during both message command execution.
 
@@ -608,7 +608,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     @property
     def prefix_getter(self) -> typing.Optional[PrefixGetterSig]:
-        """Returns the prefix getter method set for this client.
+        """Get the prefix getter method set for this client.
 
         Returns
         -------
@@ -1178,6 +1178,30 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self
 
     def load_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
+        """Load entities into this client from modules based on loadable descriptors.
+
+        Examples
+        --------
+        For this to work the module has to have at least one `as_loader`
+        decorated top level function which takes one positional argument
+        of type `Client`.
+
+        ```py
+        @tanjun.as_loader
+        def load_component(client: tanjun.abc.Client) -> None:
+            client.add_component(component.copy())
+        ```
+
+        Parameters
+        ----------
+        *modules
+            String path(s) of the modules to load from.
+
+        Returns
+        -------
+        Self
+            This client instance to enable chained calls.
+        """
         for module_path in modules:
             if isinstance(module_path, str):
                 module = importlib.import_module(module_path)
@@ -1194,13 +1218,25 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
                 raise RuntimeError(f"Unknown or invalid module provided {module_path}")
 
+            found = False
             for _, member in inspect.getmembers(module):
                 if isinstance(member, _LoadableDescriptor):
                     member(self)
+                    found = True
+
+            if not found:
+                _LOGGER.warning("Didn't find any loadable descriptors in %s", module_path)
 
         return self
 
     async def on_message_create_event(self, event: hikari.MessageCreateEvent, /) -> None:
+        """Execute a message command based on a gateway event.
+
+        Parameters
+        ----------
+        hikari.events.message_events.MessageCreateEvent
+            The event to handle.
+        """
         if event.message.content is None:
             return
 
@@ -1250,7 +1286,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return hooks
 
     async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
-        """Listener function for executing slash commands based on Gateway events.
+        """Execute a slash command based on Gateway events.
 
         Parameters
         ----------
@@ -1288,7 +1324,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         ctx.cancel_defer()
 
     async def on_interaction_create_request(self, interaction: hikari.CommandInteraction, /) -> context.ResponseTypeT:
-        """Listener function for executing slash commands based on received REST requests.
+        """Execute a slash command based on received REST requests.
 
         Parameters
         ----------

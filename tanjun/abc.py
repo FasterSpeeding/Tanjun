@@ -154,7 +154,7 @@ class Context(abc.ABC):
     @property
     @abc.abstractmethod
     def client(self) -> Client:
-        """The Tanjun `Client` implementation this context was spawned by.
+        """Tanjun `Client` implementation this context was spawned by.
 
         Returns
         -------
@@ -304,7 +304,7 @@ class Context(abc.ABC):
     @property
     @abc.abstractmethod
     def triggering_name(self) -> str:
-        """The command name this execution was triggered with.
+        """Command name this execution was triggered with.
 
         Returns
         -------
@@ -471,7 +471,7 @@ class MessageContext(Context, abc.ABC):
     @property
     @abc.abstractmethod
     def command(self) -> typing.Optional[MessageCommand]:
-        """The command that was invoked.
+        """Command that was invoked.
 
         Returns
         -------
@@ -486,7 +486,7 @@ class MessageContext(Context, abc.ABC):
     @property
     @abc.abstractmethod
     def content(self) -> str:
-        """The content of the context's message minus the triggering name and prefix.
+        """Content of the context's message minus the triggering name and prefix.
 
         Returns
         -------
@@ -498,7 +498,7 @@ class MessageContext(Context, abc.ABC):
     @property
     @abc.abstractmethod
     def message(self) -> hikari.Message:
-        """The message that triggered the context.
+        """Message that triggered the context.
 
         Returns
         -------
@@ -509,7 +509,7 @@ class MessageContext(Context, abc.ABC):
     @property
     @abc.abstractmethod
     def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
-        """The shard that triggered the context.
+        """Shard that triggered the context.
 
         Returns
         -------
@@ -521,7 +521,7 @@ class MessageContext(Context, abc.ABC):
     @property
     @abc.abstractmethod
     def triggering_prefix(self) -> str:
-        """The prefix that triggered the context.
+        """Prefix that triggered the context.
 
         Returns
         -------
@@ -532,7 +532,7 @@ class MessageContext(Context, abc.ABC):
     @property
     @abc.abstractmethod
     def triggering_name(self) -> str:
-        """The command name that triggered the context.
+        """Command name that triggered the context.
 
         Returns
         -------
@@ -587,7 +587,7 @@ class SlashContext(Context, abc.ABC):
     @property
     @abc.abstractmethod
     def command(self) -> typing.Optional[BaseSlashCommand]:
-        """The command that was invoked.
+        """Command that was invoked.
 
         Returns
         -------
@@ -635,7 +635,7 @@ class SlashContext(Context, abc.ABC):
     @property
     @abc.abstractmethod
     def interaction(self) -> hikari.CommandInteraction:
-        """The interaction this context is for.
+        """Interaction this context is for.
 
         Returns
         -------
@@ -881,7 +881,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
     @property
     @abc.abstractmethod
     def checks(self) -> collections.Collection[CheckSig]:
-        """Collection of checks that must be met before the command can be executed.
+        """Get a collection of checks that must be met before the command can be executed.
 
         Returns
         -------
@@ -892,7 +892,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
     @property
     @abc.abstractmethod
     def component(self) -> typing.Optional[Component]:
-        """The component that the command is registered with.
+        """Component that the command is registered with.
 
         Returns
         -------
@@ -903,7 +903,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
     @property
     @abc.abstractmethod
     def hooks(self) -> typing.Optional[Hooks[ContextT]]:
-        """The hooks that are triggered when the command is executed.
+        """Hooks that are triggered when the command is executed.
 
         Returns
         -------
@@ -914,7 +914,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
     @property
     @abc.abstractmethod
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
-        """Mapping of the metadata set for this command.
+        """Get the mutable mapping of metadata set for this command.
 
         Returns
         -------
@@ -1033,7 +1033,7 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
     @property
     @abc.abstractmethod
     def name(self) -> str:
-        """The name of the command.
+        """Name of the command.
 
         Returns
         -------
@@ -1067,7 +1067,7 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
 
     @abc.abstractmethod
     def build(self) -> hikari.api.CommandBuilder:
-        """Returns a builder object for this command.
+        """Get a builder object for this command.
 
         Returns
         -------
@@ -1115,7 +1115,7 @@ class SlashCommand(BaseSlashCommand, abc.ABC):
     @property
     @abc.abstractmethod
     def callback(self) -> CommandCallbackSig:
-        """The callback to call when the command is executed.
+        """Get the callback which is called during execution..
 
         Returns
         -------
@@ -1137,7 +1137,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.ABC):
     @property
     @abc.abstractmethod
     def commands(self) -> collections.Collection[BaseSlashCommand]:
-        """Collection of the commands in this group.
+        """Get a collection of the commands in this group.
 
         Returns
         -------
@@ -1194,7 +1194,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
     @property
     @abc.abstractmethod
     def callback(self) -> CommandCallbackSig:
-        """The callback to call when the command is executed.
+        """Get the callback which is called during execution.
 
         !!! note
             For command groups, this is called when none of the inner-commands
@@ -1209,7 +1209,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
     @property
     @abc.abstractmethod
     def names(self) -> collections.Collection[str]:
-        """Collection of this command's names.
+        """Get a collection of this command's names.
 
         Returns
         -------
@@ -1220,7 +1220,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
     @property
     @abc.abstractmethod
     def parent(self) -> typing.Optional[MessageCommandGroup]:
-        """The parent group of this command.
+        """Parent group of this command.
 
         Returns
         -------
@@ -1267,7 +1267,7 @@ class MessageCommandGroup(MessageCommand, abc.ABC):
     @property
     @abc.abstractmethod
     def commands(self) -> collections.Collection[MessageCommand]:
-        """Collection of the commands in this group.
+        """Get a collection of the commands in this group.
 
         !!! note
             This may include command groups.
@@ -1332,7 +1332,7 @@ class Component(abc.ABC):
     @property
     @abc.abstractmethod
     def client(self) -> typing.Optional[Client]:
-        """The Tanjun client this component is bound to.
+        """Tanjun client this component is bound to.
 
         Returns
         -------
@@ -1343,7 +1343,7 @@ class Component(abc.ABC):
     @property
     @abc.abstractmethod
     def slash_commands(self) -> collections.Collection[BaseSlashCommand]:
-        """Collections of the slash commands in this component.
+        """Get a collection of the slash commands in this component.
 
         Returns
         -------
@@ -1354,7 +1354,7 @@ class Component(abc.ABC):
     @property
     @abc.abstractmethod
     def message_commands(self) -> collections.Collection[MessageCommand]:
-        """Collection of the message commands in this component.
+        """Get a cllection of the message commands in this component.
 
         Returns
         -------
@@ -1367,7 +1367,7 @@ class Component(abc.ABC):
     def listeners(
         self,
     ) -> collections.Collection[tuple[type[hikari.Event], event_manager_api.CallbackT[typing.Any]]]:
-        """Collection of tuples of (event, callback) for all listeners in this component.
+        """Get a collection of tuples of (event, callback) for all the listeners in this component.
 
         Returns
         -------
@@ -1378,7 +1378,7 @@ class Component(abc.ABC):
     @property
     @abc.abstractmethod
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
-        """Mapping of the metadata set for this component.
+        """Get the mutable mapping of the metadata set for this component.
 
         Returns
         -------
@@ -1629,7 +1629,7 @@ class Client(abc.ABC):
     @property
     @abc.abstractmethod
     def components(self) -> collections.Collection[Component]:
-        """Collection of the components this command client is using.
+        """Get a collection of the components this command client is using.
 
         Returns
         -------
@@ -1654,7 +1654,7 @@ class Client(abc.ABC):
     @property
     @abc.abstractmethod
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
-        """Mapping of the metadata set for this client.
+        """Get the mutable mapping of the metadata set for this client.
 
         Returns
         -------
@@ -1668,7 +1668,7 @@ class Client(abc.ABC):
     @property
     @abc.abstractmethod
     def prefixes(self) -> collections.Collection[str]:
-        """Collection of the prefixes set for this client.
+        """Get a collection of the prefixes set for this client.
 
         These are only use during message command execution to match commands
         to this command client.

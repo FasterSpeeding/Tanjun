@@ -128,7 +128,7 @@ class PartialCommand(
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
     ) -> None:
         self._checks: set[injecting.InjectableCheck] = (
-            set(injecting.InjectableCheck(check) for check in checks) if checks else set()
+            {injecting.InjectableCheck(check) for check in checks} if checks else set()
         )
         self._component: typing.Optional[abc.Component] = None
         self._hooks = hooks
@@ -319,7 +319,7 @@ def as_slash_command(
     is_global: bool = True,
     sort_options: bool = True,
 ) -> collections.Callable[[CommandCallbackSigT], SlashCommand[CommandCallbackSigT]]:
-    """build a `SlashCommand` by decorating a function.
+    r"""Build a `SlashCommand` by decorating a function.
 
     Examples
     --------
@@ -827,7 +827,7 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
         description: str,
         sort_options: bool,
         *,
-        id: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,
+        id: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,  # noqa: A002
     ) -> None:
         super().__init__(name, description, id=id)  # type: ignore
         self._has_been_sorted = True
@@ -941,7 +941,6 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
 
     def set_ephemeral_default(self: _BaseSlashCommandT, state: bool, /) -> _BaseSlashCommandT:
         """Set whether this command's responses should default to ephemeral.
-
 
         Parameters
         ----------
@@ -1199,8 +1198,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         self: _SlashCommandT,
         name: str,
         description: str,
+        type_: typing.Union[hikari.OptionType, int] = hikari.OptionType.STRING,
         /,
-        type: typing.Union[hikari.OptionType, int] = hikari.OptionType.STRING,
         *,
         choices: typing.Optional[collections.Iterable[tuple[str, typing.Union[str, int, float]]]] = None,
         converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
@@ -1209,11 +1208,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
         # TODO: validate name
-        type = hikari.OptionType(type)
+        type_ = hikari.OptionType(type_)
         if type in _SUB_COMMAND_OPTIONS_TYPES:
             raise NotImplementedError
 
-        if only_member and type not in _MEMBER_OPTION_TYPES:
+        if only_member and type_ not in _MEMBER_OPTION_TYPES:
             raise ValueError("Specifically member may only be set for a USER or MENTIONABLE option")
 
         if isinstance(converters, collections.Iterable):
@@ -1222,18 +1221,18 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         else:
             converters = [_convert_to_injectable(converters)]
 
-        if converters and (type in _OBJECT_OPTION_TYPES or type == hikari.OptionType.BOOLEAN):
+        if converters and (type_ in _OBJECT_OPTION_TYPES or type_ == hikari.OptionType.BOOLEAN):
             raise ValueError("Converters cannot be provided for bool or object options")
 
         choices_ = [hikari.CommandChoice(name=name, value=value) for name, value in choices] if choices else None
         required = default is _UNDEFINED_DEFAULT
         self._builder.add_option(
-            hikari.CommandOption(type=type, name=name, description=description, is_required=required, choices=choices_)
+            hikari.CommandOption(type=type_, name=name, description=description, is_required=required, choices=choices_)
         )
         if pass_as_kwarg:
             self._tracked_options[name] = _TrackedOption(
                 name=name,
-                option_type=type,
+                option_type=type_,
                 converters=converters,
                 default=default,
                 only_member=only_member,
@@ -1342,11 +1341,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
             if self.needs_injector:
                 injected_values = await injecting.resolve_getters(ctx, self._get_injection_getters())
-                if kwargs:
-                    kwargs.update(injected_values)
+                if kwargs is _EMPTY_DICT:
+                    kwargs = injected_values
 
                 else:
-                    kwargs = injected_values
+                    kwargs.update(injected_values)
 
             await self._callback(ctx, **kwargs)
 

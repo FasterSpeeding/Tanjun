@@ -144,7 +144,7 @@ class Injected(typing.Generic[_T]):
         self,
         *,
         callback: UndefinedOr[CallbackSig[_T]] = UNDEFINED,
-        type: UndefinedOr[_TypeT[_T]] = UNDEFINED,
+        type: UndefinedOr[_TypeT[_T]] = UNDEFINED,  # noqa: A002
     ) -> None:  # TODO: add default/factory to this?
         if callback is UNDEFINED and type is UNDEFINED:
             raise ValueError("Must specify one of `callback` or `type`")
@@ -159,7 +159,7 @@ class Injected(typing.Generic[_T]):
 def injected(
     *,
     callback: UndefinedOr[CallbackSig[_T]] = UNDEFINED,
-    type: UndefinedOr[_TypeT[_T]] = UNDEFINED,
+    type: UndefinedOr[_TypeT[_T]] = UNDEFINED,  # noqa: A002
 ) -> Injected[_T]:
     return Injected(callback=callback, type=type)
 
@@ -377,7 +377,7 @@ class InjectableCheck(BaseInjectableValue[bool]):
         if result := await self.call(ctx, ctx=ctx):
             return result
 
-        raise errors.FailedCheck()
+        raise errors.FailedCheck
 
 
 class InjectableConverter(BaseInjectableValue[_T]):

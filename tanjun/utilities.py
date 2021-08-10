@@ -132,7 +132,7 @@ async def gather_checks(ctx: abc.Context, checks: collections.Iterable[injecting
 async def fetch_resource(
     retry: backoff.Backoff, call: collections.Callable[..., collections.Awaitable[_ResourceT]], *args: typing.Any
 ) -> _ResourceT:  # TODO: replace this
-    """A utility callback for retrying a request used by Tanjun internally."""
+    """Try a request until it passes or timesout. Used by Tanjun internally."""
     retry.reset()
     async for _ in retry:
         try:

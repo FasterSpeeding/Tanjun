@@ -1,4 +1,36 @@
+# -*- coding: utf-8 -*-
+# cython: language_level=3
+# BSD 3-Clause License
+#
+# Copyright (c) 2020-2021, Faster Speeding
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of the copyright holder nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import asyncio
+import typing
 from unittest import mock
 
 import hikari
@@ -6,7 +38,19 @@ import pytest
 
 import tanjun
 
-from . import utilities
+_T = typing.TypeVar("_T")
+
+
+def stub_class(cls: type[_T], *, slots: bool = True, impl_abstract: bool = True, **namespace: typing.Any) -> type[_T]:
+    if namespace:
+        namespace["__slots__"] = ()
+
+    if impl_abstract:
+        for name in getattr(cls, "__abstractmethods__", None) or ():
+            if name not in namespace:
+                namespace[name] = mock.MagicMock()
+
+    return type(cls.__name__, (cls,), namespace)
 
 
 @pytest.fixture()
@@ -22,7 +66,7 @@ def mock_component() -> tanjun.abc.Component:
 class TestBaseContext:
     @pytest.fixture()
     def context(self, mock_client, mock_component) -> tanjun.context.BaseContext:
-        return utilities.stub_class(tanjun.context.BaseContext)(mock_client, component=mock_component)
+        return stub_class(tanjun.context.BaseContext)(mock_client, component=mock_component)
 
     def test_cache_property(self, context, mock_client):
         assert context.cache is mock_client.cache
@@ -488,7 +532,7 @@ class TestSlashContext:
 
     @pytest.mark.asyncio()
     async def test__auto_defer_property(self, mock_client):
-        context = utilities.stub_class(tanjun.SlashContext, defer=mock.AsyncMock())(
+        context = stub_class(tanjun.SlashContext, defer=mock.AsyncMock())(
             mock_client, mock.AsyncMock(), command=mock.Mock(), component=mock.Mock(), not_found_message="hi"
         )
 
@@ -634,7 +678,7 @@ class TestSlashContext:
         )
 
     def test_start_defer_timer(self, mock_client):
-        context = utilities.stub_class(tanjun.SlashContext, _auto_defer=mock.Mock())(
+        context = stub_class(tanjun.SlashContext, _auto_defer=mock.Mock())(
             mock_client, mock.AsyncMock(), command=mock.Mock(), component=mock.Mock(), not_found_message="hi"
         )
 
