@@ -15,13 +15,11 @@ reportMissingImports = true
 reportMissingTypeStubs = true
 
 pythonVersion = "3.9"
-typeCheckingMode = "strict"
-reportIncompatibleMethodOverride = "warning"  # This relies on ordering for key-word only arguments which is annoying
-                                           # than it's worth
-reportUnknownMemberType = "warning"  # This messes with instance checking generic objects
-reportUnknownArgumentType = "warning"  # Pretty much the same as reportUnknownMemberType
-reportImportCycles = "warning"  # This isn't necessarily an issue if it's type checking only.
-
+reportIncompatibleMethodOverride = "warning"  # This relies on ordering for key-word only arguments 
+                                              # which is more annoying than it's worth
+reportUnknownMemberType = "warning"           # This messes with instance checking generic objects
+reportUnknownArgumentType = "warning"         # Pretty much the same as reportUnknownMemberType
+reportImportCycles = "warning"                # This isn't necessarily an issue if it's type checking only.
 [tool.pytest.ini_options]
 import-mode = "???"
 testpaths = ["tests"]
