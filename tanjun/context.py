@@ -174,7 +174,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         self._triggering_prefix = triggering_prefix
 
     def __repr__(self) -> str:
-        return f"Context <{self._message!r}, {self._command!r}>"
+        return f"MessageContext <{self._message!r}, {self._command!r}>"
 
     @property
     def author(self) -> hikari.User:
@@ -349,13 +349,17 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
             role_mentions=role_mentions,
         )
 
-    async def fetch_initial_response(self) -> typing.Optional[hikari.Message]:
+    async def fetch_initial_response(self) -> hikari.Message:
         if self._initial_response_id is not None:
             return await self.client.rest.fetch_message(self._message.channel_id, self._initial_response_id)
 
-    async def fetch_last_response(self) -> typing.Optional[hikari.Message]:
+        raise LookupError("No initial response found for this context")
+
+    async def fetch_last_response(self) -> hikari.Message:
         if self._last_response_id is not None:
             return await self.client.rest.fetch_message(self._message.channel_id, self._last_response_id)
+
+        raise LookupError("No responses found for this context")
 
     async def respond(
         self,
@@ -489,6 +493,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
 
     @property
     def triggering_name(self) -> str:
+        # TODO: account for command groups
         return self._interaction.command_name
 
     @property
@@ -502,7 +507,6 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
     def cancel_defer(self) -> None:
         if self._defer_task:
             self._defer_task.cancel()
-            self._defer_task = None
 
     def _get_flags(
         self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED
@@ -513,7 +517,6 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         return flags
 
     def get_response_future(self) -> asyncio.Future[ResponseTypeT]:
-        self._assert_not_final()
         if not self._response_future:
             self._response_future = asyncio.get_running_loop().create_future()
 
@@ -544,16 +547,18 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
     def start_defer_timer(self: _SlashContextT, count_down: typing.Union[int, float], /) -> _SlashContextT:
         self._assert_not_final()
         if self._defer_task:
-            raise ValueError("Defer timer already set")
+            raise RuntimeError("Defer timer already set")
 
-        self._defer_task = asyncio.get_running_loop().create_task(self._auto_defer(count_down))
+        self._defer_task = asyncio.create_task(self._auto_defer(count_down))
         return self
 
     def set_command(self: _SlashContextT, command: typing.Optional[tanjun_abc.BaseSlashCommand], /) -> _SlashContextT:
+        self._assert_not_final()
         self._command = command
         return self
 
     def set_ephemeral_default(self: _SlashContextT, state: bool, /) -> _SlashContextT:
+        self._assert_not_final()
         self._defaults_to_ephemeral = state
         return self
 
@@ -704,7 +709,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
                 self._response_future.set_result(result)
 
     async def delete_initial_response(self) -> None:
-        return await self._interaction.delete_initial_response()
+        await self._interaction.delete_initial_response()
 
     async def delete_last_response(self) -> None:
         if self._last_response_id is None:
@@ -805,19 +810,17 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
 
         raise LookupError("Context has no previous responses")
 
-    async def fetch_initial_response(self) -> typing.Optional[hikari.Message]:
-        try:
-            return await self._interaction.fetch_initial_response()
+    async def fetch_initial_response(self) -> hikari.Message:
+        return await self._interaction.fetch_initial_response()
 
-        except hikari.NotFoundError:
-            return None
-
-    async def fetch_last_response(self) -> typing.Optional[hikari.Message]:
+    async def fetch_last_response(self) -> hikari.Message:
         if self._last_response_id is not None:
             return await self._interaction.fetch_message(self._last_response_id)
 
-        elif self._has_responded:
+        if self._has_responded:
             return await self.fetch_initial_response()
+
+        raise LookupError("Context has no previous known responses")
 
     @typing.overload
     async def respond(

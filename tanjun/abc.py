@@ -389,11 +389,11 @@ class Context(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def fetch_initial_response(self) -> typing.Optional[hikari.Message]:
+    async def fetch_initial_response(self) -> hikari.Message:
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def fetch_last_response(self) -> typing.Optional[hikari.Message]:
+    async def fetch_last_response(self) -> hikari.Message:
         raise NotImplementedError
 
     @typing.overload

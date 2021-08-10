@@ -23,10 +23,12 @@ class TestApplicationOwnerCheck:
     ...
 
 
+@pytest.mark.skip(reason="Not implemented")
 def test_nsfw_check(context):
     ...
 
 
+@pytest.mark.skip(reason="Not implemented")
 @pytest.mark.asyncio()
 async def test_sfw_check(context):
     ...
