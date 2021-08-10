@@ -1,6 +1,6 @@
 import datetime
+from unittest import mock
 
-import mock
 import pytest
 from hikari import permissions
 

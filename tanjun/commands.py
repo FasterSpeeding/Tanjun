@@ -108,6 +108,8 @@ class _LoadableInjector(injecting.InjectableCheck):
             raise ValueError("Callback is already a method type")
 
         self.callback = types.MethodType(self.callback, component)  # type: ignore[assignment]
+        self.is_async = None
+        self._needs_injector = injecting.check_injecting(self.callback)
 
 
 class PartialCommand(
@@ -444,7 +446,7 @@ def with_str_slash_option(
     """
     new_choices: collections.Iterable[tuple[str, str]] = ()
     if choices is not None:
-        new_choices = (choice if isinstance(choice, tuple) else (choice.capitalize(), choice) for choice in choices)
+        new_choices = [choice if isinstance(choice, tuple) else (choice.capitalize(), choice) for choice in choices]
 
     return lambda c: c.add_option(
         name, description, hikari.OptionType.STRING, default=default, choices=new_choices, converters=converters

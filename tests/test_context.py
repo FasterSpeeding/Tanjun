@@ -1,12 +1,12 @@
 import asyncio
-import inspect
-import typing
+from unittest import mock
 
 import hikari
-import mock
 import pytest
 
 import tanjun
+
+from . import utilities
 
 
 @pytest.fixture()
@@ -19,32 +19,10 @@ def mock_component() -> tanjun.abc.Component:
     return mock.MagicMock(tanjun.abc.Component)
 
 
-_T = typing.TypeVar("_T")
-
-
-def stub_class(cls: type[_T], *, slots: bool = True, impl_abstract: bool = True, **namespace: typing.Any) -> type[_T]:
-    if namespace:
-        namespace["__slots__"] = ()
-
-    if impl_abstract:
-        for name in getattr(cls, "__abstractmethods__", None) or ():
-            if name in namespace:
-                continue
-
-            value = getattr(cls, name)
-            if asyncio.iscoroutinefunction(value) or inspect.iscoroutinefunction(value):
-                namespace[name] = mock.AsyncMock()
-
-            else:
-                namespace[name] = mock.MagicMock()
-
-    return type(cls.__name__, (cls,), namespace)
-
-
 class TestBaseContext:
     @pytest.fixture()
     def context(self, mock_client, mock_component) -> tanjun.context.BaseContext:
-        return stub_class(tanjun.context.BaseContext)(mock_client, component=mock_component)
+        return utilities.stub_class(tanjun.context.BaseContext)(mock_client, component=mock_component)
 
     def test_cache_property(self, context, mock_client):
         assert context.cache is mock_client.cache
@@ -510,7 +488,7 @@ class TestSlashContext:
 
     @pytest.mark.asyncio()
     async def test__auto_defer_property(self, mock_client):
-        context = stub_class(tanjun.SlashContext, defer=mock.AsyncMock())(
+        context = utilities.stub_class(tanjun.SlashContext, defer=mock.AsyncMock())(
             mock_client, mock.AsyncMock(), command=mock.Mock(), component=mock.Mock(), not_found_message="hi"
         )
 
@@ -656,7 +634,7 @@ class TestSlashContext:
         )
 
     def test_start_defer_timer(self, mock_client):
-        context = stub_class(tanjun.SlashContext, _auto_defer=mock.Mock())(
+        context = utilities.stub_class(tanjun.SlashContext, _auto_defer=mock.Mock())(
             mock_client, mock.AsyncMock(), command=mock.Mock(), component=mock.Mock(), not_found_message="hi"
         )
 

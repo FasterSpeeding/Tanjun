@@ -228,7 +228,7 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
             await utilities.await_if_async(self._pre_execution, ctx)
 
         if hooks:
-            await asyncio.gather(*(hook.trigger_post_execution(ctx) for hook in hooks))
+            await asyncio.gather(*(hook.trigger_pre_execution(ctx) for hook in hooks))
 
     async def trigger_success(
         self,
