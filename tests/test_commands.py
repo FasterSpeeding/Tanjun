@@ -42,7 +42,7 @@ import tanjun
 class Test_LoadableInjector:
     def test_make_method_type(self):
         mock_callback = mock.Mock()
-        mock_self = object()
+        mock_self = mock.Mock()
         injector = tanjun.commands._LoadableInjector(mock_callback)
 
         with mock.patch.object(tanjun.injecting, "check_injecting") as check_injecting:
@@ -59,32 +59,34 @@ class Test_LoadableInjector:
 
 class TestPartialCommand:
     @pytest.fixture()
-    def command(self) -> tanjun.commands.PartialCommand:
+    def command(self) -> tanjun.commands.PartialCommand[typing.Any]:
         fields: dict[str, typing.Any] = {}
         for name in tanjun.commands.PartialCommand.__abstractmethods__:
             fields[name] = mock.MagicMock()
 
-        return type("PartialCommand", (tanjun.commands.PartialCommand,), fields)()
+        return types.new_class(
+            "PartialCommand", (tanjun.commands.PartialCommand[typing.Any],), exec_body=lambda body: body.update(fields)
+        )()
 
-    def test_metadata_property(self, command):
+    def test_metadata_property(self, command: tanjun.commands.PartialCommand[typing.Any]):
         assert command.metadata is command._metadata
 
-    def test_needs_injector_when_any_true(self, command):
+    def test_needs_injector_when_any_true(self, command: tanjun.commands.PartialCommand[typing.Any]):
         command._checks = {mock.Mock(needs_injector=False), mock.Mock(needs_injector=True)}
         assert command.needs_injector is True
 
-    def test_needs_injector_when_all_true(self, command):
+    def test_needs_injector_when_all_true(self, command: tanjun.commands.PartialCommand[typing.Any]):
         command._checks = {mock.Mock(needs_injector=True), mock.Mock(needs_injector=True)}
         assert command.needs_injector is True
 
-    def test_needs_injector_when_all_false(self, command):
+    def test_needs_injector_when_all_false(self, command: tanjun.commands.PartialCommand[typing.Any]):
         command._checks = {mock.Mock(needs_injector=False), mock.Mock(needs_injector=False)}
         assert command.needs_injector is False
 
-    def test_needs_injector_when_empty(self, command):
+    def test_needs_injector_when_empty(self, command: tanjun.commands.PartialCommand[typing.Any]):
         assert command.needs_injector is False
 
-    def test_copy(self, command):
+    def test_copy(self, command: tanjun.commands.PartialCommand[typing.Any]):
         mock_check = mock.Mock()
         command._checks = {mock_check}
         command._hooks = mock.Mock()
@@ -97,14 +99,14 @@ class TestPartialCommand:
         assert new_command._hooks is command._hooks.copy.return_value
         assert new_command._metadata is command.metadata.copy.return_value
 
-    def test_set_hooks(self, command):
-        mock_hooks = object()
+    def test_set_hooks(self, command: tanjun.commands.PartialCommand[typing.Any]):
+        mock_hooks = mock.Mock()
 
         assert command.set_hooks(mock_hooks) is command
         assert command.hooks is mock_hooks
 
     def test_add_check(self, command):
-        command.set_injector(object())
+        command.set_injector(mock.Mock())
         mock_check = mock.Mock()
 
         assert command.add_check(mock_check) is command
@@ -116,7 +118,7 @@ class TestPartialCommand:
         assert check.callback is mock_check
         assert command.checks == {mock_check}
 
-    def test_remove_check(self, command):
+    def test_remove_check(self, command: tanjun.commands.PartialCommand[typing.Any]):
         def mock_check():
             ...
 
@@ -126,8 +128,8 @@ class TestPartialCommand:
 
         assert command.checks == set()
 
-    def test_with_check(self, command):
-        command.set_injector(object())
+    def test_with_check(self, command: tanjun.commands.PartialCommand[typing.Any]):
+        command.set_injector(mock.Mock())
 
         def mock_check(self):
             ...
@@ -141,8 +143,8 @@ class TestPartialCommand:
         assert check.callback is mock_check
         assert command.checks == {mock_check}
 
-    def test_set_injector(self, command):
-        mock_injector = object()
+    def test_set_injector(self, command: tanjun.commands.PartialCommand[typing.Any]):
+        mock_injector = mock.Mock()
         mock_check = mock.Mock()
         command._checks = {mock_check}
 
@@ -151,9 +153,9 @@ class TestPartialCommand:
         assert command._injector is mock_injector
         mock_check.set_injector.assert_called_once_with(mock_injector)
 
-    def test_set_injector_when_already_set(self, command):
-        command._injector = object()
-        mock_injector = object()
+    def test_set_injector_when_already_set(self, command: tanjun.commands.PartialCommand[typing.Any]):
+        command._injector = mock.Mock()
+        mock_injector = mock.Mock()
         mock_check = mock.Mock()
         command._checks = {mock_check}
 
@@ -163,21 +165,21 @@ class TestPartialCommand:
         assert command._injector is not mock_injector
         mock_check.set_injector.assert_not_called()
 
-    def test_bind_client(self, command):
-        command.bind_client(object())
+    def test_bind_client(self, command: tanjun.commands.PartialCommand[typing.Any]):
+        command.bind_client(mock.Mock())
 
-    def test_bind_component(self, command):
-        mock_component = object()
+    def test_bind_component(self, command: tanjun.commands.PartialCommand[typing.Any]):
+        mock_component = mock.Mock()
 
         command.bind_component(mock_component)
 
         assert command.component is mock_component
 
-    def test_load_into_component(self, command):
+    def test_load_into_component(self, command: tanjun.commands.PartialCommand[typing.Any]):
         mock_check_1 = mock.MagicMock(tanjun.commands._LoadableInjector)
         mock_check_2 = mock.Mock()
         mock_check_3 = mock.MagicMock(tanjun.commands._LoadableInjector)
-        mock_component = object()
+        mock_component = mock.Mock()
         command._checks = {mock_check_1, mock_check_2, mock_check_3}
 
         result = command.load_into_component(mock_component)
@@ -209,7 +211,7 @@ def test_slash_command_group_with_default():
 
 
 def test_as_slash_command():
-    mock_callback = object()
+    mock_callback = mock.Mock()
 
     command = tanjun.as_slash_command(
         "a_very", "cool name", command_id=123321, default_to_ephemeral=True, is_global=False, sort_options=False
@@ -225,7 +227,7 @@ def test_as_slash_command():
 
 
 def test_as_slash_command_with_defaults():
-    mock_callback = object()
+    mock_callback = mock.Mock()
 
     command = tanjun.as_slash_command("a_very", "cool name")(mock_callback)
 
@@ -238,7 +240,7 @@ def test_as_slash_command_with_defaults():
 
 def test_with_str_slash_option():
     mock_command = mock.MagicMock()
-    mock_converter = object()
+    mock_converter = mock.Mock()
 
     tanjun.with_str_slash_option(
         "a_name", "a_value", choices=["ok", ("no", "u")], converters=[mock_converter], default="ANY"
@@ -271,7 +273,7 @@ def test_with_str_slash_option_with_defaults():
 
 def test_with_int_slash_option():
     mock_command = mock.MagicMock()
-    mock_converter = object()
+    mock_converter = mock.Mock()
 
     tanjun.with_int_slash_option(
         "im_con", "con man", choices=[("a", "man")], converters=[mock_converter], default=321123

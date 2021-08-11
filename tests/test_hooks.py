@@ -75,7 +75,7 @@ class TestHooks:
 
     def test_set_on_error(self):
         hooks = tanjun.AnyHooks()
-        mock_on_error = object()
+        mock_on_error = mock.Mock()
 
         assert hooks.set_on_error(mock_on_error) is hooks
 
@@ -83,7 +83,7 @@ class TestHooks:
 
     def test_with_on_error(self):
         hooks = tanjun.AnyHooks()
-        mock_on_error = object()
+        mock_on_error = mock.Mock()
 
         assert hooks.with_on_error(mock_on_error) is mock_on_error
 
@@ -91,7 +91,7 @@ class TestHooks:
 
     def test_set_on_parser_error(self):
         hooks = tanjun.AnyHooks()
-        mock_on_parser_error = object()
+        mock_on_parser_error = mock.Mock()
 
         assert hooks.set_on_parser_error(mock_on_parser_error) is hooks
 
@@ -99,7 +99,7 @@ class TestHooks:
 
     def test_with_on_parser_error(self):
         hooks = tanjun.AnyHooks()
-        mock_on_parser_error = object()
+        mock_on_parser_error = mock.Mock()
 
         assert hooks.with_on_parser_error(mock_on_parser_error) is mock_on_parser_error
 
@@ -107,7 +107,7 @@ class TestHooks:
 
     def test_set_post_execution(self):
         hooks = tanjun.AnyHooks()
-        mock_post_execution = object()
+        mock_post_execution = mock.Mock()
 
         assert hooks.set_post_execution(mock_post_execution) is hooks
 
@@ -115,7 +115,7 @@ class TestHooks:
 
     def test_with_post_execution(self):
         hooks = tanjun.AnyHooks()
-        mock_post_execution = object()
+        mock_post_execution = mock.Mock()
 
         assert hooks.with_post_execution(mock_post_execution) is mock_post_execution
 
@@ -123,7 +123,7 @@ class TestHooks:
 
     def test_set_pre_execution(self):
         hooks = tanjun.AnyHooks()
-        mock_pre_execution = object()
+        mock_pre_execution = mock.Mock()
 
         assert hooks.set_pre_execution(mock_pre_execution) is hooks
 
@@ -131,7 +131,7 @@ class TestHooks:
 
     def test_with_pre_execution(self):
         hooks = tanjun.AnyHooks()
-        mock_pre_execution = object()
+        mock_pre_execution = mock.Mock()
 
         assert hooks.with_pre_execution(mock_pre_execution) is mock_pre_execution
 
@@ -139,7 +139,7 @@ class TestHooks:
 
     def test_set_on_success(self):
         hooks = tanjun.AnyHooks()
-        mock_on_success = object()
+        mock_on_success = mock.Mock()
 
         assert hooks.set_on_success(mock_on_success) is hooks
 
@@ -147,7 +147,7 @@ class TestHooks:
 
     def test_with_on_success(self):
         hooks = tanjun.AnyHooks()
-        mock_on_success = object()
+        mock_on_success = mock.Mock()
 
         assert hooks.with_on_success(mock_on_success) is mock_on_success
 
@@ -157,7 +157,7 @@ class TestHooks:
     async def test_trigger_error_for_parser_error_with_handlers(self):
         mock_callback = mock.AsyncMock()
         mock_other_hook = mock.Mock(trigger_error=mock.AsyncMock(return_value=100))
-        mock_context = object()
+        mock_context = mock.Mock()
         mock_error = mock.MagicMock(tanjun.ParserError)
 
         result = (
@@ -172,7 +172,7 @@ class TestHooks:
 
     @pytest.mark.asyncio()
     async def test_trigger_error_for_parser_error_without_handlers(self):
-        result = await tanjun.AnyHooks().trigger_error(object(), mock.MagicMock(tanjun.ParserError))
+        result = await tanjun.AnyHooks().trigger_error(mock.Mock(), mock.MagicMock(tanjun.ParserError))
 
         assert result == 0
 
@@ -180,8 +180,8 @@ class TestHooks:
     async def test_trigger_error_with_handler(self):
         mock_callback = mock.AsyncMock(return_value=True)
         mock_other_hook = mock.Mock(trigger_error=mock.AsyncMock(return_value=2))
-        mock_context = object()
-        mock_error = object()
+        mock_context = mock.Mock()
+        mock_error = mock.Mock()
 
         result = (
             await tanjun.AnyHooks()
@@ -195,7 +195,7 @@ class TestHooks:
 
     @pytest.mark.asyncio()
     async def test_trigger_error_without_handler(self):
-        result = await tanjun.AnyHooks().trigger_error(object(), object())
+        result = await tanjun.AnyHooks().trigger_error(mock.Mock(), mock.Mock())
 
         assert result == 0
 
@@ -203,7 +203,7 @@ class TestHooks:
     async def test_trigger_post_execution_with_handlers(self):
         mock_callback = mock.AsyncMock()
         mock_other_hook = mock.Mock(trigger_post_execution=mock.AsyncMock())
-        mock_context = object()
+        mock_context = mock.Mock()
 
         (
             await tanjun.AnyHooks()
@@ -216,13 +216,13 @@ class TestHooks:
 
     @pytest.mark.asyncio()
     async def test_trigger_post_execution_without_handlers(self):
-        await tanjun.AnyHooks().trigger_post_execution(object())
+        await tanjun.AnyHooks().trigger_post_execution(mock.Mock())
 
     @pytest.mark.asyncio()
     async def test_trigger_pre_execution_with_handlers(self):
         mock_callback = mock.AsyncMock()
         mock_other_hook = mock.Mock(trigger_pre_execution=mock.AsyncMock())
-        mock_context = object()
+        mock_context = mock.Mock()
 
         (
             await tanjun.AnyHooks()
@@ -235,13 +235,13 @@ class TestHooks:
 
     @pytest.mark.asyncio()
     async def test_trigger_pre_execution_without_handlers(self):
-        await tanjun.AnyHooks().trigger_pre_execution(object())
+        await tanjun.AnyHooks().trigger_pre_execution(mock.Mock())
 
     @pytest.mark.asyncio()
     async def test_trigger_success_with_handlers(self):
         mock_callback = mock.AsyncMock()
         mock_other_hook = mock.Mock(trigger_success=mock.AsyncMock())
-        mock_context = object()
+        mock_context = mock.Mock()
 
         (await tanjun.AnyHooks().set_on_success(mock_callback).trigger_success(mock_context, hooks={mock_other_hook}))
 
@@ -250,4 +250,4 @@ class TestHooks:
 
     @pytest.mark.asyncio()
     async def test_trigger_success_without_handlers(self):
-        await tanjun.AnyHooks().trigger_success(object())
+        await tanjun.AnyHooks().trigger_success(mock.Mock())

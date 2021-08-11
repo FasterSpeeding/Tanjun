@@ -30,6 +30,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import datetime
+import typing
 from unittest import mock
 
 import pytest
@@ -39,15 +40,15 @@ import tanjun
 
 
 @pytest.fixture()
-def command():
-    command_ = mock.Mock(tanjun.abc.ExecutableCommand)
+def command() -> tanjun.abc.ExecutableCommand[typing.Any]:
+    command_ = mock.MagicMock(tanjun.abc.ExecutableCommand)
     command_.add_check.return_value = command_
     return command_
 
 
 @pytest.fixture()
-def context():
-    return mock.Mock(tanjun.abc.Context)
+def context() -> tanjun.abc.Context:
+    return mock.MagicMock(tanjun.abc.Context)
 
 
 class TestApplicationOwnerCheck:
@@ -55,56 +56,56 @@ class TestApplicationOwnerCheck:
 
 
 @pytest.mark.skip(reason="Not implemented")
-def test_nsfw_check(context):
+def test_nsfw_check(context: tanjun.abc.Context):
     ...
 
 
 @pytest.mark.skip(reason="Not implemented")
 @pytest.mark.asyncio()
-async def test_sfw_check(context):
+async def test_sfw_check(context: tanjun.abc.Context):
     ...
 
 
-def test_dm_check_for_dm(context):
+def test_dm_check_for_dm(context: tanjun.abc.Context):
     context.guild_id = None
     assert tanjun.checks.dm_check(context) is True
 
 
-def test_dm_check_for_guild(context):
+def test_dm_check_for_guild(context: tanjun.abc.Context):
     context.guild_id = 3123
     assert tanjun.checks.dm_check(context, halt_execution=False, error_message=None) is False
 
 
-def test_dm_check_for_guild_when_halt_execution(context):
+def test_dm_check_for_guild_when_halt_execution(context: tanjun.abc.Context):
     context.guild_id = 3123
 
     with pytest.raises(tanjun.HaltExecution):
         assert tanjun.checks.dm_check(context, halt_execution=True, error_message=None)
 
 
-def test_dm_check_for_guild_when_error_message(context):
+def test_dm_check_for_guild_when_error_message(context: tanjun.abc.Context):
     context.guild_id = 3123
     with pytest.raises(tanjun.CommandError):
         assert tanjun.checks.dm_check(context, halt_execution=False, error_message="message")
 
 
-def test_guild_check_for_guild(context):
+def test_guild_check_for_guild(context: tanjun.abc.Context):
     context.guild_id = 123123
     assert tanjun.checks.guild_check(context) is True
 
 
-def test_guild_check_for_dm(context):
+def test_guild_check_for_dm(context: tanjun.abc.Context):
     context.guild_id = None
     assert tanjun.checks.guild_check(context, halt_execution=False, error_message=None) is False
 
 
-def test_guild_check_for_dm_when_halt_execution(context):
+def test_guild_check_for_dm_when_halt_execution(context: tanjun.abc.Context):
     context.guild_id = None
     with pytest.raises(tanjun.HaltExecution):
         tanjun.checks.guild_check(context, halt_execution=True, error_message=None)
 
 
-def test_guild_check_for_dm_when_error_message(context):
+def test_guild_check_for_dm_when_error_message(context: tanjun.abc.Context):
     context.guild_id = None
     with pytest.raises(tanjun.CommandError):
         tanjun.checks.guild_check(context, halt_execution=False, error_message="hi")
@@ -112,14 +113,16 @@ def test_guild_check_for_dm_when_error_message(context):
 
 class TestPermissionCheck:
     @pytest.fixture()
-    def permission_check_cls(self):
+    def permission_check_cls(self: tanjun.abc.Context) -> type[tanjun.checks.PermissionCheck]:
         class Check(tanjun.checks.PermissionCheck):
             get_permissions = mock.AsyncMock()
 
         return Check
 
     @pytest.mark.asyncio()
-    async def test___call___when_matched(self, permission_check_cls, context):
+    async def test___call___when_matched(
+        self, permission_check_cls: type[tanjun.checks.PermissionCheck], context: tanjun.abc.Context
+    ):
         permission_check_cls.get_permissions.return_value = permissions.Permissions(75)
         check = permission_check_cls(permissions.Permissions(11))
 
@@ -127,7 +130,9 @@ class TestPermissionCheck:
         check.get_permissions.assert_awaited_once_with(context)
 
     @pytest.mark.asyncio()
-    async def test___call___when_missing_permissions(self, permission_check_cls, context):
+    async def test___call___when_missing_permissions(
+        self, permission_check_cls: type[tanjun.checks.PermissionCheck], context: tanjun.abc.Context
+    ):
         permission_check_cls.get_permissions.return_value = permissions.Permissions(16)
         check = permission_check_cls(422)
 
@@ -135,7 +140,9 @@ class TestPermissionCheck:
         check.get_permissions.assert_awaited_once_with(context)
 
     @pytest.mark.asyncio()
-    async def test___call___when_missing_permissions_and_halt_execution(self, permission_check_cls, context):
+    async def test___call___when_missing_permissions_and_halt_execution(
+        self, permission_check_cls: tanjun.checks.PermissionCheck, context: tanjun.abc.Context
+    ):
         permission_check_cls.get_permissions.return_value = permissions.Permissions(16)
         check = permission_check_cls(422, halt_execution=True)
 
@@ -145,7 +152,9 @@ class TestPermissionCheck:
         check.get_permissions.assert_awaited_once_with(context)
 
     @pytest.mark.asyncio()
-    async def test___call___when_missing_permissions_and_error_message(self, permission_check_cls, context):
+    async def test___call___when_missing_permissions_and_error_message(
+        self, permission_check_cls: tanjun.checks.PermissionCheck, context: tanjun.abc.Context
+    ):
         permission_check_cls.get_permissions.return_value = permissions.Permissions(16)
         check = permission_check_cls(422, error_message="hi")
 
@@ -163,7 +172,7 @@ class TestOwnPermissionsCheck:
     ...
 
 
-def test_with_dm_check(command):
+def test_with_dm_check(command: tanjun.abc.ExecutableCommand[typing.Any]):
     mock_ctx = object()
     with mock.patch.object(tanjun.checks, "dm_check") as dm_check:
         assert tanjun.checks.with_dm_check(command) is command
@@ -175,7 +184,7 @@ def test_with_dm_check(command):
         )
 
 
-def test_with_dm_check_with_keyword_arguments(command):
+def test_with_dm_check_with_keyword_arguments(command: tanjun.abc.ExecutableCommand[typing.Any]):
     mock_ctx = object()
     with mock.patch.object(tanjun.checks, "dm_check") as dm_check:
         assert tanjun.checks.with_dm_check(halt_execution=True, error_message="message")(command) is command
@@ -185,7 +194,7 @@ def test_with_dm_check_with_keyword_arguments(command):
         dm_check.assert_called_once_with(mock_ctx, halt_execution=True, error_message="message")
 
 
-def test_with_guild_check(command):
+def test_with_guild_check(command: tanjun.abc.ExecutableCommand[typing.Any]):
     mock_ctx = object()
     with mock.patch.object(tanjun.checks, "guild_check") as guild_check:
         assert tanjun.checks.with_guild_check(command) is command
@@ -197,7 +206,7 @@ def test_with_guild_check(command):
         )
 
 
-def test_with_guild_check_with_keyword_arguments(command):
+def test_with_guild_check_with_keyword_arguments(command: tanjun.abc.ExecutableCommand[typing.Any]):
     mock_ctx = object()
     with mock.patch.object(tanjun.checks, "guild_check") as guild_check:
         assert tanjun.checks.with_guild_check(halt_execution=True, error_message="eee")(command) is command
@@ -208,7 +217,7 @@ def test_with_guild_check_with_keyword_arguments(command):
 
 
 @pytest.mark.asyncio()
-async def test_with_nsfw_check(command):
+async def test_with_nsfw_check(command: tanjun.abc.ExecutableCommand[typing.Any]):
     mock_ctx = object()
     with mock.patch.object(tanjun.checks, "nsfw_check") as nsfw_check:
         assert tanjun.checks.with_nsfw_check(command) is command
@@ -221,7 +230,7 @@ async def test_with_nsfw_check(command):
 
 
 @pytest.mark.asyncio()
-async def test_with_nsfw_check_with_keyword_arguments(command):
+async def test_with_nsfw_check_with_keyword_arguments(command: tanjun.abc.ExecutableCommand[typing.Any]):
     mock_ctx = object()
     with mock.patch.object(tanjun.checks, "nsfw_check") as nsfw_check:
         assert tanjun.checks.with_nsfw_check(halt_execution=True, error_message="banned!!!")(command) is command
@@ -232,7 +241,7 @@ async def test_with_nsfw_check_with_keyword_arguments(command):
 
 
 @pytest.mark.asyncio()
-async def test_with_sfw_check(command):
+async def test_with_sfw_check(command: tanjun.abc.ExecutableCommand[typing.Any]):
     mock_ctx = object()
     with mock.patch.object(tanjun.checks, "sfw_check") as sfw_check:
         assert tanjun.checks.with_sfw_check(command) is command
@@ -245,7 +254,7 @@ async def test_with_sfw_check(command):
 
 
 @pytest.mark.asyncio()
-async def test_sfw_check_with_keyword_arguments(command):
+async def test_sfw_check_with_keyword_arguments(command: tanjun.abc.ExecutableCommand[typing.Any]):
     mock_ctx = object()
     with mock.patch.object(tanjun.checks, "sfw_check") as sfw_check:
         assert tanjun.checks.with_sfw_check(halt_execution=True, error_message="bango")(command) is command
@@ -255,7 +264,7 @@ async def test_sfw_check_with_keyword_arguments(command):
         sfw_check.assert_awaited_once_with(mock_ctx, halt_execution=True, error_message="bango")
 
 
-def test_with_owner_check(command):
+def test_with_owner_check(command: tanjun.abc.ExecutableCommand[typing.Any]):
     with mock.patch.object(tanjun.checks, "ApplicationOwnerCheck") as ApplicationOwnerCheck:
         assert tanjun.checks.with_owner_check(command) is command
 
@@ -268,7 +277,7 @@ def test_with_owner_check(command):
         )
 
 
-def test_with_owner_check_with_keyword_arguments(command):
+def test_with_owner_check_with_keyword_arguments(command: tanjun.abc.ExecutableCommand[typing.Any]):
     mock_check = object()
     with mock.patch.object(tanjun.checks, "ApplicationOwnerCheck", return_value=mock_check):
         result = tanjun.checks.with_owner_check(
@@ -285,7 +294,7 @@ def test_with_owner_check_with_keyword_arguments(command):
         )
 
 
-def test_with_author_permission_check(command):
+def test_with_author_permission_check(command: tanjun.abc.ExecutableCommand[typing.Any]):
     mock_check = object()
     with mock.patch.object(tanjun.checks, "AuthorPermissionCheck", return_value=mock_check):
         assert (
@@ -297,7 +306,7 @@ def test_with_author_permission_check(command):
         tanjun.checks.AuthorPermissionCheck.assert_called_once_with(435213, halt_execution=True, error_message="bye")
 
 
-def test_with_own_permission_check(command):
+def test_with_own_permission_check(command: tanjun.abc.ExecutableCommand[typing.Any]):
     mock_check = object()
     with mock.patch.object(tanjun.checks, "OwnPermissionsCheck", return_value=mock_check):
         assert (

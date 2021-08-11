@@ -29,15 +29,19 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+import typing
+from collections import abc as collections
 from unittest import mock
 
 import pytest
 
-from tanjun import errors
+import tanjun
 from tanjun import utilities
 
+_T = typing.TypeVar("_T")
 
-def async_iter_mock(*values):
+
+def async_iter_mock(*values: _T) -> collections.AsyncIterable[_T]:
     return mock.Mock(__aiter__=mock.Mock(return_value=mock.Mock(__anext__=mock.AsyncMock(side_effect=values))))
 
 
@@ -56,30 +60,28 @@ async def test_async_chain():
 
 @pytest.mark.asyncio()
 async def test_await_if_async_handles_async_callback():
-    mock_result = object()
-    callback = mock.AsyncMock(return_value=mock_result)
+    callback = mock.AsyncMock()
 
-    assert await utilities.await_if_async(callback) is mock_result
+    assert await utilities.await_if_async(callback) is callback.return_value
 
 
 @pytest.mark.asyncio()
 async def test_await_if_async_handles_sync_callback():
-    mock_result = object()
-    callback = mock.Mock(return_value=mock_result)
+    callback = mock.Mock()
 
-    assert await utilities.await_if_async(callback) is mock_result
+    assert await utilities.await_if_async(callback) is callback.return_value
 
 
 @pytest.mark.asyncio()
 async def test_gather_checks_handles_no_checks():
-    assert await utilities.gather_checks(object(), ()) is True
+    assert await utilities.gather_checks(mock.Mock(), ()) is True
 
 
 @pytest.mark.asyncio()
 async def test_gather_checks_handles_faiedl_check():
-    mock_ctx = object()
+    mock_ctx = mock.Mock(tanjun.abc.Context)
     check_1 = mock.AsyncMock()
-    check_2 = mock.AsyncMock(side_effect=errors.FailedCheck)
+    check_2 = mock.AsyncMock(side_effect=tanjun.FailedCheck)
     check_3 = mock.AsyncMock()
 
     assert await utilities.gather_checks(mock_ctx, (check_1, check_2, check_3)) is False
@@ -91,7 +93,7 @@ async def test_gather_checks_handles_faiedl_check():
 
 @pytest.mark.asyncio()
 async def test_gather_checks():
-    mock_ctx = object()
+    mock_ctx = mock.Mock()
     check_1 = mock.AsyncMock()
     check_2 = mock.AsyncMock()
     check_3 = mock.AsyncMock()
@@ -120,7 +122,7 @@ async def test_fetch_resource():
         ("ok ok ok", (), None),
     ],
 )
-def test_match_prefix_names(content, prefix, expected_result):
+def test_match_prefix_names(content: str, prefix: str, expected_result: typing.Optional[str]):
     assert utilities.match_prefix_names(content, prefix) == expected_result
 
 
