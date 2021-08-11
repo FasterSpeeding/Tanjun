@@ -29,55 +29,139 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+import distutils.util
 import pathlib
-import sys
+import shutil
 
 import nox
+from nox.logger import logger
 
-sys.path.append(str(pathlib.Path().absolute()))
-
-DEV_REQUIREMENTS = [
-    # Temporarily assume #msater for hikari and yuyo
+nox.options.sessions = ["reformat-code", "lint", "type-check", "test"]  # type: ignore
+GENERAL_TARGETS = ["./examples", "./noxfile.py", "./setup.py", "./tanjun", "./tests"]
+PYTHON_VERSIONS = ["3.9", "3.10"]  # TODO: @nox.session(python=["3.6", "3.7", "3.8"])?
+REQUIREMENTS = [
+    # Temporarily assume #master for hikari and yuyo
     "git+https://github.com/FasterSpeeding/hikari.git@task/api-impl-export",
     "git+https://github.com/FasterSpeeding/Yuyo.git@task/cache-and-list",
     "-r",
     "requirements.txt",
-    "-r",
-    "dev-requirements.txt",
 ]
-PYTHON_VERSIONS = ["3.9", "3.10"]  # TODO: @nox.session(python=["3.6", "3.7", "3.8"])?
-REFORMAT_DIRECTORIES = ["./examples", "noxfile.py", "./tanjun", "./tests"]
-TANJUN_DIR = "./tanjun"
 
 
-def install_dev_requirements(session: nox.Session) -> None:
+def install_dev_requirements(
+    session: nox.Session, *other_requirements: str, include_standard_requirements: bool = True
+) -> None:
     session.install("--upgrade", "wheel")
-    session.install("--upgrade", *DEV_REQUIREMENTS)
+    requirements = ["-r", "dev-requirements.txt", *other_requirements]
+
+    if include_standard_requirements:
+        requirements = REQUIREMENTS + requirements
+
+    session.install("--upgrade", *requirements)
 
 
-@nox.session(name="reformat-code", reuse_venv=True)
-def reformat_code(session: nox.Session) -> None:
+@nox.session(reuse_venv=True)
+def cleanup(session: nox.Session) -> None:
+    # Remove directories
+    paths = map(pathlib.Path, ["./dist", "./docs", "./.nox", "./.pytest_cache", "./hikari_tanjun.egg-info"])
+    for path in paths:
+        try:
+            shutil.rmtree(str(path.absolute()))
+
+        except Exception as exc:
+            logger.error(f"[ FAIL ] Failed to remove '{path!s}': {exc!s}")  # type: ignore
+
+        else:
+            logger.info(f"[  OK  ] Removed '{path!s}'")  # type: ignore
+
+    # Remove individual files
+    for path in map(pathlib.Path, ["./.coverage"]):
+        try:
+            path.unlink()
+
+        except Exception as exc:
+            logger.error(f"[ FAIL ] Failed to remove '{path!s}': {exc!s}")  # type: ignore
+
+        else:
+            logger.info(f"[  OK  ] Removed '{path!s}'")  # type: ignore
+
+
+@nox.session(name="generate-docs", reuse_venv=True)
+def generate_docs(session: nox.Session) -> None:
     install_dev_requirements(session)
-    session.run("black", *REFORMAT_DIRECTORIES)
-    session.run("isort", *REFORMAT_DIRECTORIES)
+    session.log("Building docs into ./docs")
+    session.run("pdoc", "--html", "--output-dir", "./docs", "./tanjun")
 
 
 @nox.session(reuse_venv=True)
 def lint(session: nox.Session) -> None:
-    install_dev_requirements(session)
-    session.run("flake8", "./tanjun", "./tests")
-    session.run("codespell", *REFORMAT_DIRECTORIES)
+    install_dev_requirements(session, "-r", "flake8-requirements.txt")
+    session.run("flake8", *GENERAL_TARGETS)
+    session.run("codespell", *GENERAL_TARGETS)
+
+
+@nox.session(reuse_venv=True)
+def publish(session: nox.Session, test: bool = False) -> None:
+    session.install("--upgrade", "wheel")
+    session.log("Building Tanjun")
+    session.run("python", "./setup.py", "sdist")
+
+    if not session.interactive:
+        session.log("PYPI upload unavailable in non-interactive session")
+        return
+
+    while True:
+        try:
+            session.log("Do you want to upload the build now (y/n)?")
+            upload_to_pypi = distutils.util.strtobool(input())
+            break
+
+        except ValueError:
+            session.log("Please enter y or n.")
+
+    if not upload_to_pypi:
+        session.log("TestPYPI upload disabled" if test else "PYPI upload disabled")
+        return
+
+    session.install("--upgrade", "twine")
+    if test:
+        session.log("Initiating TestPYPI upload")
+        session.run("twine", "upload", "--repository", "testpypi", "./dist/*")
+
+    else:
+        session.log("Initiating PYPI upload")
+        session.run("twine", "upload", "./dist/*")
+
+
+@nox.session(name="test-publish", reuse_venv=True)
+def test_publish(session: nox.Session) -> None:
+    publish(session, test=True)
+
+
+@nox.session(name="reformat-code", reuse_venv=True)
+def reformat_code(session: nox.Session) -> None:
+    install_dev_requirements(session, include_standard_requirements=False)
+    session.run("black", *GENERAL_TARGETS)
+    session.run("isort", *GENERAL_TARGETS)
+
+
+@nox.session(reuse_venv=True)
+def test(session: nox.Session) -> None:
+    install_dev_requirements(session, "-r", "pytest-requirements.txt")
+    session.install(".", "--no-deps", "--force-reinstall")
+    # TODO: can import-mode be specified in the config.
+    session.run("pytest", "--import-mode", "importlib")
+
+
+@nox.session(name="test-coverage", reuse_venv=True)
+def test_coverage(session: nox.Session) -> None:
+    install_dev_requirements(session, "-r", "pytest-requirements.txt")
+    session.install(".", "--no-deps")
+    # TODO: can import-mode be specified in the config.
+    session.run("pytest", "--cov=tanjun", "--import-mode", "importlib")
 
 
 @nox.session(name="type-check", reuse_venv=True)
 def type_check(session: nox.Session) -> None:
     install_dev_requirements(session)
     session.run("pyright")
-
-
-@nox.session(reuse_venv=True)
-def test(session: nox.Session) -> None:
-    install_dev_requirements(session)
-    session.install(".", "--no-deps")
-    # TODO: can import-mode be specified in the config.
-    session.run("pytest", "--import-mode", "importlib")

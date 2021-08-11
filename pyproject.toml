@@ -8,11 +8,11 @@ target-version  = ["py39"]
 include         = ".*pyi?$"
 
 [tool.coverage.run]
-concurrency = "multiprocessing"
+concurrency = ["multiprocessing"]
 parallel = true
 branch = true
 timid = false
-source = "tanjun"
+source = ["tanjun"]
 
 [tool.coverage.report]
 precision = 2

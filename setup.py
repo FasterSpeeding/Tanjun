@@ -1,13 +1,16 @@
+# -*- coding: utf-8 -*-
+# cython: language_level=3
 import os
 import re
-import setuptools
 import types
+
+import setuptools
 
 MAIN_MODULE_NAME = "tanjun"
 TARGET_PROJECT_NAME = "hikari-tanjun"
 
 
-def load_meta_data():
+def load_meta_data() -> types.SimpleNamespace:
     pattern = re.compile(r"__(?P<key>\w+)__\s=\s\"(?P<value>.+)\"")
     with open(os.path.join(MAIN_MODULE_NAME, "__init__.py"), "r") as file:
         code = file.read()
