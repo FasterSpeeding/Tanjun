@@ -1433,7 +1433,8 @@ def as_message_command_group(
     strict : bool
         Whether this command group should only allow commands without spaces in their names.
 
-        This allows for a more optimised command search pattern to be used.
+        This allows for a more optimised command search pattern to be used and
+        enforces that command names are unique to a single command within the group.
 
     Returns
     -------
@@ -1674,16 +1675,35 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
         return super().copy(parent=parent, _new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
 
     def add_command(self: _MessageCommandGroupT, command: abc.MessageCommand, /) -> _MessageCommandGroupT:
-        # <<inherited docstring from tanjun.abc.MessageCommandGroup>>.
+        """Add a command to this group.
+
+        Parameters
+        ----------
+        command : MessageCommand
+            The command to add.
+
+        Returns
+        -------
+        Self
+            The group instance to enable chained calls.
+
+        Raises
+        ------
+        ValueError
+            If one of the command's names is already registered in a strict
+            command group.
+        """
         if self._is_strict:
             if any(" " in name for name in command.names):
                 raise ValueError("Sub-command names may not contain spaces in a strict message command group")
 
-            for name in command.names:
-                if name in self._names_to_commands:
-                    _LOGGER.info("Command name %r overwritten in message command group %r", name, self)
+            if name_conflicts := self._names_to_commands.keys() & command.names:
+                raise ValueError(
+                    "Sub-command names must be unique in a strict message command group. "
+                    "The following conflicts were found " + ", ".join(name_conflicts)
+                )
 
-                self._names_to_commands[name] = command
+            self._names_to_commands.update((name, command) for name in command.names)
 
         command.set_parent(self)
         self._commands.add(command)

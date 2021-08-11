@@ -34,9 +34,11 @@ from __future__ import annotations
 __all__: list[str] = ["CommandT", "Component", "LoadableProtocol", "WithCommandReturnSig"]
 
 import asyncio
+import base64
 import copy
 import inspect
 import logging
+import random
 import typing
 from collections import abc as collections
 
@@ -87,6 +89,40 @@ def _with_command(
 
 
 class Component(injecting.Injectable, abc.Component):
+    """Standard implementation of `tanjun.abc.Component`.
+
+    This is a collcetion of commands (both message and slash), hooks and listener
+    callbacks which can be added to a generic client.
+
+    !!! note
+        This implementation supports dependency injection for its checks
+        and commands.
+
+    Arguments
+    ---------
+    checks : typing.Optional[typing.Iterable[abc.CheckSig]]
+        Iterable of check callbacks to set for this component, if provided.
+    hooks : typing.Optional[tanjun.abc.AnyHooks]
+        The hooks this component should add to the execution of all its
+        commands (message and slash).
+    slash_hooks : typing.Optional[tanjun.abc.SlashHooks]
+        The slash hooks this component should add to the execution of its
+        slash commands.
+    message_hooks : typing.Optional[tanjun.abc.MessageHooks]
+        The message hooks this component should add to the execution of its
+        message commands.
+    name : str
+        The component's identifier.
+
+        If not provided then this will be a random string.
+    strict : bool
+        Whether this component should use a stricter (more optimal) approach
+        for kessage command search.
+
+        When this is `True`, message command names will not be allowed to contain
+        spaces and will have to be unique to one command within the component.
+    """
+
     __slots__ = (
         "_checks",
         "_client",
@@ -98,6 +134,7 @@ class Component(injecting.Injectable, abc.Component):
         "_message_commands",
         "_message_hooks",
         "_metadata",
+        "_name",
         "_names_to_commands",
         "_slash_commands",
         "_slash_hooks",
@@ -110,6 +147,7 @@ class Component(injecting.Injectable, abc.Component):
         hooks: typing.Optional[abc.AnyHooks] = None,
         slash_hooks: typing.Optional[abc.SlashHooks] = None,
         message_hooks: typing.Optional[abc.MessageHooks] = None,
+        name: typing.Optional[str] = None,
         strict: bool = False,
     ) -> None:
         self._checks: set[injecting.InjectableCheck] = (
@@ -124,11 +162,12 @@ class Component(injecting.Injectable, abc.Component):
         self._message_commands: set[abc.MessageCommand] = set()
         self._message_hooks = message_hooks
         self._metadata: dict[typing.Any, typing.Any] = {}
+        self._name = name or base64.b64encode(random.randbytes(32)).decode()
         self._names_to_commands: dict[str, abc.MessageCommand] = {}
         self._slash_commands: dict[str, abc.BaseSlashCommand] = {}
         self._slash_hooks = slash_hooks
 
-        if type(self) is not Component:
+        if type(self) is not Component:  # No need to run this on the base class.
             self._load_from_properties()
 
     def __repr__(self) -> str:
@@ -145,6 +184,10 @@ class Component(injecting.Injectable, abc.Component):
     @property
     def hooks(self) -> typing.Optional[abc.AnyHooks]:
         return self._hooks
+
+    @property
+    def name(self) -> str:
+        return self._name
 
     @property
     def slash_commands(self) -> collections.ValuesView[abc.BaseSlashCommand]:
@@ -316,15 +359,35 @@ class Component(injecting.Injectable, abc.Component):
         return _with_command(self.add_slash_command, command, copy=copy)
 
     def add_message_command(self: _ComponentT, command: abc.MessageCommand, /) -> _ComponentT:
+        """Add a message command to the component.
+
+        Parameters
+        ----------
+        command : tanjun.abc.MessageCommand
+            The command to add.
+
+        Returns
+        -------
+        Self
+            The component to allow method chaining.
+
+        Raises
+        ------
+        ValueError
+            If one of the command's name is already registered in a strict
+            component.
+        """
         if self._is_strict:
             if any(" " in name for name in command.names):
                 raise ValueError("Command name cannot contain spaces for this component implementation")
 
-            for name in command.names:
-                if name in self._names_to_commands:
-                    _LOGGER.info("Command name %r overwritten in strict component %r", name, self)
+            if name_conflicts := self._names_to_commands.keys() & command.names:
+                raise ValueError(
+                    "Sub-command names must be unique in a strict component. "
+                    "The following conflicts were found " + ", ".join(name_conflicts)
+                )
 
-                self._names_to_commands[name] = command
+            self._names_to_commands.update((name, command) for name in command.names)
 
         if self._injector and isinstance(command, injecting.Injectable):
             command.set_injector(self._injector)

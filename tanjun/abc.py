@@ -863,7 +863,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
         raise NotImplementedError
 
 
-AnyHooks = Hooks[Context]  #
+AnyHooks = Hooks[Context]
 """Execution hooks for any context."""
 
 MessageHooks = Hooks[MessageContext]
@@ -1016,6 +1016,7 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
         """
 
     @property
+    @abc.abstractmethod
     def is_global(self) -> bool:
         """Whether the command should be declared globally or not.
 
@@ -1338,6 +1339,20 @@ class Component(abc.ABC):
         -------
         client : typing.Optional[Client]
             The client this component is bound to.
+        """
+
+    @property
+    @abc.abstractmethod
+    def name(self) -> str:
+        """Get the component's identifier.
+
+        !!! note
+            This should be preserved between copies of a component.
+
+        Returns
+        -------
+        name : str
+            The name of this component.
         """
 
     @property
