@@ -34,7 +34,6 @@ import pathlib
 import shutil
 
 import nox
-from nox.logger import logger
 
 nox.options.sessions = ["reformat-code", "lint", "type-check", "test"]  # type: ignore
 GENERAL_TARGETS = ["./examples", "./noxfile.py", "./setup.py", "./tanjun", "./tests"]
@@ -60,9 +59,11 @@ def install_dev_requirements(
     session.install("--upgrade", *requirements)
 
 
-@nox.session(reuse_venv=True)
+@nox.session(venv_backend="none")
 def cleanup(session: nox.Session) -> None:
     # Remove directories
+    from nox.logger import logger
+
     paths = map(pathlib.Path, ["./dist", "./docs", "./.nox", "./.pytest_cache", "./hikari_tanjun.egg-info"])
     for path in paths:
         try:
@@ -110,9 +111,9 @@ def publish(session: nox.Session, test: bool = False) -> None:
         session.log("PYPI upload unavailable in non-interactive session")
         return
 
+    session.log("Do you want to upload the build now (y/n)?")
     while True:
         try:
-            session.log("Do you want to upload the build now (y/n)?")
             upload_to_pypi = distutils.util.strtobool(input())
             break
 
@@ -147,7 +148,7 @@ def reformat_code(session: nox.Session) -> None:
 
 @nox.session(reuse_venv=True)
 def test(session: nox.Session) -> None:
-    install_dev_requirements(session, "-r", "pytest-requirements.txt")
+    install_dev_requirements(session)
     session.install(".", "--no-deps", "--force-reinstall")
     # TODO: can import-mode be specified in the config.
     session.run("pytest", "--import-mode", "importlib")
@@ -155,7 +156,7 @@ def test(session: nox.Session) -> None:
 
 @nox.session(name="test-coverage", reuse_venv=True)
 def test_coverage(session: nox.Session) -> None:
-    install_dev_requirements(session, "-r", "pytest-requirements.txt")
+    install_dev_requirements(session)
     session.install(".", "--no-deps")
     # TODO: can import-mode be specified in the config.
     session.run("pytest", "--cov=tanjun", "--import-mode", "importlib")

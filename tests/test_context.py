@@ -29,6 +29,10 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# pyright: reportUnknownMemberType=none
+# This leads to too many false-positives around mocks.
+
 import asyncio
 import types
 import typing
@@ -36,22 +40,29 @@ from unittest import mock
 
 import hikari
 import pytest
+from hikari import traits
 
 import tanjun
 
 _T = typing.TypeVar("_T")
 
 
-def stub_class(cls: type[_T], *, slots: bool = True, impl_abstract: bool = True, **namespace: typing.Any) -> type[_T]:
+def stub_class(
+    cls: type[_T], *, clear_init: bool = False, slots: bool = True, impl_abstract: bool = True, **namespace: typing.Any
+) -> type[_T]:
     if namespace:
         namespace["__slots__"] = ()
+
+    if clear_init:
+        namespace["__init__"] = lambda self: None
 
     if impl_abstract:
         for name in getattr(cls, "__abstractmethods__", None) or ():
             if name not in namespace:
                 namespace[name] = mock.MagicMock()
 
-    return types.new_class(cls.__name__, (cls,), exec_body=lambda body: body.update(namespace))
+    new_cls = types.new_class(cls.__name__, (cls,), exec_body=lambda body: body.update(namespace))
+    return typing.cast(type[_T], new_cls)
 
 
 @pytest.fixture()
@@ -113,25 +124,28 @@ class TestBaseContext:
         assert context.component is not component
 
     def test_get_channel(self, context: tanjun.context.BaseContext, mock_client: tanjun.abc.Client):
+        assert mock_client.cache is not None
         assert context.get_channel() is mock_client.cache.get_guild_channel.return_value
         mock_client.cache.get_guild_channel.assert_called_once_with(context.channel_id)
 
-    def test_get_channel_when_cacheless(self, context: tanjun.context.BaseContext, mock_client: tanjun.abc.Client):
-        mock_client.cache = None
+    def test_get_channel_when_cacheless(self, mock_component: tanjun.abc.Component):
+        context = stub_class(tanjun.context.BaseContext, guild_id=None)(mock.Mock(cache=None), component=mock_component)
 
         assert context.get_channel() is None
 
     def test_get_guild(self, context: tanjun.context.BaseContext, mock_client: tanjun.abc.Client):
+        assert mock_client.cache is not None
         assert context.get_guild() is mock_client.cache.get_guild.return_value
         mock_client.cache.get_guild.assert_called_once_with(context.guild_id)
 
-    def test_get_guild_when_cacheless(self, context: tanjun.context.BaseContext, mock_client: tanjun.abc.Client):
-        mock_client.cache = None
+    def test_get_guild_when_cacheless(self, mock_component: tanjun.abc.Component):
+        context = stub_class(tanjun.context.BaseContext, guild_id=None)(mock.Mock(cache=None), component=mock_component)
 
         assert context.get_guild() is None
 
-    def test_get_guild_when_dm_bound(self, context: tanjun.context.BaseContext, mock_client: tanjun.abc.Client):
-        context.guild_id = None
+    def test_get_guild_when_dm_bound(self, mock_component: tanjun.abc.Component):
+        mock_client = mock.MagicMock()
+        context = stub_class(tanjun.context.BaseContext, guild_id=None)(mock_client, component=mock_component)
 
         assert context.get_guild() is None
         mock_client.cache.get_guild.assert_not_called()
@@ -151,8 +165,10 @@ class TestBaseContext:
         mock_client.rest.fetch_guild.assert_called_once_with(context.guild_id)
 
     @pytest.mark.asyncio()
-    async def test_fetch_guild_when_dm_bound(self, context: tanjun.context.BaseContext, mock_client: tanjun.abc.Client):
-        context.guild_id = None
+    async def test_fetch_guild_when_dm_bound(
+        self, mock_client: tanjun.abc.Client, mock_component: tanjun.abc.Component
+    ):
+        context = stub_class(tanjun.context.BaseContext, guild_id=None)(mock_client, component=mock_component)
 
         result = await context.fetch_guild()
 
@@ -192,25 +208,25 @@ class TestMessageContext:
         assert context.has_responded is False
 
     def test_has_responded_property_when_initial_repsonse_id_set(self, context: tanjun.MessageContext):
-        context._initial_response_id = 321123
+        context._initial_response_id = hikari.Snowflake(321123)
 
         assert context.has_responded is True
 
     def test_is_human_property(self, context: tanjun.MessageContext):
-        context.message.author.is_bot = False
+        context.message.author = mock.Mock(is_bot=False)
         context.message.webhook_id = None
 
         assert context.is_human is True
 
     def test_is_human_property_when_is_bot(self, context: tanjun.MessageContext):
-        context.message.author.is_bot = True
+        context.message.author = mock.Mock(is_bot=True)
         context.message.webhook_id = None
 
         assert context.is_human is False
 
     def test_is_human_property_when_is_webhook(self, context: tanjun.MessageContext):
-        context.message.author.is_bot = False
-        context.message.webhook_id = 123321
+        context.message.author = mock.Mock(is_bot=False)
+        context.message.webhook_id = hikari.Snowflake(123321)
 
         assert context.is_human is False
 
@@ -222,20 +238,23 @@ class TestMessageContext:
 
     def test_shard_property(self, context: tanjun.MessageContext):
         mock_shard = mock.Mock()
-        context.client.shards = mock.MagicMock(spec=hikari.traits.ShardAware, shard_count=5, shards={2: mock_shard})
-        context.message.guild_id = 123321123312
+        context._client = mock.Mock(
+            shards=mock.MagicMock(spec=traits.ShardAware, shard_count=5, shards={2: mock_shard})
+        )
+        context._message = mock.Mock(guild_id=123321123312)
 
         assert context.shard is mock_shard
 
     def test_shard_property_when_dm(self, context: tanjun.MessageContext):
         mock_shard = mock.Mock()
-        context.client.shards.shards = {0: mock_shard}
-        context.message.guild_id = None
+        context._client = mock.Mock(shards=mock.Mock(shards={0: mock_shard}))
+        context._message = mock.Mock(guild_id=None)
 
         assert context.shard is mock_shard
 
     def test_shard_property_when_no_shards(self, context: tanjun.MessageContext):
-        context.client.shards = None
+        context._client = mock.Mock(shards=None)
+
         assert context.shard is None
 
     def test_set_command(self, context: tanjun.MessageContext):
@@ -294,7 +313,7 @@ class TestMessageContext:
 
     @pytest.mark.asyncio()
     async def test_delete_initial_response(self, context: tanjun.MessageContext, mock_client: tanjun.abc.Client):
-        context._initial_response_id = 32123
+        context._initial_response_id = hikari.Snowflake(32123)
 
         await context.delete_initial_response()
 
@@ -311,7 +330,7 @@ class TestMessageContext:
 
     @pytest.mark.asyncio()
     async def test_delete_last_response(self, context: tanjun.MessageContext, mock_client: tanjun.abc.Client):
-        context._last_response_id = 32123
+        context._last_response_id = hikari.Snowflake(32123)
 
         await context.delete_last_response()
 
@@ -328,7 +347,7 @@ class TestMessageContext:
 
     @pytest.mark.asyncio()
     async def test_edit_initial_response(self, context: tanjun.MessageContext, mock_client: tanjun.abc.Client):
-        context._initial_response_id = 32123
+        context._initial_response_id = hikari.Snowflake(32123)
         mock_attachment = mock.Mock()
         mock_attachments = [mock.Mock()]
         mock_embed = mock.Mock()
@@ -375,7 +394,7 @@ class TestMessageContext:
 
     @pytest.mark.asyncio()
     async def test_edit_last_response(self, context: tanjun.MessageContext, mock_client: tanjun.abc.Client):
-        context._last_response_id = 32123
+        context._last_response_id = hikari.Snowflake(32123)
         mock_attachment = mock.Mock()
         mock_attachments = [mock.Mock()]
         mock_embed = mock.Mock()
@@ -422,7 +441,7 @@ class TestMessageContext:
 
     @pytest.mark.asyncio()
     async def test_fetch_initial_response(self, context: tanjun.MessageContext, mock_client: tanjun.abc.Client):
-        context._initial_response_id = 32123
+        context._initial_response_id = hikari.Snowflake(32123)
 
         message = await context.fetch_initial_response()
 
@@ -440,7 +459,7 @@ class TestMessageContext:
 
     @pytest.mark.asyncio()
     async def test_fetch_last_response(self, context: tanjun.MessageContext, mock_client: tanjun.abc.Client):
-        context._last_response_id = 32123
+        context._last_response_id = hikari.Snowflake(32123)
 
         message = await context.fetch_last_response()
 
@@ -498,7 +517,7 @@ class TestMessageContext:
 
     @pytest.mark.asyncio()
     async def test_respond_when_initial_response_id_already_set(self, context: tanjun.MessageContext):
-        context._initial_response_id = 32123
+        context._initial_response_id = hikari.Snowflake(32123)
 
         await context.respond("hi")
 

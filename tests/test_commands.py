@@ -29,6 +29,10 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# pyright: reportUnknownMemberType=none
+# This leads to too many false-positives around mocks.
+
 import types
 import typing
 from unittest import mock
@@ -90,14 +94,15 @@ class TestPartialCommand:
         mock_check = mock.Mock()
         command._checks = {mock_check}
         command._hooks = mock.Mock()
-        command._metadata = mock.Mock()
+        mock_metadata = mock.Mock()
+        command._metadata = mock_metadata
 
         new_command = command.copy()
 
         assert new_command is not command
         new_command._checks is {mock_check.copy.return_value}
         assert new_command._hooks is command._hooks.copy.return_value
-        assert new_command._metadata is command.metadata.copy.return_value
+        assert new_command._metadata is mock_metadata.copy.return_value
 
     def test_set_hooks(self, command: tanjun.commands.PartialCommand[typing.Any]):
         mock_hooks = mock.Mock()
@@ -105,7 +110,7 @@ class TestPartialCommand:
         assert command.set_hooks(mock_hooks) is command
         assert command.hooks is mock_hooks
 
-    def test_add_check(self, command):
+    def test_add_check(self, command: tanjun.commands.PartialCommand[typing.Any]):
         command.set_injector(mock.Mock())
         mock_check = mock.Mock()
 
@@ -119,8 +124,8 @@ class TestPartialCommand:
         assert command.checks == {mock_check}
 
     def test_remove_check(self, command: tanjun.commands.PartialCommand[typing.Any]):
-        def mock_check():
-            ...
+        def mock_check() -> bool:
+            raise NotImplementedError
 
         command._checks = {tanjun.injecting.InjectableCheck(mock_check)}
 
@@ -131,8 +136,8 @@ class TestPartialCommand:
     def test_with_check(self, command: tanjun.commands.PartialCommand[typing.Any]):
         command.set_injector(mock.Mock())
 
-        def mock_check(self):
-            ...
+        def mock_check() -> bool:
+            raise NotImplementedError
 
         assert command.with_check(mock_check) is mock_check
 
@@ -276,14 +281,14 @@ def test_with_int_slash_option():
     mock_converter = mock.Mock()
 
     tanjun.with_int_slash_option(
-        "im_con", "con man", choices=[("a", "man")], converters=[mock_converter], default=321123
+        "im_con", "con man", choices=[("a", 123)], converters=[mock_converter], default=321123
     )(mock_command)
 
     mock_command.add_option.assert_called_once_with(
         "im_con",
         "con man",
         hikari.OptionType.INTEGER,
-        choices=[("a", "man")],
+        choices=[("a", 123)],
         converters=[mock_converter],
         default=321123,
     )

@@ -29,7 +29,7 @@ profile = "black"
 force_single_line = true
 
 [tool.pyright]
-include = ["examples", "tanjun", "noxfile.py"]  # tests
+include = ["examples", "tanjun", "noxfile.py", "tests"]
 
 pythonVersion = "3.9"
 reportCallInDefaultInitializer = "none"

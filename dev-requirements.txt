@@ -5,6 +5,11 @@ codespell==2.1.0
 isort==5.9.3
 nox==2021.6.12
 pdoc3==0.10.0
+pytest==6.2.4
 setuptools==57.4.0
 twine==3.4.2
 types-setuptools==57.0.2
+
+# Pytest plugins
+pytest-asyncio==0.15.1
+pytest-cov==2.12.1
