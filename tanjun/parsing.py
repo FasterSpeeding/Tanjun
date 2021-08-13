@@ -322,7 +322,7 @@ def with_argument(
 ) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
     """Add an argument to a parsable command through a decorator call.
 
-    !!! info
+    .. note::
         Order matters for positional arguments and since decorator execution
         starts at the decorator closest to the command and goes upwards this
         will decide where a positional argument is located in a command's
@@ -339,8 +339,7 @@ def with_argument(
 
         If no converters are provided then the raw string value will be passed.
 
-        !!! note
-            Only the first converter to pass will be used.
+        Only the first converter to pass will be used.
     default : typing.Any
         The default value of this argument, if left as
         `UNDEFINED_DEFAULT` then this will have no default.
@@ -383,17 +382,16 @@ def with_greedy_argument(
 ) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
     """Add a greedy argument to a parsable command through a decorator call.
 
-    !!! note
-        A greedy argument will consume the remaining positional arguments and pass
-        them through to the converters as one joined string while also requiring
-        that at least one more positional argument is remaining unless a
-        default is set.
-
-    !!! info
-        Order matters for positional arguments and since decorator execution
-        starts at the decorator closest to the command and goes upwards this
-        will decide where a positional argument is located in a command's
-        signature.
+    Notes
+    -----
+    * A greedy argument will consume the remaining positional arguments and pass
+      them through to the converters as one joined string while also requiring
+      that at least one more positional argument is remaining unless a
+      default is set.
+    * Order matters for positional arguments and since decorator execution
+      starts at the decorator closest to the command and goes upwards this
+      will decide where a positional argument is located in a command's
+      signature.
 
     Parameters
     ----------
@@ -409,8 +407,7 @@ def with_greedy_argument(
 
         If no converters are provided then the raw string value will be passed.
 
-        !!! note
-            Only the first converter to pass will be used.
+        Only the first converter to pass will be used.
     default : typing.Any
         The default value of this argument, if left as
         `UNDEFINED_DEFAULT` then this will have no default.
@@ -444,18 +441,17 @@ def with_multi_argument(
 ) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
     """Add a greedy argument to a parsable command through a decorator call.
 
-    !!! note
-        A multi argument will consume the remaining positional arguments and pass
-        them to the converters through multiple calls while also requiring that
-        at least one more positional argument is remaining unless a default is
-        set and passing through the results to the command's callback as a
-        sequence.
-
-    !!! info
-        Order matters for positional arguments and since decorator execution
-        starts at the decorator closest to the command and goes upwards this
-        will decide where a positional argument is located in a command's
-        signature.
+    Notes
+    -----
+    * A multi argument will consume the remaining positional arguments and pass
+      them to the converters through multiple calls while also requiring that
+      at least one more positional argument is remaining unless a default is
+      set and passing through the results to the command's callback as a
+      sequence.
+    * Order matters for positional arguments and since decorator execution
+      starts at the decorator closest to the command and goes upwards this
+      will decide where a positional argument is located in a command's
+      signature.
 
     Parameters
     ----------
@@ -471,8 +467,7 @@ def with_multi_argument(
 
         If no converters are provided then the raw string value will be passed.
 
-        !!! note
-            Only the first converter to pass will be used.
+        Only the first converter to pass will be used.
     default : typing.Any
         The default value of this argument, if left as
         `UNDEFINED_DEFAULT` then this will have no default.
@@ -532,8 +527,7 @@ def with_option(
 
         If no converters are provided then the raw string value will be passed.
 
-        !!! note
-            Only the first converter to pass will be used.
+        Only the first converter to pass will be used.
     empty_value : typing.Any
         The value to use if this option is provided without a value. If left as
         `UNDEFINED_DEFAULT` then this option will error if it's
@@ -579,7 +573,7 @@ def with_multi_option(
 ) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
     """Add an multi-option to a command's parser through a decorator call.
 
-    !!! note
+    .. note::
         A multi option will consume all the values provided for an option and
         pass them through to the converters as an array of strings while also
         requiring that at least one value is provided for the option unless
@@ -607,8 +601,7 @@ def with_multi_option(
 
         If no converters are provided then the raw string value will be passed.
 
-        !!! note
-            Only the first converter to pass will be used.
+        Only the first converter to pass will be used.
     empty_value : typing.Any
         The value to use if this option is provided without a value. If left as
         `UNDEFINED_DEFAULT` then this option will error if it's

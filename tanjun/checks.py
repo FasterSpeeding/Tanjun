@@ -440,12 +440,11 @@ def with_dm_check(
 
         Defaults to `False`.
 
-    !!! note
-        error_message takes priority over halt_execution.
-
-    !!! note
-        For more information on how this is used with other parameters see
-        `CallbackReturnT`.
+    Notes
+    -----
+    * error_message takes priority over halt_execution.
+    * For more information on how this is used with other parameters see
+      `CallbackReturnT`.
 
     Returns
     -------
@@ -494,12 +493,11 @@ def with_guild_check(
 
         Defaults to `False`.
 
-    !!! note
-        error_message takes priority over halt_execution.
-
-    !!! note
-        For more information on how this is used with other parameters see
-        `CallbackReturnT`.
+    Notes
+    -----
+    * error_message takes priority over halt_execution.
+    * For more information on how this is used with other parameters see
+      `CallbackReturnT`.
 
     Returns
     -------
@@ -548,12 +546,11 @@ def with_nsfw_check(
 
         Defaults to `False`.
 
-    !!! note
-        error_message takes priority over halt_execution.
-
-    !!! note
-        For more information on how this is used with other parameters see
-        `CallbackReturnT`.
+    Notes
+    -----
+    * error_message takes priority over halt_execution.
+    * For more information on how this is used with other parameters see
+      `CallbackReturnT`.
 
     Returns
     -------
@@ -604,12 +601,11 @@ def with_sfw_check(
 
         Defaults to `False`.
 
-    !!! note
-        error_message takes priority over halt_execution.
-
-    !!! note
-        For more information on how this is used with other parameters see
-        `CallbackReturnT`.
+    Notes
+    -----
+    * error_message takes priority over halt_execution.
+    * For more information on how this is used with other parameters see
+      `CallbackReturnT`.
 
     Returns
     -------
@@ -646,10 +642,6 @@ def with_owner_check(
 ) -> CallbackReturnT[CommandT]:
     """Only let a command run if it's being triggered by one of the bot's owners.
 
-    !!! note
-        This is based on the owner(s) of the bot's application and will account
-        for team owners as well.
-
     Parameters
     ----------
     command : typing.Optional[CommandT]
@@ -675,15 +667,14 @@ def with_owner_check(
         Iterable of objects and IDs of other users to explicitly mark as owners
         for this check.
 
-        !!! note
-            This will be used alongside the application's owners.
-
-    !!! note
-        error_message takes priority over halt_execution.
-
-    !!! note
-        For more information on how this is used with other parameters see
-        `CallbackReturnT`.
+    Notes
+    -----
+    * Any provided `owner_ids` will be used alongside the application's owners.
+    * This is based on the owner(s) of the bot's application and will account
+      for team owners as well.
+    * error_message takes priority over halt_execution.
+    * For more information on how this is used with other parameters see
+      `CallbackReturnT`.
 
     Returns
     -------
@@ -706,10 +697,6 @@ def with_author_permission_check(
 ) -> collections.Callable[[CommandT], CommandT]:
     """Only let a command run if the author has certain permissions in the current channel.
 
-    !!! note
-        This will only pass for commands in DMs if `permissions` is valid for
-        a DM context (e.g. can't have any moderation permissions)
-
     Parameters
     ----------
     permissions: typing.Union[hikari.permissions.Permissions, int]
@@ -728,8 +715,11 @@ def with_author_permission_check(
 
         Defaults to `False`.
 
-    !!! note
-        error_message takes priority over halt_execution.
+    Notes
+    -----
+    * error_message takes priority over halt_execution.
+    * This will only pass for commands in DMs if `permissions` is valid for
+      a DM context (e.g. can't have any moderation permissions)
 
     Returns
     -------
@@ -749,10 +739,6 @@ def with_own_permission_check(
 ) -> collections.Callable[[CommandT], CommandT]:
     """Only let a command run if we have certain permissions in the current channel.
 
-    !!! note
-        This will only pass for commands in DMs if `permissions` is valid for
-        a DM context (e.g. can't have any moderation permissions)
-
     Parameters
     ----------
     permissions: typing.Union[hikari.permissions.Permissions, int]
@@ -771,8 +757,11 @@ def with_own_permission_check(
 
         Defaults to `False`.
 
-    !!! note
-        error_message takes priority over halt_execution.
+    Notes
+    -----
+    * error_message takes priority over halt_execution.
+    * This will only pass for commands in DMs if `permissions` is valid for
+      a DM context (e.g. can't have any moderation permissions)
 
     Returns
     -------

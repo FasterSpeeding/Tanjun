@@ -79,7 +79,7 @@ which returns `None`.
 class Hooks(abc.Hooks[abc.ContextT_contra]):
     """Standard implementation of `tanjun.abc.Hooks` used for command execution.
 
-    !!! note
+    .. note::
         This implementation adds a concept of parser errors which won't be
         dispatched to general "error" hooks and do not share the error
         suppression semantics as they favour to always suppress the error
@@ -104,7 +104,7 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
     def add_to_command(self, command: CommandT, /) -> CommandT:
         """Add this hook object to a command.
 
-        !!! note
+        .. note::
             This will likely override any previously added hooks.
 
         Examples

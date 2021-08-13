@@ -94,7 +94,7 @@ class Component(injecting.Injectable, abc.Component):
     This is a collcetion of commands (both message and slash), hooks and listener
     callbacks which can be added to a generic client.
 
-    !!! note
+    .. note::
         This implementation supports dependency injection for its checks
         and commands.
 

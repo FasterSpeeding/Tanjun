@@ -92,7 +92,7 @@ positional argument of type `Context` where any other required or optional
 keyword or positional arguments will be based on the parser instance for the
 command if applicable.
 
-!!! note
+.. note::
     This will have to be asynchronous.
 """
 
@@ -167,14 +167,14 @@ class Context(abc.ABC):
     def component(self) -> typing.Optional[Component]:
         """Object of the `Component` this context is bound to.
 
+        .. note::
+            This will only be `None` before this has been bound to a
+            specific command but never during command execution nor checks.
+
         Returns
         -------
         typing.Optional[Component[ContextT]]
             The component this context is bound to.
-
-            !!! note
-                This will only be `None` before this has been bound to a
-                specific command but never during command execution nor checks.
         """
 
     @property  # TODO: can we somehow have this always be present on the command execution facing interface
@@ -182,14 +182,14 @@ class Context(abc.ABC):
     def command(self: ContextT) -> typing.Optional[ExecutableCommand[ContextT]]:
         """Object of the command this context is bound to.
 
+        .. note::
+            This will only be `None` before this has been bound to a
+            specific command but never during command execution.
+
         Returns
         -------
         typing.Optional[ExecutableCommand[ContextT]]
             The command this context is bound to.
-
-            !!! note
-                This will only be `None` before this has been bound to a
-                specific command but never during command execution.
         """
 
     @property
@@ -620,7 +620,7 @@ class SlashContext(Context, abc.ABC):
     def has_been_deferred(self) -> bool:
         """Whether the initial response for this context has been deferred.
 
-        !!! warning
+        .. warning::
             If this is `True` when `SlashContext.has_responded` is `False`
             then `SlashContext.edit_initial_response` will need to be used
             to create the initial response rather than
@@ -1020,10 +1020,9 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
     def is_global(self) -> bool:
         """Whether the command should be declared globally or not.
 
-        !!! note
+        .. warning::
             For commands within command groups the state of this flag
             is inherited regardless of what it's set as on the child command.
-
 
         Returns
         -------
@@ -1128,7 +1127,7 @@ class SlashCommand(BaseSlashCommand, abc.ABC):
 class SlashCommandGroup(BaseSlashCommand, abc.ABC):
     """Standard interface of a slash command group.
 
-    !!! note
+    .. note::
         Unlike `MessageCommandGroup`, slash command groups do not have
         their own callback.
     """
@@ -1197,7 +1196,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
     def callback(self) -> CommandCallbackSig:
         """Get the callback which is called during execution.
 
-        !!! note
+        .. note::
             For command groups, this is called when none of the inner-commands
             matches the message.
 
@@ -1270,7 +1269,7 @@ class MessageCommandGroup(MessageCommand, abc.ABC):
     def commands(self) -> collections.Collection[MessageCommand]:
         """Get a collection of the commands in this group.
 
-        !!! note
+        .. note::
             This may include command groups.
 
         Returns
@@ -1346,8 +1345,8 @@ class Component(abc.ABC):
     def name(self) -> str:
         """Get the component's identifier.
 
-        !!! note
-            This should be preserved between copies of a component.
+        .. note::
+            This will be preserved between copies of a component.
 
         Returns
         -------

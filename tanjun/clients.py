@@ -84,7 +84,7 @@ PrefixGetterSig = collections.Callable[..., collections.Awaitable[collections.It
 
 This should be an asynchronous callable which returns an iterable of strings.
 
-!!! note
+.. note::
     While dependency injection is supported for this, the first positional
     argument will always be a `tanjun.abc.MessageContext`.
 """
@@ -245,9 +245,18 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     callbacks, and prefix getters. For more information on how
     this works see `tanjun.injector`.
 
-    !!! note
-        For a quicker way to initiate this client around a standard bot aware
-        client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.
+    Notes
+    -----
+    * For a quicker way to initiate this client around a standard bot aware
+      client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.
+    * The endpoint used by `set_global_commands` has a strict ratelimit which,
+      as of writing, only allows for 2 request per minute (with that ratelimit
+      either being per-guild if targeting a specific guild otherwise globally).
+    * `event_manager` is necessary for message command dispatch and will also
+      be necessary for interaction command dispatch if `server` isn't
+      provided.
+    * `server` is used for interaction command dispatch if interaction
+      events aren't being received from the event manager.
 
     Parameters
     ----------
@@ -260,17 +269,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         The Hikari cache client this will use if applicable.
     event_manager : hikari.api.event_manager.EventManagerClient
         The Hikari event manager client this will use if applicable.
-
-        !!! note
-            This is necessary for message command dispatch and will also be
-            necessary for interaction command dispatch if `server` isn't
-            provided.
     server : hikari.api.interaction_server.InteractionServer
         The Hikari interaction server client this will use if applicable.
-
-        !!! note
-            This is used for interaction command dispatch if interaction
-            events aren't being received from the event manager.
     shard : hikari.traits.ShardAware
         The Hikari shard aware client this will use if applicable.
     event_managed : bool
@@ -296,11 +296,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         can be useful for testing/debug purposes as slash commands may take
         up to an hour to propagate globally but will immediately propagate
         when set on a specific guild.
-
-        !!! note
-            The endpoint this uses has a strict ratelimit which, as of writing,
-            only allows for 2 request per minute (with that ratelimit either
-            being per-guild if targeting a specific guild otherwise globally).
 
     Raises
     ------
@@ -406,9 +401,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     ) -> Client:
         """Build a `Client` from a `hikari.traits.GatewayBotAware` instance.
 
-        !!! note
-            This implicitly defaults the client to human only mode and also
-            sets hikari trait injectors based on `bot`.
+        Notes
+        -----
+        * This implicitly defaults the client to human only mode and also
+          sets hikari trait injectors based on `bot`.
+        * The endpoint used by `set_global_commands` has a strict ratelimit
+          which, as of writing, only allows for 2 request per minute (with that
+          ratelimit either being per-guild if targeting a specific guild
+          otherwise globally).
 
         Parameters
         ----------
@@ -441,11 +441,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             can be useful for testing/debug purposes as slash commands may take
             up to an hour to propagate globally but will immediately propagate
             when set on a specific guild.
-
-            !!! note
-                The endpoint this uses has a strict ratelimit which, as of writing,
-                only allows for 2 request per minute (with that ratelimit either
-                being per-guild if targeting a specific guild otherwise globally).
         """
         return (
             cls(
@@ -470,8 +465,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     ) -> Client:
         """Build a `Client` from a `hikari.traits.RESTBotAware` instance.
 
-        !!! note
-            This implicitly sets hikari trait injectors based on `bot`.
+        Notes
+        -----
+        * This implicitly sets hikari trait injectors based on `bot`.
+        * The endpoint used by `set_global_commands` has a strict ratelimit
+          which, as of writing, only allows for 2 request per minute (with that
+          ratelimit either being per-guild if targeting a specific guild
+          otherwise globally).
 
         Parameters
         ----------
@@ -489,12 +489,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             can be useful for testing/debug purposes as slash commands may take
             up to an hour to propagate globally but will immediately propagate
             when set on a specific guild.
-
-            !!! note
-                The endpoint this uses has a strict ratelimit which, as of writing,
-                only allows for 2 request per minute (with that ratelimit either
-                being per-guild if targeting a specific guild otherwise globally).
-
         """
         return cls(
             rest=bot.rest, server=bot.interaction_server, set_global_commands=set_global_commands
@@ -668,9 +662,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         command : tanjun.abc.BaseSlashCommand
             The command to register.
 
-        !!! note
-            This ignores any ID that's been set on `tanjun.abc.BaseSlashCommand`.
-
         Other Parameters
         ----------------
         application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
@@ -680,13 +671,17 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             being used by `Client.rest`.
         command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]
             Object or ID of the command to update.
-
-            !!! note
-                Providing this when updating a command helps avoid
         guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
             Object or ID of the guild to register the command with.
 
             If left as `None` then the command will be registered globally.
+
+        Warnings
+        --------
+        * This ignores any ID that's been set on `tanjun.abc.BaseSlashCommand`.
+        * Providing `command_id` when updating a command helps avoid any
+          permissions set for the command being lose (e.g. when changing the
+          command's name).
 
         Returns
         -------
@@ -726,7 +721,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     ) -> collections.Sequence[hikari.Command]:
         """Declare a collection of slash commands for a bot.
 
-        !!! note
+        .. note::
             The endpoint this uses has a strict ratelimit which, as of writing,
             only allows for 2 request per minute (with that ratelimit either
             being per-guild if targeting a specific guild otherwise globally).
@@ -786,14 +781,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     def set_auto_defer_after(self: _ClientT, time: typing.Optional[float], /) -> _ClientT:
         """Set when this client should automatically defer execution of commands.
 
+        .. warning::
+            If `time` is set to `None` then automatic deferrals will be disabled.
+            This may lead to unexpected behaviour.
+
         Parameters
         ----------
         time : typing.Optional[float]
             The time in seconds to defer interaction command responses after.
-
-            !!! note
-                If this is set to `None` then automatic deferrals will be disabled.
-                This may lead to unexpected behaviour.
         """
         self._auto_defer_after = float(time) if time is not None else None
         return self
@@ -818,15 +813,15 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     def set_interaction_not_found(self: _ClientT, message: typing.Optional[str], /) -> _ClientT:
         """Set the response message for when an interaction command is not found.
 
+        .. warning::
+            Setting this to `None` may lead to unexpected behaviour (especially
+            when the client is still set to auto-defer interactions) and should
+            only be done if you know what you're doing.
+
         Parameters
         ----------
         message : typing.Optional[str]
             The message to respond with when an interaction command isn't found.
-
-        !!! warning
-            Setting this to `None` may lead to unexpected behaviour (especially
-            when the client is still set to auto-defer interactions) and should
-            only be done if you know what you're doing.
         """
         self._interaction_not_found = message
         return self
@@ -848,7 +843,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     def set_human_only(self: _ClientT, value: bool = True) -> _ClientT:
         """Set whether or not message commands execution should be limited to "human" users.
 
-        !!! note
+        .. note::
             This doesn't apply to interaction commands as these can only be
             triggered by a "human" (normal user account).
 
@@ -879,7 +874,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     ) -> None:
         """Clear the commands declared either globally or for a specific guild.
 
-        !!! note
+        .. note::
             The endpoint this uses has a strict ratelimit which, as of writing,
             only allows for 2 request per minute (with that ratelimit either
             being per-guild if targeting a specific guild otherwise globally).
@@ -909,14 +904,18 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     ) -> collections.Sequence[hikari.Command]:
         """Set the global application commands for a bot based on the loaded components.
 
-        !!! note
+        .. warning::
             This will overwrite any previously set application commands and
             only targets commands marked as global.
 
-        !!! note
-            The endpoint this uses has a strict ratelimit which, as of writing,
-            only allows for 2 request per minute (with that ratelimit either
-            being per-guild if targeting a specific guild otherwise globally).
+        Notes
+        -----
+        * The endpoint this uses has a strict ratelimit which, as of writing,
+          only allows for 2 request per minute (with that ratelimit either
+          being per-guild if targeting a specific guild otherwise globally).
+        * Setting a specific `guild` can be useful for testing/debug purposes
+          as slash commands may take up to an hour to propagate globally but
+          will immediately propagate when set on a specific guild.
 
         Other Parameters
         ----------------
@@ -929,11 +928,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             Object or ID of the guild to set the global commands to.
 
             If left as `None` global commands will be set.
-
-            !!! note
-                This can be useful for testing/debug purposes as slash commands
-                may take up to an hour to propagate globally but will
-                immediately propagate when set on a specific guild.
 
         Returns
         -------
@@ -1288,14 +1282,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
         """Execute a slash command based on Gateway events.
 
+        .. note::
+            Any event where `event.interaction` is not
+            `hikari.interactions.commands.CommandInteraction` will be ignored.
+
         Parameters
         ----------
         event : hikari.events.interaction_events.InteractionCreateEvent
             The event to execute commands based on.
-
-            !!! note
-                Any event where `event.interaction` is not
-                `hikari.interactions.commands.CommandInteraction` will be ignored.
         """
         if not isinstance(event.interaction, hikari.CommandInteraction):
             return

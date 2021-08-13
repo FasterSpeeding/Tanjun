@@ -244,10 +244,6 @@ def slash_command_group(
 ) -> SlashCommandGroup:
     """Create a slash command group.
 
-    !!! note
-        Unlike message command grups, slash command groups cannot
-        be callable functions themselves.
-
     Examples
     --------
     Sub-commands can be added to the created slash command object through
@@ -269,6 +265,15 @@ def slash_command_group(
     component = tanjun.Component().add_slash_command_command(help_group)
     ```
 
+    Notes
+    -----
+    * Unlike message command grups, slash command groups cannot
+      be callable functions themselves.
+    * Under the standard implementation, `is_global` is used to determine whether
+      the command should be bulk set by `tanjun.Client.set_global_commands`
+      or when `set_global_commands` is True
+
+
     Parameters
     ----------
     name : str
@@ -289,11 +294,6 @@ def slash_command_group(
         are set to override this. This defaults to `False`.
     is_global : bool
         Whether this command is a global command. Defaults to `True`.
-
-        !!! note
-            Under the current implementation, this is used to determine whether
-            the command should be bulk set by `tanjun.Client.set_global_commands`
-            or when `set_global_commands` is True
 
     Returns
     -------
@@ -320,6 +320,11 @@ def as_slash_command(
     sort_options: bool = True,
 ) -> collections.Callable[[CommandCallbackSigT], SlashCommand[CommandCallbackSigT]]:
     r"""Build a `SlashCommand` by decorating a function.
+
+    .. note::
+        Under the standard implementation, `is_global` is used to determine whether
+        the command should be bulk set by `tanjun.Client.set_global_commands`
+        or when `set_global_commands` is True
 
     Examples
     --------
@@ -353,11 +358,6 @@ def as_slash_command(
         are set to override this. This defaults to `False`.
     is_global : bool
         Whether this command is a global command. Defaults to `True`.
-
-        !!! note
-            Under the current implementation, this is used to determine whether
-            the command should be bulk set by `tanjun.Client.set_global_commands`
-            or when `set_global_commands` is True
     sort_options : bool
         Whether this command should sort its set options based on whether
         they're required.
@@ -396,6 +396,11 @@ def with_str_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a string option to a slash command.
 
+    .. note::
+        As a shorthand, `choices` also supports passing strings in place of
+        tuples each string will be used as both the choice's name and value
+        (with the name being capitalised).
+
     Examples
     --------
     ```py
@@ -421,11 +426,6 @@ def with_str_slash_option(
         This may be either one or multiple `tuple[opton_name, option_value]`
         Where both option_name and option_value should be strings of up to 100
         characters.
-
-        !!! note
-            As a shorthand, this also supports passing strings in place of
-            tuples each string will be used as both the choice's name and value
-            (with the name being capitalised).
     converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig]
         The option's converters.
 
@@ -433,8 +433,7 @@ def with_str_slash_option(
         convert the option's value to the final form.
         If no converters are provided then the raw value will be passed.
 
-        !!! note
-            Only the first converter to pass will be used.
+        Only the first converter to pass will be used.
     default : typing.Any
         The option's default value.
         If this is left as undefined then this option will be required.
@@ -496,8 +495,7 @@ def with_int_slash_option(
         convert the option's value to the final form.
         If no converters are provided then the raw value will be passed.
 
-        !!! note
-            Only the first converter to pass will be used.
+        Only the first converter to pass will be used.
     default : typing.Any
         The option's default value.
         If this is left as undefined then this option will be required.
@@ -561,7 +559,7 @@ def with_user_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a user option to a slash command.
 
-    !!! note
+    .. note::
         This may result in `hikari.interactions.commands.InteractionMember` or
         `hikari.users.User` if the user isn't in the current guild or if this
         command was executed in a DM channel.
@@ -606,7 +604,7 @@ def with_member_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a member option to a slash command.
 
-    !!! note
+    .. note::
         This will always result in `hikari.interactions.commands.InteractionMember`.
 
     Examples
@@ -649,7 +647,7 @@ def with_channel_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a channel option to a slash command.
 
-    !!! note
+    .. note::
         This will always result in `hikari.interactions.commands.InteractionChannel`.
 
     Examples
@@ -732,7 +730,7 @@ def with_mentionable_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a mentionable option to a slash command.
 
-    !!! note
+    .. note::
         This may target roles, guild members or users and results in
         `Union[hikari.User, hikari.InteractionMember, hikari.Role]`.
 
@@ -926,7 +924,7 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
     ) -> _BaseSlashCommandT:
         """Set the ID of the global command this should be tracking.
 
-        !!! note
+        .. warning::
             This is useful when bulk updating the commands as if the ID isn't
             specified then any previously set permissions may be lost (i.e. if the
             command's name is changed).
@@ -1054,13 +1052,13 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
     def add_command(self: _SlashCommandGroupT, command: abc.BaseSlashCommand, /) -> _SlashCommandGroupT:
         """Add a slash command to this group.
 
+        .. warning::
+            Command groups are only supported within top-level groups.
+
         Parameters
         ----------
         command : tanjun.abc.BaseSlashCommand
             Command to add to this group.
-
-            !!! warning
-                Command groups are only supported within top-level groups.
 
         Returns
         -------

@@ -92,6 +92,7 @@ def generate_docs(session: nox.Session) -> None:
     install_dev_requirements(session)
     session.log("Building docs into ./docs")
     session.run("pdoc", "--docformat", "numpy", "-o", "./docs", "./tanjun")
+    session.log("Docs generated: %s", pathlib.Path("./docs/index.html").absolute())
 
 
 @nox.session(reuse_venv=True)

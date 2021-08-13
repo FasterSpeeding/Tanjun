@@ -305,7 +305,7 @@ async def fetch_permissions(
 ) -> hikari.Permissions:
     """Calculate the permissions a member has within a guild.
 
-    !!! note
+    .. note::
         This callback will fallback to REST requests if cache lookups fail or
         are not possible.
 
@@ -413,7 +413,7 @@ async def fetch_everyone_permissions(
 ) -> hikari.Permissions:
     """Calculate the permissions a guild's default @everyone role has within a guild or for a specific channel.
 
-    !!! note
+    .. note::
         This callback will fallback to REST requests if cache lookups fail or
         are not possible.
 

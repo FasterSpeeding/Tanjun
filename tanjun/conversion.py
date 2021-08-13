@@ -652,7 +652,7 @@ to_role: typing.Final[RoleConverter] = RoleConverter()
 to_snowflake: typing.Final[SnowflakeConverter] = SnowflakeConverter()
 """Convert user input to a `hikari.snowflakes.Snowflake`.
 
-!!! note
+.. note::
     This also range validates the input.
 """
 

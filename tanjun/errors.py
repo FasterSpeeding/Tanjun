@@ -144,8 +144,8 @@ class FailedCheck(TanjunError, RuntimeError):  # TODO: FailedCheckError
 class ParserError(TanjunError, ValueError):
     """Base error raised by a parser or parameter during parsing.
 
-    !!! note
-        Other error raised by the parser should subclass this error.
+    .. note::
+        Expected errors raised by the parser will subclass this error.
 
     Parameters
     ----------
@@ -161,14 +161,14 @@ class ParserError(TanjunError, ValueError):
     message: str
     """String message for this error.
 
-    !!! note
+    .. note::
         This may be used as a command response message.
     """
 
     parameter: typing.Optional[str]
     """Name of the this was raised for.
 
-    !!! note
+    .. note::
         This will be `builtin.None` if it was raised while parsing the provided
         message content.
     """
