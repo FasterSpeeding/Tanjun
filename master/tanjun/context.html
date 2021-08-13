@@ -1555,15 +1555,15 @@
 
             <div class="docstring"><p>Object of the command this context is bound to.</p>
 
+<p><em>Note:</em>
+This will only be <code>None</code> before this has been bound to a
+specific command but never during command execution.</p>
+
 <h6 id="returns">Returns</h6>
 
 <ul>
 <li><strong>typing.Optional[ExecutableCommand[ContextT]]</strong>: The command this context is bound to.</li>
 </ul>
-
-<p>!!! note
-    This will only be <code>None</code> before this has been bound to a
-    specific command but never during command execution.</p>
 </div>
 
 
@@ -2823,15 +2823,15 @@ Otherwise, returns <code>None</code>.</li>
 
             <div class="docstring"><p>Object of the command this context is bound to.</p>
 
+<p><em>Note:</em>
+This will only be <code>None</code> before this has been bound to a
+specific command but never during command execution.</p>
+
 <h6 id="returns">Returns</h6>
 
 <ul>
 <li><strong>typing.Optional[ExecutableCommand[ContextT]]</strong>: The command this context is bound to.</li>
 </ul>
-
-<p>!!! note
-    This will only be <code>None</code> before this has been bound to a
-    specific command but never during command execution.</p>
 </div>
 
 
@@ -2903,11 +2903,11 @@ methods which support it.</p>
 
             <div class="docstring"><p>Whether the initial response for this context has been deferred.</p>
 
-<p>!!! warning
-    If this is <code>True</code> when <code><a href="#SlashContext.has_responded">SlashContext.has_responded</a></code> is <code>False</code>
-    then <code><a href="#SlashContext.edit_initial_response">SlashContext.edit_initial_response</a></code> will need to be used
-    to create the initial response rather than
-    <code><a href="#SlashContext.create_initial_response">SlashContext.create_initial_response</a></code>.</p>
+<p><em>Warning:</em>
+If this is <code>True</code> when <code><a href="#SlashContext.has_responded">SlashContext.has_responded</a></code> is <code>False</code>
+then <code><a href="#SlashContext.edit_initial_response">SlashContext.edit_initial_response</a></code> will need to be used
+to create the initial response rather than
+<code><a href="#SlashContext.create_initial_response">SlashContext.create_initial_response</a></code>.</p>
 
 <h6 id="returns">Returns</h6>
 

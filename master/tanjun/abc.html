@@ -640,7 +640,7 @@
 <span class="sd">keyword or positional arguments will be based on the parser instance for the</span>
 <span class="sd">command if applicable.</span>
 
-<span class="sd">!!! note</span>
+<span class="sd">.. note::</span>
 <span class="sd">    This will have to be asynchronous.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -715,14 +715,14 @@
     <span class="k">def</span> <span class="nf">component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">Component</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Object of the `Component` this context is bound to.</span>
 
+<span class="sd">        .. note::</span>
+<span class="sd">            This will only be `None` before this has been bound to a</span>
+<span class="sd">            specific command but never during command execution nor checks.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        typing.Optional[Component[ContextT]]</span>
 <span class="sd">            The component this context is bound to.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                This will only be `None` before this has been bound to a</span>
-<span class="sd">                specific command but never during command execution nor checks.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>  <span class="c1"># TODO: can we somehow have this always be present on the command execution facing interface</span>
@@ -730,14 +730,14 @@
     <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">ContextT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">ContextT</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Object of the command this context is bound to.</span>
 
+<span class="sd">        .. note::</span>
+<span class="sd">            This will only be `None` before this has been bound to a</span>
+<span class="sd">            specific command but never during command execution.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        typing.Optional[ExecutableCommand[ContextT]]</span>
 <span class="sd">            The command this context is bound to.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                This will only be `None` before this has been bound to a</span>
-<span class="sd">                specific command but never during command execution.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -1168,7 +1168,7 @@
     <span class="k">def</span> <span class="nf">has_been_deferred</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Whether the initial response for this context has been deferred.</span>
 
-<span class="sd">        !!! warning</span>
+<span class="sd">        .. warning::</span>
 <span class="sd">            If this is `True` when `SlashContext.has_responded` is `False`</span>
 <span class="sd">            then `SlashContext.edit_initial_response` will need to be used</span>
 <span class="sd">            to create the initial response rather than</span>
@@ -1568,10 +1568,9 @@
     <span class="k">def</span> <span class="nf">is_global</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Whether the command should be declared globally or not.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. warning::</span>
 <span class="sd">            For commands within command groups the state of this flag</span>
 <span class="sd">            is inherited regardless of what it&#39;s set as on the child command.</span>
-
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1676,7 +1675,7 @@
 <span class="k">class</span> <span class="nc">SlashCommandGroup</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Standard interface of a slash command group.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        Unlike `MessageCommandGroup`, slash command groups do not have</span>
 <span class="sd">        their own callback.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1745,7 +1744,7 @@
     <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallbackSig</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Get the callback which is called during execution.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            For command groups, this is called when none of the inner-commands</span>
 <span class="sd">            matches the message.</span>
 
@@ -1818,7 +1817,7 @@
     <span class="k">def</span> <span class="nf">commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get a collection of the commands in this group.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            This may include command groups.</span>
 
 <span class="sd">        Returns</span>
@@ -1894,8 +1893,8 @@
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Get the component&#39;s identifier.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This should be preserved between copies of a component.</span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This will be preserved between copies of a component.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -2420,14 +2419,14 @@
     <span class="k">def</span> <span class="nf">component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">Component</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Object of the `Component` this context is bound to.</span>
 
+<span class="sd">        .. note::</span>
+<span class="sd">            This will only be `None` before this has been bound to a</span>
+<span class="sd">            specific command but never during command execution nor checks.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        typing.Optional[Component[ContextT]]</span>
 <span class="sd">            The component this context is bound to.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                This will only be `None` before this has been bound to a</span>
-<span class="sd">                specific command but never during command execution nor checks.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>  <span class="c1"># TODO: can we somehow have this always be present on the command execution facing interface</span>
@@ -2435,14 +2434,14 @@
     <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">ContextT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">ContextT</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Object of the command this context is bound to.</span>
 
+<span class="sd">        .. note::</span>
+<span class="sd">            This will only be `None` before this has been bound to a</span>
+<span class="sd">            specific command but never during command execution.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        typing.Optional[ExecutableCommand[ContextT]]</span>
 <span class="sd">            The command this context is bound to.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                This will only be `None` before this has been bound to a</span>
-<span class="sd">                specific command but never during command execution.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -2801,15 +2800,15 @@ with if provided, else <code>None</code>.</li>
 
             <div class="docstring"><p>Object of the <code><a href="#Component">Component</a></code> this context is bound to.</p>
 
+<p><em>Note:</em>
+This will only be <code>None</code> before this has been bound to a
+specific command but never during command execution nor checks.</p>
+
 <h6 id="returns">Returns</h6>
 
 <ul>
 <li><strong>typing.Optional[Component[ContextT]]</strong>: The component this context is bound to.</li>
 </ul>
-
-<p>!!! note
-    This will only be <code>None</code> before this has been bound to a
-    specific command but never during command execution nor checks.</p>
 </div>
 
 
@@ -2822,15 +2821,15 @@ with if provided, else <code>None</code>.</li>
 
             <div class="docstring"><p>Object of the command this context is bound to.</p>
 
+<p><em>Note:</em>
+This will only be <code>None</code> before this has been bound to a
+specific command but never during command execution.</p>
+
 <h6 id="returns">Returns</h6>
 
 <ul>
 <li><strong>typing.Optional[ExecutableCommand[ContextT]]</strong>: The command this context is bound to.</li>
 </ul>
-
-<p>!!! note
-    This will only be <code>None</code> before this has been bound to a
-    specific command but never during command execution.</p>
 </div>
 
 
@@ -4137,7 +4136,7 @@ The check to remove.</li>
     <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallbackSig</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Get the callback which is called during execution.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            For command groups, this is called when none of the inner-commands</span>
 <span class="sd">            matches the message.</span>
 
@@ -4214,9 +4213,9 @@ The check to remove.</li>
 
             <div class="docstring"><p>Get the callback which is called during execution.</p>
 
-<p>!!! note
-    For command groups, this is called when none of the inner-commands
-    matches the message.</p>
+<p><em>Note:</em>
+For command groups, this is called when none of the inner-commands
+matches the message.</p>
 
 <h6 id="returns">Returns</h6>
 
@@ -4409,7 +4408,7 @@ The parent of the copy.</li>
     <span class="k">def</span> <span class="nf">commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get a collection of the commands in this group.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            This may include command groups.</span>
 
 <span class="sd">        Returns</span>
@@ -4473,8 +4472,8 @@ The parent of the copy.</li>
 
             <div class="docstring"><p>Get a collection of the commands in this group.</p>
 
-<p>!!! note
-    This may include command groups.</p>
+<p><em>Note:</em>
+This may include command groups.</p>
 
 <h6 id="returns">Returns</h6>
 
@@ -5080,10 +5079,9 @@ Otherwise, returns <code>None</code>.</li>
     <span class="k">def</span> <span class="nf">is_global</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Whether the command should be declared globally or not.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. warning::</span>
 <span class="sd">            For commands within command groups the state of this flag</span>
 <span class="sd">            is inherited regardless of what it&#39;s set as on the child command.</span>
-
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -5204,9 +5202,9 @@ ephemeral unless <code>flags</code> is explicitly passed.</p>
 
             <div class="docstring"><p>Whether the command should be declared globally or not.</p>
 
-<p>!!! note
-    For commands within command groups the state of this flag
-    is inherited regardless of what it's set as on the child command.</p>
+<p><em>Warning:</em>
+For commands within command groups the state of this flag
+is inherited regardless of what it's set as on the child command.</p>
 
 <h6 id="returns">Returns</h6>
 
@@ -5531,7 +5529,7 @@ Object or ID of the command this tracks.</li>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SlashCommandGroup</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Standard interface of a slash command group.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        Unlike `MessageCommandGroup`, slash command groups do not have</span>
 <span class="sd">        their own callback.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -5594,9 +5592,9 @@ Object or ID of the command this tracks.</li>
 
             <div class="docstring"><p>Standard interface of a slash command group.</p>
 
-<p>!!! note
-    Unlike <code><a href="#MessageCommandGroup">MessageCommandGroup</a></code>, slash command groups do not have
-    their own callback.</p>
+<p><em>Note:</em>
+Unlike <code><a href="#MessageCommandGroup">MessageCommandGroup</a></code>, slash command groups do not have
+their own callback.</p>
 </div>
 
 
@@ -5830,7 +5828,7 @@ The command to add.</li>
     <span class="k">def</span> <span class="nf">has_been_deferred</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Whether the initial response for this context has been deferred.</span>
 
-<span class="sd">        !!! warning</span>
+<span class="sd">        .. warning::</span>
 <span class="sd">            If this is `True` when `SlashContext.has_responded` is `False`</span>
 <span class="sd">            then `SlashContext.edit_initial_response` will need to be used</span>
 <span class="sd">            to create the initial response rather than</span>
@@ -6081,11 +6079,11 @@ methods which support it.</p>
 
             <div class="docstring"><p>Whether the initial response for this context has been deferred.</p>
 
-<p>!!! warning
-    If this is <code>True</code> when <code><a href="#SlashContext.has_responded">SlashContext.has_responded</a></code> is <code>False</code>
-    then <code><a href="#SlashContext.edit_initial_response">SlashContext.edit_initial_response</a></code> will need to be used
-    to create the initial response rather than
-    <code><a href="#SlashContext.create_initial_response">SlashContext.create_initial_response</a></code>.</p>
+<p><em>Warning:</em>
+If this is <code>True</code> when <code><a href="#SlashContext.has_responded">SlashContext.has_responded</a></code> is <code>False</code>
+then <code><a href="#SlashContext.edit_initial_response">SlashContext.edit_initial_response</a></code> will need to be used
+to create the initial response rather than
+<code><a href="#SlashContext.create_initial_response">SlashContext.create_initial_response</a></code>.</p>
 
 <h6 id="returns">Returns</h6>
 
@@ -6505,8 +6503,8 @@ response message being sent.</p>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Get the component&#39;s identifier.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This should be preserved between copies of a component.</span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This will be preserved between copies of a component.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -6815,8 +6813,8 @@ The client this component is bound to.</li>
 
             <div class="docstring"><p>Get the component's identifier.</p>
 
-<p>!!! note
-    This should be preserved between copies of a component.</p>
+<p><em>Note:</em>
+This will be preserved between copies of a component.</p>
 
 <h6 id="returns">Returns</h6>
 

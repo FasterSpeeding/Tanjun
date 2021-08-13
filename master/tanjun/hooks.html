@@ -214,7 +214,7 @@
 <span class="k">class</span> <span class="nc">Hooks</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Standard implementation of `tanjun.abc.Hooks` used for command execution.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This implementation adds a concept of parser errors which won&#39;t be</span>
 <span class="sd">        dispatched to general &quot;error&quot; hooks and do not share the error</span>
 <span class="sd">        suppression semantics as they favour to always suppress the error</span>
@@ -239,7 +239,7 @@
     <span class="k">def</span> <span class="nf">add_to_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add this hook object to a command.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            This will likely override any previously added hooks.</span>
 
 <span class="sd">        Examples</span>
@@ -424,7 +424,7 @@
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Hooks</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Standard implementation of `tanjun.abc.Hooks` used for command execution.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This implementation adds a concept of parser errors which won&#39;t be</span>
 <span class="sd">        dispatched to general &quot;error&quot; hooks and do not share the error</span>
 <span class="sd">        suppression semantics as they favour to always suppress the error</span>
@@ -449,7 +449,7 @@
     <span class="k">def</span> <span class="nf">add_to_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add this hook object to a command.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            This will likely override any previously added hooks.</span>
 
 <span class="sd">        Examples</span>
@@ -594,11 +594,11 @@
 
             <div class="docstring"><p>Standard implementation of <code><a href="abc.html#Hooks">tanjun.abc.Hooks</a></code> used for command execution.</p>
 
-<p>!!! note
-    This implementation adds a concept of parser errors which won't be
-    dispatched to general "error" hooks and do not share the error
-    suppression semantics as they favour to always suppress the error
-    if a registered handler is found.</p>
+<p><em>Note:</em>
+This implementation adds a concept of parser errors which won't be
+dispatched to general "error" hooks and do not share the error
+suppression semantics as they favour to always suppress the error
+if a registered handler is found.</p>
 </div>
 
 
@@ -637,7 +637,7 @@
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_to_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add this hook object to a command.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            This will likely override any previously added hooks.</span>
 
 <span class="sd">        Examples</span>
@@ -669,8 +669,8 @@
 
             <div class="docstring"><p>Add this hook object to a command.</p>
 
-<p>!!! note
-    This will likely override any previously added hooks.</p>
+<p><em>Note:</em>
+This will likely override any previously added hooks.</p>
 
 <h6 id="examples">Examples</h6>
 

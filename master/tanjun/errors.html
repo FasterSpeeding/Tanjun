@@ -305,8 +305,8 @@
 <span class="k">class</span> <span class="nc">ParserError</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Base error raised by a parser or parameter during parsing.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        Other error raised by the parser should subclass this error.</span>
+<span class="sd">    .. note::</span>
+<span class="sd">        Expected errors raised by the parser will subclass this error.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -322,14 +322,14 @@
     <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
     <span class="sd">&quot;&quot;&quot;String message for this error.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This may be used as a command response message.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="sd">&quot;&quot;&quot;Name of the this was raised for.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This will be `builtin.None` if it was raised while parsing the provided</span>
 <span class="sd">        message content.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -981,8 +981,8 @@ The parameter this error was raised for</li>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ParserError</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Base error raised by a parser or parameter during parsing.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        Other error raised by the parser should subclass this error.</span>
+<span class="sd">    .. note::</span>
+<span class="sd">        Expected errors raised by the parser will subclass this error.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -998,14 +998,14 @@ The parameter this error was raised for</li>
     <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
     <span class="sd">&quot;&quot;&quot;String message for this error.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This may be used as a command response message.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="sd">&quot;&quot;&quot;Name of the this was raised for.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This will be `builtin.None` if it was raised while parsing the provided</span>
 <span class="sd">        message content.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1022,8 +1022,8 @@ The parameter this error was raised for</li>
 
             <div class="docstring"><p>Base error raised by a parser or parameter during parsing.</p>
 
-<p>!!! note
-    Other error raised by the parser should subclass this error.</p>
+<p><em>Note:</em>
+Expected errors raised by the parser will subclass this error.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -1064,8 +1064,8 @@ applicable.</li>
 
             <div class="docstring"><p>String message for this error.</p>
 
-<p>!!! note
-    This may be used as a command response message.</p>
+<p><em>Note:</em>
+This may be used as a command response message.</p>
 </div>
 
 
@@ -1078,9 +1078,9 @@ applicable.</li>
 
             <div class="docstring"><p>Name of the this was raised for.</p>
 
-<p>!!! note
-    This will be <code>builtin.None</code> if it was raised while parsing the provided
-    message content.</p>
+<p><em>Note:</em>
+This will be <code>builtin.None</code> if it was raised while parsing the provided
+message content.</p>
 </div>
 
 

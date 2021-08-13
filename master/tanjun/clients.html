@@ -372,7 +372,7 @@
 
 <span class="sd">This should be an asynchronous callable which returns an iterable of strings.</span>
 
-<span class="sd">!!! note</span>
+<span class="sd">.. note::</span>
 <span class="sd">    While dependency injection is supported for this, the first positional</span>
 <span class="sd">    argument will always be a `tanjun.abc.MessageContext`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -533,9 +533,18 @@
 <span class="sd">    callbacks, and prefix getters. For more information on how</span>
 <span class="sd">    this works see `tanjun.injector`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        For a quicker way to initiate this client around a standard bot aware</span>
-<span class="sd">        client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * For a quicker way to initiate this client around a standard bot aware</span>
+<span class="sd">      client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.</span>
+<span class="sd">    * The endpoint used by `set_global_commands` has a strict ratelimit which,</span>
+<span class="sd">      as of writing, only allows for 2 request per minute (with that ratelimit</span>
+<span class="sd">      either being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">    * `event_manager` is necessary for message command dispatch and will also</span>
+<span class="sd">      be necessary for interaction command dispatch if `server` isn&#39;t</span>
+<span class="sd">      provided.</span>
+<span class="sd">    * `server` is used for interaction command dispatch if interaction</span>
+<span class="sd">      events aren&#39;t being received from the event manager.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -548,17 +557,8 @@
 <span class="sd">        The Hikari cache client this will use if applicable.</span>
 <span class="sd">    event_manager : hikari.api.event_manager.EventManagerClient</span>
 <span class="sd">        The Hikari event manager client this will use if applicable.</span>
-
-<span class="sd">        !!! note</span>
-<span class="sd">            This is necessary for message command dispatch and will also be</span>
-<span class="sd">            necessary for interaction command dispatch if `server` isn&#39;t</span>
-<span class="sd">            provided.</span>
 <span class="sd">    server : hikari.api.interaction_server.InteractionServer</span>
 <span class="sd">        The Hikari interaction server client this will use if applicable.</span>
-
-<span class="sd">        !!! note</span>
-<span class="sd">            This is used for interaction command dispatch if interaction</span>
-<span class="sd">            events aren&#39;t being received from the event manager.</span>
 <span class="sd">    shard : hikari.traits.ShardAware</span>
 <span class="sd">        The Hikari shard aware client this will use if applicable.</span>
 <span class="sd">    event_managed : bool</span>
@@ -584,11 +584,6 @@
 <span class="sd">        can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">        up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">        when set on a specific guild.</span>
-
-<span class="sd">        !!! note</span>
-<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -694,9 +689,14 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.GatewayBotAware` instance.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This implicitly defaults the client to human only mode and also</span>
-<span class="sd">            sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This implicitly defaults the client to human only mode and also</span>
+<span class="sd">          sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
+<span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
+<span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
+<span class="sd">          otherwise globally).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -729,11 +729,6 @@
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">                only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">                being per-guild if targeting a specific guild otherwise globally).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">cls</span><span class="p">(</span>
@@ -758,8 +753,13 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.RESTBotAware` instance.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This implicitly sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This implicitly sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
+<span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
+<span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
+<span class="sd">          otherwise globally).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -777,12 +777,6 @@
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">                only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">                being per-guild if targeting a specific guild otherwise globally).</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">interaction_server</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span>
@@ -956,9 +950,6 @@
 <span class="sd">        command : tanjun.abc.BaseSlashCommand</span>
 <span class="sd">            The command to register.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This ignores any ID that&#39;s been set on `tanjun.abc.BaseSlashCommand`.</span>
-
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
@@ -968,13 +959,17 @@
 <span class="sd">            being used by `Client.rest`.</span>
 <span class="sd">        command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]</span>
 <span class="sd">            Object or ID of the command to update.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                Providing this when updating a command helps avoid</span>
 <span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
 <span class="sd">            Object or ID of the guild to register the command with.</span>
 
 <span class="sd">            If left as `None` then the command will be registered globally.</span>
+
+<span class="sd">        Warnings</span>
+<span class="sd">        --------</span>
+<span class="sd">        * This ignores any ID that&#39;s been set on `tanjun.abc.BaseSlashCommand`.</span>
+<span class="sd">        * Providing `command_id` when updating a command helps avoid any</span>
+<span class="sd">          permissions set for the command being lose (e.g. when changing the</span>
+<span class="sd">          command&#39;s name).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1014,7 +1009,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Declare a collection of slash commands for a bot.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
 <span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
 <span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
@@ -1074,14 +1069,14 @@
     <span class="k">def</span> <span class="nf">set_auto_defer_after</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set when this client should automatically defer execution of commands.</span>
 
+<span class="sd">        .. warning::</span>
+<span class="sd">            If `time` is set to `None` then automatic deferrals will be disabled.</span>
+<span class="sd">            This may lead to unexpected behaviour.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        time : typing.Optional[float]</span>
 <span class="sd">            The time in seconds to defer interaction command responses after.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                If this is set to `None` then automatic deferrals will be disabled.</span>
-<span class="sd">                This may lead to unexpected behaviour.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -1106,15 +1101,15 @@
     <span class="k">def</span> <span class="nf">set_interaction_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the response message for when an interaction command is not found.</span>
 
+<span class="sd">        .. warning::</span>
+<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
+<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
+<span class="sd">            only be done if you know what you&#39;re doing.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        message : typing.Optional[str]</span>
 <span class="sd">            The message to respond with when an interaction command isn&#39;t found.</span>
-
-<span class="sd">        !!! warning</span>
-<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
-<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
-<span class="sd">            only be done if you know what you&#39;re doing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="o">=</span> <span class="n">message</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -1136,7 +1131,7 @@
     <span class="k">def</span> <span class="nf">set_human_only</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set whether or not message commands execution should be limited to &quot;human&quot; users.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            This doesn&#39;t apply to interaction commands as these can only be</span>
 <span class="sd">            triggered by a &quot;human&quot; (normal user account).</span>
 
@@ -1167,7 +1162,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Clear the commands declared either globally or for a specific guild.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
 <span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
 <span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
@@ -1197,14 +1192,18 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Set the global application commands for a bot based on the loaded components.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. warning::</span>
 <span class="sd">            This will overwrite any previously set application commands and</span>
 <span class="sd">            only targets commands marked as global.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * The endpoint this uses has a strict ratelimit which, as of writing,</span>
+<span class="sd">          only allows for 2 request per minute (with that ratelimit either</span>
+<span class="sd">          being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">        * Setting a specific `guild` can be useful for testing/debug purposes</span>
+<span class="sd">          as slash commands may take up to an hour to propagate globally but</span>
+<span class="sd">          will immediately propagate when set on a specific guild.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
@@ -1217,11 +1216,6 @@
 <span class="sd">            Object or ID of the guild to set the global commands to.</span>
 
 <span class="sd">            If left as `None` global commands will be set.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                This can be useful for testing/debug purposes as slash commands</span>
-<span class="sd">                may take up to an hour to propagate globally but will</span>
-<span class="sd">                immediately propagate when set on a specific guild.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1576,14 +1570,14 @@
     <span class="k">async</span> <span class="k">def</span> <span class="nf">on_interaction_create_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionCreateEvent</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute a slash command based on Gateway events.</span>
 
+<span class="sd">        .. note::</span>
+<span class="sd">            Any event where `event.interaction` is not</span>
+<span class="sd">            `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        event : hikari.events.interaction_events.InteractionCreateEvent</span>
 <span class="sd">            The event to execute commands based on.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                Any event where `event.interaction` is not</span>
-<span class="sd">                `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">):</span>
             <span class="k">return</span>
@@ -1731,9 +1725,18 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">    callbacks, and prefix getters. For more information on how</span>
 <span class="sd">    this works see `tanjun.injector`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        For a quicker way to initiate this client around a standard bot aware</span>
-<span class="sd">        client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * For a quicker way to initiate this client around a standard bot aware</span>
+<span class="sd">      client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.</span>
+<span class="sd">    * The endpoint used by `set_global_commands` has a strict ratelimit which,</span>
+<span class="sd">      as of writing, only allows for 2 request per minute (with that ratelimit</span>
+<span class="sd">      either being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">    * `event_manager` is necessary for message command dispatch and will also</span>
+<span class="sd">      be necessary for interaction command dispatch if `server` isn&#39;t</span>
+<span class="sd">      provided.</span>
+<span class="sd">    * `server` is used for interaction command dispatch if interaction</span>
+<span class="sd">      events aren&#39;t being received from the event manager.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -1746,17 +1749,8 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">        The Hikari cache client this will use if applicable.</span>
 <span class="sd">    event_manager : hikari.api.event_manager.EventManagerClient</span>
 <span class="sd">        The Hikari event manager client this will use if applicable.</span>
-
-<span class="sd">        !!! note</span>
-<span class="sd">            This is necessary for message command dispatch and will also be</span>
-<span class="sd">            necessary for interaction command dispatch if `server` isn&#39;t</span>
-<span class="sd">            provided.</span>
 <span class="sd">    server : hikari.api.interaction_server.InteractionServer</span>
 <span class="sd">        The Hikari interaction server client this will use if applicable.</span>
-
-<span class="sd">        !!! note</span>
-<span class="sd">            This is used for interaction command dispatch if interaction</span>
-<span class="sd">            events aren&#39;t being received from the event manager.</span>
 <span class="sd">    shard : hikari.traits.ShardAware</span>
 <span class="sd">        The Hikari shard aware client this will use if applicable.</span>
 <span class="sd">    event_managed : bool</span>
@@ -1782,11 +1776,6 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">        can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">        up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">        when set on a specific guild.</span>
-
-<span class="sd">        !!! note</span>
-<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -1892,9 +1881,14 @@ to the provided client using it's abstract methods.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.GatewayBotAware` instance.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This implicitly defaults the client to human only mode and also</span>
-<span class="sd">            sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This implicitly defaults the client to human only mode and also</span>
+<span class="sd">          sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
+<span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
+<span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
+<span class="sd">          otherwise globally).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1927,11 +1921,6 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">                only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">                being per-guild if targeting a specific guild otherwise globally).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">cls</span><span class="p">(</span>
@@ -1956,8 +1945,13 @@ to the provided client using it's abstract methods.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.RESTBotAware` instance.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This implicitly sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This implicitly sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
+<span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
+<span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
+<span class="sd">          otherwise globally).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1975,12 +1969,6 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">                only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">                being per-guild if targeting a specific guild otherwise globally).</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">interaction_server</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span>
@@ -2154,9 +2142,6 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">        command : tanjun.abc.BaseSlashCommand</span>
 <span class="sd">            The command to register.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This ignores any ID that&#39;s been set on `tanjun.abc.BaseSlashCommand`.</span>
-
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
@@ -2166,13 +2151,17 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">            being used by `Client.rest`.</span>
 <span class="sd">        command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]</span>
 <span class="sd">            Object or ID of the command to update.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                Providing this when updating a command helps avoid</span>
 <span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
 <span class="sd">            Object or ID of the guild to register the command with.</span>
 
 <span class="sd">            If left as `None` then the command will be registered globally.</span>
+
+<span class="sd">        Warnings</span>
+<span class="sd">        --------</span>
+<span class="sd">        * This ignores any ID that&#39;s been set on `tanjun.abc.BaseSlashCommand`.</span>
+<span class="sd">        * Providing `command_id` when updating a command helps avoid any</span>
+<span class="sd">          permissions set for the command being lose (e.g. when changing the</span>
+<span class="sd">          command&#39;s name).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -2212,7 +2201,7 @@ to the provided client using it's abstract methods.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Declare a collection of slash commands for a bot.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
 <span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
 <span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
@@ -2272,14 +2261,14 @@ to the provided client using it's abstract methods.</li>
     <span class="k">def</span> <span class="nf">set_auto_defer_after</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set when this client should automatically defer execution of commands.</span>
 
+<span class="sd">        .. warning::</span>
+<span class="sd">            If `time` is set to `None` then automatic deferrals will be disabled.</span>
+<span class="sd">            This may lead to unexpected behaviour.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        time : typing.Optional[float]</span>
 <span class="sd">            The time in seconds to defer interaction command responses after.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                If this is set to `None` then automatic deferrals will be disabled.</span>
-<span class="sd">                This may lead to unexpected behaviour.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -2304,15 +2293,15 @@ to the provided client using it's abstract methods.</li>
     <span class="k">def</span> <span class="nf">set_interaction_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the response message for when an interaction command is not found.</span>
 
+<span class="sd">        .. warning::</span>
+<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
+<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
+<span class="sd">            only be done if you know what you&#39;re doing.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        message : typing.Optional[str]</span>
 <span class="sd">            The message to respond with when an interaction command isn&#39;t found.</span>
-
-<span class="sd">        !!! warning</span>
-<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
-<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
-<span class="sd">            only be done if you know what you&#39;re doing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="o">=</span> <span class="n">message</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -2334,7 +2323,7 @@ to the provided client using it's abstract methods.</li>
     <span class="k">def</span> <span class="nf">set_human_only</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set whether or not message commands execution should be limited to &quot;human&quot; users.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            This doesn&#39;t apply to interaction commands as these can only be</span>
 <span class="sd">            triggered by a &quot;human&quot; (normal user account).</span>
 
@@ -2365,7 +2354,7 @@ to the provided client using it's abstract methods.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Clear the commands declared either globally or for a specific guild.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
 <span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
 <span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
@@ -2395,14 +2384,18 @@ to the provided client using it's abstract methods.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Set the global application commands for a bot based on the loaded components.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. warning::</span>
 <span class="sd">            This will overwrite any previously set application commands and</span>
 <span class="sd">            only targets commands marked as global.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * The endpoint this uses has a strict ratelimit which, as of writing,</span>
+<span class="sd">          only allows for 2 request per minute (with that ratelimit either</span>
+<span class="sd">          being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">        * Setting a specific `guild` can be useful for testing/debug purposes</span>
+<span class="sd">          as slash commands may take up to an hour to propagate globally but</span>
+<span class="sd">          will immediately propagate when set on a specific guild.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
@@ -2415,11 +2408,6 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">            Object or ID of the guild to set the global commands to.</span>
 
 <span class="sd">            If left as `None` global commands will be set.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                This can be useful for testing/debug purposes as slash commands</span>
-<span class="sd">                may take up to an hour to propagate globally but will</span>
-<span class="sd">                immediately propagate when set on a specific guild.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -2774,14 +2762,14 @@ to the provided client using it's abstract methods.</li>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">on_interaction_create_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionCreateEvent</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute a slash command based on Gateway events.</span>
 
+<span class="sd">        .. note::</span>
+<span class="sd">            Any event where `event.interaction` is not</span>
+<span class="sd">            `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        event : hikari.events.interaction_events.InteractionCreateEvent</span>
 <span class="sd">            The event to execute commands based on.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                Any event where `event.interaction` is not</span>
-<span class="sd">                `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">):</span>
             <span class="k">return</span>
@@ -2861,9 +2849,20 @@ to the provided client using it's abstract methods.</li>
 callbacks, and prefix getters. For more information on how
 this works see <code><a href="../tanjun.html#injector">tanjun.injector</a></code>.</p>
 
-<p>!!! note
-    For a quicker way to initiate this client around a standard bot aware
-    client, see <code><a href="#Client.from_gateway_bot">Client.from_gateway_bot</a></code> and <code><a href="#Client.from_rest_bot">Client.from_rest_bot</a></code>.</p>
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>For a quicker way to initiate this client around a standard bot aware
+client, see <code><a href="#Client.from_gateway_bot">Client.from_gateway_bot</a></code> and <code><a href="#Client.from_rest_bot">Client.from_rest_bot</a></code>.</li>
+<li>The endpoint used by <code><a href="#Client.set_global_commands">set_global_commands</a></code> has a strict ratelimit which,
+as of writing, only allows for 2 request per minute (with that ratelimit
+either being per-guild if targeting a specific guild otherwise globally).</li>
+<li><code>event_manager</code> is necessary for message command dispatch and will also
+be necessary for interaction command dispatch if <code><a href="#Client.server">server</a></code> isn't
+provided.</li>
+<li><code><a href="#Client.server">server</a></code> is used for interaction command dispatch if interaction
+events aren't being received from the event manager.</li>
+</ul>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -2877,19 +2876,10 @@ The Hikari REST client this will use.</li>
 <ul>
 <li><strong>cache</strong> (hikari.api.cache.CacheClient):
 The Hikari cache client this will use if applicable.</li>
-<li><p><strong>event_manager</strong> (hikari.api.event_manager.EventManagerClient):
-The Hikari event manager client this will use if applicable.</p>
-
-<p>!!! note
-   This is necessary for message command dispatch and will also be
-   necessary for interaction command dispatch if <code><a href="#Client.server">server</a></code> isn't
-   provided.</p></li>
-<li><p><strong>server</strong> (hikari.api.interaction_server.InteractionServer):
-The Hikari interaction server client this will use if applicable.</p>
-
-<p>!!! note
-   This is used for interaction command dispatch if interaction
-   events aren't being received from the event manager.</p></li>
+<li><strong>event_manager</strong> (hikari.api.event_manager.EventManagerClient):
+The Hikari event manager client this will use if applicable.</li>
+<li><strong>server</strong> (hikari.api.interaction_server.InteractionServer):
+The Hikari interaction server client this will use if applicable.</li>
 <li><strong>shard</strong> (hikari.traits.ShardAware):
 The Hikari shard aware client this will use if applicable.</li>
 <li><p><strong>event_managed</strong> (bool):
@@ -2914,12 +2904,7 @@ client is first started. Defaults to <code>False</code>.</p>
 set on this specific guild at startup rather than globally. This
 can be useful for testing/debug purposes as slash commands may take
 up to an hour to propagate globally but will immediately propagate
-when set on a specific guild.</p>
-
-<p>!!! note
-   The endpoint this uses has a strict ratelimit which, as of writing,
-   only allows for 2 request per minute (with that ratelimit either
-   being per-guild if targeting a specific guild otherwise globally).</p></li>
+when set on a specific guild.</p></li>
 </ul>
 
 <h6 id="raises">Raises</h6>
@@ -3048,9 +3033,14 @@ when set on a specific guild.</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.GatewayBotAware` instance.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This implicitly defaults the client to human only mode and also</span>
-<span class="sd">            sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This implicitly defaults the client to human only mode and also</span>
+<span class="sd">          sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
+<span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
+<span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
+<span class="sd">          otherwise globally).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -3083,11 +3073,6 @@ when set on a specific guild.</p>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">                only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">                being per-guild if targeting a specific guild otherwise globally).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">cls</span><span class="p">(</span>
@@ -3108,9 +3093,16 @@ when set on a specific guild.</p>
 
             <div class="docstring"><p>Build a <code><a href="#Client">Client</a></code> from a <code>hikari.traits.GatewayBotAware</code> instance.</p>
 
-<p>!!! note
-    This implicitly defaults the client to human only mode and also
-    sets hikari trait injectors based on <code>bot</code>.</p>
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>This implicitly defaults the client to human only mode and also
+sets hikari trait injectors based on <code>bot</code>.</li>
+<li>The endpoint used by <code><a href="#Client.set_global_commands">set_global_commands</a></code> has a strict ratelimit
+which, as of writing, only allows for 2 request per minute (with that
+ratelimit either being per-guild if targeting a specific guild
+otherwise globally).</li>
+</ul>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -3145,12 +3137,7 @@ client is first started. Defaults to <code>False</code>.</p>
 set on this specific guild at startup rather than globally. This
 can be useful for testing/debug purposes as slash commands may take
 up to an hour to propagate globally but will immediately propagate
-when set on a specific guild.</p>
-
-<p>!!! note
-   The endpoint this uses has a strict ratelimit which, as of writing,
-   only allows for 2 request per minute (with that ratelimit either
-   being per-guild if targeting a specific guild otherwise globally).</p></li>
+when set on a specific guild.</p></li>
 </ul>
 </div>
 
@@ -3181,8 +3168,13 @@ when set on a specific guild.</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.RESTBotAware` instance.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This implicitly sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This implicitly sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
+<span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
+<span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
+<span class="sd">          otherwise globally).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -3200,12 +3192,6 @@ when set on a specific guild.</p>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">                only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">                being per-guild if targeting a specific guild otherwise globally).</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">interaction_server</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span>
@@ -3216,8 +3202,15 @@ when set on a specific guild.</p>
 
             <div class="docstring"><p>Build a <code><a href="#Client">Client</a></code> from a <code>hikari.traits.RESTBotAware</code> instance.</p>
 
-<p>!!! note
-    This implicitly sets hikari trait injectors based on <code>bot</code>.</p>
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>This implicitly sets hikari trait injectors based on <code>bot</code>.</li>
+<li>The endpoint used by <code><a href="#Client.set_global_commands">set_global_commands</a></code> has a strict ratelimit
+which, as of writing, only allows for 2 request per minute (with that
+ratelimit either being per-guild if targeting a specific guild
+otherwise globally).</li>
+</ul>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -3237,12 +3230,7 @@ client is first started. Defaults to <code>False</code>.</p>
 set on this specific guild at startup rather than globally. This
 can be useful for testing/debug purposes as slash commands may take
 up to an hour to propagate globally but will immediately propagate
-when set on a specific guild.</p>
-
-<p>!!! note
-   The endpoint this uses has a strict ratelimit which, as of writing,
-   only allows for 2 request per minute (with that ratelimit either
-   being per-guild if targeting a specific guild otherwise globally).</p></li>
+when set on a specific guild.</p></li>
 </ul>
 </div>
 
@@ -3562,9 +3550,6 @@ if provided, else <code>None</code>.</li>
 <span class="sd">        command : tanjun.abc.BaseSlashCommand</span>
 <span class="sd">            The command to register.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This ignores any ID that&#39;s been set on `tanjun.abc.BaseSlashCommand`.</span>
-
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
@@ -3574,13 +3559,17 @@ if provided, else <code>None</code>.</li>
 <span class="sd">            being used by `Client.rest`.</span>
 <span class="sd">        command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]</span>
 <span class="sd">            Object or ID of the command to update.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                Providing this when updating a command helps avoid</span>
 <span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
 <span class="sd">            Object or ID of the guild to register the command with.</span>
 
 <span class="sd">            If left as `None` then the command will be registered globally.</span>
+
+<span class="sd">        Warnings</span>
+<span class="sd">        --------</span>
+<span class="sd">        * This ignores any ID that&#39;s been set on `tanjun.abc.BaseSlashCommand`.</span>
+<span class="sd">        * Providing `command_id` when updating a command helps avoid any</span>
+<span class="sd">          permissions set for the command being lose (e.g. when changing the</span>
+<span class="sd">          command&#39;s name).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -3620,7 +3609,6 @@ if provided, else <code>None</code>.</li>
 <ul>
 <li><strong>command</strong> (<a href="abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>):
 The command to register.</li>
-<li><strong>!!! note</strong>: This ignores any ID that's been set on <code><a href="abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a></code>.</li>
 </ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
@@ -3631,15 +3619,21 @@ The application to register the command with.</p>
 
 <p>If left as <code>None</code> then this will be inferred from the authorization
 being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
-<li><p><strong>command_id</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]):
-Object or ID of the command to update.</p>
-
-<p>!!! note
-   Providing this when updating a command helps avoid</p></li>
+<li><strong>command_id</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]):
+Object or ID of the command to update.</li>
 <li><p><strong>guild</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]):
 Object or ID of the guild to register the command with.</p>
 
 <p>If left as <code>None</code> then the command will be registered globally.</p></li>
+</ul>
+
+<h6 id="warnings">Warnings</h6>
+
+<ul>
+<li>This ignores any ID that's been set on <code><a href="abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a></code>.</li>
+<li>Providing <code>command_id</code> when updating a command helps avoid any
+permissions set for the command being lose (e.g. when changing the
+command's name).</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -3678,7 +3672,7 @@ Object or ID of the guild to register the command with.</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Declare a collection of slash commands for a bot.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
 <span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
 <span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
@@ -3740,10 +3734,10 @@ Object or ID of the guild to register the command with.</p>
 
             <div class="docstring"><p>Declare a collection of slash commands for a bot.</p>
 
-<p>!!! note
-    The endpoint this uses has a strict ratelimit which, as of writing,
-    only allows for 2 request per minute (with that ratelimit either
-    being per-guild if targeting a specific guild otherwise globally).</p>
+<p><em>Note:</em>
+The endpoint this uses has a strict ratelimit which, as of writing,
+only allows for 2 request per minute (with that ratelimit either
+being per-guild if targeting a specific guild otherwise globally).</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -3788,14 +3782,14 @@ Object or ID of the guild to register the commands with.</p>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_auto_defer_after</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set when this client should automatically defer execution of commands.</span>
 
+<span class="sd">        .. warning::</span>
+<span class="sd">            If `time` is set to `None` then automatic deferrals will be disabled.</span>
+<span class="sd">            This may lead to unexpected behaviour.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        time : typing.Optional[float]</span>
 <span class="sd">            The time in seconds to defer interaction command responses after.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                If this is set to `None` then automatic deferrals will be disabled.</span>
-<span class="sd">                This may lead to unexpected behaviour.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -3805,15 +3799,15 @@ Object or ID of the guild to register the commands with.</p>
 
             <div class="docstring"><p>Set when this client should automatically defer execution of commands.</p>
 
+<p><em>Warning:</em>
+If <code>time</code> is set to <code>None</code> then automatic deferrals will be disabled.
+This may lead to unexpected behaviour.</p>
+
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>time</strong> (typing.Optional[float]):
-The time in seconds to defer interaction command responses after.</p>
-
-<p>!!! note
-   If this is set to <code>None</code> then automatic deferrals will be disabled.
-   This may lead to unexpected behaviour.</p></li>
+<li><strong>time</strong> (typing.Optional[float]):
+The time in seconds to defer interaction command responses after.</li>
 </ul>
 </div>
 
@@ -3877,15 +3871,15 @@ The hikari client to set dependency injectors for.</li>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_interaction_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the response message for when an interaction command is not found.</span>
 
+<span class="sd">        .. warning::</span>
+<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
+<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
+<span class="sd">            only be done if you know what you&#39;re doing.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        message : typing.Optional[str]</span>
 <span class="sd">            The message to respond with when an interaction command isn&#39;t found.</span>
-
-<span class="sd">        !!! warning</span>
-<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
-<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
-<span class="sd">            only be done if you know what you&#39;re doing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="o">=</span> <span class="n">message</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -3895,14 +3889,16 @@ The hikari client to set dependency injectors for.</li>
 
             <div class="docstring"><p>Set the response message for when an interaction command is not found.</p>
 
+<p><em>Warning:</em>
+Setting this to <code>None</code> may lead to unexpected behaviour (especially
+when the client is still set to auto-defer interactions) and should
+only be done if you know what you're doing.</p>
+
 <h6 id="parameters">Parameters</h6>
 
 <ul>
 <li><strong>message</strong> (typing.Optional[str]):
 The message to respond with when an interaction command isn't found.</li>
-<li><strong>!!! warning</strong>: Setting this to <code>None</code> may lead to unexpected behaviour (especially
-when the client is still set to auto-defer interactions) and should
-only be done if you know what you're doing.</li>
 </ul>
 </div>
 
@@ -3964,7 +3960,7 @@ The type of messages commands should be executed based on.</li>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_human_only</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set whether or not message commands execution should be limited to &quot;human&quot; users.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            This doesn&#39;t apply to interaction commands as these can only be</span>
 <span class="sd">            triggered by a &quot;human&quot; (normal user account).</span>
 
@@ -3992,9 +3988,9 @@ The type of messages commands should be executed based on.</li>
 
             <div class="docstring"><p>Set whether or not message commands execution should be limited to "human" users.</p>
 
-<p>!!! note
-    This doesn't apply to interaction commands as these can only be
-    triggered by a "human" (normal user account).</p>
+<p><em>Note:</em>
+This doesn't apply to interaction commands as these can only be
+triggered by a "human" (normal user account).</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -4032,7 +4028,7 @@ based on webhook and bot messages.</p></li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Clear the commands declared either globally or for a specific guild.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
 <span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
 <span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
@@ -4059,10 +4055,10 @@ based on webhook and bot messages.</p></li>
 
             <div class="docstring"><p>Clear the commands declared either globally or for a specific guild.</p>
 
-<p>!!! note
-    The endpoint this uses has a strict ratelimit which, as of writing,
-    only allows for 2 request per minute (with that ratelimit either
-    being per-guild if targeting a specific guild otherwise globally).</p>
+<p><em>Note:</em>
+The endpoint this uses has a strict ratelimit which, as of writing,
+only allows for 2 request per minute (with that ratelimit either
+being per-guild if targeting a specific guild otherwise globally).</p>
 
 <h6 id="other-parameters">Other Parameters</h6>
 
@@ -4104,14 +4100,18 @@ Object or ID of the guild to clear commands for.</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Set the global application commands for a bot based on the loaded components.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. warning::</span>
 <span class="sd">            This will overwrite any previously set application commands and</span>
 <span class="sd">            only targets commands marked as global.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * The endpoint this uses has a strict ratelimit which, as of writing,</span>
+<span class="sd">          only allows for 2 request per minute (with that ratelimit either</span>
+<span class="sd">          being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">        * Setting a specific `guild` can be useful for testing/debug purposes</span>
+<span class="sd">          as slash commands may take up to an hour to propagate globally but</span>
+<span class="sd">          will immediately propagate when set on a specific guild.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
@@ -4124,11 +4124,6 @@ Object or ID of the guild to clear commands for.</p>
 <span class="sd">            Object or ID of the guild to set the global commands to.</span>
 
 <span class="sd">            If left as `None` global commands will be set.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                This can be useful for testing/debug purposes as slash commands</span>
-<span class="sd">                may take up to an hour to propagate globally but will</span>
-<span class="sd">                immediately propagate when set on a specific guild.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -4147,14 +4142,20 @@ Object or ID of the guild to clear commands for.</p>
 
             <div class="docstring"><p>Set the global application commands for a bot based on the loaded components.</p>
 
-<p>!!! note
-    This will overwrite any previously set application commands and
-    only targets commands marked as global.</p>
+<p><em>Warning:</em>
+This will overwrite any previously set application commands and
+only targets commands marked as global.</p>
 
-<p>!!! note
-    The endpoint this uses has a strict ratelimit which, as of writing,
-    only allows for 2 request per minute (with that ratelimit either
-    being per-guild if targeting a specific guild otherwise globally).</p>
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>The endpoint this uses has a strict ratelimit which, as of writing,
+only allows for 2 request per minute (with that ratelimit either
+being per-guild if targeting a specific guild otherwise globally).</li>
+<li>Setting a specific <code>guild</code> can be useful for testing/debug purposes
+as slash commands may take up to an hour to propagate globally but
+will immediately propagate when set on a specific guild.</li>
+</ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
 
@@ -4167,12 +4168,7 @@ being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
 <li><p><strong>guild</strong> (hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]):
 Object or ID of the guild to set the global commands to.</p>
 
-<p>If left as <code>None</code> global commands will be set.</p>
-
-<p>!!! note
-   This can be useful for testing/debug purposes as slash commands
-   may take up to an hour to propagate globally but will
-   immediately propagate when set on a specific guild.</p></li>
+<p>If left as <code>None</code> global commands will be set.</p></li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -5018,14 +5014,14 @@ of type <code><a href="#Client">Client</a></code>.</p>
             <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">on_interaction_create_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionCreateEvent</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute a slash command based on Gateway events.</span>
 
+<span class="sd">        .. note::</span>
+<span class="sd">            Any event where `event.interaction` is not</span>
+<span class="sd">            `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        event : hikari.events.interaction_events.InteractionCreateEvent</span>
 <span class="sd">            The event to execute commands based on.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                Any event where `event.interaction` is not</span>
-<span class="sd">                `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">):</span>
             <span class="k">return</span>
@@ -5058,15 +5054,15 @@ of type <code><a href="#Client">Client</a></code>.</p>
 
             <div class="docstring"><p>Execute a slash command based on Gateway events.</p>
 
+<p><em>Note:</em>
+Any event where <code>event.interaction</code> is not
+<code>hikari.interactions.commands.CommandInteraction</code> will be ignored.</p>
+
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>event</strong> (hikari.events.interaction_events.InteractionCreateEvent):
-The event to execute commands based on.</p>
-
-<p>!!! note
-   Any event where <code>event.interaction</code> is not
-   <code>hikari.interactions.commands.CommandInteraction</code> will be ignored.</p></li>
+<li><strong>event</strong> (hikari.events.interaction_events.InteractionCreateEvent):
+The event to execute commands based on.</li>
 </ul>
 </div>
 

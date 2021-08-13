@@ -1560,7 +1560,7 @@ tanjun    </h1>
 <span class="sd">keyword or positional arguments will be based on the parser instance for the</span>
 <span class="sd">command if applicable.</span>
 
-<span class="sd">!!! note</span>
+<span class="sd">.. note::</span>
 <span class="sd">    This will have to be asynchronous.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -1635,14 +1635,14 @@ tanjun    </h1>
     <span class="k">def</span> <span class="nf">component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">Component</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Object of the `Component` this context is bound to.</span>
 
+<span class="sd">        .. note::</span>
+<span class="sd">            This will only be `None` before this has been bound to a</span>
+<span class="sd">            specific command but never during command execution nor checks.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        typing.Optional[Component[ContextT]]</span>
 <span class="sd">            The component this context is bound to.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                This will only be `None` before this has been bound to a</span>
-<span class="sd">                specific command but never during command execution nor checks.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>  <span class="c1"># TODO: can we somehow have this always be present on the command execution facing interface</span>
@@ -1650,14 +1650,14 @@ tanjun    </h1>
     <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">ContextT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">ContextT</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Object of the command this context is bound to.</span>
 
+<span class="sd">        .. note::</span>
+<span class="sd">            This will only be `None` before this has been bound to a</span>
+<span class="sd">            specific command but never during command execution.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        typing.Optional[ExecutableCommand[ContextT]]</span>
 <span class="sd">            The command this context is bound to.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                This will only be `None` before this has been bound to a</span>
-<span class="sd">                specific command but never during command execution.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -2088,7 +2088,7 @@ tanjun    </h1>
     <span class="k">def</span> <span class="nf">has_been_deferred</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Whether the initial response for this context has been deferred.</span>
 
-<span class="sd">        !!! warning</span>
+<span class="sd">        .. warning::</span>
 <span class="sd">            If this is `True` when `SlashContext.has_responded` is `False`</span>
 <span class="sd">            then `SlashContext.edit_initial_response` will need to be used</span>
 <span class="sd">            to create the initial response rather than</span>
@@ -2488,10 +2488,9 @@ tanjun    </h1>
     <span class="k">def</span> <span class="nf">is_global</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Whether the command should be declared globally or not.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. warning::</span>
 <span class="sd">            For commands within command groups the state of this flag</span>
 <span class="sd">            is inherited regardless of what it&#39;s set as on the child command.</span>
-
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -2596,7 +2595,7 @@ tanjun    </h1>
 <span class="k">class</span> <span class="nc">SlashCommandGroup</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Standard interface of a slash command group.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        Unlike `MessageCommandGroup`, slash command groups do not have</span>
 <span class="sd">        their own callback.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2665,7 +2664,7 @@ tanjun    </h1>
     <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallbackSig</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Get the callback which is called during execution.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            For command groups, this is called when none of the inner-commands</span>
 <span class="sd">            matches the message.</span>
 
@@ -2738,7 +2737,7 @@ tanjun    </h1>
     <span class="k">def</span> <span class="nf">commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get a collection of the commands in this group.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            This may include command groups.</span>
 
 <span class="sd">        Returns</span>
@@ -2814,8 +2813,8 @@ tanjun    </h1>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Get the component&#39;s identifier.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This should be preserved between copies of a component.</span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This will be preserved between copies of a component.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -3693,12 +3692,11 @@ tanjun    </h1>
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -3747,12 +3745,11 @@ tanjun    </h1>
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -3801,12 +3798,11 @@ tanjun    </h1>
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -3857,12 +3853,11 @@ tanjun    </h1>
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -3899,10 +3894,6 @@ tanjun    </h1>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackReturnT</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if it&#39;s being triggered by one of the bot&#39;s owners.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        This is based on the owner(s) of the bot&#39;s application and will account</span>
-<span class="sd">        for team owners as well.</span>
-
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    command : typing.Optional[CommandT]</span>
@@ -3928,15 +3919,14 @@ tanjun    </h1>
 <span class="sd">        Iterable of objects and IDs of other users to explicitly mark as owners</span>
 <span class="sd">        for this check.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This will be used alongside the application&#39;s owners.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * Any provided `owner_ids` will be used alongside the application&#39;s owners.</span>
+<span class="sd">    * This is based on the owner(s) of the bot&#39;s application and will account</span>
+<span class="sd">      for team owners as well.</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -3959,10 +3949,6 @@ tanjun    </h1>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if the author has certain permissions in the current channel.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        This will only pass for commands in DMs if `permissions` is valid for</span>
-<span class="sd">        a DM context (e.g. can&#39;t have any moderation permissions)</span>
-
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    permissions: typing.Union[hikari.permissions.Permissions, int]</span>
@@ -3981,8 +3967,11 @@ tanjun    </h1>
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * This will only pass for commands in DMs if `permissions` is valid for</span>
+<span class="sd">      a DM context (e.g. can&#39;t have any moderation permissions)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -4002,10 +3991,6 @@ tanjun    </h1>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if we have certain permissions in the current channel.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        This will only pass for commands in DMs if `permissions` is valid for</span>
-<span class="sd">        a DM context (e.g. can&#39;t have any moderation permissions)</span>
-
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    permissions: typing.Union[hikari.permissions.Permissions, int]</span>
@@ -4024,8 +4009,11 @@ tanjun    </h1>
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * This will only pass for commands in DMs if `permissions` is valid for</span>
+<span class="sd">      a DM context (e.g. can&#39;t have any moderation permissions)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -4152,12 +4140,11 @@ The check to add to this command.</li>
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -4191,8 +4178,13 @@ Whether this check should raise <code><a href="tanjun/errors.html#HaltExecution"
 end the execution search when it fails instead of returning <code>False</code>.</p>
 
 <p>Defaults to <code>False</code>.</p></li>
-<li><strong>!!! note</strong>: error_message takes priority over halt_execution.</li>
-<li><strong>!!! note</strong>: For more information on how this is used with other parameters see
+</ul>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>error_message takes priority over halt_execution.</li>
+<li>For more information on how this is used with other parameters see
 <code>CallbackReturnT</code>.</li>
 </ul>
 
@@ -4248,12 +4240,11 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -4287,8 +4278,13 @@ Whether this check should raise <code><a href="tanjun/errors.html#HaltExecution"
 end the execution search when it fails instead of returning <code>False</code>.</p>
 
 <p>Defaults to <code>False</code>.</p></li>
-<li><strong>!!! note</strong>: error_message takes priority over halt_execution.</li>
-<li><strong>!!! note</strong>: For more information on how this is used with other parameters see
+</ul>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>error_message takes priority over halt_execution.</li>
+<li>For more information on how this is used with other parameters see
 <code>CallbackReturnT</code>.</li>
 </ul>
 
@@ -4344,12 +4340,11 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -4383,8 +4378,13 @@ Whether this check should raise <code><a href="tanjun/errors.html#HaltExecution"
 end the execution search when it fails instead of returning <code>False</code>.</p>
 
 <p>Defaults to <code>False</code>.</p></li>
-<li><strong>!!! note</strong>: error_message takes priority over halt_execution.</li>
-<li><strong>!!! note</strong>: For more information on how this is used with other parameters see
+</ul>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>error_message takes priority over halt_execution.</li>
+<li>For more information on how this is used with other parameters see
 <code>CallbackReturnT</code>.</li>
 </ul>
 
@@ -4440,12 +4440,11 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -4479,8 +4478,13 @@ Whether this check should raise <code><a href="tanjun/errors.html#HaltExecution"
 end the execution search when it fails instead of returning <code>False</code>.</p>
 
 <p>Defaults to <code>False</code>.</p></li>
-<li><strong>!!! note</strong>: error_message takes priority over halt_execution.</li>
-<li><strong>!!! note</strong>: For more information on how this is used with other parameters see
+</ul>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>error_message takes priority over halt_execution.</li>
+<li>For more information on how this is used with other parameters see
 <code>CallbackReturnT</code>.</li>
 </ul>
 
@@ -4522,10 +4526,6 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackReturnT</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if it&#39;s being triggered by one of the bot&#39;s owners.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        This is based on the owner(s) of the bot&#39;s application and will account</span>
-<span class="sd">        for team owners as well.</span>
-
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    command : typing.Optional[CommandT]</span>
@@ -4551,15 +4551,14 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <span class="sd">        Iterable of objects and IDs of other users to explicitly mark as owners</span>
 <span class="sd">        for this check.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This will be used alongside the application&#39;s owners.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * Any provided `owner_ids` will be used alongside the application&#39;s owners.</span>
+<span class="sd">    * This is based on the owner(s) of the bot&#39;s application and will account</span>
+<span class="sd">      for team owners as well.</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -4577,10 +4576,6 @@ end the execution search when it fails instead of returning <code>False</code>.<
         </details>
 
             <div class="docstring"><p>Only let a command run if it's being triggered by one of the bot's owners.</p>
-
-<p>!!! note
-    This is based on the owner(s) of the bot's application and will account
-    for team owners as well.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -4606,14 +4601,19 @@ Whether this check should raise <code><a href="tanjun/errors.html#HaltExecution"
 end the execution search when it fails instead of returning <code>False</code>.</p>
 
 <p>Defaults to <code>False</code>.</p></li>
-<li><p><strong>owner_ids</strong> (typing.Optional[collections.abc.Iterable[hikari.snowflakes.SonwflakeishOr[hikari.users.User]]]):
+<li><strong>owner_ids</strong> (typing.Optional[collections.abc.Iterable[hikari.snowflakes.SonwflakeishOr[hikari.users.User]]]):
 Iterable of objects and IDs of other users to explicitly mark as owners
-for this check.</p>
+for this check.</li>
+</ul>
 
-<p>!!! note
-   This will be used alongside the application's owners.</p></li>
-<li><strong>!!! note</strong>: error_message takes priority over halt_execution.</li>
-<li><strong>!!! note</strong>: For more information on how this is used with other parameters see
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>Any provided <code>owner_ids</code> will be used alongside the application's owners.</li>
+<li>This is based on the owner(s) of the bot's application and will account
+for team owners as well.</li>
+<li>error_message takes priority over halt_execution.</li>
+<li>For more information on how this is used with other parameters see
 <code>CallbackReturnT</code>.</li>
 </ul>
 
@@ -4649,10 +4649,6 @@ for this check.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if the author has certain permissions in the current channel.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        This will only pass for commands in DMs if `permissions` is valid for</span>
-<span class="sd">        a DM context (e.g. can&#39;t have any moderation permissions)</span>
-
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    permissions: typing.Union[hikari.permissions.Permissions, int]</span>
@@ -4671,8 +4667,11 @@ for this check.</p>
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * This will only pass for commands in DMs if `permissions` is valid for</span>
+<span class="sd">      a DM context (e.g. can&#39;t have any moderation permissions)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -4687,10 +4686,6 @@ for this check.</p>
         </details>
 
             <div class="docstring"><p>Only let a command run if the author has certain permissions in the current channel.</p>
-
-<p>!!! note
-    This will only pass for commands in DMs if <code>permissions</code> is valid for
-    a DM context (e.g. can't have any moderation permissions)</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -4712,7 +4707,14 @@ Whether this check should raise <code><a href="tanjun/errors.html#HaltExecution"
 end the execution search when it fails instead of returning <code>False</code>.</p>
 
 <p>Defaults to <code>False</code>.</p></li>
-<li><strong>!!! note</strong>: error_message takes priority over halt_execution.</li>
+</ul>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>error_message takes priority over halt_execution.</li>
+<li>This will only pass for commands in DMs if <code>permissions</code> is valid for
+a DM context (e.g. can't have any moderation permissions)</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -4747,10 +4749,6 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if we have certain permissions in the current channel.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        This will only pass for commands in DMs if `permissions` is valid for</span>
-<span class="sd">        a DM context (e.g. can&#39;t have any moderation permissions)</span>
-
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    permissions: typing.Union[hikari.permissions.Permissions, int]</span>
@@ -4769,8 +4767,11 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * This will only pass for commands in DMs if `permissions` is valid for</span>
+<span class="sd">      a DM context (e.g. can&#39;t have any moderation permissions)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -4785,10 +4786,6 @@ end the execution search when it fails instead of returning <code>False</code>.<
         </details>
 
             <div class="docstring"><p>Only let a command run if we have certain permissions in the current channel.</p>
-
-<p>!!! note
-    This will only pass for commands in DMs if <code>permissions</code> is valid for
-    a DM context (e.g. can't have any moderation permissions)</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -4810,7 +4807,14 @@ Whether this check should raise <code><a href="tanjun/errors.html#HaltExecution"
 end the execution search when it fails instead of returning <code>False</code>.</p>
 
 <p>Defaults to <code>False</code>.</p></li>
-<li><strong>!!! note</strong>: error_message takes priority over halt_execution.</li>
+</ul>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>error_message takes priority over halt_execution.</li>
+<li>This will only pass for commands in DMs if <code>permissions</code> is valid for
+a DM context (e.g. can't have any moderation permissions)</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -4914,7 +4918,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">This should be an asynchronous callable which returns an iterable of strings.</span>
 
-<span class="sd">!!! note</span>
+<span class="sd">.. note::</span>
 <span class="sd">    While dependency injection is supported for this, the first positional</span>
 <span class="sd">    argument will always be a `tanjun.abc.MessageContext`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -5075,9 +5079,18 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <span class="sd">    callbacks, and prefix getters. For more information on how</span>
 <span class="sd">    this works see `tanjun.injector`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        For a quicker way to initiate this client around a standard bot aware</span>
-<span class="sd">        client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * For a quicker way to initiate this client around a standard bot aware</span>
+<span class="sd">      client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.</span>
+<span class="sd">    * The endpoint used by `set_global_commands` has a strict ratelimit which,</span>
+<span class="sd">      as of writing, only allows for 2 request per minute (with that ratelimit</span>
+<span class="sd">      either being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">    * `event_manager` is necessary for message command dispatch and will also</span>
+<span class="sd">      be necessary for interaction command dispatch if `server` isn&#39;t</span>
+<span class="sd">      provided.</span>
+<span class="sd">    * `server` is used for interaction command dispatch if interaction</span>
+<span class="sd">      events aren&#39;t being received from the event manager.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -5090,17 +5103,8 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <span class="sd">        The Hikari cache client this will use if applicable.</span>
 <span class="sd">    event_manager : hikari.api.event_manager.EventManagerClient</span>
 <span class="sd">        The Hikari event manager client this will use if applicable.</span>
-
-<span class="sd">        !!! note</span>
-<span class="sd">            This is necessary for message command dispatch and will also be</span>
-<span class="sd">            necessary for interaction command dispatch if `server` isn&#39;t</span>
-<span class="sd">            provided.</span>
 <span class="sd">    server : hikari.api.interaction_server.InteractionServer</span>
 <span class="sd">        The Hikari interaction server client this will use if applicable.</span>
-
-<span class="sd">        !!! note</span>
-<span class="sd">            This is used for interaction command dispatch if interaction</span>
-<span class="sd">            events aren&#39;t being received from the event manager.</span>
 <span class="sd">    shard : hikari.traits.ShardAware</span>
 <span class="sd">        The Hikari shard aware client this will use if applicable.</span>
 <span class="sd">    event_managed : bool</span>
@@ -5126,11 +5130,6 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <span class="sd">        can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">        up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">        when set on a specific guild.</span>
-
-<span class="sd">        !!! note</span>
-<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -5236,9 +5235,14 @@ end the execution search when it fails instead of returning <code>False</code>.<
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.GatewayBotAware` instance.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This implicitly defaults the client to human only mode and also</span>
-<span class="sd">            sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This implicitly defaults the client to human only mode and also</span>
+<span class="sd">          sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
+<span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
+<span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
+<span class="sd">          otherwise globally).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -5271,11 +5275,6 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">                only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">                being per-guild if targeting a specific guild otherwise globally).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">cls</span><span class="p">(</span>
@@ -5300,8 +5299,13 @@ end the execution search when it fails instead of returning <code>False</code>.<
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.RESTBotAware` instance.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This implicitly sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This implicitly sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
+<span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
+<span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
+<span class="sd">          otherwise globally).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -5319,12 +5323,6 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">                only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">                being per-guild if targeting a specific guild otherwise globally).</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">interaction_server</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span>
@@ -5498,9 +5496,6 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <span class="sd">        command : tanjun.abc.BaseSlashCommand</span>
 <span class="sd">            The command to register.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This ignores any ID that&#39;s been set on `tanjun.abc.BaseSlashCommand`.</span>
-
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
@@ -5510,13 +5505,17 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <span class="sd">            being used by `Client.rest`.</span>
 <span class="sd">        command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]</span>
 <span class="sd">            Object or ID of the command to update.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                Providing this when updating a command helps avoid</span>
 <span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
 <span class="sd">            Object or ID of the guild to register the command with.</span>
 
 <span class="sd">            If left as `None` then the command will be registered globally.</span>
+
+<span class="sd">        Warnings</span>
+<span class="sd">        --------</span>
+<span class="sd">        * This ignores any ID that&#39;s been set on `tanjun.abc.BaseSlashCommand`.</span>
+<span class="sd">        * Providing `command_id` when updating a command helps avoid any</span>
+<span class="sd">          permissions set for the command being lose (e.g. when changing the</span>
+<span class="sd">          command&#39;s name).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -5556,7 +5555,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Declare a collection of slash commands for a bot.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
 <span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
 <span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
@@ -5616,14 +5615,14 @@ end the execution search when it fails instead of returning <code>False</code>.<
     <span class="k">def</span> <span class="nf">set_auto_defer_after</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set when this client should automatically defer execution of commands.</span>
 
+<span class="sd">        .. warning::</span>
+<span class="sd">            If `time` is set to `None` then automatic deferrals will be disabled.</span>
+<span class="sd">            This may lead to unexpected behaviour.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        time : typing.Optional[float]</span>
 <span class="sd">            The time in seconds to defer interaction command responses after.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                If this is set to `None` then automatic deferrals will be disabled.</span>
-<span class="sd">                This may lead to unexpected behaviour.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -5648,15 +5647,15 @@ end the execution search when it fails instead of returning <code>False</code>.<
     <span class="k">def</span> <span class="nf">set_interaction_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the response message for when an interaction command is not found.</span>
 
+<span class="sd">        .. warning::</span>
+<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
+<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
+<span class="sd">            only be done if you know what you&#39;re doing.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        message : typing.Optional[str]</span>
 <span class="sd">            The message to respond with when an interaction command isn&#39;t found.</span>
-
-<span class="sd">        !!! warning</span>
-<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
-<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
-<span class="sd">            only be done if you know what you&#39;re doing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="o">=</span> <span class="n">message</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -5678,7 +5677,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
     <span class="k">def</span> <span class="nf">set_human_only</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set whether or not message commands execution should be limited to &quot;human&quot; users.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            This doesn&#39;t apply to interaction commands as these can only be</span>
 <span class="sd">            triggered by a &quot;human&quot; (normal user account).</span>
 
@@ -5709,7 +5708,7 @@ end the execution search when it fails instead of returning <code>False</code>.<
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Clear the commands declared either globally or for a specific guild.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
 <span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
 <span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
@@ -5739,14 +5738,18 @@ end the execution search when it fails instead of returning <code>False</code>.<
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Set the global application commands for a bot based on the loaded components.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. warning::</span>
 <span class="sd">            This will overwrite any previously set application commands and</span>
 <span class="sd">            only targets commands marked as global.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * The endpoint this uses has a strict ratelimit which, as of writing,</span>
+<span class="sd">          only allows for 2 request per minute (with that ratelimit either</span>
+<span class="sd">          being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">        * Setting a specific `guild` can be useful for testing/debug purposes</span>
+<span class="sd">          as slash commands may take up to an hour to propagate globally but</span>
+<span class="sd">          will immediately propagate when set on a specific guild.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
@@ -5759,11 +5762,6 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <span class="sd">            Object or ID of the guild to set the global commands to.</span>
 
 <span class="sd">            If left as `None` global commands will be set.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                This can be useful for testing/debug purposes as slash commands</span>
-<span class="sd">                may take up to an hour to propagate globally but will</span>
-<span class="sd">                immediately propagate when set on a specific guild.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -6118,14 +6116,14 @@ end the execution search when it fails instead of returning <code>False</code>.<
     <span class="k">async</span> <span class="k">def</span> <span class="nf">on_interaction_create_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionCreateEvent</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute a slash command based on Gateway events.</span>
 
+<span class="sd">        .. note::</span>
+<span class="sd">            Any event where `event.interaction` is not</span>
+<span class="sd">            `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        event : hikari.events.interaction_events.InteractionCreateEvent</span>
 <span class="sd">            The event to execute commands based on.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                Any event where `event.interaction` is not</span>
-<span class="sd">                `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">):</span>
             <span class="k">return</span>
@@ -6275,9 +6273,18 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">    callbacks, and prefix getters. For more information on how</span>
 <span class="sd">    this works see `tanjun.injector`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        For a quicker way to initiate this client around a standard bot aware</span>
-<span class="sd">        client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * For a quicker way to initiate this client around a standard bot aware</span>
+<span class="sd">      client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.</span>
+<span class="sd">    * The endpoint used by `set_global_commands` has a strict ratelimit which,</span>
+<span class="sd">      as of writing, only allows for 2 request per minute (with that ratelimit</span>
+<span class="sd">      either being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">    * `event_manager` is necessary for message command dispatch and will also</span>
+<span class="sd">      be necessary for interaction command dispatch if `server` isn&#39;t</span>
+<span class="sd">      provided.</span>
+<span class="sd">    * `server` is used for interaction command dispatch if interaction</span>
+<span class="sd">      events aren&#39;t being received from the event manager.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -6290,17 +6297,8 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">        The Hikari cache client this will use if applicable.</span>
 <span class="sd">    event_manager : hikari.api.event_manager.EventManagerClient</span>
 <span class="sd">        The Hikari event manager client this will use if applicable.</span>
-
-<span class="sd">        !!! note</span>
-<span class="sd">            This is necessary for message command dispatch and will also be</span>
-<span class="sd">            necessary for interaction command dispatch if `server` isn&#39;t</span>
-<span class="sd">            provided.</span>
 <span class="sd">    server : hikari.api.interaction_server.InteractionServer</span>
 <span class="sd">        The Hikari interaction server client this will use if applicable.</span>
-
-<span class="sd">        !!! note</span>
-<span class="sd">            This is used for interaction command dispatch if interaction</span>
-<span class="sd">            events aren&#39;t being received from the event manager.</span>
 <span class="sd">    shard : hikari.traits.ShardAware</span>
 <span class="sd">        The Hikari shard aware client this will use if applicable.</span>
 <span class="sd">    event_managed : bool</span>
@@ -6326,11 +6324,6 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">        can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">        up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">        when set on a specific guild.</span>
-
-<span class="sd">        !!! note</span>
-<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -6436,9 +6429,14 @@ to the provided client using it's abstract methods.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.GatewayBotAware` instance.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This implicitly defaults the client to human only mode and also</span>
-<span class="sd">            sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This implicitly defaults the client to human only mode and also</span>
+<span class="sd">          sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
+<span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
+<span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
+<span class="sd">          otherwise globally).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -6471,11 +6469,6 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">                only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">                being per-guild if targeting a specific guild otherwise globally).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">cls</span><span class="p">(</span>
@@ -6500,8 +6493,13 @@ to the provided client using it's abstract methods.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.RESTBotAware` instance.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This implicitly sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This implicitly sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
+<span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
+<span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
+<span class="sd">          otherwise globally).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -6519,12 +6517,6 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">                only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">                being per-guild if targeting a specific guild otherwise globally).</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">interaction_server</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span>
@@ -6698,9 +6690,6 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">        command : tanjun.abc.BaseSlashCommand</span>
 <span class="sd">            The command to register.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This ignores any ID that&#39;s been set on `tanjun.abc.BaseSlashCommand`.</span>
-
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
@@ -6710,13 +6699,17 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">            being used by `Client.rest`.</span>
 <span class="sd">        command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]</span>
 <span class="sd">            Object or ID of the command to update.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                Providing this when updating a command helps avoid</span>
 <span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
 <span class="sd">            Object or ID of the guild to register the command with.</span>
 
 <span class="sd">            If left as `None` then the command will be registered globally.</span>
+
+<span class="sd">        Warnings</span>
+<span class="sd">        --------</span>
+<span class="sd">        * This ignores any ID that&#39;s been set on `tanjun.abc.BaseSlashCommand`.</span>
+<span class="sd">        * Providing `command_id` when updating a command helps avoid any</span>
+<span class="sd">          permissions set for the command being lose (e.g. when changing the</span>
+<span class="sd">          command&#39;s name).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -6756,7 +6749,7 @@ to the provided client using it's abstract methods.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Declare a collection of slash commands for a bot.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
 <span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
 <span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
@@ -6816,14 +6809,14 @@ to the provided client using it's abstract methods.</li>
     <span class="k">def</span> <span class="nf">set_auto_defer_after</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set when this client should automatically defer execution of commands.</span>
 
+<span class="sd">        .. warning::</span>
+<span class="sd">            If `time` is set to `None` then automatic deferrals will be disabled.</span>
+<span class="sd">            This may lead to unexpected behaviour.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        time : typing.Optional[float]</span>
 <span class="sd">            The time in seconds to defer interaction command responses after.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                If this is set to `None` then automatic deferrals will be disabled.</span>
-<span class="sd">                This may lead to unexpected behaviour.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -6848,15 +6841,15 @@ to the provided client using it's abstract methods.</li>
     <span class="k">def</span> <span class="nf">set_interaction_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the response message for when an interaction command is not found.</span>
 
+<span class="sd">        .. warning::</span>
+<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
+<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
+<span class="sd">            only be done if you know what you&#39;re doing.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        message : typing.Optional[str]</span>
 <span class="sd">            The message to respond with when an interaction command isn&#39;t found.</span>
-
-<span class="sd">        !!! warning</span>
-<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
-<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
-<span class="sd">            only be done if you know what you&#39;re doing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="o">=</span> <span class="n">message</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -6878,7 +6871,7 @@ to the provided client using it's abstract methods.</li>
     <span class="k">def</span> <span class="nf">set_human_only</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set whether or not message commands execution should be limited to &quot;human&quot; users.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            This doesn&#39;t apply to interaction commands as these can only be</span>
 <span class="sd">            triggered by a &quot;human&quot; (normal user account).</span>
 
@@ -6909,7 +6902,7 @@ to the provided client using it's abstract methods.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Clear the commands declared either globally or for a specific guild.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
 <span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
 <span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
@@ -6939,14 +6932,18 @@ to the provided client using it's abstract methods.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Set the global application commands for a bot based on the loaded components.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. warning::</span>
 <span class="sd">            This will overwrite any previously set application commands and</span>
 <span class="sd">            only targets commands marked as global.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * The endpoint this uses has a strict ratelimit which, as of writing,</span>
+<span class="sd">          only allows for 2 request per minute (with that ratelimit either</span>
+<span class="sd">          being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">        * Setting a specific `guild` can be useful for testing/debug purposes</span>
+<span class="sd">          as slash commands may take up to an hour to propagate globally but</span>
+<span class="sd">          will immediately propagate when set on a specific guild.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
@@ -6959,11 +6956,6 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">            Object or ID of the guild to set the global commands to.</span>
 
 <span class="sd">            If left as `None` global commands will be set.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                This can be useful for testing/debug purposes as slash commands</span>
-<span class="sd">                may take up to an hour to propagate globally but will</span>
-<span class="sd">                immediately propagate when set on a specific guild.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -7318,14 +7310,14 @@ to the provided client using it's abstract methods.</li>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">on_interaction_create_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionCreateEvent</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute a slash command based on Gateway events.</span>
 
+<span class="sd">        .. note::</span>
+<span class="sd">            Any event where `event.interaction` is not</span>
+<span class="sd">            `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        event : hikari.events.interaction_events.InteractionCreateEvent</span>
 <span class="sd">            The event to execute commands based on.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                Any event where `event.interaction` is not</span>
-<span class="sd">                `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">):</span>
             <span class="k">return</span>
@@ -7405,9 +7397,20 @@ to the provided client using it's abstract methods.</li>
 callbacks, and prefix getters. For more information on how
 this works see <code><a href="#injector">tanjun.injector</a></code>.</p>
 
-<p>!!! note
-    For a quicker way to initiate this client around a standard bot aware
-    client, see <code><a href="#Client.from_gateway_bot">Client.from_gateway_bot</a></code> and <code><a href="#Client.from_rest_bot">Client.from_rest_bot</a></code>.</p>
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>For a quicker way to initiate this client around a standard bot aware
+client, see <code><a href="#Client.from_gateway_bot">Client.from_gateway_bot</a></code> and <code><a href="#Client.from_rest_bot">Client.from_rest_bot</a></code>.</li>
+<li>The endpoint used by <code><a href="#Client.set_global_commands">set_global_commands</a></code> has a strict ratelimit which,
+as of writing, only allows for 2 request per minute (with that ratelimit
+either being per-guild if targeting a specific guild otherwise globally).</li>
+<li><code>event_manager</code> is necessary for message command dispatch and will also
+be necessary for interaction command dispatch if <code><a href="#Client.server">server</a></code> isn't
+provided.</li>
+<li><code><a href="#Client.server">server</a></code> is used for interaction command dispatch if interaction
+events aren't being received from the event manager.</li>
+</ul>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -7421,19 +7424,10 @@ The Hikari REST client this will use.</li>
 <ul>
 <li><strong>cache</strong> (hikari.api.cache.CacheClient):
 The Hikari cache client this will use if applicable.</li>
-<li><p><strong>event_manager</strong> (hikari.api.event_manager.EventManagerClient):
-The Hikari event manager client this will use if applicable.</p>
-
-<p>!!! note
-   This is necessary for message command dispatch and will also be
-   necessary for interaction command dispatch if <code><a href="#Client.server">server</a></code> isn't
-   provided.</p></li>
-<li><p><strong>server</strong> (hikari.api.interaction_server.InteractionServer):
-The Hikari interaction server client this will use if applicable.</p>
-
-<p>!!! note
-   This is used for interaction command dispatch if interaction
-   events aren't being received from the event manager.</p></li>
+<li><strong>event_manager</strong> (hikari.api.event_manager.EventManagerClient):
+The Hikari event manager client this will use if applicable.</li>
+<li><strong>server</strong> (hikari.api.interaction_server.InteractionServer):
+The Hikari interaction server client this will use if applicable.</li>
 <li><strong>shard</strong> (hikari.traits.ShardAware):
 The Hikari shard aware client this will use if applicable.</li>
 <li><p><strong>event_managed</strong> (bool):
@@ -7458,12 +7452,7 @@ client is first started. Defaults to <code>False</code>.</p>
 set on this specific guild at startup rather than globally. This
 can be useful for testing/debug purposes as slash commands may take
 up to an hour to propagate globally but will immediately propagate
-when set on a specific guild.</p>
-
-<p>!!! note
-   The endpoint this uses has a strict ratelimit which, as of writing,
-   only allows for 2 request per minute (with that ratelimit either
-   being per-guild if targeting a specific guild otherwise globally).</p></li>
+when set on a specific guild.</p></li>
 </ul>
 
 <h6 id="raises">Raises</h6>
@@ -7592,9 +7581,14 @@ when set on a specific guild.</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.GatewayBotAware` instance.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This implicitly defaults the client to human only mode and also</span>
-<span class="sd">            sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This implicitly defaults the client to human only mode and also</span>
+<span class="sd">          sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
+<span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
+<span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
+<span class="sd">          otherwise globally).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -7627,11 +7621,6 @@ when set on a specific guild.</p>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">                only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">                being per-guild if targeting a specific guild otherwise globally).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">cls</span><span class="p">(</span>
@@ -7652,9 +7641,16 @@ when set on a specific guild.</p>
 
             <div class="docstring"><p>Build a <code><a href="#Client">Client</a></code> from a <code>hikari.traits.GatewayBotAware</code> instance.</p>
 
-<p>!!! note
-    This implicitly defaults the client to human only mode and also
-    sets hikari trait injectors based on <code>bot</code>.</p>
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>This implicitly defaults the client to human only mode and also
+sets hikari trait injectors based on <code>bot</code>.</li>
+<li>The endpoint used by <code><a href="#Client.set_global_commands">set_global_commands</a></code> has a strict ratelimit
+which, as of writing, only allows for 2 request per minute (with that
+ratelimit either being per-guild if targeting a specific guild
+otherwise globally).</li>
+</ul>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -7689,12 +7685,7 @@ client is first started. Defaults to <code>False</code>.</p>
 set on this specific guild at startup rather than globally. This
 can be useful for testing/debug purposes as slash commands may take
 up to an hour to propagate globally but will immediately propagate
-when set on a specific guild.</p>
-
-<p>!!! note
-   The endpoint this uses has a strict ratelimit which, as of writing,
-   only allows for 2 request per minute (with that ratelimit either
-   being per-guild if targeting a specific guild otherwise globally).</p></li>
+when set on a specific guild.</p></li>
 </ul>
 </div>
 
@@ -7725,8 +7716,13 @@ when set on a specific guild.</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.RESTBotAware` instance.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This implicitly sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This implicitly sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
+<span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
+<span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
+<span class="sd">          otherwise globally).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -7744,12 +7740,6 @@ when set on a specific guild.</p>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">                only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">                being per-guild if targeting a specific guild otherwise globally).</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">interaction_server</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span>
@@ -7760,8 +7750,15 @@ when set on a specific guild.</p>
 
             <div class="docstring"><p>Build a <code><a href="#Client">Client</a></code> from a <code>hikari.traits.RESTBotAware</code> instance.</p>
 
-<p>!!! note
-    This implicitly sets hikari trait injectors based on <code>bot</code>.</p>
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>This implicitly sets hikari trait injectors based on <code>bot</code>.</li>
+<li>The endpoint used by <code><a href="#Client.set_global_commands">set_global_commands</a></code> has a strict ratelimit
+which, as of writing, only allows for 2 request per minute (with that
+ratelimit either being per-guild if targeting a specific guild
+otherwise globally).</li>
+</ul>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -7781,12 +7778,7 @@ client is first started. Defaults to <code>False</code>.</p>
 set on this specific guild at startup rather than globally. This
 can be useful for testing/debug purposes as slash commands may take
 up to an hour to propagate globally but will immediately propagate
-when set on a specific guild.</p>
-
-<p>!!! note
-   The endpoint this uses has a strict ratelimit which, as of writing,
-   only allows for 2 request per minute (with that ratelimit either
-   being per-guild if targeting a specific guild otherwise globally).</p></li>
+when set on a specific guild.</p></li>
 </ul>
 </div>
 
@@ -8106,9 +8098,6 @@ if provided, else <code>None</code>.</li>
 <span class="sd">        command : tanjun.abc.BaseSlashCommand</span>
 <span class="sd">            The command to register.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This ignores any ID that&#39;s been set on `tanjun.abc.BaseSlashCommand`.</span>
-
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
@@ -8118,13 +8107,17 @@ if provided, else <code>None</code>.</li>
 <span class="sd">            being used by `Client.rest`.</span>
 <span class="sd">        command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]</span>
 <span class="sd">            Object or ID of the command to update.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                Providing this when updating a command helps avoid</span>
 <span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
 <span class="sd">            Object or ID of the guild to register the command with.</span>
 
 <span class="sd">            If left as `None` then the command will be registered globally.</span>
+
+<span class="sd">        Warnings</span>
+<span class="sd">        --------</span>
+<span class="sd">        * This ignores any ID that&#39;s been set on `tanjun.abc.BaseSlashCommand`.</span>
+<span class="sd">        * Providing `command_id` when updating a command helps avoid any</span>
+<span class="sd">          permissions set for the command being lose (e.g. when changing the</span>
+<span class="sd">          command&#39;s name).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -8164,7 +8157,6 @@ if provided, else <code>None</code>.</li>
 <ul>
 <li><strong>command</strong> (<a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>):
 The command to register.</li>
-<li><strong>!!! note</strong>: This ignores any ID that's been set on <code><a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a></code>.</li>
 </ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
@@ -8175,15 +8167,21 @@ The application to register the command with.</p>
 
 <p>If left as <code>None</code> then this will be inferred from the authorization
 being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
-<li><p><strong>command_id</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]):
-Object or ID of the command to update.</p>
-
-<p>!!! note
-   Providing this when updating a command helps avoid</p></li>
+<li><strong>command_id</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]):
+Object or ID of the command to update.</li>
 <li><p><strong>guild</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]):
 Object or ID of the guild to register the command with.</p>
 
 <p>If left as <code>None</code> then the command will be registered globally.</p></li>
+</ul>
+
+<h6 id="warnings">Warnings</h6>
+
+<ul>
+<li>This ignores any ID that's been set on <code><a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a></code>.</li>
+<li>Providing <code>command_id</code> when updating a command helps avoid any
+permissions set for the command being lose (e.g. when changing the
+command's name).</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -8222,7 +8220,7 @@ Object or ID of the guild to register the command with.</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Declare a collection of slash commands for a bot.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
 <span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
 <span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
@@ -8284,10 +8282,10 @@ Object or ID of the guild to register the command with.</p>
 
             <div class="docstring"><p>Declare a collection of slash commands for a bot.</p>
 
-<p>!!! note
-    The endpoint this uses has a strict ratelimit which, as of writing,
-    only allows for 2 request per minute (with that ratelimit either
-    being per-guild if targeting a specific guild otherwise globally).</p>
+<p><em>Note:</em>
+The endpoint this uses has a strict ratelimit which, as of writing,
+only allows for 2 request per minute (with that ratelimit either
+being per-guild if targeting a specific guild otherwise globally).</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -8332,14 +8330,14 @@ Object or ID of the guild to register the commands with.</p>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_auto_defer_after</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set when this client should automatically defer execution of commands.</span>
 
+<span class="sd">        .. warning::</span>
+<span class="sd">            If `time` is set to `None` then automatic deferrals will be disabled.</span>
+<span class="sd">            This may lead to unexpected behaviour.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        time : typing.Optional[float]</span>
 <span class="sd">            The time in seconds to defer interaction command responses after.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                If this is set to `None` then automatic deferrals will be disabled.</span>
-<span class="sd">                This may lead to unexpected behaviour.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -8349,15 +8347,15 @@ Object or ID of the guild to register the commands with.</p>
 
             <div class="docstring"><p>Set when this client should automatically defer execution of commands.</p>
 
+<p><em>Warning:</em>
+If <code>time</code> is set to <code>None</code> then automatic deferrals will be disabled.
+This may lead to unexpected behaviour.</p>
+
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>time</strong> (typing.Optional[float]):
-The time in seconds to defer interaction command responses after.</p>
-
-<p>!!! note
-   If this is set to <code>None</code> then automatic deferrals will be disabled.
-   This may lead to unexpected behaviour.</p></li>
+<li><strong>time</strong> (typing.Optional[float]):
+The time in seconds to defer interaction command responses after.</li>
 </ul>
 </div>
 
@@ -8421,15 +8419,15 @@ The hikari client to set dependency injectors for.</li>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_interaction_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the response message for when an interaction command is not found.</span>
 
+<span class="sd">        .. warning::</span>
+<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
+<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
+<span class="sd">            only be done if you know what you&#39;re doing.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        message : typing.Optional[str]</span>
 <span class="sd">            The message to respond with when an interaction command isn&#39;t found.</span>
-
-<span class="sd">        !!! warning</span>
-<span class="sd">            Setting this to `None` may lead to unexpected behaviour (especially</span>
-<span class="sd">            when the client is still set to auto-defer interactions) and should</span>
-<span class="sd">            only be done if you know what you&#39;re doing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="o">=</span> <span class="n">message</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -8439,14 +8437,16 @@ The hikari client to set dependency injectors for.</li>
 
             <div class="docstring"><p>Set the response message for when an interaction command is not found.</p>
 
+<p><em>Warning:</em>
+Setting this to <code>None</code> may lead to unexpected behaviour (especially
+when the client is still set to auto-defer interactions) and should
+only be done if you know what you're doing.</p>
+
 <h6 id="parameters">Parameters</h6>
 
 <ul>
 <li><strong>message</strong> (typing.Optional[str]):
 The message to respond with when an interaction command isn't found.</li>
-<li><strong>!!! warning</strong>: Setting this to <code>None</code> may lead to unexpected behaviour (especially
-when the client is still set to auto-defer interactions) and should
-only be done if you know what you're doing.</li>
 </ul>
 </div>
 
@@ -8508,7 +8508,7 @@ The type of messages commands should be executed based on.</li>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_human_only</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set whether or not message commands execution should be limited to &quot;human&quot; users.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            This doesn&#39;t apply to interaction commands as these can only be</span>
 <span class="sd">            triggered by a &quot;human&quot; (normal user account).</span>
 
@@ -8536,9 +8536,9 @@ The type of messages commands should be executed based on.</li>
 
             <div class="docstring"><p>Set whether or not message commands execution should be limited to "human" users.</p>
 
-<p>!!! note
-    This doesn't apply to interaction commands as these can only be
-    triggered by a "human" (normal user account).</p>
+<p><em>Note:</em>
+This doesn't apply to interaction commands as these can only be
+triggered by a "human" (normal user account).</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -8576,7 +8576,7 @@ based on webhook and bot messages.</p></li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Clear the commands declared either globally or for a specific guild.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
 <span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
 <span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
@@ -8603,10 +8603,10 @@ based on webhook and bot messages.</p></li>
 
             <div class="docstring"><p>Clear the commands declared either globally or for a specific guild.</p>
 
-<p>!!! note
-    The endpoint this uses has a strict ratelimit which, as of writing,
-    only allows for 2 request per minute (with that ratelimit either
-    being per-guild if targeting a specific guild otherwise globally).</p>
+<p><em>Note:</em>
+The endpoint this uses has a strict ratelimit which, as of writing,
+only allows for 2 request per minute (with that ratelimit either
+being per-guild if targeting a specific guild otherwise globally).</p>
 
 <h6 id="other-parameters">Other Parameters</h6>
 
@@ -8648,14 +8648,18 @@ Object or ID of the guild to clear commands for.</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Set the global application commands for a bot based on the loaded components.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. warning::</span>
 <span class="sd">            This will overwrite any previously set application commands and</span>
 <span class="sd">            only targets commands marked as global.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">            only allows for 2 request per minute (with that ratelimit either</span>
-<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * The endpoint this uses has a strict ratelimit which, as of writing,</span>
+<span class="sd">          only allows for 2 request per minute (with that ratelimit either</span>
+<span class="sd">          being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">        * Setting a specific `guild` can be useful for testing/debug purposes</span>
+<span class="sd">          as slash commands may take up to an hour to propagate globally but</span>
+<span class="sd">          will immediately propagate when set on a specific guild.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
@@ -8668,11 +8672,6 @@ Object or ID of the guild to clear commands for.</p>
 <span class="sd">            Object or ID of the guild to set the global commands to.</span>
 
 <span class="sd">            If left as `None` global commands will be set.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                This can be useful for testing/debug purposes as slash commands</span>
-<span class="sd">                may take up to an hour to propagate globally but will</span>
-<span class="sd">                immediately propagate when set on a specific guild.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -8691,14 +8690,20 @@ Object or ID of the guild to clear commands for.</p>
 
             <div class="docstring"><p>Set the global application commands for a bot based on the loaded components.</p>
 
-<p>!!! note
-    This will overwrite any previously set application commands and
-    only targets commands marked as global.</p>
+<p><em>Warning:</em>
+This will overwrite any previously set application commands and
+only targets commands marked as global.</p>
 
-<p>!!! note
-    The endpoint this uses has a strict ratelimit which, as of writing,
-    only allows for 2 request per minute (with that ratelimit either
-    being per-guild if targeting a specific guild otherwise globally).</p>
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>The endpoint this uses has a strict ratelimit which, as of writing,
+only allows for 2 request per minute (with that ratelimit either
+being per-guild if targeting a specific guild otherwise globally).</li>
+<li>Setting a specific <code>guild</code> can be useful for testing/debug purposes
+as slash commands may take up to an hour to propagate globally but
+will immediately propagate when set on a specific guild.</li>
+</ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
 
@@ -8711,12 +8716,7 @@ being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
 <li><p><strong>guild</strong> (hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]):
 Object or ID of the guild to set the global commands to.</p>
 
-<p>If left as <code>None</code> global commands will be set.</p>
-
-<p>!!! note
-   This can be useful for testing/debug purposes as slash commands
-   may take up to an hour to propagate globally but will
-   immediately propagate when set on a specific guild.</p></li>
+<p>If left as <code>None</code> global commands will be set.</p></li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -9562,14 +9562,14 @@ of type <code><a href="#Client">Client</a></code>.</p>
             <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">on_interaction_create_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionCreateEvent</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute a slash command based on Gateway events.</span>
 
+<span class="sd">        .. note::</span>
+<span class="sd">            Any event where `event.interaction` is not</span>
+<span class="sd">            `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        event : hikari.events.interaction_events.InteractionCreateEvent</span>
 <span class="sd">            The event to execute commands based on.</span>
-
-<span class="sd">            !!! note</span>
-<span class="sd">                Any event where `event.interaction` is not</span>
-<span class="sd">                `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">):</span>
             <span class="k">return</span>
@@ -9602,15 +9602,15 @@ of type <code><a href="#Client">Client</a></code>.</p>
 
             <div class="docstring"><p>Execute a slash command based on Gateway events.</p>
 
+<p><em>Note:</em>
+Any event where <code>event.interaction</code> is not
+<code>hikari.interactions.commands.CommandInteraction</code> will be ignored.</p>
+
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>event</strong> (hikari.events.interaction_events.InteractionCreateEvent):
-The event to execute commands based on.</p>
-
-<p>!!! note
-   Any event where <code>event.interaction</code> is not
-   <code>hikari.interactions.commands.CommandInteraction</code> will be ignored.</p></li>
+<li><strong>event</strong> (hikari.events.interaction_events.InteractionCreateEvent):
+The event to execute commands based on.</li>
 </ul>
 </div>
 
@@ -10272,6 +10272,11 @@ enforces that command names are unique to a single command within the group.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandCallbackSigT</span><span class="p">],</span> <span class="n">SlashCommand</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">]]:</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Build a `SlashCommand` by decorating a function.</span>
 
+<span class="sd">    .. note::</span>
+<span class="sd">        Under the standard implementation, `is_global` is used to determine whether</span>
+<span class="sd">        the command should be bulk set by `tanjun.Client.set_global_commands`</span>
+<span class="sd">        or when `set_global_commands` is True</span>
+
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    ```py</span>
@@ -10304,11 +10309,6 @@ enforces that command names are unique to a single command within the group.</p>
 <span class="sd">        are set to override this. This defaults to `False`.</span>
 <span class="sd">    is_global : bool</span>
 <span class="sd">        Whether this command is a global command. Defaults to `True`.</span>
-
-<span class="sd">        !!! note</span>
-<span class="sd">            Under the current implementation, this is used to determine whether</span>
-<span class="sd">            the command should be bulk set by `tanjun.Client.set_global_commands`</span>
-<span class="sd">            or when `set_global_commands` is True</span>
 <span class="sd">    sort_options : bool</span>
 <span class="sd">        Whether this command should sort its set options based on whether</span>
 <span class="sd">        they&#39;re required.</span>
@@ -10336,6 +10336,11 @@ enforces that command names are unique to a single command within the group.</p>
         </details>
 
             <div class="docstring"><p>Build a <code><a href="#SlashCommand">SlashCommand</a></code> by decorating a function.</p>
+
+<p><em>Note:</em>
+Under the standard implementation, <code>is_global</code> is used to determine whether
+the command should be bulk set by <code><a href="#Client.set_global_commands">tanjun.Client.set_global_commands</a></code>
+or when <code>set_global_commands</code> is True</p>
 
 <h6 id="examples">Examples</h6>
 
@@ -10369,13 +10374,8 @@ command's name is changed).</p></li>
 <li><strong>default_to_ephemeral</strong> (bool):
 Whether this command's responses should default to ephemeral unless flags
 are set to override this. This defaults to <code>False</code>.</li>
-<li><p><strong>is_global</strong> (bool):
-Whether this command is a global command. Defaults to <code>True</code>.</p>
-
-<p>!!! note
-   Under the current implementation, this is used to determine whether
-   the command should be bulk set by <code><a href="#Client.set_global_commands">tanjun.Client.set_global_commands</a></code>
-   or when <code>set_global_commands</code> is True</p></li>
+<li><strong>is_global</strong> (bool):
+Whether this command is a global command. Defaults to <code>True</code>.</li>
 <li><p><strong>sort_options</strong> (bool):
 Whether this command should sort its set options based on whether
 they're required.</p>
@@ -10423,10 +10423,6 @@ ones.</p></li>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SlashCommandGroup</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Create a slash command group.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        Unlike message command grups, slash command groups cannot</span>
-<span class="sd">        be callable functions themselves.</span>
-
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    Sub-commands can be added to the created slash command object through</span>
@@ -10447,6 +10443,15 @@ ones.</p></li>
 
 <span class="sd">    component = tanjun.Component().add_slash_command_command(help_group)</span>
 <span class="sd">    ```</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * Unlike message command grups, slash command groups cannot</span>
+<span class="sd">      be callable functions themselves.</span>
+<span class="sd">    * Under the standard implementation, `is_global` is used to determine whether</span>
+<span class="sd">      the command should be bulk set by `tanjun.Client.set_global_commands`</span>
+<span class="sd">      or when `set_global_commands` is True</span>
+
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -10469,11 +10474,6 @@ ones.</p></li>
 <span class="sd">    is_global : bool</span>
 <span class="sd">        Whether this command is a global command. Defaults to `True`.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            Under the current implementation, this is used to determine whether</span>
-<span class="sd">            the command should be bulk set by `tanjun.Client.set_global_commands`</span>
-<span class="sd">            or when `set_global_commands` is True</span>
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    SlashCommandGroup</span>
@@ -10491,10 +10491,6 @@ ones.</p></li>
         </details>
 
             <div class="docstring"><p>Create a slash command group.</p>
-
-<p>!!! note
-    Unlike message command grups, slash command groups cannot
-    be callable functions themselves.</p>
 
 <h6 id="examples">Examples</h6>
 
@@ -10517,6 +10513,16 @@ the following decorator based approach:</p>
 <span class="n">component</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Component</span><span class="p">()</span><span class="o">.</span><span class="n">add_slash_command_command</span><span class="p">(</span><span class="n">help_group</span><span class="p">)</span>
 </code></pre></div>
 
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>Unlike message command grups, slash command groups cannot
+be callable functions themselves.</li>
+<li>Under the standard implementation, <code>is_global</code> is used to determine whether
+the command should be bulk set by <code><a href="#Client.set_global_commands">tanjun.Client.set_global_commands</a></code>
+or when <code>set_global_commands</code> is True</li>
+</ul>
+
 <h6 id="parameters">Parameters</h6>
 
 <ul>
@@ -10538,13 +10544,8 @@ command's name is changed).</p></li>
 <li><strong>default_to_ephemeral</strong> (bool):
 Whether this command's responses should default to ephemeral unless flags
 are set to override this. This defaults to <code>False</code>.</li>
-<li><p><strong>is_global</strong> (bool):
-Whether this command is a global command. Defaults to <code>True</code>.</p>
-
-<p>!!! note
-   Under the current implementation, this is used to determine whether
-   the command should be bulk set by <code><a href="#Client.set_global_commands">tanjun.Client.set_global_commands</a></code>
-   or when <code>set_global_commands</code> is True</p></li>
+<li><strong>is_global</strong> (bool):
+Whether this command is a global command. Defaults to <code>True</code>.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -10810,9 +10811,9 @@ Whether this command is a global command. Defaults to <code>True</code>.</p>
 
             <div class="docstring"><p>Get the callback which is called during execution.</p>
 
-<p>!!! note
-    For command groups, this is called when none of the inner-commands
-    matches the message.</p>
+<p><em>Note:</em>
+For command groups, this is called when none of the inner-commands
+matches the message.</p>
 
 <h6 id="returns">Returns</h6>
 
@@ -11433,8 +11434,8 @@ The parent of this command.</li>
 
             <div class="docstring"><p>Get a collection of the commands in this group.</p>
 
-<p>!!! note
-    This may include command groups.</p>
+<p><em>Note:</em>
+This may include command groups.</p>
 
 <h6 id="returns">Returns</h6>
 
@@ -12624,13 +12625,13 @@ globally or for a specific guild.</li>
     <span class="k">def</span> <span class="nf">add_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandGroupT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandGroupT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a slash command to this group.</span>
 
+<span class="sd">        .. warning::</span>
+<span class="sd">            Command groups are only supported within top-level groups.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        command : tanjun.abc.BaseSlashCommand</span>
 <span class="sd">            Command to add to this group.</span>
-
-<span class="sd">            !!! warning</span>
-<span class="sd">                Command groups are only supported within top-level groups.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -12879,13 +12880,13 @@ globally or for a specific guild.</li>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandGroupT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandGroupT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a slash command to this group.</span>
 
+<span class="sd">        .. warning::</span>
+<span class="sd">            Command groups are only supported within top-level groups.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        command : tanjun.abc.BaseSlashCommand</span>
 <span class="sd">            Command to add to this group.</span>
-
-<span class="sd">            !!! warning</span>
-<span class="sd">                Command groups are only supported within top-level groups.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -12903,14 +12904,14 @@ globally or for a specific guild.</li>
 
             <div class="docstring"><p>Add a slash command to this group.</p>
 
+<p><em>Warning:</em>
+Command groups are only supported within top-level groups.</p>
+
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><p><strong>command</strong> (<a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>):
-Command to add to this group.</p>
-
-<p>!!! warning
-   Command groups are only supported within top-level groups.</p></li>
+<li><strong>command</strong> (<a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>):
+Command to add to this group.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -13118,6 +13119,11 @@ Command to add to this group.</li>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SlashCommandT</span><span class="p">],</span> <span class="n">_SlashCommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a string option to a slash command.</span>
 
+<span class="sd">    .. note::</span>
+<span class="sd">        As a shorthand, `choices` also supports passing strings in place of</span>
+<span class="sd">        tuples each string will be used as both the choice&#39;s name and value</span>
+<span class="sd">        (with the name being capitalised).</span>
+
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    ```py</span>
@@ -13143,11 +13149,6 @@ Command to add to this group.</li>
 <span class="sd">        This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">        Where both option_name and option_value should be strings of up to 100</span>
 <span class="sd">        characters.</span>
-
-<span class="sd">        !!! note</span>
-<span class="sd">            As a shorthand, this also supports passing strings in place of</span>
-<span class="sd">            tuples each string will be used as both the choice&#39;s name and value</span>
-<span class="sd">            (with the name being capitalised).</span>
 <span class="sd">    converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig]</span>
 <span class="sd">        The option&#39;s converters.</span>
 
@@ -13155,8 +13156,7 @@ Command to add to this group.</li>
 <span class="sd">        convert the option&#39;s value to the final form.</span>
 <span class="sd">        If no converters are provided then the raw value will be passed.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        Only the first converter to pass will be used.</span>
 <span class="sd">    default : typing.Any</span>
 <span class="sd">        The option&#39;s default value.</span>
 <span class="sd">        If this is left as undefined then this option will be required.</span>
@@ -13178,6 +13178,11 @@ Command to add to this group.</li>
         </details>
 
             <div class="docstring"><p>Add a string option to a slash command.</p>
+
+<p><em>Note:</em>
+As a shorthand, <code>choices</code> also supports passing strings in place of
+tuples each string will be used as both the choice's name and value
+(with the name being capitalised).</p>
 
 <h6 id="examples">Examples</h6>
 
@@ -13205,12 +13210,7 @@ The option's choices.</p>
 
 <p>This may be either one or multiple <code>tuple[opton_name, option_value]</code>
 Where both option_name and option_value should be strings of up to 100
-characters.</p>
-
-<p>!!! note
-   As a shorthand, this also supports passing strings in place of
-   tuples each string will be used as both the choice's name and value
-   (with the name being capitalised).</p></li>
+characters.</p></li>
 <li><p><strong>converters</strong> (typing.Union[collections.Sequence[ConverterSig], ConverterSig]):
 The option's converters.</p>
 
@@ -13218,8 +13218,7 @@ The option's converters.</p>
 convert the option's value to the final form.
 If no converters are provided then the raw value will be passed.</p>
 
-<p>!!! note
-   Only the first converter to pass will be used.</p></li>
+<p>Only the first converter to pass will be used.</p></li>
 <li><strong>default</strong> (typing.Any):
 The option's default value.
 If this is left as undefined then this option will be required.</li>
@@ -13295,8 +13294,7 @@ If this is left as undefined then this option will be required.</li>
 <span class="sd">        convert the option&#39;s value to the final form.</span>
 <span class="sd">        If no converters are provided then the raw value will be passed.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        Only the first converter to pass will be used.</span>
 <span class="sd">    default : typing.Any</span>
 <span class="sd">        The option&#39;s default value.</span>
 <span class="sd">        If this is left as undefined then this option will be required.</span>
@@ -13349,8 +13347,7 @@ The option's converters.</p>
 convert the option's value to the final form.
 If no converters are provided then the raw value will be passed.</p>
 
-<p>!!! note
-   Only the first converter to pass will be used.</p></li>
+<p>Only the first converter to pass will be used.</p></li>
 <li><strong>default</strong> (typing.Any):
 The option's default value.
 If this is left as undefined then this option will be required.</li>
@@ -13580,7 +13577,7 @@ If this is left as undefined then this option will be required.</li>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SlashCommandT</span><span class="p">],</span> <span class="n">_SlashCommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a user option to a slash command.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This may result in `hikari.interactions.commands.InteractionMember` or</span>
 <span class="sd">        `hikari.users.User` if the user isn&#39;t in the current guild or if this</span>
 <span class="sd">        command was executed in a DM channel.</span>
@@ -13620,10 +13617,10 @@ If this is left as undefined then this option will be required.</li>
 
             <div class="docstring"><p>Add a user option to a slash command.</p>
 
-<p>!!! note
-    This may result in <code>hikari.interactions.commands.InteractionMember</code> or
-    <code>hikari.users.User</code> if the user isn't in the current guild or if this
-    command was executed in a DM channel.</p>
+<p><em>Note:</em>
+This may result in <code>hikari.interactions.commands.InteractionMember</code> or
+<code>hikari.users.User</code> if the user isn't in the current guild or if this
+command was executed in a DM channel.</p>
 
 <h6 id="examples">Examples</h6>
 
@@ -13685,7 +13682,7 @@ If this is left as undefined then this option will be required.</li>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SlashCommandT</span><span class="p">],</span> <span class="n">_SlashCommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a member option to a slash command.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This will always result in `hikari.interactions.commands.InteractionMember`.</span>
 
 <span class="sd">    Examples</span>
@@ -13723,8 +13720,8 @@ If this is left as undefined then this option will be required.</li>
 
             <div class="docstring"><p>Add a member option to a slash command.</p>
 
-<p>!!! note
-    This will always result in <code>hikari.interactions.commands.InteractionMember</code>.</p>
+<p><em>Note:</em>
+This will always result in <code>hikari.interactions.commands.InteractionMember</code>.</p>
 
 <h6 id="examples">Examples</h6>
 
@@ -13786,7 +13783,7 @@ If this is left as undefined then this option will be required.</li>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SlashCommandT</span><span class="p">],</span> <span class="n">_SlashCommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a channel option to a slash command.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This will always result in `hikari.interactions.commands.InteractionChannel`.</span>
 
 <span class="sd">    Examples</span>
@@ -13824,8 +13821,8 @@ If this is left as undefined then this option will be required.</li>
 
             <div class="docstring"><p>Add a channel option to a slash command.</p>
 
-<p>!!! note
-    This will always result in <code>hikari.interactions.commands.InteractionChannel</code>.</p>
+<p><em>Note:</em>
+This will always result in <code>hikari.interactions.commands.InteractionChannel</code>.</p>
 
 <h6 id="examples">Examples</h6>
 
@@ -13887,7 +13884,7 @@ If this is left as undefined then this option will be required.</li>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SlashCommandT</span><span class="p">],</span> <span class="n">_SlashCommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a mentionable option to a slash command.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This may target roles, guild members or users and results in</span>
 <span class="sd">        `Union[hikari.User, hikari.InteractionMember, hikari.Role]`.</span>
 
@@ -13926,9 +13923,9 @@ If this is left as undefined then this option will be required.</li>
 
             <div class="docstring"><p>Add a mentionable option to a slash command.</p>
 
-<p>!!! note
-    This may target roles, guild members or users and results in
-    <code>Union[hikari.User, hikari.InteractionMember, hikari.Role]</code>.</p>
+<p><em>Note:</em>
+This may target roles, guild members or users and results in
+<code>Union[hikari.User, hikari.InteractionMember, hikari.Role]</code>.</p>
 
 <h6 id="examples">Examples</h6>
 
@@ -14067,7 +14064,7 @@ If this is left as undefined then this option will be required.</li>
 <span class="sd">    This is a collcetion of commands (both message and slash), hooks and listener</span>
 <span class="sd">    callbacks which can be added to a generic client.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This implementation supports dependency injection for its checks</span>
 <span class="sd">        and commands.</span>
 
@@ -14630,7 +14627,7 @@ If this is left as undefined then this option will be required.</li>
 <span class="sd">    This is a collcetion of commands (both message and slash), hooks and listener</span>
 <span class="sd">    callbacks which can be added to a generic client.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This implementation supports dependency injection for its checks</span>
 <span class="sd">        and commands.</span>
 
@@ -15178,9 +15175,9 @@ If this is left as undefined then this option will be required.</li>
 <p>This is a collcetion of commands (both message and slash), hooks and listener
 callbacks which can be added to a generic client.</p>
 
-<p>!!! note
-    This implementation supports dependency injection for its checks
-    and commands.</p>
+<p><em>Note:</em>
+This implementation supports dependency injection for its checks
+and commands.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -15307,8 +15304,8 @@ The client this component is bound to.</li>
 
             <div class="docstring"><p>Get the component's identifier.</p>
 
-<p>!!! note
-    This should be preserved between copies of a component.</p>
+<p><em>Note:</em>
+This will be preserved between copies of a component.</p>
 
 <h6 id="returns">Returns</h6>
 
@@ -17840,15 +17837,15 @@ hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</li>
 
             <div class="docstring"><p>Object of the command this context is bound to.</p>
 
+<p><em>Note:</em>
+This will only be <code>None</code> before this has been bound to a
+specific command but never during command execution.</p>
+
 <h6 id="returns">Returns</h6>
 
 <ul>
 <li><strong>typing.Optional[ExecutableCommand[ContextT]]</strong>: The command this context is bound to.</li>
 </ul>
-
-<p>!!! note
-    This will only be <code>None</code> before this has been bound to a
-    specific command but never during command execution.</p>
 </div>
 
 
@@ -19099,15 +19096,15 @@ Otherwise, returns <code>None</code>.</li>
 
             <div class="docstring"><p>Object of the command this context is bound to.</p>
 
+<p><em>Note:</em>
+This will only be <code>None</code> before this has been bound to a
+specific command but never during command execution.</p>
+
 <h6 id="returns">Returns</h6>
 
 <ul>
 <li><strong>typing.Optional[ExecutableCommand[ContextT]]</strong>: The command this context is bound to.</li>
 </ul>
-
-<p>!!! note
-    This will only be <code>None</code> before this has been bound to a
-    specific command but never during command execution.</p>
 </div>
 
 
@@ -19179,11 +19176,11 @@ methods which support it.</p>
 
             <div class="docstring"><p>Whether the initial response for this context has been deferred.</p>
 
-<p>!!! warning
-    If this is <code>True</code> when <code><a href="#SlashContext.has_responded">SlashContext.has_responded</a></code> is <code>False</code>
-    then <code><a href="#SlashContext.edit_initial_response">SlashContext.edit_initial_response</a></code> will need to be used
-    to create the initial response rather than
-    <code><a href="#SlashContext.create_initial_response">SlashContext.create_initial_response</a></code>.</p>
+<p><em>Warning:</em>
+If this is <code>True</code> when <code><a href="#SlashContext.has_responded">SlashContext.has_responded</a></code> is <code>False</code>
+then <code><a href="#SlashContext.edit_initial_response">SlashContext.edit_initial_response</a></code> will need to be used
+to create the initial response rather than
+<code><a href="#SlashContext.create_initial_response">SlashContext.create_initial_response</a></code>.</p>
 
 <h6 id="returns">Returns</h6>
 
@@ -20707,7 +20704,7 @@ The flags to use for the initial response.</li>
 <span class="n">to_snowflake</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">SnowflakeConverter</span><span class="p">]</span> <span class="o">=</span> <span class="n">SnowflakeConverter</span><span class="p">()</span>
 <span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.snowflakes.Snowflake`.</span>
 
-<span class="sd">!!! note</span>
+<span class="sd">.. note::</span>
 <span class="sd">    This also range validates the input.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -20999,8 +20996,8 @@ The flags to use for the initial response.</li>
 <span class="k">class</span> <span class="nc">ParserError</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Base error raised by a parser or parameter during parsing.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        Other error raised by the parser should subclass this error.</span>
+<span class="sd">    .. note::</span>
+<span class="sd">        Expected errors raised by the parser will subclass this error.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -21016,14 +21013,14 @@ The flags to use for the initial response.</li>
     <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
     <span class="sd">&quot;&quot;&quot;String message for this error.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This may be used as a command response message.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="sd">&quot;&quot;&quot;Name of the this was raised for.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This will be `builtin.None` if it was raised while parsing the provided</span>
 <span class="sd">        message content.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -21679,8 +21676,8 @@ The parameter this error was raised for</li>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ParserError</span><span class="p">(</span><span class="n">TanjunError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Base error raised by a parser or parameter during parsing.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        Other error raised by the parser should subclass this error.</span>
+<span class="sd">    .. note::</span>
+<span class="sd">        Expected errors raised by the parser will subclass this error.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -21696,14 +21693,14 @@ The parameter this error was raised for</li>
     <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
     <span class="sd">&quot;&quot;&quot;String message for this error.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This may be used as a command response message.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="sd">&quot;&quot;&quot;Name of the this was raised for.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This will be `builtin.None` if it was raised while parsing the provided</span>
 <span class="sd">        message content.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -21720,8 +21717,8 @@ The parameter this error was raised for</li>
 
             <div class="docstring"><p>Base error raised by a parser or parameter during parsing.</p>
 
-<p>!!! note
-    Other error raised by the parser should subclass this error.</p>
+<p><em>Note:</em>
+Expected errors raised by the parser will subclass this error.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -21762,8 +21759,8 @@ applicable.</li>
 
             <div class="docstring"><p>String message for this error.</p>
 
-<p>!!! note
-    This may be used as a command response message.</p>
+<p><em>Note:</em>
+This may be used as a command response message.</p>
 </div>
 
 
@@ -21776,9 +21773,9 @@ applicable.</li>
 
             <div class="docstring"><p>Name of the this was raised for.</p>
 
-<p>!!! note
-    This will be <code>builtin.None</code> if it was raised while parsing the provided
-    message content.</p>
+<p><em>Note:</em>
+This will be <code>builtin.None</code> if it was raised while parsing the provided
+message content.</p>
 </div>
 
 
@@ -21995,7 +21992,7 @@ applicable.</li>
 <span class="k">class</span> <span class="nc">Hooks</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Standard implementation of `tanjun.abc.Hooks` used for command execution.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This implementation adds a concept of parser errors which won&#39;t be</span>
 <span class="sd">        dispatched to general &quot;error&quot; hooks and do not share the error</span>
 <span class="sd">        suppression semantics as they favour to always suppress the error</span>
@@ -22020,7 +22017,7 @@ applicable.</li>
     <span class="k">def</span> <span class="nf">add_to_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add this hook object to a command.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            This will likely override any previously added hooks.</span>
 
 <span class="sd">        Examples</span>
@@ -22194,7 +22191,7 @@ applicable.</li>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Hooks</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Standard implementation of `tanjun.abc.Hooks` used for command execution.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This implementation adds a concept of parser errors which won&#39;t be</span>
 <span class="sd">        dispatched to general &quot;error&quot; hooks and do not share the error</span>
 <span class="sd">        suppression semantics as they favour to always suppress the error</span>
@@ -22219,7 +22216,7 @@ applicable.</li>
     <span class="k">def</span> <span class="nf">add_to_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add this hook object to a command.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            This will likely override any previously added hooks.</span>
 
 <span class="sd">        Examples</span>
@@ -22364,11 +22361,11 @@ applicable.</li>
 
             <div class="docstring"><p>Standard implementation of <code><a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a></code> used for command execution.</p>
 
-<p>!!! note
-    This implementation adds a concept of parser errors which won't be
-    dispatched to general "error" hooks and do not share the error
-    suppression semantics as they favour to always suppress the error
-    if a registered handler is found.</p>
+<p><em>Note:</em>
+This implementation adds a concept of parser errors which won't be
+dispatched to general "error" hooks and do not share the error
+suppression semantics as they favour to always suppress the error
+if a registered handler is found.</p>
 </div>
 
 
@@ -22407,7 +22404,7 @@ applicable.</li>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_to_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add this hook object to a command.</span>
 
-<span class="sd">        !!! note</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            This will likely override any previously added hooks.</span>
 
 <span class="sd">        Examples</span>
@@ -22439,8 +22436,8 @@ applicable.</li>
 
             <div class="docstring"><p>Add this hook object to a command.</p>
 
-<p>!!! note
-    This will likely override any previously added hooks.</p>
+<p><em>Note:</em>
+This will likely override any previously added hooks.</p>
 
 <h6 id="examples">Examples</h6>
 
@@ -24158,7 +24155,7 @@ inheritance.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ParseableProtoT</span><span class="p">],</span> <span class="n">ParseableProtoT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add an argument to a parsable command through a decorator call.</span>
 
-<span class="sd">    !!! info</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        Order matters for positional arguments and since decorator execution</span>
 <span class="sd">        starts at the decorator closest to the command and goes upwards this</span>
 <span class="sd">        will decide where a positional argument is located in a command&#39;s</span>
@@ -24175,8 +24172,7 @@ inheritance.</p>
 
 <span class="sd">        If no converters are provided then the raw string value will be passed.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        Only the first converter to pass will be used.</span>
 <span class="sd">    default : typing.Any</span>
 <span class="sd">        The default value of this argument, if left as</span>
 <span class="sd">        `UNDEFINED_DEFAULT` then this will have no default.</span>
@@ -24214,11 +24210,11 @@ inheritance.</p>
 
             <div class="docstring"><p>Add an argument to a parsable command through a decorator call.</p>
 
-<p>!!! info
-    Order matters for positional arguments and since decorator execution
-    starts at the decorator closest to the command and goes upwards this
-    will decide where a positional argument is located in a command's
-    signature.</p>
+<p><em>Note:</em>
+Order matters for positional arguments and since decorator execution
+starts at the decorator closest to the command and goes upwards this
+will decide where a positional argument is located in a command's
+signature.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -24232,8 +24228,7 @@ during parsing.</p>
 
 <p>If no converters are provided then the raw string value will be passed.</p>
 
-<p>!!! note
-   Only the first converter to pass will be used.</p></li>
+<p>Only the first converter to pass will be used.</p></li>
 <li><strong>default</strong> (typing.Any):
 The default value of this argument, if left as
 <code>UNDEFINED_DEFAULT</code> then this will have no default.</li>
@@ -24284,17 +24279,16 @@ The default value of this argument, if left as
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ParseableProtoT</span><span class="p">],</span> <span class="n">ParseableProtoT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a greedy argument to a parsable command through a decorator call.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        A greedy argument will consume the remaining positional arguments and pass</span>
-<span class="sd">        them through to the converters as one joined string while also requiring</span>
-<span class="sd">        that at least one more positional argument is remaining unless a</span>
-<span class="sd">        default is set.</span>
-
-<span class="sd">    !!! info</span>
-<span class="sd">        Order matters for positional arguments and since decorator execution</span>
-<span class="sd">        starts at the decorator closest to the command and goes upwards this</span>
-<span class="sd">        will decide where a positional argument is located in a command&#39;s</span>
-<span class="sd">        signature.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * A greedy argument will consume the remaining positional arguments and pass</span>
+<span class="sd">      them through to the converters as one joined string while also requiring</span>
+<span class="sd">      that at least one more positional argument is remaining unless a</span>
+<span class="sd">      default is set.</span>
+<span class="sd">    * Order matters for positional arguments and since decorator execution</span>
+<span class="sd">      starts at the decorator closest to the command and goes upwards this</span>
+<span class="sd">      will decide where a positional argument is located in a command&#39;s</span>
+<span class="sd">      signature.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -24310,8 +24304,7 @@ The default value of this argument, if left as
 
 <span class="sd">        If no converters are provided then the raw string value will be passed.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        Only the first converter to pass will be used.</span>
 <span class="sd">    default : typing.Any</span>
 <span class="sd">        The default value of this argument, if left as</span>
 <span class="sd">        `UNDEFINED_DEFAULT` then this will have no default.</span>
@@ -24340,17 +24333,18 @@ The default value of this argument, if left as
 
             <div class="docstring"><p>Add a greedy argument to a parsable command through a decorator call.</p>
 
-<p>!!! note
-    A greedy argument will consume the remaining positional arguments and pass
-    them through to the converters as one joined string while also requiring
-    that at least one more positional argument is remaining unless a
-    default is set.</p>
+<h6 id="notes">Notes</h6>
 
-<p>!!! info
-    Order matters for positional arguments and since decorator execution
-    starts at the decorator closest to the command and goes upwards this
-    will decide where a positional argument is located in a command's
-    signature.</p>
+<ul>
+<li>A greedy argument will consume the remaining positional arguments and pass
+them through to the converters as one joined string while also requiring
+that at least one more positional argument is remaining unless a
+default is set.</li>
+<li>Order matters for positional arguments and since decorator execution
+starts at the decorator closest to the command and goes upwards this
+will decide where a positional argument is located in a command's
+signature.</li>
+</ul>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -24369,8 +24363,7 @@ during parsing.</p>
 
 <p>If no converters are provided then the raw string value will be passed.</p>
 
-<p>!!! note
-   Only the first converter to pass will be used.</p></li>
+<p>Only the first converter to pass will be used.</p></li>
 <li><strong>default</strong> (typing.Any):
 The default value of this argument, if left as
 <code>UNDEFINED_DEFAULT</code> then this will have no default.</li>
@@ -24421,18 +24414,17 @@ The default value of this argument, if left as
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ParseableProtoT</span><span class="p">],</span> <span class="n">ParseableProtoT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a greedy argument to a parsable command through a decorator call.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        A multi argument will consume the remaining positional arguments and pass</span>
-<span class="sd">        them to the converters through multiple calls while also requiring that</span>
-<span class="sd">        at least one more positional argument is remaining unless a default is</span>
-<span class="sd">        set and passing through the results to the command&#39;s callback as a</span>
-<span class="sd">        sequence.</span>
-
-<span class="sd">    !!! info</span>
-<span class="sd">        Order matters for positional arguments and since decorator execution</span>
-<span class="sd">        starts at the decorator closest to the command and goes upwards this</span>
-<span class="sd">        will decide where a positional argument is located in a command&#39;s</span>
-<span class="sd">        signature.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * A multi argument will consume the remaining positional arguments and pass</span>
+<span class="sd">      them to the converters through multiple calls while also requiring that</span>
+<span class="sd">      at least one more positional argument is remaining unless a default is</span>
+<span class="sd">      set and passing through the results to the command&#39;s callback as a</span>
+<span class="sd">      sequence.</span>
+<span class="sd">    * Order matters for positional arguments and since decorator execution</span>
+<span class="sd">      starts at the decorator closest to the command and goes upwards this</span>
+<span class="sd">      will decide where a positional argument is located in a command&#39;s</span>
+<span class="sd">      signature.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -24448,8 +24440,7 @@ The default value of this argument, if left as
 
 <span class="sd">        If no converters are provided then the raw string value will be passed.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        Only the first converter to pass will be used.</span>
 <span class="sd">    default : typing.Any</span>
 <span class="sd">        The default value of this argument, if left as</span>
 <span class="sd">        `UNDEFINED_DEFAULT` then this will have no default.</span>
@@ -24478,18 +24469,19 @@ The default value of this argument, if left as
 
             <div class="docstring"><p>Add a greedy argument to a parsable command through a decorator call.</p>
 
-<p>!!! note
-    A multi argument will consume the remaining positional arguments and pass
-    them to the converters through multiple calls while also requiring that
-    at least one more positional argument is remaining unless a default is
-    set and passing through the results to the command's callback as a
-    sequence.</p>
+<h6 id="notes">Notes</h6>
 
-<p>!!! info
-    Order matters for positional arguments and since decorator execution
-    starts at the decorator closest to the command and goes upwards this
-    will decide where a positional argument is located in a command's
-    signature.</p>
+<ul>
+<li>A multi argument will consume the remaining positional arguments and pass
+them to the converters through multiple calls while also requiring that
+at least one more positional argument is remaining unless a default is
+set and passing through the results to the command's callback as a
+sequence.</li>
+<li>Order matters for positional arguments and since decorator execution
+starts at the decorator closest to the command and goes upwards this
+will decide where a positional argument is located in a command's
+signature.</li>
+</ul>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -24508,8 +24500,7 @@ during parsing.</p>
 
 <p>If no converters are provided then the raw string value will be passed.</p>
 
-<p>!!! note
-   Only the first converter to pass will be used.</p></li>
+<p>Only the first converter to pass will be used.</p></li>
 <li><strong>default</strong> (typing.Any):
 The default value of this argument, if left as
 <code>UNDEFINED_DEFAULT</code> then this will have no default.</li>
@@ -24588,8 +24579,7 @@ The default value of this argument, if left as
 
 <span class="sd">        If no converters are provided then the raw string value will be passed.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        Only the first converter to pass will be used.</span>
 <span class="sd">    empty_value : typing.Any</span>
 <span class="sd">        The value to use if this option is provided without a value. If left as</span>
 <span class="sd">        `UNDEFINED_DEFAULT` then this option will error if it&#39;s</span>
@@ -24653,8 +24643,7 @@ during parsing.</p>
 
 <p>If no converters are provided then the raw string value will be passed.</p>
 
-<p>!!! note
-   Only the first converter to pass will be used.</p></li>
+<p>Only the first converter to pass will be used.</p></li>
 <li><strong>empty_value</strong> (typing.Any):
 The value to use if this option is provided without a value. If left as
 <code>UNDEFINED_DEFAULT</code> then this option will error if it's
@@ -24710,7 +24699,7 @@ provided without a value.</li>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ParseableProtoT</span><span class="p">],</span> <span class="n">ParseableProtoT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add an multi-option to a command&#39;s parser through a decorator call.</span>
 
-<span class="sd">    !!! note</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        A multi option will consume all the values provided for an option and</span>
 <span class="sd">        pass them through to the converters as an array of strings while also</span>
 <span class="sd">        requiring that at least one value is provided for the option unless</span>
@@ -24738,8 +24727,7 @@ provided without a value.</li>
 
 <span class="sd">        If no converters are provided then the raw string value will be passed.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        Only the first converter to pass will be used.</span>
 <span class="sd">    empty_value : typing.Any</span>
 <span class="sd">        The value to use if this option is provided without a value. If left as</span>
 <span class="sd">        `UNDEFINED_DEFAULT` then this option will error if it&#39;s</span>
@@ -24769,11 +24757,11 @@ provided without a value.</li>
 
             <div class="docstring"><p>Add an multi-option to a command's parser through a decorator call.</p>
 
-<p>!!! note
-    A multi option will consume all the values provided for an option and
-    pass them through to the converters as an array of strings while also
-    requiring that at least one value is provided for the option unless
-    a default is set.</p>
+<p><em>Note:</em>
+A multi option will consume all the values provided for an option and
+pass them through to the converters as an array of strings while also
+requiring that at least one value is provided for the option unless
+a default is set.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -24800,8 +24788,7 @@ during parsing.</p>
 
 <p>If no converters are provided then the raw string value will be passed.</p>
 
-<p>!!! note
-   Only the first converter to pass will be used.</p></li>
+<p>Only the first converter to pass will be used.</p></li>
 <li><strong>empty_value</strong> (typing.Any):
 The value to use if this option is provided without a value. If left as
 <code>UNDEFINED_DEFAULT</code> then this option will error if it's

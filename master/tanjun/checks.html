@@ -523,12 +523,11 @@
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -577,12 +576,11 @@
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -631,12 +629,11 @@
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -687,12 +684,11 @@
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -729,10 +725,6 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackReturnT</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if it&#39;s being triggered by one of the bot&#39;s owners.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        This is based on the owner(s) of the bot&#39;s application and will account</span>
-<span class="sd">        for team owners as well.</span>
-
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    command : typing.Optional[CommandT]</span>
@@ -758,15 +750,14 @@
 <span class="sd">        Iterable of objects and IDs of other users to explicitly mark as owners</span>
 <span class="sd">        for this check.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This will be used alongside the application&#39;s owners.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * Any provided `owner_ids` will be used alongside the application&#39;s owners.</span>
+<span class="sd">    * This is based on the owner(s) of the bot&#39;s application and will account</span>
+<span class="sd">      for team owners as well.</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -789,10 +780,6 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if the author has certain permissions in the current channel.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        This will only pass for commands in DMs if `permissions` is valid for</span>
-<span class="sd">        a DM context (e.g. can&#39;t have any moderation permissions)</span>
-
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    permissions: typing.Union[hikari.permissions.Permissions, int]</span>
@@ -811,8 +798,11 @@
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * This will only pass for commands in DMs if `permissions` is valid for</span>
+<span class="sd">      a DM context (e.g. can&#39;t have any moderation permissions)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -832,10 +822,6 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if we have certain permissions in the current channel.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        This will only pass for commands in DMs if `permissions` is valid for</span>
-<span class="sd">        a DM context (e.g. can&#39;t have any moderation permissions)</span>
-
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    permissions: typing.Union[hikari.permissions.Permissions, int]</span>
@@ -854,8 +840,11 @@
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * This will only pass for commands in DMs if `permissions` is valid for</span>
+<span class="sd">      a DM context (e.g. can&#39;t have any moderation permissions)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1018,12 +1007,11 @@ The check to add to this command.</li>
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1057,8 +1045,13 @@ Whether this check should raise <code><a href="errors.html#HaltExecution">tanjun
 end the execution search when it fails instead of returning <code>False</code>.</p>
 
 <p>Defaults to <code>False</code>.</p></li>
-<li><strong>!!! note</strong>: error_message takes priority over halt_execution.</li>
-<li><strong>!!! note</strong>: For more information on how this is used with other parameters see
+</ul>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>error_message takes priority over halt_execution.</li>
+<li>For more information on how this is used with other parameters see
 <code><a href="#CallbackReturnT">CallbackReturnT</a></code>.</li>
 </ul>
 
@@ -1114,12 +1107,11 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1153,8 +1145,13 @@ Whether this check should raise <code><a href="errors.html#HaltExecution">tanjun
 end the execution search when it fails instead of returning <code>False</code>.</p>
 
 <p>Defaults to <code>False</code>.</p></li>
-<li><strong>!!! note</strong>: error_message takes priority over halt_execution.</li>
-<li><strong>!!! note</strong>: For more information on how this is used with other parameters see
+</ul>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>error_message takes priority over halt_execution.</li>
+<li>For more information on how this is used with other parameters see
 <code><a href="#CallbackReturnT">CallbackReturnT</a></code>.</li>
 </ul>
 
@@ -1210,12 +1207,11 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1249,8 +1245,13 @@ Whether this check should raise <code><a href="errors.html#HaltExecution">tanjun
 end the execution search when it fails instead of returning <code>False</code>.</p>
 
 <p>Defaults to <code>False</code>.</p></li>
-<li><strong>!!! note</strong>: error_message takes priority over halt_execution.</li>
-<li><strong>!!! note</strong>: For more information on how this is used with other parameters see
+</ul>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>error_message takes priority over halt_execution.</li>
+<li>For more information on how this is used with other parameters see
 <code><a href="#CallbackReturnT">CallbackReturnT</a></code>.</li>
 </ul>
 
@@ -1306,12 +1307,11 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1345,8 +1345,13 @@ Whether this check should raise <code><a href="errors.html#HaltExecution">tanjun
 end the execution search when it fails instead of returning <code>False</code>.</p>
 
 <p>Defaults to <code>False</code>.</p></li>
-<li><strong>!!! note</strong>: error_message takes priority over halt_execution.</li>
-<li><strong>!!! note</strong>: For more information on how this is used with other parameters see
+</ul>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>error_message takes priority over halt_execution.</li>
+<li>For more information on how this is used with other parameters see
 <code><a href="#CallbackReturnT">CallbackReturnT</a></code>.</li>
 </ul>
 
@@ -1388,10 +1393,6 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackReturnT</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if it&#39;s being triggered by one of the bot&#39;s owners.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        This is based on the owner(s) of the bot&#39;s application and will account</span>
-<span class="sd">        for team owners as well.</span>
-
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    command : typing.Optional[CommandT]</span>
@@ -1417,15 +1418,14 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <span class="sd">        Iterable of objects and IDs of other users to explicitly mark as owners</span>
 <span class="sd">        for this check.</span>
 
-<span class="sd">        !!! note</span>
-<span class="sd">            This will be used alongside the application&#39;s owners.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
-
-<span class="sd">    !!! note</span>
-<span class="sd">        For more information on how this is used with other parameters see</span>
-<span class="sd">        `CallbackReturnT`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * Any provided `owner_ids` will be used alongside the application&#39;s owners.</span>
+<span class="sd">    * This is based on the owner(s) of the bot&#39;s application and will account</span>
+<span class="sd">      for team owners as well.</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * For more information on how this is used with other parameters see</span>
+<span class="sd">      `CallbackReturnT`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1443,10 +1443,6 @@ end the execution search when it fails instead of returning <code>False</code>.<
         </details>
 
             <div class="docstring"><p>Only let a command run if it's being triggered by one of the bot's owners.</p>
-
-<p>!!! note
-    This is based on the owner(s) of the bot's application and will account
-    for team owners as well.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -1472,14 +1468,19 @@ Whether this check should raise <code><a href="errors.html#HaltExecution">tanjun
 end the execution search when it fails instead of returning <code>False</code>.</p>
 
 <p>Defaults to <code>False</code>.</p></li>
-<li><p><strong>owner_ids</strong> (typing.Optional[collections.abc.Iterable[hikari.snowflakes.SonwflakeishOr[hikari.users.User]]]):
+<li><strong>owner_ids</strong> (typing.Optional[collections.abc.Iterable[hikari.snowflakes.SonwflakeishOr[hikari.users.User]]]):
 Iterable of objects and IDs of other users to explicitly mark as owners
-for this check.</p>
+for this check.</li>
+</ul>
 
-<p>!!! note
-   This will be used alongside the application's owners.</p></li>
-<li><strong>!!! note</strong>: error_message takes priority over halt_execution.</li>
-<li><strong>!!! note</strong>: For more information on how this is used with other parameters see
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>Any provided <code>owner_ids</code> will be used alongside the application's owners.</li>
+<li>This is based on the owner(s) of the bot's application and will account
+for team owners as well.</li>
+<li>error_message takes priority over halt_execution.</li>
+<li>For more information on how this is used with other parameters see
 <code><a href="#CallbackReturnT">CallbackReturnT</a></code>.</li>
 </ul>
 
@@ -1515,10 +1516,6 @@ for this check.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if the author has certain permissions in the current channel.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        This will only pass for commands in DMs if `permissions` is valid for</span>
-<span class="sd">        a DM context (e.g. can&#39;t have any moderation permissions)</span>
-
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    permissions: typing.Union[hikari.permissions.Permissions, int]</span>
@@ -1537,8 +1534,11 @@ for this check.</p>
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * This will only pass for commands in DMs if `permissions` is valid for</span>
+<span class="sd">      a DM context (e.g. can&#39;t have any moderation permissions)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1553,10 +1553,6 @@ for this check.</p>
         </details>
 
             <div class="docstring"><p>Only let a command run if the author has certain permissions in the current channel.</p>
-
-<p>!!! note
-    This will only pass for commands in DMs if <code>permissions</code> is valid for
-    a DM context (e.g. can't have any moderation permissions)</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -1578,7 +1574,14 @@ Whether this check should raise <code><a href="errors.html#HaltExecution">tanjun
 end the execution search when it fails instead of returning <code>False</code>.</p>
 
 <p>Defaults to <code>False</code>.</p></li>
-<li><strong>!!! note</strong>: error_message takes priority over halt_execution.</li>
+</ul>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>error_message takes priority over halt_execution.</li>
+<li>This will only pass for commands in DMs if <code>permissions</code> is valid for
+a DM context (e.g. can't have any moderation permissions)</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -1613,10 +1616,6 @@ end the execution search when it fails instead of returning <code>False</code>.<
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Only let a command run if we have certain permissions in the current channel.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        This will only pass for commands in DMs if `permissions` is valid for</span>
-<span class="sd">        a DM context (e.g. can&#39;t have any moderation permissions)</span>
-
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    permissions: typing.Union[hikari.permissions.Permissions, int]</span>
@@ -1635,8 +1634,11 @@ end the execution search when it fails instead of returning <code>False</code>.<
 
 <span class="sd">        Defaults to `False`.</span>
 
-<span class="sd">    !!! note</span>
-<span class="sd">        error_message takes priority over halt_execution.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * error_message takes priority over halt_execution.</span>
+<span class="sd">    * This will only pass for commands in DMs if `permissions` is valid for</span>
+<span class="sd">      a DM context (e.g. can&#39;t have any moderation permissions)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1651,10 +1653,6 @@ end the execution search when it fails instead of returning <code>False</code>.<
         </details>
 
             <div class="docstring"><p>Only let a command run if we have certain permissions in the current channel.</p>
-
-<p>!!! note
-    This will only pass for commands in DMs if <code>permissions</code> is valid for
-    a DM context (e.g. can't have any moderation permissions)</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -1676,7 +1674,14 @@ Whether this check should raise <code><a href="errors.html#HaltExecution">tanjun
 end the execution search when it fails instead of returning <code>False</code>.</p>
 
 <p>Defaults to <code>False</code>.</p></li>
-<li><strong>!!! note</strong>: error_message takes priority over halt_execution.</li>
+</ul>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>error_message takes priority over halt_execution.</li>
+<li>This will only pass for commands in DMs if <code>permissions</code> is valid for
+a DM context (e.g. can't have any moderation permissions)</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
