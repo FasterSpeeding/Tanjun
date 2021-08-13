@@ -47,10 +47,6 @@ reportUnknownMemberType = "warning"             # This messes with instance chec
 reportUnknownArgumentType = "warning"           # Pretty much the same as reportUnknownMemberType
 reportImportCycles = "warning"                  # This isn't necessarily an issue if it's type checking only.
 
-# executionEnvironments = [
-#     {root = "tests", reportUnknownMemberType = "none"}
-# ]
-
 [tool.pytest.ini_options]
 import-mode = "???"
 testpaths = ["tests"]
