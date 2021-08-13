@@ -91,7 +91,7 @@ def cleanup(session: nox.Session) -> None:
 def generate_docs(session: nox.Session) -> None:
     install_dev_requirements(session)
     session.log("Building docs into ./docs")
-    session.run("pdoc", "--html", "--output-dir", "./docs", "./tanjun")
+    session.run("pdoc", "--docformat", "numpy", "-o", "./docs", "./tanjun")
 
 
 @nox.session(reuse_venv=True)

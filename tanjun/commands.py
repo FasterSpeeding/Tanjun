@@ -269,8 +269,8 @@ def slash_command_group(
     component = tanjun.Component().add_slash_command_command(help_group)
     ```
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     name : str
         The name of the command group.
     description : str
@@ -396,8 +396,8 @@ def with_str_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a string option to a slash command.
 
-    Example
-    -------
+    Examples
+    --------
     ```py
     @with_str_slash_option("name", "A name.")
     @as_slash_command("command", "A command")
@@ -464,8 +464,8 @@ def with_int_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add an integer option to a slash command.
 
-    Example
-    -------
+    Examples
+    --------
     ```py
     @with_int_slash_option("int_value", "Int value.")
     @as_slash_command("command", "A command")
@@ -521,8 +521,8 @@ def with_bool_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a boolean option to a slash command.
 
-    Example
-    -------
+    Examples
+    --------
     ```py
     @with_bool_slash_option("flag", "Whether this flag should be enabled.", default=False)
     @as_slash_command("command", "A command")
@@ -566,8 +566,8 @@ def with_user_slash_option(
         `hikari.users.User` if the user isn't in the current guild or if this
         command was executed in a DM channel.
 
-    Example
-    -------
+    Examples
+    --------
     ```py
     @with_channel_slash_option("user", "user to target.")
     @as_slash_command("command", "A command")
@@ -609,8 +609,8 @@ def with_member_slash_option(
     !!! note
         This will always result in `hikari.interactions.commands.InteractionMember`.
 
-    Example
-    -------
+    Examples
+    --------
     ```py
     @with_channel_slash_option("member", "member to target.")
     @as_slash_command("command", "A command")
@@ -652,8 +652,8 @@ def with_channel_slash_option(
     !!! note
         This will always result in `hikari.interactions.commands.InteractionChannel`.
 
-    Example
-    -------
+    Examples
+    --------
     ```py
     @with_channel_slash_option("channel", "channel to target.")
     @as_slash_command("command", "A command")
@@ -692,8 +692,8 @@ def with_role_slash_option(
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a role option to a slash command.
 
-    Example
-    -------
+    Examples
+    --------
     ```py
     @with_role_slash_option("role", "Role to target.")
     @as_slash_command("command", "A command")
@@ -736,8 +736,8 @@ def with_mentionable_slash_option(
         This may target roles, guild members or users and results in
         `Union[hikari.User, hikari.InteractionMember, hikari.Role]`.
 
-    Example
-    -------
+    Examples
+    --------
     ```py
     @with_mentionable_slash_option("mentionable", "Mentionable entity to target.")
     @as_slash_command("command", "A command")

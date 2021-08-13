@@ -98,8 +98,8 @@ class Component(injecting.Injectable, abc.Component):
         This implementation supports dependency injection for its checks
         and commands.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     checks : typing.Optional[typing.Iterable[abc.CheckSig]]
         Iterable of check callbacks to set for this component, if provided.
     hooks : typing.Optional[tanjun.abc.AnyHooks]

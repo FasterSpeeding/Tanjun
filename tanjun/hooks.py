@@ -107,8 +107,8 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
         !!! note
             This will likely override any previously added hooks.
 
-        Example
-        -------
+        Examples
+        --------
         This method may be used as a command decorator:
 
         ```py

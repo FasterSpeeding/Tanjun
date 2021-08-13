@@ -249,8 +249,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         For a quicker way to initiate this client around a standard bot aware
         client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     rest : hikari.api.rest.RestClient
         The Hikari REST client this will use.
 
