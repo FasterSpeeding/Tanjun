@@ -839,7 +839,6 @@
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
-        <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
         <span class="c1"># TODO: remove once fixed in Hikari</span>
         <span class="k">if</span> <span class="n">embed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">embeds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
@@ -856,7 +855,7 @@
                 <span class="c1"># components=components,</span>
                 <span class="c1"># embed=embed,</span>
                 <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
-                <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
+                <span class="n">flags</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">),</span>
                 <span class="n">tts</span><span class="o">=</span><span class="n">tts</span><span class="p">,</span>
                 <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
                 <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
@@ -864,6 +863,85 @@
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_last_response_id</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">id</span>
             <span class="k">return</span> <span class="n">message</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_create_initial_response</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
+        <span class="c1"># components: hikari.UndefinedOr[</span>
+        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
+        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
+            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialUser</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">role_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
+            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialRole</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Initial response has already been created&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;edit_initial_response must be used to set the initial response after a context has been deferred&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span>
+                <span class="n">response_type</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">MESSAGE_CREATE</span><span class="p">,</span>
+                <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
+                <span class="c1"># component=component,</span>
+                <span class="c1"># components=components,</span>
+                <span class="n">embed</span><span class="o">=</span><span class="n">embed</span><span class="p">,</span>
+                <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
+                <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
+                <span class="n">tts</span><span class="o">=</span><span class="n">tts</span><span class="p">,</span>
+                <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
+                <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
+                <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if component and components:</span>
+            <span class="c1">#     raise ValueError(&quot;Only one of component or components may be passed&quot;)</span>
+
+            <span class="k">if</span> <span class="n">embed</span> <span class="ow">and</span> <span class="n">embeds</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only one of embed or embeds may be passed&quot;</span><span class="p">)</span>
+
+            <span class="c1"># if component:</span>
+            <span class="c1">#     assert not isinstance(component, hikari.UndefinedType)</span>
+            <span class="c1">#     components = (component,)</span>
+
+            <span class="k">if</span> <span class="n">embed</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">embed</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">)</span>
+                <span class="n">embeds</span> <span class="o">=</span> <span class="p">(</span><span class="n">embed</span><span class="p">,)</span>
+
+            <span class="c1"># Pyright doesn&#39;t properly support attrs and doesn&#39;t account for _ being removed from field</span>
+            <span class="c1"># pre-fix in init.</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">impl</span><span class="o">.</span><span class="n">InteractionMessageBuilder</span><span class="p">(</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">MESSAGE_CREATE</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="c1"># components=components,  # type: ignore</span>
+                <span class="c1"># embeds=embeds,  # type: ignore</span>
+                <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="n">is_tts</span><span class="o">=</span><span class="n">tts</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">if</span> <span class="n">embeds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">embed</span> <span class="ow">in</span> <span class="n">embeds</span><span class="p">:</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">add_embed</span><span class="p">(</span><span class="n">embed</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">create_initial_response</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -885,59 +963,19 @@
         <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Initial response has already been created&quot;</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="s2">&quot;edit_initial_response must be used to set the initial response after a context has been deferred&quot;</span>
-                <span class="p">)</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span>
-                    <span class="n">response_type</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">MESSAGE_CREATE</span><span class="p">,</span>
-                    <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
-                    <span class="c1"># component=component,</span>
-                    <span class="c1"># components=components,</span>
-                    <span class="n">embed</span><span class="o">=</span><span class="n">embed</span><span class="p">,</span>
-                    <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
-                    <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
-                    <span class="n">tts</span><span class="o">=</span><span class="n">tts</span><span class="p">,</span>
-                    <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
-                    <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
-                    <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
-                <span class="p">)</span>
-
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># if component:</span>
-                <span class="c1">#     assert not isinstance(component, hikari.UndefinedType)</span>
-                <span class="c1">#     components = (component,)</span>
-
-                <span class="k">if</span> <span class="n">embed</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">embed</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">)</span>
-                    <span class="n">embeds</span> <span class="o">=</span> <span class="p">(</span><span class="n">embed</span><span class="p">,)</span>
-
-                <span class="c1"># Pyright doesn&#39;t properly support attrs and doesn&#39;t account for _ being removed from field</span>
-                <span class="c1"># pre-fix in init.</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">impl</span><span class="o">.</span><span class="n">InteractionMessageBuilder</span><span class="p">(</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">MESSAGE_CREATE</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="c1"># components=components,  # type: ignore</span>
-                    <span class="c1"># embeds=embeds,  # type: ignore</span>
-                    <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="n">is_tts</span><span class="o">=</span><span class="n">tts</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                <span class="p">)</span>  <span class="c1"># type: ignore</span>
-                <span class="k">if</span> <span class="n">embeds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">embed</span> <span class="ow">in</span> <span class="n">embeds</span><span class="p">:</span>
-                        <span class="n">result</span><span class="o">.</span><span class="n">add_embed</span><span class="p">(</span><span class="n">embed</span><span class="p">)</span>
-
-                <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_initial_response</span><span class="p">(</span>
+                <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
+                <span class="c1"># component=component,</span>
+                <span class="c1"># components=components,</span>
+                <span class="n">embed</span><span class="o">=</span><span class="n">embed</span><span class="p">,</span>
+                <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
+                <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
+                <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
+                <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
+                <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
+                <span class="n">tts</span><span class="o">=</span><span class="n">tts</span><span class="p">,</span>
+            <span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">delete_initial_response</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">delete_initial_response</span><span class="p">()</span>
@@ -973,7 +1011,7 @@
             <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialRole</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
         <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
             <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
             <span class="n">attachment</span><span class="o">=</span><span class="n">attachment</span><span class="p">,</span>
             <span class="n">attachments</span><span class="o">=</span><span class="n">attachments</span><span class="p">,</span>
@@ -986,6 +1024,8 @@
             <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
             <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">result</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">edit_last_response</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1025,7 +1065,7 @@
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
-            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
                 <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
                 <span class="n">attachment</span><span class="o">=</span><span class="n">attachment</span><span class="p">,</span>
                 <span class="n">attachments</span><span class="o">=</span><span class="n">attachments</span><span class="p">,</span>
@@ -1116,43 +1156,41 @@
             <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialRole</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
         <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">]:</span>
-        <span class="c1"># if component and components:</span>
-        <span class="c1">#     raise ValueError(&quot;Only one of component or components may be passed&quot;)</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
+                <span class="c1"># TODO: remove once fixed in Hikari</span>
+                <span class="k">if</span> <span class="n">embed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">embeds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only one of `embed` or `embeds` may be passed&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">embed</span> <span class="ow">and</span> <span class="n">embeds</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only one of embed or embeds may be passed&quot;</span><span class="p">)</span>
+                    <span class="n">embeds</span> <span class="o">=</span> <span class="p">(</span><span class="n">embed</span><span class="p">,)</span>
 
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="n">content</span><span class="p">,</span>
+                    <span class="c1"># component=component,</span>
+                    <span class="c1"># components=components,</span>
+                    <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
+                    <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
+                    <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
+                    <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_last_response_id</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">id</span>
+                <span class="k">return</span> <span class="n">message</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
-            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_followup</span><span class="p">(</span>
-                <span class="n">content</span><span class="p">,</span>
-                <span class="c1"># component=component,</span>
-                <span class="c1"># components=components,</span>
-                <span class="n">embed</span><span class="o">=</span><span class="n">embed</span><span class="p">,</span>
-                <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
-                <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
-                <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
-                <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
+                    <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
+                    <span class="c1"># component=component,</span>
+                    <span class="c1"># components=components,</span>
+                    <span class="n">embed</span><span class="o">=</span><span class="n">embed</span><span class="p">,</span>
+                    <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
+                    <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
+                    <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
+                    <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
+                <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
-                <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
-                <span class="c1"># component=component,</span>
-                <span class="c1"># components=components,</span>
-                <span class="n">embed</span><span class="o">=</span><span class="n">embed</span><span class="p">,</span>
-                <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
-                <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
-                <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
-                <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_initial_response</span><span class="p">(</span>
                 <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
                 <span class="c1"># component=component,</span>
                 <span class="c1"># components=components,</span>
@@ -2383,7 +2421,6 @@ Otherwise, returns <code>None</code>.</li>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
-        <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
         <span class="c1"># TODO: remove once fixed in Hikari</span>
         <span class="k">if</span> <span class="n">embed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">embeds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
@@ -2400,7 +2437,7 @@ Otherwise, returns <code>None</code>.</li>
                 <span class="c1"># components=components,</span>
                 <span class="c1"># embed=embed,</span>
                 <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
-                <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
+                <span class="n">flags</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">),</span>
                 <span class="n">tts</span><span class="o">=</span><span class="n">tts</span><span class="p">,</span>
                 <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
                 <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
@@ -2408,6 +2445,85 @@ Otherwise, returns <code>None</code>.</li>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_last_response_id</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">id</span>
             <span class="k">return</span> <span class="n">message</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_create_initial_response</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
+        <span class="c1"># components: hikari.UndefinedOr[</span>
+        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
+        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
+            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialUser</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">role_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
+            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialRole</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Initial response has already been created&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;edit_initial_response must be used to set the initial response after a context has been deferred&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span>
+                <span class="n">response_type</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">MESSAGE_CREATE</span><span class="p">,</span>
+                <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
+                <span class="c1"># component=component,</span>
+                <span class="c1"># components=components,</span>
+                <span class="n">embed</span><span class="o">=</span><span class="n">embed</span><span class="p">,</span>
+                <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
+                <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
+                <span class="n">tts</span><span class="o">=</span><span class="n">tts</span><span class="p">,</span>
+                <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
+                <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
+                <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if component and components:</span>
+            <span class="c1">#     raise ValueError(&quot;Only one of component or components may be passed&quot;)</span>
+
+            <span class="k">if</span> <span class="n">embed</span> <span class="ow">and</span> <span class="n">embeds</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only one of embed or embeds may be passed&quot;</span><span class="p">)</span>
+
+            <span class="c1"># if component:</span>
+            <span class="c1">#     assert not isinstance(component, hikari.UndefinedType)</span>
+            <span class="c1">#     components = (component,)</span>
+
+            <span class="k">if</span> <span class="n">embed</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">embed</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">)</span>
+                <span class="n">embeds</span> <span class="o">=</span> <span class="p">(</span><span class="n">embed</span><span class="p">,)</span>
+
+            <span class="c1"># Pyright doesn&#39;t properly support attrs and doesn&#39;t account for _ being removed from field</span>
+            <span class="c1"># pre-fix in init.</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">impl</span><span class="o">.</span><span class="n">InteractionMessageBuilder</span><span class="p">(</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">MESSAGE_CREATE</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="c1"># components=components,  # type: ignore</span>
+                <span class="c1"># embeds=embeds,  # type: ignore</span>
+                <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="n">is_tts</span><span class="o">=</span><span class="n">tts</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">if</span> <span class="n">embeds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">embed</span> <span class="ow">in</span> <span class="n">embeds</span><span class="p">:</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">add_embed</span><span class="p">(</span><span class="n">embed</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">create_initial_response</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2429,59 +2545,19 @@ Otherwise, returns <code>None</code>.</li>
         <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Initial response has already been created&quot;</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="s2">&quot;edit_initial_response must be used to set the initial response after a context has been deferred&quot;</span>
-                <span class="p">)</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span>
-                    <span class="n">response_type</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">MESSAGE_CREATE</span><span class="p">,</span>
-                    <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
-                    <span class="c1"># component=component,</span>
-                    <span class="c1"># components=components,</span>
-                    <span class="n">embed</span><span class="o">=</span><span class="n">embed</span><span class="p">,</span>
-                    <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
-                    <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
-                    <span class="n">tts</span><span class="o">=</span><span class="n">tts</span><span class="p">,</span>
-                    <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
-                    <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
-                    <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
-                <span class="p">)</span>
-
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># if component:</span>
-                <span class="c1">#     assert not isinstance(component, hikari.UndefinedType)</span>
-                <span class="c1">#     components = (component,)</span>
-
-                <span class="k">if</span> <span class="n">embed</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">embed</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">)</span>
-                    <span class="n">embeds</span> <span class="o">=</span> <span class="p">(</span><span class="n">embed</span><span class="p">,)</span>
-
-                <span class="c1"># Pyright doesn&#39;t properly support attrs and doesn&#39;t account for _ being removed from field</span>
-                <span class="c1"># pre-fix in init.</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">impl</span><span class="o">.</span><span class="n">InteractionMessageBuilder</span><span class="p">(</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">MESSAGE_CREATE</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="c1"># components=components,  # type: ignore</span>
-                    <span class="c1"># embeds=embeds,  # type: ignore</span>
-                    <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="n">is_tts</span><span class="o">=</span><span class="n">tts</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                <span class="p">)</span>  <span class="c1"># type: ignore</span>
-                <span class="k">if</span> <span class="n">embeds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">embed</span> <span class="ow">in</span> <span class="n">embeds</span><span class="p">:</span>
-                        <span class="n">result</span><span class="o">.</span><span class="n">add_embed</span><span class="p">(</span><span class="n">embed</span><span class="p">)</span>
-
-                <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_initial_response</span><span class="p">(</span>
+                <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
+                <span class="c1"># component=component,</span>
+                <span class="c1"># components=components,</span>
+                <span class="n">embed</span><span class="o">=</span><span class="n">embed</span><span class="p">,</span>
+                <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
+                <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
+                <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
+                <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
+                <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
+                <span class="n">tts</span><span class="o">=</span><span class="n">tts</span><span class="p">,</span>
+            <span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">delete_initial_response</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">delete_initial_response</span><span class="p">()</span>
@@ -2517,7 +2593,7 @@ Otherwise, returns <code>None</code>.</li>
             <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialRole</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
         <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
             <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
             <span class="n">attachment</span><span class="o">=</span><span class="n">attachment</span><span class="p">,</span>
             <span class="n">attachments</span><span class="o">=</span><span class="n">attachments</span><span class="p">,</span>
@@ -2530,6 +2606,8 @@ Otherwise, returns <code>None</code>.</li>
             <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
             <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">result</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">edit_last_response</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2569,7 +2647,7 @@ Otherwise, returns <code>None</code>.</li>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
-            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
                 <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
                 <span class="n">attachment</span><span class="o">=</span><span class="n">attachment</span><span class="p">,</span>
                 <span class="n">attachments</span><span class="o">=</span><span class="n">attachments</span><span class="p">,</span>
@@ -2660,43 +2738,41 @@ Otherwise, returns <code>None</code>.</li>
             <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialRole</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
         <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">]:</span>
-        <span class="c1"># if component and components:</span>
-        <span class="c1">#     raise ValueError(&quot;Only one of component or components may be passed&quot;)</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
+                <span class="c1"># TODO: remove once fixed in Hikari</span>
+                <span class="k">if</span> <span class="n">embed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">embeds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only one of `embed` or `embeds` may be passed&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">embed</span> <span class="ow">and</span> <span class="n">embeds</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only one of embed or embeds may be passed&quot;</span><span class="p">)</span>
+                    <span class="n">embeds</span> <span class="o">=</span> <span class="p">(</span><span class="n">embed</span><span class="p">,)</span>
 
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="n">content</span><span class="p">,</span>
+                    <span class="c1"># component=component,</span>
+                    <span class="c1"># components=components,</span>
+                    <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
+                    <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
+                    <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
+                    <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_last_response_id</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">id</span>
+                <span class="k">return</span> <span class="n">message</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
-            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_followup</span><span class="p">(</span>
-                <span class="n">content</span><span class="p">,</span>
-                <span class="c1"># component=component,</span>
-                <span class="c1"># components=components,</span>
-                <span class="n">embed</span><span class="o">=</span><span class="n">embed</span><span class="p">,</span>
-                <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
-                <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
-                <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
-                <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
+                    <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
+                    <span class="c1"># component=component,</span>
+                    <span class="c1"># components=components,</span>
+                    <span class="n">embed</span><span class="o">=</span><span class="n">embed</span><span class="p">,</span>
+                    <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
+                    <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
+                    <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
+                    <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
+                <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
-                <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
-                <span class="c1"># component=component,</span>
-                <span class="c1"># components=components,</span>
-                <span class="n">embed</span><span class="o">=</span><span class="n">embed</span><span class="p">,</span>
-                <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
-                <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
-                <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
-                <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_initial_response</span><span class="p">(</span>
                 <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
                 <span class="c1"># component=component,</span>
                 <span class="c1"># components=components,</span>
@@ -3288,7 +3364,6 @@ The flags to use for the initial response.</li>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
-        <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
         <span class="c1"># TODO: remove once fixed in Hikari</span>
         <span class="k">if</span> <span class="n">embed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">embeds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
@@ -3305,7 +3380,7 @@ The flags to use for the initial response.</li>
                 <span class="c1"># components=components,</span>
                 <span class="c1"># embed=embed,</span>
                 <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
-                <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
+                <span class="n">flags</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">),</span>
                 <span class="n">tts</span><span class="o">=</span><span class="n">tts</span><span class="p">,</span>
                 <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
                 <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
@@ -3361,59 +3436,19 @@ The flags to use for the initial response.</li>
         <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Initial response has already been created&quot;</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="s2">&quot;edit_initial_response must be used to set the initial response after a context has been deferred&quot;</span>
-                <span class="p">)</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span>
-                    <span class="n">response_type</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">MESSAGE_CREATE</span><span class="p">,</span>
-                    <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
-                    <span class="c1"># component=component,</span>
-                    <span class="c1"># components=components,</span>
-                    <span class="n">embed</span><span class="o">=</span><span class="n">embed</span><span class="p">,</span>
-                    <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
-                    <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
-                    <span class="n">tts</span><span class="o">=</span><span class="n">tts</span><span class="p">,</span>
-                    <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
-                    <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
-                    <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
-                <span class="p">)</span>
-
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># if component:</span>
-                <span class="c1">#     assert not isinstance(component, hikari.UndefinedType)</span>
-                <span class="c1">#     components = (component,)</span>
-
-                <span class="k">if</span> <span class="n">embed</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">embed</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">)</span>
-                    <span class="n">embeds</span> <span class="o">=</span> <span class="p">(</span><span class="n">embed</span><span class="p">,)</span>
-
-                <span class="c1"># Pyright doesn&#39;t properly support attrs and doesn&#39;t account for _ being removed from field</span>
-                <span class="c1"># pre-fix in init.</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">impl</span><span class="o">.</span><span class="n">InteractionMessageBuilder</span><span class="p">(</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">MESSAGE_CREATE</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="c1"># components=components,  # type: ignore</span>
-                    <span class="c1"># embeds=embeds,  # type: ignore</span>
-                    <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="n">is_tts</span><span class="o">=</span><span class="n">tts</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                <span class="p">)</span>  <span class="c1"># type: ignore</span>
-                <span class="k">if</span> <span class="n">embeds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">embed</span> <span class="ow">in</span> <span class="n">embeds</span><span class="p">:</span>
-                        <span class="n">result</span><span class="o">.</span><span class="n">add_embed</span><span class="p">(</span><span class="n">embed</span><span class="p">)</span>
-
-                <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_initial_response</span><span class="p">(</span>
+                <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
+                <span class="c1"># component=component,</span>
+                <span class="c1"># components=components,</span>
+                <span class="n">embed</span><span class="o">=</span><span class="n">embed</span><span class="p">,</span>
+                <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
+                <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
+                <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
+                <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
+                <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
+                <span class="n">tts</span><span class="o">=</span><span class="n">tts</span><span class="p">,</span>
+            <span class="p">)</span>
 </pre></div>
 
         </details>
@@ -3509,7 +3544,7 @@ The flags to use for the initial response.</li>
             <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialRole</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
         <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
             <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
             <span class="n">attachment</span><span class="o">=</span><span class="n">attachment</span><span class="p">,</span>
             <span class="n">attachments</span><span class="o">=</span><span class="n">attachments</span><span class="p">,</span>
@@ -3522,6 +3557,8 @@ The flags to use for the initial response.</li>
             <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
             <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">result</span>
 </pre></div>
 
         </details>
@@ -3589,7 +3626,7 @@ The flags to use for the initial response.</li>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
-            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
                 <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
                 <span class="n">attachment</span><span class="o">=</span><span class="n">attachment</span><span class="p">,</span>
                 <span class="n">attachments</span><span class="o">=</span><span class="n">attachments</span><span class="p">,</span>
@@ -3694,43 +3731,41 @@ The flags to use for the initial response.</li>
             <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialRole</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
         <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">]:</span>
-        <span class="c1"># if component and components:</span>
-        <span class="c1">#     raise ValueError(&quot;Only one of component or components may be passed&quot;)</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
+                <span class="c1"># TODO: remove once fixed in Hikari</span>
+                <span class="k">if</span> <span class="n">embed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">embeds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only one of `embed` or `embeds` may be passed&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">embed</span> <span class="ow">and</span> <span class="n">embeds</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only one of embed or embeds may be passed&quot;</span><span class="p">)</span>
+                    <span class="n">embeds</span> <span class="o">=</span> <span class="p">(</span><span class="n">embed</span><span class="p">,)</span>
 
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="n">content</span><span class="p">,</span>
+                    <span class="c1"># component=component,</span>
+                    <span class="c1"># components=components,</span>
+                    <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
+                    <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
+                    <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
+                    <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_last_response_id</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">id</span>
+                <span class="k">return</span> <span class="n">message</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
-            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_followup</span><span class="p">(</span>
-                <span class="n">content</span><span class="p">,</span>
-                <span class="c1"># component=component,</span>
-                <span class="c1"># components=components,</span>
-                <span class="n">embed</span><span class="o">=</span><span class="n">embed</span><span class="p">,</span>
-                <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
-                <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
-                <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
-                <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
+                    <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
+                    <span class="c1"># component=component,</span>
+                    <span class="c1"># components=components,</span>
+                    <span class="n">embed</span><span class="o">=</span><span class="n">embed</span><span class="p">,</span>
+                    <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
+                    <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
+                    <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
+                    <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
+                <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
-                <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
-                <span class="c1"># component=component,</span>
-                <span class="c1"># components=components,</span>
-                <span class="n">embed</span><span class="o">=</span><span class="n">embed</span><span class="p">,</span>
-                <span class="n">embeds</span><span class="o">=</span><span class="n">embeds</span><span class="p">,</span>
-                <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">mentions_everyone</span><span class="p">,</span>
-                <span class="n">user_mentions</span><span class="o">=</span><span class="n">user_mentions</span><span class="p">,</span>
-                <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_initial_response</span><span class="p">(</span>
                 <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
                 <span class="c1"># component=component,</span>
                 <span class="c1"># components=components,</span>
