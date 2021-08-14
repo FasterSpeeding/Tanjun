@@ -29,7 +29,70 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""A flexible command client designed to extend Hikari."""
+"""A flexible command client designed to extend Hikari.
+
+Examples
+--------
+A Tanjun client can be quickly initialised from a Hikari gateway bot through
+`tanjun.Client.from_gateway`, this enables both slash (interaction) and message
+command execution:
+
+```py
+bot = hikari.GatewayBot("BOT_TOKEN")
+
+# As a note, unless event_managed=False is passed here then this client
+# will be managed based on gateway startup and stopping events.
+# mention_prefix=True instructs the client to also set mention prefixes on the
+# first startup.
+client = tanjun.Client.from_gateway(bot, set_global_commands=True, mention_prefix=True)
+
+component = tanjun.Component()
+
+# Declare a message command with some basic parser logic.
+@component.with_command
+@tanjun.with_greedy_argument("name", default="World")
+@tanjun.with_parser
+@tanjun.as_message_command("test")
+async def test_command(ctx: tanjun.abc.Context, name: str) -> None:
+    await ctx.respond(f"Hello, {name}!")
+
+# Declare a ping slash command
+@component.with_command
+@tanjun.with_user_slash_option("user", "The user facing command option's description", default=None)
+@tanjun.as_slash_command("hello", "The command's user facing description")
+async def hello(ctx: tanjun.abc.Context, user: typing.Optional[hikari.User]) -> None:
+    user = user or ctx.author
+    await ctx.respond(f"Hello, {user}!")
+```
+
+Alternatively, the client can also be built from a RESTBot but this will only
+enable slash (interaction) command execution:
+
+```py
+bot = hikari.RESTBot("BOT_TOKEN", "Bot")
+
+# set_global_commands=True instructs the client to set the global commands
+# for the relevant bot on first startup (this will replace any previously
+# declared commands).
+client = tanjun.Client.from_rest_bot(bot, set_global_commands=True)
+
+# This will load components from modules based on loader functions.
+# For more information on this see `tanjun.as_loader`.
+client.load_modules("module.paths")
+
+# Note, unlike a gateway bound bot, the rest bot will not automatically start
+# itself due to the lack of Hikari lifetime events in this environment and
+# will have to be started after the Hikari client.
+async def main() -> None:
+    await bot.start()
+    await client.open()
+    await bot.join()
+    await client.close()
+```
+
+For more extensive examples see the
+[repository's examples](https://github.com/FasterSpeeding/Tanjun/tree/master/examples).
+"""
 from __future__ import annotations
 
 __all__: list[str] = [

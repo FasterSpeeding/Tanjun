@@ -608,7 +608,6 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
     ) -> hikari.Message:
-        flags = self._get_flags(flags)
         # TODO: remove once fixed in Hikari
         if embed is not hikari.UNDEFINED:
             if embeds is not hikari.UNDEFINED:
@@ -625,7 +624,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
                 # components=components,
                 # embed=embed,
                 embeds=embeds,
-                flags=flags,
+                flags=self._get_flags(flags),
                 tts=tts,
                 mentions_everyone=mentions_everyone,
                 user_mentions=user_mentions,
@@ -633,6 +632,85 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             )
             self._last_response_id = message.id
             return message
+
+    async def _create_initial_response(
+        self,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
+        *,
+        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        # components: hikari.UndefinedOr[
+        #     collections.Sequence[hikari.api.ComponentBuilder]
+        # ] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+        flags: typing.Union[int, hikari.MessageFlag, hikari.UndefinedType] = hikari.UNDEFINED,
+        tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+    ) -> None:
+        flags = self._get_flags(flags)
+        if self._has_responded:
+            raise RuntimeError("Initial response has already been created")
+
+        if self._has_been_deferred:
+            raise RuntimeError(
+                "edit_initial_response must be used to set the initial response after a context has been deferred"
+            )
+
+        self._has_responded = True
+        if not self._response_future:
+            await self._interaction.create_initial_response(
+                response_type=hikari.ResponseType.MESSAGE_CREATE,
+                content=content,
+                # component=component,
+                # components=components,
+                embed=embed,
+                embeds=embeds,
+                flags=flags,
+                tts=tts,
+                mentions_everyone=mentions_everyone,
+                user_mentions=user_mentions,
+                role_mentions=role_mentions,
+            )
+
+        else:
+            # if component and components:
+            #     raise ValueError("Only one of component or components may be passed")
+
+            if embed and embeds:
+                raise ValueError("Only one of embed or embeds may be passed")
+
+            # if component:
+            #     assert not isinstance(component, hikari.UndefinedType)
+            #     components = (component,)
+
+            if embed:
+                assert not isinstance(embed, hikari.UndefinedType)
+                embeds = (embed,)
+
+            # Pyright doesn't properly support attrs and doesn't account for _ being removed from field
+            # pre-fix in init.
+            result = hikari.impl.InteractionMessageBuilder(
+                type=hikari.ResponseType.MESSAGE_CREATE,  # type: ignore
+                content=content,  # type: ignore
+                # components=components,  # type: ignore
+                # embeds=embeds,  # type: ignore
+                flags=flags,  # type: ignore
+                is_tts=tts,  # type: ignore
+                mentions_everyone=mentions_everyone,  # type: ignore
+                user_mentions=user_mentions,  # type: ignore
+                role_mentions=role_mentions,  # type: ignore
+            )  # type: ignore
+            if embeds is not hikari.UNDEFINED:
+                for embed in embeds:
+                    result.add_embed(embed)
+
+            self._response_future.set_result(result)
 
     async def create_initial_response(
         self,
@@ -654,59 +732,19 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         flags: typing.Union[int, hikari.MessageFlag, hikari.UndefinedType] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
     ) -> None:
-        flags = self._get_flags(flags)
         async with self._response_lock:
-            if self._has_responded:
-                raise RuntimeError("Initial response has already been created")
-
-            if self._has_been_deferred:
-                raise RuntimeError(
-                    "edit_initial_response must be used to set the initial response after a context has been deferred"
-                )
-
-            self._has_responded = True
-            if not self._response_future:
-                await self._interaction.create_initial_response(
-                    response_type=hikari.ResponseType.MESSAGE_CREATE,
-                    content=content,
-                    # component=component,
-                    # components=components,
-                    embed=embed,
-                    embeds=embeds,
-                    flags=flags,
-                    tts=tts,
-                    mentions_everyone=mentions_everyone,
-                    user_mentions=user_mentions,
-                    role_mentions=role_mentions,
-                )
-
-            else:
-                # if component:
-                #     assert not isinstance(component, hikari.UndefinedType)
-                #     components = (component,)
-
-                if embed:
-                    assert not isinstance(embed, hikari.UndefinedType)
-                    embeds = (embed,)
-
-                # Pyright doesn't properly support attrs and doesn't account for _ being removed from field
-                # pre-fix in init.
-                result = hikari.impl.InteractionMessageBuilder(
-                    type=hikari.ResponseType.MESSAGE_CREATE,  # type: ignore
-                    content=content,  # type: ignore
-                    # components=components,  # type: ignore
-                    # embeds=embeds,  # type: ignore
-                    flags=flags,  # type: ignore
-                    is_tts=tts,  # type: ignore
-                    mentions_everyone=mentions_everyone,  # type: ignore
-                    user_mentions=user_mentions,  # type: ignore
-                    role_mentions=role_mentions,  # type: ignore
-                )  # type: ignore
-                if embeds is not hikari.UNDEFINED:
-                    for embed in embeds:
-                        result.add_embed(embed)
-
-                self._response_future.set_result(result)
+            await self._create_initial_response(
+                content=content,
+                # component=component,
+                # components=components,
+                embed=embed,
+                embeds=embeds,
+                mentions_everyone=mentions_everyone,
+                user_mentions=user_mentions,
+                role_mentions=role_mentions,
+                flags=flags,
+                tts=tts,
+            )
 
     async def delete_initial_response(self) -> None:
         await self._interaction.delete_initial_response()
@@ -742,7 +780,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
-        return await self._interaction.edit_initial_response(
+        result = await self._interaction.edit_initial_response(
             content=content,
             attachment=attachment,
             attachments=attachments,
@@ -755,6 +793,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             user_mentions=user_mentions,
             role_mentions=role_mentions,
         )
+        self._has_responded = True
+        return result
 
     async def edit_last_response(
         self,
@@ -794,7 +834,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             )
 
         if self._has_responded:
-            return await self._interaction.edit_initial_response(
+            return await self.edit_initial_response(
                 content=content,
                 attachment=attachment,
                 attachments=attachments,
@@ -885,43 +925,41 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> typing.Optional[hikari.Message]:
-        # if component and components:
-        #     raise ValueError("Only one of component or components may be passed")
+        async with self._response_lock:
+            if self._has_responded:
+                # TODO: remove once fixed in Hikari
+                if embed is not hikari.UNDEFINED:
+                    if embeds is not hikari.UNDEFINED:
+                        raise ValueError("Only one of `embed` or `embeds` may be passed")
 
-        if embed and embeds:
-            raise ValueError("Only one of embed or embeds may be passed")
+                    embeds = (embed,)
 
-        await self._response_lock.acquire()
-        self._response_lock.release()
+                message = await self._interaction.execute(
+                    content,
+                    # component=component,
+                    # components=components,
+                    embeds=embeds,
+                    mentions_everyone=mentions_everyone,
+                    user_mentions=user_mentions,
+                    role_mentions=role_mentions,
+                )
+                self._last_response_id = message.id
+                return message
 
-        if self._has_responded:
-            return await self.create_followup(
-                content,
-                # component=component,
-                # components=components,
-                embed=embed,
-                embeds=embeds,
-                mentions_everyone=mentions_everyone,
-                user_mentions=user_mentions,
-                role_mentions=role_mentions,
-            )
+            self.cancel_defer()
+            if self._has_been_deferred:
+                return await self.edit_initial_response(
+                    content=content,
+                    # component=component,
+                    # components=components,
+                    embed=embed,
+                    embeds=embeds,
+                    mentions_everyone=mentions_everyone,
+                    user_mentions=user_mentions,
+                    role_mentions=role_mentions,
+                )
 
-        self.cancel_defer()
-        if self._has_been_deferred:
-            self._has_responded = True
-            await self.edit_initial_response(
-                content=content,
-                # component=component,
-                # components=components,
-                embed=embed,
-                embeds=embeds,
-                mentions_everyone=mentions_everyone,
-                user_mentions=user_mentions,
-                role_mentions=role_mentions,
-            )
-
-        else:
-            await self.create_initial_response(
+            await self._create_initial_response(
                 content=content,
                 # component=component,
                 # components=components,
