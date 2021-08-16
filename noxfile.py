@@ -35,7 +35,7 @@ import shutil
 
 import nox
 
-nox.options.sessions = ["reformat-code", "lint", "type-check", "test"]  # type: ignore
+nox.options.sessions = ["reformat-code", "lint", "spell-check", "type-check", "test"]  # type: ignore
 GENERAL_TARGETS = ["./examples", "./noxfile.py", "./setup.py", "./tanjun", "./tests"]
 PYTHON_VERSIONS = ["3.9", "3.10"]  # TODO: @nox.session(python=["3.6", "3.7", "3.8"])?
 REQUIREMENTS = [
@@ -99,7 +99,23 @@ def generate_docs(session: nox.Session) -> None:
 def lint(session: nox.Session) -> None:
     install_dev_requirements(session, "-r", "flake8-requirements.txt")
     session.run("flake8", *GENERAL_TARGETS)
-    session.run("codespell", *GENERAL_TARGETS)
+
+
+@nox.session(reuse_venv=True, name="spell-check")
+def spell_check(session: nox.Session) -> None:
+    install_dev_requirements(session, include_standard_requirements=False)
+    session.run(
+        "codespell",
+        *GENERAL_TARGETS,
+        ".flake8",
+        ".gitignore",
+        "dev-requirements.txt",
+        "flake8-requirements.txt",
+        "LICENSE",
+        "pyproject.toml",
+        "README.md",
+        "requirements.txt",
+    )
 
 
 @nox.session(reuse_venv=True)
