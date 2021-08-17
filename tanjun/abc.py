@@ -459,10 +459,8 @@ class Context(abc.ABC):
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
@@ -598,10 +596,8 @@ class Context(abc.ABC):
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
@@ -757,10 +753,8 @@ class Context(abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[False] = False,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -780,10 +774,8 @@ class Context(abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[True],
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -802,10 +794,8 @@ class Context(abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = False,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -998,10 +988,8 @@ class MessageContext(Context, abc.ABC):
         ensure_result: bool = True,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -1443,10 +1431,8 @@ class SlashContext(Context, abc.ABC):
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -1466,10 +1452,8 @@ class SlashContext(Context, abc.ABC):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -1491,10 +1475,8 @@ class SlashContext(Context, abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[False] = False,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -1514,10 +1496,8 @@ class SlashContext(Context, abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[True],
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -1536,10 +1516,8 @@ class SlashContext(Context, abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = False,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
