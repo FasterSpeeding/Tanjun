@@ -63,7 +63,7 @@ flake8 = [
 ]
 generate_code = ["pdoc==7.3.1"]
 lint = ["codespell==2.1.0"]
-publish = ["flit"]
+publish = ["flit~=3.3"]
 reformat = ["black~=21.7b0", "isort==5.9.3"]
 tests = ["pytest==6.2.4", "pytest-asyncio==0.15.1", "pytest-cov==2.12.1"]
 
