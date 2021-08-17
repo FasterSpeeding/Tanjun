@@ -68,21 +68,22 @@ def cleanup(session: nox.Session) -> None:
             shutil.rmtree(str(path.absolute()))
 
         except Exception as exc:
-            logger.error(f"[ FAIL ] Failed to remove '{raw_path!s}': {exc!s}")  # type: ignore
+            logger.error(f"[ FAIL ] Failed to remove '{raw_path}': {exc!s}")  # type: ignore
 
         else:
-            logger.info(f"[  OK  ] Removed '{raw_path!s}'")  # type: ignore
+            logger.info(f"[  OK  ] Removed '{raw_path}'")  # type: ignore
 
     # Remove individual files
-    for path in map(pathlib.Path, ["./.coverage"]):
+    for raw_path in ["./.coverage"]:
+        path = pathlib.Path(raw_path)
         try:
             path.unlink()
 
         except Exception as exc:
-            logger.error(f"[ FAIL ] Failed to remove '{path!s}': {exc!s}")  # type: ignore
+            logger.error(f"[ FAIL ] Failed to remove '{raw_path}': {exc!s}")  # type: ignore
 
         else:
-            logger.info(f"[  OK  ] Removed '{path!s}'")  # type: ignore
+            logger.info(f"[  OK  ] Removed '{raw_path}'")  # type: ignore
 
 
 @nox.session(name="generate-docs", reuse_venv=True)
