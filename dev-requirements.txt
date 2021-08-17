@@ -1,6 +1,7 @@
 # Pytest and flake8 aren't included here as these have extensive plugin libs requirements
 
 black~=21.7b0
+build==0.6.0.post1
 codespell==2.1.0
 isort==5.9.3
 nox==2021.6.12
