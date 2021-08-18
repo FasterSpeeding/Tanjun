@@ -107,7 +107,6 @@ __all__: list[str] = [
     "__license__",
     "__url__",
     "__version__",
-    "__git_sha1__",
     # abc.py
     "abc",
     # checks.py
@@ -223,4 +222,3 @@ __issue_tracker__ = "https://github.com/FasterSpeeding/Tanjun/issues"
 __license__ = "BSD"
 __url__ = "https://github.com/FasterSpeeding/Tanjun"
 __version__ = "2.0.0a1"
-__git_sha1__ = "HEAD"
