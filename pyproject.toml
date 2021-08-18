@@ -68,8 +68,8 @@ reformat = ["black~=21.7b0", "isort==5.9.3"]
 tests = ["pytest==6.2.4", "pytest-asyncio==0.15.1", "pytest-cov==2.12.1"]
 
 [project.urls]
-    homepage = "https://github.com/Tanjun/Yuyo"
-    repository = "https://github.com/Tanjun/Yuyo"
+    homepage = "https://github.com/FasterSpeeding/Tanjun"
+    repository = "https://github.com/FasterSpeeding/Tanjun"
     documentation = "https://fasterspeeding.github.io/Tanjun/"
 
 [tool.flit.module]
