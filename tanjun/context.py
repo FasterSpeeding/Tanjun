@@ -40,6 +40,7 @@ import hikari
 from hikari import snowflakes
 
 from . import abc as tanjun_abc
+from . import injecting
 
 if typing.TYPE_CHECKING:
     import datetime
@@ -55,7 +56,7 @@ if typing.TYPE_CHECKING:
 ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
 
 
-class BaseContext(tanjun_abc.Context):
+class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
     """Base class for all standard context implementations."""
 
     __slots__ = ("_client", "_component", "_final")
@@ -63,9 +64,12 @@ class BaseContext(tanjun_abc.Context):
     def __init__(
         self,
         client: tanjun_abc.Client,
+        injection_client: injecting.InjectorClient,
         *,
         component: typing.Optional[tanjun_abc.Component] = None,
     ) -> None:
+        # injecting.BasicInjectionContext.__init__
+        super().__init__(injection_client)
         self._client = client
         self._component = component
         self._final = False
@@ -150,6 +154,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
     def __init__(
         self,
         client: tanjun_abc.Client,
+        injection_client: injecting.InjectorClient,
         content: str,
         message: hikari.Message,
         *,
@@ -161,7 +166,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         if message.content is None:
             raise ValueError("Cannot spawn context with a content-less message.")
 
-        super().__init__(client, component=component)
+        super().__init__(client, injection_client, component=component)
         self._command = command
         self._content = content
         self._initial_response_id: typing.Optional[hikari.Snowflake] = None
@@ -425,6 +430,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
     def __init__(
         self,
         client: tanjun_abc.Client,
+        injection_client: injecting.InjectorClient,
         interaction: hikari.CommandInteraction,
         *,
         command: typing.Optional[tanjun_abc.BaseSlashCommand] = None,
@@ -432,7 +438,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         default_to_ephemeral: bool = False,
         not_found_message: typing.Optional[str] = None,
     ) -> None:
-        super().__init__(client, component=component)
+        super().__init__(client, injection_client, component=component)
         self._command = command
         self._defaults_to_ephemeral = default_to_ephemeral
         self._defer_task: typing.Optional[asyncio.Task[None]] = None

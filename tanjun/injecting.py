@@ -29,19 +29,21 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""Logic and data classes used within the standard Tanjun implementation to enable dependency injection."""
 from __future__ import annotations
 
 __all__: list[str] = [
+    "AbstractInjectionContext",
+    "BasicInjectionContext",
+    "CallbackDescriptor",
     "cache_callback",
     "CallbackSig",
-    "Getter",
     "Undefined",
     "UNDEFINED",
     "UndefinedOr",
     "injected",
     "Injected",
     "InjectorClient",
-    "Injectable",
 ]
 
 import abc
@@ -50,9 +52,6 @@ import collections.abc as collections
 import copy
 import inspect
 import typing
-
-import hikari
-from hikari import traits as hikari_traits
 
 from . import abc as tanjun_abc
 from . import conversion
@@ -64,47 +63,19 @@ if typing.TYPE_CHECKING:
 _InjectorClientT = typing.TypeVar("_InjectorClientT", bound="InjectorClient")
 _T = typing.TypeVar("_T")
 CallbackSig = collections.Callable[..., tanjun_abc.MaybeAwaitableT[_T]]
+"""Type-hint of a injector callback.
 
+This may either be a synchronous or asynchronous function with dependency
+injection being available for the callback's keyword arguments but dynamically
+returning either an awaitable or raw value may lead to errors.
 
-class Getter(typing.Generic[_T]):
-    __slots__ = ("callback", "is_injecting", "name")
-
-    @typing.overload
-    def __init__(
-        self,
-        callback: collections.Callable[[tanjun_abc.Context], InjectableValue[_T]],
-        name: str,
-        /,
-        *,
-        injecting: typing.Literal[True] = True,
-    ) -> None:
-        ...
-
-    @typing.overload
-    def __init__(
-        self,
-        callback: collections.Callable[[tanjun_abc.Context], _T],
-        name: str,
-        /,
-        *,
-        injecting: typing.Literal[False],
-    ) -> None:
-        ...
-
-    def __init__(
-        self,
-        callback: collections.Callable[[tanjun_abc.Context], typing.Union[_T, InjectableValue[_T]]],
-        name: str,
-        /,
-        *,
-        injecting: bool = True,
-    ) -> None:
-        self.callback = callback
-        self.is_injecting = injecting
-        self.name = name
+Dependent on the context positional arguments may also be proivded.
+"""
 
 
 class Undefined:
+    """Class/type of `UNDEFINED`."""
+
     __instance: Undefined
 
     def __bool__(self) -> typing.Literal[False]:
@@ -122,16 +93,247 @@ class Undefined:
 
 
 UNDEFINED: typing.Final[Undefined] = Undefined()
+"""Singleton value used within dependency injection to indicate that a value is undefined."""
 UndefinedOr = typing.Union[Undefined, _T]
+"""Type-hint generic union used to indicate that a value may be undefined or `_T`."""
 
 
-def check_injecting(callback: CallbackSig[typing.Any], /) -> bool:
-    try:
-        parameters = inspect.signature(callback).parameters.values()
-    except ValueError:  # If we can't inspect it then we have to assume this is a NO
-        return False
-    else:
-        return any(isinstance(parameter.default, Injected) for parameter in parameters)
+class AbstractInjectionContext(abc.ABC):
+    """Abstract interface of an injection context."""
+
+    __slots__ = ()
+
+    @property
+    @abc.abstractmethod
+    def injection_client(self) -> InjectorClient:
+        """Injection client this context is bound to.
+
+        Returns
+        -------
+        InjectorClient
+            The injection client this context is bound to.
+        """
+
+    @abc.abstractmethod
+    def cache_result(self, callback: CallbackSig[_T], value: _T, /) -> None:
+        """Cache the result of a callback within the scope of this context.
+
+        Parameters
+        ----------
+        callback : CallbackSig[_T]
+            The callback to cache the result of.
+        value : _T
+            The value to cache.
+        """
+
+    @abc.abstractmethod
+    def get_cached_result(self, callback: CallbackSig[_T], /) -> UndefinedOr[_T]:
+        """Get the cached result of a callback.
+
+        Parameters
+        ----------
+        callback : CallbackSig[_T]
+            The callback to get the cached result of.
+
+        Returns
+        -------
+        UndefinedOr[_T]
+            The cached result of the callback, or `UNDEFINED` if the callback
+            has not been cached within this context.
+        """
+
+    @abc.abstractmethod
+    def get_type_special_case(self, type_: type[_T], /) -> UndefinedOr[_T]:
+        """Get a special-case value for a type.
+
+        !!! note
+            Client set types should override this.
+
+        Parameters
+        ----------
+        type_ : type[_T]
+            The type to get a special-case value for.
+
+        Returns
+        -------
+        UndefinedOr[_T]
+            The special-case value, or `UNDEFINED` if the type is not supported
+            by this context.
+        """
+
+
+class BasicInjectionContext(AbstractInjectionContext):
+    """Basic implementation of a `AbstractInjectionContext`.
+
+    Parameters
+    ----------
+    client : InjectorClient
+        The injection client this context is bound to.
+    """
+
+    __slots__ = ("_injection_client", "_result_cache")
+
+    def __init__(self, client: InjectorClient, /) -> None:
+        self._injection_client = client
+        self._result_cache: dict[CallbackSig[typing.Any], typing.Any]
+
+    @property
+    def injection_client(self) -> InjectorClient:
+        # <<inherited docstring from tanjun.injecting.AbstractInjectionContext>>.
+        return self._injection_client
+
+    def cache_result(self, callback: CallbackSig[_T], value: _T, /) -> None:
+        # <<inherited docstring from tanjun.injecting.AbstractInjectionContext>>.
+        self._result_cache[callback] = value
+
+    def get_cached_result(self, callback: CallbackSig[_T], /) -> UndefinedOr[_T]:
+        # <<inherited docstring from tanjun.injecting.AbstractInjectionContext>>.
+        return self._result_cache.get(callback, UNDEFINED)
+
+    def get_type_special_case(self, _: type[_T], /) -> UndefinedOr[_T]:
+        # <<inherited docstring from tanjun.injecting.AbstractInjectionContext>>.
+        return UNDEFINED
+
+
+class CallbackDescriptor(typing.Generic[_T]):
+    __slots__ = ("_callback", "_is_async", "_type")
+
+    def __init__(
+        self,
+        *,
+        callback: typing.Optional[CallbackSig[_T]] = None,
+        type: typing.Optional[_TypeT[_T]] = None,  # noqa A002
+    ) -> None:
+        self._is_async: typing.Optional[bool] = None
+        if callback is None:
+            if type is None:
+                raise ValueError("Either callback or type must be specified")
+
+            self._callback: typing.Optional[
+                tuple[CallbackSig[typing.Any], dict[str, CallbackDescriptor[typing.Any]]]
+            ] = None
+            self._type: typing.Optional[_TypeT[typing.Any]] = type
+            return
+
+        if type is not None:
+            raise ValueError("Only one of type or callback should be passed")
+
+        self._type = None
+
+        try:
+            parameters = inspect.signature(callback).parameters.items()
+        except ValueError:  # If we can't inspect it then we have to assume this is a NO
+            self._callback = (callback, {})
+            return
+
+        descriptors: dict[str, CallbackDescriptor[typing.Any]] = {}
+        for name, parameter in parameters:
+            if parameter.default is parameter.empty or not isinstance(parameter.default, Injected):
+                continue
+
+            if parameter.kind is parameter.POSITIONAL_ONLY:
+                raise ValueError("Injected positional only arguments are not supported")
+
+            if parameter.default.callback is not None:
+                descriptors[name] = CallbackDescriptor(callback=parameter.default.callback)
+
+            else:
+                assert parameter.default.type is not None
+                descriptors[name] = CallbackDescriptor(type=parameter.default.type)
+
+        self._callback = (callback, descriptors)
+
+    @property
+    def callback(self) -> typing.Optional[CallbackSig[_T]]:
+        return self._callback[0] if self._callback else None
+
+    @property
+    def needs_injector(self) -> bool:
+        return bool(self._callback[1]) if self._callback else True
+
+    @property
+    def type(self) -> typing.Optional[_TypeT[typing.Any]]:
+        return self._type
+
+    async def resolve_with_command_context(
+        self, ctx: tanjun_abc.Context, *args: typing.Any, **kwargs: typing.Any
+    ) -> _T:
+        if self.needs_injector:
+            if isinstance(ctx, AbstractInjectionContext):
+                return await self.resolve(ctx, *args, **kwargs)
+
+        return await self.resolve_without_injector(ctx, *args, **kwargs)
+
+    async def resolve_without_injector(self, *args: typing.Any, **kwargs: typing.Any) -> _T:
+        if self._type:
+            raise RuntimeError("Type injector cannot be resolved without an injector present")
+
+        if self.needs_injector:
+            raise RuntimeError("This callback cannot be called without dependency injection")
+
+        assert self._callback is not None
+        result = self._callback[0](*args)
+
+        if self._is_async is None:
+            self._is_async = isinstance(result, collections.Awaitable)
+
+        if self._is_async:
+            assert isinstance(result, collections.Awaitable)
+            return typing.cast(_T, await result)
+
+        return typing.cast(_T, result)
+
+    @staticmethod
+    async def _resolve_type(ctx: AbstractInjectionContext, type_: _TypeT[_T], /) -> _T:
+        if dependency := ctx.injection_client.get_callback_override(type_):
+            if (cached_result := ctx.get_cached_result(dependency.callback)) is not UNDEFINED:
+                assert not isinstance(cached_result, Undefined)
+                return cached_result
+
+            result = await dependency(ctx)
+            ctx.cache_result(dependency.callback, result)
+            return result
+
+        if (special_case := ctx.get_type_special_case(type_)) is not UNDEFINED:
+            assert not isinstance(special_case, Undefined)
+            return special_case
+
+        raise errors.MissingDependencyError(f"Couldn't resolve injected type {type_} to actual value") from None
+
+    async def _resolve_callback(self, ctx: AbstractInjectionContext, *args: typing.Any, **kwargs: typing.Any) -> _T:
+        assert self._callback is not None
+        callback, descriptors = self._callback
+        if override := ctx.injection_client.get_callback_override(callback):
+            return await override(ctx, *args, **kwargs)
+
+        if (result := ctx.get_cached_result(callback)) is not UNDEFINED:
+            assert not isinstance(result, Undefined)
+            return result
+
+        if not self.needs_injector:
+            result = await self.resolve_without_injector(*args, **kwargs)
+
+        sub_results = {name: await descriptor.resolve(ctx) for name, descriptor in descriptors.items()}
+        result = callback(*args, **sub_results, **kwargs)
+
+        if self._is_async is None:
+            self._is_async = isinstance(result, collections.Awaitable)
+
+        if self._is_async:
+            assert isinstance(result, collections.Awaitable)
+            result = await result
+
+        ctx.cache_result(callback, result)
+        return result
+
+    async def resolve(self, ctx: AbstractInjectionContext, *args: typing.Any, **kwargs: typing.Any) -> _T:
+        if self._type is not None:
+            if args or kwargs:
+                raise ValueError("**args and **kwargs cannot be passed for a type descriptor")
+
+            return await self._resolve_type(ctx, self._type)
+
+        return await self._resolve_callback(ctx, *args, **kwargs)
 
 
 _TypeT = type[_T]
@@ -143,13 +345,13 @@ class Injected(typing.Generic[_T]):
     def __init__(
         self,
         *,
-        callback: UndefinedOr[CallbackSig[_T]] = UNDEFINED,
-        type: UndefinedOr[_TypeT[_T]] = UNDEFINED,  # noqa: A002
+        callback: typing.Optional[CallbackSig[_T]] = None,
+        type: typing.Optional[_TypeT[_T]] = None,  # noqa: A002
     ) -> None:  # TODO: add default/factory to this?
-        if callback is UNDEFINED and type is UNDEFINED:
+        if callback is None and type is None:
             raise ValueError("Must specify one of `callback` or `type`")
 
-        if callback is not UNDEFINED and type is not UNDEFINED:
+        if callback is not None and type is not None:
             raise ValueError("Only one of `callback` or `type` can be specified")
 
         self.callback = callback
@@ -158,248 +360,164 @@ class Injected(typing.Generic[_T]):
 
 def injected(
     *,
-    callback: UndefinedOr[CallbackSig[_T]] = UNDEFINED,
-    type: UndefinedOr[_TypeT[_T]] = UNDEFINED,  # noqa: A002
+    callback: typing.Optional[CallbackSig[_T]] = None,
+    type: typing.Optional[_TypeT[_T]] = None,  # noqa: A002
 ) -> Injected[_T]:
     return Injected(callback=callback, type=type)
 
 
-async def resolve_getters(
-    ctx: tanjun_abc.Context, getters: collections.Iterable[Getter[typing.Any]]
-) -> collections.Mapping[str, typing.Any]:
-    results: dict[str, typing.Any] = {}
-
-    for getter in getters:
-        result = getter.callback(ctx)
-        if not getter.is_injecting:
-            assert not isinstance(result, InjectableValue)
-            results[getter.name] = result
-            continue
-
-        else:
-            assert isinstance(result, InjectableValue)
-            results[getter.name] = await result(ctx)
-
-    return results
-
-
 class InjectorClient:
-    __slots__ = ("_callback_overrides", "_client", "_type_dependencies")
+    """Dependency injection client used by Tanjun's standard implementation."""
 
-    def __init__(self, client: tanjun_abc.Client, /) -> None:
+    __slots__ = ("_callback_overrides", "__special_case_types", "_type_dependencies")
+
+    def __init__(self) -> None:
         self._callback_overrides: dict[CallbackSig[typing.Any], InjectableValue[typing.Any]] = {}
-        self._client = client
+        self.__special_case_types: typing.Dict[typing.Type[typing.Any], typing.Any] = {
+            InjectorClient: self,
+            type(self): self,
+        }
         self._type_dependencies: dict[type[typing.Any], InjectableValue[typing.Any]] = {}
 
     def add_type_dependency(self: _InjectorClientT, type_: type[_T], callback: CallbackSig[_T], /) -> _InjectorClientT:
-        self._type_dependencies[type_] = InjectableValue(callback, injector=self)
+        """Set a callback to be called to resolve a injected type.
+
+        Parameters
+        ----------
+        type_: type[_T]
+            The associated type.
+        callback: CallbackSig[_T]
+            The callback to use during type resolution.
+
+        Returns
+        -------
+        Self
+            The client instance to allow chaining.
+        """
+        self._type_dependencies[type_] = InjectableValue(callback)
         return self
 
-    def get_type_dependency(self, type_: type[_T], /) -> UndefinedOr[CallbackSig[_T]]:
-        return self._type_dependencies.get(type_, UNDEFINED)
+    def get_type_dependency(self, type_: type[_T], /) -> typing.Optional[InjectableValue[_T]]:
+        """Get the callback associated with an injected type.
 
-    def remove_type_dependency(self, type_: type[_T], callback: CallbackSig[_T], /) -> None:
+        Parameters
+        ----------
+        type_: type[_T]
+            The associated type.
+
+        Returns
+        -------
+        Optional[InjectableValue[_T]]
+            The callback to use during type resolution if set, else `None`.
+        """
+        return self._type_dependencies.get(type_)
+
+    def get_type_special_case(self, type_: type[_T], /) -> UndefinedOr[_T]:
+        return self.__special_case_types.get(type_, UNDEFINED)
+
+    def remove_type_dependency(self, type_: type[typing.Any], /) -> None:
         del self._type_dependencies[type_]
 
-    def add_callable_override(
+    def add_callback_override(
         self: _InjectorClientT, callback: CallbackSig[_T], override: CallbackSig[_T], /
     ) -> _InjectorClientT:
-        self._callback_overrides[callback] = InjectableValue(override, injector=self)
+        self._callback_overrides[callback] = InjectableValue(override)
         return self
 
-    def get_callable_override(self, callback: CallbackSig[_T], /) -> typing.Optional[CallbackSig[_T]]:
+    def get_callback_override(self, callback: CallbackSig[_T], /) -> typing.Optional[InjectableValue[_T]]:
         return self._callback_overrides.get(callback)
 
-    def remove_callable_override(self, callback: CallbackSig[_T], /) -> None:
+    def remove_callback_override(self, callback: CallbackSig[_T], /) -> None:
         del self._callback_overrides[callback]
 
-    def _make_callback_getter(self, callback: CallbackSig[_T], name: str, /) -> Getter[_T]:
-        default = InjectableValue(callback, injector=self)
 
-        def get(_: tanjun_abc.Context) -> InjectableValue[_T]:
-            return self._callback_overrides.get(callback, default)
+class BaseInjectableValue(typing.Generic[_T]):
+    __slots__ = ("_callback", "_descriptor")
 
-        return Getter(get, name, injecting=True)
-
-    def _make_type_getter(self, type_: type[_T], name: str, /) -> Getter[_T]:
-        for match, function in _TYPE_SPECIAL_CASES.items():
-            if inspect.isclass(match) and issubclass(type_, match):
-
-                def get_special_cased(ctx: tanjun_abc.Context) -> _T:
-                    if (result := self._type_dependencies.get(type_, ...)) is not ...:
-                        return typing.cast(_T, result)
-
-                    if (result := function(ctx, self)) is not UNDEFINED:
-                        return typing.cast(_T, result)
-
-                    raise errors.MissingDependencyError(
-                        f"Couldn't resolve injected type {type_} to actual value"
-                    ) from None
-
-                return Getter(get_special_cased, name, injecting=False)
-
-        def get_injectable(_: tanjun_abc.Context) -> InjectableValue[_T]:
-            try:
-                return self._type_dependencies[type_]
-
-            except KeyError:
-                raise errors.MissingDependencyError(f"Couldn't resolve injected type {type_} to actual value") from None
-
-        return Getter(get_injectable, name, injecting=True)
-
-    def resolve_callback_to_getters(
-        self, callback: CallbackSig[typing.Any], /
-    ) -> collections.Iterator[Getter[typing.Any]]:
-        try:
-            parameters = inspect.signature(callback).parameters.items()
-        except ValueError:  # If we can't inspect it then we have to assume this is a NO
-            return
-
-        for name, parameter in parameters:
-            if parameter.default is parameter.empty:
-                continue
-
-            if not isinstance(parameter.default, Injected):
-                continue
-
-            if parameter.kind is parameter.POSITIONAL_ONLY:
-                raise ValueError("Injected positional only arguments are not supported")
-
-            if parameter.default.callback is not UNDEFINED:
-                assert not isinstance(parameter.default.callback, Undefined)
-                yield self._make_callback_getter(parameter.default.callback, name)
-
-            else:
-                assert not isinstance(parameter.default.type, Undefined)
-                yield self._make_type_getter(parameter.default.type, name)
-
-
-_TYPE_SPECIAL_CASES: dict[
-    type[typing.Any],
-    collections.Callable[[tanjun_abc.Context, InjectorClient], UndefinedOr[typing.Any]],
-] = {
-    tanjun_abc.Client: lambda ctx, _: ctx.client,
-    tanjun_abc.Component: lambda ctx, _: ctx.component or UNDEFINED,
-    tanjun_abc.Context: lambda ctx, _: ctx,
-    InjectorClient: lambda _, cli: cli,
-    hikari.api.Cache: lambda ctx, _: ctx.cache or UNDEFINED,
-    hikari.api.RESTClient: lambda ctx, _: ctx.rest,
-    hikari_traits.ShardAware: lambda ctx, _: ctx.shards or UNDEFINED,
-    hikari.api.EventManager: lambda ctx, _: ctx.events or UNDEFINED,
-    hikari.api.InteractionServer: lambda ctx, _: ctx.server or UNDEFINED,
-}
-
-
-class Injectable(abc.ABC):
-    __slots__ = ()
-
-    @property
-    @abc.abstractmethod
-    def needs_injector(self) -> bool:
-        ...
-
-    @abc.abstractmethod
-    def set_injector(self, client: InjectorClient, /) -> None:
-        ...
-
-
-class BaseInjectableValue(Injectable, typing.Generic[_T]):
-    __slots__ = ("callback", "_cached_getters", "injector", "is_async", "_needs_injector")
-
-    def __init__(self, callback: CallbackSig[_T], *, injector: typing.Optional[InjectorClient] = None) -> None:
-        self._cached_getters: typing.Optional[list[Getter[typing.Any]]] = None
-        self.callback = callback
-        self.injector = injector
-        self.is_async: typing.Optional[bool] = None
-        self._needs_injector = check_injecting(self.callback)
+    def __init__(self, callback: CallbackSig[_T], /) -> None:
+        self._callback = callback
+        self._descriptor: CallbackDescriptor[_T] = CallbackDescriptor(callback=callback)
 
     # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
     def __eq__(self, other: typing.Any) -> bool:
-        return bool(self.callback == other)
+        return bool(self._callback == other)
 
     # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
     def __hash__(self) -> int:
-        return hash(self.callback)
+        return hash(self._callback)
+
+    @property
+    def callback(self) -> CallbackSig[_T]:
+        return self._callback
+
+    @property
+    def descriptor(self) -> CallbackDescriptor[_T]:
+        return self._descriptor
 
     @property
     def needs_injector(self) -> bool:
-        return self._needs_injector
+        return self._descriptor.needs_injector
 
     def copy(self: _BaseInjectableValueT, *, _new: bool = True) -> _BaseInjectableValueT:
         if not _new:
-            self._cached_getters = None
-            self.callback = copy.copy(self.callback)
-            self.is_async = None
+            self._callback = copy.copy(self._callback)
             return self
 
         return copy.copy(self).copy(_new=False)
 
-    def set_injector(self, client: InjectorClient, /) -> None:
-        if self.injector:
-            raise RuntimeError("Injector already set for this check")
-
-        self.injector = client
-
-    async def call(self, *args: typing.Any, ctx: tanjun_abc.Context) -> _T:
-        if self._needs_injector:
-            if self.injector is None:
-                raise RuntimeError("Cannot call this injectable callback before the injector has been set")
-
-            if self._cached_getters is None:
-                self._cached_getters = list(self.injector.resolve_callback_to_getters(self.callback))
-
-            result = self.callback(*args, **await resolve_getters(ctx, self._cached_getters))
-
-        else:
-            result = self.callback(*args)
-
-        if self.is_async is None:
-            self.is_async = isinstance(result, collections.Awaitable)
-
-        if self.is_async:
-            assert isinstance(result, collections.Awaitable)
-            return typing.cast(_T, await result)
-
-        return typing.cast(_T, result)
+    def overwrite_callback(self, callback: CallbackSig[_T], /) -> None:
+        self._callback = callback
+        self._descriptor = CallbackDescriptor(callback=callback)
 
 
 class InjectableValue(BaseInjectableValue[_T]):
     __slots__ = ()
 
-    async def __call__(self, ctx: tanjun_abc.Context, /) -> _T:
-        return await self.call(ctx=ctx)
+    async def __call__(self, ctx: AbstractInjectionContext, /) -> _T:
+        return await self._descriptor.resolve(ctx, ctx)
 
 
 class InjectableCheck(BaseInjectableValue[bool]):
     __slots__ = ()
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
-        if result := await self.call(ctx, ctx=ctx):
-            return result
+        if self._descriptor.needs_injector:
+            if isinstance(ctx, AbstractInjectionContext):
+                return await self._descriptor.resolve(ctx, ctx)
 
-        raise errors.FailedCheck
+        else:
+            return await self._descriptor.resolve_without_injector(ctx)
+
+        raise errors.FailedCheck  # TODO: add message
 
 
 class InjectableConverter(BaseInjectableValue[_T]):
     __slots__ = ("_is_base_converter",)
 
-    def __init__(self, callback: CallbackSig[_T], *, injector: typing.Optional[InjectorClient] = None) -> None:
-        super().__init__(callback, injector=injector)
-        self._is_base_converter = isinstance(self.callback, conversion.BaseConverter)
+    def __init__(self, callback: CallbackSig[_T], /) -> None:
+        super().__init__(callback)
+        self._is_base_converter = isinstance(self._callback, conversion.BaseConverter)
 
     async def __call__(self, value: conversion.ArgumentT, ctx: tanjun_abc.Context, /) -> _T:
         if self._is_base_converter:
-            assert isinstance(self.callback, conversion.BaseConverter)
-            return typing.cast(_T, await self.callback(value, ctx))
+            assert isinstance(self._callback, conversion.BaseConverter)
+            return typing.cast(_T, await self._callback(value, ctx))
 
-        return await self.call(value, ctx=ctx)
+        if self._descriptor.needs_injector:
+            if isinstance(ctx, AbstractInjectionContext):
+                return await self._descriptor.resolve(ctx, value)
+
+        else:
+            return await self._descriptor.resolve_without_injector(value)
+
+        raise RuntimeError("Cannot call this converter before the injector has been set")
 
 
 class _CacheCallback(typing.Generic[_T]):
     __slots__ = ("_callback", "_lock", "_result")
 
     def __init__(self, callback: CallbackSig[_T], /) -> None:
-        self._callback = callback
+        self._callback = CallbackDescriptor(callback=callback)
         self._lock: typing.Optional[asyncio.Lock] = None
         self._result: typing.Union[_T, Undefined] = UNDEFINED
 
@@ -407,8 +525,7 @@ class _CacheCallback(typing.Generic[_T]):
         self,
         # Positional arg(s) may be guaranteed under some contexts so we want to pass those through.
         *args: typing.Any,
-        ctx: tanjun_abc.Context = Injected(type=tanjun_abc.Context),  # type: ignore[assignment]
-        injector: InjectorClient = Injected(type=InjectorClient),  # type: ignore[assignment]
+        ctx: AbstractInjectionContext = Injected(type=AbstractInjectionContext),  # type: ignore[assignment]
     ) -> _T:
         if self._result is not UNDEFINED:
             assert not isinstance(self._result, Undefined)
@@ -422,14 +539,9 @@ class _CacheCallback(typing.Generic[_T]):
                 assert not isinstance(self._result, Undefined)
                 return self._result
 
-            getters = injector.resolve_callback_to_getters(self._callback)
-            temp_result = self._callback(*args, **await resolve_getters(ctx, getters))
+            self._result = await self._callback.resolve(ctx, *args)
 
-            if isinstance(temp_result, collections.Awaitable):
-                self._result = typing.cast(_T, await temp_result)
-            else:
-                self._result = temp_result
-
+        assert not isinstance(self._result, Undefined)
         return self._result
 
 

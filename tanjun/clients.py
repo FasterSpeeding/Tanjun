@@ -70,11 +70,13 @@ if typing.TYPE_CHECKING:
     from hikari.api import event_manager as event_manager_api
 
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
+    _T = typing.TypeVar("_T")
 
     class _MessageContextMakerProto(typing.Protocol):
         def __call__(
             self,
             client: tanjun_abc.Client,
+            injection_client: injecting.InjectorClient,
             content: str,
             message: hikari.Message,
             *,
@@ -89,6 +91,7 @@ if typing.TYPE_CHECKING:
         def __call__(
             self,
             client: tanjun_abc.Client,
+            injection_client: injecting.InjectorClient,
             interaction: hikari.CommandInteraction,
             *,
             command: typing.Optional[tanjun_abc.BaseSlashCommand] = None,
@@ -274,16 +277,15 @@ async def _wrap_client_callback(
 class _InjectablePrefixGetter(injecting.BaseInjectableValue[collections.Iterable[str]]):
     __slots__ = ()
 
-    callback: PrefixGetterSig
-
-    def __init__(
-        self, callback: PrefixGetterSig, *, injector: typing.Optional[injecting.InjectorClient] = None
-    ) -> None:
-        super().__init__(callback, injector=injector)
-        self.is_async = True
+    def __init__(self, callback: PrefixGetterSig, /) -> None:
+        super().__init__(callback)
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> collections.Iterable[str]:
-        return await self.call(ctx, ctx=ctx)
+        return await self.descriptor.resolve_with_command_context(ctx)
+
+    @property
+    def callback(self) -> PrefixGetterSig:
+        return self.callback
 
 
 class Client(injecting.InjectorClient, tanjun_abc.Client):
@@ -366,6 +368,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         "_hooks",
         "_interaction_not_found",
         "_slash_hooks",
+        "__special_case_types",
         "_is_alive",
         "_is_closing",
         "_message_hooks",
@@ -389,6 +392,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         mention_prefix: bool = False,
         set_global_commands: typing.Union[hikari.Snowflake, bool] = False,
     ) -> None:
+        # InjectorClient.__init__
+        super().__init__()
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
         # TODO: warn if server and dispatch both None but don't error
 
@@ -407,6 +412,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._hooks: typing.Optional[tanjun_abc.AnyHooks] = None
         self._interaction_not_found: typing.Optional[str] = "Command not found"
         self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
+        self.__special_case_types: dict[type[typing.Any], typing.Any] = {
+            hikari.api.RESTClient: rest,
+            type(rest): rest,
+        }
         self._is_alive = False
         self._is_closing = False
         self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
@@ -418,11 +427,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._shards = shard
 
         if event_managed:
-            if not self._events:
+            if not events:
                 raise ValueError("Client cannot be event managed without an event manager")
 
-            self._events.subscribe(hikari.StartingEvent, self._on_starting_event)
-            self._events.subscribe(hikari.StoppingEvent, self._on_stopping_event)
+            events.subscribe(hikari.StartingEvent, self._on_starting_event)
+            events.subscribe(hikari.StoppingEvent, self._on_stopping_event)
 
         if set_global_commands:
 
@@ -438,8 +447,17 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 _set_global_commands_next_start,
             )
 
-        # InjectorClient.__init__
-        super().__init__(self)
+        if cache:
+            self.__special_case_types.update(((hikari.api.Cache, cache), (type(cache), cache)))
+
+        if events:
+            self.__special_case_types.update(((hikari.api.EventManager, events), (type(events), events)))
+
+        if server:
+            self.__special_case_types.update(((hikari.api.InteractionServer, server), (type(server), server)))
+
+        if shard:
+            self.__special_case_types.update(((hikari_traits.ShardAware, shard), (type(shard), shard)))
 
     @classmethod
     def from_gateway_bot(
@@ -830,6 +848,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return responses
 
+    def get_type_special_case(self, type_: type[_T], /) -> injecting.UndefinedOr[_T]:
+        return self.__special_case_types.get(type_, injecting.UNDEFINED) or super().get_type_special_case(type_)
+
     def set_auto_defer_after(self: _ClientT, time: typing.Optional[float], /) -> _ClientT:
         """Set when this client should automatically defer execution of commands.
 
@@ -954,7 +975,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             based on webhook and bot messages.
         """
         if value:
-            self.add_check(injecting.InjectableCheck(_check_human, injector=self))
+            self.add_check(injecting.InjectableCheck(_check_human))
 
         else:
             try:
@@ -1040,7 +1061,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return await self.declare_slash_commands(commands, application=application, guild=guild)
 
     def add_check(self: _ClientT, check: tanjun_abc.CheckSig, /) -> _ClientT:
-        self._checks.add(injecting.InjectableCheck(check, injector=self))
+        self._checks.add(injecting.InjectableCheck(check))
         return self
 
     def remove_check(self, check: tanjun_abc.CheckSig, /) -> None:
@@ -1055,9 +1076,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     def add_component(self: _ClientT, component: tanjun_abc.Component, /, *, add_injector: bool = False) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
-        if isinstance(component, injecting.Injectable):
-            component.set_injector(self)
-
         component.bind_client(self)
         self._components.add(component)
 
@@ -1135,7 +1153,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._prefixes.remove(prefix)
 
     def set_prefix_getter(self: _ClientT, getter: typing.Optional[PrefixGetterSig], /) -> _ClientT:
-        self._prefix_getter = _InjectablePrefixGetter(getter, injector=self) if getter else None
+        self._prefix_getter = _InjectablePrefixGetter(getter) if getter else None
         return self
 
     def with_prefix_getter(self, getter: PrefixGetterSigT, /) -> PrefixGetterSigT:
@@ -1342,7 +1360,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if event.message.content is None:
             return
 
-        ctx = self._make_message_context(client=self, content=event.message.content, message=event.message)
+        ctx = self._make_message_context(client=self, injection_client=self, content=event.message.content, message=event.message)
         if (prefix := await self._check_prefix(ctx)) is None:
             return
 
@@ -1403,7 +1421,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             return
 
         ctx = self._make_slash_context(
-            client=self, interaction=event.interaction, not_found_message=self._interaction_not_found
+            client=self, injection_client=self, interaction=event.interaction, not_found_message=self._interaction_not_found
         )
         hooks = self._get_slash_hooks()
 
@@ -1441,7 +1459,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             The initial response to send back to Discord.
         """
         ctx = self._make_slash_context(
-            client=self, interaction=interaction, not_found_message=self._interaction_not_found
+            client=self, injection_client=self, interaction=interaction, not_found_message=self._interaction_not_found
         )
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)

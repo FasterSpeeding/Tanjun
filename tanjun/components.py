@@ -88,15 +88,14 @@ def _with_command(
     return lambda command_: add_command(command_.copy() if copy else command_)
 
 
-class Component(injecting.Injectable, abc.Component):
+class Component(abc.Component):
     """Standard implementation of `tanjun.abc.Component`.
 
     This is a collcetion of commands (both message and slash), hooks and listener
     callbacks which can be added to a generic client.
 
     .. note::
-        This implementation supports dependency injection for its checks
-        and commands.
+        This implementation supports dependency injection for its checks.
 
     Parameters
     ----------
@@ -128,7 +127,6 @@ class Component(injecting.Injectable, abc.Component):
         "_client",
         "_client_callbacks",
         "_hooks",
-        "_injector",
         "_is_strict",
         "_listeners",
         "_message_commands",
@@ -156,7 +154,6 @@ class Component(injecting.Injectable, abc.Component):
         self._client: typing.Optional[abc.Client] = None
         self._client_callbacks: dict[str, set[abc.MetaEventSig]] = {}
         self._hooks = hooks
-        self._injector: typing.Optional[injecting.InjectorClient] = None
         self._is_strict = strict
         self._listeners: set[tuple[type[base_events.Event], event_manager_api.CallbackT[typing.Any]]] = set()
         self._message_commands: set[abc.MessageCommand] = set()
@@ -207,13 +204,7 @@ class Component(injecting.Injectable, abc.Component):
 
     @property
     def needs_injector(self) -> bool:
-        # TODO: cache this value maybe
-        if any(check.needs_injector for check in self._checks):
-            return True
-
-        return any(
-            isinstance(command, injecting.Injectable) and command.needs_injector for command in self._message_commands
-        )
+        return any(check.needs_injector for check in self._checks)
 
     @property
     def listeners(
@@ -252,7 +243,7 @@ class Component(injecting.Injectable, abc.Component):
         return self
 
     def add_check(self: _ComponentT, check: abc.CheckSig, /) -> _ComponentT:
-        self._checks.add(injecting.InjectableCheck(check, injector=self._injector))
+        self._checks.add(injecting.InjectableCheck(check))
         return self
 
     def remove_check(self, check: abc.CheckSig, /) -> None:
@@ -334,9 +325,6 @@ class Component(injecting.Injectable, abc.Component):
         return _with_command(self.add_command, command, copy=copy)
 
     def add_slash_command(self: _ComponentT, command: abc.BaseSlashCommand, /) -> _ComponentT:
-        if self._injector and isinstance(command, injecting.Injectable):
-            command.set_injector(self._injector)
-
         self._slash_commands[command.name.casefold()] = command
         return self
 
@@ -388,9 +376,6 @@ class Component(injecting.Injectable, abc.Component):
                 )
 
             self._names_to_commands.update((name, command) for name in command.names)
-
-        if self._injector and isinstance(command, injecting.Injectable):
-            command.set_injector(self._injector)
 
         self._message_commands.add(command)
         command.bind_component(self)
@@ -457,23 +442,6 @@ class Component(injecting.Injectable, abc.Component):
             return callback
 
         return decorator
-
-    def set_injector(self, client: injecting.InjectorClient, /) -> None:
-        if self._injector:
-            raise RuntimeError("Injector already set")
-
-        self._injector = client
-
-        for check in self._checks:
-            check.set_injector(client)
-
-        for mcommand in self._message_commands:
-            if isinstance(mcommand, injecting.Injectable):
-                mcommand.set_injector(client)
-
-        for icommand in self._slash_commands.values():
-            if isinstance(icommand, injecting.Injectable):
-                icommand.set_injector(client)
 
     def bind_client(self, client: abc.Client, /) -> None:
         if self._client:

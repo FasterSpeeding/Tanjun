@@ -69,7 +69,6 @@ from . import errors
 from . import utilities
 
 if typing.TYPE_CHECKING:
-
     from . import abc as tanjun_abc
 
 
@@ -355,7 +354,7 @@ class AuthorPermissionCheck(PermissionCheck):
 
             return utilities.DM_PERMISSIONS
 
-        elif isinstance(ctx.member, hikari.InteractionMember):
+        if isinstance(ctx.member, hikari.InteractionMember):
             return ctx.member.permissions
 
         return await utilities.fetch_permissions(ctx.client, ctx.member, channel=ctx.channel_id)
@@ -384,7 +383,7 @@ class OwnPermissionsCheck(PermissionCheck):
         return await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
     async def _get_member(self, ctx: tanjun_abc.Context, guild_id: hikari.Snowflake, /) -> hikari.Member:
-        user = await self._get_user(ctx.client.cache, ctx.client.rest)
+        user = self._me or await self._get_user(ctx.client.cache, ctx.client.rest)
 
         if ctx.client.cache and (member := ctx.client.cache.get_member(guild_id, user.id)):
             return member
@@ -393,18 +392,17 @@ class OwnPermissionsCheck(PermissionCheck):
         return await utilities.fetch_resource(retry, ctx.client.rest.fetch_member, guild_id, user.id)
 
     async def _get_user(self, cache: typing.Optional[hikari.api.Cache], rest: hikari.api.RESTClient, /) -> hikari.User:
-        if not self._me:
-            async with self._lock:
-                if self._me:
-                    return self._me
+        async with self._lock:
+            if self._me:
+                return self._me
 
-                if cache and (user := cache.get_me()):
-                    self._me = user
+            if cache and (user := cache.get_me()):
+                self._me = user
 
-                else:
-                    retry = backoff.Backoff(maximum=5, max_retries=4)
-                    raw_user = await utilities.fetch_resource(retry, rest.fetch_my_user)
-                    self._me = raw_user
+            else:
+                retry = backoff.Backoff(maximum=5, max_retries=4)
+                raw_user = await utilities.fetch_resource(retry, rest.fetch_my_user)
+                self._me = raw_user
 
         return self._me
 

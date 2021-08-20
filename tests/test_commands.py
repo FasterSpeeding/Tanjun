@@ -30,6 +30,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# pyright: reportIncompatibleMethodOverride=none
 # pyright: reportUnknownMemberType=none
 # This leads to too many false-positives around mocks.
 
@@ -45,20 +46,28 @@ import tanjun
 
 class Test_LoadableInjector:
     def test_make_method_type(self):
+        mock_component = mock.Mock()
         mock_callback = mock.Mock()
-        mock_self = mock.Mock()
-        injector = tanjun.commands._LoadableInjector(mock_callback)
 
-        with mock.patch.object(tanjun.injecting, "check_injecting") as check_injecting:
-            injector.make_method_type(mock_self)
+        def callback(self: typing.Any):
+            return mock_callback(self)
 
-            assert injector._needs_injector is check_injecting.return_value
-            check_injecting.assert_called_once_with(injector.callback)
+        loadable = tanjun.commands._LoadableInjector(callback)
 
-        assert injector.is_async is None
-        assert isinstance(injector.callback, types.MethodType)
-        injector.callback(123)
-        mock_callback.assert_called_once_with(mock_self, 123)
+        loadable.make_method_type(mock_component)
+        result = loadable.callback()
+
+        assert result is mock_callback.return_value
+        mock_callback.assert_called_once_with(mock_component)
+
+    def test_make_method_type_when_already_method_type(self):
+        class MockLoadableInjector(tanjun.commands._LoadableInjector):
+            overwrite_callback = mock.Mock()
+
+        loadable = MockLoadableInjector(mock.Mock(types.MethodType))
+
+        with pytest.raises(ValueError, match="Callback is already a method type"):
+            loadable.make_method_type(mock.Mock())
 
 
 class TestPartialCommand:
@@ -111,7 +120,6 @@ class TestPartialCommand:
         assert command.hooks is mock_hooks
 
     def test_add_check(self, command: tanjun.commands.PartialCommand[typing.Any]):
-        command.set_injector(mock.Mock())
         mock_check = mock.Mock()
 
         assert command.add_check(mock_check) is command
@@ -119,7 +127,6 @@ class TestPartialCommand:
         assert len(command._checks) == 1
         check = next(iter(command._checks))
         assert isinstance(check, tanjun.injecting.InjectableCheck)
-        assert check.injector is command._injector
         assert check.callback is mock_check
         assert command.checks == {mock_check}
 
@@ -134,8 +141,6 @@ class TestPartialCommand:
         assert command.checks == set()
 
     def test_with_check(self, command: tanjun.commands.PartialCommand[typing.Any]):
-        command.set_injector(mock.Mock())
-
         def mock_check() -> bool:
             raise NotImplementedError
 
@@ -144,31 +149,8 @@ class TestPartialCommand:
         assert len(command._checks) == 1
         check = next(iter(command._checks))
         assert isinstance(check, tanjun.commands._LoadableInjector)
-        assert check.injector is command._injector
         assert check.callback is mock_check
         assert command.checks == {mock_check}
-
-    def test_set_injector(self, command: tanjun.commands.PartialCommand[typing.Any]):
-        mock_injector = mock.Mock()
-        mock_check = mock.Mock()
-        command._checks = {mock_check}
-
-        command.set_injector(mock_injector)
-
-        assert command._injector is mock_injector
-        mock_check.set_injector.assert_called_once_with(mock_injector)
-
-    def test_set_injector_when_already_set(self, command: tanjun.commands.PartialCommand[typing.Any]):
-        command._injector = mock.Mock()
-        mock_injector = mock.Mock()
-        mock_check = mock.Mock()
-        command._checks = {mock_check}
-
-        with pytest.raises(RuntimeError):
-            command.set_injector(mock_injector)
-
-        assert command._injector is not mock_injector
-        mock_check.set_injector.assert_not_called()
 
     def test_bind_client(self, command: tanjun.commands.PartialCommand[typing.Any]):
         command.bind_client(mock.Mock())
