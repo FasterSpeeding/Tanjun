@@ -32,6 +32,7 @@ dependencies = ["hikari~=2.0.0.dev101", "hikari-yuyo~=0.0.3a7"]
 
 [project.optional-dependencies]
 dev = ["nox==2021.6.12"]
+docs = ["pdoc==7.3.1"]
 flake8 = [
     "flake8==3.9.2",
 
@@ -61,7 +62,6 @@ flake8 = [
     # This seems to lead to more false-posities then it's wroth.
     # "flake8-use-fstring==1.1"         # format string checking
 ]
-generate_code = ["pdoc==7.3.1"]
 lint = ["codespell==2.1.0"]
 publish = ["flit~=3.3"]
 reformat = ["black~=21.7b0", "isort==5.9.3"]
