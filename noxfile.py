@@ -39,7 +39,7 @@ GENERAL_TARGETS = ["./examples", "./noxfile.py", "./tanjun", "./tests"]
 PYTHON_VERSIONS = ["3.9", "3.10"]  # TODO: @nox.session(python=["3.6", "3.7", "3.8"])?
 REQUIREMENTS = [
     # Temporarily assume #master for hikari and yuyo
-    "git+https://github.com/FasterSpeeding/hikari.git@task/api-impl-export",
+    "git+https://github.com/hikari-py/hikari.git",
     "git+https://github.com/FasterSpeeding/Yuyo.git@task/cache-and-list",
     ".",
 ]
