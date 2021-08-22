@@ -1124,6 +1124,13 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
 
         await ctx.mark_not_found()
 
+    def set_injector(self, client: injecting.InjectorClient, /) -> None:
+        # <<inherited docstring from tanjun.injecting.Injectable>>.
+        super().set_injector(client)
+        for command in self._commands.values():
+            if isinstance(command, injecting.Injectable):
+                command.set_injector(client)
+
 
 class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCallbackSigT]):
     __slots__ = ("_builder", "_callback", "_cached_getters", "_needs_injector", "_tracked_options")
