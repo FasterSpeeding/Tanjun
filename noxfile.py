@@ -30,11 +30,10 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import pathlib
-import shutil
 
 import nox
 
-nox.options.sessions = ["reformat", "lint", "spell-check", "type-check", "test"]  # type: ignore
+nox.options.sessions = ["reformat", "check-dependencies", "lint", "spell-check", "type-check", "test"]  # type: ignore
 GENERAL_TARGETS = ["./examples", "./noxfile.py", "./tanjun", "./tests"]
 PYTHON_VERSIONS = ["3.9", "3.10"]  # TODO: @nox.session(python=["3.6", "3.7", "3.8"])?
 REQUIREMENTS = [
@@ -59,6 +58,8 @@ def install_requirements(
 
 @nox.session(venv_backend="none")
 def cleanup(session: nox.Session) -> None:
+    import shutil
+
     # Remove directories
     from nox.logger import logger
 
@@ -157,5 +158,26 @@ def test_coverage(session: nox.Session) -> None:
 
 @nox.session(name="type-check", reuse_venv=True)
 def type_check(session: nox.Session) -> None:
-    install_requirements(session, ".[dev]", ".[tests]")
+    install_requirements(session, ".[nox]", ".[tests]")
     session.run("pyright", external=True)
+
+
+@nox.session(name="check-dependencies")
+def check_dependencies(session: nox.Session) -> None:
+    import httpx
+
+    # Note: this can be linked to a specific hash by adding it between raw and {file.name} as another route segment.
+    with httpx.Client() as client:
+        response = client.get(
+            "https://gist.githubusercontent.com/FasterSpeeding/13e3d871f872fa09cf7bdc4144d62b2b/raw/requirements.json"
+        )
+        requirements = response.json()
+
+        # Note: this can be linked to a specific hash by adding it between raw and {file.name} as another route segment.
+        response = client.get(
+            "https://gist.githubusercontent.com/FasterSpeeding/13e3d871f872fa09cf7bdc4144d62b2b/raw/check_dependency.py"
+        )
+        code = response.read().decode("utf-8")
+
+    session.install(*requirements)
+    session.run("python", "-c", code, "--ignore", "hikari", "hikari-yuyo", log=False)

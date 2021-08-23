@@ -34,7 +34,7 @@
 Examples
 --------
 A Tanjun client can be quickly initialised from a Hikari gateway bot through
-`tanjun.Client.from_gateway`, this enables both slash (interaction) and message
+`tanjun.Client.from_gateway_bot`, this enables both slash (interaction) and message
 command execution:
 
 ```py
@@ -44,7 +44,7 @@ bot = hikari.GatewayBot("BOT_TOKEN")
 # will be managed based on gateway startup and stopping events.
 # mention_prefix=True instructs the client to also set mention prefixes on the
 # first startup.
-client = tanjun.Client.from_gateway(bot, set_global_commands=True, mention_prefix=True)
+client = tanjun.Client.from_gateway_bot(bot, set_global_commands=True, mention_prefix=True)
 
 component = tanjun.Component()
 
