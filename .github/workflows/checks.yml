@@ -19,7 +19,7 @@ jobs:
     - name: install prerequisites
       run: |
         python -m pip install --upgrade pip wheel
-        pip install git+https://github.com/hikari-py/hikari.git .[nox]
+        python -m pip install git+https://github.com/hikari-py/hikari.git .[nox]
     - name: lint
       run: |
         python -m nox -s lint spell-check
@@ -43,7 +43,7 @@ jobs:
     - name: install prerequisites
       run: |
         python -m pip install --upgrade pip wheel
-        pip install git+https://github.com/hikari-py/hikari.git .[nox]
+        python -m pip install git+https://github.com/hikari-py/hikari.git .[nox]
     - name: Run tests
       run: |
         python -m nox -s test
@@ -65,7 +65,7 @@ jobs:
     - name: install prerequisites
       run: |
         python -m pip install --upgrade pip wheel
-        pip install git+https://github.com/hikari-py/hikari.git .[nox]
+        python -m pip install git+https://github.com/hikari-py/hikari.git .[nox]
         npm install -g pyright
     - name: Run tests
       run: |
