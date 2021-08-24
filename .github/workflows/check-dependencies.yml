@@ -9,8 +9,7 @@ on:
     - cron: "0 12 * * 6"
 
 jobs:
-  build:
-
+  check-dependencies:
     runs-on: ubuntu-latest
 
     steps:
