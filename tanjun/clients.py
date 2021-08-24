@@ -55,8 +55,8 @@ from collections import abc as collections
 
 import hikari
 from hikari import traits as hikari_traits
-from yuyo import backoff
 
+from . import _backoff as backoff
 from . import abc as tanjun_abc
 from . import context
 from . import errors

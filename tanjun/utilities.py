@@ -52,8 +52,8 @@ import typing
 from collections import abc as collections
 
 import hikari
-from yuyo import backoff
 
+from . import _backoff as backoff
 from . import errors
 
 if typing.TYPE_CHECKING:

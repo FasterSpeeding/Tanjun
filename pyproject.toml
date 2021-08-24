@@ -28,7 +28,7 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed"
 ]
-dependencies = ["hikari~=2.0.0.dev101", "hikari-yuyo~=0.0.3a7"]
+dependencies = ["hikari~=2.0.0.dev101"]
 
 [project.optional-dependencies]
 docs = ["pdoc==7.4.0"]
