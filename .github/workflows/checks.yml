@@ -22,7 +22,7 @@ jobs:
         pip install git+https://github.com/hikari-py/hikari.git .[nox]
     - name: lint
       run: |
-        python -m nox -s lint type-check
+        python -m nox -s lint spell-check
 
   test:
     strategy:
@@ -65,4 +65,4 @@ jobs:
         npm install -g pyright
     - name: Run tests
       run: |
-        python -m nox -s test
+        python -m nox -s type-check
