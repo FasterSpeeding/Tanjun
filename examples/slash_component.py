@@ -13,7 +13,7 @@
 # flow by tracking state on the Context object in-order to decide how to
 # respond. While the lower level approache may also be used for responding it
 # is generally recommended that you use the relevant lower level methods on
-# `tanun.traits.SlashContext` to allow state to still be tracked and ensure
+# `tanjun.abc.SlashContext` to allow state to still be tracked and ensure
 # better compatibility.
 import asyncio
 
@@ -76,7 +76,7 @@ async def europe_command(ctx: tanjun.abc.Context) -> None:
 @component.with_command
 @tanjun.as_slash_command("lower", "Lower level command which takes advantage of slash command specific detail")
 async def lower_command(ctx: tanjun.abc.SlashContext) -> None:
-    # Since SlashContext.respond can't have `flags` as an argument, providing
+    # Since `SlashContext.respond` can't have `flags` as an argument, providing
     # the flags when creating the initial response requires lower level usage.
     #
     # As a note, you can only create the initial response for a slash command
@@ -94,8 +94,8 @@ async def lower_command(ctx: tanjun.abc.SlashContext) -> None:
     # the response is always going to be deferred.
     await ctx.create_initial_response("I'm sorry, Dave", flags=hikari.MessageFlag.EPHEMERAL, tts=True)
 
-    # Since SlashContext.respond can't have `attachments` as an argument,
-    # providing attachments requires the usage of slash command specific and
+    # Since `SlashContext.respond` can't have attachments as an argument,
+    # providing `attachments` requires the usage of slash command specific and
     # lower level detail.
     #
     # As a note, you can only create followup responses after an initial response
