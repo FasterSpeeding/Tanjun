@@ -18,6 +18,8 @@ async def run() -> None:
     bot = hikari.RESTBot(loaded_config.bot_token, hikari.TokenType.BOT)
     client = (
         tanjun.Client.from_rest_bot(bot)
+        # Unlike a gateway bot bound client, only slash commands will be dispatched in a client
+        # that's bound to a rest bot.
         .load_modules("examples.slash_component")
         .add_type_dependency(config.ExampleConfig, lambda: loaded_config)
         .add_type_dependency(protos.DatabaseProto, tanjun.cache_callback(impls.DatabaseImpl.connect))
