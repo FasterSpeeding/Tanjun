@@ -24,7 +24,7 @@ async def run() -> None:
     )
     # Unlike with a gateway bot, for RESTBots hikari has no lifetime event
     # dispatch which can be used to implicitly startup and close the Tanjun
-    # client. Instead, we must explicitly startup and close Tanjun.
+    # client. Instead, we must directly startup and close Tanjun.
     await bot.start()
 
     # Note that starting a Tanjun client before the relevant bot may lead
