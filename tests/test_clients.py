@@ -59,6 +59,7 @@ class TestClient:
         # A try, finally is used to delete the file rather than relying on delete=True behaviour
         # as on Windows the file cannot be accessed by other processes if delete is True.
         file = tempfile.NamedTemporaryFile("w+", suffix=".py", delete=False)
+        path = pathlib.Path(file.name)
         try:
             with file:
                 file.write(
@@ -79,13 +80,13 @@ class TestClient:
                 )
                 file.flush()
 
-            client.load_modules(pathlib.Path(file.name))
+            client.load_modules(path)
 
             client.add_component.assert_called_once_with(123)
             client.add_client_callback.assert_called_once_with(4312)
 
         finally:
-            pathlib.Path(file.name).unlink(missing_ok=False)
+            path.unlink(missing_ok=False)
 
     def test_load_modules_with_system_path_for_unknown_path(self):
         class MockClient(tanjun.Client):
