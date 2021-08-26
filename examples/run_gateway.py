@@ -35,6 +35,8 @@ def run() -> None:
     (
         tanjun.Client.from_gateway_bot(bot)
         .load_modules("examples.complex_component")
+        # Both slash commands and message commands can be automatically executed
+        # by a gateway bot bound client
         .load_modules("examples.message_component")
         .load_modules("examples.slash_component")
         .add_prefix(loaded_config.prefix)
