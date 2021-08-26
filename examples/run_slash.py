@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # cython: language_level=3
-"""Example of how to run a standard Tanjun client instance."""
+"""Example of how to run a standard Tanjun client instance with a RESTBot."""
 import asyncio
 
 import hikari
