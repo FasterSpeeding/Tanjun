@@ -330,11 +330,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     def __init__(
         self,
         rest: hikari.api.RESTClient,
+        *,
         cache: typing.Optional[hikari.api.Cache] = None,
         events: typing.Optional[hikari.api.EventManager] = None,
         server: typing.Optional[hikari.api.InteractionServer] = None,
         shard: typing.Optional[hikari_traits.ShardAware] = None,
-        *,
         event_managed: bool = False,
         mention_prefix: bool = False,
         set_global_commands: typing.Union[hikari.Snowflake, bool] = False,
@@ -1202,15 +1202,15 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             else:
                 spec = importlib_util.spec_from_file_location(
-                    module_path.name.rsplit(".", 1)[0], str(module_path.absolute())
+                    module_path.name.rsplit(".", 1)[0], module_path.absolute()
                 )
 
                 # https://github.com/python/typeshed/issues/2793
-                if spec and isinstance(spec.loader, importlib_abc.Loader):
-                    module = importlib_util.module_from_spec(spec)
-                    spec.loader.exec_module(module)
+                if not spec or not isinstance(spec.loader, importlib_abc.Loader):
+                    raise RuntimeError(f"Unknown or invalid module provided {module_path}")
 
-                raise RuntimeError(f"Unknown or invalid module provided {module_path}")
+                module = importlib_util.module_from_spec(spec)
+                spec.loader.exec_module(module)
 
             found = False
             for _, member in inspect.getmembers(module):
