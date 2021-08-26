@@ -22,11 +22,20 @@ async def get_prefix(
 
 def run() -> None:
     loaded_config = config.ExampleConfig.load()
+    # Note that by default `from_gateway_bot` sets `event_managed` to `True`.
+    # This means that the client will be implicitly started and stopped
+    # based on Hikari's lifetime events.
+    #
+    # You can alternatively start and stop the Tanjun client yourself
+    # by calling `open` and `close` on it or using it as a context manager.
+    #
+    # Note that starting a Tanjun client before the relevant bot instance
+    # may lead to erroneous behaviour as it won't be able to make requests.
     bot = hikari.GatewayBot(loaded_config.bot_token)
     (
         tanjun.Client.from_gateway_bot(bot)
         .load_modules("examples.complex_component")
-        .load_modules("examples.basic_component")
+        .load_modules("examples.message_component")
         .load_modules("examples.slash_component")
         .add_prefix(loaded_config.prefix)
         .set_prefix_getter(get_prefix)
@@ -34,3 +43,7 @@ def run() -> None:
         .add_type_dependency(protos.DatabaseProto, tanjun.cache_callback(impls.DatabaseImpl.connect))
     )
     bot.run()
+
+
+if __name__ == "__main__":
+    run()
