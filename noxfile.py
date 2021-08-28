@@ -36,23 +36,16 @@ import nox
 nox.options.sessions = ["reformat", "check-dependencies", "lint", "spell-check", "type-check", "test"]  # type: ignore
 GENERAL_TARGETS = ["./examples", "./noxfile.py", "./tanjun", "./tests"]
 PYTHON_VERSIONS = ["3.9", "3.10"]  # TODO: @nox.session(python=["3.6", "3.7", "3.8"])?
-REQUIREMENTS = [
-    # Temporarily assume #master for hikari and yuyo
-    "git+https://github.com/hikari-py/hikari.git",
-    ".",
-]
 
 
 def install_requirements(
     session: nox.Session, *other_requirements: str, include_standard_requirements: bool = True
 ) -> None:
     session.install("--upgrade", "wheel")
-    requirements = [*REQUIREMENTS, *other_requirements]
-
     if include_standard_requirements:
         pass
 
-    session.install("--upgrade", *requirements)
+    session.install("--upgrade", *other_requirements)
 
 
 @nox.session(venv_backend="none")
