@@ -4,7 +4,7 @@ A flexible command framework designed to extend Hikari.
 
 # Instillation
 
-You can install Tanjun from PyPI using the following command.
+You can install Tanjun from PyPI using the following command in any Python 3.9 or above environment.
 
 ```
 python -m pip install git+https://github.com/hikari-py/hikari.git git+https://github.com/FasterSpeeding/Tanjun.git
