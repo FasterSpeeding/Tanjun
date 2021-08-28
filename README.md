@@ -2,7 +2,7 @@
 
 A flexible command framework designed to extend Hikari.
 
-# Instillation
+# Installation
 
 You can install Tanjun from PyPI using the following command in any Python 3.9 or above environment.
 
