@@ -1,0 +1,51 @@
+name: Publish latest documentation
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  publish-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: ./master_branch
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install prerequisites
+        run: |
+          cd ./master_branch
+          python -m pip install --upgrade pip wheel
+          python -m pip install -r nox-requirements.txt
+
+      - name: Build docs
+        run: |
+          cd ./master_branch
+          mkdir docs
+          python -m nox -s generate-docs -- -o ./latest_docs
+
+      - name: Fetch the docs branch
+        uses: actions/checkout@v2
+        with:
+          ref: docs
+          path: ./docs_branch
+
+      - name: Copy the generated docs
+        run: |
+          rm -r ./docs_branch/latest
+          cp -r ./master_branch/latest_docs ./docs_branch/latest
+
+      - name: Push
+        uses: s0/git-publish-subdir-action@develop
+        env:
+          REPO: self
+          BRANCH: docs
+          FOLDER: ./docs_branch/
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MESSAGE: "Latest docs: ${{ github.event.release.tag_name }} ({long-sha})"
