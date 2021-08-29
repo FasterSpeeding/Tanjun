@@ -9,7 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Fetch and clone the master branch
+        uses: actions/checkout@v2
         with:
           path: ./master_branch
 
@@ -30,7 +31,7 @@ jobs:
           mkdir docs
           python -m nox -s generate-docs -- -o ./latest_docs
 
-      - name: Fetch the docs branch
+      - name: Fetch and clone the docs branch
         uses: actions/checkout@v2
         with:
           ref: docs
