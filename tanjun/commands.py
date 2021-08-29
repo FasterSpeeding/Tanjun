@@ -343,7 +343,7 @@ def as_slash_command(
 
     Other Parameters
     ----------------
-    command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]
+    command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.Command]]
         ID of the global command this should be tracking.
 
         This is useful when bulk updating the commands as if the ID isn't
@@ -619,7 +619,7 @@ def with_user_slash_option(
     """Add a user option to a slash command.
 
     .. note::
-        This may result in `hikari.interactions.commands.InteractionMember` or
+        This may result in `hikari.InteractionMember` or
         `hikari.users.User` if the user isn't in the current guild or if this
         command was executed in a DM channel.
 
@@ -664,7 +664,7 @@ def with_member_slash_option(
     """Add a member option to a slash command.
 
     .. note::
-        This will always result in `hikari.interactions.commands.InteractionMember`.
+        This will always result in `hikari.InteractionMember`.
 
     Examples
     --------
@@ -707,7 +707,7 @@ def with_channel_slash_option(
     """Add a channel option to a slash command.
 
     .. note::
-        This will always result in `hikari.interactions.commands.InteractionChannel`.
+        This will always result in `hikari..InteractionChannel`.
 
     Examples
     --------
@@ -984,7 +984,7 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
 
         Parameters
         ----------
-        command_id : hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]
+        command_id : hikari.snowflakes.SnowflakeishOr[hikari.Command]
             object or ID of the global command this should be tracking.
         """
         self._command_id = hikari.Snowflake(command_id)

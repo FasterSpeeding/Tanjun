@@ -92,7 +92,9 @@ class Component(abc.Component):
     callbacks which can be added to a generic client.
 
     .. note::
-        This implementation supports dependency injection for its checks.
+        This implementation supports dependency injection for its checks,
+        command callbacks and listeners when linked to a client which
+        supports dependency injection.
 
     Parameters
     ----------
