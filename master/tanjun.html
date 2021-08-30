@@ -10364,6 +10364,7 @@ enforces that command names are unique to a single command within the group.</p>
     /,
     *,
     command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
+    default_permission: bool = True,
     default_to_ephemeral: bool = False,
     is_global: bool = True,
     sort_options: bool = True
@@ -10378,6 +10379,7 @@ enforces that command names are unique to a single command within the group.</p>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">sort_options</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -10388,6 +10390,10 @@ enforces that command names are unique to a single command within the group.</p>
 <span class="sd">        Under the standard implementation, `is_global` is used to determine whether</span>
 <span class="sd">        the command should be bulk set by `tanjun.Client.set_global_commands`</span>
 <span class="sd">        or when `set_global_commands` is True</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        `command_id` and `default_permission` are ignored for commands within</span>
+<span class="sd">        slash command groups.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -10416,6 +10422,10 @@ enforces that command names are unique to a single command within the group.</p>
 <span class="sd">        This is useful when bulk updating the commands as if the ID isn&#39;t</span>
 <span class="sd">        specified then any previously set permissions may be lost (i.e. if the</span>
 <span class="sd">        command&#39;s name is changed).</span>
+<span class="sd">    default_permission : bool</span>
+<span class="sd">        Whether this command can be accessed without set permissions.</span>
+
+<span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
 <span class="sd">    default_to_ephemeral : bool</span>
 <span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
 <span class="sd">        are set to override this. This defaults to `False`.</span>
@@ -10454,6 +10464,10 @@ Under the standard implementation, <code>is_global</code> is used to determine w
 the command should be bulk set by <code><a href="#Client.set_global_commands">tanjun.Client.set_global_commands</a></code>
 or when <code>set_global_commands</code> is True</p>
 
+<p><em>Warning:</em>
+<code>command_id</code> and <code>default_permission</code> are ignored for commands within
+slash command groups.</p>
+
 <h6 id="examples">Examples</h6>
 
 <div class="codehilite"><pre><span></span><code><span class="nd">@as_slash_command</span><span class="p">(</span><span class="s2">&quot;ping&quot;</span><span class="p">,</span> <span class="s2">&quot;Get the bot&#39;s latency&quot;</span><span class="p">)</span>
@@ -10483,6 +10497,10 @@ ID of the global command this should be tracking.</p>
 <p>This is useful when bulk updating the commands as if the ID isn't
 specified then any previously set permissions may be lost (i.e. if the
 command's name is changed).</p></li>
+<li><p><strong>default_permission</strong> (bool):
+Whether this command can be accessed without set permissions.</p>
+
+<p>Defaults to <code>True</code>, meaning that users can access the command by default.</p></li>
 <li><strong>default_to_ephemeral</strong> (bool):
 Whether this command's responses should default to ephemeral unless flags
 are set to override this. This defaults to <code>False</code>.</li>
@@ -10517,6 +10535,7 @@ ones.</p></li>
     /,
     *,
     command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
+    default_permission: bool = True,
     default_to_ephemeral: bool = False,
     is_global: bool = True
 ) -&gt; <a href="#commands.SlashCommandGroup">tanjun.commands.SlashCommandGroup</a></span>:
@@ -10530,6 +10549,7 @@ ones.</p></li>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SlashCommandGroup</span><span class="p">:</span>
@@ -10564,7 +10584,6 @@ ones.</p></li>
 <span class="sd">      the command should be bulk set by `tanjun.Client.set_global_commands`</span>
 <span class="sd">      or when `set_global_commands` is True</span>
 
-
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    name : str</span>
@@ -10580,6 +10599,10 @@ ones.</p></li>
 <span class="sd">        This is useful when bulk updating the commands as if the ID isn&#39;t</span>
 <span class="sd">        specified then any previously set permissions may be lost (i.e. if the</span>
 <span class="sd">        command&#39;s name is changed).</span>
+<span class="sd">    default_permission : bool</span>
+<span class="sd">        Whether this command can be accessed without set permissions.</span>
+
+<span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
 <span class="sd">    default_to_ephemeral : bool</span>
 <span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
 <span class="sd">        are set to override this. This defaults to `False`.</span>
@@ -10595,6 +10618,7 @@ ones.</p></li>
         <span class="n">name</span><span class="p">,</span>
         <span class="n">description</span><span class="p">,</span>
         <span class="n">command_id</span><span class="o">=</span><span class="n">command_id</span><span class="p">,</span>
+        <span class="n">default_permission</span><span class="o">=</span><span class="n">default_permission</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
         <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
     <span class="p">)</span>
@@ -10653,6 +10677,10 @@ Object or ID of the command the group tracks.</p>
 <p>This is useful when bulk updating the commands as if the ID isn't
 specified then any previously set permissions may be lost (i.e. if the
 command's name is changed).</p></li>
+<li><p><strong>default_permission</strong> (bool):
+Whether this command can be accessed without set permissions.</p>
+
+<p>Defaults to <code>True</code>, meaning that users can access the command by default.</p></li>
 <li><strong>default_to_ephemeral</strong> (bool):
 Whether this command's responses should default to ephemeral unless flags
 are set to override this. This defaults to <code>False</code>.</li>
@@ -11998,6 +12026,7 @@ The command to add.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -12013,10 +12042,9 @@ The command to add.</li>
             <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
             <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-            <span class="n">sort_options</span><span class="o">=</span><span class="n">sort_options</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="n">default_permission</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">)</span>
 
@@ -12270,6 +12298,7 @@ The command to add.</li>
     *,
     checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
     command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
+    default_permission: bool = True,
     default_to_ephemeral: bool = False,
     is_global: bool = True,
     hooks: Optional[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#SlashContext">tanjun.abc.SlashContext</a>]] = None,
@@ -12289,6 +12318,7 @@ The command to add.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -12304,10 +12334,9 @@ The command to add.</li>
             <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
             <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-            <span class="n">sort_options</span><span class="o">=</span><span class="n">sort_options</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="n">default_permission</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">)</span>
 
@@ -12666,7 +12695,7 @@ globally or for a specific guild.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SlashCommandGroup</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommandGroup</span><span class="p">):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_commands&quot;</span><span class="p">,)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_commands&quot;</span><span class="p">,</span> <span class="s2">&quot;_default_permission&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -12676,6 +12705,7 @@ globally or for a specific guild.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -12690,9 +12720,9 @@ globally or for a specific guild.</li>
             <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
             <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-            <span class="n">sort_options</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_permission</span> <span class="o">=</span> <span class="n">default_permission</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">ValuesView</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
@@ -12701,7 +12731,7 @@ globally or for a specific guild.</li>
 
     <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">special_endpoints_api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
-        <span class="n">builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_description</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_description</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_permission</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">:</span>
             <span class="n">builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">)</span>
 
@@ -12834,6 +12864,7 @@ globally or for a specific guild.</li>
     *,
     command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
     default_to_ephemeral: bool = False,
+    default_permission: bool = True,
     is_global: bool = True,
     checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
     hooks: Optional[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#SlashContext">tanjun.abc.SlashContext</a>]] = None,
@@ -12851,6 +12882,7 @@ globally or for a specific guild.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -12865,9 +12897,9 @@ globally or for a specific guild.</li>
             <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
             <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-            <span class="n">sort_options</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_permission</span> <span class="o">=</span> <span class="n">default_permission</span>
 </pre></div>
 
         </details>
@@ -12905,7 +12937,7 @@ The commands in this group.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">special_endpoints_api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
-        <span class="n">builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_description</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_description</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_permission</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">:</span>
             <span class="n">builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">)</span>
 
