@@ -38,8 +38,8 @@ jobs:
           mkdir docs
           python -m nox -s generate-docs -- -o ./docs
           cd ..
-          rm -r ./docs_branch/latest
-          cp -r ./master_branch/docs ./docs_branch/latest
+          rm -r ./docs_branch/master
+          cp -r ./master_branch/docs ./docs_branch/master
 
       - name: Push
         uses: s0/git-publish-subdir-action@develop
@@ -48,4 +48,4 @@ jobs:
           BRANCH: docs
           FOLDER: ./docs_branch
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MESSAGE: "Latest docs: (${{github.sha}})"
+          MESSAGE: "Master docs: (${{github.sha}})"
