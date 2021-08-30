@@ -239,6 +239,7 @@ def slash_command_group(
     /,
     *,
     command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
+    default_permission: bool = True,
     default_to_ephemeral: bool = False,
     is_global: bool = True,
 ) -> SlashCommandGroup:
@@ -273,7 +274,6 @@ def slash_command_group(
       the command should be bulk set by `tanjun.Client.set_global_commands`
       or when `set_global_commands` is True
 
-
     Parameters
     ----------
     name : str
@@ -289,6 +289,10 @@ def slash_command_group(
         This is useful when bulk updating the commands as if the ID isn't
         specified then any previously set permissions may be lost (i.e. if the
         command's name is changed).
+    default_permission : bool
+        Whether this command can be accessed without set permissions.
+
+        Defaults to `True`, meaning that users can access the command by default.
     default_to_ephemeral : bool
         Whether this command's responses should default to ephemeral unless flags
         are set to override this. This defaults to `False`.
@@ -304,6 +308,7 @@ def slash_command_group(
         name,
         description,
         command_id=command_id,
+        default_permission=default_permission,
         default_to_ephemeral=default_to_ephemeral,
         is_global=is_global,
     )
@@ -315,6 +320,7 @@ def as_slash_command(
     /,
     *,
     command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
+    default_permission: bool = True,
     default_to_ephemeral: bool = False,
     is_global: bool = True,
     sort_options: bool = True,
@@ -325,6 +331,10 @@ def as_slash_command(
         Under the standard implementation, `is_global` is used to determine whether
         the command should be bulk set by `tanjun.Client.set_global_commands`
         or when `set_global_commands` is True
+
+    .. warning::
+        `command_id` and `default_permission` are ignored for commands within
+        slash command groups.
 
     Examples
     --------
@@ -353,6 +363,10 @@ def as_slash_command(
         This is useful when bulk updating the commands as if the ID isn't
         specified then any previously set permissions may be lost (i.e. if the
         command's name is changed).
+    default_permission : bool
+        Whether this command can be accessed without set permissions.
+
+        Defaults to `True`, meaning that users can access the command by default.
     default_to_ephemeral : bool
         Whether this command's responses should default to ephemeral unless flags
         are set to override this. This defaults to `False`.
@@ -877,7 +891,6 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
         hooks: typing.Optional[abc.SlashHooks] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
-        sort_options: bool = True,
     ) -> None:
         super().__init__(checks=checks, hooks=hooks, metadata=metadata)
         if not _SCOMMAND_NAME_REG.fullmatch(name):
@@ -981,7 +994,7 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
 
 
 class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
-    __slots__ = ("_commands",)
+    __slots__ = ("_commands", "_default_permission")
 
     def __init__(
         self,
@@ -991,6 +1004,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         *,
         command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
         default_to_ephemeral: bool = False,
+        default_permission: bool = True,
         is_global: bool = True,
         checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
         hooks: typing.Optional[abc.SlashHooks] = None,
@@ -1005,9 +1019,9 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
             checks=checks,
             hooks=hooks,
             metadata=metadata,
-            sort_options=False,
         )
         self._commands: dict[str, abc.BaseSlashCommand] = {}
+        self._default_permission = default_permission
 
     @property
     def commands(self) -> collections.ValuesView[abc.BaseSlashCommand]:
@@ -1016,7 +1030,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
 
     def build(self) -> special_endpoints_api.CommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        builder = _CommandBuilder(self._name, self._description, False)
+        builder = _CommandBuilder(self._name, self._description, False).set_default_permission(self._default_permission)
         if self._command_id:
             builder.set_id(self._command_id)
 
@@ -1144,6 +1158,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         *,
         checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
         command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
+        default_permission: bool = True,
         default_to_ephemeral: bool = False,
         is_global: bool = True,
         hooks: typing.Optional[abc.SlashHooks] = None,
@@ -1159,10 +1174,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             hooks=hooks,
             is_global=is_global,
             metadata=metadata,
-            sort_options=sort_options,
         )
 
-        self._builder = _CommandBuilder(name, description, sort_options)
+        self._builder = _CommandBuilder(name, description, sort_options).set_default_permission(default_permission)
         if self._command_id:
             self._builder = self._builder.set_id(self._command_id)
 
