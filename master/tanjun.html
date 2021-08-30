@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 7.3.1" />
+    <meta name="generator" content="pdoc 7.4.0" />
     <title>tanjun API documentation</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%2244.5%202.5%2015%2015%22%3E%3Cpath%20d%3D%22M49.351%2021.041c-.233-.721-.546-2.408-.772-4.076-.042-.09-.067-.187-.046-.288-.166-1.347-.277-2.625-.241-3.351-1.378-1.008-2.271-2.586-2.271-4.362%200-.976.272-1.935.788-2.774.057-.094.122-.18.184-.268-.033-.167-.052-.339-.052-.516%200-1.477%201.202-2.679%202.679-2.679.791%200%201.496.352%201.987.9a6.3%206.3%200%200%201%201.001.029c.492-.564%201.207-.929%202.012-.929%201.477%200%202.679%201.202%202.679%202.679a2.65%202.65%200%200%201-.269%201.148c.383.747.595%201.572.595%202.41%200%202.311-1.507%204.29-3.635%205.107.037.699.147%202.27.423%203.294l.137.461c.156%202.136-4.612%205.166-5.199%203.215zm.127-4.919a4.78%204.78%200%200%200%20.775-.584c-.172-.115-.505-.254-.88-.378zm.331%202.302l.828-.502c-.202-.143-.576-.328-.984-.49zm.45%202.157l.701-.403c-.214-.115-.536-.249-.891-.376l.19.779zM49.13%204.141c0%20.152.123.276.276.276s.275-.124.275-.276-.123-.276-.276-.276-.275.124-.275.276zm.735-.389a1.15%201.15%200%200%201%20.314.783%201.16%201.16%200%200%201-1.162%201.162c-.457%200-.842-.27-1.032-.653-.026.117-.042.238-.042.362a1.68%201.68%200%200%200%201.679%201.679%201.68%201.68%200%200%200%201.679-1.679c0-.843-.626-1.535-1.436-1.654zm3.076%201.654a1.68%201.68%200%200%200%201.679%201.679%201.68%201.68%200%200%200%201.679-1.679c0-.037-.009-.072-.011-.109-.21.3-.541.508-.935.508a1.16%201.16%200%200%201-1.162-1.162%201.14%201.14%200%200%201%20.474-.912c-.015%200-.03-.005-.045-.005-.926.001-1.679.754-1.679%201.68zm1.861-1.265c0%20.152.123.276.276.276s.275-.124.275-.276-.123-.276-.276-.276-.275.124-.275.276zm1.823%204.823c0-.52-.103-1.035-.288-1.52-.466.394-1.06.64-1.717.64-1.144%200-2.116-.725-2.499-1.738-.383%201.012-1.355%201.738-2.499%201.738-.867%200-1.631-.421-2.121-1.062-.307.605-.478%201.267-.478%201.942%200%202.486%202.153%204.51%204.801%204.51s4.801-2.023%204.801-4.51zm-3.032%209.156l-.146-.492c-.276-1.02-.395-2.457-.444-3.268a6.11%206.11%200%200%201-1.18.115%206.01%206.01%200%200%201-2.536-.562l.006.175c.802.215%201.848.612%202.021%201.25.079.295-.021.601-.274.837l-.598.501c.667.304%201.243.698%201.311%201.179.02.144.022.507-.393.787l-.564.365c1.285.521%201.361.96%201.381%201.126.018.142.011.496-.427.746l-.854.489c.064-1.19%201.985-2.585%202.697-3.248zM49.34%209.925c0-.667%201-.667%201%200%200%20.653.818%201.205%201.787%201.205s1.787-.552%201.787-1.205c0-.667%201-.667%201%200%200%201.216-1.25%202.205-2.787%202.205s-2.787-.989-2.787-2.205zm-.887-7.633c-.093.077-.205.114-.317.114a.5.5%200%200%201-.318-.886L49.183.397a.5.5%200%200%201%20.703.068.5.5%200%200%201-.069.703zm7.661-.065c-.086%200-.173-.022-.253-.068l-1.523-.893c-.575-.337-.069-1.2.506-.863l1.523.892a.5.5%200%200%201%20.179.685c-.094.158-.261.247-.432.247z%22%20fill%3D%22%233bb300%22/%3E%3C/svg%3E"/>
 
@@ -78,9 +78,6 @@
             </li>
             <li>
                     <a class="variable" href="#__version__">__version__</a>
-            </li>
-            <li>
-                    <a class="variable" href="#__git_sha1__">__git_sha1__</a>
             </li>
             <li>
                     <a class="module" href="#abc">abc</a>
@@ -501,6 +498,9 @@
                         </li>
                         <li>
                                 <a class="function" href="#SlashCommandGroup.execute">execute</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#SlashCommandGroup.set_injector">set_injector</a>
                         </li>
                 </ul>
 
@@ -1193,12 +1193,12 @@
                     <h1 class="modulename">
 tanjun    </h1>
 
-                        <div class="docstring"><p>A flexible command client designed to extend Hikari.</p>
+                        <div class="docstring"><p>A flexible command framework designed to extend Hikari.</p>
 
 <h6 id="examples">Examples</h6>
 
 <p>A Tanjun client can be quickly initialised from a Hikari gateway bot through
-<code><a href="#Client.from_gateway">tanjun.Client.from_gateway</a></code>, this enables both slash (interaction) and message
+<code><a href="#Client.from_gateway_bot">tanjun.Client.from_gateway_bot</a></code>, this enables both slash (interaction) and message
 command execution:</p>
 
 <div class="codehilite"><pre><span></span><code><span class="n">bot</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">GatewayBot</span><span class="p">(</span><span class="s2">&quot;BOT_TOKEN&quot;</span><span class="p">)</span>
@@ -1207,7 +1207,7 @@ command execution:</p>
 <span class="c1"># will be managed based on gateway startup and stopping events.</span>
 <span class="c1"># mention_prefix=True instructs the client to also set mention prefixes on the</span>
 <span class="c1"># first startup.</span>
-<span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mention_prefix</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mention_prefix</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="n">component</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Component</span><span class="p">()</span>
 
@@ -1289,12 +1289,12 @@ enable slash (interaction) command execution:</p>
 <span class="c1"># CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,</span>
 <span class="c1"># OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
 <span class="c1"># OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
-<span class="sd">&quot;&quot;&quot;A flexible command client designed to extend Hikari.</span>
+<span class="sd">&quot;&quot;&quot;A flexible command framework designed to extend Hikari.</span>
 
 <span class="sd">Examples</span>
 <span class="sd">--------</span>
 <span class="sd">A Tanjun client can be quickly initialised from a Hikari gateway bot through</span>
-<span class="sd">`tanjun.Client.from_gateway`, this enables both slash (interaction) and message</span>
+<span class="sd">`tanjun.Client.from_gateway_bot`, this enables both slash (interaction) and message</span>
 <span class="sd">command execution:</span>
 
 <span class="sd">```py</span>
@@ -1304,7 +1304,7 @@ enable slash (interaction) command execution:</p>
 <span class="sd"># will be managed based on gateway startup and stopping events.</span>
 <span class="sd"># mention_prefix=True instructs the client to also set mention prefixes on the</span>
 <span class="sd"># first startup.</span>
-<span class="sd">client = tanjun.Client.from_gateway(bot, set_global_commands=True, mention_prefix=True)</span>
+<span class="sd">client = tanjun.Client.from_gateway_bot(bot, set_global_commands=True, mention_prefix=True)</span>
 
 <span class="sd">component = tanjun.Component()</span>
 
@@ -1367,7 +1367,6 @@ enable slash (interaction) command execution:</p>
     <span class="s2">&quot;__license__&quot;</span><span class="p">,</span>
     <span class="s2">&quot;__url__&quot;</span><span class="p">,</span>
     <span class="s2">&quot;__version__&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;__git_sha1__&quot;</span><span class="p">,</span>
     <span class="c1"># abc.py</span>
     <span class="s2">&quot;abc&quot;</span><span class="p">,</span>
     <span class="c1"># checks.py</span>
@@ -1483,7 +1482,6 @@ enable slash (interaction) command execution:</p>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s2">&quot;BSD&quot;</span>
 <span class="n">__url__</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/FasterSpeeding/Tanjun&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2.0.0a1&quot;</span>
-<span class="n">__git_sha1__</span> <span class="o">=</span> <span class="s2">&quot;HEAD&quot;</span>
 </pre></div>
 
         </details>
@@ -1574,15 +1572,6 @@ enable slash (interaction) command execution:</p>
                                 <div class="attr variable"><a class="headerlink" href="#__version__">#&nbsp;&nbsp</a>
 
         <span class="name">__version__</span><span class="default_value"> = &#39;2.0.0a1&#39;</span>
-    </div>
-
-    
-
-                </section>
-                <section id="__git_sha1__">
-                                <div class="attr variable"><a class="headerlink" href="#__git_sha1__">#&nbsp;&nbsp</a>
-
-        <span class="name">__git_sha1__</span><span class="default_value"> = &#39;HEAD&#39;</span>
     </div>
 
     
@@ -3435,8 +3424,8 @@ enable slash (interaction) command execution:</p>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">collections</span>
 
 <span class="kn">import</span> <span class="nn">hikari</span>
-<span class="kn">from</span> <span class="nn">yuyo</span> <span class="kn">import</span> <span class="n">backoff</span>
 
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_backoff</span> <span class="k">as</span> <span class="n">backoff</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utilities</span>
 
@@ -4182,7 +4171,7 @@ enable slash (interaction) command execution:</p>
         
             <span class="def">def</span>
             <span class="name">with_check</span><span class="signature">(
-    check: &#39;tanjun_abc.CheckSig&#39;,
+    check: collections.abc.Callable,
     /
 ) -&gt; collections.abc.Callable[[~CommandT], ~CommandT]</span>:
     </div>
@@ -5017,8 +5006,8 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
 <span class="kn">import</span> <span class="nn">hikari</span>
 <span class="kn">from</span> <span class="nn">hikari</span> <span class="kn">import</span> <span class="n">traits</span> <span class="k">as</span> <span class="n">hikari_traits</span>
-<span class="kn">from</span> <span class="nn">yuyo</span> <span class="kn">import</span> <span class="n">backoff</span>
 
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_backoff</span> <span class="k">as</span> <span class="n">backoff</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">tanjun_abc</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">context</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
@@ -5292,11 +5281,11 @@ a DM context (e.g. can't have any moderation permissions)</li>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">rest</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">RESTClient</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">cache</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">Cache</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">events</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">EventManager</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">server</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionServer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">shard</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -6164,15 +6153,15 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">spec</span> <span class="o">=</span> <span class="n">importlib_util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span>
-                    <span class="n">module_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">())</span>
+                    <span class="n">module_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
                 <span class="p">)</span>
 
                 <span class="c1"># https://github.com/python/typeshed/issues/2793</span>
-                <span class="k">if</span> <span class="n">spec</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="p">,</span> <span class="n">importlib_abc</span><span class="o">.</span><span class="n">Loader</span><span class="p">):</span>
-                    <span class="n">module</span> <span class="o">=</span> <span class="n">importlib_util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
-                    <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">spec</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="p">,</span> <span class="n">importlib_abc</span><span class="o">.</span><span class="n">Loader</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown or invalid module provided </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown or invalid module provided </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="n">importlib_util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+                <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
 
             <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
@@ -6336,7 +6325,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
             <span class="name">as_loader</span><span class="signature">(
     callback: collections.abc.Callable,
     /
-) -&gt; collections.abc.Callable[[&#39;Client&#39;], None]</span>:
+) -&gt; collections.abc.Callable[<a href="tanjun/clients.html#Client">tanjun.clients.Client</a>, None]</span>:
     </div>
 
                 <details>
@@ -6486,11 +6475,11 @@ to the provided client using it's abstract methods.</li>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">rest</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">RESTClient</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">cache</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">Cache</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">events</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">EventManager</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">server</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionServer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">shard</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -7358,15 +7347,15 @@ to the provided client using it's abstract methods.</li>
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">spec</span> <span class="o">=</span> <span class="n">importlib_util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span>
-                    <span class="n">module_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">())</span>
+                    <span class="n">module_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
                 <span class="p">)</span>
 
                 <span class="c1"># https://github.com/python/typeshed/issues/2793</span>
-                <span class="k">if</span> <span class="n">spec</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="p">,</span> <span class="n">importlib_abc</span><span class="o">.</span><span class="n">Loader</span><span class="p">):</span>
-                    <span class="n">module</span> <span class="o">=</span> <span class="n">importlib_util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
-                    <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">spec</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="p">,</span> <span class="n">importlib_abc</span><span class="o">.</span><span class="n">Loader</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown or invalid module provided </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown or invalid module provided </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="n">importlib_util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+                <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
 
             <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
@@ -7597,11 +7586,11 @@ when set on a specific guild.</p></li>
         
             <span class="name">Client</span><span class="signature">(
     rest: hikari.api.rest.RESTClient,
+    *,
     cache: Optional[hikari.api.cache.Cache] = None,
     events: Optional[hikari.api.event_manager.EventManager] = None,
     server: Optional[hikari.api.interaction_server.InteractionServer] = None,
     shard: Optional[hikari.traits.ShardAware] = None,
-    *,
     event_managed: bool = False,
     mention_prefix: bool = False,
     set_global_commands: Union[hikari.snowflakes.Snowflake, bool] = False
@@ -7613,11 +7602,11 @@ when set on a specific guild.</p></li>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">rest</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">RESTClient</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">cache</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">Cache</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">events</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">EventManager</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">server</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionServer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">shard</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -8205,7 +8194,7 @@ if provided, else <code>None</code>.</li>
     *,
     application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
     guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED
-) -&gt; hikari.interactions.commands.Command</span>:
+) -&gt; hikari.commands.Command</span>:
     </div>
 
                 <details>
@@ -8333,7 +8322,7 @@ command's name).</li>
     *,
     application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
     guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED
-) -&gt; collections.abc.Sequence[hikari.interactions.commands.Command]</span>:
+) -&gt; collections.abc.Sequence[hikari.commands.Command]</span>:
     </div>
 
                 <details>
@@ -8450,7 +8439,7 @@ Object or ID of the guild to register the commands with.</p>
 
         
             <span class="def">def</span>
-            <span class="name">set_auto_defer_after</span><span class="signature">(self: &#39;_ClientT&#39;, time: Optional[float], /) -&gt; &#39;_ClientT&#39;</span>:
+            <span class="name">set_auto_defer_after</span><span class="signature">(self: ~_ClientT, time: Optional[float], /) -&gt; ~_ClientT</span>:
     </div>
 
                 <details>
@@ -8494,7 +8483,7 @@ The time in seconds to defer interaction command responses after.</li>
 
         
             <span class="def">def</span>
-            <span class="name">set_hikari_trait_injectors</span><span class="signature">(self: &#39;_ClientT&#39;, bot: hikari.traits.RESTAware, /) -&gt; &#39;_ClientT&#39;</span>:
+            <span class="name">set_hikari_trait_injectors</span><span class="signature">(self: ~_ClientT, bot: hikari.traits.RESTAware, /) -&gt; ~_ClientT</span>:
     </div>
 
                 <details>
@@ -8539,7 +8528,7 @@ The hikari client to set dependency injectors for.</li>
 
         
             <span class="def">def</span>
-            <span class="name">set_interaction_not_found</span><span class="signature">(self: &#39;_ClientT&#39;, message: Optional[str], /) -&gt; &#39;_ClientT&#39;</span>:
+            <span class="name">set_interaction_not_found</span><span class="signature">(self: ~_ClientT, message: Optional[str], /) -&gt; ~_ClientT</span>:
     </div>
 
                 <details>
@@ -8586,10 +8575,10 @@ The message to respond with when an interaction command isn't found.</li>
         
             <span class="def">def</span>
             <span class="name">set_message_accepts</span><span class="signature">(
-    self: &#39;_ClientT&#39;,
+    self: ~_ClientT,
     accepts: <a href="tanjun/clients.html#MessageAcceptsEnum">tanjun.clients.MessageAcceptsEnum</a>,
     /
-) -&gt; &#39;_ClientT&#39;</span>:
+) -&gt; ~_ClientT</span>:
     </div>
 
                 <details>
@@ -8628,7 +8617,7 @@ The type of messages commands should be executed based on.</li>
 
         
             <span class="def">def</span>
-            <span class="name">set_human_only</span><span class="signature">(self: &#39;_ClientT&#39;, value: bool = True) -&gt; &#39;_ClientT&#39;</span>:
+            <span class="name">set_human_only</span><span class="signature">(self: ~_ClientT, value: bool = True) -&gt; ~_ClientT</span>:
     </div>
 
                 <details>
@@ -8691,7 +8680,7 @@ based on webhook and bot messages.</p></li>
     *,
     application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
     guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED
-) -&gt; NoneType</span>:
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -8763,7 +8752,7 @@ Object or ID of the guild to clear commands for.</p>
     *,
     application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
     guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED
-) -&gt; collections.abc.Sequence[hikari.interactions.commands.Command]</span>:
+) -&gt; collections.abc.Sequence[hikari.commands.Command]</span>:
     </div>
 
                 <details>
@@ -8861,7 +8850,7 @@ Object or ID of the guild to set the global commands to.</p>
 
         
             <span class="def">def</span>
-            <span class="name">add_check</span><span class="signature">(self: &#39;_ClientT&#39;, check: collections.abc.Callable, /) -&gt; &#39;_ClientT&#39;</span>:
+            <span class="name">add_check</span><span class="signature">(self: ~_ClientT, check: collections.abc.Callable, /) -&gt; ~_ClientT</span>:
     </div>
 
                 <details>
@@ -8881,7 +8870,7 @@ Object or ID of the guild to set the global commands to.</p>
 
         
             <span class="def">def</span>
-            <span class="name">remove_check</span><span class="signature">(self, check: collections.abc.Callable, /) -&gt; NoneType</span>:
+            <span class="name">remove_check</span><span class="signature">(self, check: collections.abc.Callable, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -8940,12 +8929,12 @@ Object or ID of the guild to set the global commands to.</p>
         
             <span class="def">def</span>
             <span class="name">add_component</span><span class="signature">(
-    self: &#39;_ClientT&#39;,
+    self: ~_ClientT,
     component: <a href="tanjun/abc.html#Component">tanjun.abc.Component</a>,
     /,
     *,
     add_injector: bool = False
-) -&gt; &#39;_ClientT&#39;</span>:
+) -&gt; ~_ClientT</span>:
     </div>
 
                 <details>
@@ -8974,7 +8963,7 @@ Object or ID of the guild to set the global commands to.</p>
 
         
             <span class="def">def</span>
-            <span class="name">remove_component</span><span class="signature">(self, component: <a href="tanjun/abc.html#Component">tanjun.abc.Component</a>, /) -&gt; NoneType</span>:
+            <span class="name">remove_component</span><span class="signature">(self, component: <a href="tanjun/abc.html#Component">tanjun.abc.Component</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -8996,11 +8985,11 @@ Object or ID of the guild to set the global commands to.</p>
         
             <span class="def">def</span>
             <span class="name">add_client_callback</span><span class="signature">(
-    self: &#39;_ClientT&#39;,
+    self: ~_ClientT,
     event_name: str,
     callback: collections.abc.Callable,
     /
-) -&gt; &#39;_ClientT&#39;</span>:
+) -&gt; ~_ClientT</span>:
     </div>
 
                 <details>
@@ -9033,7 +9022,7 @@ Object or ID of the guild to set the global commands to.</p>
     *args: Any,
     suppress_exceptions: bool = True,
     **kwargs: Any
-) -&gt; NoneType</span>:
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -9083,12 +9072,7 @@ Object or ID of the guild to set the global commands to.</p>
 
         
             <span class="def">def</span>
-            <span class="name">remove_client_callback</span><span class="signature">(
-    self,
-    event_name: str,
-    callback: collections.abc.Callable,
-    /
-) -&gt; NoneType</span>:
+            <span class="name">remove_client_callback</span><span class="signature">(self, event_name: str, callback: collections.abc.Callable, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -9142,10 +9126,10 @@ Object or ID of the guild to set the global commands to.</p>
         
             <span class="def">def</span>
             <span class="name">add_prefix</span><span class="signature">(
-    self: &#39;_ClientT&#39;,
+    self: ~_ClientT,
     prefixes: Union[collections.abc.Iterable[str], str],
     /
-) -&gt; &#39;_ClientT&#39;</span>:
+) -&gt; ~_ClientT</span>:
     </div>
 
                 <details>
@@ -9170,7 +9154,7 @@ Object or ID of the guild to set the global commands to.</p>
 
         
             <span class="def">def</span>
-            <span class="name">remove_prefix</span><span class="signature">(self, prefix: str, /) -&gt; NoneType</span>:
+            <span class="name">remove_prefix</span><span class="signature">(self, prefix: str, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -9190,10 +9174,10 @@ Object or ID of the guild to set the global commands to.</p>
         
             <span class="def">def</span>
             <span class="name">set_prefix_getter</span><span class="signature">(
-    self: &#39;_ClientT&#39;,
+    self: ~_ClientT,
     getter: Optional[collections.abc.Callable[..., collections.abc.Awaitable[collections.abc.Iterable[str]]]],
     /
-) -&gt; &#39;_ClientT&#39;</span>:
+) -&gt; ~_ClientT</span>:
     </div>
 
                 <details>
@@ -9306,7 +9290,7 @@ Object or ID of the guild to set the global commands to.</p>
 
         
             <span class="def">async def</span>
-            <span class="name">close</span><span class="signature">(self, *, deregister_listeners: bool = True) -&gt; NoneType</span>:
+            <span class="name">close</span><span class="signature">(self, *, deregister_listeners: bool = True) -&gt; None</span>:
     </div>
 
                 <details>
@@ -9350,7 +9334,7 @@ Object or ID of the guild to set the global commands to.</p>
 
         
             <span class="def">async def</span>
-            <span class="name">open</span><span class="signature">(self, *, register_listeners: bool = True) -&gt; NoneType</span>:
+            <span class="name">open</span><span class="signature">(self, *, register_listeners: bool = True) -&gt; None</span>:
     </div>
 
                 <details>
@@ -9443,10 +9427,10 @@ Object or ID of the guild to set the global commands to.</p>
         
             <span class="def">def</span>
             <span class="name">set_hooks</span><span class="signature">(
-    self: &#39;_ClientT&#39;,
+    self: ~_ClientT,
     hooks: Optional[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#Context">tanjun.abc.Context</a>]],
     /
-) -&gt; &#39;_ClientT&#39;</span>:
+) -&gt; ~_ClientT</span>:
     </div>
 
                 <details>
@@ -9467,10 +9451,10 @@ Object or ID of the guild to set the global commands to.</p>
         
             <span class="def">def</span>
             <span class="name">set_slash_hooks</span><span class="signature">(
-    self: &#39;_ClientT&#39;,
+    self: ~_ClientT,
     hooks: Optional[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#SlashContext">tanjun.abc.SlashContext</a>]],
     /
-) -&gt; &#39;_ClientT&#39;</span>:
+) -&gt; ~_ClientT</span>:
     </div>
 
                 <details>
@@ -9491,10 +9475,10 @@ Object or ID of the guild to set the global commands to.</p>
         
             <span class="def">def</span>
             <span class="name">set_message_hooks</span><span class="signature">(
-    self: &#39;_ClientT&#39;,
+    self: ~_ClientT,
     hooks: Optional[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#MessageContext">tanjun.abc.MessageContext</a>]],
     /
-) -&gt; &#39;_ClientT&#39;</span>:
+) -&gt; ~_ClientT</span>:
     </div>
 
                 <details>
@@ -9514,7 +9498,7 @@ Object or ID of the guild to set the global commands to.</p>
 
         
             <span class="def">def</span>
-            <span class="name">load_modules</span><span class="signature">(self: &#39;_ClientT&#39;, *modules: Union[str, pathlib.Path]) -&gt; &#39;_ClientT&#39;</span>:
+            <span class="name">load_modules</span><span class="signature">(self: ~_ClientT, *modules: Union[str, pathlib.Path]) -&gt; ~_ClientT</span>:
     </div>
 
                 <details>
@@ -9550,15 +9534,15 @@ Object or ID of the guild to set the global commands to.</p>
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">spec</span> <span class="o">=</span> <span class="n">importlib_util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span>
-                    <span class="n">module_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">())</span>
+                    <span class="n">module_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">module_path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
                 <span class="p">)</span>
 
                 <span class="c1"># https://github.com/python/typeshed/issues/2793</span>
-                <span class="k">if</span> <span class="n">spec</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="p">,</span> <span class="n">importlib_abc</span><span class="o">.</span><span class="n">Loader</span><span class="p">):</span>
-                    <span class="n">module</span> <span class="o">=</span> <span class="n">importlib_util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
-                    <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">spec</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="p">,</span> <span class="n">importlib_abc</span><span class="o">.</span><span class="n">Loader</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown or invalid module provided </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown or invalid module provided </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="n">importlib_util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+                <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
 
             <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
@@ -9611,7 +9595,7 @@ of type <code><a href="#Client">Client</a></code>.</p>
     self,
     event: hikari.events.message_events.MessageCreateEvent,
     /
-) -&gt; NoneType</span>:
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -9682,7 +9666,7 @@ of type <code><a href="#Client">Client</a></code>.</p>
     self,
     event: hikari.events.interaction_events.InteractionCreateEvent,
     /
-) -&gt; NoneType</span>:
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -9751,7 +9735,7 @@ The event to execute commands based on.</li>
             <span class="def">async def</span>
             <span class="name">on_interaction_create_request</span><span class="signature">(
     self,
-    interaction: hikari.interactions.commands.CommandInteraction,
+    interaction: hikari.interactions.command_interactions.CommandInteraction,
     /
 ) -&gt; Union[hikari.api.special_endpoints.InteractionMessageBuilder, hikari.api.special_endpoints.InteractionDeferredBuilder]</span>:
     </div>
@@ -10379,7 +10363,7 @@ enforces that command names are unique to a single command within the group.</p>
     description: str,
     /,
     *,
-    command_id: Union[hikari.interactions.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
+    command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
     default_to_ephemeral: bool = False,
     is_global: bool = True,
     sort_options: bool = True
@@ -10532,7 +10516,7 @@ ones.</p></li>
     description: str,
     /,
     *,
-    command_id: Union[hikari.interactions.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
+    command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
     default_to_ephemeral: bool = False,
     is_global: bool = True
 ) -&gt; <a href="#commands.SlashCommandGroup">tanjun.commands.SlashCommandGroup</a></span>:
@@ -10900,7 +10884,7 @@ Whether this command is a global command. Defaults to <code>True</code>.</li>
     checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
     hooks: Optional[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#MessageContext">tanjun.abc.MessageContext</a>]] = None,
     metadata: Optional[collections.abc.MutableMapping[Any, Any]] = None,
-    parser: &#39;typing.Optional[parsing.AbstractParser]&#39; = None
+    parser: Optional[<a href="#parsing.AbstractParser">tanjun.parsing.AbstractParser</a>] = None
 )</span>
     </div>
 
@@ -10998,7 +10982,7 @@ matches the message.</p>
                             <div id="MessageCommand.parser" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#MessageCommand.parser">#&nbsp;&nbsp</a>
 
-        <span class="name">parser</span><span class="annotation">: &#39;typing.Optional[parsing.AbstractParser]&#39;</span>
+        <span class="name">parser</span><span class="annotation">: Optional[<a href="#parsing.AbstractParser">tanjun.parsing.AbstractParser</a>]</span>
     </div>
 
     
@@ -11009,7 +10993,7 @@ matches the message.</p>
 
         
             <span class="def">def</span>
-            <span class="name">bind_client</span><span class="signature">(self, client: <a href="tanjun/abc.html#Client">tanjun.abc.Client</a>, /) -&gt; NoneType</span>:
+            <span class="name">bind_client</span><span class="signature">(self, client: <a href="tanjun/abc.html#Client">tanjun.abc.Client</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -11031,7 +11015,7 @@ matches the message.</p>
 
         
             <span class="def">def</span>
-            <span class="name">bind_component</span><span class="signature">(self, component: <a href="tanjun/abc.html#Component">tanjun.abc.Component</a>, /) -&gt; NoneType</span>:
+            <span class="name">bind_component</span><span class="signature">(self, component: <a href="tanjun/abc.html#Component">tanjun.abc.Component</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -11054,11 +11038,11 @@ matches the message.</p>
         
             <span class="def">def</span>
             <span class="name">copy</span><span class="signature">(
-    self: &#39;_MessageCommandT&#39;,
+    self: ~_MessageCommandT,
     *,
     _new: bool = True,
     parent: Optional[<a href="tanjun/abc.html#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>] = None
-) -&gt; &#39;_MessageCommandT&#39;</span>:
+) -&gt; ~_MessageCommandT</span>:
     </div>
 
                 <details>
@@ -11105,10 +11089,10 @@ The parent of the copy.</li>
         
             <span class="def">def</span>
             <span class="name">set_parent</span><span class="signature">(
-    self: &#39;_MessageCommandT&#39;,
+    self: ~_MessageCommandT,
     parent: Optional[<a href="tanjun/abc.html#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>],
     /
-) -&gt; &#39;_MessageCommandT&#39;</span>:
+) -&gt; ~_MessageCommandT</span>:
     </div>
 
                 <details>
@@ -11145,10 +11129,10 @@ The parent of this command.</li>
         
             <span class="def">def</span>
             <span class="name">set_parser</span><span class="signature">(
-    self: &#39;_MessageCommandT&#39;,
-    parser: &#39;typing.Optional[parsing.AbstractParser]&#39;,
+    self: ~_MessageCommandT,
+    parser: Optional[<a href="#parsing.AbstractParser">tanjun.parsing.AbstractParser</a>],
     /
-) -&gt; &#39;_MessageCommandT&#39;</span>:
+) -&gt; ~_MessageCommandT</span>:
     </div>
 
                 <details>
@@ -11197,7 +11181,7 @@ The parent of this command.</li>
     /,
     *,
     hooks: Optional[collections.abc.MutableSet[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#MessageContext">tanjun.abc.MessageContext</a>]]] = None
-) -&gt; NoneType</span>:
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -11281,10 +11265,10 @@ The parent of this command.</li>
         
             <span class="def">def</span>
             <span class="name">load_into_component</span><span class="signature">(
-    self: &#39;_MessageCommandT&#39;,
+    self: ~_MessageCommandT,
     component: <a href="tanjun/abc.html#Component">tanjun.abc.Component</a>,
     /
-) -&gt; &#39;typing.Optional[_MessageCommandT]&#39;</span>:
+) -&gt; Optional[~_MessageCommandT]</span>:
     </div>
 
                 <details>
@@ -11525,7 +11509,7 @@ The parent of this command.</li>
     hooks: Optional[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#MessageContext">tanjun.abc.MessageContext</a>]] = None,
     metadata: Optional[collections.abc.MutableMapping[Any, Any]] = None,
     strict: bool = False,
-    parser: &#39;typing.Optional[parsing.AbstractParser]&#39; = None
+    parser: Optional[<a href="#parsing.AbstractParser">tanjun.parsing.AbstractParser</a>] = None
 )</span>
     </div>
 
@@ -11590,11 +11574,11 @@ The commands in this group.</li>
         
             <span class="def">def</span>
             <span class="name">copy</span><span class="signature">(
-    self: &#39;_MessageCommandGroupT&#39;,
+    self: ~_MessageCommandGroupT,
     *,
     _new: bool = True,
     parent: Optional[<a href="tanjun/abc.html#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>] = None
-) -&gt; &#39;_MessageCommandGroupT&#39;</span>:
+) -&gt; ~_MessageCommandGroupT</span>:
     </div>
 
                 <details>
@@ -11638,10 +11622,10 @@ The parent of the copy.</li>
         
             <span class="def">def</span>
             <span class="name">add_command</span><span class="signature">(
-    self: &#39;_MessageCommandGroupT&#39;,
+    self: ~_MessageCommandGroupT,
     command: <a href="tanjun/abc.html#MessageCommand">tanjun.abc.MessageCommand</a>,
     /
-) -&gt; &#39;_MessageCommandGroupT&#39;</span>:
+) -&gt; ~_MessageCommandGroupT</span>:
     </div>
 
                 <details>
@@ -11714,7 +11698,7 @@ command group.</li>
 
         
             <span class="def">def</span>
-            <span class="name">remove_command</span><span class="signature">(self, command: <a href="tanjun/abc.html#MessageCommand">tanjun.abc.MessageCommand</a>, /) -&gt; NoneType</span>:
+            <span class="name">remove_command</span><span class="signature">(self, command: <a href="tanjun/abc.html#MessageCommand">tanjun.abc.MessageCommand</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -11784,7 +11768,7 @@ The command to add.</li>
 
         
             <span class="def">def</span>
-            <span class="name">bind_client</span><span class="signature">(self, client: <a href="tanjun/abc.html#Client">tanjun.abc.Client</a>, /) -&gt; NoneType</span>:
+            <span class="name">bind_client</span><span class="signature">(self, client: <a href="tanjun/abc.html#Client">tanjun.abc.Client</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -11806,7 +11790,7 @@ The command to add.</li>
 
         
             <span class="def">def</span>
-            <span class="name">bind_component</span><span class="signature">(self, component: <a href="tanjun/abc.html#Component">tanjun.abc.Component</a>, /) -&gt; NoneType</span>:
+            <span class="name">bind_component</span><span class="signature">(self, component: <a href="tanjun/abc.html#Component">tanjun.abc.Component</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -11828,7 +11812,7 @@ The command to add.</li>
 
         
             <span class="def">def</span>
-            <span class="name">set_injector</span><span class="signature">(self, client: <a href="tanjun/injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>, /) -&gt; NoneType</span>:
+            <span class="name">set_injector</span><span class="signature">(self, client: <a href="tanjun/injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -11891,7 +11875,7 @@ The command to add.</li>
     /,
     *,
     hooks: Optional[collections.abc.MutableSet[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#MessageContext">tanjun.abc.MessageContext</a>]]] = None
-) -&gt; NoneType</span>:
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -11938,10 +11922,10 @@ The command to add.</li>
         
             <span class="def">def</span>
             <span class="name">load_into_component</span><span class="signature">(
-    self: &#39;_MessageCommandGroupT&#39;,
+    self: ~_MessageCommandGroupT,
     component: <a href="tanjun/abc.html#Component">tanjun.abc.Component</a>,
     /
-) -&gt; &#39;typing.Optional[_MessageCommandGroupT]&#39;</span>:
+) -&gt; Optional[~_MessageCommandGroupT]</span>:
     </div>
 
                 <details>
@@ -12285,7 +12269,7 @@ The command to add.</li>
     /,
     *,
     checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
-    command_id: Union[hikari.interactions.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
+    command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
     default_to_ephemeral: bool = False,
     is_global: bool = True,
     hooks: Optional[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#SlashContext">tanjun.abc.SlashContext</a>]] = None,
@@ -12371,7 +12355,7 @@ The command to add.</li>
 
         
             <span class="def">def</span>
-            <span class="name">build</span><span class="signature">(self) -&gt; &#39;special_endpoints_api.CommandBuilder&#39;</span>:
+            <span class="name">build</span><span class="signature">(self) -&gt; hikari.api.special_endpoints.CommandBuilder</span>:
     </div>
 
                 <details>
@@ -12401,10 +12385,10 @@ globally or for a specific guild.</li>
         
             <span class="def">def</span>
             <span class="name">add_option</span><span class="signature">(
-    self: &#39;_SlashCommandT&#39;,
+    self: ~_SlashCommandT,
     name: str,
     description: str,
-    type_: Union[hikari.interactions.commands.OptionType, int] = &lt;OptionType.STRING: 3&gt;,
+    type_: Union[hikari.commands.OptionType, int] = &lt;OptionType.STRING: 3&gt;,
     /,
     *,
     choices: Optional[collections.abc.Iterable[tuple[str, Union[str, int, float]]]] = None,
@@ -12412,7 +12396,7 @@ globally or for a specific guild.</li>
     default: Any = &lt;object object&gt;,
     only_member: bool = False,
     pass_as_kwarg: bool = True
-) -&gt; &#39;_SlashCommandT&#39;</span>:
+) -&gt; ~_SlashCommandT</span>:
     </div>
 
                 <details>
@@ -12473,7 +12457,7 @@ globally or for a specific guild.</li>
 
         
             <span class="def">def</span>
-            <span class="name">set_injector</span><span class="signature">(self, client: <a href="tanjun/injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>, /) -&gt; NoneType</span>:
+            <span class="name">set_injector</span><span class="signature">(self, client: <a href="tanjun/injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -12499,10 +12483,10 @@ globally or for a specific guild.</li>
     self,
     ctx: <a href="tanjun/abc.html#SlashContext">tanjun.abc.SlashContext</a>,
     /,
-    option: Optional[hikari.interactions.commands.CommandInteractionOption] = None,
+    option: Optional[hikari.interactions.command_interactions.CommandInteractionOption] = None,
     *,
     hooks: Optional[collections.abc.MutableSet[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#SlashContext">tanjun.abc.SlashContext</a>]]] = None
-) -&gt; NoneType</span>:
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -12570,11 +12554,11 @@ globally or for a specific guild.</li>
         
             <span class="def">def</span>
             <span class="name">copy</span><span class="signature">(
-    self: &#39;_SlashCommandT&#39;,
+    self: ~_SlashCommandT,
     *,
     _new: bool = True,
     parent: Optional[<a href="tanjun/abc.html#SlashCommandGroup">tanjun.abc.SlashCommandGroup</a>] = None
-) -&gt; &#39;_SlashCommandT&#39;</span>:
+) -&gt; ~_SlashCommandT</span>:
     </div>
 
                 <details>
@@ -12611,10 +12595,10 @@ globally or for a specific guild.</li>
         
             <span class="def">def</span>
             <span class="name">load_into_component</span><span class="signature">(
-    self: &#39;_SlashCommandT&#39;,
+    self: ~_SlashCommandT,
     component: <a href="tanjun/abc.html#Component">tanjun.abc.Component</a>,
     /
-) -&gt; &#39;typing.Optional[_SlashCommandT]&#39;</span>:
+) -&gt; Optional[~_SlashCommandT]</span>:
     </div>
 
                 <details>
@@ -12824,6 +12808,13 @@ globally or for a specific guild.</li>
             <span class="k">return</span>
 
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">set_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.injecting.Injectable&gt;&gt;.</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_injector</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">Injectable</span><span class="p">):</span>
+                <span class="n">command</span><span class="o">.</span><span class="n">set_injector</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -12841,7 +12832,7 @@ globally or for a specific guild.</li>
     description: str,
     /,
     *,
-    command_id: Union[hikari.interactions.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
+    command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
     default_to_ephemeral: bool = False,
     is_global: bool = True,
     checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
@@ -12907,7 +12898,7 @@ The commands in this group.</li>
 
         
             <span class="def">def</span>
-            <span class="name">build</span><span class="signature">(self) -&gt; &#39;special_endpoints_api.CommandBuilder&#39;</span>:
+            <span class="name">build</span><span class="signature">(self) -&gt; hikari.api.special_endpoints.CommandBuilder</span>:
     </div>
 
                 <details>
@@ -12958,11 +12949,11 @@ globally or for a specific guild.</li>
         
             <span class="def">def</span>
             <span class="name">copy</span><span class="signature">(
-    self: &#39;_SlashCommandGroupT&#39;,
+    self: ~_SlashCommandGroupT,
     *,
     _new: bool = True,
     parent: Optional[<a href="tanjun/abc.html#SlashCommandGroup">tanjun.abc.SlashCommandGroup</a>] = None
-) -&gt; &#39;_SlashCommandGroupT&#39;</span>:
+) -&gt; ~_SlashCommandGroupT</span>:
     </div>
 
                 <details>
@@ -12997,10 +12988,10 @@ globally or for a specific guild.</li>
         
             <span class="def">def</span>
             <span class="name">add_command</span><span class="signature">(
-    self: &#39;_SlashCommandGroupT&#39;,
+    self: ~_SlashCommandGroupT,
     command: <a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>,
     /
-) -&gt; &#39;_SlashCommandGroupT&#39;</span>:
+) -&gt; ~_SlashCommandGroupT</span>:
     </div>
 
                 <details>
@@ -13056,7 +13047,7 @@ Command to add to this group.</li>
 
         
             <span class="def">def</span>
-            <span class="name">remove_command</span><span class="signature">(self, command: <a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>, /) -&gt; NoneType</span>:
+            <span class="name">remove_command</span><span class="signature">(self, command: <a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -13142,10 +13133,10 @@ Command to add to this group.</li>
     self,
     ctx: <a href="tanjun/abc.html#SlashContext">tanjun.abc.SlashContext</a>,
     /,
-    option: Optional[hikari.interactions.commands.CommandInteractionOption] = None,
+    option: Optional[hikari.interactions.command_interactions.CommandInteractionOption] = None,
     *,
     hooks: Optional[collections.abc.MutableSet[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#SlashContext">tanjun.abc.SlashContext</a>]]] = None
-) -&gt; NoneType</span>:
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -13183,6 +13174,29 @@ Command to add to this group.</li>
     
 
                             </div>
+                            <div id="SlashCommandGroup.set_injector" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashCommandGroup.set_injector">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">set_injector</span><span class="signature">(self, client: <a href="tanjun/injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>, /) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.injecting.Injectable&gt;&gt;.</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_injector</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">Injectable</span><span class="p">):</span>
+                <span class="n">command</span><span class="o">.</span><span class="n">set_injector</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
@@ -13210,7 +13224,6 @@ Command to add to this group.</li>
                 <dd id="SlashCommandGroup.add_check" class="function">add_check</dd>
                 <dd id="SlashCommandGroup.remove_check" class="function">remove_check</dd>
                 <dd id="SlashCommandGroup.with_check" class="function">with_check</dd>
-                <dd id="SlashCommandGroup.set_injector" class="function">set_injector</dd>
                 <dd id="SlashCommandGroup.bind_client" class="function">bind_client</dd>
                 <dd id="SlashCommandGroup.bind_component" class="function">bind_component</dd>
 
@@ -13231,7 +13244,7 @@ Command to add to this group.</li>
     choices: Optional[collections.abc.Iterable[Union[tuple[str, str], str]]] = None,
     converters: Union[collections.abc.Sequence[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
     default: Any = &lt;object object&gt;
-) -&gt; &#39;collections.Callable[[_SlashCommandT], _SlashCommandT]&#39;</span>:
+) -&gt; collections.abc.Callable[[~_SlashCommandT], ~_SlashCommandT]</span>:
     </div>
 
                 <details>
@@ -13374,7 +13387,7 @@ If this is left as undefined then this option will be required.</li>
     choices: Optional[collections.abc.Iterable[tuple[str, int]]] = None,
     converters: Union[collections.abc.Collection[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
     default: Any = &lt;object object&gt;
-) -&gt; &#39;collections.Callable[[_SlashCommandT], _SlashCommandT]&#39;</span>:
+) -&gt; collections.abc.Callable[[~_SlashCommandT], ~_SlashCommandT]</span>:
     </div>
 
                 <details>
@@ -13501,7 +13514,7 @@ If this is left as undefined then this option will be required.</li>
     /,
     *,
     default: Any = &lt;object object&gt;
-) -&gt; &#39;collections.Callable[[_SlashCommandT], _SlashCommandT]&#39;</span>:
+) -&gt; collections.abc.Callable[[~_SlashCommandT], ~_SlashCommandT]</span>:
     </div>
 
                 <details>
@@ -13596,7 +13609,7 @@ If this is left as undefined then this option will be required.</li>
     /,
     *,
     default: Any = &lt;object object&gt;
-) -&gt; &#39;collections.Callable[[_SlashCommandT], _SlashCommandT]&#39;</span>:
+) -&gt; collections.abc.Callable[[~_SlashCommandT], ~_SlashCommandT]</span>:
     </div>
 
                 <details>
@@ -13691,7 +13704,7 @@ If this is left as undefined then this option will be required.</li>
     /,
     *,
     default: Any = &lt;object object&gt;
-) -&gt; &#39;collections.Callable[[_SlashCommandT], _SlashCommandT]&#39;</span>:
+) -&gt; collections.abc.Callable[[~_SlashCommandT], ~_SlashCommandT]</span>:
     </div>
 
                 <details>
@@ -13796,7 +13809,7 @@ If this is left as undefined then this option will be required.</li>
     /,
     *,
     default: Any = &lt;object object&gt;
-) -&gt; &#39;collections.Callable[[_SlashCommandT], _SlashCommandT]&#39;</span>:
+) -&gt; collections.abc.Callable[[~_SlashCommandT], ~_SlashCommandT]</span>:
     </div>
 
                 <details>
@@ -13897,7 +13910,7 @@ If this is left as undefined then this option will be required.</li>
     /,
     *,
     default: Any = &lt;object object&gt;
-) -&gt; &#39;collections.Callable[[_SlashCommandT], _SlashCommandT]&#39;</span>:
+) -&gt; collections.abc.Callable[[~_SlashCommandT], ~_SlashCommandT]</span>:
     </div>
 
                 <details>
@@ -13998,7 +14011,7 @@ If this is left as undefined then this option will be required.</li>
     /,
     *,
     default: Any = &lt;object object&gt;
-) -&gt; &#39;collections.Callable[[_SlashCommandT], _SlashCommandT]&#39;</span>:
+) -&gt; collections.abc.Callable[[~_SlashCommandT], ~_SlashCommandT]</span>:
     </div>
 
                 <details>
@@ -15548,7 +15561,7 @@ the component.</p>
 
         
             <span class="def">def</span>
-            <span class="name">copy</span><span class="signature">(self: &#39;_ComponentT&#39;, *, _new: bool = True) -&gt; &#39;_ComponentT&#39;</span>:
+            <span class="name">copy</span><span class="signature">(self: ~_ComponentT, *, _new: bool = True) -&gt; ~_ComponentT</span>:
     </div>
 
                 <details>
@@ -15579,10 +15592,10 @@ the component.</p>
         
             <span class="def">def</span>
             <span class="name">set_slash_hooks</span><span class="signature">(
-    self: &#39;_ComponentT&#39;,
+    self: ~_ComponentT,
     hooks_: Optional[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#SlashContext">tanjun.abc.SlashContext</a>]],
     /
-) -&gt; &#39;_ComponentT&#39;</span>:
+) -&gt; ~_ComponentT</span>:
     </div>
 
                 <details>
@@ -15603,9 +15616,9 @@ the component.</p>
         
             <span class="def">def</span>
             <span class="name">set_message_hooks</span><span class="signature">(
-    self: &#39;_ComponentT&#39;,
+    self: ~_ComponentT,
     hooks_: Optional[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#MessageContext">tanjun.abc.MessageContext</a>]]
-) -&gt; &#39;_ComponentT&#39;</span>:
+) -&gt; ~_ComponentT</span>:
     </div>
 
                 <details>
@@ -15626,10 +15639,10 @@ the component.</p>
         
             <span class="def">def</span>
             <span class="name">set_hooks</span><span class="signature">(
-    self: &#39;_ComponentT&#39;,
+    self: ~_ComponentT,
     hooks: Optional[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#Context">tanjun.abc.Context</a>]],
     /
-) -&gt; &#39;_ComponentT&#39;</span>:
+) -&gt; ~_ComponentT</span>:
     </div>
 
                 <details>
@@ -15650,10 +15663,10 @@ the component.</p>
         
             <span class="def">def</span>
             <span class="name">add_check</span><span class="signature">(
-    self: &#39;_ComponentT&#39;,
+    self: ~_ComponentT,
     check: collections.abc.Callable,
     /
-) -&gt; &#39;_ComponentT&#39;</span>:
+) -&gt; ~_ComponentT</span>:
     </div>
 
                 <details>
@@ -15673,7 +15686,7 @@ the component.</p>
 
         
             <span class="def">def</span>
-            <span class="name">remove_check</span><span class="signature">(self, check: collections.abc.Callable, /) -&gt; NoneType</span>:
+            <span class="name">remove_check</span><span class="signature">(self, check: collections.abc.Callable, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -15713,11 +15726,11 @@ the component.</p>
         
             <span class="def">def</span>
             <span class="name">add_client_callback</span><span class="signature">(
-    self: &#39;_ComponentT&#39;,
+    self: ~_ComponentT,
     event_name: str,
     callback: collections.abc.Callable,
     /
-) -&gt; &#39;_ComponentT&#39;</span>:
+) -&gt; ~_ComponentT</span>:
     </div>
 
                 <details>
@@ -15769,12 +15782,7 @@ the component.</p>
 
         
             <span class="def">def</span>
-            <span class="name">remove_client_callback</span><span class="signature">(
-    self,
-    event_name: str,
-    callback: collections.abc.Callable,
-    /
-) -&gt; NoneType</span>:
+            <span class="name">remove_client_callback</span><span class="signature">(self, event_name: str, callback: collections.abc.Callable, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -15827,10 +15835,10 @@ the component.</p>
         
             <span class="def">def</span>
             <span class="name">add_command</span><span class="signature">(
-    self: &#39;_ComponentT&#39;,
+    self: ~_ComponentT,
     command: <a href="tanjun/abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>[typing.Any],
     /
-) -&gt; &#39;_ComponentT&#39;</span>:
+) -&gt; ~_ComponentT</span>:
     </div>
 
                 <details>
@@ -15860,11 +15868,7 @@ the component.</p>
 
         
             <span class="def">def</span>
-            <span class="name">remove_command</span><span class="signature">(
-    self,
-    command: <a href="tanjun/abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>[typing.Any],
-    /
-) -&gt; NoneType</span>:
+            <span class="name">remove_command</span><span class="signature">(self, command: <a href="tanjun/abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>[typing.Any], /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -15920,10 +15924,10 @@ the component.</p>
         
             <span class="def">def</span>
             <span class="name">add_slash_command</span><span class="signature">(
-    self: &#39;_ComponentT&#39;,
+    self: ~_ComponentT,
     command: <a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>,
     /
-) -&gt; &#39;_ComponentT&#39;</span>:
+) -&gt; ~_ComponentT</span>:
     </div>
 
                 <details>
@@ -15961,7 +15965,7 @@ The command to add.</li>
 
         
             <span class="def">def</span>
-            <span class="name">remove_slash_command</span><span class="signature">(self, command: <a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>, /) -&gt; NoneType</span>:
+            <span class="name">remove_slash_command</span><span class="signature">(self, command: <a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -16039,10 +16043,10 @@ Whether to copy the command before adding it.</li>
         
             <span class="def">def</span>
             <span class="name">add_message_command</span><span class="signature">(
-    self: &#39;_ComponentT&#39;,
+    self: ~_ComponentT,
     command: <a href="tanjun/abc.html#MessageCommand">tanjun.abc.MessageCommand</a>,
     /
-) -&gt; &#39;_ComponentT&#39;</span>:
+) -&gt; ~_ComponentT</span>:
     </div>
 
                 <details>
@@ -16118,7 +16122,7 @@ component.</li>
 
         
             <span class="def">def</span>
-            <span class="name">remove_message_command</span><span class="signature">(self, command: <a href="tanjun/abc.html#MessageCommand">tanjun.abc.MessageCommand</a>, /) -&gt; NoneType</span>:
+            <span class="name">remove_message_command</span><span class="signature">(self, command: <a href="tanjun/abc.html#MessageCommand">tanjun.abc.MessageCommand</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -16201,11 +16205,11 @@ Whether to copy the command before adding it.</li>
         
             <span class="def">def</span>
             <span class="name">add_listener</span><span class="signature">(
-    self: &#39;_ComponentT&#39;,
+    self: ~_ComponentT,
     event: &#39;type[event_manager_api.EventT_inv]&#39;,
     listener: &#39;event_manager_api.CallbackT[event_manager_api.EventT_inv]&#39;,
     /
-) -&gt; &#39;_ComponentT&#39;</span>:
+) -&gt; ~_ComponentT</span>:
     </div>
 
                 <details>
@@ -16256,7 +16260,7 @@ The listener to add.</li>
     event: &#39;type[event_manager_api.EventT_inv]&#39;,
     listener: &#39;event_manager_api.CallbackT[event_manager_api.EventT_inv]&#39;,
     /
-) -&gt; NoneType</span>:
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -16344,7 +16348,7 @@ hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</li>
 
         
             <span class="def">def</span>
-            <span class="name">set_injector</span><span class="signature">(self, client: <a href="tanjun/injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>, /) -&gt; NoneType</span>:
+            <span class="name">set_injector</span><span class="signature">(self, client: <a href="tanjun/injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -16377,7 +16381,7 @@ hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</li>
 
         
             <span class="def">def</span>
-            <span class="name">bind_client</span><span class="signature">(self, client: <a href="tanjun/abc.html#Client">tanjun.abc.Client</a>, /) -&gt; NoneType</span>:
+            <span class="name">bind_client</span><span class="signature">(self, client: <a href="tanjun/abc.html#Client">tanjun.abc.Client</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -16410,7 +16414,7 @@ hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</li>
 
         
             <span class="def">def</span>
-            <span class="name">unbind_client</span><span class="signature">(self, client: <a href="tanjun/abc.html#Client">tanjun.abc.Client</a>, /) -&gt; NoneType</span>:
+            <span class="name">unbind_client</span><span class="signature">(self, client: <a href="tanjun/abc.html#Client">tanjun.abc.Client</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -18201,10 +18205,10 @@ Otherwise, returns <code>None</code>.</li>
         
             <span class="def">def</span>
             <span class="name">set_command</span><span class="signature">(
-    self: &#39;_MessageContextT&#39;,
+    self: ~_MessageContextT,
     command: Optional[<a href="tanjun/abc.html#MessageCommand">tanjun.abc.MessageCommand</a>],
     /
-) -&gt; &#39;_MessageContextT&#39;</span>:
+) -&gt; ~_MessageContextT</span>:
     </div>
 
                 <details>
@@ -18225,7 +18229,7 @@ Otherwise, returns <code>None</code>.</li>
 
         
             <span class="def">def</span>
-            <span class="name">set_content</span><span class="signature">(self: &#39;_MessageContextT&#39;, content: str, /) -&gt; &#39;_MessageContextT&#39;</span>:
+            <span class="name">set_content</span><span class="signature">(self: ~_MessageContextT, content: str, /) -&gt; ~_MessageContextT</span>:
     </div>
 
                 <details>
@@ -18246,7 +18250,7 @@ Otherwise, returns <code>None</code>.</li>
 
         
             <span class="def">def</span>
-            <span class="name">set_triggering_name</span><span class="signature">(self: &#39;_MessageContextT&#39;, name: str, /) -&gt; &#39;_MessageContextT&#39;</span>:
+            <span class="name">set_triggering_name</span><span class="signature">(self: ~_MessageContextT, name: str, /) -&gt; ~_MessageContextT</span>:
     </div>
 
                 <details>
@@ -18268,10 +18272,10 @@ Otherwise, returns <code>None</code>.</li>
         
             <span class="def">def</span>
             <span class="name">set_triggering_prefix</span><span class="signature">(
-    self: &#39;_MessageContextT&#39;,
+    self: ~_MessageContextT,
     triggering_prefix: str,
     /
-) -&gt; &#39;_MessageContextT&#39;</span>:
+) -&gt; ~_MessageContextT</span>:
     </div>
 
                 <details>
@@ -18292,7 +18296,7 @@ Otherwise, returns <code>None</code>.</li>
 
         
             <span class="def">async def</span>
-            <span class="name">delete_initial_response</span><span class="signature">(self) -&gt; NoneType</span>:
+            <span class="name">delete_initial_response</span><span class="signature">(self) -&gt; None</span>:
     </div>
 
                 <details>
@@ -18314,7 +18318,7 @@ Otherwise, returns <code>None</code>.</li>
 
         
             <span class="def">async def</span>
-            <span class="name">delete_last_response</span><span class="signature">(self) -&gt; NoneType</span>:
+            <span class="name">delete_last_response</span><span class="signature">(self) -&gt; None</span>:
     </div>
 
                 <details>
@@ -18343,7 +18347,7 @@ Otherwise, returns <code>None</code>.</li>
     attachment: &#39;hikari.UndefinedOr[hikari.Resourceish]&#39; = UNDEFINED,
     attachments: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]&#39; = UNDEFINED,
     embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType] = UNDEFINED,
-    embeds: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Embed]]&#39; = UNDEFINED,
+    embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
     replace_attachments: bool = False,
     mentions_everyone: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     user_mentions: Union[Sequence[Union[hikari.users.PartialUser, hikari.snowflakes.Snowflake, int]], bool, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -18411,7 +18415,7 @@ Otherwise, returns <code>None</code>.</li>
     attachment: &#39;hikari.UndefinedOr[hikari.Resourceish]&#39; = UNDEFINED,
     attachments: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]&#39; = UNDEFINED,
     embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType] = UNDEFINED,
-    embeds: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Embed]]&#39; = UNDEFINED,
+    embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
     replace_attachments: bool = False,
     mentions_everyone: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     user_mentions: Union[Sequence[Union[hikari.users.PartialUser, hikari.snowflakes.Snowflake, int]], bool, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -18524,7 +18528,7 @@ Otherwise, returns <code>None</code>.</li>
     attachment: &#39;hikari.UndefinedOr[hikari.Resourceish]&#39; = UNDEFINED,
     attachments: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]&#39; = UNDEFINED,
     embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType] = UNDEFINED,
-    embeds: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Embed]]&#39; = UNDEFINED,
+    embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
     tts: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     nonce: Union[str, hikari.undefined.UndefinedType] = UNDEFINED,
     reply: Union[hikari.messages.PartialMessage, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -19200,7 +19204,7 @@ Otherwise, returns <code>None</code>.</li>
         
             <span class="name">SlashContext</span><span class="signature">(
     client: <a href="tanjun/abc.html#Client">tanjun.abc.Client</a>,
-    interaction: hikari.interactions.commands.CommandInteraction,
+    interaction: hikari.interactions.command_interactions.CommandInteraction,
     /,
     *,
     command: Optional[<a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>] = None,
@@ -19434,7 +19438,7 @@ to create the initial response rather than
                             <div id="SlashContext.member" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#SlashContext.member">#&nbsp;&nbsp</a>
 
-        <span class="name">member</span><span class="annotation">: Optional[hikari.interactions.bases.InteractionMember]</span>
+        <span class="name">member</span><span class="annotation">: Optional[hikari.interactions.base_interactions.InteractionMember]</span>
     </div>
 
             <div class="docstring"><p>Guild member object of this command's author.</p>
@@ -19470,7 +19474,7 @@ to create the initial response rather than
                             <div id="SlashContext.interaction" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#SlashContext.interaction">#&nbsp;&nbsp</a>
 
-        <span class="name">interaction</span><span class="annotation">: hikari.interactions.commands.CommandInteraction</span>
+        <span class="name">interaction</span><span class="annotation">: hikari.interactions.command_interactions.CommandInteraction</span>
     </div>
 
             <div class="docstring"><p>Interaction this context is for.</p>
@@ -19489,7 +19493,7 @@ to create the initial response rather than
 
         
             <span class="def">def</span>
-            <span class="name">cancel_defer</span><span class="signature">(self) -&gt; NoneType</span>:
+            <span class="name">cancel_defer</span><span class="signature">(self) -&gt; None</span>:
     </div>
 
                 <details>
@@ -19535,7 +19539,7 @@ to create the initial response rather than
     self,
     *,
     flags: Union[hikari.undefined.UndefinedType, int, hikari.messages.MessageFlag] = UNDEFINED
-) -&gt; NoneType</span>:
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -19579,10 +19583,10 @@ response message being sent.</p>
         
             <span class="def">def</span>
             <span class="name">start_defer_timer</span><span class="signature">(
-    self: &#39;_SlashContextT&#39;,
+    self: ~_SlashContextT,
     count_down: Union[int, float],
     /
-) -&gt; &#39;_SlashContextT&#39;</span>:
+) -&gt; ~_SlashContextT</span>:
     </div>
 
                 <details>
@@ -19607,10 +19611,10 @@ response message being sent.</p>
         
             <span class="def">def</span>
             <span class="name">set_command</span><span class="signature">(
-    self: &#39;_SlashContextT&#39;,
+    self: ~_SlashContextT,
     command: Optional[<a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>],
     /
-) -&gt; &#39;_SlashContextT&#39;</span>:
+) -&gt; ~_SlashContextT</span>:
     </div>
 
                 <details>
@@ -19640,7 +19644,7 @@ The command this context is for.</li>
 
         
             <span class="def">def</span>
-            <span class="name">set_ephemeral_default</span><span class="signature">(self: &#39;_SlashContextT&#39;, state: bool, /) -&gt; &#39;_SlashContextT&#39;</span>:
+            <span class="name">set_ephemeral_default</span><span class="signature">(self: ~_SlashContextT, state: bool, /) -&gt; ~_SlashContextT</span>:
     </div>
 
                 <details>
@@ -19676,7 +19680,7 @@ on this context will default to being ephemeral.</p></li>
             <span class="name">defer</span><span class="signature">(
     self,
     flags: Union[hikari.undefined.UndefinedType, int, hikari.messages.MessageFlag] = UNDEFINED
-) -&gt; NoneType</span>:
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -19732,7 +19736,7 @@ The flags to use for the initial response.</li>
     attachment: &#39;hikari.UndefinedOr[hikari.Resourceish]&#39; = UNDEFINED,
     attachments: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]&#39; = UNDEFINED,
     embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType] = UNDEFINED,
-    embeds: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Embed]]&#39; = UNDEFINED,
+    embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
     mentions_everyone: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     user_mentions: Union[Sequence[Union[hikari.users.PartialUser, hikari.snowflakes.Snowflake, int]], bool, hikari.undefined.UndefinedType] = UNDEFINED,
     role_mentions: Union[Sequence[Union[hikari.guilds.PartialRole, hikari.snowflakes.Snowflake, int]], bool, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -19806,13 +19810,13 @@ The flags to use for the initial response.</li>
     content: Union[Any, hikari.undefined.UndefinedType] = UNDEFINED,
     *,
     embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType] = UNDEFINED,
-    embeds: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Embed]]&#39; = UNDEFINED,
+    embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
     mentions_everyone: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     user_mentions: Union[Sequence[Union[hikari.users.PartialUser, hikari.snowflakes.Snowflake, int]], bool, hikari.undefined.UndefinedType] = UNDEFINED,
     role_mentions: Union[Sequence[Union[hikari.guilds.PartialRole, hikari.snowflakes.Snowflake, int]], bool, hikari.undefined.UndefinedType] = UNDEFINED,
     flags: Union[int, hikari.messages.MessageFlag, hikari.undefined.UndefinedType] = UNDEFINED,
     tts: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED
-) -&gt; NoneType</span>:
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -19862,7 +19866,7 @@ The flags to use for the initial response.</li>
 
         
             <span class="def">async def</span>
-            <span class="name">delete_initial_response</span><span class="signature">(self) -&gt; NoneType</span>:
+            <span class="name">delete_initial_response</span><span class="signature">(self) -&gt; None</span>:
     </div>
 
                 <details>
@@ -19881,7 +19885,7 @@ The flags to use for the initial response.</li>
 
         
             <span class="def">async def</span>
-            <span class="name">delete_last_response</span><span class="signature">(self) -&gt; NoneType</span>:
+            <span class="name">delete_last_response</span><span class="signature">(self) -&gt; None</span>:
     </div>
 
                 <details>
@@ -19914,7 +19918,7 @@ The flags to use for the initial response.</li>
     attachment: &#39;hikari.UndefinedOr[hikari.Resourceish]&#39; = UNDEFINED,
     attachments: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]&#39; = UNDEFINED,
     embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType] = UNDEFINED,
-    embeds: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Embed]]&#39; = UNDEFINED,
+    embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
     replace_attachments: bool = False,
     mentions_everyone: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     user_mentions: Union[Sequence[Union[hikari.users.PartialUser, hikari.snowflakes.Snowflake, int]], bool, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -19979,7 +19983,7 @@ The flags to use for the initial response.</li>
     attachment: &#39;hikari.UndefinedOr[hikari.Resourceish]&#39; = UNDEFINED,
     attachments: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]&#39; = UNDEFINED,
     embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType] = UNDEFINED,
-    embeds: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Embed]]&#39; = UNDEFINED,
+    embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
     replace_attachments: bool = False,
     mentions_everyone: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     user_mentions: Union[Sequence[Union[hikari.users.PartialUser, hikari.snowflakes.Snowflake, int]], bool, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -20104,7 +20108,7 @@ The flags to use for the initial response.</li>
     *,
     ensure_result: bool = False,
     embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType] = UNDEFINED,
-    embeds: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Embed]]&#39; = UNDEFINED,
+    embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
     mentions_everyone: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     user_mentions: Union[Sequence[Union[hikari.users.PartialUser, hikari.snowflakes.Snowflake, int]], bool, hikari.undefined.UndefinedType] = UNDEFINED,
     role_mentions: Union[Sequence[Union[hikari.guilds.PartialRole, hikari.snowflakes.Snowflake, int]], bool, hikari.undefined.UndefinedType] = UNDEFINED
@@ -21450,7 +21454,7 @@ An iterable of the source value errors which were raised during conversion/</li>
     parameter: str,
     message: str,
     /,
-    errors: &#39;collections.Iterable[ValueError]&#39; = ()
+    errors: collections.abc.Iterable = ()
 )</span>
     </div>
 
@@ -21469,7 +21473,7 @@ An iterable of the source value errors which were raised during conversion/</li>
                             <div id="ConversionError.errors" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#ConversionError.errors">#&nbsp;&nbsp</a>
 
-        <span class="name">errors</span><span class="annotation">: &#39;collections.Sequence[ValueError]&#39;</span><span class="default_value"> = &lt;member &#39;errors&#39; of &#39;ConversionError&#39; objects&gt;</span>
+        <span class="name">errors</span><span class="annotation">: collections.abc.Sequence[ValueError]</span><span class="default_value"> = &lt;member &#39;errors&#39; of &#39;ConversionError&#39; objects&gt;</span>
     </div>
 
             <div class="docstring"><p>Sequence of the errors that were caught during conversion for this parameter.</p>
@@ -22951,7 +22955,7 @@ The command to add the hooks to.</li>
     /,
     *,
     hooks: Optional[collections.abc.Set[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[-ContextT_contra]]] = None
-) -&gt; NoneType</span>:
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -22987,7 +22991,7 @@ The command to add the hooks to.</li>
     /,
     *,
     hooks: Optional[collections.abc.Set[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[-ContextT_contra]]] = None
-) -&gt; NoneType</span>:
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -23023,7 +23027,7 @@ The command to add the hooks to.</li>
     /,
     *,
     hooks: Optional[collections.abc.Set[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[-ContextT_contra]]] = None
-) -&gt; NoneType</span>:
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -24079,7 +24083,7 @@ inheritance.</p>
 
         
             <span class="def">def</span>
-            <span class="name">copy</span><span class="signature">(self: &#39;_ShlexParserT&#39;, *, _new: bool = True) -&gt; &#39;_ShlexParserT&#39;</span>:
+            <span class="name">copy</span><span class="signature">(self: ~_ShlexParserT, *, _new: bool = True) -&gt; ~_ShlexParserT</span>:
     </div>
 
                 <details>
@@ -24107,7 +24111,7 @@ inheritance.</p>
     self,
     parameter: Union[<a href="#parsing.Argument">tanjun.parsing.Argument</a>, <a href="#parsing.Option">tanjun.parsing.Option</a>],
     /
-) -&gt; NoneType</span>:
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -24152,7 +24156,7 @@ inheritance.</p>
     self,
     parameter: Union[<a href="#parsing.Argument">tanjun.parsing.Argument</a>, <a href="#parsing.Option">tanjun.parsing.Option</a>],
     /
-) -&gt; NoneType</span>:
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -24176,7 +24180,7 @@ inheritance.</p>
 
         
             <span class="def">def</span>
-            <span class="name">set_injector</span><span class="signature">(self, client: <a href="tanjun/injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>, /) -&gt; NoneType</span>:
+            <span class="name">set_injector</span><span class="signature">(self, client: <a href="tanjun/injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -24198,7 +24202,7 @@ inheritance.</p>
 
         
             <span class="def">def</span>
-            <span class="name">set_parameters</span><span class="signature">(self, parameters: collections.abc.Iterable, /) -&gt; NoneType</span>:
+            <span class="name">set_parameters</span><span class="signature">(self, parameters: collections.abc.Iterable, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -24222,7 +24226,7 @@ inheritance.</p>
 
         
             <span class="def">def</span>
-            <span class="name">bind_client</span><span class="signature">(self, client: <a href="tanjun/abc.html#Client">tanjun.abc.Client</a>, /) -&gt; NoneType</span>:
+            <span class="name">bind_client</span><span class="signature">(self, client: <a href="tanjun/abc.html#Client">tanjun.abc.Client</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
@@ -24244,7 +24248,7 @@ inheritance.</p>
 
         
             <span class="def">def</span>
-            <span class="name">bind_component</span><span class="signature">(self, component: <a href="tanjun/abc.html#Component">tanjun.abc.Component</a>, /) -&gt; NoneType</span>:
+            <span class="name">bind_component</span><span class="signature">(self, component: <a href="tanjun/abc.html#Component">tanjun.abc.Component</a>, /) -&gt; None</span>:
     </div>
 
                 <details>
