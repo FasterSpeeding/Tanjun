@@ -9,12 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0a1] - 2021-08-30
 ### Added
 - For a TLDR of how Tanjun's interface looks after these changes see the examples
-  https://github.com/FasterSpeeding/Tanjun/blob/2.0.0a1/examples/
+  https://github.com/FasterSpeeding/Tanjun/blob/v2.0.0a1/examples/
 - Full slash command functionality, this includes new decorators for setting slash command specific options and slash
   command + command group declaration and execution. Some examples of this may be found at
-  https://github.com/FasterSpeeding/Tanjun/blob/2.0.0a1/examples/slash_component.py
+  https://github.com/FasterSpeeding/Tanjun/blob/v2.0.0a1/examples/slash_component.py
 - Dependency injection, this feature is in it's early days and under documented but is still partially documented by
-  the examples at https://github.com/FasterSpeeding/Tanjun/blob/2.0.0a1/examples/ . For now this only covers command
+  the examples at https://github.com/FasterSpeeding/Tanjun/blob/v2.0.0a1/examples/ . For now this only covers command
   callback, check (on both commands and components) and converter execution plus calls to the prefix getter functions
   (since it's limited to calls which take a Context for the initial implementation).
 - Increased test and documentation coverage.
