@@ -144,7 +144,15 @@ def lint(session: nox.Session) -> None:
 def spell_check(session: nox.Session) -> None:
     install_requirements(session, ".[lint]", include_standard_requirements=False)
     session.run(
-        "codespell", *GENERAL_TARGETS, ".flake8", ".gitignore", "LICENSE", "pyproject.toml", "README.md", "./github"
+        "codespell",
+        *GENERAL_TARGETS,
+        ".flake8",
+        ".gitignore",
+        "LICENSE",
+        "pyproject.toml",
+        "README.md",
+        "CHANGELOG.md",
+        "./github",
     )
 
 
