@@ -34,6 +34,7 @@ from __future__ import annotations
 __all__: list[str] = [
     "AbstractInjectionContext",
     "BasicInjectionContext",
+    "CallbackDescriptor",
     "Descriptor",
     "cache_callback",
     "CallbackSig",
@@ -43,6 +44,7 @@ __all__: list[str] = [
     "injected",
     "Injected",
     "InjectorClient",
+    "TypeDescriptor",
 ]
 
 import abc
@@ -82,6 +84,30 @@ class BasicInjectionContext(AbstractInjectionContext):
     def cache_result(self, callback: CallbackSig[_T], value: _T, /) -> None: ...
     def get_cached_result(self, callback: CallbackSig[_T], /) -> UndefinedOr[_T]: ...
     def get_type_special_case(self, _: type[_T], /) -> UndefinedOr[_T]: ...
+
+class CallbackDescriptor(typing.Generic[_T]):
+    __slots__: typing.Union[str, collections.Iterable[str]]
+    def __init__(self, callback: CallbackSig[_T], /) -> None: ...
+    @property
+    def callback(self) -> CallbackSig[_T]: ...
+    @property
+    def needs_injector(self) -> bool: ...
+    async def resolve_with_command_context(
+        self, ctx: tanjun_abc.Context, *args: typing.Any, **kwargs: typing.Any
+    ) -> _T: ...
+    async def resolve_without_injector(self, *args: typing.Any, **kwargs: typing.Any) -> _T: ...
+    async def resolve(self, ctx: AbstractInjectionContext, *args: typing.Any, **kwargs: typing.Any) -> _T: ...
+
+class TypeDescriptor(typing.Generic[_T]):
+    __slots__: typing.Union[str, collections.Iterable[str]]
+    def __init__(self, type_: _TypeT[_T], /) -> None: ...
+    @property
+    def type(self) -> _TypeT[_T]: ...
+    async def resolve_with_command_context(
+        self, ctx: tanjun_abc.Context, *args: typing.Any, **kwargs: typing.Any
+    ) -> _T: ...
+    @staticmethod
+    async def resolve(ctx: AbstractInjectionContext, /) -> _T: ...
 
 class Descriptor(typing.Generic[_T]):
     __slots__: typing.Union[str, collections.Iterable[str]]

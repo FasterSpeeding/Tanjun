@@ -35,6 +35,7 @@ from __future__ import annotations
 __all__: list[str] = [
     "AbstractInjectionContext",
     "BasicInjectionContext",
+    "CallbackDescriptor",
     "Descriptor",
     "cache_callback",
     "CallbackSig",
@@ -44,6 +45,7 @@ __all__: list[str] = [
     "injected",
     "Injected",
     "InjectorClient",
+    "TypeDescriptor",
 ]
 
 import abc
@@ -195,35 +197,15 @@ class BasicInjectionContext(AbstractInjectionContext):
         return UNDEFINED
 
 
-class Descriptor(typing.Generic[_T]):
-    __slots__ = ("_callback", "_is_async", "_type")
+class CallbackDescriptor(typing.Generic[_T]):
+    __slots__ = ("_callback", "_descriptors", "_is_async")
 
-    def __init__(
-        self,
-        *,
-        callback: typing.Optional[CallbackSig[_T]] = None,
-        type: typing.Optional[_TypeT[_T]] = None,  # noqa A002
-    ) -> None:
-        self._is_async: typing.Optional[bool] = None
-        if callback is None:
-            if type is None:
-                raise ValueError("Either callback or type must be specified")
-
-            self._callback: typing.Optional[
-                tuple[CallbackSig[typing.Any], dict[str, Descriptor[typing.Any]]]
-            ] = None
-            self._type: typing.Optional[_TypeT[typing.Any]] = type
-            return
-
-        if type is not None:
-            raise ValueError("Only one of type or callback should be passed")
-
-        self._type = None
-
+    def __init__(self, callback: CallbackSig[_T], /) -> None:
         try:
             parameters = inspect.signature(callback).parameters.items()
         except ValueError:  # If we can't inspect it then we have to assume this is a NO
-            self._callback = (callback, {})
+            self._callback = callback
+            self._descriptors: dict[str, Descriptor[typing.Any]] = {}
             return
 
         descriptors: dict[str, Descriptor[typing.Any]] = {}
@@ -241,19 +223,17 @@ class Descriptor(typing.Generic[_T]):
                 assert parameter.default.type is not None
                 descriptors[name] = Descriptor(type=parameter.default.type)
 
-        self._callback = (callback, descriptors)
+        self._callback = callback
+        self._descriptors = descriptors
+        self._is_async: typing.Optional[bool] = None
 
     @property
-    def callback(self) -> typing.Optional[CallbackSig[_T]]:
-        return self._callback[0] if self._callback else None
+    def callback(self) -> CallbackSig[_T]:
+        return self._callback
 
     @property
     def needs_injector(self) -> bool:
-        return bool(self._callback[1]) if self._callback else True
-
-    @property
-    def type(self) -> typing.Optional[_TypeT[typing.Any]]:
-        return self._type
+        return bool(self._descriptors)
 
     async def resolve_with_command_context(
         self, ctx: tanjun_abc.Context, *args: typing.Any, **kwargs: typing.Any
@@ -265,14 +245,10 @@ class Descriptor(typing.Generic[_T]):
         return await self.resolve_without_injector(ctx, *args, **kwargs)
 
     async def resolve_without_injector(self, *args: typing.Any, **kwargs: typing.Any) -> _T:
-        if self._type:
-            raise RuntimeError("Type injector cannot be resolved without an injector present")
-
         if self.needs_injector:
             raise RuntimeError("This callback cannot be called without dependency injection")
 
-        assert self._callback is not None
-        result = self._callback[0](*args)
+        result = self._callback(*args)
 
         if self._is_async is None:
             self._is_async = isinstance(result, collections.Awaitable)
@@ -283,38 +259,19 @@ class Descriptor(typing.Generic[_T]):
 
         return typing.cast(_T, result)
 
-    @staticmethod
-    async def _resolve_type(ctx: AbstractInjectionContext, type_: _TypeT[_T], /) -> _T:
-        if dependency := ctx.injection_client.get_callback_override(type_):
-            if (cached_result := ctx.get_cached_result(dependency.callback)) is not UNDEFINED:
-                assert not isinstance(cached_result, Undefined)
-                return cached_result
-
-            result = await dependency(ctx)
-            ctx.cache_result(dependency.callback, result)
-            return result
-
-        if (special_case := ctx.get_type_special_case(type_)) is not UNDEFINED:
-            assert not isinstance(special_case, Undefined)
-            return special_case
-
-        raise errors.MissingDependencyError(f"Couldn't resolve injected type {type_} to actual value") from None
-
-    async def _resolve_callback(self, ctx: AbstractInjectionContext, *args: typing.Any, **kwargs: typing.Any) -> _T:
-        assert self._callback is not None
-        callback, descriptors = self._callback
-        if override := ctx.injection_client.get_callback_override(callback):
+    async def resolve(self, ctx: AbstractInjectionContext, *args: typing.Any, **kwargs: typing.Any) -> _T:
+        if override := ctx.injection_client.get_callback_override(self._callback):
             return await override(ctx, *args, **kwargs)
 
-        if (result := ctx.get_cached_result(callback)) is not UNDEFINED:
+        if (result := ctx.get_cached_result(self._callback)) is not UNDEFINED:
             assert not isinstance(result, Undefined)
             return result
 
         if not self.needs_injector:
             result = await self.resolve_without_injector(*args, **kwargs)
 
-        sub_results = {name: await descriptor.resolve(ctx) for name, descriptor in descriptors.items()}
-        result = callback(*args, **sub_results, **kwargs)
+        sub_results = {name: await descriptor.resolve(ctx) for name, descriptor in self._descriptors.items()}
+        result = self._callback(*args, **sub_results, **kwargs)
 
         if self._is_async is None:
             self._is_async = isinstance(result, collections.Awaitable)
@@ -323,17 +280,108 @@ class Descriptor(typing.Generic[_T]):
             assert isinstance(result, collections.Awaitable)
             result = await result
 
-        ctx.cache_result(callback, result)
+        ctx.cache_result(self._callback, result)
         return typing.cast(_T, result)
 
-    async def resolve(self, ctx: AbstractInjectionContext, *args: typing.Any, **kwargs: typing.Any) -> _T:
-        if self._type is not None:
+
+class TypeDescriptor(typing.Generic[_T]):
+    __slots__ = ("_type",)
+
+    def __init__(self, type_: _TypeT[_T], /) -> None:
+        self._type = type_
+
+    @property
+    def type(self) -> _TypeT[_T]:
+        return self._type  # type: ignore # TODO: pyright bug
+
+    async def resolve_with_command_context(
+        self, ctx: tanjun_abc.Context, *args: typing.Any, **kwargs: typing.Any
+    ) -> _T:
+        if isinstance(ctx, AbstractInjectionContext):
+            return await self.resolve(ctx, *args, **kwargs)
+
+        raise RuntimeError("Type injector cannot be resolved without anm injection client")
+
+    async def resolve(self, ctx: AbstractInjectionContext, /) -> _T:
+        if dependency := ctx.injection_client.get_callback_override(self._type):
+            if (cached_result := ctx.get_cached_result(dependency.callback)) is not UNDEFINED:
+                assert not isinstance(cached_result, Undefined)
+                return cached_result
+
+            result = await dependency(ctx)
+            ctx.cache_result(dependency.callback, result)
+            return result
+
+        if (special_case := ctx.get_type_special_case(self._type)) is not UNDEFINED:
+            assert not isinstance(special_case, Undefined)
+            return special_case
+
+        raise errors.MissingDependencyError(f"Couldn't resolve injected type {self._type} to actual value") from None
+
+
+class Descriptor(typing.Generic[_T]):
+    __slots__ = ("_callback", "_type")
+
+    def __init__(
+        self,
+        *,
+        callback: typing.Optional[CallbackSig[_T]] = None,
+        type: typing.Optional[_TypeT[_T]] = None,  # noqa A002
+    ) -> None:
+        if callback is None:
+            if type is None:
+                raise ValueError("Either callback or type must be specified")
+
+            self._callback: typing.Optional[CallbackDescriptor[_T]] = None
+            self._type: typing.Optional[TypeDescriptor[_T]] = TypeDescriptor(type)
+            return
+
+        if type is not None:
+            raise ValueError("Only one of type or callback should be passed")
+
+        self._callback = CallbackDescriptor(callback)
+        self._type = None
+
+    @property
+    def callback(self) -> typing.Optional[CallbackSig[_T]]:
+        return self._callback.callback if self._callback else None
+
+    @property
+    def needs_injector(self) -> bool:
+        # Type injectors always need the injector as of present
+        return self._callback.needs_injector if self._callback else True
+
+    @property
+    def type(self) -> typing.Optional[_TypeT[typing.Any]]:
+        return self._type
+
+    async def resolve_with_command_context(
+        self, ctx: tanjun_abc.Context, *args: typing.Any, **kwargs: typing.Any
+    ) -> _T:
+        if self._type:
             if args or kwargs:
                 raise ValueError("**args and **kwargs cannot be passed for a type descriptor")
 
-            return await self._resolve_type(ctx, self._type)
+            return await self._type.resolve_with_command_context(ctx, self._type)
 
-        return await self._resolve_callback(ctx, *args, **kwargs)
+        assert self._callback
+        return await self._callback.resolve_with_command_context(ctx, *args, **kwargs)
+
+    async def resolve_without_injector(self, *args: typing.Any, **kwargs: typing.Any) -> _T:
+        if not self._callback:
+            raise RuntimeError("Type injector cannot be resolved without an injector present")
+
+        return await self._callback.resolve_without_injector(*args, **kwargs)
+
+    async def resolve(self, ctx: AbstractInjectionContext, *args: typing.Any, **kwargs: typing.Any) -> _T:
+        if self._type:
+            if args or kwargs:
+                raise ValueError("**args and **kwargs cannot be passed for a type descriptor")
+
+            return await self._type.resolve(ctx)
+
+        assert self._callback
+        return await self._callback.resolve(ctx, *args, **kwargs)
 
 
 _TypeT = type[_T]
@@ -373,7 +421,7 @@ class InjectorClient:
 
     def __init__(self) -> None:
         self._callback_overrides: dict[CallbackSig[typing.Any], InjectableValue[typing.Any]] = {}
-        self.__special_case_types: typing.Dict[typing.Type[typing.Any], typing.Any] = {
+        self.__special_case_types: typing.Dict[type[typing.Any], typing.Any] = {
             InjectorClient: self,
             type(self): self,
         }

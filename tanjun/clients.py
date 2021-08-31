@@ -256,13 +256,14 @@ def _check_human(ctx: tanjun_abc.Context, /) -> bool:
 
 
 async def _wrap_client_callback(
-    callback: tanjun_abc.MetaEventSig,
+    callback: injecting.CallbackDescriptor[None],
+    ctx: injecting.AbstractInjectionContext,
     args: tuple[str, ...],
     kwargs: dict[str, typing.Any],
     suppress_exceptions: bool,
 ) -> None:
     try:
-        result = callback(*args, **kwargs)
+        result = callback.resolve(ctx, *args, **kwargs)
         if isinstance(result, collections.Awaitable):
             await result
 
@@ -403,7 +404,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._cache = cache
         self._cached_application_id: typing.Optional[hikari.Snowflake] = None
         self._checks: set[injecting.InjectableCheck] = set()
-        self._client_callbacks: dict[str, set[tanjun_abc.MetaEventSig]] = {}
+        self._client_callbacks: dict[str, set[injecting.CallbackDescriptor[None]]] = {}
         self._components: set[tanjun_abc.Component] = set()
         self._make_message_context: _MessageContextMakerProto = context.MessageContext
         self._make_slash_context: _SlashContextMakerProto = context.SlashContext
@@ -1101,11 +1102,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     def add_client_callback(self: _ClientT, event_name: str, callback: tanjun_abc.MetaEventSig, /) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
+        descriptor = injecting.CallbackDescriptor(callback)
         event_name = event_name.lower()
         try:
-            self._client_callbacks[event_name].add(callback)
+            self._client_callbacks[event_name].add(descriptor)
         except KeyError:
-            self._client_callbacks[event_name] = {callback}
+            self._client_callbacks[event_name] = {descriptor}
 
         return self
 
@@ -1115,18 +1117,26 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         event_name = event_name.lower()
         if callbacks := self._client_callbacks.get(event_name):
             await asyncio.gather(
-                *(_wrap_client_callback(callback, args, kwargs, suppress_exceptions) for callback in callbacks)
+                *(
+                    _wrap_client_callback(
+                        callback, injecting.BasicInjectionContext(self), args, kwargs, suppress_exceptions
+                    )
+                    for callback in callbacks
+                )
             )
 
     def get_client_callbacks(self, event_name: str, /) -> collections.Collection[tanjun_abc.MetaEventSig]:
         # <<inherited docstring from tanjun.abc.Client>>.
         event_name = event_name.lower()
-        return self._client_callbacks.get(event_name) or ()
+        if result := self._client_callbacks.get(event_name):
+            return tuple(callback.callback for callback in result)
+
+        return ()
 
     def remove_client_callback(self, event_name: str, callback: tanjun_abc.MetaEventSig, /) -> None:
         # <<inherited docstring from tanjun.abc.Client>>.
         event_name = event_name.lower()
-        self._client_callbacks[event_name].remove(callback)
+        self._client_callbacks[event_name].remove(callback)  # type: ignore
         if not self._client_callbacks[event_name]:
             del self._client_callbacks[event_name]
 
