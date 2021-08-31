@@ -27,5 +27,4 @@ jobs:
           python -m pip install -r nox-requirements.txt
 
       - name: Check dependencies
-        run: |
-          python -m nox -s check-dependencies
+        run: python -m nox -s check-dependencies
