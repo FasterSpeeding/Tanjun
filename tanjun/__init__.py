@@ -126,6 +126,7 @@ __all__: list[str] = [
     "ClientCallbackNames",
     "MessageAcceptsEnum",
     # commands.py
+    "commands",
     "as_message_command",
     "as_message_command_group",
     "as_slash_command",
@@ -189,6 +190,7 @@ __all__: list[str] = [
     "injected",
     "Injected",
     # parsing.py
+    "parsing",
     "Argument",
     "Option",
     "ShlexParser",
