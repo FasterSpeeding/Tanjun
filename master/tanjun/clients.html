@@ -217,6 +217,12 @@
                                 <a class="variable" href="#ClientCallbackNames.CLOSING">CLOSING</a>
                         </li>
                         <li>
+                                <a class="variable" href="#ClientCallbackNames.COMPONENT_ADDED">COMPONENT_ADDED</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ClientCallbackNames.COMPONENT_REMOVED">COMPONENT_REMOVED</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND">MESSAGE_COMMAND_NOT_FOUND</a>
                         </li>
                         <li>
@@ -414,37 +420,57 @@
     <span class="sd">&quot;&quot;&quot;Enum of the client callback names dispatched by the standard `Client`.&quot;&quot;&quot;</span>
 
     <span class="n">CLOSED</span> <span class="o">=</span> <span class="s2">&quot;closed&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Sent when the client has finished closing.</span>
+    <span class="sd">&quot;&quot;&quot;Called when the client has finished closing.</span>
 
 <span class="sd">    No positional arguments are provided for this event.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">CLOSING</span> <span class="o">=</span> <span class="s2">&quot;closing&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Sent when the client is initially instructed to close.</span>
+    <span class="sd">&quot;&quot;&quot;Called when the client is initially instructed to close.</span>
 
 <span class="sd">    No positional arguments are provided for this event.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">COMPONENT_ADDED</span> <span class="o">=</span> <span class="s2">&quot;component_added&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when a component is added to an active client.</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        This event isn&#39;t dispatched for components which were registered while</span>
+<span class="sd">        the client is inactive.</span>
+
+<span class="sd">    The first positional argument is the `tanjun.abc.Component` being added.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">COMPONENT_REMOVED</span> <span class="o">=</span> <span class="s2">&quot;component_removed&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when a component is added to an active client.</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        This event isn&#39;t dispatched for components which were removed while</span>
+<span class="sd">        the client is inactive.</span>
+
+<span class="sd">    The first positional argument is the `tanjun.abc.Component` being removed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">MESSAGE_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;message_command_not_found&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Sent when a message command is not found.</span>
+    <span class="sd">&quot;&quot;&quot;Called when a message command is not found.</span>
 
 <span class="sd">    `tanjun.abc.MessageContext` is provided as the first positional argument.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">SLASH_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;slash_command_not_found&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Sent when a slash command is not found.</span>
+    <span class="sd">&quot;&quot;&quot;Called when a slash command is not found.</span>
 
 <span class="sd">    `tanjun.abc.MessageContext` is provided as the first positional argument.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">STARTED</span> <span class="o">=</span> <span class="s2">&quot;started&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Sent when the client has finished starting.</span>
+    <span class="sd">&quot;&quot;&quot;Called when the client has finished starting.</span>
 
 <span class="sd">    No positional arguments are provided for this event.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">STARTING</span> <span class="o">=</span> <span class="s2">&quot;startup&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Sent when the client is initially instructed to start.</span>
+    <span class="sd">&quot;&quot;&quot;Called when the client is initially instructed to start.</span>
 
 <span class="sd">    No positional arguments are provided for this event.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1254,12 +1280,22 @@
         <span class="k">if</span> <span class="n">add_injector</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_type_dependency</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">component</span><span class="p">),</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">component</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span><span class="p">:</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">COMPONENT_ADDED</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span>
+            <span class="p">)</span>
+
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
         <span class="n">component</span><span class="o">.</span><span class="n">unbind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span><span class="p">:</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">COMPONENT_REMOVED</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span>
+            <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
@@ -1432,7 +1468,7 @@
         <span class="k">if</span> <span class="n">register_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">set_listener</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_interaction_create_request</span><span class="p">)</span>
 
-        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTED</span><span class="p">))</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTED</span><span class="p">))</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_rest_application_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span>
@@ -1636,14 +1672,14 @@
             <span class="c1"># Under very specific timing there may be another future which could set a result while we await</span>
             <span class="c1"># ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create</span>
             <span class="c1"># another response before it&#39;s returned the initial response.</span>
-            <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
         <span class="k">async</span> <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">_</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
 
-        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
         <span class="p">)</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
@@ -2446,12 +2482,22 @@ to the provided client using it's abstract methods.</li>
         <span class="k">if</span> <span class="n">add_injector</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_type_dependency</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">component</span><span class="p">),</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">component</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span><span class="p">:</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">COMPONENT_ADDED</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span>
+            <span class="p">)</span>
+
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
         <span class="n">component</span><span class="o">.</span><span class="n">unbind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span><span class="p">:</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">COMPONENT_REMOVED</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span>
+            <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
@@ -2624,7 +2670,7 @@ to the provided client using it's abstract methods.</li>
         <span class="k">if</span> <span class="n">register_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">set_listener</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_interaction_create_request</span><span class="p">)</span>
 
-        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTED</span><span class="p">))</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTED</span><span class="p">))</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_rest_application_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span>
@@ -2828,14 +2874,14 @@ to the provided client using it's abstract methods.</li>
             <span class="c1"># Under very specific timing there may be another future which could set a result while we await</span>
             <span class="c1"># ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create</span>
             <span class="c1"># another response before it&#39;s returned the initial response.</span>
-            <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
         <span class="k">async</span> <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">_</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
 
-        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
         <span class="p">)</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
@@ -4285,6 +4331,11 @@ Object or ID of the guild to set the global commands to.</p>
         <span class="k">if</span> <span class="n">add_injector</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_type_dependency</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">component</span><span class="p">),</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">component</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span><span class="p">:</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">COMPONENT_ADDED</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span>
+            <span class="p">)</span>
+
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
@@ -4307,6 +4358,11 @@ Object or ID of the guild to set the global commands to.</p>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
         <span class="n">component</span><span class="o">.</span><span class="n">unbind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span><span class="p">:</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">COMPONENT_REMOVED</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span>
+            <span class="p">)</span>
 </pre></div>
 
         </details>
@@ -4719,7 +4775,7 @@ Object or ID of the guild to set the global commands to.</p>
         <span class="k">if</span> <span class="n">register_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">set_listener</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_interaction_create_request</span><span class="p">)</span>
 
-        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTED</span><span class="p">))</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTED</span><span class="p">))</span>
 </pre></div>
 
         </details>
@@ -5108,14 +5164,14 @@ The event to execute commands based on.</li>
             <span class="c1"># Under very specific timing there may be another future which could set a result while we await</span>
             <span class="c1"># ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create</span>
             <span class="c1"># another response before it&#39;s returned the initial response.</span>
-            <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
         <span class="k">async</span> <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">_</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
 
-        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
         <span class="p">)</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
@@ -5172,37 +5228,57 @@ The interaction to execute a command based on.</li>
     <span class="sd">&quot;&quot;&quot;Enum of the client callback names dispatched by the standard `Client`.&quot;&quot;&quot;</span>
 
     <span class="n">CLOSED</span> <span class="o">=</span> <span class="s2">&quot;closed&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Sent when the client has finished closing.</span>
+    <span class="sd">&quot;&quot;&quot;Called when the client has finished closing.</span>
 
 <span class="sd">    No positional arguments are provided for this event.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">CLOSING</span> <span class="o">=</span> <span class="s2">&quot;closing&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Sent when the client is initially instructed to close.</span>
+    <span class="sd">&quot;&quot;&quot;Called when the client is initially instructed to close.</span>
 
 <span class="sd">    No positional arguments are provided for this event.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">COMPONENT_ADDED</span> <span class="o">=</span> <span class="s2">&quot;component_added&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when a component is added to an active client.</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        This event isn&#39;t dispatched for components which were registered while</span>
+<span class="sd">        the client is inactive.</span>
+
+<span class="sd">    The first positional argument is the `tanjun.abc.Component` being added.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">COMPONENT_REMOVED</span> <span class="o">=</span> <span class="s2">&quot;component_removed&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Called when a component is added to an active client.</span>
+
+<span class="sd">    .. warning::</span>
+<span class="sd">        This event isn&#39;t dispatched for components which were removed while</span>
+<span class="sd">        the client is inactive.</span>
+
+<span class="sd">    The first positional argument is the `tanjun.abc.Component` being removed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">MESSAGE_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;message_command_not_found&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Sent when a message command is not found.</span>
+    <span class="sd">&quot;&quot;&quot;Called when a message command is not found.</span>
 
 <span class="sd">    `tanjun.abc.MessageContext` is provided as the first positional argument.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">SLASH_COMMAND_NOT_FOUND</span> <span class="o">=</span> <span class="s2">&quot;slash_command_not_found&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Sent when a slash command is not found.</span>
+    <span class="sd">&quot;&quot;&quot;Called when a slash command is not found.</span>
 
 <span class="sd">    `tanjun.abc.MessageContext` is provided as the first positional argument.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">STARTED</span> <span class="o">=</span> <span class="s2">&quot;started&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Sent when the client has finished starting.</span>
+    <span class="sd">&quot;&quot;&quot;Called when the client has finished starting.</span>
 
 <span class="sd">    No positional arguments are provided for this event.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">STARTING</span> <span class="o">=</span> <span class="s2">&quot;startup&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Sent when the client is initially instructed to start.</span>
+    <span class="sd">&quot;&quot;&quot;Called when the client is initially instructed to start.</span>
 
 <span class="sd">    No positional arguments are provided for this event.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -5220,7 +5296,7 @@ The interaction to execute a command based on.</li>
         <span class="name">CLOSED</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.CLOSED">ClientCallbackNames.CLOSED</a>: &#39;closed&#39;&gt;</span>
     </div>
 
-            <div class="docstring"><p>Sent when the client has finished closing.</p>
+            <div class="docstring"><p>Called when the client has finished closing.</p>
 
 <p>No positional arguments are provided for this event.</p>
 </div>
@@ -5233,9 +5309,43 @@ The interaction to execute a command based on.</li>
         <span class="name">CLOSING</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.CLOSING">ClientCallbackNames.CLOSING</a>: &#39;closing&#39;&gt;</span>
     </div>
 
-            <div class="docstring"><p>Sent when the client is initially instructed to close.</p>
+            <div class="docstring"><p>Called when the client is initially instructed to close.</p>
 
 <p>No positional arguments are provided for this event.</p>
+</div>
+
+
+                            </div>
+                            <div id="ClientCallbackNames.COMPONENT_ADDED" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ClientCallbackNames.COMPONENT_ADDED">#&nbsp;&nbsp</a>
+
+        <span class="name">COMPONENT_ADDED</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.COMPONENT_ADDED">ClientCallbackNames.COMPONENT_ADDED</a>: &#39;component_added&#39;&gt;</span>
+    </div>
+
+            <div class="docstring"><p>Called when a component is added to an active client.</p>
+
+<p><em>Warning:</em>
+This event isn't dispatched for components which were registered while
+the client is inactive.</p>
+
+<p>The first positional argument is the <code><a href="abc.html#Component">tanjun.abc.Component</a></code> being added.</p>
+</div>
+
+
+                            </div>
+                            <div id="ClientCallbackNames.COMPONENT_REMOVED" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#ClientCallbackNames.COMPONENT_REMOVED">#&nbsp;&nbsp</a>
+
+        <span class="name">COMPONENT_REMOVED</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.COMPONENT_REMOVED">ClientCallbackNames.COMPONENT_REMOVED</a>: &#39;component_removed&#39;&gt;</span>
+    </div>
+
+            <div class="docstring"><p>Called when a component is added to an active client.</p>
+
+<p><em>Warning:</em>
+This event isn't dispatched for components which were removed while
+the client is inactive.</p>
+
+<p>The first positional argument is the <code><a href="abc.html#Component">tanjun.abc.Component</a></code> being removed.</p>
 </div>
 
 
@@ -5246,7 +5356,7 @@ The interaction to execute a command based on.</li>
         <span class="name">MESSAGE_COMMAND_NOT_FOUND</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND">ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND</a>: &#39;message_command_not_found&#39;&gt;</span>
     </div>
 
-            <div class="docstring"><p>Sent when a message command is not found.</p>
+            <div class="docstring"><p>Called when a message command is not found.</p>
 
 <p><code><a href="abc.html#MessageContext">tanjun.abc.MessageContext</a></code> is provided as the first positional argument.</p>
 </div>
@@ -5259,7 +5369,7 @@ The interaction to execute a command based on.</li>
         <span class="name">SLASH_COMMAND_NOT_FOUND</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.SLASH_COMMAND_NOT_FOUND">ClientCallbackNames.SLASH_COMMAND_NOT_FOUND</a>: &#39;slash_command_not_found&#39;&gt;</span>
     </div>
 
-            <div class="docstring"><p>Sent when a slash command is not found.</p>
+            <div class="docstring"><p>Called when a slash command is not found.</p>
 
 <p><code><a href="abc.html#MessageContext">tanjun.abc.MessageContext</a></code> is provided as the first positional argument.</p>
 </div>
@@ -5272,7 +5382,7 @@ The interaction to execute a command based on.</li>
         <span class="name">STARTED</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.STARTED">ClientCallbackNames.STARTED</a>: &#39;started&#39;&gt;</span>
     </div>
 
-            <div class="docstring"><p>Sent when the client has finished starting.</p>
+            <div class="docstring"><p>Called when the client has finished starting.</p>
 
 <p>No positional arguments are provided for this event.</p>
 </div>
@@ -5285,7 +5395,7 @@ The interaction to execute a command based on.</li>
         <span class="name">STARTING</span><span class="default_value"> = &lt;<a href="#ClientCallbackNames.STARTING">ClientCallbackNames.STARTING</a>: &#39;startup&#39;&gt;</span>
     </div>
 
-            <div class="docstring"><p>Sent when the client is initially instructed to start.</p>
+            <div class="docstring"><p>Called when the client is initially instructed to start.</p>
 
 <p>No positional arguments are provided for this event.</p>
 </div>
