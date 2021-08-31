@@ -126,37 +126,57 @@ class ClientCallbackNames(str, enum.Enum):
     """Enum of the client callback names dispatched by the standard `Client`."""
 
     CLOSED = "closed"
-    """Sent when the client has finished closing.
+    """Called when the client has finished closing.
 
     No positional arguments are provided for this event.
     """
 
     CLOSING = "closing"
-    """Sent when the client is initially instructed to close.
+    """Called when the client is initially instructed to close.
 
     No positional arguments are provided for this event.
     """
 
+    COMPONENT_ADDED = "component_added"
+    """Called when a component is added to an active client.
+
+    .. warning::
+        This event isn't dispatched for components which were registered while
+        the client is inactive.
+
+    The first positional argument is the `tanjun.abc.Component` being added.
+    """
+
+    COMPONENT_REMOVED = "component_removed"
+    """Called when a component is added to an active client.
+
+    .. warning::
+        This event isn't dispatched for components which were removed while
+        the client is inactive.
+
+    The first positional argument is the `tanjun.abc.Component` being removed.
+    """
+
     MESSAGE_COMMAND_NOT_FOUND = "message_command_not_found"
-    """Sent when a message command is not found.
+    """Called when a message command is not found.
 
     `tanjun.abc.MessageContext` is provided as the first positional argument.
     """
 
     SLASH_COMMAND_NOT_FOUND = "slash_command_not_found"
-    """Sent when a slash command is not found.
+    """Called when a slash command is not found.
 
     `tanjun.abc.MessageContext` is provided as the first positional argument.
     """
 
     STARTED = "started"
-    """Sent when the client has finished starting.
+    """Called when the client has finished starting.
 
     No positional arguments are provided for this event.
     """
 
     STARTING = "startup"
-    """Sent when the client is initially instructed to start.
+    """Called when the client is initially instructed to start.
 
     No positional arguments are provided for this event.
     """
@@ -966,12 +986,22 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if add_injector:
             self.add_type_dependency(type(component), lambda: component)
 
+        if self._is_alive:
+            asyncio.get_running_loop().create_task(
+                self.dispatch_client_callback(ClientCallbackNames.COMPONENT_ADDED, component)
+            )
+
         return self
 
     def remove_component(self, component: tanjun_abc.Component, /) -> None:
         # <<inherited docstring from tanjun.abc.Client>>.
         self._components.remove(component)
         component.unbind_client(self)
+
+        if self._is_alive:
+            asyncio.get_running_loop().create_task(
+                self.dispatch_client_callback(ClientCallbackNames.COMPONENT_REMOVED, component)
+            )
 
     def add_client_callback(self: _ClientT, event_name: str, callback: tanjun_abc.MetaEventSig, /) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
@@ -1144,7 +1174,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if register_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, self.on_interaction_create_request)
 
-        asyncio.create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED))
+        asyncio.get_running_loop().create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED))
 
     async def fetch_rest_application_id(self) -> hikari.Snowflake:
         if self._cached_application_id:
@@ -1348,14 +1378,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             # Under very specific timing there may be another future which could set a result while we await
             # ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create
             # another response before it's returned the initial response.
-            asyncio.create_task(ctx.respond(exc.message))
+            asyncio.get_running_loop().create_task(ctx.respond(exc.message))
             return await future
 
         async def callback(_: asyncio.Future[None]) -> None:
             await ctx.mark_not_found()
             ctx.cancel_defer()
 
-        asyncio.create_task(
+        asyncio.get_running_loop().create_task(
             self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
         ).add_done_callback(callback)
         return await future
