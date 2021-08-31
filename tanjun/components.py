@@ -580,7 +580,7 @@ class Component(injecting.Injectable, abc.Component):
 
             hooks.add(self._hooks)
 
-        return asyncio.create_task(command.execute(ctx, hooks=hooks))
+        return asyncio.get_running_loop().create_task(command.execute(ctx, hooks=hooks))
 
     # To ensure that ctx.set_ephemeral_default is called as soon as possible if
     # a match is found the public function is kept sync to avoid yielding
