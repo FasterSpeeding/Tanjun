@@ -35,7 +35,7 @@ from __future__ import annotations
 __all__: list[str] = [
     "AbstractInjectionContext",
     "BasicInjectionContext",
-    "CallbackDescriptor",
+    "Descriptor",
     "cache_callback",
     "CallbackSig",
     "Undefined",
@@ -195,7 +195,7 @@ class BasicInjectionContext(AbstractInjectionContext):
         return UNDEFINED
 
 
-class CallbackDescriptor(typing.Generic[_T]):
+class Descriptor(typing.Generic[_T]):
     __slots__ = ("_callback", "_is_async", "_type")
 
     def __init__(
@@ -210,7 +210,7 @@ class CallbackDescriptor(typing.Generic[_T]):
                 raise ValueError("Either callback or type must be specified")
 
             self._callback: typing.Optional[
-                tuple[CallbackSig[typing.Any], dict[str, CallbackDescriptor[typing.Any]]]
+                tuple[CallbackSig[typing.Any], dict[str, Descriptor[typing.Any]]]
             ] = None
             self._type: typing.Optional[_TypeT[typing.Any]] = type
             return
@@ -226,7 +226,7 @@ class CallbackDescriptor(typing.Generic[_T]):
             self._callback = (callback, {})
             return
 
-        descriptors: dict[str, CallbackDescriptor[typing.Any]] = {}
+        descriptors: dict[str, Descriptor[typing.Any]] = {}
         for name, parameter in parameters:
             if parameter.default is parameter.empty or not isinstance(parameter.default, Injected):
                 continue
@@ -235,11 +235,11 @@ class CallbackDescriptor(typing.Generic[_T]):
                 raise ValueError("Injected positional only arguments are not supported")
 
             if parameter.default.callback is not None:
-                descriptors[name] = CallbackDescriptor(callback=parameter.default.callback)
+                descriptors[name] = Descriptor(callback=parameter.default.callback)
 
             else:
                 assert parameter.default.type is not None
-                descriptors[name] = CallbackDescriptor(type=parameter.default.type)
+                descriptors[name] = Descriptor(type=parameter.default.type)
 
         self._callback = (callback, descriptors)
 
@@ -324,7 +324,7 @@ class CallbackDescriptor(typing.Generic[_T]):
             result = await result
 
         ctx.cache_result(callback, result)
-        return result
+        return typing.cast(_T, result)
 
     async def resolve(self, ctx: AbstractInjectionContext, *args: typing.Any, **kwargs: typing.Any) -> _T:
         if self._type is not None:
@@ -363,7 +363,7 @@ def injected(
     callback: typing.Optional[CallbackSig[_T]] = None,
     type: typing.Optional[_TypeT[_T]] = None,  # noqa: A002
 ) -> Injected[_T]:
-    return Injected(callback=callback, type=type)
+    return Injected(callback=callback, type=type)  # type: ignore  # TODO: This is a pyright bug
 
 
 class InjectorClient:
@@ -436,7 +436,7 @@ class BaseInjectableValue(typing.Generic[_T]):
 
     def __init__(self, callback: CallbackSig[_T], /) -> None:
         self._callback = callback
-        self._descriptor: CallbackDescriptor[_T] = CallbackDescriptor(callback=callback)
+        self._descriptor: Descriptor[_T] = Descriptor(callback=callback)
 
     # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
     def __eq__(self, other: typing.Any) -> bool:
@@ -451,7 +451,7 @@ class BaseInjectableValue(typing.Generic[_T]):
         return self._callback
 
     @property
-    def descriptor(self) -> CallbackDescriptor[_T]:
+    def descriptor(self) -> Descriptor[_T]:
         return self._descriptor
 
     @property
@@ -467,7 +467,7 @@ class BaseInjectableValue(typing.Generic[_T]):
 
     def overwrite_callback(self, callback: CallbackSig[_T], /) -> None:
         self._callback = callback
-        self._descriptor = CallbackDescriptor(callback=callback)
+        self._descriptor = Descriptor(callback=callback)
 
 
 class InjectableValue(BaseInjectableValue[_T]):
@@ -517,7 +517,7 @@ class _CacheCallback(typing.Generic[_T]):
     __slots__ = ("_callback", "_lock", "_result")
 
     def __init__(self, callback: CallbackSig[_T], /) -> None:
-        self._callback = CallbackDescriptor(callback=callback)
+        self._callback = Descriptor(callback=callback)
         self._lock: typing.Optional[asyncio.Lock] = None
         self._result: typing.Union[_T, Undefined] = UNDEFINED
 

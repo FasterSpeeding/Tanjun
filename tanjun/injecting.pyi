@@ -34,7 +34,7 @@ from __future__ import annotations
 __all__: list[str] = [
     "AbstractInjectionContext",
     "BasicInjectionContext",
-    "CallbackDescriptor",
+    "Descriptor",
     "cache_callback",
     "CallbackSig",
     "Undefined",
@@ -83,7 +83,7 @@ class BasicInjectionContext(AbstractInjectionContext):
     def get_cached_result(self, callback: CallbackSig[_T], /) -> UndefinedOr[_T]: ...
     def get_type_special_case(self, _: type[_T], /) -> UndefinedOr[_T]: ...
 
-class CallbackDescriptor(typing.Generic[_T]):
+class Descriptor(typing.Generic[_T]):
     __slots__: typing.Union[str, collections.Iterable[str]]
     @typing.overload
     def __init__(
@@ -152,7 +152,7 @@ class BaseInjectableValue(typing.Generic[_T]):
     @property
     def callback(self) -> CallbackSig[_T]: ...
     @property
-    def descriptor(self) -> CallbackDescriptor[_T]: ...
+    def descriptor(self) -> Descriptor[_T]: ...
     @property
     def needs_injector(self) -> bool: ...
     def copy(self: _BaseInjectableValueT) -> _BaseInjectableValueT: ...

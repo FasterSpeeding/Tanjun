@@ -1152,7 +1152,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         if self._command_id:
             self._builder = self._builder.set_id(self._command_id)
 
-        self._callback = injecting.CallbackDescriptor(callback=callback)
+        self._callback = injecting.Descriptor(callback=callback)
         self._tracked_options: dict[str, _TrackedOption] = {}
         if not _SCOMMAND_NAME_REG.fullmatch(name):
             raise ValueError("Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`")
@@ -1168,7 +1168,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
     @property
     def callback(self) -> CommandCallbackSigT:
         # <<inherited docstring from tanjun.abc.SlashCommand>>.
-        return self._callback.callback
+        assert self._callback.callback is not None
+        return typing.cast(CommandCallbackSigT,  self._callback.callback)
 
     @property
     def needs_injector(self) -> bool:
@@ -1344,7 +1345,8 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             raise ValueError("Callback is already a method type")
 
         super().load_into_component(component)
-        self._callback = injecting.CallbackDescriptor(callback=types.MethodType(self._callback.callback, component))
+        assert self._callback.callback is not None
+        self._callback = injecting.Descriptor(callback=types.MethodType(self._callback.callback, component))
 
         if not self._parent:
             component.add_slash_command(self)
@@ -1417,7 +1419,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
         parser: typing.Optional[parsing.AbstractParser] = None,
     ) -> None:
         super().__init__(checks=checks, hooks=hooks, metadata=metadata)
-        self._callback = injecting.CallbackDescriptor(callback=callback)
+        self._callback = injecting.Descriptor(callback=callback)
         self._names = {name, *names}
         self._parent: typing.Optional[abc.MessageCommandGroup] = None
         self._parser = parser
@@ -1428,7 +1430,8 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
     @property
     def callback(self) -> CommandCallbackSigT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        return self._callback
+        assert self._callback.callback is not None
+        return typing.cast(CommandCallbackSigT, self._callback.callback)
 
     @property
     # <<inherited docstring from tanjun.abc.MessageCommand>>.
@@ -1553,7 +1556,8 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
             raise ValueError("Callback is already a method type")
 
         super().load_into_component(component)
-        self._callback = injecting.CallbackDescriptor(callback=types.MethodType(self._callback.callback, component))
+        assert self._callback.callback
+        self._callback = injecting.Descriptor(callback=types.MethodType(self._callback.callback, component))
 
         if not self._parent:
             component.add_message_command(self)
