@@ -8,6 +8,40 @@ on:
   workflow_dispatch:
 
 jobs:
+  docs:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Fetch merge branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: install prerequisites
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install -r nox-requirements.txt
+
+      - name: Build docs
+        run: |
+          mkdir docs
+          python -m nox -s generate-docs -- -o ./docs
+
+      - name: Archive docs
+        uses: actions/upload-artifact@v2
+        with:
+          name: docs
+          path: ./docs
+          if-no-files-found: error
+
   lint:
     runs-on: ubuntu-latest
 
@@ -25,8 +59,7 @@ jobs:
           python -m pip install -r nox-requirements.txt
 
       - name: lint
-        run: |
-          python -m nox -s lint spell-check
+        run: python -m nox -s lint spell-check
 
   test:
     strategy:
@@ -53,7 +86,41 @@ jobs:
 
       - name: Run tests
         run: |
-          python -m nox -s test
+          python -m nox -s test-coverage
+          mv .coverage ./.coverage.${{ matrix.os }}.${{ matrix.python-version }}
+
+      - name: Archive coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: ./.coverage.${{ matrix.os }}.${{ matrix.python-version }}
+          if-no-files-found: error
+
+  # TODO: this needs to be finished at one point
+  # upload-coverage:
+  #   needs: test
+  #   if: Never()
+  #   if: github.event_name == 'push'
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Get archived coverage
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: coverage
+
+  #     - name: Combine coverage
+  #       run: |
+  #         pip install coverage
+  #         coverage combine
+  #         coverage xml -o ./combined-coverage.xml -i
+
+  #     - name: Upload coverage
+  #       uses: paambaati/codeclimate-action@v2.7.5
+  #       env:
+  #         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+  #       with:
+  #         coverageLocations: ./combined-coverage.xml:coverage.py
 
   type-check:
     runs-on: ubuntu-latest
@@ -78,5 +145,4 @@ jobs:
           npm install -g pyright
 
       - name: Run type checker
-        run: |
-          python -m nox -s type-check
+        run: python -m nox -s type-check

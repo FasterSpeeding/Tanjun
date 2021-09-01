@@ -39,7 +39,7 @@ jobs:
           python -m nox -s generate-docs -- -o ./docs
           cd ..
           rm -r ./docs_branch/master
-          cp -r ./master_branch/docs ./docs_branch/master
+          mv ./master_branch/docs ./docs_branch/master
 
       - name: Push
         uses: s0/git-publish-subdir-action@develop

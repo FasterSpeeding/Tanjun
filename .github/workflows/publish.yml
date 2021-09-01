@@ -23,8 +23,7 @@ jobs:
           python -m pip install -r nox-requirements.txt
 
       - name: Check versions
-        run: |
-          python -m nox -s check-versions -- -r ${{ github.event.release.tag_name }}
+        run: python -m nox -s check-versions -- -r ${{ github.event.release.tag_name }}
 
   publish-docs:
     needs: verify-version
@@ -91,5 +90,4 @@ jobs:
           python -m pip install -r nox-requirements.txt
 
       - name: publish
-        run: |
-          python -m nox -s publish -- -u __token__ -p ${{ secrets.PYPI_TOKEN }} -i ${{ secrets.PYPI_TARGET }}
+        run: python -m nox -s publish -- -u __token__ -p ${{ secrets.PYPI_TOKEN }} -i ${{ secrets.PYPI_TARGET }}
