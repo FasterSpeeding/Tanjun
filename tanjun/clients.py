@@ -71,6 +71,34 @@ if typing.TYPE_CHECKING:
 
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
 
+    class _MessageContextMakerProto(typing.Protocol):
+        def __call__(
+            self,
+            client: tanjun_abc.Client,
+            content: str,
+            message: hikari.Message,
+            *,
+            command: typing.Optional[tanjun_abc.MessageCommand] = None,
+            component: typing.Optional[tanjun_abc.Component] = None,
+            triggering_name: str = "",
+            triggering_prefix: str = "",
+        ) -> context.MessageContext:
+            raise NotImplementedError
+
+    class _SlashContextMakerProto(typing.Protocol):
+        def __call__(
+            self,
+            client: tanjun_abc.Client,
+            interaction: hikari.CommandInteraction,
+            *,
+            command: typing.Optional[tanjun_abc.BaseSlashCommand] = None,
+            component: typing.Optional[tanjun_abc.Component] = None,
+            default_to_ephemeral: bool = False,
+            not_found_message: typing.Optional[str] = None,
+        ) -> context.SlashContext:
+            raise NotImplementedError
+
+
 LoadableSig = collections.Callable[["Client"], None]
 """Type hint of the callback used to load resources into a Tanjun client.
 
@@ -331,6 +359,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         "_checks",
         "_client_callbacks",
         "_components",
+        "_make_message_context",
+        "_make_slash_context",
         "_events",
         "_grab_mention_prefix",
         "_hooks",
@@ -370,6 +400,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._checks: set[injecting.InjectableCheck] = set()
         self._client_callbacks: dict[str, set[tanjun_abc.MetaEventSig]] = {}
         self._components: set[tanjun_abc.Component] = set()
+        self._make_message_context: _MessageContextMakerProto = context.MessageContext
+        self._make_slash_context: _SlashContextMakerProto = context.SlashContext
         self._events = events
         self._grab_mention_prefix = mention_prefix
         self._hooks: typing.Optional[tanjun_abc.AnyHooks] = None
@@ -860,6 +892,52 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._accepts = accepts
         return self
 
+    def set_message_ctx_maker(self: _ClientT, maker: _MessageContextMakerProto = context.MessageContext, /) -> _ClientT:
+        """Set the message context maker to use when creating context for a message.
+
+        .. warning::
+            The caller must return an instance of `tanjun.context.MessageContext`
+            rather than just any implementation of the MessageContext abc due to
+            this client relying on implementation detail of
+            `tanjun.context.MessageContext`.
+
+        Parameters
+        ----------
+        maker : _MessageContextMakerProto
+            The message context maker to use.
+
+            This is a callback which should match the signature of
+            `tanjun.context.MessageContext.__init__` and return an instance
+            of `tanjun.context.MessageContext`.
+
+            This defaults to `tanjun.context.MessageContext`.
+        """
+        self._make_message_context = maker
+        return self
+
+    def set_slash_ctx_maker(self: _ClientT, maker: _SlashContextMakerProto = context.SlashContext, /) -> _ClientT:
+        """Set the slash context maker to use when creating context for a slash command.
+
+        .. warning::
+            The caller must return an instance of `tanjun.context.SlashContext`
+            rather than just any implementation of the SlashContext abc due to
+            this client relying on implementation detail of
+            `tanjun.context.SlashContext`.
+
+        Parameters
+        ----------
+        maker : _SlashContextMakerProto
+            The slash context maker to use.
+
+            This is a callback which should match the signature of
+            `tanjun.context.SlashContext.__init__` and return an instance
+            of `tanjun.context.SlashContext`.
+
+            This defaults to `tanjun.context.SlashContext`.
+        """
+        self._make_slash_context = maker
+        return self
+
     def set_human_only(self: _ClientT, value: bool = True) -> _ClientT:
         """Set whether or not message commands execution should be limited to "human" users.
 
@@ -1264,7 +1342,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if event.message.content is None:
             return
 
-        ctx = context.MessageContext(self, content=event.message.content, message=event.message)
+        ctx = self._make_message_context(client=self, content=event.message.content, message=event.message)
         if (prefix := await self._check_prefix(ctx)) is None:
             return
 
@@ -1324,7 +1402,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if not isinstance(event.interaction, hikari.CommandInteraction):
             return
 
-        ctx = context.SlashContext(self, event.interaction, not_found_message=self._interaction_not_found)
+        ctx = self._make_slash_context(
+            client=self, interaction=event.interaction, not_found_message=self._interaction_not_found
+        )
         hooks = self._get_slash_hooks()
 
         if self._auto_defer_after is not None:
@@ -1360,7 +1440,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         tanjun.context.ResponseType
             The initial response to send back to Discord.
         """
-        ctx = context.SlashContext(self, interaction, not_found_message=self._interaction_not_found)
+        ctx = self._make_slash_context(
+            client=self, interaction=interaction, not_found_message=self._interaction_not_found
+        )
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
 
