@@ -85,7 +85,7 @@ client.load_modules("module.paths")
 # will have to be started after the Hikari client.
 async def main() -> None:
     await bot.start()
-    async with client.open()
+    async with client.open():
         await bot.join()
 ```
 
