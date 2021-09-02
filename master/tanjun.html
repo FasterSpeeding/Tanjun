@@ -47,6 +47,7 @@
                             <li><a href="tanjun/hooks.html">tanjun.hooks</a></li>
                             <li><a href="tanjun/injecting.html">tanjun.injecting</a></li>
                             <li><a href="tanjun/parsing.html">tanjun.parsing</a></li>
+                            <li><a href="tanjun/utilities.html">tanjun.utilities</a></li>
                     </ul>
 
                     <h2>API Documentation</h2>
@@ -1191,6 +1192,9 @@
             <li>
                     <a class="function" href="#with_parser">with_parser</a>
             </li>
+            <li>
+                    <a class="module" href="#utilities">utilities</a>
+            </li>
     </ul>
 
 
@@ -1474,9 +1478,12 @@ enable slash (interaction) command execution:</p>
     <span class="s2">&quot;with_option&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_multi_option&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_parser&quot;</span><span class="p">,</span>
+    <span class="c1"># utilities.py</span>
+    <span class="s2">&quot;utilities&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utilities</span>
 <span class="kn">from</span> <span class="nn">.checks</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">.clients</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">.commands</span> <span class="kn">import</span> <span class="o">*</span>
@@ -27894,6 +27901,487 @@ provided without a value.</li>
         </details>
 
             <div class="docstring"><p>Add a shlex parser command parser to a supported command.</p>
+</div>
+
+
+                </section>
+                <section id="utilities">
+                                <div class="attr module"><a class="headerlink" href="#utilities">#&nbsp;&nbsp</a>
+<span class="name"><a href="tanjun/utilities.html">tanjun.utilities</a></span></div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># cython: language_level=3</span>
+<span class="c1"># BSD 3-Clause License</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2020-2021, Faster Speeding</span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1"># * Redistributions of source code must retain the above copyright notice, this</span>
+<span class="c1">#   list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1"># * Redistributions in binary form must reproduce the above copyright notice,</span>
+<span class="c1">#   this list of conditions and the following disclaimer in the documentation</span>
+<span class="c1">#   and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1"># * Neither the name of the copyright holder nor the names of its</span>
+<span class="c1">#   contributors may be used to endorse or promote products derived from</span>
+<span class="c1">#   this software without specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1"># AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
+<span class="c1"># IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE</span>
+<span class="c1"># DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE</span>
+<span class="c1"># FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL</span>
+<span class="c1"># DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR</span>
+<span class="c1"># SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER</span>
+<span class="c1"># CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,</span>
+<span class="c1"># OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
+<span class="c1"># OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="sd">&quot;&quot;&quot;Collection of utility functions used within Tanjun.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;async_chain&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;await_if_async&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gather_checks&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ALL_PERMISSIONS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DM_PERMISSIONS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;calculate_everyone_permissions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;calculate_permissions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fetch_everyone_permissions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fetch_permissions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;match_prefix_names&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">collections</span>
+
+<span class="kn">import</span> <span class="nn">hikari</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_backoff</span> <span class="k">as</span> <span class="n">backoff</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
+
+<span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">injecting</span>
+
+
+<span class="n">_ResourceT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ResourceT&quot;</span><span class="p">)</span>
+<span class="n">_ValueT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ValueT&quot;</span><span class="p">)</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">async_chain</span><span class="p">(</span>
+    <span class="n">iterable</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterable</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Make an asynchronous iterator of the elements within multiple asynchronous iterators.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">async_iterable</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">async_iterable</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">value</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">await_if_async</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Resole any awaitable returned by a callback call.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    callback : collections.abc.Callable[..., tanjun.abc.MaybeAwaitableT[_ValueT]]</span>
+<span class="sd">        The async or non-async callback to call.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    *args : typing.Any</span>
+<span class="sd">        A variable amount of positional arguments to pass through when calling</span>
+<span class="sd">        `callback`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    _ValueT</span>
+<span class="sd">        The resolved result of the passed callback.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">):</span>  <span class="c1"># TODO: this is probably slow</span>
+        <span class="c1"># For some reason MYPY thinks this returns typing.Any</span>
+        <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">_ValueT</span><span class="p">,</span> <span class="k">await</span> <span class="n">result</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">checks</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Gather a collection of checks.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ctx : tanjun.abc.Context</span>
+<span class="sd">        The context to check.</span>
+<span class="sd">    checks : collections.abc.Iterable[tanjun.injecting.InjectableCheck]</span>
+<span class="sd">        An iterable of injectable checks.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        Whether all the checks passed or not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks</span><span class="p">))</span>
+        <span class="c1"># InjectableCheck will raise FailedCheck if a false is received so if</span>
+        <span class="c1"># we get this far then it&#39;s True.</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">FailedCheck</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_resource</span><span class="p">(</span>
+    <span class="n">retry</span><span class="p">:</span> <span class="n">backoff</span><span class="o">.</span><span class="n">Backoff</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_ResourceT</span><span class="p">]],</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ResourceT</span><span class="p">:</span>  <span class="c1"># TODO: replace this</span>
+    <span class="sd">&quot;&quot;&quot;Try a request until it passes or timesout. Used by Tanjun internally.&quot;&quot;&quot;</span>
+    <span class="n">retry</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+    <span class="k">async</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">retry</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="n">call</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">RateLimitedError</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">RateLimitTooLongError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">retry_after</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="k">raise</span>
+
+            <span class="n">retry</span><span class="o">.</span><span class="n">set_next_backoff</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">retry_after</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InternalServerError</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">call</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Search for a matching name in a string.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    content : str</span>
+<span class="sd">        The string to match names against.</span>
+<span class="sd">    names : collections.abc.Iterable[str]</span>
+<span class="sd">        The names to search for.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    typing.Optional[str]</span>
+<span class="sd">        The name that matched or None if no name matched.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="c1"># Here we enforce that a name must either be at the end of content or be followed by a space. This helps</span>
+        <span class="c1"># avoid issues with ambiguous naming where a command with the names &quot;name&quot; and &quot;names&quot; may sometimes hit</span>
+        <span class="c1"># the former before the latter when triggered with the latter, leading to the command potentially being</span>
+        <span class="c1"># inconsistently parsed.</span>
+        <span class="k">if</span> <span class="n">content</span> <span class="o">==</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">content</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">and</span> <span class="n">content</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">name</span>
+
+
+<span class="n">ALL_PERMISSIONS</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="p">]</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="fm">__xor__</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;All of all the known permissions based on the linked version of Hikari.&quot;&quot;&quot;</span>
+
+<span class="n">DM_PERMISSIONS</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="o">.</span><span class="n">ADD_REACTIONS</span>
+    <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="o">.</span><span class="n">VIEW_CHANNEL</span>
+    <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="o">.</span><span class="n">SEND_MESSAGES</span>
+    <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="o">.</span><span class="n">EMBED_LINKS</span>
+    <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="o">.</span><span class="n">ATTACH_FILES</span>
+    <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="o">.</span><span class="n">READ_MESSAGE_HISTORY</span>
+    <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="o">.</span><span class="n">USE_EXTERNAL_EMOJIS</span>
+    <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="o">.</span><span class="n">USE_APPLICATION_COMMANDS</span>
+<span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Bitfield of the permissions which are accessibly within DM channels.&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">_calculate_channel_overwrites</span><span class="p">(</span>
+    <span class="n">channel</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">GuildChannel</span><span class="p">,</span> <span class="n">member</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">,</span> <span class="n">permissions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">everyone_overwrite</span> <span class="o">:=</span> <span class="n">channel</span><span class="o">.</span><span class="n">permission_overwrites</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">member</span><span class="o">.</span><span class="n">guild_id</span><span class="p">):</span>
+        <span class="n">permissions</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">everyone_overwrite</span><span class="o">.</span><span class="n">deny</span>
+        <span class="n">permissions</span> <span class="o">|=</span> <span class="n">everyone_overwrite</span><span class="o">.</span><span class="n">allow</span>
+
+    <span class="n">deny</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="o">.</span><span class="n">NONE</span>
+    <span class="n">allow</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="o">.</span><span class="n">NONE</span>
+
+    <span class="k">for</span> <span class="n">overwrite</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">channel</span><span class="o">.</span><span class="n">permission_overwrites</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="n">member</span><span class="o">.</span><span class="n">role_ids</span><span class="p">)):</span>
+        <span class="n">deny</span> <span class="o">|=</span> <span class="n">overwrite</span><span class="o">.</span><span class="n">deny</span>
+        <span class="n">allow</span> <span class="o">|=</span> <span class="n">overwrite</span><span class="o">.</span><span class="n">allow</span>
+
+    <span class="n">permissions</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">deny</span>
+    <span class="n">permissions</span> <span class="o">|=</span> <span class="n">allow</span>
+
+    <span class="k">if</span> <span class="n">member_overwrite</span> <span class="o">:=</span> <span class="n">channel</span><span class="o">.</span><span class="n">permission_overwrites</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">member</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">):</span>
+        <span class="n">permissions</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">member_overwrite</span><span class="o">.</span><span class="n">deny</span>
+        <span class="n">permissions</span> <span class="o">|=</span> <span class="n">member_overwrite</span><span class="o">.</span><span class="n">allow</span>
+
+    <span class="k">return</span> <span class="n">permissions</span>
+
+
+<span class="k">def</span> <span class="nf">_calculate_role_permissions</span><span class="p">(</span>
+    <span class="n">roles</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">],</span> <span class="n">member</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="p">:</span>
+    <span class="n">permissions</span> <span class="o">=</span> <span class="n">roles</span><span class="p">[</span><span class="n">member</span><span class="o">.</span><span class="n">guild_id</span><span class="p">]</span><span class="o">.</span><span class="n">permissions</span>
+
+    <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="n">roles</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="n">member</span><span class="o">.</span><span class="n">role_ids</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">role</span> <span class="ow">and</span> <span class="n">role</span><span class="o">.</span><span class="n">id</span> <span class="o">!=</span> <span class="n">member</span><span class="o">.</span><span class="n">guild_id</span><span class="p">:</span>
+            <span class="n">permissions</span> <span class="o">|=</span> <span class="n">role</span><span class="o">.</span><span class="n">permissions</span>
+
+    <span class="k">return</span> <span class="n">permissions</span>
+
+
+<span class="c1"># TODO: implicitly handle more special cases?</span>
+<span class="k">def</span> <span class="nf">calculate_permissions</span><span class="p">(</span>
+    <span class="n">member</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">,</span>
+    <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Guild</span><span class="p">,</span>
+    <span class="n">roles</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">channel</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">GuildChannel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Calculate the permissions a member has within a guild.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    member : hikari.guilds.Member</span>
+<span class="sd">        Object of the member to calculate the permissions for.</span>
+<span class="sd">    guild : hikari.guilds.Guild</span>
+<span class="sd">        Object of the guild to calculate their permissions within.</span>
+<span class="sd">    roles : collections.abc.Mapping[hikari.snowflakes.Snowflake, hikari.guilds.Role]</span>
+<span class="sd">        Mapping of snowflake IDs to objects of the roles within the target</span>
+<span class="sd">        guild.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    channel : typing.Optional[hikari.channels.GuildChannel]</span>
+<span class="sd">        Object of the channel to calculate the member&#39;s permissions in.</span>
+
+<span class="sd">        If this is left as `None` then this will just calculate their</span>
+<span class="sd">        permissions on a guild level.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    hikari.permissions.Permission</span>
+<span class="sd">        Value of the member&#39;s permissions either within the guild or specified</span>
+<span class="sd">        guild channel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">member</span><span class="o">.</span><span class="n">guild_id</span> <span class="o">!=</span> <span class="n">guild</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Member object isn&#39;t from the provided guild&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Guild owners are implicitly admins.</span>
+    <span class="k">if</span> <span class="n">guild</span><span class="o">.</span><span class="n">owner_id</span> <span class="o">==</span> <span class="n">member</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ALL_PERMISSIONS</span>
+
+    <span class="c1"># Admin permission overrides all overwrites and is only applicable to roles.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">permissions</span> <span class="o">:=</span> <span class="n">_calculate_role_permissions</span><span class="p">(</span><span class="n">roles</span><span class="p">,</span> <span class="n">member</span><span class="p">))</span> <span class="o">&amp;</span> <span class="n">permissions</span><span class="o">.</span><span class="n">ADMINISTRATOR</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ALL_PERMISSIONS</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">channel</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">permissions</span>
+
+    <span class="k">return</span> <span class="n">_calculate_channel_overwrites</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">member</span><span class="p">,</span> <span class="n">permissions</span><span class="p">)</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">_fetch_channel</span><span class="p">(</span>
+    <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="n">retry</span><span class="p">:</span> <span class="n">backoff</span><span class="o">.</span><span class="n">Backoff</span><span class="p">,</span> <span class="n">channel</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">GuildChannel</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">GuildChannel</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">channel</span>
+
+    <span class="n">found_channel</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+        <span class="n">found_channel</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_guild_channel</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">channel</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">found_channel</span><span class="p">:</span>
+        <span class="n">raw_channel</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fetch_resource</span><span class="p">(</span><span class="n">retry</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_channel</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_channel</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">GuildChannel</span><span class="p">),</span> <span class="s2">&quot;Cannot perform operation on a DM channel.&quot;</span>
+        <span class="n">found_channel</span> <span class="o">=</span> <span class="n">raw_channel</span>
+
+    <span class="k">return</span> <span class="n">found_channel</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_permissions</span><span class="p">(</span>
+    <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
+    <span class="n">member</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">channel</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Calculate the permissions a member has within a guild.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        This callback will fallback to REST requests if cache lookups fail or</span>
+<span class="sd">        are not possible.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    client : tanjun.abc.Client</span>
+<span class="sd">        The Tanjun client to use for lookups.</span>
+<span class="sd">    member : hikari.guilds.Member</span>
+<span class="sd">        The object of the member to calculate the permissions for.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    channel : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.channels.GuildChannel]]</span>
+<span class="sd">        The object of ID of the channel to get their permissions in.</span>
+<span class="sd">        If left as `None` then this will return their base guild</span>
+<span class="sd">        permissions.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    hikari.permissions.Permissions</span>
+<span class="sd">        The calculated permissions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># The ordering of how this adds and removes permissions does matter.</span>
+    <span class="c1"># For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.</span>
+    <span class="n">retry</span> <span class="o">=</span> <span class="n">backoff</span><span class="o">.</span><span class="n">Backoff</span><span class="p">(</span><span class="n">maximum</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">guild</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Guild</span><span class="p">]</span>
+    <span class="n">roles</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">guild</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_guild</span><span class="p">(</span><span class="n">member</span><span class="o">.</span><span class="n">guild_id</span><span class="p">)</span> <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">guild</span><span class="p">:</span>
+        <span class="n">guild</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fetch_resource</span><span class="p">(</span><span class="n">retry</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_guild</span><span class="p">,</span> <span class="n">member</span><span class="o">.</span><span class="n">guild_id</span><span class="p">)</span>
+        <span class="n">roles</span> <span class="o">=</span> <span class="n">guild</span><span class="o">.</span><span class="n">roles</span>
+
+    <span class="c1"># Guild owners are implicitly admins.</span>
+    <span class="k">if</span> <span class="n">guild</span><span class="o">.</span><span class="n">owner_id</span> <span class="o">==</span> <span class="n">member</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ALL_PERMISSIONS</span>
+
+    <span class="n">roles</span> <span class="o">=</span> <span class="n">roles</span> <span class="ow">or</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_roles_view_for_guild</span><span class="p">(</span><span class="n">member</span><span class="o">.</span><span class="n">guild_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">roles</span><span class="p">:</span>
+        <span class="n">raw_roles</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fetch_resource</span><span class="p">(</span><span class="n">retry</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_roles</span><span class="p">,</span> <span class="n">member</span><span class="o">.</span><span class="n">guild_id</span><span class="p">)</span>
+        <span class="n">roles</span> <span class="o">=</span> <span class="p">{</span><span class="n">role</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">role</span> <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="n">raw_roles</span><span class="p">}</span>
+
+    <span class="c1"># Admin permission overrides all overwrites and is only applicable to roles.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">permissions</span> <span class="o">:=</span> <span class="n">_calculate_role_permissions</span><span class="p">(</span><span class="n">roles</span><span class="p">,</span> <span class="n">member</span><span class="p">))</span> <span class="o">&amp;</span> <span class="n">permissions</span><span class="o">.</span><span class="n">ADMINISTRATOR</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ALL_PERMISSIONS</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">channel</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">permissions</span>
+
+    <span class="n">channel</span> <span class="o">=</span> <span class="k">await</span> <span class="n">_fetch_channel</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">retry</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">channel</span><span class="o">.</span><span class="n">guild_id</span> <span class="o">!=</span> <span class="n">guild</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Channel doesn&#39;t match up with the member&#39;s guild&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_calculate_channel_overwrites</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">member</span><span class="p">,</span> <span class="n">permissions</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">calculate_everyone_permissions</span><span class="p">(</span>
+    <span class="n">everyone_role</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">channel</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">GuildChannel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Calculate a guild&#39;s default permissions within the guild or for a specific channel.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    everyone_role : hikari.guilds.Role</span>
+<span class="sd">        The guild&#39;s default @everyone role.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    channel : typing.Optional[hikari.channels.GuildChannel]</span>
+<span class="sd">        The channel to calculate the permissions for.</span>
+
+<span class="sd">        If this is left as `None` then this will just calculate the default</span>
+<span class="sd">        permissions on a guild level.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    hikari.permissions.Permissions</span>
+<span class="sd">        The calculated permissions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># The ordering of how this adds and removes permissions does matter.</span>
+    <span class="c1"># For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.</span>
+    <span class="n">permissions</span> <span class="o">=</span> <span class="n">everyone_role</span><span class="o">.</span><span class="n">permissions</span>
+    <span class="c1"># Admin permission overrides all overwrites and is only applicable to roles.</span>
+    <span class="k">if</span> <span class="n">permissions</span> <span class="o">&amp;</span> <span class="n">permissions</span><span class="o">.</span><span class="n">ADMINISTRATOR</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ALL_PERMISSIONS</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">channel</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">permissions</span>
+
+    <span class="k">if</span> <span class="n">everyone_overwrite</span> <span class="o">:=</span> <span class="n">channel</span><span class="o">.</span><span class="n">permission_overwrites</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">everyone_role</span><span class="o">.</span><span class="n">guild_id</span><span class="p">):</span>
+        <span class="n">permissions</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">everyone_overwrite</span><span class="o">.</span><span class="n">deny</span>
+        <span class="n">permissions</span> <span class="o">|=</span> <span class="n">everyone_overwrite</span><span class="o">.</span><span class="n">allow</span>
+
+    <span class="k">return</span> <span class="n">permissions</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_everyone_permissions</span><span class="p">(</span>
+    <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
+    <span class="n">guild_id</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">channel</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Calculate the permissions a guild&#39;s default @everyone role has within a guild or for a specific channel.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        This callback will fallback to REST requests if cache lookups fail or</span>
+<span class="sd">        are not possible.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    client : tanjun.abc.Client</span>
+<span class="sd">        The Tanjun client to use for lookups.</span>
+<span class="sd">    guild_id : hikari.snowflakes.Snowflake</span>
+<span class="sd">        ID of the guild to calculate the default permissions for.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    channel : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.channels.PartialChannel]]</span>
+<span class="sd">        The channel to calculate the permissions for.</span>
+
+<span class="sd">        If this is left as `None` then this will just calculate the default</span>
+<span class="sd">        permissions on a guild level.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    hikari.permissions.Permissions</span>
+<span class="sd">        The calculated permissions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># The ordering of how this adds and removes permissions does matter.</span>
+    <span class="c1"># For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.</span>
+    <span class="n">retry</span> <span class="o">=</span> <span class="n">backoff</span><span class="o">.</span><span class="n">Backoff</span><span class="p">(</span><span class="n">maximum</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">role</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_role</span><span class="p">(</span><span class="n">guild_id</span><span class="p">)</span> <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">role</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">role</span> <span class="ow">in</span> <span class="k">await</span> <span class="n">fetch_resource</span><span class="p">(</span><span class="n">retry</span><span class="p">,</span> <span class="n">client</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_roles</span><span class="p">,</span> <span class="n">guild_id</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">guild_id</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Failed to find guild&#39;s @everyone role&quot;</span><span class="p">)</span>
+
+    <span class="n">permissions</span> <span class="o">=</span> <span class="n">role</span><span class="o">.</span><span class="n">permissions</span>
+    <span class="c1"># Admin permission overrides all overwrites and is only applicable to roles.</span>
+    <span class="k">if</span> <span class="n">permissions</span> <span class="o">&amp;</span> <span class="n">permissions</span><span class="o">.</span><span class="n">ADMINISTRATOR</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ALL_PERMISSIONS</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">channel</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">permissions</span>
+
+    <span class="n">channel</span> <span class="o">=</span> <span class="k">await</span> <span class="n">_fetch_channel</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">retry</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">everyone_overwrite</span> <span class="o">:=</span> <span class="n">channel</span><span class="o">.</span><span class="n">permission_overwrites</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">guild_id</span><span class="p">):</span>
+        <span class="n">permissions</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">everyone_overwrite</span><span class="o">.</span><span class="n">deny</span>
+        <span class="n">permissions</span> <span class="o">|=</span> <span class="n">everyone_overwrite</span><span class="o">.</span><span class="n">allow</span>
+
+    <span class="k">return</span> <span class="n">permissions</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Collection of utility functions used within Tanjun.</p>
 </div>
 
 
