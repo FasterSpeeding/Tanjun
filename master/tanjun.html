@@ -197,6 +197,12 @@
                                 <a class="function" href="#Client.set_message_accepts">set_message_accepts</a>
                         </li>
                         <li>
+                                <a class="function" href="#Client.set_message_ctx_maker">set_message_ctx_maker</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.set_slash_ctx_maker">set_slash_ctx_maker</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Client.set_human_only">set_human_only</a>
                         </li>
                         <li>
@@ -5045,6 +5051,34 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
     <span class="n">_ClientT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ClientT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;Client&quot;</span><span class="p">)</span>
 
+    <span class="k">class</span> <span class="nc">_MessageContextMakerProto</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Protocol</span><span class="p">):</span>
+        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
+            <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">message</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">,</span>
+            <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">triggering_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">triggering_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">class</span> <span class="nc">_SlashContextMakerProto</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Protocol</span><span class="p">):</span>
+        <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
+            <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">,</span>
+            <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">not_found_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+
 <span class="n">LoadableSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="s2">&quot;Client&quot;</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
 <span class="sd">&quot;&quot;&quot;Type hint of the callback used to load resources into a Tanjun client.</span>
 
@@ -5305,6 +5339,8 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="s2">&quot;_checks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_client_callbacks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_components&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_make_message_context&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_make_slash_context&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_events&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_grab_mention_prefix&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_hooks&quot;</span><span class="p">,</span>
@@ -5344,6 +5380,8 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span> <span class="o">=</span> <span class="n">mention_prefix</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -5834,6 +5872,52 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_accepts</span> <span class="o">=</span> <span class="n">accepts</span>
         <span class="k">return</span> <span class="bp">self</span>
 
+    <span class="k">def</span> <span class="nf">set_message_ctx_maker</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">maker</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the message context maker to use when creating context for a message.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            The caller must return an instance of `tanjun.context.MessageContext`</span>
+<span class="sd">            rather than just any implementation of the MessageContext abc due to</span>
+<span class="sd">            this client relying on implementation detail of</span>
+<span class="sd">            `tanjun.context.MessageContext`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        maker : _MessageContextMakerProto</span>
+<span class="sd">            The message context maker to use.</span>
+
+<span class="sd">            This is a callback which should match the signature of</span>
+<span class="sd">            `tanjun.context.MessageContext.__init__` and return an instance</span>
+<span class="sd">            of `tanjun.context.MessageContext`.</span>
+
+<span class="sd">            This defaults to `tanjun.context.MessageContext`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span> <span class="o">=</span> <span class="n">maker</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_slash_ctx_maker</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">maker</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the slash context maker to use when creating context for a slash command.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            The caller must return an instance of `tanjun.context.SlashContext`</span>
+<span class="sd">            rather than just any implementation of the SlashContext abc due to</span>
+<span class="sd">            this client relying on implementation detail of</span>
+<span class="sd">            `tanjun.context.SlashContext`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        maker : _SlashContextMakerProto</span>
+<span class="sd">            The slash context maker to use.</span>
+
+<span class="sd">            This is a callback which should match the signature of</span>
+<span class="sd">            `tanjun.context.SlashContext.__init__` and return an instance</span>
+<span class="sd">            of `tanjun.context.SlashContext`.</span>
+
+<span class="sd">            This defaults to `tanjun.context.SlashContext`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span> <span class="o">=</span> <span class="n">maker</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
     <span class="k">def</span> <span class="nf">set_human_only</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set whether or not message commands execution should be limited to &quot;human&quot; users.</span>
 
@@ -6238,7 +6322,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="n">ctx</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">prefix</span> <span class="o">:=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_prefix</span><span class="p">(</span><span class="n">ctx</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
 
@@ -6298,7 +6382,9 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">):</span>
             <span class="k">return</span>
 
-        <span class="n">ctx</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">)</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">(</span>
+            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span>
+        <span class="p">)</span>
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -6334,7 +6420,9 @@ a DM context (e.g. can't have any moderation permissions)</li>
 <span class="sd">        tanjun.context.ResponseType</span>
 <span class="sd">            The initial response to send back to Discord.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ctx</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">)</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">(</span>
+            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">)</span>
 
@@ -6509,6 +6597,8 @@ to the provided client using it's abstract methods.</li>
         <span class="s2">&quot;_checks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_client_callbacks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_components&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_make_message_context&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_make_slash_context&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_events&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_grab_mention_prefix&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_hooks&quot;</span><span class="p">,</span>
@@ -6548,6 +6638,8 @@ to the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span> <span class="o">=</span> <span class="n">mention_prefix</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -7038,6 +7130,52 @@ to the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_accepts</span> <span class="o">=</span> <span class="n">accepts</span>
         <span class="k">return</span> <span class="bp">self</span>
 
+    <span class="k">def</span> <span class="nf">set_message_ctx_maker</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">maker</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the message context maker to use when creating context for a message.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            The caller must return an instance of `tanjun.context.MessageContext`</span>
+<span class="sd">            rather than just any implementation of the MessageContext abc due to</span>
+<span class="sd">            this client relying on implementation detail of</span>
+<span class="sd">            `tanjun.context.MessageContext`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        maker : _MessageContextMakerProto</span>
+<span class="sd">            The message context maker to use.</span>
+
+<span class="sd">            This is a callback which should match the signature of</span>
+<span class="sd">            `tanjun.context.MessageContext.__init__` and return an instance</span>
+<span class="sd">            of `tanjun.context.MessageContext`.</span>
+
+<span class="sd">            This defaults to `tanjun.context.MessageContext`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span> <span class="o">=</span> <span class="n">maker</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_slash_ctx_maker</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">maker</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the slash context maker to use when creating context for a slash command.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            The caller must return an instance of `tanjun.context.SlashContext`</span>
+<span class="sd">            rather than just any implementation of the SlashContext abc due to</span>
+<span class="sd">            this client relying on implementation detail of</span>
+<span class="sd">            `tanjun.context.SlashContext`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        maker : _SlashContextMakerProto</span>
+<span class="sd">            The slash context maker to use.</span>
+
+<span class="sd">            This is a callback which should match the signature of</span>
+<span class="sd">            `tanjun.context.SlashContext.__init__` and return an instance</span>
+<span class="sd">            of `tanjun.context.SlashContext`.</span>
+
+<span class="sd">            This defaults to `tanjun.context.SlashContext`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span> <span class="o">=</span> <span class="n">maker</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
     <span class="k">def</span> <span class="nf">set_human_only</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set whether or not message commands execution should be limited to &quot;human&quot; users.</span>
 
@@ -7442,7 +7580,7 @@ to the provided client using it's abstract methods.</li>
         <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="n">ctx</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">prefix</span> <span class="o">:=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_prefix</span><span class="p">(</span><span class="n">ctx</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
 
@@ -7502,7 +7640,9 @@ to the provided client using it's abstract methods.</li>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">):</span>
             <span class="k">return</span>
 
-        <span class="n">ctx</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">)</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">(</span>
+            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span>
+        <span class="p">)</span>
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -7538,7 +7678,9 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">        tanjun.context.ResponseType</span>
 <span class="sd">            The initial response to send back to Discord.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ctx</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">)</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">(</span>
+            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">)</span>
 
@@ -7685,6 +7827,8 @@ when set on a specific guild.</p></li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span> <span class="o">=</span> <span class="n">mention_prefix</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -8670,6 +8814,134 @@ The message to respond with when an interaction command isn't found.</li>
 <ul>
 <li><strong>accepts</strong> (MessageAcceptsEnum):
 The type of messages commands should be executed based on.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.set_message_ctx_maker" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.set_message_ctx_maker">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">set_message_ctx_maker</span><span class="signature">(
+    self: ~_ClientT,
+    maker: <a href="tanjun/clients.html#_MessageContextMakerProto">tanjun.clients._MessageContextMakerProto</a> = &lt;class &#39;<a href="tanjun/context.html#MessageContext">tanjun.context.MessageContext</a>&#39;&gt;,
+    /
+) -&gt; ~_ClientT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_message_ctx_maker</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">maker</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the message context maker to use when creating context for a message.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            The caller must return an instance of `tanjun.context.MessageContext`</span>
+<span class="sd">            rather than just any implementation of the MessageContext abc due to</span>
+<span class="sd">            this client relying on implementation detail of</span>
+<span class="sd">            `tanjun.context.MessageContext`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        maker : _MessageContextMakerProto</span>
+<span class="sd">            The message context maker to use.</span>
+
+<span class="sd">            This is a callback which should match the signature of</span>
+<span class="sd">            `tanjun.context.MessageContext.__init__` and return an instance</span>
+<span class="sd">            of `tanjun.context.MessageContext`.</span>
+
+<span class="sd">            This defaults to `tanjun.context.MessageContext`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span> <span class="o">=</span> <span class="n">maker</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Set the message context maker to use when creating context for a message.</p>
+
+<p><em>Warning:</em>
+The caller must return an instance of <code><a href="tanjun/context.html#MessageContext">tanjun.context.MessageContext</a></code>
+rather than just any implementation of the MessageContext abc due to
+this client relying on implementation detail of
+<code><a href="tanjun/context.html#MessageContext">tanjun.context.MessageContext</a></code>.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>maker</strong> (_MessageContextMakerProto):
+The message context maker to use.</p>
+
+<p>This is a callback which should match the signature of
+<code><a href="tanjun/context.html#MessageContext.__init__">tanjun.context.MessageContext.__init__</a></code> and return an instance
+of <code><a href="tanjun/context.html#MessageContext">tanjun.context.MessageContext</a></code>.</p>
+
+<p>This defaults to <code><a href="tanjun/context.html#MessageContext">tanjun.context.MessageContext</a></code>.</p></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.set_slash_ctx_maker" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.set_slash_ctx_maker">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">set_slash_ctx_maker</span><span class="signature">(
+    self: ~_ClientT,
+    maker: <a href="tanjun/clients.html#_SlashContextMakerProto">tanjun.clients._SlashContextMakerProto</a> = &lt;class &#39;<a href="tanjun/context.html#SlashContext">tanjun.context.SlashContext</a>&#39;&gt;,
+    /
+) -&gt; ~_ClientT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_slash_ctx_maker</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">maker</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the slash context maker to use when creating context for a slash command.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            The caller must return an instance of `tanjun.context.SlashContext`</span>
+<span class="sd">            rather than just any implementation of the SlashContext abc due to</span>
+<span class="sd">            this client relying on implementation detail of</span>
+<span class="sd">            `tanjun.context.SlashContext`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        maker : _SlashContextMakerProto</span>
+<span class="sd">            The slash context maker to use.</span>
+
+<span class="sd">            This is a callback which should match the signature of</span>
+<span class="sd">            `tanjun.context.SlashContext.__init__` and return an instance</span>
+<span class="sd">            of `tanjun.context.SlashContext`.</span>
+
+<span class="sd">            This defaults to `tanjun.context.SlashContext`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span> <span class="o">=</span> <span class="n">maker</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Set the slash context maker to use when creating context for a slash command.</p>
+
+<p><em>Warning:</em>
+The caller must return an instance of <code><a href="tanjun/context.html#SlashContext">tanjun.context.SlashContext</a></code>
+rather than just any implementation of the SlashContext abc due to
+this client relying on implementation detail of
+<code><a href="tanjun/context.html#SlashContext">tanjun.context.SlashContext</a></code>.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>maker</strong> (_SlashContextMakerProto):
+The slash context maker to use.</p>
+
+<p>This is a callback which should match the signature of
+<code><a href="tanjun/context.html#SlashContext.__init__">tanjun.context.SlashContext.__init__</a></code> and return an instance
+of <code><a href="tanjun/context.html#SlashContext">tanjun.context.SlashContext</a></code>.</p>
+
+<p>This defaults to <code><a href="tanjun/context.html#SlashContext">tanjun.context.SlashContext</a></code>.</p></li>
 </ul>
 </div>
 
@@ -9684,7 +9956,7 @@ of type <code><a href="#Client">Client</a></code>.</p>
         <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="n">ctx</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">prefix</span> <span class="o">:=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_prefix</span><span class="p">(</span><span class="n">ctx</span><span class="p">))</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
 
@@ -9759,7 +10031,9 @@ of type <code><a href="#Client">Client</a></code>.</p>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">):</span>
             <span class="k">return</span>
 
-        <span class="n">ctx</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">)</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">(</span>
+            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span>
+        <span class="p">)</span>
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -9828,7 +10102,9 @@ The event to execute commands based on.</li>
 <span class="sd">        tanjun.context.ResponseType</span>
 <span class="sd">            The initial response to send back to Discord.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ctx</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">)</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">(</span>
+            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">)</span>
 
@@ -10682,8 +10958,8 @@ message create events/</p>
 <span class="sd">        or when `set_global_commands` is True</span>
 
 <span class="sd">    .. warning::</span>
-<span class="sd">        `command_id` and `default_permission` are ignored for commands within</span>
-<span class="sd">        slash command groups.</span>
+<span class="sd">        `command_id`, `default_permission` and `is_global` are ignored for commands</span>
+<span class="sd">        within slash command groups.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -12350,8 +12626,8 @@ enforces that command names are unique to a single command within the group.</p>
 <span class="sd">        or when `set_global_commands` is True</span>
 
 <span class="sd">    .. warning::</span>
-<span class="sd">        `command_id` and `default_permission` are ignored for commands within</span>
-<span class="sd">        slash command groups.</span>
+<span class="sd">        `command_id`, `default_permission` and `is_global` are ignored for commands</span>
+<span class="sd">        within slash command groups.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -12423,8 +12699,8 @@ the command should be bulk set by <code><a href="#Client.set_global_commands">ta
 or when <code>set_global_commands</code> is True</p>
 
 <p><em>Warning:</em>
-<code>command_id</code> and <code>default_permission</code> are ignored for commands within
-slash command groups.</p>
+<code>command_id</code>, <code>default_permission</code> and <code>is_global</code> are ignored for commands
+within slash command groups.</p>
 
 <h6 id="examples">Examples</h6>
 
@@ -18696,7 +18972,6 @@ hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</li>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -18784,7 +19059,6 @@ hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</li>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
         <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">message</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -19061,7 +19335,6 @@ hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</li>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
         <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -19640,7 +19913,6 @@ hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</li>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
         <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">message</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -19911,7 +20183,6 @@ hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</li>
         
             <span class="name">MessageContext</span><span class="signature">(
     client: <a href="tanjun/abc.html#Client">tanjun.abc.Client</a>,
-    /,
     content: str,
     message: hikari.messages.Message,
     *,
@@ -19927,7 +20198,6 @@ hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</li>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
         <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">message</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -20636,7 +20906,6 @@ Otherwise, returns <code>None</code>.</li>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
         <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -21195,7 +21464,6 @@ Otherwise, returns <code>None</code>.</li>
             <span class="name">SlashContext</span><span class="signature">(
     client: <a href="tanjun/abc.html#Client">tanjun.abc.Client</a>,
     interaction: hikari.interactions.command_interactions.CommandInteraction,
-    /,
     *,
     command: Optional[<a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>] = None,
     component: Optional[<a href="tanjun/abc.html#Component">tanjun.abc.Component</a>] = None,
@@ -21210,7 +21478,6 @@ Otherwise, returns <code>None</code>.</li>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span>
         <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
