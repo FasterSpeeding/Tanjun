@@ -200,9 +200,12 @@ __all__: list[str] = [
     "with_option",
     "with_multi_option",
     "with_parser",
+    # utilities.py
+    "utilities",
 ]
 
 from . import abc
+from . import utilities
 from .checks import *
 from .clients import *
 from .commands import *
