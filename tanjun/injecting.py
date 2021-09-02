@@ -177,7 +177,7 @@ class BasicInjectionContext(AbstractInjectionContext):
 
     def __init__(self, client: InjectorClient, /) -> None:
         self._injection_client = client
-        self._result_cache: dict[CallbackSig[typing.Any], typing.Any]
+        self._result_cache: dict[CallbackSig[typing.Any], typing.Any] = {}
 
     @property
     def injection_client(self) -> InjectorClient:
@@ -227,6 +227,14 @@ class CallbackDescriptor(typing.Generic[_T]):
         self._descriptors = descriptors
         self._is_async: typing.Optional[bool] = None
 
+    # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
+    def __eq__(self, other: typing.Any) -> bool:
+        return bool(self._callback == other)
+
+    # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
+    def __hash__(self) -> int:
+        return hash(self._callback)
+
     @property
     def callback(self) -> CallbackSig[_T]:
         return self._callback
@@ -267,18 +275,19 @@ class CallbackDescriptor(typing.Generic[_T]):
             assert not isinstance(result, Undefined)
             return result
 
-        if not self.needs_injector:
+        if self.needs_injector:
+            sub_results = {name: await descriptor.resolve(ctx) for name, descriptor in self._descriptors.items()}
+            result = self._callback(*args, **sub_results, **kwargs)
+
+            if self._is_async is None:
+                self._is_async = isinstance(result, collections.Awaitable)
+
+            if self._is_async:
+                assert isinstance(result, collections.Awaitable)
+                result = await result
+
+        else:
             result = await self.resolve_without_injector(*args, **kwargs)
-
-        sub_results = {name: await descriptor.resolve(ctx) for name, descriptor in self._descriptors.items()}
-        result = self._callback(*args, **sub_results, **kwargs)
-
-        if self._is_async is None:
-            self._is_async = isinstance(result, collections.Awaitable)
-
-        if self._is_async:
-            assert isinstance(result, collections.Awaitable)
-            result = await result
 
         ctx.cache_result(self._callback, result)
         return typing.cast(_T, result)

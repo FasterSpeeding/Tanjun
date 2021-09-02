@@ -206,7 +206,7 @@ class ClientCallbackNames(str, enum.Enum):
     No positional arguments are provided for this event.
     """
 
-    STARTING = "startup"
+    STARTING = "starting"
     """Called when the client is initially instructed to start.
 
     No positional arguments are provided for this event.
