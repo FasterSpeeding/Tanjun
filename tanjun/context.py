@@ -63,7 +63,6 @@ class BaseContext(tanjun_abc.Context):
     def __init__(
         self,
         client: tanjun_abc.Client,
-        /,
         *,
         component: typing.Optional[tanjun_abc.Component] = None,
     ) -> None:
@@ -151,7 +150,6 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
     def __init__(
         self,
         client: tanjun_abc.Client,
-        /,
         content: str,
         message: hikari.Message,
         *,
@@ -428,7 +426,6 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         self,
         client: tanjun_abc.Client,
         interaction: hikari.CommandInteraction,
-        /,
         *,
         command: typing.Optional[tanjun_abc.BaseSlashCommand] = None,
         component: typing.Optional[tanjun_abc.Component] = None,
