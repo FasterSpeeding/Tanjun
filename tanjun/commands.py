@@ -333,8 +333,8 @@ def as_slash_command(
         or when `set_global_commands` is True
 
     .. warning::
-        `command_id` and `default_permission` are ignored for commands within
-        slash command groups.
+        `command_id`, `default_permission` and `is_global` are ignored for commands
+        within slash command groups.
 
     Examples
     --------
