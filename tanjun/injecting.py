@@ -484,7 +484,7 @@ class BaseInjectableValue(typing.Generic[_T]):
 
     def __init__(self, callback: CallbackSig[_T], /) -> None:
         self._callback = callback
-        self._descriptor: Descriptor[_T] = Descriptor(callback=callback)
+        self._descriptor: CallbackDescriptor[_T] = CallbackDescriptor(callback)
 
     # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
     def __eq__(self, other: typing.Any) -> bool:
@@ -499,7 +499,7 @@ class BaseInjectableValue(typing.Generic[_T]):
         return self._callback
 
     @property
-    def descriptor(self) -> Descriptor[_T]:
+    def descriptor(self) -> CallbackDescriptor[_T]:
         return self._descriptor
 
     @property
@@ -515,7 +515,7 @@ class BaseInjectableValue(typing.Generic[_T]):
 
     def overwrite_callback(self, callback: CallbackSig[_T], /) -> None:
         self._callback = callback
-        self._descriptor = Descriptor(callback=callback)
+        self._descriptor = CallbackDescriptor(callback)
 
 
 class InjectableValue(BaseInjectableValue[_T]):
@@ -565,7 +565,7 @@ class _CacheCallback(typing.Generic[_T]):
     __slots__ = ("_callback", "_lock", "_result")
 
     def __init__(self, callback: CallbackSig[_T], /) -> None:
-        self._callback = Descriptor(callback=callback)
+        self._callback = CallbackDescriptor(callback)
         self._lock: typing.Optional[asyncio.Lock] = None
         self._result: typing.Union[_T, Undefined] = UNDEFINED
 
