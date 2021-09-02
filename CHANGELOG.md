@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow for overriding the standard client's context builders.
 - Add default_permission argument to slash command types.
 
-## [v2.0.0a1] - 2021-08-30
+## [2.0.0a1] - 2021-08-30
 ### Added
 - For a TLDR of how Tanjun's interface looks after these changes see the examples
   https://github.com/FasterSpeeding/Tanjun/blob/v2.0.0a1/examples/
@@ -65,5 +65,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2.0.0a1...HEAD
-[v2.0.0a1]: https://github.com/olivierlacan/keep-a-changelog/compare/1.0.1a5...v2.0.0a1
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.0.0a1...HEAD
+[2.0.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/1.0.1a5...v2.0.0a1
