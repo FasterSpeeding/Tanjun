@@ -163,6 +163,10 @@ class AbstractInjectionContext(abc.ABC):
             by this context.
         """
 
+    @abc.abstractmethod
+    def set_type_special_case(self, type_: type[_T], value: _T, /) -> None:
+        raise NotImplementedError
+
 
 class BasicInjectionContext(AbstractInjectionContext):
     """Basic implementation of a `AbstractInjectionContext`.
@@ -173,11 +177,16 @@ class BasicInjectionContext(AbstractInjectionContext):
         The injection client this context is bound to.
     """
 
-    __slots__ = ("_injection_client", "_result_cache")
+    __slots__ = ("_injection_client", "_result_cache", "_special_case_types")
 
     def __init__(self, client: InjectorClient, /) -> None:
         self._injection_client = client
         self._result_cache: dict[CallbackSig[typing.Any], typing.Any] = {}
+        self._special_case_types: dict[type[typing.Any], typing.Any] = {
+            AbstractInjectionContext: self,
+            BasicInjectionContext: self,
+            type(self): self,
+        }
 
     @property
     def injection_client(self) -> InjectorClient:
@@ -192,9 +201,18 @@ class BasicInjectionContext(AbstractInjectionContext):
         # <<inherited docstring from tanjun.injecting.AbstractInjectionContext>>.
         return self._result_cache.get(callback, UNDEFINED)
 
-    def get_type_special_case(self, _: type[_T], /) -> UndefinedOr[_T]:
+    def get_type_special_case(self, type_: type[_T], /) -> UndefinedOr[_T]:
         # <<inherited docstring from tanjun.injecting.AbstractInjectionContext>>.
-        return UNDEFINED
+        if (value := self._special_case_types.get(type_, UNDEFINED)) is not UNDEFINED:
+            return value
+
+        return self._injection_client.get_type_special_case(type_)
+
+    def set_type_special_case(self, type_: type[_T], value: _T, /) -> None:
+        self._special_case_types[type_] = value
+
+    def remove_type_special_case(self, type_: type[typing.Any], /) -> None:
+        del self._special_case_types[type_]
 
 
 class CallbackDescriptor(typing.Generic[_T]):
@@ -256,7 +274,7 @@ class CallbackDescriptor(typing.Generic[_T]):
         if self.needs_injector:
             raise RuntimeError("This callback cannot be called without dependency injection")
 
-        result = self._callback(*args)
+        result = self._callback(*args, **kwargs)
 
         if self._is_async is None:
             self._is_async = isinstance(result, collections.Awaitable)
@@ -312,7 +330,7 @@ class TypeDescriptor(typing.Generic[_T]):
         raise RuntimeError("Type injector cannot be resolved without anm injection client")
 
     async def resolve(self, ctx: AbstractInjectionContext, /) -> _T:
-        if dependency := ctx.injection_client.get_callback_override(self._type):
+        if dependency := ctx.injection_client.get_type_dependency(self._type):
             if (cached_result := ctx.get_cached_result(dependency.callback)) is not UNDEFINED:
                 assert not isinstance(cached_result, Undefined)
                 return cached_result
@@ -426,11 +444,11 @@ def injected(
 class InjectorClient:
     """Dependency injection client used by Tanjun's standard implementation."""
 
-    __slots__ = ("_callback_overrides", "__special_case_types", "_type_dependencies")
+    __slots__ = ("_callback_overrides", "_special_case_types", "_type_dependencies")
 
     def __init__(self) -> None:
         self._callback_overrides: dict[CallbackSig[typing.Any], InjectableValue[typing.Any]] = {}
-        self.__special_case_types: typing.Dict[type[typing.Any], typing.Any] = {
+        self._special_case_types: typing.Dict[type[typing.Any], typing.Any] = {
             InjectorClient: self,
             type(self): self,
         }
@@ -470,7 +488,10 @@ class InjectorClient:
         return self._type_dependencies.get(type_)
 
     def get_type_special_case(self, type_: type[_T], /) -> UndefinedOr[_T]:
-        return self.__special_case_types.get(type_, UNDEFINED)
+        return self._special_case_types.get(type_, UNDEFINED)
+
+    def set_type_special_case(self, type_: type[_T], value: _T, /) -> None:
+        self._special_case_types[type_] = value
 
     def remove_type_dependency(self, type_: type[typing.Any], /) -> None:
         del self._type_dependencies[type_]
@@ -531,7 +552,7 @@ class InjectableValue(BaseInjectableValue[_T]):
     __slots__ = ()
 
     async def __call__(self, ctx: AbstractInjectionContext, /) -> _T:
-        return await self._descriptor.resolve(ctx, ctx)
+        return await self._descriptor.resolve(ctx)
 
 
 class InjectableCheck(BaseInjectableValue[bool]):

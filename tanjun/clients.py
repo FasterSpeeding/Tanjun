@@ -369,7 +369,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         "_hooks",
         "_interaction_not_found",
         "_slash_hooks",
-        "__special_case_types",
         "_is_alive",
         "_is_closing",
         "_message_hooks",
@@ -413,10 +412,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._hooks: typing.Optional[tanjun_abc.AnyHooks] = None
         self._interaction_not_found: typing.Optional[str] = "Command not found"
         self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
-        self.__special_case_types: dict[type[typing.Any], typing.Any] = {
-            hikari.api.RESTClient: rest,
-            type(rest): rest,
-        }
         self._is_alive = False
         self._is_closing = False
         self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
@@ -448,17 +443,23 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 _set_global_commands_next_start,
             )
 
+        self.set_type_special_case(hikari.api.RESTClient, rest)
+        self.set_type_special_case(type(rest), rest)
         if cache:
-            self.__special_case_types.update(((hikari.api.Cache, cache), (type(cache), cache)))
+            self.set_type_special_case(hikari.api.Cache, cache)
+            self.set_type_special_case(type(cache), cache)
 
         if events:
-            self.__special_case_types.update(((hikari.api.EventManager, events), (type(events), events)))
+            self.set_type_special_case(hikari.api.EventManager, events)
+            self.set_type_special_case(type(events), events)
 
         if server:
-            self.__special_case_types.update(((hikari.api.InteractionServer, server), (type(server), server)))
+            self.set_type_special_case(hikari.api.InteractionServer, server)
+            self.set_type_special_case(type(server), server)
 
         if shard:
-            self.__special_case_types.update(((hikari_traits.ShardAware, shard), (type(shard), shard)))
+            self.set_type_special_case(hikari_traits.ShardAware, shard)
+            self.set_type_special_case(type(shard), shard)
 
     @classmethod
     def from_gateway_bot(
@@ -849,9 +850,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return responses
 
-    def get_type_special_case(self, type_: type[_T], /) -> injecting.UndefinedOr[_T]:
-        return self.__special_case_types.get(type_, injecting.UNDEFINED) or super().get_type_special_case(type_)
-
     def set_auto_defer_after(self: _ClientT, time: typing.Optional[float], /) -> _ClientT:
         """Set when this client should automatically defer execution of commands.
 
@@ -880,7 +878,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         """
         for _, member in inspect.getmembers(hikari_traits):
             if inspect.isclass(member) and isinstance(bot, member):
-                self.add_type_dependency(member, lambda: bot)
+                self.set_type_special_case(member, bot)
 
         return self
 

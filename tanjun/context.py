@@ -73,6 +73,9 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
         self._client = client
         self._component = component
         self._final = False
+        self.set_type_special_case(tanjun_abc.Context, self)
+        self.set_type_special_case(BaseContext, self)
+        self.set_type_special_case(type(self), self)
 
     @property
     def cache(self) -> typing.Optional[hikari.api.Cache]:
@@ -175,6 +178,9 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         self._message = message
         self._triggering_name = triggering_name
         self._triggering_prefix = triggering_prefix
+        self.set_type_special_case(tanjun_abc.MessageContext, self)
+        self.set_type_special_case(MessageContext, self)
+        self.set_type_special_case(type(self), self)
 
     def __repr__(self) -> str:
         return f"MessageContext <{self._message!r}, {self._command!r}>"
@@ -449,6 +455,9 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         self._not_found_message: typing.Optional[str] = not_found_message
         self._response_future: typing.Optional[asyncio.Future[ResponseTypeT]] = None
         self._response_lock = asyncio.Lock()
+        self.set_type_special_case(tanjun_abc.SlashContext, self)
+        self.set_type_special_case(SlashContext, self)
+        self.set_type_special_case(type(self), self)
 
     @property
     def author(self) -> hikari.User:

@@ -1309,7 +1309,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             else:
                 kwargs = _EMPTY_DICT
 
-            await self._callback.resolve_with_command_context(ctx, **kwargs)
+            await self._callback.resolve_with_command_context(ctx, ctx, **kwargs)
 
         except errors.CommandError as exc:
             await ctx.respond(exc.message)
@@ -1509,7 +1509,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
                 args = _EMPTY_LIST
                 kwargs = _EMPTY_DICT
 
-            await self._callback.resolve_with_command_context(ctx, *args, **kwargs)
+            await self._callback.resolve_with_command_context(ctx, ctx, *args, **kwargs)
 
         except errors.CommandError as exc:
             response = exc.message if len(exc.message) <= 2000 else exc.message[:1997] + "..."
