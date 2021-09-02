@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Component add and remove client callbacks
+- Exported the parsing, commands and utilities modules on a top level (thus also adding them to the generated docs).
+- Allow for overriding the standard client's context builders.
+- Add default_permission argument to slash command types.
 
 ## [2.0.0a1] - 2021-08-30
 ### Added
