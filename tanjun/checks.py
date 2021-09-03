@@ -53,6 +53,7 @@ import datetime
 import time
 import typing
 from collections import abc as collections
+from functools import partial
 
 import hikari
 
@@ -787,3 +788,63 @@ def with_check(check: tanjun_abc.CheckSig, /) -> collections.Callable[[CommandT]
         A command decorator callback which adds the check.
     """
     return lambda command: command.add_check(check)
+
+
+def with_any_role_check(
+    roles: list[str | int] = list(),
+    *,
+    error_message: str | None = "You do not have the required roles to use this command!",
+    halt_execution: bool = True,
+) -> collections.Callable[[CommandT], CommandT]:
+    """Only let a command run if the author has a specific role.
+
+    Parameters
+    ----------
+    roles: list[str | int]
+        The author must have at least one (1) role in this list. (Role.name and Role.id are checked)
+
+    Other Parameters
+    ----------------
+    error_message: str | None
+        The error message raised if the member does not have a required role.
+
+        Defaults to 'You do not have the required roles to use this command!'
+    halt_execution: bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
+        end the execution search when it fails instead of returning `False`.
+
+        Defaults to `False`.
+
+    Returns
+    -------
+    collections.abc.Callable[[CommandT], CommandT]
+        A command decorator callback which adds the check."""
+
+    def any_role_check(
+        ctx: tanjun_abc.Context,
+        *,
+        roles: list[str],
+        error_message: str | None = None,
+        halt_execution: bool = False,
+    ) -> bool:
+
+        if not ctx.member:
+            return _handle_result(False, "You must be a member to use this!", True)
+
+        member_roles = ctx.member.get_roles()
+
+        def check_roles(member_role: Role, required_roles: list[str | int]) -> bool:
+            for check in required_roles:
+                if isinstance(check, int):
+                    if member_role.id == check:
+                        return True
+                if member_role.name == check:
+                    return True
+
+        result = any(check_roles(member_role, roles) for member_role in member_roles)
+        return _handle_result(result, error_message, halt_execution)
+
+    partial_any_role_check = partial(
+        any_role_check, roles=roles, error_message=error_message, halt_execution=halt_execution
+    )
+    return lambda command: command.add_check(partial_any_role_check)
