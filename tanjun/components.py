@@ -117,7 +117,7 @@ class Component(injecting.Injectable, abc.Component):
         If not provided then this will be a random string.
     strict : bool
         Whether this component should use a stricter (more optimal) approach
-        for kessage command search.
+        for message command search.
 
         When this is `True`, message command names will not be allowed to contain
         spaces and will have to be unique to one command within the component.
