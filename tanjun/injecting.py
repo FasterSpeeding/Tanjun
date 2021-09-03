@@ -268,7 +268,7 @@ class CallbackDescriptor(typing.Generic[_T]):
             if isinstance(ctx, AbstractInjectionContext):
                 return await self.resolve(ctx, *args, **kwargs)
 
-        return await self.resolve_without_injector(ctx, *args, **kwargs)
+        return await self.resolve_without_injector(*args, **kwargs)
 
     async def resolve_without_injector(self, *args: typing.Any, **kwargs: typing.Any) -> _T:
         if self.needs_injector:
