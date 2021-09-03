@@ -219,10 +219,11 @@ class CallbackDescriptor(typing.Generic[_T]):
     __slots__ = ("_callback", "_descriptors", "_is_async")
 
     def __init__(self, callback: CallbackSig[_T], /) -> None:
+        self._callback = callback
+        self._is_async: typing.Optional[bool] = None
         try:
             parameters = inspect.signature(callback).parameters.items()
         except ValueError:  # If we can't inspect it then we have to assume this is a NO
-            self._callback = callback
             self._descriptors: dict[str, Descriptor[typing.Any]] = {}
             return
 
@@ -241,9 +242,7 @@ class CallbackDescriptor(typing.Generic[_T]):
                 assert parameter.default.type is not None
                 descriptors[name] = Descriptor(type=parameter.default.type)
 
-        self._callback = callback
         self._descriptors = descriptors
-        self._is_async: typing.Optional[bool] = None
 
     # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
     def __eq__(self, other: typing.Any) -> bool:
