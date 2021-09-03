@@ -36,7 +36,7 @@ import tempfile
 
 import nox
 
-nox.options.sessions = ["reformat", "check-dependencies", "lint", "spell-check", "type-check", "test"]  # type: ignore
+nox.options.sessions = ["reformat", "lint", "spell-check", "type-check", "test"]  # type: ignore
 GENERAL_TARGETS = ["./examples", "./noxfile.py", "./tanjun", "./tests"]
 PYTHON_VERSIONS = ["3.9", "3.10"]  # TODO: @nox.session(python=["3.6", "3.7", "3.8"])?
 
