@@ -318,26 +318,87 @@ class Context(abc.ABC):
 
     @abc.abstractmethod
     async def fetch_channel(self) -> hikari.PartialChannel:
+        """Fetch the channel the context was invoked in.
+
+        !!! note
+            This performs an API call. Consider using `Context.get_channel`
+            if you have `hikari.config.CacheComponents.GUILD_CHANNELS` cache component enabled.
+
+        Returns
+        -------
+        hikari.PartialChannel
+            The guild channel the context was invoked in.
+        """
         raise NotImplementedError
 
     @abc.abstractmethod
     async def fetch_guild(self) -> typing.Optional[hikari.Guild]:
+        """Fetch the guild the context was invoked in.
+
+        !!! note
+            This performs an API call. Consider using `Context.get_guild`
+            if you have `hikari.config.CacheComponents.GUILDS` cache component enabled.
+
+        Returns
+        -------
+        typing.Optional[hikari.Guild]
+            An optional guild the context was invoked in.
+            `None` will be returned if the guild was not found.
+        """
         raise NotImplementedError
 
     @abc.abstractmethod
     def get_channel(self) -> typing.Optional[hikari.PartialChannel]:
+        """Retrieve the guild channel the context was invoked in from the cache.
+
+        Note
+        ----
+        * This method requires the `hikari.config.CacheComponents.GUILD_CHANNELS` cache component.
+
+        Returns
+        -------
+        typing.Optional[hikari.PartialChannel]
+            An optional guild the context was invoked in.
+            `None` will be returned if the guild was not found.
+        """
         raise NotImplementedError
 
     @abc.abstractmethod
     def get_guild(self) -> typing.Optional[hikari.Guild]:
+        """Fetch the guild that the context was invoked in.
+
+        Note
+        ----
+        * This method requires `hikari.config.CacheComponents.GUILDS` cache component enabled.
+
+        Returns
+        -------
+        typing.Optional[hikari.Guild]
+            An optional guild the context was invoked in.
+            `None` will be returned if the guild was not found.
+        """
         raise NotImplementedError
 
     @abc.abstractmethod
     async def delete_initial_response(self) -> None:
+        """Delete the initial response after invoking this context.
+
+        Raises
+        ------
+        LookupError
+            The last context has no initial response.
+        """
         raise NotImplementedError
 
     @abc.abstractmethod
     async def delete_last_response(self) -> None:
+        """Delete the last response after invoking this context.
+
+        Raises
+        ------
+        LookupError
+            The last context has no responses.
+        """
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -362,6 +423,36 @@ class Context(abc.ABC):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        """Edit the initial response for this context.
+
+        Parameters
+        ----------
+        content : hikari.UndefinedOr[typing.Any]
+            The content to edit the response with.
+
+        Other Parameters
+        ----------------
+        attachment : hikari.UndefinedOr[hikari.Resourceish]
+            A singular attachment to edit the response with.
+        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]
+            A sequence of attachments to edit the response with.
+        embed : hikari.UndefinedOr[hikari.Embed]
+            An embed to replace the response with.
+        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
+            A sequence of embeds to replace the response with.
+        replace_attachments : bool
+            Whether to replace the attachments of the response or not. Default to `False`.
+        mentions_everyone : hikari.UndefinedOr[bool]
+            If set to `True`. The response will parse the @everyone/@here mentions. Default is `hikari.UNDEFINED`
+        user_mentions : hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]]
+            If set to `True`, all user mentions will be detected.
+            If set to `False`, all user mentions will be ignored.
+            Default is `hikari.UNDEFINED`
+        role_mentions: hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+            If set to `True`, all role mentions will be detected.
+            If set to `False`, all role mentions will be ignored.
+            Default is `hikari.UNDEFINED`
+        """
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -386,14 +477,56 @@ class Context(abc.ABC):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        """Edit the last response for this context.
+
+        Parameters
+        ----------
+        content : hikari.UndefinedOr[typing.Any]
+            The content to edit the response with.
+
+        Other Parameters
+        ----------------
+        attachment : hikari.UndefinedOr[hikari.Resourceish]
+            A singular attachment to edit the response with.
+        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]
+            A sequence of attachments to edit the response with.
+        embed : hikari.UndefinedOr[hikari.Embed]
+            An embed to replace the response with.
+        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
+            A sequence of embeds to replace the response with.
+        replace_attachments : bool
+            Whether to replace the attachments of the response or not. Default to `False`.
+        mentions_everyone : hikari.UndefinedOr[bool]
+            If set to `True`. The response will parse the @everyone/@here mentions.
+        user_mentions : hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]]
+            If set to `True`, all user mentions will be detected.
+            If set to `False`, all user mentions will be ignored.
+        role_mentions: hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+            If set to `True`, all user mentions will be detected.
+            If set to `False`, all user mentions will be ignored.
+        """
         raise NotImplementedError
 
     @abc.abstractmethod
     async def fetch_initial_response(self) -> hikari.Message:
+        """Fetch the initial response for this context.
+
+        Raises
+        ------
+        LookupError
+            The response was not found.
+        """
         raise NotImplementedError
 
     @abc.abstractmethod
     async def fetch_last_response(self) -> hikari.Message:
+        """Fetch the last response for this context.
+
+        Raises
+        ------
+        LookupError
+            The response was not found.
+        """
         raise NotImplementedError
 
     @typing.overload
@@ -462,6 +595,30 @@ class Context(abc.ABC):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> typing.Optional[hikari.Message]:
+        """Respond with the content to this context.
+
+        Parameters
+        ----------
+        content : hikari.UndefinedOr[typing.Any]
+            The content to respond with.
+
+        Other Parameters
+        ----------------
+        ensure_result : bool
+            If provided and set to `True`, The response will be fetched performing an API call.
+        embed : hikari.UndefinedOr[hikari.Embed]
+            An embed to respond with.
+        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
+            A sequence of embeds to respond with.
+        mentions_everyone : hikari.UndefinedOr[bool]
+            If set to `True`. The response will parse the @everyone/@here mentions.
+        user_mentions : hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]]
+            If set to `True`, all user mentions will be detected.
+            If set to `False`, all user mentions will be ignored.
+        role_mentions: hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+            If set to `True`, all user mentions will be detected.
+            If set to `False`, all user mentions will be ignored.
+        """
         raise NotImplementedError
 
 
@@ -578,6 +735,42 @@ class MessageContext(Context, abc.ABC):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        """Respond to this context.
+
+        Parameters
+        ----------
+        content : hikari.UndefinedOr[typing.Any]
+            The content to respond with.
+
+        Other Parameters
+        ----------------
+        ensure_result : bool
+            If provided and set to `True`, The response will be fetched performing an API call.
+        tts : hikari.UndefinedOr[bool]
+            Whether to respond with tts/text to speech or no.
+        reply : hikari.Undefinedor[hikari.SnowflakeishOr[hikari.PartialMessage]]
+            Whether to reply instead of sending the content to the context.
+        nonce : hikari.UndefinedOr[str]
+            The nonce that validates that the message was sent.
+        attachment : hikari.UndefinedOr[hikari.Resourceish]
+            A singular attachment to edit the response with.
+        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]
+            A sequence of attachments to edit the response with.
+        embed : hikari.UndefinedOr[hikari.Embed]
+            An embed to replace the response with.
+        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
+            A sequence of embeds to replace the response with.
+        replace_attachments : bool
+            Whether to replace the attachments of the response or not. Default to `False`.
+        mentions_everyone : hikari.UndefinedOr[bool]
+            If set to `True`. The response will parse the @everyone/@here mentions.
+        user_mentions : hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]]
+            If set to `True`, all user mentions will be detected.
+            If set to `False`, all user mentions will be ignored.
+        role_mentions: hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+            If set to `True`, all user mentions will be detected.
+            If set to `False`, all user mentions will be ignored.
+        """
         raise NotImplementedError
 
 
