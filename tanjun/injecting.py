@@ -67,6 +67,11 @@ _T = typing.TypeVar("_T")
 CallbackSig = collections.Callable[..., tanjun_abc.MaybeAwaitableT[_T]]
 """Type-hint of a injector callback.
 
+.. note::
+    Dependency dependency injection is recursively supported, meaning that the
+    keyword arguments for a dependency callback may also ask for dependencies
+    themselves.
+
 This may either be a synchronous or asynchronous function with dependency
 injection being available for the callback's keyword arguments but dynamically
 returning either an awaitable or raw value may lead to errors.
@@ -148,7 +153,7 @@ class AbstractInjectionContext(abc.ABC):
     def get_type_special_case(self, type_: type[_T], /) -> UndefinedOr[_T]:
         """Get a special-case value for a type.
 
-        !!! note
+        .. note:
             Client set types should override this.
 
         Parameters
@@ -162,10 +167,6 @@ class AbstractInjectionContext(abc.ABC):
             The special-case value, or `UNDEFINED` if the type is not supported
             by this context.
         """
-
-    @abc.abstractmethod
-    def set_type_special_case(self, type_: type[_T], value: _T, /) -> None:
-        raise NotImplementedError
 
 
 class BasicInjectionContext(AbstractInjectionContext):
@@ -211,9 +212,6 @@ class BasicInjectionContext(AbstractInjectionContext):
     def set_type_special_case(self, type_: type[_T], value: _T, /) -> None:
         self._special_case_types[type_] = value
 
-    def remove_type_special_case(self, type_: type[typing.Any], /) -> None:
-        del self._special_case_types[type_]
-
 
 class CallbackDescriptor(typing.Generic[_T]):
     __slots__ = ("_callback", "_descriptors", "_is_async")
@@ -224,6 +222,7 @@ class CallbackDescriptor(typing.Generic[_T]):
         try:
             parameters = inspect.signature(callback).parameters.items()
         except ValueError:  # If we can't inspect it then we have to assume this is a NO
+            # As a note, this fails on some "signature-less" builtin functions/types like str.
             self._descriptors: dict[str, Descriptor[typing.Any]] = {}
             return
 
@@ -261,7 +260,7 @@ class CallbackDescriptor(typing.Generic[_T]):
         return bool(self._descriptors)
 
     async def resolve_with_command_context(
-        self, ctx: tanjun_abc.Context, *args: typing.Any, **kwargs: typing.Any
+        self, ctx: tanjun_abc.Context, /, *args: typing.Any, **kwargs: typing.Any
     ) -> _T:
         if self.needs_injector:
             if isinstance(ctx, AbstractInjectionContext):
@@ -284,7 +283,7 @@ class CallbackDescriptor(typing.Generic[_T]):
 
         return typing.cast(_T, result)
 
-    async def resolve(self, ctx: AbstractInjectionContext, *args: typing.Any, **kwargs: typing.Any) -> _T:
+    async def resolve(self, ctx: AbstractInjectionContext, /, *args: typing.Any, **kwargs: typing.Any) -> _T:
         if override := ctx.injection_client.get_callback_override(self._callback):
             return await override(ctx, *args, **kwargs)
 
@@ -320,11 +319,9 @@ class TypeDescriptor(typing.Generic[_T]):
     def type(self) -> _TypeT[_T]:
         return self._type  # type: ignore # TODO: pyright bug
 
-    async def resolve_with_command_context(
-        self, ctx: tanjun_abc.Context, *args: typing.Any, **kwargs: typing.Any
-    ) -> _T:
+    async def resolve_with_command_context(self, ctx: tanjun_abc.Context, /) -> _T:
         if isinstance(ctx, AbstractInjectionContext):
-            return await self.resolve(ctx, *args, **kwargs)
+            return await self.resolve(ctx)
 
         raise RuntimeError("Type injector cannot be resolved without anm injection client")
 
@@ -379,16 +376,16 @@ class Descriptor(typing.Generic[_T]):
 
     @property
     def type(self) -> typing.Optional[_TypeT[typing.Any]]:
-        return self._type
+        return self._type.type if self._type else None
 
     async def resolve_with_command_context(
-        self, ctx: tanjun_abc.Context, *args: typing.Any, **kwargs: typing.Any
+        self, ctx: tanjun_abc.Context, /, *args: typing.Any, **kwargs: typing.Any
     ) -> _T:
         if self._type:
             if args or kwargs:
-                raise ValueError("**args and **kwargs cannot be passed for a type descriptor")
+                raise ValueError("*args and **kwargs cannot be passed for a type descriptor")
 
-            return await self._type.resolve_with_command_context(ctx, self._type)
+            return await self._type.resolve_with_command_context(ctx)
 
         assert self._callback
         return await self._callback.resolve_with_command_context(ctx, *args, **kwargs)
@@ -399,7 +396,7 @@ class Descriptor(typing.Generic[_T]):
 
         return await self._callback.resolve_without_injector(*args, **kwargs)
 
-    async def resolve(self, ctx: AbstractInjectionContext, *args: typing.Any, **kwargs: typing.Any) -> _T:
+    async def resolve(self, ctx: AbstractInjectionContext, /, *args: typing.Any, **kwargs: typing.Any) -> _T:
         if self._type:
             if args or kwargs:
                 raise ValueError("**args and **kwargs cannot be passed for a type descriptor")
@@ -437,6 +434,20 @@ def injected(
     callback: typing.Optional[CallbackSig[_T]] = None,
     type: typing.Optional[_TypeT[_T]] = None,  # noqa: A002
 ) -> Injected[_T]:
+    """Decare a keyword-argument as requiring an injected dependency.
+
+    Parameters
+    ----------
+    callback : typing.Optional[CallbackSig[_T]]
+        A callback to used to resolve the dependency.
+    type : typing.Optional[type[_T]]
+        The type of the dependency to resolve.
+
+    Raises
+    ------
+    ValueError
+        If both `callback` and `type` are specified or if neither is specified.
+    """
     return Injected(callback=callback, type=type)  # type: ignore  # TODO: This is a pyright bug
 
 
@@ -508,7 +519,7 @@ class InjectorClient:
         del self._callback_overrides[callback]
 
 
-class BaseInjectableValue(typing.Generic[_T]):
+class BaseInjectableValue(typing.Generic[_T]):  # TODO: rename to BaseInjectableCallback
     __slots__ = ("_callback", "_descriptor")
 
     def __init__(self, callback: CallbackSig[_T], /) -> None:
@@ -547,7 +558,7 @@ class BaseInjectableValue(typing.Generic[_T]):
         self._descriptor = CallbackDescriptor(callback)
 
 
-class InjectableValue(BaseInjectableValue[_T]):
+class InjectableValue(BaseInjectableValue[_T]):  # TODO: rename to InjectableCallback
     __slots__ = ()
 
     async def __call__(self, ctx: AbstractInjectionContext, /) -> _T:
@@ -558,14 +569,7 @@ class InjectableCheck(BaseInjectableValue[bool]):
     __slots__ = ()
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
-        if self._descriptor.needs_injector:
-            if isinstance(ctx, AbstractInjectionContext):
-                return await self._descriptor.resolve(ctx, ctx)
-
-        else:
-            return await self._descriptor.resolve_without_injector(ctx)
-
-        raise errors.FailedCheck  # TODO: add message
+        return await self._descriptor.resolve_with_command_context(ctx, ctx)
 
 
 class InjectableConverter(BaseInjectableValue[_T]):
@@ -575,19 +579,12 @@ class InjectableConverter(BaseInjectableValue[_T]):
         super().__init__(callback)
         self._is_base_converter = isinstance(self._callback, conversion.BaseConverter)
 
-    async def __call__(self, value: conversion.ArgumentT, ctx: tanjun_abc.Context, /) -> _T:
+    async def __call__(self, ctx: tanjun_abc.Context, value: conversion.ArgumentT, /) -> _T:
         if self._is_base_converter:
             assert isinstance(self._callback, conversion.BaseConverter)
             return typing.cast(_T, await self._callback(value, ctx))
 
-        if self._descriptor.needs_injector:
-            if isinstance(ctx, AbstractInjectionContext):
-                return await self._descriptor.resolve(ctx, value)
-
-        else:
-            return await self._descriptor.resolve_without_injector(value)
-
-        raise RuntimeError("Cannot call this converter before the injector has been set")
+        return await self._descriptor.resolve_with_command_context(ctx, value)
 
 
 class _CacheCallback(typing.Generic[_T]):

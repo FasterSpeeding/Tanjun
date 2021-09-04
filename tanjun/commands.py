@@ -798,7 +798,7 @@ class _TrackedOption:
         exceptions: list[ValueError] = []
         for converter in self.converters:
             try:
-                return await converter(value, ctx)
+                return await converter(ctx, value)
 
             except ValueError as exc:
                 exceptions.append(exc)

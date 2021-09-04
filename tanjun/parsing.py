@@ -714,7 +714,7 @@ class Parameter:
         sources: list[ValueError] = []
         for converter in self._converters:
             try:
-                return await converter(value, ctx)
+                return await converter(ctx, value)
 
             except ValueError as exc:
                 sources.append(exc)

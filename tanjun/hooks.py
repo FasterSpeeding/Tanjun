@@ -248,20 +248,20 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
 AnyHooks = Hooks[abc.Context]
 """Hooks that can be used with any context.
 
-!!! note
+.. note::
     This is shorthand for Hooks[tanjun.abc.Context].
 """
 
 MessageHooks = Hooks[abc.MessageContext]
 """Hooks that can be used with a message context.
 
-!!! note
+.. note::
     This is shorthand for Hooks[tanjun.abc.MessageContext].
 """
 
 SlashHooks = Hooks[abc.SlashContext]
 """Hooks that can be used with a slash context.
 
-!!! note
+.. note::
     This is shorthand for Hooks[tanjun.abc.SlashContext].
 """
