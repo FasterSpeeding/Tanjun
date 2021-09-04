@@ -60,7 +60,7 @@ from . import conversion
 from . import errors
 
 if typing.TYPE_CHECKING:
-    _BaseInjectableValueT = typing.TypeVar("_BaseInjectableValueT", bound="BaseInjectableValue[typing.Any]")
+    _BaseInjectableCallbackT = typing.TypeVar("_BaseInjectableCallbackT", bound="BaseInjectableCallback[typing.Any]")
 
 _InjectorClientT = typing.TypeVar("_InjectorClientT", bound="InjectorClient")
 _T = typing.TypeVar("_T")
@@ -285,7 +285,7 @@ class CallbackDescriptor(typing.Generic[_T]):
 
     async def resolve(self, ctx: AbstractInjectionContext, /, *args: typing.Any, **kwargs: typing.Any) -> _T:
         if override := ctx.injection_client.get_callback_override(self._callback):
-            return await override(ctx, *args, **kwargs)
+            return await override.resolve(ctx, *args, **kwargs)
 
         if (result := ctx.get_cached_result(self._callback)) is not UNDEFINED:
             assert not isinstance(result, Undefined)
@@ -331,7 +331,7 @@ class TypeDescriptor(typing.Generic[_T]):
                 assert not isinstance(cached_result, Undefined)
                 return cached_result
 
-            result = await dependency(ctx)
+            result = await dependency.resolve(ctx)
             ctx.cache_result(dependency.callback, result)
             return result
 
@@ -457,12 +457,9 @@ class InjectorClient:
     __slots__ = ("_callback_overrides", "_special_case_types", "_type_dependencies")
 
     def __init__(self) -> None:
-        self._callback_overrides: dict[CallbackSig[typing.Any], InjectableValue[typing.Any]] = {}
-        self._special_case_types: typing.Dict[type[typing.Any], typing.Any] = {
-            InjectorClient: self,
-            type(self): self,
-        }
-        self._type_dependencies: dict[type[typing.Any], InjectableValue[typing.Any]] = {}
+        self._callback_overrides: dict[CallbackSig[typing.Any], CallbackDescriptor[typing.Any]] = {}
+        self._special_case_types: typing.Dict[type[typing.Any], typing.Any] = {InjectorClient: self, type(self): self}
+        self._type_dependencies: dict[type[typing.Any], CallbackDescriptor[typing.Any]] = {}
 
     def add_type_dependency(self: _InjectorClientT, type_: type[_T], callback: CallbackSig[_T], /) -> _InjectorClientT:
         """Set a callback to be called to resolve a injected type.
@@ -479,10 +476,10 @@ class InjectorClient:
         Self
             The client instance to allow chaining.
         """
-        self._type_dependencies[type_] = InjectableValue(callback)
+        self._type_dependencies[type_] = CallbackDescriptor(callback)
         return self
 
-    def get_type_dependency(self, type_: type[_T], /) -> typing.Optional[InjectableValue[_T]]:
+    def get_type_dependency(self, type_: type[_T], /) -> typing.Optional[CallbackDescriptor[_T]]:
         """Get the callback associated with an injected type.
 
         Parameters
@@ -492,7 +489,7 @@ class InjectorClient:
 
         Returns
         -------
-        Optional[InjectableValue[_T]]
+        Optional[CallbackDescriptor[_T]]
             The callback to use during type resolution if set, else `None`.
         """
         return self._type_dependencies.get(type_)
@@ -509,17 +506,17 @@ class InjectorClient:
     def add_callback_override(
         self: _InjectorClientT, callback: CallbackSig[_T], override: CallbackSig[_T], /
     ) -> _InjectorClientT:
-        self._callback_overrides[callback] = InjectableValue(override)
+        self._callback_overrides[callback] = CallbackDescriptor(override)
         return self
 
-    def get_callback_override(self, callback: CallbackSig[_T], /) -> typing.Optional[InjectableValue[_T]]:
+    def get_callback_override(self, callback: CallbackSig[_T], /) -> typing.Optional[CallbackDescriptor[_T]]:
         return self._callback_overrides.get(callback)
 
     def remove_callback_override(self, callback: CallbackSig[_T], /) -> None:
         del self._callback_overrides[callback]
 
 
-class BaseInjectableValue(typing.Generic[_T]):  # TODO: rename to BaseInjectableCallback
+class BaseInjectableCallback(typing.Generic[_T]):  # TODO: rename to BaseInjectableCallback
     __slots__ = ("_callback", "_descriptor")
 
     def __init__(self, callback: CallbackSig[_T], /) -> None:
@@ -546,7 +543,7 @@ class BaseInjectableValue(typing.Generic[_T]):  # TODO: rename to BaseInjectable
     def needs_injector(self) -> bool:
         return self._descriptor.needs_injector
 
-    def copy(self: _BaseInjectableValueT, *, _new: bool = True) -> _BaseInjectableValueT:
+    def copy(self: _BaseInjectableCallbackT, *, _new: bool = True) -> _BaseInjectableCallbackT:
         if not _new:
             self._callback = copy.copy(self._callback)
             return self
@@ -558,21 +555,14 @@ class BaseInjectableValue(typing.Generic[_T]):  # TODO: rename to BaseInjectable
         self._descriptor = CallbackDescriptor(callback)
 
 
-class InjectableValue(BaseInjectableValue[_T]):  # TODO: rename to InjectableCallback
-    __slots__ = ()
-
-    async def __call__(self, ctx: AbstractInjectionContext, /) -> _T:
-        return await self._descriptor.resolve(ctx)
-
-
-class InjectableCheck(BaseInjectableValue[bool]):
+class InjectableCheck(BaseInjectableCallback[bool]):
     __slots__ = ()
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
         return await self._descriptor.resolve_with_command_context(ctx, ctx)
 
 
-class InjectableConverter(BaseInjectableValue[_T]):
+class InjectableConverter(BaseInjectableCallback[_T]):
     __slots__ = ("_is_base_converter",)
 
     def __init__(self, callback: CallbackSig[_T], /) -> None:

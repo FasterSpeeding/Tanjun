@@ -70,9 +70,8 @@ class TestUndefined:
 
     def test_undefined_is_singleton(self):
         assert tanjun.injecting.Undefined() is tanjun.injecting.UNDEFINED
-        assert (
-            tanjun.injecting.Undefined() is type(tanjun.injecting.UNDEFINED)()  # noqa: E721
-        )  # noqa: E721 # false-positive about comparing types
+        # flake8 false positive errors about comparing types here
+        assert tanjun.injecting.Undefined() is type(tanjun.injecting.UNDEFINED)()  # noqa: E721
         assert tanjun.injecting.Undefined() is tanjun.injecting.Undefined()
 
     def test_undefined_isnt_just_the_same_as_everything(self):
@@ -258,9 +257,9 @@ class TestTypeDescriptor:
 
         result = await tanjun.injecting.TypeDescriptor(mock_type).resolve(ctx)
 
-        assert result is ctx.injection_client.get_type_dependency.return_value.return_value
+        assert result is ctx.injection_client.get_type_dependency.return_value.resolve.return_value
         ctx.cache_result.assert_called_once_with(ctx.injection_client.get_type_dependency.return_value.callback, result)
-        ctx.injection_client.get_type_dependency.return_value.assert_awaited_once_with(ctx)
+        ctx.injection_client.get_type_dependency.return_value.resolve.assert_awaited_once_with(ctx)
         ctx.get_cached_result.assert_called_once_with(ctx.injection_client.get_type_dependency.return_value.callback)
 
     @pytest.mark.asyncio()
@@ -437,28 +436,28 @@ class TestInjectorClient:
         ...
 
 
-class TestBaseInjectableValue:
+class TestBaseInjectableCallback:
     def test___eq___with_same_function(self):
         mock_callback = mock.Mock()
 
-        assert (tanjun.injecting.BaseInjectableValue(mock_callback) == mock_callback) is True
+        assert (tanjun.injecting.BaseInjectableCallback(mock_callback) == mock_callback) is True
 
     def test___eq___with_different_function(self):
-        assert (tanjun.injecting.BaseInjectableValue(mock.Mock()) == mock.Mock()) is False
+        assert (tanjun.injecting.BaseInjectableCallback(mock.Mock()) == mock.Mock()) is False
 
     def test___hash___(self):
         mock_callback = mock.Mock()
-        assert hash(tanjun.injecting.BaseInjectableValue(mock_callback)) == hash(mock_callback)
+        assert hash(tanjun.injecting.BaseInjectableCallback(mock_callback)) == hash(mock_callback)
 
     def test_callback_property(self):
         mock_callback = mock.Mock()
-        assert tanjun.injecting.BaseInjectableValue(mock_callback).callback is mock_callback
+        assert tanjun.injecting.BaseInjectableCallback(mock_callback).callback is mock_callback
 
     def test_descriptor_property(self):
         mock_callback = mock.Mock()
 
         with mock.patch.object(tanjun.injecting, "CallbackDescriptor") as callback_descriptor:
-            assert tanjun.injecting.BaseInjectableValue(mock_callback).descriptor is callback_descriptor.return_value
+            assert tanjun.injecting.BaseInjectableCallback(mock_callback).descriptor is callback_descriptor.return_value
 
             callback_descriptor.assert_called_once_with(mock_callback)
 
@@ -466,7 +465,7 @@ class TestBaseInjectableValue:
         mock_callback = mock.Mock()
 
         with mock.patch.object(tanjun.injecting, "CallbackDescriptor") as callback_descriptor:
-            result = tanjun.injecting.BaseInjectableValue(mock_callback)
+            result = tanjun.injecting.BaseInjectableCallback(mock_callback)
 
             assert result.needs_injector is callback_descriptor.return_value.needs_injector
             callback_descriptor.assert_called_once_with(mock_callback)
@@ -476,7 +475,7 @@ class TestBaseInjectableValue:
 
     def test_overwrite_callback(self):
         mock_callback = mock.Mock()
-        injectable = tanjun.injecting.BaseInjectableValue(mock.Mock())
+        injectable = tanjun.injecting.BaseInjectableCallback(mock.Mock())
 
         with mock.patch.object(tanjun.injecting, "CallbackDescriptor") as callback_descriptor:
             injectable.overwrite_callback(mock_callback)
@@ -485,25 +484,6 @@ class TestBaseInjectableValue:
 
         assert injectable.callback is mock_callback
         assert injectable.needs_injector is callback_descriptor.return_value.needs_injector
-
-
-class TestInjectableValue:
-    @pytest.mark.asyncio()
-    async def test(self):
-        mock_callback = mock.Mock()
-        mock_context = mock.Mock()
-
-        with mock.patch.object(
-            tanjun.injecting, "CallbackDescriptor", return_value=mock.AsyncMock()
-        ) as callback_descriptor:
-            injectable = tanjun.injecting.InjectableValue(mock_callback)
-
-            callback_descriptor.assert_called_once_with(mock_callback)
-
-        result = await injectable(mock_context)
-
-        assert result is callback_descriptor.return_value.resolve.return_value
-        callback_descriptor.return_value.resolve.assert_awaited_once_with(mock_context)
 
 
 class TestInjectableCheck:

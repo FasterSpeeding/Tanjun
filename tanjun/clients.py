@@ -275,7 +275,7 @@ async def _wrap_client_callback(
             raise
 
 
-class _InjectablePrefixGetter(injecting.BaseInjectableValue[collections.Iterable[str]]):
+class _InjectablePrefixGetter(injecting.BaseInjectableCallback[collections.Iterable[str]]):
     __slots__ = ()
 
     def __init__(self, callback: PrefixGetterSig, /) -> None:
