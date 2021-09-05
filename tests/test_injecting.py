@@ -559,7 +559,7 @@ class TestInjectorClient:
     def test_get_type_dependency(self):
         mock_callback = mock.Mock()
         mock_type: type[typing.Any] = mock.Mock()
-        client = tanjun.injecting.InjectorClient().add_type_dependency(mock_type, mock_callback)
+        client = tanjun.injecting.InjectorClient().set_type_dependency(mock_type, mock_callback)
 
         result = client.get_type_dependency(mock_type)
 
@@ -571,7 +571,7 @@ class TestInjectorClient:
 
     def test_remove_type_dependency(self):
         mock_type: type[typing.Any] = mock.Mock()
-        client = tanjun.injecting.InjectorClient().add_type_dependency(mock_type, mock.Mock())
+        client = tanjun.injecting.InjectorClient().set_type_dependency(mock_type, mock.Mock())
         client.remove_type_dependency(mock_type)
 
         assert client.get_type_dependency(mock_type) is None
@@ -590,7 +590,7 @@ class TestInjectorClient:
     def test_get_callback_override(self):
         mock_callback = mock.Mock()
         mock_override = mock.Mock()
-        client = tanjun.injecting.InjectorClient().add_callback_override(mock_callback, mock_override)
+        client = tanjun.injecting.InjectorClient().set_callback_override(mock_callback, mock_override)
 
         result = client.get_callback_override(mock_callback)
 
@@ -602,7 +602,7 @@ class TestInjectorClient:
 
     def test_remove_callback_override(self):
         mock_callback = mock.Mock()
-        client = tanjun.injecting.InjectorClient().add_callback_override(mock_callback, mock.Mock())
+        client = tanjun.injecting.InjectorClient().set_callback_override(mock_callback, mock.Mock())
         client.remove_callback_override(mock_callback)
 
         assert client.get_callback_override(mock_callback) is None

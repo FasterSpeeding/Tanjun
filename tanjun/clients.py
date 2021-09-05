@@ -1079,7 +1079,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._components.add(component)
 
         if add_injector:
-            self.add_type_dependency(type(component), lambda: component)
+            self.set_type_dependency(type(component), lambda: component)
 
         if self._is_alive:
             asyncio.get_running_loop().create_task(
