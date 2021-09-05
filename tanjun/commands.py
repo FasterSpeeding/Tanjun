@@ -792,7 +792,7 @@ class _TrackedOption(injecting.Injectable):
     def __init__(
         self,
         name: str,
-        option_type: int,
+        option_type: typing.Union[hikari.OptionType, int],
         converters: list[injecting.InjectableConverter[typing.Any]],
         only_member: bool,
         default: typing.Any = _UNDEFINED_DEFAULT,
@@ -1232,16 +1232,16 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             raise NotImplementedError
 
         if only_member and type_ not in _MEMBER_OPTION_TYPES:
-            raise ValueError("Specifically member may only be set for a USER or MENTIONABLE option")
+            raise ValueError("only_member may only be set for a USER or MENTIONABLE option")
+
+        if converters and (type_ in _OBJECT_OPTION_TYPES or type_ is hikari.OptionType.BOOLEAN):
+            raise ValueError("Converters cannot be provided for bool or object options")
 
         if isinstance(converters, collections.Iterable):
             converters = list(map(_convert_to_injectable, converters))
 
         else:
             converters = [_convert_to_injectable(converters)]
-
-        if converters and (type_ in _OBJECT_OPTION_TYPES or type_ == hikari.OptionType.BOOLEAN):
-            raise ValueError("Converters cannot be provided for bool or object options")
 
         choices_ = [hikari.CommandChoice(name=name, value=value) for name, value in choices] if choices else None
         required = default is _UNDEFINED_DEFAULT
@@ -1277,13 +1277,18 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             option = options_dict.get(tracked_option.name)
             if not option or not option.value:
                 if tracked_option.default is _UNDEFINED_DEFAULT:
-                    # raise errors.ConversionError(
-                    #     tracked_option.name,
-                    #     "Found value-less or missing option for a option for tracked option with no default"
-                    # )
-                    raise RuntimeError("Found value-less or missing option for a tracked option with no default")
+                    if tracked_option.type is not hikari.OptionType.BOOLEAN:
+                        raise RuntimeError(  # TODO: ConversionError?
+                            f"Required option {tracked_option.name} is missing data, are you sure your commands"
+                            " are up to date?"
+                        )
 
-                keyword_args[tracked_option.name] = tracked_option.default
+                    # If a required boolean field is passed as False then Discord just won't include the option in the
+                    # interaction event cause payload size reduction so we have to always default to False.
+                    keyword_args[tracked_option.name] = False
+
+                else:
+                    keyword_args[tracked_option.name] = tracked_option.default
 
             elif option.type is hikari.OptionType.USER:
                 user_id = hikari.Snowflake(option.value)
