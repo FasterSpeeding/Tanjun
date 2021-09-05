@@ -32,7 +32,6 @@
 
 # pyright: reportUnknownMemberType=none
 # This leads to too many false-positives around mocks.
-
 import asyncio
 import inspect
 import types
@@ -124,7 +123,7 @@ class TestCallbackDescriptor:
         assert descriptor.callback is str
         assert descriptor.needs_injector is False
 
-    def test___init___errors_on_injected_positional_argument(self):
+    def test___init___errors_on_injected_positional_only_injected_argument(self):
         def foo(self: int = tanjun.injecting.injected(type=int), /) -> None:
             ...
 
@@ -161,6 +160,15 @@ class TestCallbackDescriptor:
 
         assert tanjun.injecting.CallbackDescriptor(foo).needs_injector is False
 
+    def test_copy(self):
+        mock_callback = mock.MagicMock()
+        descriptor = tanjun.injecting.CallbackDescriptor(mock_callback)
+
+        result = descriptor.copy()
+
+        assert result.callback == mock_callback
+        assert result.callback is not mock_callback
+
     @pytest.mark.asyncio()
     async def test_resolve_with_command_context_when_needs_injector_and_is_injection_context(self):
         def foo(c: int = tanjun.injecting.injected(type=int)) -> None:
@@ -169,12 +177,11 @@ class TestCallbackDescriptor:
         descriptor = stub_class(
             tanjun.injecting.CallbackDescriptor, resolve=mock.AsyncMock(), resolve_without_injector=mock.AsyncMock()
         )(foo)
+        mock_context = mock.Mock(tanjun.injecting.AbstractInjectionContext)
 
-        context = mock.Mock(tanjun.injecting.AbstractInjectionContext)
+        await descriptor.resolve_with_command_context(mock_context, 333, 222, 111, b=333, c=222)
 
-        await descriptor.resolve_with_command_context(context, 333, 222, 111, b=333, c=222)
-
-        descriptor.resolve.assert_awaited_once_with(context, 333, 222, 111, b=333, c=222)
+        descriptor.resolve.assert_awaited_once_with(mock_context, 333, 222, 111, b=333, c=222)
         descriptor.resolve_without_injector.assert_not_called()
 
     @pytest.mark.asyncio()
@@ -185,10 +192,9 @@ class TestCallbackDescriptor:
         descriptor = stub_class(
             tanjun.injecting.CallbackDescriptor, resolve=mock.AsyncMock(), resolve_without_injector=mock.AsyncMock()
         )(foo)
+        mock_context = mock.Mock()
 
-        context = mock.Mock()
-
-        await descriptor.resolve_with_command_context(context, 123, 432, a=1234, o=4312, i1=123)
+        await descriptor.resolve_with_command_context(mock_context, 123, 432, a=1234, o=4312, i1=123)
 
         descriptor.resolve.assert_not_called()
         descriptor.resolve_without_injector.assert_awaited_once_with(123, 432, a=1234, o=4312, i1=123)
@@ -198,17 +204,32 @@ class TestCallbackDescriptor:
         descriptor = stub_class(
             tanjun.injecting.CallbackDescriptor, resolve=mock.AsyncMock(), resolve_without_injector=mock.AsyncMock()
         )(mock.Mock())
+        mock_context = mock.Mock()
 
-        context = mock.Mock()
-
-        await descriptor.resolve_with_command_context(context, 5412, by=123, sa=123)
+        await descriptor.resolve_with_command_context(mock_context, 5412, by=123, sa=123)
 
         descriptor.resolve.assert_not_called()
         descriptor.resolve_without_injector.assert_awaited_once_with(5412, by=123, sa=123)
 
     @pytest.mark.asyncio()
-    async def test_resolve_without_injector(self):
-        ...
+    async def test_resolve_without_injector_with_async_method(self):
+        mock_callback = mock.AsyncMock()
+        descriptor = tanjun.injecting.CallbackDescriptor(mock_callback)
+
+        result = await descriptor.resolve_without_injector(1, 2, 3, a=53, g=123, t=123)
+
+        assert result is mock_callback.return_value
+        mock_callback.assert_awaited_once_with(1, 2, 3, a=53, g=123, t=123)
+
+    @pytest.mark.asyncio()
+    async def test_resolve_without_injector_with_sync_method(self):
+        mock_callback = mock.Mock()
+        descriptor = tanjun.injecting.CallbackDescriptor(mock_callback)
+
+        result = await descriptor.resolve_without_injector(1, 2, 3, a=53, g=123, t=123)
+
+        assert result is mock_callback.return_value
+        mock_callback.assert_called_once_with(1, 2, 3, a=53, g=123, t=123)
 
     @pytest.mark.asyncio()
     async def test_resolve_without_injector_when_needs_injector(self):
@@ -220,7 +241,119 @@ class TestCallbackDescriptor:
 
     @pytest.mark.asyncio()
     async def test_resolve(self):
-        ...
+        result_collector = mock.AsyncMock()
+        async_sub_dependency = mock.AsyncMock()
+        sub_dependency = mock.Mock()
+        mock_type: type[typing.Any] = mock.Mock()
+        mock_context = mock.Mock()
+        mock_context.injection_client.get_callback_override.return_value = None
+        mock_context.get_cached_result.return_value = tanjun.injecting.UNDEFINED
+        mock_context.get_type_special_case.return_value = tanjun.injecting.UNDEFINED
+        mock_type_dependency = mock.AsyncMock()
+        mock_context.injection_client.get_type_dependency.return_value = mock_type_dependency
+
+        def sync_sub_callback() -> typing.Any:
+            return sub_dependency()
+
+        def async_sub_callback(sub: typing.Any = tanjun.injected(callback=sync_sub_callback)) -> typing.Any:
+            return async_sub_dependency(sub=sub)
+
+        def mock_callback(
+            *args: typing.Any,
+            ty: typing.Any = tanjun.injected(type=mock_type),
+            sub_async: typing.Any = tanjun.injected(callback=async_sub_callback),
+            **kwargs: typing.Any,
+        ) -> typing.Any:
+            return result_collector(*args, **kwargs, ty=ty, sub_async=sub_async)
+
+        descriptor = tanjun.injecting.CallbackDescriptor(mock_callback)
+
+        result = await descriptor.resolve(mock_context, 123, b=333, c=222)
+
+        assert result is result_collector.return_value
+
+        mock_context.injection_client.get_callback_override.assert_has_calls(
+            [mock.call(mock_callback), mock.call(async_sub_callback), mock.call(sync_sub_callback)], any_order=True
+        )
+        result_collector.assert_awaited_once_with(
+            123, b=333, c=222, ty=mock_type_dependency.resolve.return_value, sub_async=async_sub_dependency.return_value
+        )
+        mock_context.injection_client.get_type_dependency.assert_called_once_with(mock_type)
+        mock_type_dependency.resolve.assert_awaited_once_with(mock_context)
+        async_sub_dependency.assert_awaited_once_with(sub=sub_dependency.return_value)
+        sub_dependency.assert_called_once_with()
+        mock_context.get_cached_result.assert_has_calls(
+            [
+                mock.call(mock_callback),
+                mock.call(async_sub_callback),
+                mock.call(sync_sub_callback),
+                mock.call(mock_type_dependency.callback),
+            ],
+            any_order=True,
+        )
+        mock_context.cache_result.assert_has_calls(
+            [
+                mock.call(mock_callback, result_collector.return_value),
+                mock.call(async_sub_callback, async_sub_dependency.return_value),
+                mock.call(sync_sub_callback, sub_dependency.return_value),
+                mock.call(mock_type_dependency.callback, mock_type_dependency.resolve.return_value),
+            ],
+            any_order=True,
+        )
+
+    @pytest.mark.asyncio()
+    async def test_resolve_when_overridden(self):
+        mock_callback = mock.Mock()
+        descriptor = tanjun.injecting.CallbackDescriptor(mock_callback)
+        mock_context = mock.Mock()
+        mock_context.injection_client.get_callback_override.return_value.resolve = mock.AsyncMock()
+
+        result = await descriptor.resolve(mock_context, 123, b=333, c=222)
+
+        assert result is mock_context.injection_client.get_callback_override.return_value.resolve.return_value
+        mock_context.injection_client.get_callback_override.return_value.resolve.assert_awaited_once_with(
+            mock_context, 123, b=333, c=222
+        )
+        mock_context.injection_client.get_callback_override.assert_called_once_with(mock_callback)
+        mock_context.get_cached_result.assert_not_called()
+        mock_callback.assert_not_called()
+        mock_context.cache_result.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_resolve_when_cached(self):
+        mock_callback = mock.Mock()
+        descriptor = tanjun.injecting.CallbackDescriptor(mock_callback)
+        mock_context = mock.Mock()
+        mock_context.injection_client.get_callback_override.return_value = None
+
+        result = await descriptor.resolve(mock_context, 123, b=333, c=222)
+
+        assert result is mock_context.get_cached_result.return_value
+        mock_context.injection_client.get_callback_override.assert_called_once_with(mock_callback)
+        mock_context.get_cached_result.assert_called_once_with(mock_callback)
+        mock_callback.assert_not_called()
+        mock_context.cache_result.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_resolve_when_injection_not_needed(self):
+        mock_callback = mock.Mock()
+        descriptor = stub_class(tanjun.injecting.CallbackDescriptor, resolve_without_injector=mock.AsyncMock())(
+            mock_callback
+        )
+        mock_context = mock.Mock()
+        mock_context.injection_client.get_callback_override.return_value = None
+        mock_context.get_cached_result.return_value = tanjun.injecting.UNDEFINED
+
+        result = await descriptor.resolve(mock_context, 123, b=333, c=222)
+
+        assert result is descriptor.resolve_without_injector.return_value
+        mock_context.injection_client.get_callback_override.assert_called_once_with(mock_callback)
+        mock_context.get_cached_result.assert_called_once_with(mock_callback)
+        mock_callback.assert_not_called()
+        mock_context.cache_result.assert_called_once_with(
+            mock_callback, descriptor.resolve_without_injector.return_value
+        )
+        descriptor.resolve_without_injector.assert_awaited_once_with(123, b=333, c=222)
 
 
 class TestTypeDescriptor:
@@ -424,16 +557,55 @@ def test_injected_with_type():
 
 class TestInjectorClient:
     def test_get_type_dependency(self):
-        ...
+        mock_callback = mock.Mock()
+        mock_type: type[typing.Any] = mock.Mock()
+        client = tanjun.injecting.InjectorClient().add_type_dependency(mock_type, mock_callback)
+
+        result = client.get_type_dependency(mock_type)
+
+        assert result
+        assert result.callback is mock_callback
 
     def test_get_type_dependency_for_unknown_dependency(self):
         assert tanjun.injecting.InjectorClient().get_type_dependency(object) is None
 
+    def test_remove_type_dependency(self):
+        mock_type: type[typing.Any] = mock.Mock()
+        client = tanjun.injecting.InjectorClient().add_type_dependency(mock_type, mock.Mock())
+        client.remove_type_dependency(mock_type)
+
+        assert client.get_type_dependency(mock_type) is None
+
     def test_get_type_special_case(self):
-        ...
+        mock_type: type[typing.Any] = mock.Mock()
+        mock_value = mock.Mock()
+        client = tanjun.injecting.InjectorClient().set_type_special_case(mock_type, mock_value)
+
+        assert client.get_type_special_case(mock_type) is mock_value
 
     def test_get_type_special_case_for_unknown_case(self):
-        ...
+        mock_type: type[typing.Any] = mock.Mock()
+        assert tanjun.injecting.InjectorClient().get_type_special_case(mock_type) is tanjun.injecting.UNDEFINED
+
+    def test_get_callback_override(self):
+        mock_callback = mock.Mock()
+        mock_override = mock.Mock()
+        client = tanjun.injecting.InjectorClient().add_callback_override(mock_callback, mock_override)
+
+        result = client.get_callback_override(mock_callback)
+
+        assert result
+        assert result.callback is mock_override
+
+    def test_get_callback_override_for_unknown_override(self):
+        assert tanjun.injecting.InjectorClient().get_callback_override(mock.Mock()) is None
+
+    def test_remove_callback_override(self):
+        mock_callback = mock.Mock()
+        client = tanjun.injecting.InjectorClient().add_callback_override(mock_callback, mock.Mock())
+        client.remove_callback_override(mock_callback)
+
+        assert client.get_callback_override(mock_callback) is None
 
 
 class TestBaseInjectableCallback:
@@ -471,7 +643,16 @@ class TestBaseInjectableCallback:
             callback_descriptor.assert_called_once_with(mock_callback)
 
     def test_copy(self):
-        ...  # TODO: do we need this?
+        mock_callback = mock.Mock()
+        with mock.patch.object(tanjun.injecting, "CallbackDescriptor") as callback_descriptor:
+            injectable = tanjun.injecting.BaseInjectableCallback(mock_callback)
+
+            callback_descriptor.assert_called_once_with(mock_callback)
+
+        new_injectable = injectable.copy()
+
+        assert new_injectable.callback is callback_descriptor.return_value.copy.return_value.callback
+        callback_descriptor.return_value.copy.assert_called_once_with()
 
     def test_overwrite_callback(self):
         mock_callback = mock.Mock()
@@ -482,7 +663,6 @@ class TestBaseInjectableCallback:
 
             callback_descriptor.assert_called_once_with(mock_callback)
 
-        assert injectable.callback is mock_callback
         assert injectable.needs_injector is callback_descriptor.return_value.needs_injector
 
 

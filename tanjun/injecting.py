@@ -61,6 +61,7 @@ from . import errors
 
 if typing.TYPE_CHECKING:
     _BaseInjectableCallbackT = typing.TypeVar("_BaseInjectableCallbackT", bound="BaseInjectableCallback[typing.Any]")
+    _CallbackDescriptorT = typing.TypeVar("_CallbackDescriptorT", bound="CallbackDescriptor[typing.Any]")
 
 _InjectorClientT = typing.TypeVar("_InjectorClientT", bound="InjectorClient")
 _T = typing.TypeVar("_T")
@@ -259,6 +260,13 @@ class CallbackDescriptor(typing.Generic[_T]):
     def needs_injector(self) -> bool:
         return bool(self._descriptors)
 
+    def copy(self: _CallbackDescriptorT, *, _new: bool = True) -> _CallbackDescriptorT:
+        if not _new:
+            self._callback = copy.copy(self._callback)
+            return self
+
+        return copy.copy(self).copy(_new=False)
+
     async def resolve_with_command_context(
         self, ctx: tanjun_abc.Context, /, *args: typing.Any, **kwargs: typing.Any
     ) -> _T:
@@ -439,9 +447,17 @@ def injected(
     Parameters
     ----------
     callback : typing.Optional[CallbackSig[_T]]
-        A callback to used to resolve the dependency.
+        The callback to use to resolve the dependency.
+
+        If this callback has no type dependencies then this will still work
+        without an injection context but this can be overridden using
+        `InjectionClient.add_callback_override`.
     type : typing.Optional[type[_T]]
         The type of the dependency to resolve.
+
+        Unlike `callback`, `type` is resolved using the injection client and
+        therefore requires that dependency injection is implemented on a context
+        level.
 
     Raises
     ------
@@ -466,15 +482,28 @@ class InjectorClient:
 
         Parameters
         ----------
-        type_: type[_T]
-            The associated type.
         callback: CallbackSig[_T]
-            The callback to use during type resolution.
+            The callback to use to resolve the dependency.
+
+            If this callback has no type dependencies then this will still work
+            without an injection context but this can be overridden using
+            `InjectionClient.add_callback_override`.
+        type_: type[_T]
+            The type of the dependency to resolve.
+
+            Unlike `callback`, `type` is resolved using the injection client and
+            therefore requires that dependency injection is implemented on a context
+            level.
 
         Returns
         -------
         Self
             The client instance to allow chaining.
+
+        Raises
+        ------
+        ValueError
+            If both `callback` and `type` are specified or if neither is specified.
         """
         self._type_dependencies[type_] = CallbackDescriptor(callback)
         return self
@@ -497,8 +526,11 @@ class InjectorClient:
     def get_type_special_case(self, type_: type[_T], /) -> UndefinedOr[_T]:
         return self._special_case_types.get(type_, UNDEFINED)
 
-    def set_type_special_case(self, type_: type[_T], value: _T, /) -> None:
+    def set_type_special_case(
+        self: _InjectorClientT, type_: type[_T], value: _T, /
+    ) -> _InjectorClientT:  # TODO: rename to add_type_special_case
         self._special_case_types[type_] = value
+        return self
 
     def remove_type_dependency(self, type_: type[typing.Any], /) -> None:
         del self._type_dependencies[type_]
@@ -516,24 +548,23 @@ class InjectorClient:
         del self._callback_overrides[callback]
 
 
-class BaseInjectableCallback(typing.Generic[_T]):  # TODO: rename to BaseInjectableCallback
-    __slots__ = ("_callback", "_descriptor")
+class BaseInjectableCallback(typing.Generic[_T]):
+    __slots__ = ("_descriptor",)
 
     def __init__(self, callback: CallbackSig[_T], /) -> None:
-        self._callback = callback
         self._descriptor: CallbackDescriptor[_T] = CallbackDescriptor(callback)
 
     # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
     def __eq__(self, other: typing.Any) -> bool:
-        return bool(self._callback == other)
+        return bool(self.callback == other)
 
     # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
     def __hash__(self) -> int:
-        return hash(self._callback)
+        return hash(self.callback)
 
     @property
     def callback(self) -> CallbackSig[_T]:
-        return self._callback
+        return self._descriptor.callback
 
     @property
     def descriptor(self) -> CallbackDescriptor[_T]:
@@ -545,13 +576,12 @@ class BaseInjectableCallback(typing.Generic[_T]):  # TODO: rename to BaseInjecta
 
     def copy(self: _BaseInjectableCallbackT, *, _new: bool = True) -> _BaseInjectableCallbackT:
         if not _new:
-            self._callback = copy.copy(self._callback)
+            self._descriptor = self._descriptor.copy()
             return self
 
         return copy.copy(self).copy(_new=False)
 
     def overwrite_callback(self, callback: CallbackSig[_T], /) -> None:
-        self._callback = callback
         self._descriptor = CallbackDescriptor(callback)
 
 
@@ -567,12 +597,12 @@ class InjectableConverter(BaseInjectableCallback[_T]):
 
     def __init__(self, callback: CallbackSig[_T], /) -> None:
         super().__init__(callback)
-        self._is_base_converter = isinstance(self._callback, conversion.BaseConverter)
+        self._is_base_converter = isinstance(callback, conversion.BaseConverter)
 
     async def __call__(self, ctx: tanjun_abc.Context, value: conversion.ArgumentT, /) -> _T:
         if self._is_base_converter:
-            assert isinstance(self._callback, conversion.BaseConverter)
-            return typing.cast(_T, await self._callback(value, ctx))
+            assert isinstance(self._descriptor.callback, conversion.BaseConverter)
+            return typing.cast(_T, await self._descriptor.callback(value, ctx))
 
         return await self._descriptor.resolve_with_command_context(ctx, value)
 
@@ -610,4 +640,21 @@ class _CacheCallback(typing.Generic[_T]):
 
 
 def cache_callback(callback: CallbackSig[_T], /) -> collections.Callable[..., collections.Awaitable[_T]]:
+    """Cache the result of a callback within a dependency injection context.
+
+    This is useful for dependencies which will always resolve to the same value
+    but are expensive to execute (e.g. they make a request or start a client
+    connection).
+
+    Parameters
+    ----------
+    callback : CallbackSig[_T]
+        The callback to cache the result of.
+
+    Returns
+    -------
+    Callable[..., Awaitable[_T]]
+        A callback which will cache the result of the given callback after the
+        first call.
+    """
     return _CacheCallback(callback)
