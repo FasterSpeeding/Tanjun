@@ -1368,7 +1368,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if event.message.content is None:
             return
 
-        ctx = self._make_message_context(client=self, injection_client=self, content=event.message.content, message=event.message)
+        ctx = self._make_message_context(
+            client=self, injection_client=self, content=event.message.content, message=event.message
+        )
         if (prefix := await self._check_prefix(ctx)) is None:
             return
 
@@ -1429,7 +1431,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             return
 
         ctx = self._make_slash_context(
-            client=self, injection_client=self, interaction=event.interaction, not_found_message=self._interaction_not_found
+            client=self,
+            injection_client=self,
+            interaction=event.interaction,
+            not_found_message=self._interaction_not_found,
         )
         hooks = self._get_slash_hooks()
 
