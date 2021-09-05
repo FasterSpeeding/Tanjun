@@ -54,6 +54,7 @@ import collections.abc as collections
 import copy
 import inspect
 import typing
+import warnings
 
 from . import abc as tanjun_abc
 from . import conversion
@@ -477,6 +478,21 @@ class InjectorClient:
         self._special_case_types: typing.Dict[type[typing.Any], typing.Any] = {InjectorClient: self, type(self): self}
         self._type_dependencies: dict[type[typing.Any], CallbackDescriptor[typing.Any]] = {}
 
+    def add_type_dependency(self: _InjectorClientT, type_: type[_T], callback: CallbackSig[_T], /) -> _InjectorClientT:
+        """Alias for `InjectorClient.set_type_dependency`.
+
+        .. deprecated:: v2.0.0a2
+            Use `InjectorClient.set_type_dependency`.
+
+            This will be removed 1 month after the release of v2.0.0a2.
+        """
+        warnings.warn(
+            "`InjectorClient.add_type_dependency` is deprecated and marked for removal a"
+            " month after the release of v2.0.0a2. Use `InjectorClient.set_type_dependency`.",
+            category=DeprecationWarning,
+        )
+        return self.add_type_dependency(type_, callback)
+
     def set_type_dependency(self: _InjectorClientT, type_: type[_T], callback: CallbackSig[_T], /) -> _InjectorClientT:
         """Set a callback to be called to resolve a injected type.
 
@@ -535,9 +551,43 @@ class InjectorClient:
     def remove_type_dependency(self, type_: type[typing.Any], /) -> None:
         del self._type_dependencies[type_]
 
+    def add_callback_override(
+        self: _InjectorClientT, callback: CallbackSig[_T], override: CallbackSig[_T], /
+    ) -> _InjectorClientT:
+        """Alias for `InjectorClient.set_callback_override`.
+
+        .. deprecated:: v2.0.0a2
+            Use `InjectorClient.set_callback_override`.
+
+            This will be removed 1 month after the release of v2.0.0a2.
+        """
+        warnings.warn(
+            "`InjectorClient.add_callback_override` is deprecated and marked for removal a"
+            " month after the release of v2.0.0a2. Use `InjectorClient.set_callback_override`.",
+            category=DeprecationWarning,
+        )
+        return self.set_callback_override(callback, override)
+
     def set_callback_override(
         self: _InjectorClientT, callback: CallbackSig[_T], override: CallbackSig[_T], /
     ) -> _InjectorClientT:
+        """Override a specific injected callback.
+
+        .. note::
+            This does not effect the callbacks set for type injectors.
+
+        Parameters
+        ----------
+        callback: CallbackSig[_T]
+            The injected callback to override.
+        override: CallbackSig[_T]
+            The callback to use instead.
+
+        Returns
+        -------
+        Self
+            The client instance to allow chaining.
+        """
         self._callback_overrides[callback] = CallbackDescriptor(override)
         return self
 
