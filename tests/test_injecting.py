@@ -556,6 +556,16 @@ def test_injected_with_type():
 
 
 class TestInjectorClient:
+    def test_add_type_dependency(self):
+        mock_type: type[typing.Any] = mock.Mock()
+        mock_callback = mock.Mock()
+        client = stub_class(tanjun.injecting.InjectorClient, set_type_dependency=mock.Mock())()
+
+        result = client.add_type_dependency(mock_type, mock_callback)
+
+        assert result is client.set_type_dependency.return_value
+        client.set_type_dependency.assert_called_once_with(mock_type, mock_callback)
+
     def test_get_type_dependency(self):
         mock_callback = mock.Mock()
         mock_type: type[typing.Any] = mock.Mock()
@@ -586,6 +596,16 @@ class TestInjectorClient:
     def test_get_type_special_case_for_unknown_case(self):
         mock_type: type[typing.Any] = mock.Mock()
         assert tanjun.injecting.InjectorClient().get_type_special_case(mock_type) is tanjun.injecting.UNDEFINED
+
+    def test_add_callback_override(self):
+        mock_callback = mock.Mock()
+        mock_override = mock.Mock()
+        client = stub_class(tanjun.injecting.InjectorClient, set_callback_override=mock.Mock())()
+
+        result = client.add_callback_override(mock_callback, mock_override)
+
+        assert result is client.set_callback_override.return_value
+        client.set_callback_override.assert_called_once_with(mock_callback, mock_override)
 
     def test_get_callback_override(self):
         mock_callback = mock.Mock()

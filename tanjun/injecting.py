@@ -491,7 +491,7 @@ class InjectorClient:
             " month after the release of v2.0.0a2. Use `InjectorClient.set_type_dependency`.",
             category=DeprecationWarning,
         )
-        return self.add_type_dependency(type_, callback)
+        return self.set_type_dependency(type_, callback)  # type: ignore  # pyright bug
 
     def set_type_dependency(self: _InjectorClientT, type_: type[_T], callback: CallbackSig[_T], /) -> _InjectorClientT:
         """Set a callback to be called to resolve a injected type.
