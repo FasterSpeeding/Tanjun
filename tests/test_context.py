@@ -80,7 +80,7 @@ class TestBaseContext:
     def context(
         self, mock_client: tanjun.abc.Client, mock_component: tanjun.abc.Component
     ) -> tanjun.context.BaseContext:
-        return stub_class(tanjun.context.BaseContext)(mock_client, component=mock_component)
+        return stub_class(tanjun.context.BaseContext)(mock_client, mock.Mock(), component=mock_component)
 
     def test_cache_property(self, context: tanjun.abc.Context, mock_client: tanjun.abc.Client):
         assert context.cache is mock_client.cache
@@ -129,7 +129,9 @@ class TestBaseContext:
         mock_client.cache.get_guild_channel.assert_called_once_with(context.channel_id)
 
     def test_get_channel_when_cacheless(self, mock_component: tanjun.abc.Component):
-        context = stub_class(tanjun.context.BaseContext, guild_id=None)(mock.Mock(cache=None), component=mock_component)
+        context = stub_class(tanjun.context.BaseContext, guild_id=None)(
+            mock.Mock(cache=None), mock.Mock(), component=mock_component
+        )
 
         assert context.get_channel() is None
 
@@ -139,13 +141,17 @@ class TestBaseContext:
         mock_client.cache.get_guild.assert_called_once_with(context.guild_id)
 
     def test_get_guild_when_cacheless(self, mock_component: tanjun.abc.Component):
-        context = stub_class(tanjun.context.BaseContext, guild_id=None)(mock.Mock(cache=None), component=mock_component)
+        context = stub_class(tanjun.context.BaseContext, guild_id=None)(
+            mock.Mock(cache=None), mock.Mock(), component=mock_component
+        )
 
         assert context.get_guild() is None
 
     def test_get_guild_when_dm_bound(self, mock_component: tanjun.abc.Component):
         mock_client = mock.MagicMock()
-        context = stub_class(tanjun.context.BaseContext, guild_id=None)(mock_client, component=mock_component)
+        context = stub_class(tanjun.context.BaseContext, guild_id=None)(
+            mock_client, mock.Mock(), component=mock_component
+        )
 
         assert context.get_guild() is None
         mock_client.cache.get_guild.assert_not_called()
@@ -168,7 +174,9 @@ class TestBaseContext:
     async def test_fetch_guild_when_dm_bound(
         self, mock_client: tanjun.abc.Client, mock_component: tanjun.abc.Component
     ):
-        context = stub_class(tanjun.context.BaseContext, guild_id=None)(mock_client, component=mock_component)
+        context = stub_class(tanjun.context.BaseContext, guild_id=None)(
+            mock_client, mock.Mock(), component=mock_component
+        )
 
         result = await context.fetch_guild()
 
@@ -181,6 +189,7 @@ class TestMessageContext:
     def context(self, mock_client: tanjun.abc.Client) -> tanjun.MessageContext:
         return tanjun.MessageContext(
             mock_client,
+            mock.Mock(),
             "hi there",
             mock.AsyncMock(),
             command=mock.Mock(),
@@ -528,7 +537,12 @@ class TestSlashContext:
     @pytest.fixture()
     def context(self, mock_client: tanjun.abc.Client) -> tanjun.SlashContext:
         return tanjun.SlashContext(
-            mock_client, mock.AsyncMock(), command=mock.Mock(), component=mock.Mock(), not_found_message="hi"
+            mock_client,
+            mock.Mock(),
+            mock.AsyncMock(),
+            command=mock.Mock(),
+            component=mock.Mock(),
+            not_found_message="hi",
         )
 
     def test_author_property(self, context: tanjun.SlashContext):
@@ -567,7 +581,12 @@ class TestSlashContext:
     @pytest.mark.asyncio()
     async def test__auto_defer_property(self, mock_client: tanjun.abc.Client):
         context = stub_class(tanjun.SlashContext, defer=mock.AsyncMock())(
-            mock_client, mock.AsyncMock(), command=mock.Mock(), component=mock.Mock(), not_found_message="hi"
+            mock_client,
+            mock.AsyncMock(),
+            mock.Mock(),
+            command=mock.Mock(),
+            component=mock.Mock(),
+            not_found_message="hi",
         )
 
         with mock.patch.object(asyncio, "sleep") as sleep:
@@ -717,7 +736,12 @@ class TestSlashContext:
 
     def test_start_defer_timer(self, mock_client: tanjun.abc.Client):
         context = stub_class(tanjun.SlashContext, _auto_defer=mock.Mock())(
-            mock_client, mock.AsyncMock(), command=mock.Mock(), component=mock.Mock(), not_found_message="hi"
+            mock_client,
+            mock.AsyncMock(),
+            mock.Mock(),
+            command=mock.Mock(),
+            component=mock.Mock(),
+            not_found_message="hi",
         )
 
         with mock.patch.object(asyncio, "create_task") as create_task:

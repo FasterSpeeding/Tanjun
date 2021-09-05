@@ -10,6 +10,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Exported the parsing, commands and utilities modules on a top level (thus also adding them to the generated docs).
 - Allow for overriding the standard client's context builders.
 - Add default_permission argument to slash command types.
+- Dependency injection support to client callbacks.
+- Injection type special casing is more granular on a context to context basis now rather than top level hardcoded.
+- Injection.Descriptor, TypeDescriptor and CallbackDescriptor replaced the Getter and InjectableValue classes
+
+### Changed
+- Dependency injection on a lower level has been restructured to remove any reliance on tanjun.abc.Context.
+  This means introducing an abstract injection context and implementing it with the standard context and a more
+  basic impl.
+- More strictly use properties instead of public instance variables in injection implementation.
+- Dependency injection now caches the results of callbacks within the scope of an execution context.
+- Renamed the InjectedValue classes to InjectedCallbacks.
+- Return CallbackDescriptors from InjectionClient.get_type_dependency and get_callback_override instead of
+  pure callbacks.
+- Use Optional instead of UndefinedOr in injecting module where possible (e.g. the Injected callback and type fields).
+- Process injected callbacks when they're first handled (passed to CallbackDescriptor) than when they're first called
+  This lowers the amount of external caching needed
+
+### Deprecated
+- InjectionClient/Client .add_type_dependency and add_callback_override have been deprecated in favour of
+  set_type_dependency and set_callback_override and are scheduled to be removed a month after v2.0.0a2 is released.
+
+### Removed
+- injecting.Getter and injecting.InjectableValue.
+- set_injector methods as the injection client is now passed around as part of a context.
+- injection.resolve_getters (this logic is now on the descriptors)
 
 ### Fixed
 - Now handle when Discord doesn't include boolean options in interaction payloads because they were passed as `False`

@@ -85,9 +85,8 @@ client.load_modules("module.paths")
 # will have to be started after the Hikari client.
 async def main() -> None:
     await bot.start()
-    await client.open()
-    await bot.join()
-    await client.close()
+    async with client.open():
+        await bot.join()
 ```
 
 For more extensive examples see the
@@ -204,6 +203,8 @@ __all__: list[str] = [
     "utilities",
 ]
 
+import typing
+
 from . import abc
 from . import utilities
 from .checks import *
@@ -217,13 +218,13 @@ from .hooks import *
 from .injecting import *
 from .parsing import *
 
-__author__ = "Faster Speeding"
-__ci__ = ""
-__copyright__ = "© 2020-2021 Faster Speeding"
-__coverage__ = ""
-__docs__ = "https://fasterspeeding.github.io/Tanjun/"
-__email__ = "lucina@lmbyrne.dev"
-__issue_tracker__ = "https://github.com/FasterSpeeding/Tanjun/issues"
-__license__ = "BSD"
+__author__: typing.Final[str] = "Faster Speeding"
+__ci__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun/actions"
+__copyright__: typing.Final[str] = "© 2020-2021 Faster Speeding"
+__coverage__: typing.Final[str] = ""
+__docs__: typing.Final[str] = "https://fasterspeeding.github.io/Tanjun/"
+__email__: typing.Final[str] = "lucina@lmbyrne.dev"
+__issue_tracker__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun/issues"
+__license__: typing.Final[str] = "BSD"
 __url__ = "https://github.com/FasterSpeeding/Tanjun"
-__version__ = "2.0.0a2"
+__version__: typing.Final[str] = "2.0.0a2"

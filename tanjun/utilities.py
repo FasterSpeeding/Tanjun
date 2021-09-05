@@ -46,8 +46,6 @@ __all__: list[str] = [
 ]
 
 import asyncio
-import functools
-import operator
 import typing
 from collections import abc as collections
 
@@ -175,7 +173,7 @@ def match_prefix_names(content: str, names: collections.Iterable[str], /) -> typ
             return name
 
 
-ALL_PERMISSIONS: typing.Final[hikari.Permissions] = functools.reduce(operator.__xor__, hikari.Permissions)
+ALL_PERMISSIONS: typing.Final[hikari.Permissions] = hikari.Permissions.all_permissions()
 """All of all the known permissions based on the linked version of Hikari."""
 
 DM_PERMISSIONS: typing.Final[hikari.Permissions] = (

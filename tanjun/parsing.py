@@ -627,8 +627,8 @@ def with_multi_option(
     return with_option(key, name, *names, converters=converters, default=default, empty_value=empty_value, multi=True)
 
 
-class Parameter(injecting.Injectable):
-    __slots__ = ("_client", "_component", "_converters", "default", "_injector", "is_greedy", "is_multi", "_key")
+class Parameter:
+    __slots__ = ("_client", "_component", "_converters", "default", "is_greedy", "is_multi", "_key")
 
     def __init__(
         self,
@@ -644,7 +644,6 @@ class Parameter(injecting.Injectable):
         self._component: typing.Optional[tanjun_abc.Component] = None
         self._converters: list[injecting.InjectableConverter[typing.Any]] = []
         self.default = default
-        self._injector: typing.Optional[injecting.InjectorClient] = None
         self.is_greedy = greedy
         self.is_multi = multi
         self._key = key
@@ -686,7 +685,7 @@ class Parameter(injecting.Injectable):
         if not isinstance(converter, injecting.InjectableConverter):
             # Some types like `bool` and `bytes` are overridden here for the sake of convenience.
             converter = conversion.override_type(converter)
-            converter = injecting.InjectableConverter(converter, injector=self._injector)
+            converter = injecting.InjectableConverter(converter)
 
         self._converters.append(converter)
 
@@ -715,21 +714,13 @@ class Parameter(injecting.Injectable):
         sources: list[ValueError] = []
         for converter in self._converters:
             try:
-                return await converter(value, ctx)
+                return await converter(ctx, value)
 
             except ValueError as exc:
                 sources.append(exc)
 
         parameter_type = "option" if isinstance(self, Option) else "argument"
         raise errors.ConversionError(self.key, f"Couldn't convert {parameter_type} '{self.key}'", sources)
-
-    def set_injector(self, client: injecting.InjectorClient, /) -> None:
-        if self._injector is not None:
-            raise RuntimeError("Injector already set")
-
-        self._injector = client
-        for converter in self._converters:
-            converter.set_injector(client)
 
     def copy(self: _ParameterT, *, _new: bool = True) -> _ParameterT:
         if not _new:
@@ -791,10 +782,10 @@ class Option(Parameter):
         return f"{type(self).__name__} <{self.key}, {self._names}>"
 
 
-class ShlexParser(injecting.Injectable, AbstractParser):
+class ShlexParser(AbstractParser):
     """A shlex based `tanjun.abc.Parser` implementation."""
 
-    __slots__ = ("_arguments", "_client", "_component", "_injector", "_options")
+    __slots__ = ("_arguments", "_client", "_component", "_options")
 
     def __init__(
         self, *, parameters: typing.Optional[collections.Iterable[typing.Union[Argument, Option]]] = None
@@ -802,7 +793,6 @@ class ShlexParser(injecting.Injectable, AbstractParser):
         self._arguments: list[Argument] = []
         self._client: typing.Optional[tanjun_abc.Client] = None
         self._component: typing.Optional[tanjun_abc.Component] = None
-        self._injector: typing.Optional[injecting.InjectorClient] = None
         self._options: list[Option] = []
 
         if parameters is not None:
@@ -828,9 +818,6 @@ class ShlexParser(injecting.Injectable, AbstractParser):
 
     def add_parameter(self, parameter: typing.Union[Argument, Option], /) -> None:
         # <<inherited docstring from AbstractParser>>.
-        if self._injector:
-            parameter.set_injector(self._injector)
-
         if self._client:
             parameter.bind_client(self._client)
 
@@ -858,12 +845,6 @@ class ShlexParser(injecting.Injectable, AbstractParser):
 
         else:
             self._arguments.remove(parameter)
-
-    def set_injector(self, client: injecting.InjectorClient, /) -> None:
-        self._injector = client
-
-        for parameter in itertools.chain(self._options, self._arguments):
-            parameter.set_injector(client)
 
     def set_parameters(self, parameters: collections.Iterable[typing.Union[Argument, Option]], /) -> None:
         # <<inherited docstring from AbstractParser>>.
