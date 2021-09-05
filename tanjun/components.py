@@ -47,13 +47,10 @@ from hikari.events import base_events
 import tanjun
 
 from . import abc
-from . import injecting
+from . import checks as checks_
 from . import utilities
 
 if typing.TYPE_CHECKING:
-
-    from hikari.api import event_manager as event_manager_api
-
     _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
     _T = typing.TypeVar("_T")
 
@@ -148,14 +145,14 @@ class Component(abc.Component):
         name: typing.Optional[str] = None,
         strict: bool = False,
     ) -> None:
-        self._checks: set[injecting.InjectableCheck] = (
-            {injecting.InjectableCheck(check) for check in checks} if checks else set()
+        self._checks: set[checks_.InjectableCheck] = (
+            {checks_.InjectableCheck(check) for check in checks} if checks else set()
         )
         self._client: typing.Optional[abc.Client] = None
         self._client_callbacks: dict[str, set[abc.MetaEventSig]] = {}
         self._hooks = hooks
         self._is_strict = strict
-        self._listeners: set[tuple[type[base_events.Event], event_manager_api.CallbackT[typing.Any]]] = set()
+        self._listeners: set[tuple[type[base_events.Event], abc.ListenerCallbackSig]] = set()
         self._message_commands: set[abc.MessageCommand] = set()
         self._message_hooks = message_hooks
         self._metadata: dict[typing.Any, typing.Any] = {}
@@ -207,9 +204,7 @@ class Component(abc.Component):
         return any(check.needs_injector for check in self._checks)
 
     @property
-    def listeners(
-        self,
-    ) -> collections.Set[tuple[type[base_events.Event], event_manager_api.CallbackT[typing.Any]]]:
+    def listeners(self) -> collections.Set[tuple[type[base_events.Event], abc.ListenerCallbackSig]]:
         return self._listeners.copy()
 
     @property
@@ -243,7 +238,7 @@ class Component(abc.Component):
         return self
 
     def add_check(self: _ComponentT, check: abc.CheckSig, /) -> _ComponentT:
-        self._checks.add(injecting.InjectableCheck(check))
+        self._checks.add(checks_.InjectableCheck(check))
         return self
 
     def remove_check(self, check: abc.CheckSig, /) -> None:
@@ -405,39 +400,26 @@ class Component(abc.Component):
         return _with_command(self.add_message_command, command, copy=copy)
 
     def add_listener(
-        self: _ComponentT,
-        event: type[event_manager_api.EventT_inv],
-        listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
-        /,
+        self: _ComponentT, event: type[base_events.Event], listener: abc.ListenerCallbackSig, /
     ) -> _ComponentT:
         self._listeners.add((event, listener))
 
-        if self._client and self._client.events:
-            self._client.events.subscribe(event, listener)
+        if self._client:
+            self._client.add_listener(event, listener)
 
         return self
 
-    def remove_listener(
-        self,
-        event: type[event_manager_api.EventT_inv],
-        listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
-        /,
-    ) -> None:
+    def remove_listener(self, event: type[base_events.Event], listener: abc.ListenerCallbackSig, /) -> None:
         self._listeners.remove((event, listener))
 
-        if self._client and self._client.events:
-            self._client.events.unsubscribe(event, listener)
+        if self._client:
+            self._client.remove_listener(event, listener)
 
     # TODO: make event optional?
     def with_listener(
-        self, event_type: type[event_manager_api.EventT_inv]
-    ) -> collections.Callable[
-        [event_manager_api.CallbackT[event_manager_api.EventT_inv]],
-        event_manager_api.CallbackT[event_manager_api.EventT_inv],
-    ]:
-        def decorator(
-            callback: event_manager_api.CallbackT[event_manager_api.EventT_inv],
-        ) -> event_manager_api.CallbackT[event_manager_api.EventT_inv]:
+        self, event_type: type[base_events.Event]
+    ) -> collections.Callable[[abc.ListenerCallbackSigT], abc.ListenerCallbackSigT]:
+        def decorator(callback: abc.ListenerCallbackSigT) -> abc.ListenerCallbackSigT:
             self.add_listener(event_type, callback)
             return callback
 
@@ -451,10 +433,8 @@ class Component(abc.Component):
         for command in self._message_commands:
             command.bind_client(client)
 
-        # TODO: warn if listeners registered without any provided dispatch handler
-        if self._client.events:
-            for event_, listener in self._listeners:
-                self._client.events.subscribe(event_, listener)
+        for event, listener in self._listeners:
+            self._client.add_listener(event, listener)
 
         for event_name, callbacks in self._client_callbacks.items():
             for callback in callbacks:
@@ -464,13 +444,11 @@ class Component(abc.Component):
         if not self._client or self._client != client:
             raise RuntimeError("Component isn't bound to this client")
 
-        if self._client.events:
-            for event_, listener in self._listeners:
-                try:
-                    self._client.events.unsubscribe(event_, listener)
-                except (ValueError, LookupError):
-                    # TODO: add logging here
-                    pass
+        for event, listener in self._listeners:
+            try:
+                self._client.remove_listener(event, listener)
+            except (LookupError, ValueError):
+                pass
 
         for event_name, callbacks in self._client_callbacks.items():
             for callback in callbacks:

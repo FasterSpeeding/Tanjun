@@ -57,7 +57,6 @@ import typing
 import warnings
 
 from . import abc as tanjun_abc
-from . import conversion
 from . import errors
 
 if typing.TYPE_CHECKING:
@@ -633,28 +632,6 @@ class BaseInjectableCallback(typing.Generic[_T]):
 
     def overwrite_callback(self, callback: CallbackSig[_T], /) -> None:
         self._descriptor = CallbackDescriptor(callback)
-
-
-class InjectableCheck(BaseInjectableCallback[bool]):
-    __slots__ = ()
-
-    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
-        return await self._descriptor.resolve_with_command_context(ctx, ctx)
-
-
-class InjectableConverter(BaseInjectableCallback[_T]):
-    __slots__ = ("_is_base_converter",)
-
-    def __init__(self, callback: CallbackSig[_T], /) -> None:
-        super().__init__(callback)
-        self._is_base_converter = isinstance(callback, conversion.BaseConverter)
-
-    async def __call__(self, ctx: tanjun_abc.Context, value: conversion.ArgumentT, /) -> _T:
-        if self._is_base_converter:
-            assert isinstance(self._descriptor.callback, conversion.BaseConverter)
-            return typing.cast(_T, await self._descriptor.callback(value, ctx))
-
-        return await self._descriptor.resolve_with_command_context(ctx, value)
 
 
 class _CacheCallback(typing.Generic[_T]):

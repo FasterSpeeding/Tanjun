@@ -61,7 +61,6 @@ from collections import abc as collections
 from . import abc as tanjun_abc
 from . import conversion
 from . import errors
-from . import injecting
 
 if typing.TYPE_CHECKING:
     _ParameterT = typing.TypeVar("_ParameterT", bound="Parameter")
@@ -76,7 +75,7 @@ ConverterSig = collections.Callable[..., tanjun_abc.MaybeAwaitableT[typing.Any]]
 """Type hint of a converter used within a parser instance.
 
 This must be a callable or asynchronous callable which takes one position
-`str` argument and returns the resultant value.
+`str`, argument and returns the resultant value.
 """
 
 
@@ -642,7 +641,7 @@ class Parameter:
     ) -> None:
         self._client: typing.Optional[tanjun_abc.Client] = None
         self._component: typing.Optional[tanjun_abc.Component] = None
-        self._converters: list[injecting.InjectableConverter[typing.Any]] = []
+        self._converters: list[conversion.InjectableConverter[typing.Any]] = []
         self.default = default
         self.is_greedy = greedy
         self.is_multi = multi
@@ -682,10 +681,10 @@ class Parameter:
             if self._component:
                 converter.bind_component(self._component)
 
-        if not isinstance(converter, injecting.InjectableConverter):
+        if not isinstance(converter, conversion.InjectableConverter):
             # Some types like `bool` and `bytes` are overridden here for the sake of convenience.
             converter = conversion.override_type(converter)
-            converter = injecting.InjectableConverter(converter)
+            converter = conversion.InjectableConverter(converter)
 
         self._converters.append(converter)
 

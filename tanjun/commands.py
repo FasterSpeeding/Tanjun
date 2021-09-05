@@ -66,6 +66,7 @@ import hikari
 
 from . import _backoff as backoff
 from . import abc
+from . import checks as checks_
 from . import components
 from . import conversion
 from . import errors
@@ -90,7 +91,7 @@ if typing.TYPE_CHECKING:
 AnyMessageCommandT = typing.TypeVar("AnyMessageCommandT", bound=abc.MessageCommand)
 CommandCallbackSigT = typing.TypeVar("CommandCallbackSigT", bound=abc.CommandCallbackSig)
 ConverterSig = collections.Callable[..., abc.MaybeAwaitableT[typing.Any]]
-"""Type hint of a converter used within a parser instance."""
+"""Type hint of a converter used for a slash command option."""
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 _EMPTY_LIST: typing.Final[list[typing.Any]] = []
@@ -100,7 +101,7 @@ _EMPTY_RESOLVED: typing.Final[hikari.ResolvedOptionData] = hikari.ResolvedOption
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.commands")
 
 
-class _LoadableInjector(injecting.InjectableCheck):
+class _LoadableInjector(checks_.InjectableCheck):
     __slots__ = ()
 
     def make_method_type(self, component: abc.Component, /) -> None:
@@ -122,8 +123,8 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
         hooks: typing.Optional[abc.Hooks[abc.ContextT]] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
     ) -> None:
-        self._checks: set[injecting.InjectableCheck] = (
-            {injecting.InjectableCheck(check) for check in checks} if checks else set()
+        self._checks: set[checks_.InjectableCheck] = (
+            {checks_.InjectableCheck(check) for check in checks} if checks else set()
         )
         self._component: typing.Optional[abc.Component] = None
         self._hooks = hooks
@@ -171,7 +172,7 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
 
     def add_check(self: _PartialCommandT, check: abc.CheckSig, /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        self._checks.add(injecting.InjectableCheck(check))
+        self._checks.add(checks_.InjectableCheck(check))
         return self
 
     def remove_check(self, check: abc.CheckSig, /) -> None:
@@ -763,11 +764,11 @@ def with_mentionable_slash_option(
     return lambda c: c.add_option(name, description, hikari.OptionType.MENTIONABLE, default=default)
 
 
-def _convert_to_injectable(converter: ConverterSig) -> injecting.InjectableConverter[typing.Any]:
-    if isinstance(converter, injecting.InjectableConverter):
-        return typing.cast("injecting.InjectableConverter[typing.Any]", converter)
+def _convert_to_injectable(converter: ConverterSig) -> conversion.InjectableConverter[typing.Any]:
+    if isinstance(converter, conversion.InjectableConverter):
+        return typing.cast("conversion.InjectableConverter[typing.Any]", converter)
 
-    return injecting.InjectableConverter(conversion.override_type(converter))
+    return conversion.InjectableConverter(conversion.override_type(converter))
 
 
 class _TrackedOption:
@@ -777,7 +778,7 @@ class _TrackedOption:
         self,
         name: str,
         option_type: typing.Union[hikari.OptionType, int],
-        converters: list[injecting.InjectableConverter[typing.Any]],
+        converters: list[conversion.InjectableConverter[typing.Any]],
         only_member: bool,
         default: typing.Any = _UNDEFINED_DEFAULT,
     ) -> None:

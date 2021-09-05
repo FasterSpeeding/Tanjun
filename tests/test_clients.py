@@ -47,6 +47,31 @@ import pytest
 import tanjun
 
 
+class Test_InjectableListener:
+    @pytest.mark.asyncio()
+    async def test(self):
+        mock_client = mock.Mock()
+        mock_callback = mock.Mock()
+        mock_event = mock.Mock()
+
+        with mock.patch.object(
+            tanjun.injecting, "CallbackDescriptor", return_value=mock.AsyncMock()
+        ) as callback_descriptor:
+            converter = tanjun.clients._InjectableListener(mock_client, mock_callback)
+
+            callback_descriptor.assert_called_once_with(mock_callback)
+
+        with mock.patch.object(tanjun.injecting, "BasicInjectionContext") as base_injection_context:
+            result = await converter(mock_event)
+
+            base_injection_context.assert_called_once_with(mock_client)
+
+        assert result is None
+        callback_descriptor.return_value.resolve.assert_called_once_with(
+            base_injection_context.return_value, mock_event
+        )
+
+
 class TestClient:
     def test_load_modules_with_system_path(self):
         class MockClient(tanjun.Client):

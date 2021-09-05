@@ -56,7 +56,7 @@ from . import errors
 
 if typing.TYPE_CHECKING:
     from . import abc
-    from . import injecting
+    from . import checks
 
 
 _ResourceT = typing.TypeVar("_ResourceT")
@@ -102,7 +102,7 @@ async def await_if_async(
     return result
 
 
-async def gather_checks(ctx: abc.Context, checks: collections.Iterable[injecting.InjectableCheck]) -> bool:
+async def gather_checks(ctx: abc.Context, checks_: collections.Iterable[checks.InjectableCheck], /) -> bool:
     """Gather a collection of checks.
 
     Parameters
@@ -118,7 +118,7 @@ async def gather_checks(ctx: abc.Context, checks: collections.Iterable[injecting
         Whether all the checks passed or not.
     """
     try:
-        await asyncio.gather(*(check(ctx) for check in checks))
+        await asyncio.gather(*(check(ctx) for check in checks_))
         # InjectableCheck will raise FailedCheck if a false is received so if
         # we get this far then it's True.
         return True

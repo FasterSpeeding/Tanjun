@@ -126,7 +126,7 @@ class TestPartialCommand:
 
         assert len(command._checks) == 1
         check = next(iter(command._checks))
-        assert isinstance(check, tanjun.injecting.InjectableCheck)
+        assert isinstance(check, tanjun.checks.InjectableCheck)
         assert check.callback is mock_check
         assert command.checks == {mock_check}
 
@@ -134,7 +134,7 @@ class TestPartialCommand:
         def mock_check() -> bool:
             raise NotImplementedError
 
-        command._checks = {tanjun.injecting.InjectableCheck(mock_check)}
+        command._checks = {tanjun.checks.InjectableCheck(mock_check)}
 
         command.remove_check(mock_check)
 

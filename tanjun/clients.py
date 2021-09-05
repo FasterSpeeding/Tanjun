@@ -58,6 +58,7 @@ from hikari import traits as hikari_traits
 
 from . import _backoff as backoff
 from . import abc as tanjun_abc
+from . import checks
 from . import context
 from . import errors
 from . import injecting
@@ -66,8 +67,6 @@ from . import utilities
 if typing.TYPE_CHECKING:
     import pathlib
     import types
-
-    from hikari.api import event_manager as event_manager_api
 
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
     _T = typing.TypeVar("_T")
@@ -238,7 +237,7 @@ class MessageAcceptsEnum(str, enum.Enum):
             register a listener for.
 
             This will be `None` if this mode disables listening to
-            message create events/
+            message create events.
         """
         return _ACCEPTS_EVENT_TYPE_MAPPING[self]
 
@@ -287,6 +286,18 @@ class _InjectablePrefixGetter(injecting.BaseInjectableCallback[collections.Itera
     @property
     def callback(self) -> PrefixGetterSig:
         return self.callback
+
+
+class _InjectableListener(injecting.BaseInjectableCallback[None]):
+    __slots__ = ("_injector_client",)
+
+    def __init__(self, injector_client: injecting.InjectorClient, callback: tanjun_abc.ListenerCallbackSig, /) -> None:
+        super().__init__(callback)
+        self._injector_client = injector_client
+
+    async def __call__(self, event: hikari.Event) -> None:
+        ctx = injecting.BasicInjectionContext(self._injector_client)
+        await self.descriptor.resolve(ctx, event)
 
 
 class Client(injecting.InjectorClient, tanjun_abc.Client):
@@ -371,6 +382,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         "_slash_hooks",
         "_is_alive",
         "_is_closing",
+        "_listeners",
         "_message_hooks",
         "_metadata",
         "_prefix_getter",
@@ -402,7 +414,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._auto_defer_after: typing.Optional[float] = 2.0
         self._cache = cache
         self._cached_application_id: typing.Optional[hikari.Snowflake] = None
-        self._checks: set[injecting.InjectableCheck] = set()
+        self._checks: set[checks.InjectableCheck] = set()
         self._client_callbacks: dict[str, set[injecting.CallbackDescriptor[None]]] = {}
         self._components: set[tanjun_abc.Component] = set()
         self._make_message_context: _MessageContextMakerProto = context.MessageContext
@@ -414,6 +426,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
         self._is_alive = False
         self._is_closing = False
+        self._listeners: set[tuple[type[hikari.Event], _InjectableListener]] = set()
         self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._prefix_getter: typing.Optional[_InjectablePrefixGetter] = None
@@ -619,6 +632,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     def events(self) -> typing.Optional[hikari.api.EventManager]:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._events
+
+    @property
+    def listeners(self) -> collections.Collection[tuple[type[hikari.Event], tanjun_abc.ListenerCallbackSig]]:
+        return self._listeners.copy()
 
     @property
     def hooks(self) -> typing.Optional[tanjun_abc.AnyHooks]:
@@ -974,7 +991,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             based on webhook and bot messages.
         """
         if value:
-            self.add_check(injecting.InjectableCheck(_check_human))
+            self.add_check(checks.InjectableCheck(_check_human))
 
         else:
             try:
@@ -1060,7 +1077,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return await self.declare_slash_commands(commands, application=application, guild=guild)
 
     def add_check(self: _ClientT, check: tanjun_abc.CheckSig, /) -> _ClientT:
-        self._checks.add(injecting.InjectableCheck(check))
+        self._checks.add(checks.InjectableCheck(check))
         return self
 
     def remove_check(self, check: tanjun_abc.CheckSig, /) -> None:
@@ -1114,14 +1131,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     ) -> None:
         event_name = event_name.lower()
         if callbacks := self._client_callbacks.get(event_name):
-            await asyncio.gather(
-                *(
-                    _wrap_client_callback(
-                        callback, injecting.BasicInjectionContext(self), args, kwargs, suppress_exceptions
-                    )
-                    for callback in callbacks
+            calls = (
+                _wrap_client_callback(
+                    callback, injecting.BasicInjectionContext(self), args, kwargs, suppress_exceptions
                 )
+                for callback in callbacks
             )
+            await asyncio.gather(*calls)
 
     def get_client_callbacks(self, event_name: str, /) -> collections.Collection[tanjun_abc.MetaEventSig]:
         # <<inherited docstring from tanjun.abc.Client>>.
@@ -1144,6 +1160,28 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         # <<inherited docstring from tanjun.abc.Client>>.
         def decorator(callback: tanjun_abc.MetaEventSigT, /) -> tanjun_abc.MetaEventSigT:
             self.add_client_callback(event_name, callback)
+            return callback
+
+        return decorator
+
+    def add_listener(self, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /) -> None:
+        injected = _InjectableListener(self, callback)
+        self._listeners.add((event_type, injected))
+
+        if self._is_alive and self._events:
+            self._events.subscribe(event_type, injected)  # TODO: does this work?
+
+    def remove_listener(self, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /) -> None:
+        self._listeners.remove((event_type, callback))  # type: ignore
+
+        if self._is_alive and self._events:
+            self._events.unsubscribe(event_type, callback)  # TODO: does this work?
+
+    def with_listener(
+        self, event_type: type[hikari.Event], /
+    ) -> collections.Callable[[tanjun_abc.ListenerCallbackSigT], tanjun_abc.ListenerCallbackSigT]:
+        def decorator(callback: tanjun_abc.ListenerCallbackSigT, /) -> tanjun_abc.ListenerCallbackSigT:
+            self.add_listener(event_type, callback)
             return callback
 
         return decorator
@@ -1196,8 +1234,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     def _try_unsubscribe(
         self,
         event_manager: hikari.api.EventManager,
-        event_type: type[event_manager_api.EventT_inv],
-        callback: event_manager_api.CallbackT[event_manager_api.EventT_inv],
+        event_type: type[hikari.Event],
+        callback: tanjun_abc.ListenerCallbackSig,
     ) -> None:
         try:
             event_manager.unsubscribe(event_type, callback)
@@ -1225,6 +1263,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 self._try_unsubscribe(self._events, event_type, self.on_message_create_event)
 
             self._try_unsubscribe(self._events, hikari.InteractionCreateEvent, self.on_interaction_create_event)
+
+            for event_type, listener in self._listeners:
+                self._try_unsubscribe(self._events, event_type, listener)
 
         if deregister_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, None)
@@ -1274,6 +1315,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 self._events.subscribe(event_type, self.on_message_create_event)
 
             self._events.subscribe(hikari.InteractionCreateEvent, self.on_interaction_create_event)
+
+            for event_type, listener in self._listeners:
+                self._events.subscribe(event_type, listener)
 
         if register_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, self.on_interaction_create_request)

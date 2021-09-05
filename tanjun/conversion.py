@@ -72,6 +72,7 @@ import warnings
 import hikari
 
 from . import errors
+from . import injecting
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
@@ -150,6 +151,21 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
     @abc.abstractmethod
     def types(cls) -> tuple[type[typing.Any], ...]:
         raise NotImplementedError
+
+
+class InjectableConverter(injecting.BaseInjectableCallback[_ValueT]):
+    __slots__ = ("_is_base_converter",)
+
+    def __init__(self, callback: injecting.CallbackSig[_ValueT], /) -> None:
+        super().__init__(callback)
+        self._is_base_converter = isinstance(callback, BaseConverter)
+
+    async def __call__(self, ctx: tanjun_abc.Context, value: ArgumentT, /) -> _ValueT:
+        if self._is_base_converter:
+            assert isinstance(self.descriptor.callback, BaseConverter)
+            return typing.cast(_ValueT, await self.descriptor.callback(value, ctx))
+
+        return await self.descriptor.resolve_with_command_context(ctx, value)
 
 
 class ChannelConverter(BaseConverter[hikari.PartialChannel]):
