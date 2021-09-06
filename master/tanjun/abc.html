@@ -214,6 +214,15 @@
 
             </li>
             <li>
+                    <a class="class" href="#ListenerCallbackSig">ListenerCallbackSig</a>
+                            <ul class="memberlist">
+                </ul>
+
+            </li>
+            <li>
+                    <a class="variable" href="#ListenerCallbackSigT">ListenerCallbackSigT</a>
+            </li>
+            <li>
                     <a class="variable" href="#MaybeAwaitableT">MaybeAwaitableT</a>
             </li>
             <li>
@@ -481,6 +490,9 @@
                                 <a class="variable" href="#Client.events">events</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Client.listeners">listeners</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Client.metadata">metadata</a>
                         </li>
                         <li>
@@ -512,6 +524,15 @@
                         </li>
                         <li>
                                 <a class="function" href="#Client.with_client_callback">with_client_callback</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.add_listener">add_listener</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.remove_listener">remove_listener</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.with_listener">with_listener</a>
                         </li>
                         <li>
                                 <a class="function" href="#Client.check_message_context">check_message_context</a>
@@ -592,6 +613,8 @@
     <span class="s2">&quot;MessageHooks&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SlashHooks&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ExecutableCommand&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ListenerCallbackSig&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ListenerCallbackSigT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MaybeAwaitableT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MessageCommand&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MessageCommandT&quot;</span><span class="p">,</span>
@@ -615,7 +638,6 @@
     <span class="kn">import</span> <span class="nn">datetime</span>
 
     <span class="kn">from</span> <span class="nn">hikari</span> <span class="kn">import</span> <span class="n">traits</span> <span class="k">as</span> <span class="n">hikari_traits</span>
-    <span class="kn">from</span> <span class="nn">hikari.api</span> <span class="kn">import</span> <span class="n">event_manager</span> <span class="k">as</span> <span class="n">event_manager_api</span>
 
 
 <span class="n">_T</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_T&quot;</span><span class="p">)</span>
@@ -650,7 +672,7 @@
 
 <span class="sd">This may be registered with a `ExecutableCommand` to add a rule which decides whether</span>
 <span class="sd">it should execute for each context passed to it. This should take one positional</span>
-<span class="sd">argument of typ_ `Context` and may either be a synchronous or asynchronous</span>
+<span class="sd">argument of type `Context` and may either be a synchronous or asynchronous</span>
 <span class="sd">callback which returns `bool` where returning `False` or</span>
 <span class="sd">raising `tanjun.errors.FailedCheck` will indicate that the current context</span>
 <span class="sd">shouldn&#39;t lead to an execution.</span>
@@ -658,6 +680,16 @@
 
 <span class="n">CheckSigT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;CheckSigT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">CheckSig</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Generic equivalent of `CheckSig`&quot;&quot;&quot;</span>
+
+<span class="n">ListenerCallbackSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
+<span class="sd">&quot;&quot;&quot;Type hint of a hikari event manager callback.</span>
+
+<span class="sd">This is guaranteed one positional arg of type `hikari.events.Event` regardless</span>
+<span class="sd">of implementation and must be a coruotine function which returns `None`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">ListenerCallbackSigT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;ListenerCallbackSigT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">ListenerCallbackSig</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Generic equivalent of `ListenerCallbackSig`.&quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">Context</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
@@ -1926,14 +1958,12 @@
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a collection of tuples of (event, callback) for all the listeners in this component.</span>
+    <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Get a mapping of tuples of event types to the listeners registered for them in this component.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Collection[tuple[type[hikari.Event], hikari.api.event_manager.CallbackT[typing.Any]]]</span>
+<span class="sd">        collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]</span>
 <span class="sd">            The listeners in this component.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -2066,19 +2096,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span>
-        <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="n">listener</span><span class="p">:</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="o">/</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a listener to this component.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        event : type[hikari.api.event_manager.EventT_inv]</span>
+<span class="sd">        event : type[hikari.events.Event]</span>
 <span class="sd">            The event to listen for.</span>
-<span class="sd">        listener : hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]</span>
+<span class="sd">        listener : ListenerCallbackSig</span>
 <span class="sd">            The listener to add.</span>
 
 <span class="sd">        Returns</span>
@@ -2088,43 +2113,32 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="n">listener</span><span class="p">:</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="o">/</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Remove a listener from this component.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        event : type[hikari.api.event_manager.EventT_inv]</span>
+<span class="sd">        event : type[hikari.events.Event]</span>
 <span class="sd">            The event to listen for.</span>
-<span class="sd">        listener : hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]</span>
+<span class="sd">        listener : ListenerCallbackSig</span>
 <span class="sd">            The listener to remove.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="c1"># TODO: make event optional?</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span>
-        <span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">]],</span>
-        <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-    <span class="p">]:</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">ListenerCallbackSigT</span><span class="p">,]:</span>
         <span class="sd">&quot;&quot;&quot;Add a listener to this component through a decorator call.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        event_type : type[hikari.api.event_manager.EventT_inv]</span>
+<span class="sd">        event_type : type[hikari.Event]</span>
 <span class="sd">            The event to listen for.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.Callable[</span>
-<span class="sd">            [hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]],</span>
-<span class="sd">            hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</span>
-<span class="sd">        ]</span>
+<span class="sd">        collections.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</span>
 <span class="sd">            Decorator callback which takes listener to add.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -2211,6 +2225,17 @@
 <span class="sd">        typing.Optional[hikari.event_manager.EventManager]</span>
 <span class="sd">            The Hikari event manager this client was initialised with</span>
 <span class="sd">            if provided, else `None`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>  <span class="c1"># TODO: switch over to a mapping of event to collection cause convenience</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Get a mapping of event types to the listeners registered in this client.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]</span>
+<span class="sd">            The listeners in this component.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -2300,6 +2325,20 @@
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">MetaEventSigT</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="c1"># As far as MYPY is concerned, unless you explicitly yield within an async callback typed as returning an</span>
@@ -4103,6 +4142,30 @@ The check to remove.</li>
     
 
                             </div>
+                </section>
+                <section id="ListenerCallbackSig">
+                                <div class="attr class">
+        <a class="headerlink" href="#ListenerCallbackSig">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">ListenerCallbackSig</span>:
+    </div>
+
+        
+    
+
+                </section>
+                <section id="ListenerCallbackSigT">
+                                <div class="attr variable"><a class="headerlink" href="#ListenerCallbackSigT">#&nbsp;&nbsp</a>
+
+        <span class="name">ListenerCallbackSigT</span><span class="default_value"> = ~ListenerCallbackSigT</span>
+    </div>
+
+            <div class="docstring"><p>Generic equivalent of <code><a href="#ListenerCallbackSig">ListenerCallbackSig</a></code>.</p>
+</div>
+
+
                 </section>
                 <section id="MaybeAwaitableT">
                                 <div class="attr variable"><a class="headerlink" href="#MaybeAwaitableT">#&nbsp;&nbsp</a>
@@ -6536,14 +6599,12 @@ response message being sent.</p>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a collection of tuples of (event, callback) for all the listeners in this component.</span>
+    <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Get a mapping of tuples of event types to the listeners registered for them in this component.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Collection[tuple[type[hikari.Event], hikari.api.event_manager.CallbackT[typing.Any]]]</span>
+<span class="sd">        collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]</span>
 <span class="sd">            The listeners in this component.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -6676,19 +6737,14 @@ response message being sent.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span>
-        <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="n">listener</span><span class="p">:</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="o">/</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a listener to this component.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        event : type[hikari.api.event_manager.EventT_inv]</span>
+<span class="sd">        event : type[hikari.events.Event]</span>
 <span class="sd">            The event to listen for.</span>
-<span class="sd">        listener : hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]</span>
+<span class="sd">        listener : ListenerCallbackSig</span>
 <span class="sd">            The listener to add.</span>
 
 <span class="sd">        Returns</span>
@@ -6698,43 +6754,32 @@ response message being sent.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="n">listener</span><span class="p">:</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="o">/</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Remove a listener from this component.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        event : type[hikari.api.event_manager.EventT_inv]</span>
+<span class="sd">        event : type[hikari.events.Event]</span>
 <span class="sd">            The event to listen for.</span>
-<span class="sd">        listener : hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]</span>
+<span class="sd">        listener : ListenerCallbackSig</span>
 <span class="sd">            The listener to remove.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="c1"># TODO: make event optional?</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span>
-        <span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">]],</span>
-        <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-    <span class="p">]:</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">ListenerCallbackSigT</span><span class="p">,]:</span>
         <span class="sd">&quot;&quot;&quot;Add a listener to this component through a decorator call.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        event_type : type[hikari.api.event_manager.EventT_inv]</span>
+<span class="sd">        event_type : type[hikari.Event]</span>
 <span class="sd">            The event to listen for.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.Callable[</span>
-<span class="sd">            [hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]],</span>
-<span class="sd">            hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</span>
-<span class="sd">        ]</span>
+<span class="sd">        collections.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</span>
 <span class="sd">            Decorator callback which takes listener to add.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -6863,15 +6908,15 @@ The name of this component.</li>
                             <div id="Component.listeners" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Component.listeners">#&nbsp;&nbsp</a>
 
-        <span class="name">listeners</span><span class="annotation">: &#39;collections.Collection[tuple[type[hikari.Event], event_manager_api.CallbackT[typing.Any]]]&#39;</span>
+        <span class="name">listeners</span><span class="annotation">: collections.abc.Mapping[type[hikari.events.base_events.Event], collections.abc.Collection[collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, None]]]]</span>
     </div>
 
-            <div class="docstring"><p>Get a collection of tuples of (event, callback) for all the listeners in this component.</p>
+            <div class="docstring"><p>Get a mapping of tuples of event types to the listeners registered for them in this component.</p>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Collection[tuple[type[hikari.Event], hikari.api.event_manager.CallbackT[typing.Any]]]</strong>: The listeners in this component.</li>
+<li><strong>collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]</strong>: The listeners in this component.</li>
 </ul>
 </div>
 
@@ -7203,30 +7248,20 @@ Whether to copy the command before adding it.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">add_listener</span><span class="signature">(
-    self: ~_T,
-    event: &#39;type[event_manager_api.EventT_inv]&#39;,
-    listener: &#39;event_manager_api.CallbackT[event_manager_api.EventT_inv]&#39;,
-    /
-) -&gt; ~_T</span>:
+            <span class="name">add_listener</span><span class="signature">(self: ~_T, event: type, listener: collections.abc.Callable, /) -&gt; ~_T</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span>
-        <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="n">listener</span><span class="p">:</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="o">/</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a listener to this component.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        event : type[hikari.api.event_manager.EventT_inv]</span>
+<span class="sd">        event : type[hikari.events.Event]</span>
 <span class="sd">            The event to listen for.</span>
-<span class="sd">        listener : hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]</span>
+<span class="sd">        listener : ListenerCallbackSig</span>
 <span class="sd">            The listener to add.</span>
 
 <span class="sd">        Returns</span>
@@ -7243,9 +7278,9 @@ Whether to copy the command before adding it.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>event</strong> (type[hikari.api.event_manager.EventT_inv]):
+<li><strong>event</strong> (type[hikari.events.Event]):
 The event to listen for.</li>
-<li><strong>listener</strong> (hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]):
+<li><strong>listener</strong> (ListenerCallbackSig):
 The listener to add.</li>
 </ul>
 
@@ -7264,30 +7299,20 @@ The listener to add.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">remove_listener</span><span class="signature">(
-    self,
-    event: &#39;type[event_manager_api.EventT_inv]&#39;,
-    listener: &#39;event_manager_api.CallbackT[event_manager_api.EventT_inv]&#39;,
-    /
-) -&gt; None</span>:
+            <span class="name">remove_listener</span><span class="signature">(self, event: type, listener: collections.abc.Callable, /) -&gt; None</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="n">listener</span><span class="p">:</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="o">/</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">listener</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Remove a listener from this component.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        event : type[hikari.api.event_manager.EventT_inv]</span>
+<span class="sd">        event : type[hikari.events.Event]</span>
 <span class="sd">            The event to listen for.</span>
-<span class="sd">        listener : hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]</span>
+<span class="sd">        listener : ListenerCallbackSig</span>
 <span class="sd">            The listener to remove.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
@@ -7299,9 +7324,9 @@ The listener to add.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>event</strong> (type[hikari.api.event_manager.EventT_inv]):
+<li><strong>event</strong> (type[hikari.events.Event]):
 The event to listen for.</li>
-<li><strong>listener</strong> (hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]):
+<li><strong>listener</strong> (ListenerCallbackSig):
 The listener to remove.</li>
 </ul>
 </div>
@@ -7316,32 +7341,26 @@ The listener to remove.</li>
             <span class="def">def</span>
             <span class="name">with_listener</span><span class="signature">(
     self,
-    event_type: &#39;type[event_manager_api.EventT_inv]&#39;
-) -&gt; &#39;collections.Callable[[event_manager_api.CallbackT[event_manager_api.EventT_inv]], event_manager_api.CallbackT[event_manager_api.EventT_inv]]&#39;</span>:
+    event_type: type
+) -&gt; collections.abc.Callable[[~ListenerCallbackSigT], ~ListenerCallbackSigT]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span>
-        <span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">]],</span>
-        <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-    <span class="p">]:</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">ListenerCallbackSigT</span><span class="p">,]:</span>
         <span class="sd">&quot;&quot;&quot;Add a listener to this component through a decorator call.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        event_type : type[hikari.api.event_manager.EventT_inv]</span>
+<span class="sd">        event_type : type[hikari.Event]</span>
 <span class="sd">            The event to listen for.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.Callable[</span>
-<span class="sd">            [hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]],</span>
-<span class="sd">            hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</span>
-<span class="sd">        ]</span>
+<span class="sd">        collections.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</span>
 <span class="sd">            Decorator callback which takes listener to add.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
@@ -7353,16 +7372,14 @@ The listener to remove.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>event_type</strong> (type[hikari.api.event_manager.EventT_inv]):
+<li><strong>event_type</strong> (type[hikari.Event]):
 The event to listen for.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.Callable[</strong>: [hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]],
-hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</li>
-<li><strong>]</strong>: Decorator callback which takes listener to add.</li>
+<li><strong>collections.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</strong>: Decorator callback which takes listener to add.</li>
 </ul>
 </div>
 
@@ -7605,6 +7622,17 @@ hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</li>
 <span class="sd">            if provided, else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+    <span class="nd">@property</span>  <span class="c1"># TODO: switch over to a mapping of event to collection cause convenience</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Get a mapping of event types to the listeners registered in this client.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]</span>
+<span class="sd">            The listeners in this component.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
@@ -7694,6 +7722,20 @@ hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</li>
     <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">MetaEventSigT</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
     <span class="c1"># As far as MYPY is concerned, unless you explicitly yield within an async callback typed as returning an</span>
     <span class="c1"># AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -7768,6 +7810,23 @@ with if provided, else <code>None</code>.</li>
 <ul>
 <li><strong>typing.Optional[hikari.event_manager.EventManager]</strong>: The Hikari event manager this client was initialised with
 if provided, else <code>None</code>.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.listeners" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Client.listeners">#&nbsp;&nbsp</a>
+
+        <span class="name">listeners</span><span class="annotation">: collections.abc.Mapping[type[hikari.events.base_events.Event], collections.abc.Collection[collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, None]]]]</span>
+    </div>
+
+            <div class="docstring"><p>Get a mapping of event types to the listeners registered in this client.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]</strong>: The listeners in this component.</li>
 </ul>
 </div>
 
@@ -7999,6 +8058,85 @@ if provided, else <code>None</code>.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">MetaEventSigT</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="Client.add_listener" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.add_listener">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">add_listener</span><span class="signature">(
+    self,
+    event_type: type,
+    callback: collections.abc.Callable,
+    /
+) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="Client.remove_listener" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.remove_listener">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">remove_listener</span><span class="signature">(
+    self,
+    event_type: type,
+    callback: collections.abc.Callable,
+    /
+) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="Client.with_listener" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.with_listener">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">with_listener</span><span class="signature">(
+    self,
+    event_type: type,
+    /
+) -&gt; collections.abc.Callable[[~ListenerCallbackSigT], ~ListenerCallbackSigT]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </pre></div>
 

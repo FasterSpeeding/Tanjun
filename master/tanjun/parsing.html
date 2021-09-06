@@ -307,7 +307,6 @@
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">tanjun_abc</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conversion</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">injecting</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="n">_ParameterT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ParameterT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;Parameter&quot;</span><span class="p">)</span>
@@ -322,7 +321,7 @@
 <span class="sd">&quot;&quot;&quot;Type hint of a converter used within a parser instance.</span>
 
 <span class="sd">This must be a callable or asynchronous callable which takes one position</span>
-<span class="sd">`str` argument and returns the resultant value.</span>
+<span class="sd">`str`, argument and returns the resultant value.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 
@@ -888,7 +887,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">conversion</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_greedy</span> <span class="o">=</span> <span class="n">greedy</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_multi</span> <span class="o">=</span> <span class="n">multi</span>
@@ -928,10 +927,10 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span>
                 <span class="n">converter</span><span class="o">.</span><span class="n">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">):</span>
             <span class="c1"># Some types like `bool` and `bytes` are overridden here for the sake of convenience.</span>
             <span class="n">converter</span> <span class="o">=</span> <span class="n">conversion</span><span class="o">.</span><span class="n">override_type</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
-            <span class="n">converter</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
+            <span class="n">converter</span> <span class="o">=</span> <span class="n">conversion</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
 
@@ -1619,7 +1618,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">conversion</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_greedy</span> <span class="o">=</span> <span class="n">greedy</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_multi</span> <span class="o">=</span> <span class="n">multi</span>
@@ -1659,10 +1658,10 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span>
                 <span class="n">converter</span><span class="o">.</span><span class="n">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">):</span>
             <span class="c1"># Some types like `bool` and `bytes` are overridden here for the sake of convenience.</span>
             <span class="n">converter</span> <span class="o">=</span> <span class="n">conversion</span><span class="o">.</span><span class="n">override_type</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
-            <span class="n">converter</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
+            <span class="n">converter</span> <span class="o">=</span> <span class="n">conversion</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
 
@@ -1741,7 +1740,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">conversion</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_greedy</span> <span class="o">=</span> <span class="n">greedy</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_multi</span> <span class="o">=</span> <span class="n">multi</span>
@@ -1835,10 +1834,10 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span>
                 <span class="n">converter</span><span class="o">.</span><span class="n">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">):</span>
             <span class="c1"># Some types like `bool` and `bytes` are overridden here for the sake of convenience.</span>
             <span class="n">converter</span> <span class="o">=</span> <span class="n">conversion</span><span class="o">.</span><span class="n">override_type</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
-            <span class="n">converter</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
+            <span class="n">converter</span> <span class="o">=</span> <span class="n">conversion</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
 </pre></div>

@@ -64,6 +64,9 @@
                                 <a class="variable" href="#Client.events">events</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Client.listeners">listeners</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Client.hooks">hooks</a>
                         </li>
                         <li>
@@ -158,6 +161,15 @@
                         </li>
                         <li>
                                 <a class="function" href="#Client.with_client_callback">with_client_callback</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.add_listener">add_listener</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.remove_listener">remove_listener</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.with_listener">with_listener</a>
                         </li>
                         <li>
                                 <a class="function" href="#Client.add_prefix">add_prefix</a>
@@ -358,6 +370,7 @@
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_backoff</span> <span class="k">as</span> <span class="n">backoff</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">tanjun_abc</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">checks</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">context</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">injecting</span>
@@ -366,8 +379,6 @@
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">pathlib</span>
     <span class="kn">import</span> <span class="nn">types</span>
-
-    <span class="kn">from</span> <span class="nn">hikari.api</span> <span class="kn">import</span> <span class="n">event_manager</span> <span class="k">as</span> <span class="n">event_manager_api</span>
 
     <span class="n">_ClientT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ClientT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;Client&quot;</span><span class="p">)</span>
     <span class="n">_T</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_T&quot;</span><span class="p">)</span>
@@ -538,7 +549,7 @@
 <span class="sd">            register a listener for.</span>
 
 <span class="sd">            This will be `None` if this mode disables listening to</span>
-<span class="sd">            message create events/</span>
+<span class="sd">            message create events.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_ACCEPTS_EVENT_TYPE_MAPPING</span><span class="p">[</span><span class="bp">self</span><span class="p">]</span>
 
@@ -587,6 +598,18 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrefixGetterSig</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback</span>
+
+
+<span class="k">class</span> <span class="nc">_InjectableListener</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BaseInjectableCallback</span><span class="p">[</span><span class="kc">None</span><span class="p">]):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_injector_client&quot;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">injector_client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_injector_client</span> <span class="o">=</span> <span class="n">injector_client</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_injector_client</span><span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">descriptor</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">Client</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">):</span>
@@ -671,6 +694,7 @@
         <span class="s2">&quot;_slash_hooks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_is_alive&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_is_closing&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_listeners&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_message_hooks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_metadata&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_prefix_getter&quot;</span><span class="p">,</span>
@@ -702,7 +726,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">cache</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
@@ -714,6 +738,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="n">_InjectableListener</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_InjectablePrefixGetter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -921,6 +946,12 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="n">utilities</span><span class="o">.</span><span class="n">CastedView</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Top level `tanjun.abc.AnyHooks` set for this client.</span>
 
@@ -987,7 +1018,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="o">.</span><span class="n">callback</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">prefixes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">prefixes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Set of the standard prefixes set for this client.</span>
 
 <span class="sd">        Returns</span>
@@ -1274,7 +1305,7 @@
 <span class="sd">            based on webhook and bot messages.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">_check_human</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">_check_human</span><span class="p">))</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -1360,7 +1391,7 @@
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1414,14 +1445,13 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event_name</span><span class="p">):</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
-                <span class="o">*</span><span class="p">(</span>
-                    <span class="n">_wrap_client_callback</span><span class="p">(</span>
-                        <span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">suppress_exceptions</span>
-                    <span class="p">)</span>
-                    <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span>
+            <span class="n">calls</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">_wrap_client_callback</span><span class="p">(</span>
+                    <span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">suppress_exceptions</span>
                 <span class="p">)</span>
+                <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span>
             <span class="p">)</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">calls</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
@@ -1444,6 +1474,34 @@
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">callback</span>
+
+        <span class="k">return</span> <span class="n">decorator</span>
+
+    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">injected</span> <span class="o">=</span> <span class="n">_InjectableListener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">injected</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">injected</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">injected</span><span class="p">)</span>  <span class="c1"># TODO: does this work?</span>
+
+    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>  <span class="c1"># TODO: does this work?</span>
+
+    <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
+        <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">callback</span>
 
         <span class="k">return</span> <span class="n">decorator</span>
@@ -1496,8 +1554,8 @@
     <span class="k">def</span> <span class="nf">_try_unsubscribe</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">event_manager</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">EventManager</span><span class="p">,</span>
-        <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
+        <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">event_manager</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
@@ -1525,6 +1583,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_try_unsubscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">,</span> <span class="n">event_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message_create_event</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_try_unsubscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionCreateEvent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_interaction_create_event</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_try_unsubscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">,</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">deregister_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">set_listener</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -1574,6 +1636,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message_create_event</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionCreateEvent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_interaction_create_event</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">register_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">set_listener</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_interaction_create_request</span><span class="p">)</span>
@@ -1955,6 +2021,7 @@ to the provided client using it's abstract methods.</li>
         <span class="s2">&quot;_slash_hooks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_is_alive&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_is_closing&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_listeners&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_message_hooks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_metadata&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_prefix_getter&quot;</span><span class="p">,</span>
@@ -1986,7 +2053,7 @@ to the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">cache</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
@@ -1998,6 +2065,7 @@ to the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="n">_InjectableListener</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_InjectablePrefixGetter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2205,6 +2273,12 @@ to the provided client using it's abstract methods.</li>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="n">utilities</span><span class="o">.</span><span class="n">CastedView</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Top level `tanjun.abc.AnyHooks` set for this client.</span>
 
@@ -2271,7 +2345,7 @@ to the provided client using it's abstract methods.</li>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="o">.</span><span class="n">callback</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">prefixes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">prefixes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Set of the standard prefixes set for this client.</span>
 
 <span class="sd">        Returns</span>
@@ -2558,7 +2632,7 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">            based on webhook and bot messages.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">_check_human</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">_check_human</span><span class="p">))</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -2644,7 +2718,7 @@ to the provided client using it's abstract methods.</li>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -2698,14 +2772,13 @@ to the provided client using it's abstract methods.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event_name</span><span class="p">):</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
-                <span class="o">*</span><span class="p">(</span>
-                    <span class="n">_wrap_client_callback</span><span class="p">(</span>
-                        <span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">suppress_exceptions</span>
-                    <span class="p">)</span>
-                    <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span>
+            <span class="n">calls</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">_wrap_client_callback</span><span class="p">(</span>
+                    <span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">suppress_exceptions</span>
                 <span class="p">)</span>
+                <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span>
             <span class="p">)</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">calls</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
@@ -2728,6 +2801,34 @@ to the provided client using it's abstract methods.</li>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">callback</span>
+
+        <span class="k">return</span> <span class="n">decorator</span>
+
+    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">injected</span> <span class="o">=</span> <span class="n">_InjectableListener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">injected</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">injected</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">injected</span><span class="p">)</span>  <span class="c1"># TODO: does this work?</span>
+
+    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>  <span class="c1"># TODO: does this work?</span>
+
+    <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
+        <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">callback</span>
 
         <span class="k">return</span> <span class="n">decorator</span>
@@ -2780,8 +2881,8 @@ to the provided client using it's abstract methods.</li>
     <span class="k">def</span> <span class="nf">_try_unsubscribe</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">event_manager</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">EventManager</span><span class="p">,</span>
-        <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
+        <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">event_manager</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
@@ -2809,6 +2910,10 @@ to the provided client using it's abstract methods.</li>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_try_unsubscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">,</span> <span class="n">event_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message_create_event</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_try_unsubscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionCreateEvent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_interaction_create_event</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_try_unsubscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">,</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">deregister_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">set_listener</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -2858,6 +2963,10 @@ to the provided client using it's abstract methods.</li>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message_create_event</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionCreateEvent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_interaction_create_event</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">register_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">set_listener</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_interaction_create_request</span><span class="p">)</span>
@@ -3203,7 +3312,7 @@ when set on a specific guild.</p></li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">cache</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
@@ -3215,6 +3324,7 @@ when set on a specific guild.</p></li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="n">_InjectableListener</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_InjectablePrefixGetter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -3599,6 +3709,23 @@ if provided, else <code>None</code>.</li>
 
 
                             </div>
+                            <div id="Client.listeners" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Client.listeners">#&nbsp;&nbsp</a>
+
+        <span class="name">listeners</span><span class="annotation">: collections.abc.Mapping[type[hikari.events.base_events.Event], collections.abc.Collection[collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, None]]]]</span>
+    </div>
+
+            <div class="docstring"><p>Get a mapping of event types to the listeners registered in this client.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]</strong>: The listeners in this component.</li>
+</ul>
+</div>
+
+
+                            </div>
                             <div id="Client.hooks" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Client.hooks">#&nbsp;&nbsp</a>
 
@@ -3713,7 +3840,7 @@ else <code>None</code>.</li>
                             <div id="Client.prefixes" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Client.prefixes">#&nbsp;&nbsp</a>
 
-        <span class="name">prefixes</span><span class="annotation">: collections.abc.Set[str]</span>
+        <span class="name">prefixes</span><span class="annotation">: collections.abc.Collection[str]</span>
     </div>
 
             <div class="docstring"><p>Set of the standard prefixes set for this client.</p>
@@ -4367,7 +4494,7 @@ of <code><a href="context.html#SlashContext">tanjun.context.SlashContext</a></co
 <span class="sd">            based on webhook and bot messages.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">_check_human</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">_check_human</span><span class="p">))</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -4585,7 +4712,7 @@ Object or ID of the guild to set the global commands to.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
@@ -4769,14 +4896,13 @@ Object or ID of the guild to set the global commands to.</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event_name</span><span class="p">):</span>
-            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
-                <span class="o">*</span><span class="p">(</span>
-                    <span class="n">_wrap_client_callback</span><span class="p">(</span>
-                        <span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">suppress_exceptions</span>
-                    <span class="p">)</span>
-                    <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span>
+            <span class="n">calls</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">_wrap_client_callback</span><span class="p">(</span>
+                    <span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">suppress_exceptions</span>
                 <span class="p">)</span>
+                <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span>
             <span class="p">)</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">calls</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -4855,6 +4981,96 @@ Object or ID of the guild to set the global commands to.</p>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">callback</span>
+
+        <span class="k">return</span> <span class="n">decorator</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="Client.add_listener" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.add_listener">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">add_listener</span><span class="signature">(
+    self,
+    event_type: type,
+    callback: collections.abc.Callable,
+    /
+) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">injected</span> <span class="o">=</span> <span class="n">_InjectableListener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">injected</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">injected</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">injected</span><span class="p">)</span>  <span class="c1"># TODO: does this work?</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="Client.remove_listener" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.remove_listener">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">remove_listener</span><span class="signature">(
+    self,
+    event_type: type,
+    callback: collections.abc.Callable,
+    /
+) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>  <span class="c1"># TODO: does this work?</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="Client.with_listener" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.with_listener">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">with_listener</span><span class="signature">(
+    self,
+    event_type: type,
+    /
+) -&gt; collections.abc.Callable[[~ListenerCallbackSigT], ~ListenerCallbackSigT]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
+        <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">callback</span>
 
         <span class="k">return</span> <span class="n">decorator</span>
@@ -5061,6 +5277,10 @@ Object or ID of the guild to set the global commands to.</p>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_try_unsubscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionCreateEvent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_interaction_create_event</span><span class="p">)</span>
 
+            <span class="k">for</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_try_unsubscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">,</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">deregister_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">set_listener</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
@@ -5125,6 +5345,10 @@ Object or ID of the guild to set the global commands to.</p>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_message_create_event</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionCreateEvent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_interaction_create_event</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">register_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">set_listener</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_interaction_create_request</span><span class="p">)</span>
@@ -5878,7 +6102,7 @@ the client is inactive.</p>
 <span class="sd">            register a listener for.</span>
 
 <span class="sd">            This will be `None` if this mode disables listening to</span>
-<span class="sd">            message create events/</span>
+<span class="sd">            message create events.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_ACCEPTS_EVENT_TYPE_MAPPING</span><span class="p">[</span><span class="bp">self</span><span class="p">]</span>
 </pre></div>
@@ -5955,7 +6179,7 @@ the client is inactive.</p>
 <span class="sd">            register a listener for.</span>
 
 <span class="sd">            This will be `None` if this mode disables listening to</span>
-<span class="sd">            message create events/</span>
+<span class="sd">            message create events.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_ACCEPTS_EVENT_TYPE_MAPPING</span><span class="p">[</span><span class="bp">self</span><span class="p">]</span>
 </pre></div>
@@ -5972,7 +6196,7 @@ register a listener for.</li>
 </ul>
 
 <p>This will be <code>None</code> if this mode disables listening to
-message create events/</p>
+message create events.</p>
 </div>
 
 

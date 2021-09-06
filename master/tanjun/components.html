@@ -251,13 +251,10 @@
 <span class="kn">import</span> <span class="nn">tanjun</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">injecting</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">checks</span> <span class="k">as</span> <span class="n">checks_</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utilities</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
-
-    <span class="kn">from</span> <span class="nn">hikari.api</span> <span class="kn">import</span> <span class="n">event_manager</span> <span class="k">as</span> <span class="n">event_manager_api</span>
-
     <span class="n">_ComponentT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ComponentT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;Component&quot;</span><span class="p">)</span>
     <span class="n">_T</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_T&quot;</span><span class="p">)</span>
 
@@ -352,14 +349,14 @@
         <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">{</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks</span><span class="p">}</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">{</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks</span><span class="p">}</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">message_hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -413,7 +410,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -425,7 +422,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span> <span class="o">=</span> <span class="p">{</span><span class="n">check</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="k">else</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span> <span class="o">=</span> <span class="p">{</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span> <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">event</span><span class="p">:</span> <span class="p">{</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span> <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">}</span> <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
             <span class="n">commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">command</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">commands</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -447,7 +446,7 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -609,39 +608,32 @@
         <span class="k">return</span> <span class="n">_with_command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_message_command</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span>
-        <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="n">listener</span><span class="p">:</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="o">/</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">listener</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">listener</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="n">listener</span><span class="p">:</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="o">/</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">listener</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">remove_listener</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
 
     <span class="c1"># TODO: make event optional?</span>
     <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span>
-        <span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">]],</span>
-        <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-    <span class="p">]:</span>
-        <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span>
-            <span class="n">callback</span><span class="p">:</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
+        <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">callback</span>
 
@@ -655,10 +647,9 @@
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
             <span class="n">command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 
-        <span class="c1"># TODO: warn if listeners registered without any provided dispatch handler</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">event_</span><span class="p">,</span> <span class="n">listener</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">callbacks</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span><span class="p">:</span>
@@ -668,12 +659,11 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">!=</span> <span class="n">client</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Component isn&#39;t bound to this client&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">event_</span><span class="p">,</span> <span class="n">listener</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">event_</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
-                <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">LookupError</span><span class="p">):</span>
-                    <span class="c1"># TODO: add logging here</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">remove_listener</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">LookupError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
                     <span class="k">pass</span>
 
         <span class="k">for</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">callbacks</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -890,14 +880,14 @@
         <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">{</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks</span><span class="p">}</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">{</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks</span><span class="p">}</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">message_hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -951,7 +941,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -963,7 +953,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span> <span class="o">=</span> <span class="p">{</span><span class="n">check</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="k">else</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span> <span class="o">=</span> <span class="p">{</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span> <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">event</span><span class="p">:</span> <span class="p">{</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span> <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">}</span> <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
             <span class="n">commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">command</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">commands</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -985,7 +977,7 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1147,39 +1139,32 @@
         <span class="k">return</span> <span class="n">_with_command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_message_command</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span>
-        <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="n">listener</span><span class="p">:</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="o">/</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">listener</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">listener</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="n">listener</span><span class="p">:</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="o">/</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">listener</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">remove_listener</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
 
     <span class="c1"># TODO: make event optional?</span>
     <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span>
-        <span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">]],</span>
-        <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-    <span class="p">]:</span>
-        <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span>
-            <span class="n">callback</span><span class="p">:</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
+        <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">callback</span>
 
@@ -1193,10 +1178,9 @@
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
             <span class="n">command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 
-        <span class="c1"># TODO: warn if listeners registered without any provided dispatch handler</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">event_</span><span class="p">,</span> <span class="n">listener</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">callbacks</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span><span class="p">:</span>
@@ -1206,12 +1190,11 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">!=</span> <span class="n">client</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Component isn&#39;t bound to this client&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">event_</span><span class="p">,</span> <span class="n">listener</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">event_</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
-                <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">LookupError</span><span class="p">):</span>
-                    <span class="c1"># TODO: add logging here</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">remove_listener</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">LookupError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
                     <span class="k">pass</span>
 
         <span class="k">for</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">callbacks</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -1410,14 +1393,14 @@ spaces and will have to be unique to one command within the component.</p></li>
         <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">{</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks</span><span class="p">}</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">{</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks</span><span class="p">}</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">message_hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1556,15 +1539,15 @@ The name of this component.</li>
                             <div id="Component.listeners" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Component.listeners">#&nbsp;&nbsp</a>
 
-        <span class="name">listeners</span><span class="annotation">: &#39;collections.Set[tuple[type[base_events.Event], event_manager_api.CallbackT[typing.Any]]]&#39;</span>
+        <span class="name">listeners</span><span class="annotation">: collections.abc.Mapping[type[hikari.events.base_events.Event], collections.abc.Collection[collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, None]]]]</span>
     </div>
 
-            <div class="docstring"><p>Get a collection of tuples of (event, callback) for all the listeners in this component.</p>
+            <div class="docstring"><p>Get a mapping of tuples of event types to the listeners registered for them in this component.</p>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Collection[tuple[type[hikari.Event], hikari.api.event_manager.CallbackT[typing.Any]]]</strong>: The listeners in this component.</li>
+<li><strong>collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]</strong>: The listeners in this component.</li>
 </ul>
 </div>
 
@@ -1605,7 +1588,9 @@ the component.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span> <span class="o">=</span> <span class="p">{</span><span class="n">check</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="k">else</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span> <span class="o">=</span> <span class="p">{</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span> <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">event</span><span class="p">:</span> <span class="p">{</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span> <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">}</span> <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
             <span class="n">commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">command</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">commands</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -1706,7 +1691,7 @@ the component.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
@@ -2234,8 +2219,8 @@ Whether to copy the command before adding it.</li>
             <span class="def">def</span>
             <span class="name">add_listener</span><span class="signature">(
     self: ~_ComponentT,
-    event: &#39;type[event_manager_api.EventT_inv]&#39;,
-    listener: &#39;event_manager_api.CallbackT[event_manager_api.EventT_inv]&#39;,
+    event: type,
+    listener: collections.abc.Callable,
     /
 ) -&gt; ~_ComponentT</span>:
     </div>
@@ -2243,15 +2228,16 @@ Whether to copy the command before adding it.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span>
-        <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="n">listener</span><span class="p">:</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="o">/</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">listener</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">listener</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
@@ -2263,9 +2249,9 @@ Whether to copy the command before adding it.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>event</strong> (type[hikari.api.event_manager.EventT_inv]):
+<li><strong>event</strong> (type[hikari.events.Event]):
 The event to listen for.</li>
-<li><strong>listener</strong> (hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]):
+<li><strong>listener</strong> (ListenerCallbackSig):
 The listener to add.</li>
 </ul>
 
@@ -2283,26 +2269,18 @@ The listener to add.</li>
 
         
             <span class="def">def</span>
-            <span class="name">remove_listener</span><span class="signature">(
-    self,
-    event: &#39;type[event_manager_api.EventT_inv]&#39;,
-    listener: &#39;event_manager_api.CallbackT[event_manager_api.EventT_inv]&#39;,
-    /
-) -&gt; None</span>:
+            <span class="name">remove_listener</span><span class="signature">(self, event: type, listener: collections.abc.Callable, /) -&gt; None</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="n">listener</span><span class="p">:</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="o">/</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">))</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">listener</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">remove_listener</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -2312,9 +2290,9 @@ The listener to add.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>event</strong> (type[hikari.api.event_manager.EventT_inv]):
+<li><strong>event</strong> (type[hikari.events.Event]):
 The event to listen for.</li>
-<li><strong>listener</strong> (hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]):
+<li><strong>listener</strong> (ListenerCallbackSig):
 The listener to remove.</li>
 </ul>
 </div>
@@ -2328,21 +2306,16 @@ The listener to remove.</li>
             <span class="def">def</span>
             <span class="name">with_listener</span><span class="signature">(
     self,
-    event_type: &#39;type[event_manager_api.EventT_inv]&#39;
-) -&gt; &#39;collections.Callable[[event_manager_api.CallbackT[event_manager_api.EventT_inv]], event_manager_api.CallbackT[event_manager_api.EventT_inv]]&#39;</span>:
+    event_type: type
+) -&gt; collections.abc.Callable[[~ListenerCallbackSigT], ~ListenerCallbackSigT]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span>
-        <span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">]],</span>
-        <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-    <span class="p">]:</span>
-        <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span>
-            <span class="n">callback</span><span class="p">:</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">],</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">event_manager_api</span><span class="o">.</span><span class="n">CallbackT</span><span class="p">[</span><span class="n">event_manager_api</span><span class="o">.</span><span class="n">EventT_inv</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
+        <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">callback</span>
 
@@ -2356,16 +2329,14 @@ The listener to remove.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>event_type</strong> (type[hikari.api.event_manager.EventT_inv]):
+<li><strong>event_type</strong> (type[hikari.Event]):
 The event to listen for.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.Callable[</strong>: [hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]],
-hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</li>
-<li><strong>]</strong>: Decorator callback which takes listener to add.</li>
+<li><strong>collections.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</strong>: Decorator callback which takes listener to add.</li>
 </ul>
 </div>
 
@@ -2389,10 +2360,9 @@ hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</li>
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
             <span class="n">command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 
-        <span class="c1"># TODO: warn if listeners registered without any provided dispatch handler</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">event_</span><span class="p">,</span> <span class="n">listener</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">callbacks</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span><span class="p">:</span>
@@ -2418,12 +2388,11 @@ hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],</li>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">!=</span> <span class="n">client</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Component isn&#39;t bound to this client&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">event_</span><span class="p">,</span> <span class="n">listener</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">event_</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
-                <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">LookupError</span><span class="p">):</span>
-                    <span class="c1"># TODO: add logging here</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">remove_listener</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">LookupError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
                     <span class="k">pass</span>
 
         <span class="k">for</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">callbacks</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>

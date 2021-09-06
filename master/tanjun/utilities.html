@@ -43,6 +43,15 @@
                     <a class="variable" href="#ALL_PERMISSIONS">ALL_PERMISSIONS</a>
             </li>
             <li>
+                    <a class="class" href="#CastedView">CastedView</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#CastedView.__init__">CastedView</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="variable" href="#DM_PERMISSIONS">DM_PERMISSIONS</a>
             </li>
             <li>
@@ -120,6 +129,7 @@
     <span class="s2">&quot;await_if_async&quot;</span><span class="p">,</span>
     <span class="s2">&quot;gather_checks&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ALL_PERMISSIONS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CastedView&quot;</span><span class="p">,</span>
     <span class="s2">&quot;DM_PERMISSIONS&quot;</span><span class="p">,</span>
     <span class="s2">&quot;calculate_everyone_permissions&quot;</span><span class="p">,</span>
     <span class="s2">&quot;calculate_permissions&quot;</span><span class="p">,</span>
@@ -139,10 +149,11 @@
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span>
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">injecting</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">checks</span>
 
 
 <span class="n">_ResourceT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ResourceT&quot;</span><span class="p">)</span>
+<span class="n">_KeyT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_KeyT&quot;</span><span class="p">)</span>
 <span class="n">_ValueT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ValueT&quot;</span><span class="p">)</span>
 
 
@@ -185,7 +196,7 @@
     <span class="k">return</span> <span class="n">result</span>
 
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">checks</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">checks_</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Gather a collection of checks.</span>
 
 <span class="sd">    Parameters</span>
@@ -201,7 +212,7 @@
 <span class="sd">        Whether all the checks passed or not.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks</span><span class="p">))</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks_</span><span class="p">))</span>
         <span class="c1"># InjectableCheck will raise FailedCheck if a false is received so if</span>
         <span class="c1"># we get this far then it&#39;s True.</span>
         <span class="k">return</span> <span class="kc">True</span>
@@ -545,6 +556,33 @@
         <span class="n">permissions</span> <span class="o">|=</span> <span class="n">everyone_overwrite</span><span class="o">.</span><span class="n">allow</span>
 
     <span class="k">return</span> <span class="n">permissions</span>
+
+
+<span class="k">class</span> <span class="nc">CastedView</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">_KeyT</span><span class="p">,</span> <span class="n">_ValueT</span><span class="p">]):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_buffer&quot;</span><span class="p">,</span> <span class="s2">&quot;_cast&quot;</span><span class="p">,</span> <span class="s2">&quot;_raw_data&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">_KeyT</span><span class="p">,</span> <span class="n">_ValueT</span><span class="p">],</span> <span class="n">cast</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_ValueT</span><span class="p">],</span> <span class="n">_ValueT</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">_KeyT</span><span class="p">,</span> <span class="n">_ValueT</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cast</span> <span class="o">=</span> <span class="n">cast</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_raw_data</span> <span class="o">=</span> <span class="n">raw_data</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">_KeyT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cast</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">_KeyT</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_raw_data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_raw_data</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -651,12 +689,16 @@ A variable amount of positional arguments to pass through when calling
 
         
             <span class="def">async def</span>
-            <span class="name">gather_checks</span><span class="signature">(ctx: <a href="abc.html#Context">tanjun.abc.Context</a>, checks: collections.abc.Iterable) -&gt; bool</span>:
+            <span class="name">gather_checks</span><span class="signature">(
+    ctx: <a href="abc.html#Context">tanjun.abc.Context</a>,
+    checks_: collections.abc.Iterable,
+    /
+) -&gt; bool</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">checks</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">checks_</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Gather a collection of checks.</span>
 
 <span class="sd">    Parameters</span>
@@ -672,7 +714,7 @@ A variable amount of positional arguments to pass through when calling
 <span class="sd">        Whether all the checks passed or not.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks</span><span class="p">))</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks_</span><span class="p">))</span>
         <span class="c1"># InjectableCheck will raise FailedCheck if a false is received so if</span>
         <span class="c1"># we get this far then it&#39;s True.</span>
         <span class="k">return</span> <span class="kc">True</span>
@@ -713,6 +755,81 @@ An iterable of injectable checks.</li>
 </div>
 
 
+                </section>
+                <section id="CastedView">
+                                <div class="attr class">
+        <a class="headerlink" href="#CastedView">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">CastedView</span><wbr>(<span class="base">collections.abc.Mapping[~_KeyT, ~_ValueT]</span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">CastedView</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">_KeyT</span><span class="p">,</span> <span class="n">_ValueT</span><span class="p">]):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_buffer&quot;</span><span class="p">,</span> <span class="s2">&quot;_cast&quot;</span><span class="p">,</span> <span class="s2">&quot;_raw_data&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">_KeyT</span><span class="p">,</span> <span class="n">_ValueT</span><span class="p">],</span> <span class="n">cast</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_ValueT</span><span class="p">],</span> <span class="n">_ValueT</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">_KeyT</span><span class="p">,</span> <span class="n">_ValueT</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cast</span> <span class="o">=</span> <span class="n">cast</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_raw_data</span> <span class="o">=</span> <span class="n">raw_data</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">_KeyT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cast</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">_KeyT</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_raw_data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_raw_data</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            <div id="CastedView.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#CastedView.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">CastedView</span><span class="signature">(raw_data: dict, cast: Callable[[~_ValueT], ~_ValueT])</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">_KeyT</span><span class="p">,</span> <span class="n">_ValueT</span><span class="p">],</span> <span class="n">cast</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_ValueT</span><span class="p">],</span> <span class="n">_ValueT</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">_KeyT</span><span class="p">,</span> <span class="n">_ValueT</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cast</span> <span class="o">=</span> <span class="n">cast</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_raw_data</span> <span class="o">=</span> <span class="n">raw_data</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>collections.abc.Mapping</dt>
+                                <dd id="CastedView.get" class="function">get</dd>
+                <dd id="CastedView.keys" class="function">keys</dd>
+                <dd id="CastedView.items" class="function">items</dd>
+                <dd id="CastedView.values" class="function">values</dd>
+
+            </div>
+                                </dl>
+                            </div>
                 </section>
                 <section id="DM_PERMISSIONS">
                                 <div class="attr variable"><a class="headerlink" href="#DM_PERMISSIONS">#&nbsp;&nbsp</a>
