@@ -6,7 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Component add and remove client callbacks
+- Component add and remove client callbacks.
+- Event listeners are now loaded into Client by Components and support dependency injection.
+- Add/with and remove listener methods had to be added to the Client to support this.
 - Exported the parsing, commands and utilities modules on a top level (thus also adding them to the generated docs).
 - Allow for overriding the standard client's context builders.
 - Add default_permission argument to slash command types.
