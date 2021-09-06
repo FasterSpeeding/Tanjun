@@ -686,56 +686,6 @@ class TestBaseInjectableCallback:
         assert injectable.needs_injector is callback_descriptor.return_value.needs_injector
 
 
-class TestInjectableCheck:
-    @pytest.mark.asyncio()
-    async def test(self):
-        mock_callback = mock.Mock()
-        mock_context = mock.Mock()
-
-        with mock.patch.object(
-            tanjun.injecting, "CallbackDescriptor", return_value=mock.AsyncMock()
-        ) as callback_descriptor:
-            check = tanjun.injecting.InjectableCheck(mock_callback)
-
-            callback_descriptor.assert_called_once_with(mock_callback)
-
-        result = await check(mock_context)
-
-        assert result is callback_descriptor.return_value.resolve_with_command_context.return_value
-        callback_descriptor.return_value.resolve_with_command_context.assert_awaited_once_with(
-            mock_context, mock_context
-        )
-
-
-class TestInjectableConverter:
-    @pytest.mark.asyncio()
-    async def test(self):
-        mock_callback = mock.Mock()
-        mock_context = mock.Mock()
-
-        with mock.patch.object(
-            tanjun.injecting, "CallbackDescriptor", return_value=mock.AsyncMock()
-        ) as callback_descriptor:
-            converter = tanjun.injecting.InjectableConverter(mock_callback)
-
-            callback_descriptor.assert_called_once_with(mock_callback)
-
-        result = await converter(mock_context, "a")
-
-        assert result is callback_descriptor.return_value.resolve_with_command_context.return_value
-        callback_descriptor.return_value.resolve_with_command_context.assert_awaited_once_with(mock_context, "a")
-
-    @pytest.mark.asyncio()
-    async def test_for_base_converter(self):
-        base_converter = mock.AsyncMock(tanjun.conversion.BaseConverter)
-        injectable = tanjun.injecting.InjectableConverter(base_converter)
-        mock_context = mock.Mock()
-
-        assert await injectable(mock_context, "e") is base_converter.return_value
-
-        base_converter.assert_awaited_once_with("e", mock_context)
-
-
 @pytest.mark.asyncio()
 async def test_cache_callback():
     mock_callback = mock.Mock()

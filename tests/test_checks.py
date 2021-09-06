@@ -55,6 +55,27 @@ def context() -> tanjun.abc.Context:
     return mock.MagicMock(tanjun.abc.Context)
 
 
+class TestInjectableCheck:
+    @pytest.mark.asyncio()
+    async def test(self):
+        mock_callback = mock.Mock()
+        mock_context = mock.Mock()
+
+        with mock.patch.object(
+            tanjun.injecting, "CallbackDescriptor", return_value=mock.AsyncMock()
+        ) as callback_descriptor:
+            check = tanjun.checks.InjectableCheck(mock_callback)
+
+            callback_descriptor.assert_called_once_with(mock_callback)
+
+        result = await check(mock_context)
+
+        assert result is callback_descriptor.return_value.resolve_with_command_context.return_value
+        callback_descriptor.return_value.resolve_with_command_context.assert_awaited_once_with(
+            mock_context, mock_context
+        )
+
+
 class TestApplicationOwnerCheck:
     ...
 

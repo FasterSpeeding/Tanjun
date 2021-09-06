@@ -66,6 +66,7 @@ import hikari
 
 from . import _backoff as backoff
 from . import errors
+from . import injecting
 from . import utilities
 
 if typing.TYPE_CHECKING:
@@ -98,6 +99,13 @@ def foo_command(self, ctx: Context) -> None:
     raise NotImplemented
 ```
 """
+
+
+class InjectableCheck(injecting.BaseInjectableCallback[bool]):
+    __slots__ = ()
+
+    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
+        return await self.descriptor.resolve_with_command_context(ctx, ctx)
 
 
 @dataclasses.dataclass(frozen=True)
