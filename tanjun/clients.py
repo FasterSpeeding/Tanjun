@@ -426,7 +426,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
         self._is_alive = False
         self._is_closing = False
-        self._listeners: set[tuple[type[hikari.Event], _InjectableListener]] = set()
+        self._listeners: dict[type[hikari.Event], set[_InjectableListener]] = {}
         self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._prefix_getter: typing.Optional[_InjectablePrefixGetter] = None
@@ -634,8 +634,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self._events
 
     @property
-    def listeners(self) -> collections.Collection[tuple[type[hikari.Event], tanjun_abc.ListenerCallbackSig]]:
-        return self._listeners.copy()
+    def listeners(
+        self,
+    ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun_abc.ListenerCallbackSig]]:
+        return utilities.CastedView(self._listeners, lambda x: x.copy())
 
     @property
     def hooks(self) -> typing.Optional[tanjun_abc.AnyHooks]:
@@ -704,7 +706,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self._prefix_getter.callback if self._prefix_getter else None
 
     @property
-    def prefixes(self) -> collections.Set[str]:
+    def prefixes(self) -> collections.Collection[str]:
         """Set of the standard prefixes set for this client.
 
         Returns
@@ -1166,13 +1168,19 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     def add_listener(self, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /) -> None:
         injected = _InjectableListener(self, callback)
-        self._listeners.add((event_type, injected))
+        try:
+            self._listeners[event_type].add(injected)
+
+        except KeyError:
+            self._listeners[event_type] = {injected}
 
         if self._is_alive and self._events:
             self._events.subscribe(event_type, injected)  # TODO: does this work?
 
     def remove_listener(self, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /) -> None:
-        self._listeners.remove((event_type, callback))  # type: ignore
+        self._listeners[event_type].remove(callback)  # type: ignore
+        if not self._listeners[event_type]:
+            del self._listeners[event_type]
 
         if self._is_alive and self._events:
             self._events.unsubscribe(event_type, callback)  # TODO: does this work?
@@ -1264,8 +1272,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             self._try_unsubscribe(self._events, hikari.InteractionCreateEvent, self.on_interaction_create_event)
 
-            for event_type, listener in self._listeners:
-                self._try_unsubscribe(self._events, event_type, listener)
+            for event_type, listeners in self._listeners.items():
+                for listener in listeners:
+                    self._try_unsubscribe(self._events, event_type, listener)
 
         if deregister_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, None)
@@ -1316,8 +1325,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             self._events.subscribe(hikari.InteractionCreateEvent, self.on_interaction_create_event)
 
-            for event_type, listener in self._listeners:
-                self._events.subscribe(event_type, listener)
+            for event_type, listeners in self._listeners.items():
+                for listener in listeners:
+                    self._events.subscribe(event_type, listener)
 
         if register_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, self.on_interaction_create_request)

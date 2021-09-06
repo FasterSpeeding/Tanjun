@@ -37,6 +37,7 @@ __all__: list[str] = [
     "await_if_async",
     "gather_checks",
     "ALL_PERMISSIONS",
+    "CastedView",
     "DM_PERMISSIONS",
     "calculate_everyone_permissions",
     "calculate_permissions",
@@ -60,6 +61,7 @@ if typing.TYPE_CHECKING:
 
 
 _ResourceT = typing.TypeVar("_ResourceT")
+_KeyT = typing.TypeVar("_KeyT")
 _ValueT = typing.TypeVar("_ValueT")
 
 
@@ -462,3 +464,30 @@ async def fetch_everyone_permissions(
         permissions |= everyone_overwrite.allow
 
     return permissions
+
+
+class CastedView(collections.Mapping[_KeyT, _ValueT]):
+    __slots__ = ("_buffer", "_cast", "_raw_data")
+
+    def __init__(self, raw_data: dict[_KeyT, _ValueT], cast: typing.Callable[[_ValueT], _ValueT]) -> None:
+        self._buffer: dict[_KeyT, _ValueT] = {}
+        self._cast = cast
+        self._raw_data = raw_data
+
+    def __getitem__(self, key: _KeyT, /) -> _ValueT:
+        try:
+            return self._buffer[key]
+
+        except KeyError:
+            pass
+
+        entry = self._raw_data[key]
+        result = self._cast(entry)
+        self._buffer[key] = result
+        return result
+
+    def __iter__(self) -> collections.Iterator[_KeyT]:
+        return iter(self._raw_data)
+
+    def __len__(self) -> int:
+        return len(self._raw_data)

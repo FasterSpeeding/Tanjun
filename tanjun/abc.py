@@ -1387,14 +1387,14 @@ class Component(abc.ABC):
             The message commands in this component.
         """
 
-    @property  # TODO: switch over to a mapping of event to collection cause convenience
+    @property
     @abc.abstractmethod
-    def listeners(self) -> collections.Collection[tuple[type[hikari.Event], ListenerCallbackSig]]:
-        """Get a collection of tuples of (event, callback) for all the listeners in this component.
+    def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[ListenerCallbackSig]]:
+        """Get a mapping of tuples of event types to the listeners registered for them in this component.
 
         Returns
         -------
-        collections.abc.Collection[tuple[type[hikari.Event], ListenerCallbackSig]]
+        collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]
             The listeners in this component.
         """
 
@@ -1660,12 +1660,12 @@ class Client(abc.ABC):
 
     @property  # TODO: switch over to a mapping of event to collection cause convenience
     @abc.abstractmethod
-    def listeners(self) -> collections.Collection[tuple[type[hikari.Event], ListenerCallbackSig]]:
-        """Get a collection of tuples of (event, callback) for all the listeners in this client.
+    def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[ListenerCallbackSig]]:
+        """Get a mapping of event types to the listeners registered in this client.
 
         Returns
         -------
-        collections.abc.Collection[tuple[type[hikari.Event], ListenerCallbackSig]]
+        collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]
             The listeners in this component.
         """
 
