@@ -1350,11 +1350,17 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
                     keyword_args[option.name] = member or option_data.users[id_]
 
-            elif tracked_option.converters:
-                keyword_args[option.name] = await tracked_option.convert(ctx, option.value)
-
             else:
-                keyword_args[option.name] = option.value
+                value = option.value
+                # To be type safe we obfuscate the fact that discord's double type will provide am int or float
+                # depending on the value Disocrd input by always casting to float.
+                if tracked_option.type is hikari.OptionType.FLOAT:
+                    value = float(value)
+
+                if tracked_option.converters:
+                    value = await tracked_option.convert(ctx, option.value)
+
+                keyword_args[option.name] = value
 
         return keyword_args
 
