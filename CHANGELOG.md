@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.0.0a2] - 2021-09-07
 ### Added
 - Float slash command option type.
 - Component add and remove client callbacks.
@@ -101,5 +103,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.0.0a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.0.0a2...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.0.0a1...v2.0.0a2
 [2.0.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/1.0.1a5...v2.0.0a1
