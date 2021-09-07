@@ -381,8 +381,25 @@
 
 
 <span class="n">AnyHooks</span> <span class="o">=</span> <span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Hooks that can be used with any context.</span>
+
+<span class="sd">.. note::</span>
+<span class="sd">    This is shorthand for Hooks[tanjun.abc.Context].</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="n">MessageHooks</span> <span class="o">=</span> <span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Hooks that can be used with a message context.</span>
+
+<span class="sd">.. note::</span>
+<span class="sd">    This is shorthand for Hooks[tanjun.abc.MessageContext].</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="n">SlashHooks</span> <span class="o">=</span> <span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;Hooks that can be used with a slash context.</span>
+
+<span class="sd">.. note::</span>
+<span class="sd">    This is shorthand for Hooks[tanjun.abc.SlashContext].</span>
+<span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
@@ -394,7 +411,12 @@
         <span class="name">AnyHooks</span><span class="default_value"> = <a href="#Hooks">tanjun.hooks.Hooks</a>[<a href="abc.html#Context">tanjun.abc.Context</a>]</span>
     </div>
 
-    
+            <div class="docstring"><p>Hooks that can be used with any context.</p>
+
+<p><em>Note:</em>
+This is shorthand for Hooks[<a href="abc.html#Context">tanjun.abc.Context</a>].</p>
+</div>
+
 
                 </section>
                 <section id="ErrorHookSig">
@@ -1138,7 +1160,12 @@ The command to add the hooks to.</li>
         <span class="name">MessageHooks</span><span class="default_value"> = <a href="#Hooks">tanjun.hooks.Hooks</a>[<a href="abc.html#MessageContext">tanjun.abc.MessageContext</a>]</span>
     </div>
 
-    
+            <div class="docstring"><p>Hooks that can be used with a message context.</p>
+
+<p><em>Note:</em>
+This is shorthand for Hooks[<a href="abc.html#MessageContext">tanjun.abc.MessageContext</a>].</p>
+</div>
+
 
                 </section>
                 <section id="ParserHookSig">
@@ -1160,7 +1187,12 @@ The command to add the hooks to.</li>
         <span class="name">SlashHooks</span><span class="default_value"> = <a href="#Hooks">tanjun.hooks.Hooks</a>[<a href="abc.html#SlashContext">tanjun.abc.SlashContext</a>]</span>
     </div>
 
-    
+            <div class="docstring"><p>Hooks that can be used with a slash context.</p>
+
+<p><em>Note:</em>
+This is shorthand for Hooks[<a href="abc.html#SlashContext">tanjun.abc.SlashContext</a>].</p>
+</div>
+
 
                 </section>
     </main>
