@@ -101,7 +101,7 @@ def cleanup(session: nox.Session) -> None:
     # Remove directories
     from nox.logger import logger
 
-    for raw_path in ["./dist", "./docs", "./.nox", "./.pytest_cache", "./hikari_tanjun.egg-info"]:
+    for raw_path in ["./dist", "./docs", "./.nox", "./.pytest_cache", "./hikari_tanjun.egg-info", "./coverage_html"]:
         path = pathlib.Path(raw_path)
         try:
             shutil.rmtree(str(path.absolute()))
@@ -113,7 +113,7 @@ def cleanup(session: nox.Session) -> None:
             logger.info(f"[  OK  ] Removed '{raw_path}'")  # type: ignore
 
     # Remove individual files
-    for raw_path in ["./.coverage"]:
+    for raw_path in ["./.coverage", "./coverage_html.xml"]:
         path = pathlib.Path(raw_path)
         try:
             path.unlink()
@@ -211,7 +211,8 @@ def test(session: nox.Session) -> None:
 def test_coverage(session: nox.Session) -> None:
     install_requirements(session, ".[tests]")
     # TODO: can import-mode be specified in the config.
-    session.run("pytest", "--cov=tanjun", "--import-mode", "importlib")
+    # https://github.com/nedbat/coveragepy/issues/1002
+    session.run("pytest", "--cov=tanjun", "--cov-report", "html:coverage_html", "--cov-report", "xml:coverage.xml")
 
 
 @nox.session(name="type-check", reuse_venv=True)

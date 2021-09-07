@@ -41,8 +41,8 @@ def run() -> None:
         .load_modules("examples.slash_component")
         .add_prefix(loaded_config.prefix)
         .set_prefix_getter(get_prefix)
-        .add_type_dependency(config.ExampleConfig, lambda: loaded_config)
-        .add_type_dependency(protos.DatabaseProto, tanjun.cache_callback(impls.DatabaseImpl.connect))
+        .set_type_dependency(config.ExampleConfig, lambda: loaded_config)
+        .set_type_dependency(protos.DatabaseProto, tanjun.cache_callback(impls.DatabaseImpl.connect))
     )
     bot.run()
 

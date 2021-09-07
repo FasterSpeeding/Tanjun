@@ -44,6 +44,8 @@ __all__: list[str] = [
     "MessageHooks",
     "SlashHooks",
     "ExecutableCommand",
+    "ListenerCallbackSig",
+    "ListenerCallbackSigT",
     "MaybeAwaitableT",
     "MessageCommand",
     "MessageCommandT",
@@ -67,7 +69,6 @@ if typing.TYPE_CHECKING:
     import datetime
 
     from hikari import traits as hikari_traits
-    from hikari.api import event_manager as event_manager_api
 
 
 _T = typing.TypeVar("_T")
@@ -102,7 +103,7 @@ CheckSig = collections.Callable[..., MaybeAwaitableT[bool]]
 
 This may be registered with a `ExecutableCommand` to add a rule which decides whether
 it should execute for each context passed to it. This should take one positional
-argument of typ_ `Context` and may either be a synchronous or asynchronous
+argument of type `Context` and may either be a synchronous or asynchronous
 callback which returns `bool` where returning `False` or
 raising `tanjun.errors.FailedCheck` will indicate that the current context
 shouldn't lead to an execution.
@@ -110,6 +111,16 @@ shouldn't lead to an execution.
 
 CheckSigT = typing.TypeVar("CheckSigT", bound=CheckSig)
 """Generic equivalent of `CheckSig`"""
+
+ListenerCallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
+"""Type hint of a hikari event manager callback.
+
+This is guaranteed one positional arg of type `hikari.events.Event` regardless
+of implementation and must be a coruotine function which returns `None`.
+"""
+
+ListenerCallbackSigT = typing.TypeVar("ListenerCallbackSigT", bound=ListenerCallbackSig)
+"""Generic equivalent of `ListenerCallbackSig`."""
 
 
 class Context(abc.ABC):
@@ -1571,14 +1582,12 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def listeners(
-        self,
-    ) -> collections.Collection[tuple[type[hikari.Event], event_manager_api.CallbackT[typing.Any]]]:
-        """Get a collection of tuples of (event, callback) for all the listeners in this component.
+    def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[ListenerCallbackSig]]:
+        """Get a mapping of tuples of event types to the listeners registered for them in this component.
 
         Returns
         -------
-        collections.abc.Collection[tuple[type[hikari.Event], hikari.api.event_manager.CallbackT[typing.Any]]]
+        collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]
             The listeners in this component.
         """
 
@@ -1711,19 +1720,14 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_listener(
-        self: _T,
-        event: type[event_manager_api.EventT_inv],
-        listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
-        /,
-    ) -> _T:
+    def add_listener(self: _T, event: type[hikari.Event], listener: ListenerCallbackSig, /) -> _T:
         """Add a listener to this component.
 
         Parameters
         ----------
-        event : type[hikari.api.event_manager.EventT_inv]
+        event : type[hikari.events.Event]
             The event to listen for.
-        listener : hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]
+        listener : ListenerCallbackSig
             The listener to add.
 
         Returns
@@ -1733,43 +1737,32 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_listener(
-        self,
-        event: type[event_manager_api.EventT_inv],
-        listener: event_manager_api.CallbackT[event_manager_api.EventT_inv],
-        /,
-    ) -> None:
+    def remove_listener(self, event: type[hikari.Event], listener: ListenerCallbackSig, /) -> None:
         """Remove a listener from this component.
 
         Parameters
         ----------
-        event : type[hikari.api.event_manager.EventT_inv]
+        event : type[hikari.events.Event]
             The event to listen for.
-        listener : hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]
+        listener : ListenerCallbackSig
             The listener to remove.
         """
 
     # TODO: make event optional?
     @abc.abstractmethod
     def with_listener(
-        self, event_type: type[event_manager_api.EventT_inv]
-    ) -> collections.Callable[
-        [event_manager_api.CallbackT[event_manager_api.EventT_inv]],
-        event_manager_api.CallbackT[event_manager_api.EventT_inv],
-    ]:
+        self, event_type: type[hikari.Event]
+    ) -> collections.Callable[[ListenerCallbackSigT], ListenerCallbackSigT,]:
         """Add a listener to this component through a decorator call.
 
         Parameters
         ----------
-        event_type : type[hikari.api.event_manager.EventT_inv]
+        event_type : type[hikari.Event]
             The event to listen for.
 
         Returns
         -------
-        collections.Callable[
-            [hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv]],
-            hikari.api.event_manager.CallbackT[hikari.api.event_manager.EventT_inv],
-        ]
+        collections.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]
             Decorator callback which takes listener to add.
         """
 
@@ -1856,6 +1849,17 @@ class Client(abc.ABC):
         typing.Optional[hikari.event_manager.EventManager]
             The Hikari event manager this client was initialised with
             if provided, else `None`.
+        """
+
+    @property  # TODO: switch over to a mapping of event to collection cause convenience
+    @abc.abstractmethod
+    def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[ListenerCallbackSig]]:
+        """Get a mapping of event types to the listeners registered in this client.
+
+        Returns
+        -------
+        collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]
+            The listeners in this component.
         """
 
     @property
@@ -1945,6 +1949,20 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     def with_client_callback(self, event_name: str, /) -> collections.Callable[[MetaEventSigT], MetaEventSigT]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def add_listener(self, event_type: type[hikari.Event], callback: ListenerCallbackSig, /) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def remove_listener(self, event_type: type[hikari.Event], callback: ListenerCallbackSig, /) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def with_listener(
+        self, event_type: type[hikari.Event], /
+    ) -> collections.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]:
         raise NotImplementedError
 
     # As far as MYPY is concerned, unless you explicitly yield within an async callback typed as returning an

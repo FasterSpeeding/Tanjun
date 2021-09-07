@@ -82,7 +82,7 @@ async def test_gather_checks_handles_no_checks():
 
 
 @pytest.mark.asyncio()
-async def test_gather_checks_handles_faiedl_check():
+async def test_gather_checks_handles_failed_check():
     mock_ctx = mock.Mock(tanjun.abc.Context)
     check_1 = mock.AsyncMock()
     check_2 = mock.AsyncMock(side_effect=tanjun.FailedCheck)
@@ -240,3 +240,49 @@ async def test_fetch_everyone_permissions_no_channel():
 @pytest.mark.asyncio()
 async def test_fetch_everyone_permissions_channel_object_provided():
     ...
+
+
+class TestCastedView:
+    def test___getitem___for_non_existant_entry(self):
+        mock_cast = mock.Mock()
+        view = utilities.CastedView({}, mock_cast)
+
+        with pytest.raises(KeyError):
+            view["foo"]
+
+        mock_cast.assert_not_called()
+
+    def test___getitem___for_buffered_entry(self):
+        mock_cast = mock.Mock()
+        mock_value = mock.MagicMock()
+        view = utilities.CastedView({"a": "b"}, mock_cast)
+        view._buffer["a"] = mock_value
+
+        result = view["a"]
+
+        assert result is mock_value
+        mock_cast.assert_not_called()
+
+    def test___getitem___for_not_buffered_entry(self):
+        mock_cast = mock.Mock()
+        mock_value = mock.MagicMock()
+        view = utilities.CastedView({"a": mock_value}, mock_cast)
+
+        result = view["a"]
+
+        assert result is mock_cast.return_value
+        assert view._buffer["a"] is mock_cast.return_value
+        mock_cast.assert_called_once_with(mock_value)
+
+    def test___iter__(self):
+        mock_iter = iter((1, 2, 3))
+        mock_dict = mock.Mock(__iter__=mock.Mock(return_value=mock_iter))
+        view = utilities.CastedView(mock_dict, mock.Mock())
+
+        assert iter(view) is mock_dict.__iter__.return_value
+
+    def test___len___(self):
+        mock_dict = mock.Mock(__len__=mock.Mock(return_value=43123))
+        view = utilities.CastedView(mock_dict, mock.Mock())
+
+        assert len(view) == 43123

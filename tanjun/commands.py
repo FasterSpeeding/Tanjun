@@ -47,6 +47,7 @@ __all__: list[str] = [
     "SlashCommandGroup",
     "with_str_slash_option",
     "with_int_slash_option",
+    "with_float_slash_option",
     "with_bool_slash_option",
     "with_role_slash_option",
     "with_user_slash_option",
@@ -66,6 +67,7 @@ import hikari
 
 from . import _backoff as backoff
 from . import abc
+from . import checks as checks_
 from . import components
 from . import conversion
 from . import errors
@@ -90,7 +92,7 @@ if typing.TYPE_CHECKING:
 AnyMessageCommandT = typing.TypeVar("AnyMessageCommandT", bound=abc.MessageCommand)
 CommandCallbackSigT = typing.TypeVar("CommandCallbackSigT", bound=abc.CommandCallbackSig)
 ConverterSig = collections.Callable[..., abc.MaybeAwaitableT[typing.Any]]
-"""Type hint of a converter used within a parser instance."""
+"""Type hint of a converter used for a slash command option."""
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 _EMPTY_LIST: typing.Final[list[typing.Any]] = []
@@ -100,25 +102,20 @@ _EMPTY_RESOLVED: typing.Final[hikari.ResolvedOptionData] = hikari.ResolvedOption
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.commands")
 
 
-class _LoadableInjector(injecting.InjectableCheck):
+class _LoadableInjector(checks_.InjectableCheck):
     __slots__ = ()
 
     def make_method_type(self, component: abc.Component, /) -> None:
         if isinstance(self.callback, types.MethodType):
             raise ValueError("Callback is already a method type")
 
-        self.callback = types.MethodType(self.callback, component)  # type: ignore[assignment]
-        self.is_async = None
-        self._needs_injector = injecting.check_injecting(self.callback)
+        self.overwrite_callback(types.MethodType(self.callback, component))  # type: ignore[assignment]
 
 
-class PartialCommand(
-    injecting.Injectable,
-    abc.ExecutableCommand[abc.ContextT],
-):
+class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
     """Base class for the standard ExecutableCommand implementations."""
 
-    __slots__ = ("_checks", "_component", "_hooks", "_injector", "_metadata")
+    __slots__ = ("_checks", "_component", "_hooks", "_metadata")
 
     def __init__(
         self,
@@ -127,12 +124,11 @@ class PartialCommand(
         hooks: typing.Optional[abc.Hooks[abc.ContextT]] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
     ) -> None:
-        self._checks: set[injecting.InjectableCheck] = (
-            {injecting.InjectableCheck(check) for check in checks} if checks else set()
+        self._checks: set[checks_.InjectableCheck] = (
+            {checks_.InjectableCheck(check) for check in checks} if checks else set()
         )
         self._component: typing.Optional[abc.Component] = None
         self._hooks = hooks
-        self._injector: typing.Optional[injecting.InjectorClient] = None
         self._metadata = dict(metadata) if metadata else {}
 
     @property
@@ -177,7 +173,7 @@ class PartialCommand(
 
     def add_check(self: _PartialCommandT, check: abc.CheckSig, /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        self._checks.add(injecting.InjectableCheck(check, injector=self._injector))
+        self._checks.add(checks_.InjectableCheck(check))
         return self
 
     def remove_check(self, check: abc.CheckSig, /) -> None:
@@ -185,18 +181,8 @@ class PartialCommand(
         self._checks.remove(check)  # type: ignore[arg-type]
 
     def with_check(self, check: abc.CheckSigT, /) -> abc.CheckSigT:
-        self._checks.add(_LoadableInjector(check, injector=self._injector))
+        self._checks.add(_LoadableInjector(check))
         return check
-
-    def set_injector(self, client: injecting.InjectorClient, /) -> None:
-        # <<inherited docstring from tanjun.injecting.Injectable>>.
-        if self._injector:
-            raise RuntimeError("Injector already set")
-
-        self._injector = client
-
-        for check in self._checks:
-            check.set_injector(client)
 
     def bind_client(self, client: abc.Client, /) -> None:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
@@ -390,6 +376,7 @@ def as_slash_command(
         name,
         description,
         command_id=command_id,
+        default_permission=default_permission,
         default_to_ephemeral=default_to_ephemeral,
         is_global=is_global,
         sort_options=sort_options,
@@ -521,6 +508,64 @@ def with_int_slash_option(
     """
     return lambda c: c.add_option(
         name, description, hikari.OptionType.INTEGER, default=default, choices=choices, converters=converters
+    )
+
+
+def with_float_slash_option(
+    name: str,
+    description: str,
+    /,
+    *,
+    choices: typing.Optional[collections.Iterable[tuple[str, float]]] = None,
+    converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
+    default: typing.Any = _UNDEFINED_DEFAULT,
+) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    """Add a float option to a slash command.
+
+    Examples
+    --------
+    ```py
+    @with_float_slash_option("float_value", "Float value.")
+    @as_slash_command("command", "A command")
+    async def command(self, ctx: tanjun.abc.SlashContext, float_value: float) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    name : str
+        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+    description : str
+        The option's description.
+        This should be inclusively between 1-100 characters in length.
+
+    Other Parameters
+    ----------------
+    choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]
+        The option's choices.
+
+        This may be either one or multiple `tuple[opton_name, option_value]`
+        where option_name should be a string of up to 100 characters and
+        option_value should be a float.
+    converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]
+        The option's converters.
+
+        This may be either one or multiple `ConverterSig` callbacks used to
+        convert the option's value to the final form.
+        If no converters are provided then the raw value will be passed.
+
+        Only the first converter to pass will be used.
+    default : typing.Any
+        The option's default value.
+        If this is left as undefined then this option will be required.
+
+    Returns
+    -------
+    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+        Decorator callback which adds the option to the command.
+    """
+    return lambda c: c.add_option(
+        name, description, hikari.OptionType.FLOAT, default=default, choices=choices, converters=converters
     )
 
 
@@ -779,21 +824,21 @@ def with_mentionable_slash_option(
     return lambda c: c.add_option(name, description, hikari.OptionType.MENTIONABLE, default=default)
 
 
-def _convert_to_injectable(converter: ConverterSig) -> injecting.InjectableConverter[typing.Any]:
-    if isinstance(converter, injecting.InjectableConverter):
-        return typing.cast("injecting.InjectableConverter[typing.Any]", converter)
+def _convert_to_injectable(converter: ConverterSig) -> conversion.InjectableConverter[typing.Any]:
+    if isinstance(converter, conversion.InjectableConverter):
+        return typing.cast("conversion.InjectableConverter[typing.Any]", converter)
 
-    return injecting.InjectableConverter(conversion.override_type(converter))
+    return conversion.InjectableConverter(conversion.override_type(converter))
 
 
-class _TrackedOption(injecting.Injectable):
+class _TrackedOption:
     __slots__ = ("converters", "default", "is_only_member", "name", "type")
 
     def __init__(
         self,
         name: str,
-        option_type: int,
-        converters: list[injecting.InjectableConverter[typing.Any]],
+        option_type: typing.Union[hikari.OptionType, int],
+        converters: list[conversion.InjectableConverter[typing.Any]],
         only_member: bool,
         default: typing.Any = _UNDEFINED_DEFAULT,
     ) -> None:
@@ -814,17 +859,12 @@ class _TrackedOption(injecting.Injectable):
         exceptions: list[ValueError] = []
         for converter in self.converters:
             try:
-                return await converter(value, ctx)
+                return await converter(ctx, value)
 
             except ValueError as exc:
                 exceptions.append(exc)
 
         raise errors.ConversionError(self.name, f"Couldn't convert {self.type} '{self.name}'", errors=exceptions)
-
-    def set_injector(self, client: injecting.InjectorClient, /) -> None:
-        super().set_injector(client)
-        for converter in self.converters:
-            converter.set_injector(client)
 
 
 _CommandBuilderT = typing.TypeVar("_CommandBuilderT", bound="_CommandBuilder")
@@ -969,7 +1009,7 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
 
     async def check_context(self, ctx: abc.SlashContext, /) -> bool:
         # <<inherited docstring from tanjun.abc.SlashCommand>>.
-        ctx = ctx.set_command(self)
+        ctx.set_command(self)
         result = await utilities.gather_checks(ctx, self._checks)
         ctx.set_command(None)
         return result
@@ -1120,9 +1160,6 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         hooks: typing.Optional[collections.MutableSet[abc.SlashHooks]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        if not await self.check_context(ctx):
-            return
-
         if not option and ctx.interaction.options:
             option = ctx.interaction.options[0]
 
@@ -1132,22 +1169,24 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         else:
             raise RuntimeError("Missing sub-command option")
 
-        if command := self._commands.get(option.name):
+        if (command := self._commands.get(option.name)) and await command.check_context(ctx):
             await command.execute(ctx, option=option, hooks=hooks)
             return
 
         await ctx.mark_not_found()
 
-    def set_injector(self, client: injecting.InjectorClient, /) -> None:
-        # <<inherited docstring from tanjun.injecting.Injectable>>.
-        super().set_injector(client)
+    def load_into_component(
+        self: _SlashCommandGroupT, component: abc.Component, /
+    ) -> typing.Optional[_SlashCommandGroupT]:
         for command in self._commands.values():
-            if isinstance(command, injecting.Injectable):
-                command.set_injector(client)
+            if isinstance(command, components.LoadableProtocol):
+                command.load_into_component(component)
+
+        return super().load_into_component(component)  # type: ignore  # Pyright seems to mis-handle the typevars
 
 
 class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCallbackSigT]):
-    __slots__ = ("_builder", "_callback", "_cached_getters", "_needs_injector", "_tracked_options")
+    __slots__ = ("_builder", "_callback", "_tracked_options")
 
     def __init__(
         self,
@@ -1180,9 +1219,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         if self._command_id:
             self._builder = self._builder.set_id(self._command_id)
 
-        self._callback: CommandCallbackSigT = callback
-        self._cached_getters: typing.Optional[list[injecting.Getter[typing.Any]]] = None
-        self._needs_injector: typing.Optional[bool] = None
+        self._callback = injecting.CallbackDescriptor(callback)
         self._tracked_options: dict[str, _TrackedOption] = {}
         if not _SCOMMAND_NAME_REG.fullmatch(name):
             raise ValueError("Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`")
@@ -1193,18 +1230,17 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
     else:
 
         async def __call__(self, *args, **kwargs) -> None:
-            await self._callback(*args, **kwargs)
+            await self._callback.callback(*args, **kwargs)
 
     @property
     def callback(self) -> CommandCallbackSigT:
         # <<inherited docstring from tanjun.abc.SlashCommand>>.
-        return self._callback
+        return typing.cast(CommandCallbackSigT, self._callback.callback)
 
     @property
     def needs_injector(self) -> bool:
-        # <<inherited docstring from tanjun.injecting.Injectable>>.
         return (
-            injecting.check_injecting(self._callback)
+            self._callback.needs_injector
             or any(option.needs_injector for option in self._tracked_options.values())
             or super().needs_injector
         )
@@ -1232,16 +1268,16 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             raise NotImplementedError
 
         if only_member and type_ not in _MEMBER_OPTION_TYPES:
-            raise ValueError("Specifically member may only be set for a USER or MENTIONABLE option")
+            raise ValueError("only_member may only be set for a USER or MENTIONABLE option")
+
+        if converters and (type_ in _OBJECT_OPTION_TYPES or type_ is hikari.OptionType.BOOLEAN):
+            raise ValueError("Converters cannot be provided for bool or object options")
 
         if isinstance(converters, collections.Iterable):
             converters = list(map(_convert_to_injectable, converters))
 
         else:
             converters = [_convert_to_injectable(converters)]
-
-        if converters and (type_ in _OBJECT_OPTION_TYPES or type_ == hikari.OptionType.BOOLEAN):
-            raise ValueError("Converters cannot be provided for bool or object options")
 
         choices_ = [hikari.CommandChoice(name=name, value=value) for name, value in choices] if choices else None
         required = default is _UNDEFINED_DEFAULT
@@ -1258,12 +1294,6 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             )
         return self
 
-    def set_injector(self, client: injecting.InjectorClient, /) -> None:
-        # <<inherited docstring from tanjun.injecting.Injectable>>.
-        super().set_injector(client)
-        for option in self._tracked_options.values():
-            option.set_injector(client)
-
     async def _process_args(
         self,
         ctx: abc.SlashContext,
@@ -1277,13 +1307,18 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             option = options_dict.get(tracked_option.name)
             if not option or not option.value:
                 if tracked_option.default is _UNDEFINED_DEFAULT:
-                    # raise errors.ConversionError(
-                    #     tracked_option.name,
-                    #     "Found value-less or missing option for a option for tracked option with no default"
-                    # )
-                    raise RuntimeError("Found value-less or missing option for a tracked option with no default")
+                    if tracked_option.type is not hikari.OptionType.BOOLEAN:
+                        raise RuntimeError(  # TODO: ConversionError?
+                            f"Required option {tracked_option.name} is missing data, are you sure your commands"
+                            " are up to date?"
+                        )
 
-                keyword_args[tracked_option.name] = tracked_option.default
+                    # If a required boolean field is passed as False then Discord just won't include the option in the
+                    # interaction event cause payload size reduction so we have to always default to False.
+                    keyword_args[tracked_option.name] = False
+
+                else:
+                    keyword_args[tracked_option.name] = tracked_option.default
 
             elif option.type is hikari.OptionType.USER:
                 user_id = hikari.Snowflake(option.value)
@@ -1315,25 +1350,19 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
                     keyword_args[option.name] = member or option_data.users[id_]
 
-            elif tracked_option.converters:
-                keyword_args[option.name] = await tracked_option.convert(ctx, option.value)
-
             else:
-                keyword_args[option.name] = option.value
+                value = option.value
+                # To be type safe we obfuscate the fact that discord's double type will provide am int or float
+                # depending on the value Disocrd input by always casting to float.
+                if tracked_option.type is hikari.OptionType.FLOAT:
+                    value = float(value)
+
+                if tracked_option.converters:
+                    value = await tracked_option.convert(ctx, option.value)
+
+                keyword_args[option.name] = value
 
         return keyword_args
-
-    def _get_injection_getters(self) -> collections.Iterable[injecting.Getter[typing.Any]]:
-        if not self._injector:
-            raise ValueError("Cannot execute command without injector client")
-
-        if self._cached_getters is None:
-            self._cached_getters = list(self._injector.resolve_callback_to_getters(self._callback))
-
-            if self._needs_injector is None:
-                self._needs_injector = bool(self._cached_getters)
-
-        return self._cached_getters
 
     async def execute(
         self,
@@ -1358,15 +1387,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             else:
                 kwargs = _EMPTY_DICT
 
-            if self.needs_injector:
-                injected_values = await injecting.resolve_getters(ctx, self._get_injection_getters())
-                if kwargs is _EMPTY_DICT:
-                    kwargs = injected_values
-
-                else:
-                    kwargs.update(injected_values)
-
-            await self._callback(ctx, **kwargs)
+            await self._callback.resolve_with_command_context(ctx, ctx, **kwargs)
 
         except errors.CommandError as exc:
             await ctx.respond(exc.message)
@@ -1391,21 +1412,17 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
     ) -> _SlashCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         if not _new:
-            self._cached_getters = None
             self._callback = copy.copy(self._callback)
-            self._needs_injector = None
             return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars
 
         return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars here
 
     def load_into_component(self: _SlashCommandT, component: abc.Component, /) -> typing.Optional[_SlashCommandT]:
-        if isinstance(self._callback, types.MethodType):
+        if isinstance(self._callback.callback, types.MethodType):
             raise ValueError("Callback is already a method type")
 
         super().load_into_component(component)
-        self._cached_getters = None
-        self._callback = types.MethodType(self._callback, component)  # type: ignore[assignment]
-        self._needs_injector = None
+        self._callback = injecting.CallbackDescriptor(types.MethodType(self._callback.callback, component))
 
         if not self._parent:
             component.add_slash_command(self)
@@ -1464,7 +1481,7 @@ def as_message_command_group(
 
 
 class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typing.Generic[CommandCallbackSigT]):
-    __slots__ = ("_cached_getters", "_callback", "_names", "_needs_injector", "_parent", "_parser")
+    __slots__ = ("_callback", "_names", "_parent", "_parser")
 
     def __init__(
         self,
@@ -1478,9 +1495,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
         parser: typing.Optional[parsing.AbstractParser] = None,
     ) -> None:
         super().__init__(checks=checks, hooks=hooks, metadata=metadata)
-        self._callback: CommandCallbackSigT = callback
-        self._cached_getters: typing.Optional[list[injecting.Getter[typing.Any]]] = None
-        self._needs_injector: typing.Optional[bool] = None
+        self._callback = injecting.CallbackDescriptor(callback)
         self._names = {name, *names}
         self._parent: typing.Optional[abc.MessageCommandGroup] = None
         self._parser = parser
@@ -1491,7 +1506,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
     @property
     def callback(self) -> CommandCallbackSigT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        return self._callback
+        return typing.cast(CommandCallbackSigT, self._callback.callback)
 
     @property
     # <<inherited docstring from tanjun.abc.MessageCommand>>.
@@ -1500,8 +1515,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
 
     @property
     def needs_injector(self) -> bool:
-        # <<inherited docstring from tanjun.injecting.Injectable>>.
-        return injecting.check_injecting(self._callback) or super().needs_injector
+        return self._callback.needs_injector
 
     @property
     def parent(self) -> typing.Optional[abc.MessageCommandGroup]:
@@ -1529,10 +1543,8 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
     ) -> _MessageCommandT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if not _new:
-            self._cached_getters = None
             self._callback = copy.copy(self._callback)
             self._names = self._names.copy()
-            self._needs_injector = None
             self._parent = parent
             self._parser = self._parser.copy() if self._parser else None
             return super().copy(_new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
@@ -1550,7 +1562,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
 
     async def check_context(self, ctx: abc.MessageContext, /) -> bool:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        ctx = ctx.set_command(self)
+        ctx.set_command(self)
         result = await utilities.gather_checks(ctx, self._checks)
         ctx.set_command(None)
         return result
@@ -1575,15 +1587,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
                 args = _EMPTY_LIST
                 kwargs = _EMPTY_DICT
 
-            if self.needs_injector:
-                injected_values = await injecting.resolve_getters(ctx, self._get_injection_getters())
-                if kwargs is _EMPTY_DICT:
-                    kwargs = injected_values
-
-                else:
-                    kwargs.update(injected_values)
-
-            await self._callback(ctx, *args, **kwargs)
+            await self._callback.resolve_with_command_context(ctx, ctx, *args, **kwargs)
 
         except errors.CommandError as exc:
             response = exc.message if len(exc.message) <= 2000 else exc.message[:1997] + "..."
@@ -1622,27 +1626,12 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
         finally:
             await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
-    def _get_injection_getters(self) -> collections.Iterable[injecting.Getter[typing.Any]]:
-        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        if not self._injector:
-            raise ValueError("Cannot execute command without injector client")
-
-        if self._cached_getters is None:
-            self._cached_getters = list(self._injector.resolve_callback_to_getters(self._callback))
-
-            if self._needs_injector is None:
-                self._needs_injector = bool(self._cached_getters)
-
-        return self._cached_getters
-
     def load_into_component(self: _MessageCommandT, component: abc.Component, /) -> typing.Optional[_MessageCommandT]:
         if isinstance(self._callback, types.MethodType):
             raise ValueError("Callback is already a method type")
 
         super().load_into_component(component)
-        self._cached_getters = None
-        self._callback = types.MethodType(self._callback, component)  # type: ignore[assignment]
-        self._needs_injector = None
+        self._callback = injecting.CallbackDescriptor(types.MethodType(self._callback.callback, component))
 
         if not self._parent:
             component.add_message_command(self)
@@ -1754,16 +1743,6 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
         for command in self._commands:
             command.bind_component(component)
 
-    def set_injector(self, client: injecting.InjectorClient, /) -> None:
-        super().set_injector(client)
-
-        if self._parser and isinstance(self._parser, injecting.Injectable):
-            self._parser.set_injector(client)
-
-        for command in self._commands:
-            if isinstance(command, injecting.Injectable):
-                command.set_injector(client)
-
     def find_command(self, content: str, /) -> collections.Iterable[tuple[str, abc.MessageCommand]]:
         if self._is_strict:
             name = content.split(" ")[0]
@@ -1775,7 +1754,6 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
             if (name := utilities.match_prefix_names(content, command.names)) is not None:
                 yield name, command
 
-    # I sure hope this plays well with command group recursion cause I am waaaaaaaaaaaaaay too lazy to test that myself.
     async def execute(
         self,
         ctx: abc.MessageContext,
@@ -1785,7 +1763,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
     ) -> None:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if ctx.message.content is None:
-            raise ValueError("Cannot execute a command with a contentless message")
+            raise ValueError("Cannot execute a command with a content-less message")
 
         if self._hooks:
             if hooks is None:
@@ -1795,12 +1773,11 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
 
         for name, command in self.find_command(ctx.content):
             if await command.check_context(ctx):
-                content = ctx.message.content.lstrip()[len(ctx.triggering_prefix) :].lstrip()[
-                    len(ctx.triggering_name) :
-                ]
-                space_len = len(content) - len(content.lstrip())
+                content = ctx.content[len(name) :]
+                lstripped_content = content.lstrip()
+                space_len = len(content) - len(lstripped_content)
                 ctx.set_triggering_name(ctx.triggering_name + (" " * space_len) + name)
-                ctx.set_content(ctx.content[space_len + len(name) :].lstrip())
+                ctx.set_content(lstripped_content)
                 await command.execute(ctx, hooks=hooks)
                 return
 

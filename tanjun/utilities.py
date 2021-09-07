@@ -37,6 +37,7 @@ __all__: list[str] = [
     "await_if_async",
     "gather_checks",
     "ALL_PERMISSIONS",
+    "CastedView",
     "DM_PERMISSIONS",
     "calculate_everyone_permissions",
     "calculate_permissions",
@@ -46,8 +47,6 @@ __all__: list[str] = [
 ]
 
 import asyncio
-import functools
-import operator
 import typing
 from collections import abc as collections
 
@@ -58,10 +57,11 @@ from . import errors
 
 if typing.TYPE_CHECKING:
     from . import abc
-    from . import injecting
+    from . import checks
 
 
 _ResourceT = typing.TypeVar("_ResourceT")
+_KeyT = typing.TypeVar("_KeyT")
 _ValueT = typing.TypeVar("_ValueT")
 
 
@@ -104,7 +104,7 @@ async def await_if_async(
     return result
 
 
-async def gather_checks(ctx: abc.Context, checks: collections.Iterable[injecting.InjectableCheck]) -> bool:
+async def gather_checks(ctx: abc.Context, checks_: collections.Iterable[checks.InjectableCheck], /) -> bool:
     """Gather a collection of checks.
 
     Parameters
@@ -120,7 +120,7 @@ async def gather_checks(ctx: abc.Context, checks: collections.Iterable[injecting
         Whether all the checks passed or not.
     """
     try:
-        await asyncio.gather(*(check(ctx) for check in checks))
+        await asyncio.gather(*(check(ctx) for check in checks_))
         # InjectableCheck will raise FailedCheck if a false is received so if
         # we get this far then it's True.
         return True
@@ -175,7 +175,7 @@ def match_prefix_names(content: str, names: collections.Iterable[str], /) -> typ
             return name
 
 
-ALL_PERMISSIONS: typing.Final[hikari.Permissions] = functools.reduce(operator.__xor__, hikari.Permissions)
+ALL_PERMISSIONS: typing.Final[hikari.Permissions] = hikari.Permissions.all_permissions()
 """All of all the known permissions based on the linked version of Hikari."""
 
 DM_PERMISSIONS: typing.Final[hikari.Permissions] = (
@@ -464,3 +464,30 @@ async def fetch_everyone_permissions(
         permissions |= everyone_overwrite.allow
 
     return permissions
+
+
+class CastedView(collections.Mapping[_KeyT, _ValueT]):
+    __slots__ = ("_buffer", "_cast", "_raw_data")
+
+    def __init__(self, raw_data: dict[_KeyT, _ValueT], cast: typing.Callable[[_ValueT], _ValueT]) -> None:
+        self._buffer: dict[_KeyT, _ValueT] = {}
+        self._cast = cast
+        self._raw_data = raw_data
+
+    def __getitem__(self, key: _KeyT, /) -> _ValueT:
+        try:
+            return self._buffer[key]
+
+        except KeyError:
+            pass
+
+        entry = self._raw_data[key]
+        result = self._cast(entry)
+        self._buffer[key] = result
+        return result
+
+    def __iter__(self) -> collections.Iterator[_KeyT]:
+        return iter(self._raw_data)
+
+    def __len__(self) -> int:
+        return len(self._raw_data)

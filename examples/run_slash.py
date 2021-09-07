@@ -21,8 +21,8 @@ async def run() -> None:
         # Unlike a gateway bot bound client, only slash commands will be automatically
         # executed by a client that's bound to a rest bot.
         .load_modules("examples.slash_component")
-        .add_type_dependency(config.ExampleConfig, lambda: loaded_config)
-        .add_type_dependency(protos.DatabaseProto, tanjun.cache_callback(impls.DatabaseImpl.connect))
+        .set_type_dependency(config.ExampleConfig, lambda: loaded_config)
+        .set_type_dependency(protos.DatabaseProto, tanjun.cache_callback(impls.DatabaseImpl.connect))
     )
     # Unlike with a gateway bot, for RESTBots hikari has no lifetime event
     # dispatch which can be used to implicitly startup and close the Tanjun

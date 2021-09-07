@@ -40,11 +40,69 @@ import pathlib
 import random
 import tempfile
 import textwrap
+import typing
 from unittest import mock
 
+import hikari
 import pytest
 
 import tanjun
+
+
+class TestMessageAcceptsEnum:
+    @pytest.mark.parametrize(
+        ("value", "expected_type"),
+        [
+            (tanjun.MessageAcceptsEnum.ALL, hikari.MessageCreateEvent),
+            (tanjun.MessageAcceptsEnum.DM_ONLY, hikari.DMMessageCreateEvent),
+            (tanjun.MessageAcceptsEnum.GUILD_ONLY, hikari.GuildMessageCreateEvent),
+            (tanjun.MessageAcceptsEnum.NONE, None),
+        ],
+    )
+    def test_get_event_type(self, value: tanjun.MessageAcceptsEnum, expected_type: typing.Optional[hikari.Event]):
+        assert value.get_event_type() == expected_type
+
+
+class Test_InjectablePrefixGetter:
+    def test(self):
+        mock_callback = mock.Mock()
+
+        with mock.patch.object(tanjun.injecting, "CallbackDescriptor") as mock_descriptor:
+            result = tanjun.clients._InjectablePrefixGetter(mock_callback)
+
+            mock_descriptor.assert_called_once_with(mock_callback)
+
+        assert result.descriptor is mock_descriptor.return_value
+
+    def test_callback_property(self):
+        mock_callback = mock.Mock()
+
+        assert tanjun.clients._InjectablePrefixGetter(mock_callback).callback is mock_callback
+
+
+class Test_InjectableListener:
+    @pytest.mark.asyncio()
+    async def test(self):
+        mock_client = mock.Mock()
+        mock_callback = mock.Mock()
+        mock_event = mock.Mock()
+
+        with mock.patch.object(
+            tanjun.injecting, "CallbackDescriptor", return_value=mock.AsyncMock()
+        ) as callback_descriptor:
+            converter = tanjun.clients._InjectableListener(mock_client, mock_callback)
+
+            callback_descriptor.assert_called_once_with(mock_callback)
+
+        with mock.patch.object(tanjun.injecting, "BasicInjectionContext") as base_injection_context:
+            result = await converter(mock_event)
+
+            base_injection_context.assert_called_once_with(mock_client)
+
+        assert result is None
+        callback_descriptor.return_value.resolve.assert_called_once_with(
+            base_injection_context.return_value, mock_event
+        )
 
 
 class TestClient:
