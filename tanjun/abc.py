@@ -1046,7 +1046,7 @@ class MessageContext(Context, abc.ABC):
         attachment : hikari.UndefinedOr[hikari.Resourceish]
             A singular attachment to respond with.
         attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]
-            A sequence of attachments respond with.
+            A sequence of attachments to respond with.
         embed : hikari.UndefinedOr[hikari.Embed]
             An embed to respond with.
         embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
