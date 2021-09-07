@@ -262,9 +262,7 @@ async def _wrap_client_callback(
     suppress_exceptions: bool,
 ) -> None:
     try:
-        result = callback.resolve(ctx, *args, **kwargs)
-        if isinstance(result, collections.Awaitable):
-            await result
+        await callback.resolve(ctx, *args, **kwargs)
 
     except Exception as exc:
         if suppress_exceptions:
@@ -285,7 +283,7 @@ class _InjectablePrefixGetter(injecting.BaseInjectableCallback[collections.Itera
 
     @property
     def callback(self) -> PrefixGetterSig:
-        return self.callback
+        return typing.cast(PrefixGetterSig, self.descriptor.callback)
 
 
 class _InjectableListener(injecting.BaseInjectableCallback[None]):

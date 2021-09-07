@@ -82,7 +82,7 @@ async def test_gather_checks_handles_no_checks():
 
 
 @pytest.mark.asyncio()
-async def test_gather_checks_handles_faiedl_check():
+async def test_gather_checks_handles_failed_check():
     mock_ctx = mock.Mock(tanjun.abc.Context)
     check_1 = mock.AsyncMock()
     check_2 = mock.AsyncMock(side_effect=tanjun.FailedCheck)

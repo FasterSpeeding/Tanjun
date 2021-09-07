@@ -136,6 +136,7 @@ __all__: list[str] = [
     "SlashCommandGroup",
     "with_str_slash_option",
     "with_int_slash_option",
+    "with_float_slash_option",
     "with_bool_slash_option",
     "with_role_slash_option",
     "with_user_slash_option",
