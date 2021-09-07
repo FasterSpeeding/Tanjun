@@ -47,6 +47,7 @@ __all__: list[str] = [
     "SlashCommandGroup",
     "with_str_slash_option",
     "with_int_slash_option",
+    "with_float_slash_option",
     "with_bool_slash_option",
     "with_role_slash_option",
     "with_user_slash_option",
@@ -375,6 +376,7 @@ def as_slash_command(
         name,
         description,
         command_id=command_id,
+        default_permission=default_permission,
         default_to_ephemeral=default_to_ephemeral,
         is_global=is_global,
         sort_options=sort_options,
@@ -506,6 +508,64 @@ def with_int_slash_option(
     """
     return lambda c: c.add_option(
         name, description, hikari.OptionType.INTEGER, default=default, choices=choices, converters=converters
+    )
+
+
+def with_float_slash_option(
+    name: str,
+    description: str,
+    /,
+    *,
+    choices: typing.Optional[collections.Iterable[tuple[str, float]]] = None,
+    converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
+    default: typing.Any = _UNDEFINED_DEFAULT,
+) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    """Add a float option to a slash command.
+
+    Examples
+    --------
+    ```py
+    @with_float_slash_option("float_value", "Float value.")
+    @as_slash_command("command", "A command")
+    async def command(self, ctx: tanjun.abc.SlashContext, float_value: float) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    name : str
+        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+    description : str
+        The option's description.
+        This should be inclusively between 1-100 characters in length.
+
+    Other Parameters
+    ----------------
+    choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]
+        The option's choices.
+
+        This may be either one or multiple `tuple[opton_name, option_value]`
+        where option_name should be a string of up to 100 characters and
+        option_value should be a float.
+    converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]
+        The option's converters.
+
+        This may be either one or multiple `ConverterSig` callbacks used to
+        convert the option's value to the final form.
+        If no converters are provided then the raw value will be passed.
+
+        Only the first converter to pass will be used.
+    default : typing.Any
+        The option's default value.
+        If this is left as undefined then this option will be required.
+
+    Returns
+    -------
+    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+        Decorator callback which adds the option to the command.
+    """
+    return lambda c: c.add_option(
+        name, description, hikari.OptionType.FLOAT, default=default, choices=choices, converters=converters
     )
 
 
@@ -949,7 +1009,7 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
 
     async def check_context(self, ctx: abc.SlashContext, /) -> bool:
         # <<inherited docstring from tanjun.abc.SlashCommand>>.
-        ctx = ctx.set_command(self)
+        ctx.set_command(self)
         result = await utilities.gather_checks(ctx, self._checks)
         ctx.set_command(None)
         return result
@@ -1100,9 +1160,6 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         hooks: typing.Optional[collections.MutableSet[abc.SlashHooks]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        if not await self.check_context(ctx):
-            return
-
         if not option and ctx.interaction.options:
             option = ctx.interaction.options[0]
 
@@ -1112,11 +1169,20 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         else:
             raise RuntimeError("Missing sub-command option")
 
-        if command := self._commands.get(option.name):
+        if (command := self._commands.get(option.name)) and await command.check_context(ctx):
             await command.execute(ctx, option=option, hooks=hooks)
             return
 
         await ctx.mark_not_found()
+
+    def load_into_component(
+        self: _SlashCommandGroupT, component: abc.Component, /
+    ) -> typing.Optional[_SlashCommandGroupT]:
+        for command in self._commands.values():
+            if isinstance(command, components.LoadableProtocol):
+                command.load_into_component(component)
+
+        return super().load_into_component(component)  # type: ignore  # Pyright seems to mis-handle the typevars
 
 
 class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCallbackSigT]):
@@ -1164,7 +1230,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
     else:
 
         async def __call__(self, *args, **kwargs) -> None:
-            await self._callback(*args, **kwargs)
+            await self._callback.callback(*args, **kwargs)
 
     @property
     def callback(self) -> CommandCallbackSigT:
@@ -1490,7 +1556,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
 
     async def check_context(self, ctx: abc.MessageContext, /) -> bool:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        ctx = ctx.set_command(self)
+        ctx.set_command(self)
         result = await utilities.gather_checks(ctx, self._checks)
         ctx.set_command(None)
         return result
@@ -1682,7 +1748,6 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
             if (name := utilities.match_prefix_names(content, command.names)) is not None:
                 yield name, command
 
-    # I sure hope this plays well with command group recursion cause I am waaaaaaaaaaaaaay too lazy to test that myself.
     async def execute(
         self,
         ctx: abc.MessageContext,
@@ -1692,7 +1757,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
     ) -> None:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if ctx.message.content is None:
-            raise ValueError("Cannot execute a command with a contentless message")
+            raise ValueError("Cannot execute a command with a content-less message")
 
         if self._hooks:
             if hooks is None:
@@ -1702,12 +1767,11 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
 
         for name, command in self.find_command(ctx.content):
             if await command.check_context(ctx):
-                content = ctx.message.content.lstrip()[len(ctx.triggering_prefix) :].lstrip()[
-                    len(ctx.triggering_name) :
-                ]
-                space_len = len(content) - len(content.lstrip())
+                content = ctx.content[len(name) :]
+                lstripped_content = content.lstrip()
+                space_len = len(content) - len(lstripped_content)
                 ctx.set_triggering_name(ctx.triggering_name + (" " * space_len) + name)
-                ctx.set_content(ctx.content[space_len + len(name) :].lstrip())
+                ctx.set_content(lstripped_content)
                 await command.execute(ctx, hooks=hooks)
                 return
 

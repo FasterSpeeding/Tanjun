@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Float slash command option type.
 - Component add and remove client callbacks.
 - Event listeners are now loaded into Client by Components and support dependency injection.
 - Add/with and remove listener methods had to be added to the Client to support this.
@@ -17,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Injection.Descriptor, TypeDescriptor and CallbackDescriptor replaced the Getter and InjectableValue classes
 
 ### Changed
-- Component.listeners and Client.listeners now return Mapping[type[Event], Collection[Callback]]
+- Component.listeners and Client.listeners now return Mapping[type[Event], Collection[Callback]].
 - Dependency injection on a lower level has been restructured to remove any reliance on tanjun.abc.Context.
   This means introducing an abstract injection context and implementing it with the standard context and a more
   basic impl.
@@ -28,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   pure callbacks.
 - Use Optional instead of UndefinedOr in injecting module where possible (e.g. the Injected callback and type fields).
 - Process injected callbacks when they're first handled (passed to CallbackDescriptor) than when they're first called
-  This lowers the amount of external caching needed
+  This lowers the amount of external caching needed.
 
 ### Deprecated
 - InjectionClient/Client .add_type_dependency and add_callback_override have been deprecated in favour of
@@ -37,12 +38,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - injecting.Getter and injecting.InjectableValue.
 - set_injector methods as the injection client is now passed around as part of a context.
-- injection.resolve_getters (this logic is now on the descriptors)
+- injection.resolve_getters (this logic is now on the descriptors).
 
 ### Fixed
 - Now handle when Discord doesn't include boolean options in interaction payloads because they were passed as `False`
   and weight reduction bro.
 - Doc typo and export fixes.
+- Fix handling of ctx.content and ctx.triggering_nameand in MessageCommandGroup to account for doubly nested command groups.
+- Fix double-calling command group checks instead of calling the command group checks then the sub-command's check.
 
 ## [2.0.0a1] - 2021-08-30
 ### Added
