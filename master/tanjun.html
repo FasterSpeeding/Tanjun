@@ -523,6 +523,9 @@
                         <li>
                                 <a class="function" href="#SlashCommandGroup.execute">execute</a>
                         </li>
+                        <li>
+                                <a class="function" href="#SlashCommandGroup.load_into_component">load_into_component</a>
+                        </li>
                 </ul>
 
             </li>
@@ -531,6 +534,9 @@
             </li>
             <li>
                     <a class="function" href="#with_int_slash_option">with_int_slash_option</a>
+            </li>
+            <li>
+                    <a class="function" href="#with_float_slash_option">with_float_slash_option</a>
             </li>
             <li>
                     <a class="function" href="#with_bool_slash_option">with_bool_slash_option</a>
@@ -1416,6 +1422,7 @@ enable slash (interaction) command execution:</p>
     <span class="s2">&quot;SlashCommandGroup&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_str_slash_option&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_int_slash_option&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;with_float_slash_option&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_bool_slash_option&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_role_slash_option&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_user_slash_option&quot;</span><span class="p">,</span>
@@ -5271,9 +5278,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
     <span class="n">suppress_exceptions</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">):</span>
-            <span class="k">await</span> <span class="n">result</span>
+        <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">suppress_exceptions</span><span class="p">:</span>
@@ -5294,7 +5299,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrefixGetterSig</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback</span>
+        <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">PrefixGetterSig</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">descriptor</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">_InjectableListener</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BaseInjectableCallback</span><span class="p">[</span><span class="kc">None</span><span class="p">]):</span>
@@ -11003,6 +11008,7 @@ message create events.</p>
     <span class="s2">&quot;SlashCommandGroup&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_str_slash_option&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_int_slash_option&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;with_float_slash_option&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_bool_slash_option&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_role_slash_option&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_user_slash_option&quot;</span><span class="p">,</span>
@@ -11331,6 +11337,7 @@ message create events.</p>
         <span class="n">name</span><span class="p">,</span>
         <span class="n">description</span><span class="p">,</span>
         <span class="n">command_id</span><span class="o">=</span><span class="n">command_id</span><span class="p">,</span>
+        <span class="n">default_permission</span><span class="o">=</span><span class="n">default_permission</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
         <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
         <span class="n">sort_options</span><span class="o">=</span><span class="n">sort_options</span><span class="p">,</span>
@@ -11462,6 +11469,64 @@ message create events.</p>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
         <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">INTEGER</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">converters</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">with_float_slash_option</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">choices</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SlashCommandT</span><span class="p">],</span> <span class="n">_SlashCommandT</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Add a float option to a slash command.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    @with_float_slash_option(&quot;float_value&quot;, &quot;Float value.&quot;)</span>
+<span class="sd">    @as_slash_command(&quot;command&quot;, &quot;A command&quot;)</span>
+<span class="sd">    async def command(self, ctx: tanjun.abc.SlashContext, float_value: float) -&gt; None:</span>
+<span class="sd">        ...</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The option&#39;s name. This should match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">    description : str</span>
+<span class="sd">        The option&#39;s description.</span>
+<span class="sd">        This should be inclusively between 1-100 characters in length.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]</span>
+<span class="sd">        The option&#39;s choices.</span>
+
+<span class="sd">        This may be either one or multiple `tuple[opton_name, option_value]`</span>
+<span class="sd">        where option_name should be a string of up to 100 characters and</span>
+<span class="sd">        option_value should be a float.</span>
+<span class="sd">    converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        The option&#39;s converters.</span>
+
+<span class="sd">        This may be either one or multiple `ConverterSig` callbacks used to</span>
+<span class="sd">        convert the option&#39;s value to the final form.</span>
+<span class="sd">        If no converters are provided then the raw value will be passed.</span>
+
+<span class="sd">        Only the first converter to pass will be used.</span>
+<span class="sd">    default : typing.Any</span>
+<span class="sd">        The option&#39;s default value.</span>
+<span class="sd">        If this is left as undefined then this option will be required.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]</span>
+<span class="sd">        Decorator callback which adds the option to the command.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">converters</span>
     <span class="p">)</span>
 
 
@@ -11905,7 +11970,7 @@ message create events.</p>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">check_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.SlashCommand&gt;&gt;.</span>
-        <span class="n">ctx</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">utilities</span><span class="o">.</span><span class="n">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">set_command</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
@@ -12056,9 +12121,6 @@ message create events.</p>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">return</span>
-
         <span class="k">if</span> <span class="ow">not</span> <span class="n">option</span> <span class="ow">and</span> <span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
             <span class="n">option</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -12068,11 +12130,20 @@ message create events.</p>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Missing sub-command option&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
             <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandGroupT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_SlashCommandGroupT</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">components</span><span class="o">.</span><span class="n">LoadableProtocol</span><span class="p">):</span>
+                <span class="n">command</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>  <span class="c1"># type: ignore  # Pyright seems to mis-handle the typevars</span>
 
 
 <span class="k">class</span> <span class="nc">SlashCommand</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
@@ -12120,7 +12191,7 @@ message create events.</p>
     <span class="k">else</span><span class="p">:</span>
 
         <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallbackSigT</span><span class="p">:</span>
@@ -12240,11 +12311,17 @@ message create events.</p>
 
                     <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">member</span> <span class="ow">or</span> <span class="n">option_data</span><span class="o">.</span><span class="n">users</span><span class="p">[</span><span class="n">id_</span><span class="p">]</span>
 
-            <span class="k">elif</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">converters</span><span class="p">:</span>
-                <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">value</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">value</span>
+                <span class="c1"># To be type safe we obfuscate the fact that discord&#39;s double type will provide am int or float</span>
+                <span class="c1"># depending on the value Disocrd input by always casting to float.</span>
+                <span class="k">if</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">converters</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+                <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
         <span class="k">return</span> <span class="n">keyword_args</span>
 
@@ -12446,7 +12523,7 @@ message create events.</p>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">check_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
-        <span class="n">ctx</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">utilities</span><span class="o">.</span><span class="n">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">set_command</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
@@ -12638,7 +12715,6 @@ message create events.</p>
             <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
 
-    <span class="c1"># I sure hope this plays well with command group recursion cause I am waaaaaaaaaaaaaay too lazy to test that myself.</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span>
@@ -12648,7 +12724,7 @@ message create events.</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot execute a command with a contentless message&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot execute a command with a content-less message&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">hooks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -12658,12 +12734,11 @@ message create events.</p>
 
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_command</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
             <span class="k">if</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-                <span class="n">content</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()[</span><span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">triggering_prefix</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()[</span>
-                    <span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">triggering_name</span><span class="p">)</span> <span class="p">:</span>
-                <span class="p">]</span>
-                <span class="n">space_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span>
+                <span class="n">content</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">:]</span>
+                <span class="n">lstripped_content</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
+                <span class="n">space_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">lstripped_content</span><span class="p">)</span>
                 <span class="n">ctx</span><span class="o">.</span><span class="n">set_triggering_name</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">triggering_name</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">space_len</span><span class="p">)</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
-                <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">space_len</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">lstripped_content</span><span class="p">)</span>
                 <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
                 <span class="k">return</span>
 
@@ -12921,6 +12996,7 @@ enforces that command names are unique to a single command within the group.</p>
         <span class="n">name</span><span class="p">,</span>
         <span class="n">description</span><span class="p">,</span>
         <span class="n">command_id</span><span class="o">=</span><span class="n">command_id</span><span class="p">,</span>
+        <span class="n">default_permission</span><span class="o">=</span><span class="n">default_permission</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
         <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
         <span class="n">sort_options</span><span class="o">=</span><span class="n">sort_options</span><span class="p">,</span>
@@ -13262,7 +13338,7 @@ Whether this command is a global command. Defaults to <code>True</code>.</li>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">check_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
-        <span class="n">ctx</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">utilities</span><span class="o">.</span><span class="n">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">set_command</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
@@ -13627,7 +13703,7 @@ The parent of this command.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
-        <span class="n">ctx</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">utilities</span><span class="o">.</span><span class="n">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">set_command</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
@@ -13894,7 +13970,6 @@ The parent of this command.</li>
             <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
 
-    <span class="c1"># I sure hope this plays well with command group recursion cause I am waaaaaaaaaaaaaay too lazy to test that myself.</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span>
@@ -13904,7 +13979,7 @@ The parent of this command.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot execute a command with a contentless message&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot execute a command with a content-less message&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">hooks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -13914,12 +13989,11 @@ The parent of this command.</li>
 
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_command</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
             <span class="k">if</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-                <span class="n">content</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()[</span><span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">triggering_prefix</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()[</span>
-                    <span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">triggering_name</span><span class="p">)</span> <span class="p">:</span>
-                <span class="p">]</span>
-                <span class="n">space_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span>
+                <span class="n">content</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">:]</span>
+                <span class="n">lstripped_content</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
+                <span class="n">space_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">lstripped_content</span><span class="p">)</span>
                 <span class="n">ctx</span><span class="o">.</span><span class="n">set_triggering_name</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">triggering_name</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">space_len</span><span class="p">)</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
-                <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">space_len</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">lstripped_content</span><span class="p">)</span>
                 <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
                 <span class="k">return</span>
 
@@ -14310,7 +14384,7 @@ The command to add.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot execute a command with a contentless message&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot execute a command with a content-less message&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">hooks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -14320,12 +14394,11 @@ The command to add.</li>
 
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_command</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
             <span class="k">if</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-                <span class="n">content</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()[</span><span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">triggering_prefix</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()[</span>
-                    <span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">triggering_name</span><span class="p">)</span> <span class="p">:</span>
-                <span class="p">]</span>
-                <span class="n">space_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span>
+                <span class="n">content</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">:]</span>
+                <span class="n">lstripped_content</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
+                <span class="n">space_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">lstripped_content</span><span class="p">)</span>
                 <span class="n">ctx</span><span class="o">.</span><span class="n">set_triggering_name</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">triggering_name</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">space_len</span><span class="p">)</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
-                <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="n">space_len</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">lstripped_content</span><span class="p">)</span>
                 <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
                 <span class="k">return</span>
 
@@ -14452,7 +14525,7 @@ The command to add.</li>
     <span class="k">else</span><span class="p">:</span>
 
         <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallbackSigT</span><span class="p">:</span>
@@ -14572,11 +14645,17 @@ The command to add.</li>
 
                     <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">member</span> <span class="ow">or</span> <span class="n">option_data</span><span class="o">.</span><span class="n">users</span><span class="p">[</span><span class="n">id_</span><span class="p">]</span>
 
-            <span class="k">elif</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">converters</span><span class="p">:</span>
-                <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">value</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">option</span><span class="o">.</span><span class="n">value</span>
+                <span class="c1"># To be type safe we obfuscate the fact that discord&#39;s double type will provide am int or float</span>
+                <span class="c1"># depending on the value Disocrd input by always casting to float.</span>
+                <span class="k">if</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">converters</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+                <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
         <span class="k">return</span> <span class="n">keyword_args</span>
 
@@ -15150,9 +15229,6 @@ globally or for a specific guild.</li>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">return</span>
-
         <span class="k">if</span> <span class="ow">not</span> <span class="n">option</span> <span class="ow">and</span> <span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
             <span class="n">option</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -15162,11 +15238,20 @@ globally or for a specific guild.</li>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Missing sub-command option&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
             <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandGroupT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_SlashCommandGroupT</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">components</span><span class="o">.</span><span class="n">LoadableProtocol</span><span class="p">):</span>
+                <span class="n">command</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>  <span class="c1"># type: ignore  # Pyright seems to mis-handle the typevars</span>
 </pre></div>
 
         </details>
@@ -15504,9 +15589,6 @@ Command to add to this group.</li>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">return</span>
-
         <span class="k">if</span> <span class="ow">not</span> <span class="n">option</span> <span class="ow">and</span> <span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
             <span class="n">option</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -15516,11 +15598,40 @@ Command to add to this group.</li>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Missing sub-command option&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
             <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="SlashCommandGroup.load_into_component" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashCommandGroup.load_into_component">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">load_into_component</span><span class="signature">(
+    self: ~_SlashCommandGroupT,
+    component: <a href="tanjun/abc.html#Component">tanjun.abc.Component</a>,
+    /
+) -&gt; Optional[~_SlashCommandGroupT]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">load_into_component</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandGroupT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_SlashCommandGroupT</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">components</span><span class="o">.</span><span class="n">LoadableProtocol</span><span class="p">):</span>
+                <span class="n">command</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>  <span class="c1"># type: ignore  # Pyright seems to mis-handle the typevars</span>
 </pre></div>
 
         </details>
@@ -15542,7 +15653,6 @@ Command to add to this group.</li>
                 <dd id="SlashCommandGroup.set_ephemeral_default" class="function"><a href="tanjun/commands.html#BaseSlashCommand.set_ephemeral_default">set_ephemeral_default</a></dd>
                 <dd id="SlashCommandGroup.set_parent" class="function"><a href="tanjun/commands.html#BaseSlashCommand.set_parent">set_parent</a></dd>
                 <dd id="SlashCommandGroup.check_context" class="function"><a href="tanjun/commands.html#BaseSlashCommand.check_context">check_context</a></dd>
-                <dd id="SlashCommandGroup.load_into_component" class="function"><a href="tanjun/commands.html#BaseSlashCommand.load_into_component">load_into_component</a></dd>
 
             </div>
             <div><dt><a href="tanjun/commands.html#PartialCommand">tanjun.commands.PartialCommand</a></dt>
@@ -15812,6 +15922,135 @@ The option's choices.</p>
 <p>This may be either one or multiple <code>tuple[opton_name, option_value]</code>
 where option_name should be a string of up to 100 characters and
 option_value should be an integer.</p></li>
+<li><p><strong>converters</strong> (typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]):
+The option's converters.</p>
+
+<p>This may be either one or multiple <code>ConverterSig</code> callbacks used to
+convert the option's value to the final form.
+If no converters are provided then the raw value will be passed.</p>
+
+<p>Only the first converter to pass will be used.</p></li>
+<li><strong>default</strong> (typing.Any):
+The option's default value.
+If this is left as undefined then this option will be required.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Callable[[_SlashCommandT], _SlashCommandT]</strong>: Decorator callback which adds the option to the command.</li>
+</ul>
+</div>
+
+
+                </section>
+                <section id="with_float_slash_option">
+                            <div class="attr function"><a class="headerlink" href="#with_float_slash_option">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">with_float_slash_option</span><span class="signature">(
+    name: str,
+    description: str,
+    /,
+    *,
+    choices: Optional[collections.abc.Iterable[tuple[str, float]]] = None,
+    converters: Union[collections.abc.Collection[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    default: Any = &lt;object object&gt;
+) -&gt; collections.abc.Callable[[~_SlashCommandT], ~_SlashCommandT]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_float_slash_option</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">choices</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SlashCommandT</span><span class="p">],</span> <span class="n">_SlashCommandT</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Add a float option to a slash command.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    @with_float_slash_option(&quot;float_value&quot;, &quot;Float value.&quot;)</span>
+<span class="sd">    @as_slash_command(&quot;command&quot;, &quot;A command&quot;)</span>
+<span class="sd">    async def command(self, ctx: tanjun.abc.SlashContext, float_value: float) -&gt; None:</span>
+<span class="sd">        ...</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        The option&#39;s name. This should match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">    description : str</span>
+<span class="sd">        The option&#39;s description.</span>
+<span class="sd">        This should be inclusively between 1-100 characters in length.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]</span>
+<span class="sd">        The option&#39;s choices.</span>
+
+<span class="sd">        This may be either one or multiple `tuple[opton_name, option_value]`</span>
+<span class="sd">        where option_name should be a string of up to 100 characters and</span>
+<span class="sd">        option_value should be a float.</span>
+<span class="sd">    converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        The option&#39;s converters.</span>
+
+<span class="sd">        This may be either one or multiple `ConverterSig` callbacks used to</span>
+<span class="sd">        convert the option&#39;s value to the final form.</span>
+<span class="sd">        If no converters are provided then the raw value will be passed.</span>
+
+<span class="sd">        Only the first converter to pass will be used.</span>
+<span class="sd">    default : typing.Any</span>
+<span class="sd">        The option&#39;s default value.</span>
+<span class="sd">        If this is left as undefined then this option will be required.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]</span>
+<span class="sd">        Decorator callback which adds the option to the command.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">converters</span>
+    <span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a float option to a slash command.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="nd">@with_float_slash_option</span><span class="p">(</span><span class="s2">&quot;float_value&quot;</span><span class="p">,</span> <span class="s2">&quot;Float value.&quot;</span><span class="p">)</span>
+<span class="nd">@as_slash_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="s2">&quot;A command&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="n">float_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>name</strong> (str):
+The option's name. This should match the regex <code>^[a-z0-9_-]{1,32}$</code>.</li>
+<li><strong>description</strong> (str):
+The option's description.
+This should be inclusively between 1-100 characters in length.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>choices</strong> (typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]):
+The option's choices.</p>
+
+<p>This may be either one or multiple <code>tuple[opton_name, option_value]</code>
+where option_name should be a string of up to 100 characters and
+option_value should be a float.</p></li>
 <li><p><strong>converters</strong> (typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]):
 The option's converters.</p>
 
