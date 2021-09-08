@@ -546,7 +546,7 @@ def with_float_slash_option(
         If this is set to `True` then the value will always be converted to a
         float (this will happen before it's passed to converters).
 
-        This masks behaviour from Discord's where we will be provided a `float`
+        This masks behaviour from Discord where we will either be provided a `float`
         or `int` dependent on what the user provided and defaults to `True`.
     choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]
         The option's choices.
