@@ -685,7 +685,7 @@
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]</span>
+<span class="sd">    command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.Command]]</span>
 <span class="sd">        ID of the global command this should be tracking.</span>
 
 <span class="sd">        This is useful when bulk updating the commands as if the ID isn&#39;t</span>
@@ -961,7 +961,7 @@
     <span class="sd">&quot;&quot;&quot;Add a user option to a slash command.</span>
 
 <span class="sd">    .. note::</span>
-<span class="sd">        This may result in `hikari.interactions.commands.InteractionMember` or</span>
+<span class="sd">        This may result in `hikari.InteractionMember` or</span>
 <span class="sd">        `hikari.users.User` if the user isn&#39;t in the current guild or if this</span>
 <span class="sd">        command was executed in a DM channel.</span>
 
@@ -1006,7 +1006,7 @@
     <span class="sd">&quot;&quot;&quot;Add a member option to a slash command.</span>
 
 <span class="sd">    .. note::</span>
-<span class="sd">        This will always result in `hikari.interactions.commands.InteractionMember`.</span>
+<span class="sd">        This will always result in `hikari.InteractionMember`.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -1049,7 +1049,7 @@
     <span class="sd">&quot;&quot;&quot;Add a channel option to a slash command.</span>
 
 <span class="sd">    .. note::</span>
-<span class="sd">        This will always result in `hikari.interactions.commands.InteractionChannel`.</span>
+<span class="sd">        This will always result in `hikari..InteractionChannel`.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -1326,7 +1326,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        command_id : hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]</span>
+<span class="sd">        command_id : hikari.snowflakes.SnowflakeishOr[hikari.Command]</span>
 <span class="sd">            object or ID of the global command this should be tracking.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command_id</span><span class="p">)</span>
@@ -2373,7 +2373,7 @@ enforces that command names are unique to a single command within the group.</p>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]</span>
+<span class="sd">    command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.Command]]</span>
 <span class="sd">        ID of the global command this should be tracking.</span>
 
 <span class="sd">        This is useful when bulk updating the commands as if the ID isn&#39;t</span>
@@ -2449,7 +2449,7 @@ This should be inclusively between 1-100 characters in length.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>command_id</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]):
+<li><p><strong>command_id</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.Command]]):
 ID of the global command this should be tracking.</p>
 
 <p>This is useful when bulk updating the commands as if the ID isn't
@@ -4384,7 +4384,7 @@ The check to remove.</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        command_id : hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]</span>
+<span class="sd">        command_id : hikari.snowflakes.SnowflakeishOr[hikari.Command]</span>
 <span class="sd">            object or ID of the global command this should be tracking.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command_id</span><span class="p">)</span>
@@ -4570,7 +4570,7 @@ is inherited regardless of what it's set as on the child command.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        command_id : hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]</span>
+<span class="sd">        command_id : hikari.snowflakes.SnowflakeishOr[hikari.Command]</span>
 <span class="sd">            object or ID of the global command this should be tracking.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command_id</span><span class="p">)</span>
@@ -4589,7 +4589,7 @@ command's name is changed).</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>command_id</strong> (hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]):
+<li><strong>command_id</strong> (hikari.snowflakes.SnowflakeishOr[hikari.Command]):
 object or ID of the global command this should be tracking.</li>
 </ul>
 </div>
@@ -6593,7 +6593,7 @@ If this is left as undefined then this option will be required.</li>
     <span class="sd">&quot;&quot;&quot;Add a user option to a slash command.</span>
 
 <span class="sd">    .. note::</span>
-<span class="sd">        This may result in `hikari.interactions.commands.InteractionMember` or</span>
+<span class="sd">        This may result in `hikari.InteractionMember` or</span>
 <span class="sd">        `hikari.users.User` if the user isn&#39;t in the current guild or if this</span>
 <span class="sd">        command was executed in a DM channel.</span>
 
@@ -6633,7 +6633,7 @@ If this is left as undefined then this option will be required.</li>
             <div class="docstring"><p>Add a user option to a slash command.</p>
 
 <p><em>Note:</em>
-This may result in <code>hikari.interactions.commands.InteractionMember</code> or
+This may result in <code>hikari.InteractionMember</code> or
 <code>hikari.users.User</code> if the user isn't in the current guild or if this
 command was executed in a DM channel.</p>
 
@@ -6698,7 +6698,7 @@ If this is left as undefined then this option will be required.</li>
     <span class="sd">&quot;&quot;&quot;Add a member option to a slash command.</span>
 
 <span class="sd">    .. note::</span>
-<span class="sd">        This will always result in `hikari.interactions.commands.InteractionMember`.</span>
+<span class="sd">        This will always result in `hikari.InteractionMember`.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -6736,7 +6736,7 @@ If this is left as undefined then this option will be required.</li>
             <div class="docstring"><p>Add a member option to a slash command.</p>
 
 <p><em>Note:</em>
-This will always result in <code>hikari.interactions.commands.InteractionMember</code>.</p>
+This will always result in <code>hikari.InteractionMember</code>.</p>
 
 <h6 id="examples">Examples</h6>
 
@@ -6799,7 +6799,7 @@ If this is left as undefined then this option will be required.</li>
     <span class="sd">&quot;&quot;&quot;Add a channel option to a slash command.</span>
 
 <span class="sd">    .. note::</span>
-<span class="sd">        This will always result in `hikari.interactions.commands.InteractionChannel`.</span>
+<span class="sd">        This will always result in `hikari..InteractionChannel`.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -6837,7 +6837,7 @@ If this is left as undefined then this option will be required.</li>
             <div class="docstring"><p>Add a channel option to a slash command.</p>
 
 <p><em>Note:</em>
-This will always result in <code>hikari.interactions.commands.InteractionChannel</code>.</p>
+This will always result in <code>hikari..InteractionChannel</code>.</p>
 
 <h6 id="examples">Examples</h6>
 

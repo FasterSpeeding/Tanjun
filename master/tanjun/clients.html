@@ -614,8 +614,8 @@
     <span class="sd">&quot;&quot;&quot;Tanjun&#39;s standard `tanjun.abc.Client` implementation.</span>
 
 <span class="sd">    This implementation supports dependency injection for checks, command</span>
-<span class="sd">    callbacks, and prefix getters. For more information on how</span>
-<span class="sd">    this works see `tanjun.injector`.</span>
+<span class="sd">    callbacks, prefix getters and event listeners. For more information on how</span>
+<span class="sd">    this works see `tanjun.injecting`.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -643,7 +643,7 @@
 <span class="sd">        The Hikari event manager client this will use if applicable.</span>
 <span class="sd">    server : hikari.api.interaction_server.InteractionServer</span>
 <span class="sd">        The Hikari interaction server client this will use if applicable.</span>
-<span class="sd">    shard : hikari.traits.ShardAware</span>
+<span class="sd">    shards : hikari.traits.ShardAware</span>
 <span class="sd">        The Hikari shard aware client this will use if applicable.</span>
 <span class="sd">    event_managed : bool</span>
 <span class="sd">        Whether or not this client is managed by the event manager.</span>
@@ -709,7 +709,7 @@
         <span class="n">cache</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">Cache</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">events</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">EventManager</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">server</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionServer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">shard</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">shards</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -743,7 +743,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span> <span class="o">=</span> <span class="n">rest</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">server</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_shards</span> <span class="o">=</span> <span class="n">shard</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shards</span> <span class="o">=</span> <span class="n">shards</span>
 
         <span class="k">if</span> <span class="n">event_managed</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">events</span><span class="p">:</span>
@@ -780,9 +780,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionServer</span><span class="p">,</span> <span class="n">server</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">server</span><span class="p">),</span> <span class="n">server</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">shard</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">,</span> <span class="n">shard</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">shard</span><span class="p">),</span> <span class="n">shard</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shards</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">,</span> <span class="n">shards</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">shards</span><span class="p">),</span> <span class="n">shards</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_gateway_bot</span><span class="p">(</span>
@@ -842,7 +842,7 @@
                 <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span>
                 <span class="n">cache</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
                 <span class="n">events</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">event_manager</span><span class="p">,</span>
-                <span class="n">shard</span><span class="o">=</span><span class="n">bot</span><span class="p">,</span>
+                <span class="n">shards</span><span class="o">=</span><span class="n">bot</span><span class="p">,</span>
                 <span class="n">event_managed</span><span class="o">=</span><span class="n">event_managed</span><span class="p">,</span>
                 <span class="n">mention_prefix</span><span class="o">=</span><span class="n">mention_prefix</span><span class="p">,</span>
                 <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
@@ -1051,7 +1051,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflakeish</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -1070,8 +1070,8 @@
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]</span>
-<span class="sd">            Object or ID of the command to update.</span>
+<span class="sd">        command_id : typing.Optional[hikari.snowflakes.Snowflakeish]</span>
+<span class="sd">            ID of the command to update.</span>
 <span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
 <span class="sd">            Object or ID of the guild to register the command with.</span>
 
@@ -1086,13 +1086,14 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        hikari.interactions.commands.Command</span>
+<span class="sd">        hikari.Command</span>
 <span class="sd">            API representation of the command that was registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">builder</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">command_id</span><span class="p">:</span>
-            <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">create_application_command</span><span class="p">(</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">edit_application_command</span><span class="p">(</span>
                 <span class="n">application</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">(),</span>
+                <span class="n">command_id</span><span class="p">,</span>
                 <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">builder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="n">builder</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
@@ -1146,7 +1147,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari.interactions.commands.Command]</span>
+<span class="sd">        collections.abc.Sequence[hikari.Command]</span>
 <span class="sd">            API representations of the commands which were registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1378,7 +1379,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari.interactions.command.Command]</span>
+<span class="sd">        collections.abc.Sequence[hikari..Command]</span>
 <span class="sd">            API representations of the set commands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">commands</span> <span class="o">=</span> <span class="p">(</span>
@@ -1784,7 +1785,7 @@
 
 <span class="sd">        .. note::</span>
 <span class="sd">            Any event where `event.interaction` is not</span>
-<span class="sd">            `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
+<span class="sd">            `hikari.CommandInteraction` will be ignored.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1827,7 +1828,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        interaction : hikari.interactions.commands.CommandInteraction</span>
+<span class="sd">        interaction : hikari.CommandInteraction</span>
 <span class="sd">            The interaction to execute a command based on.</span>
 
 <span class="sd">        Returns</span>
@@ -1941,8 +1942,8 @@ to the provided client using it's abstract methods.</li>
     <span class="sd">&quot;&quot;&quot;Tanjun&#39;s standard `tanjun.abc.Client` implementation.</span>
 
 <span class="sd">    This implementation supports dependency injection for checks, command</span>
-<span class="sd">    callbacks, and prefix getters. For more information on how</span>
-<span class="sd">    this works see `tanjun.injector`.</span>
+<span class="sd">    callbacks, prefix getters and event listeners. For more information on how</span>
+<span class="sd">    this works see `tanjun.injecting`.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -1970,7 +1971,7 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">        The Hikari event manager client this will use if applicable.</span>
 <span class="sd">    server : hikari.api.interaction_server.InteractionServer</span>
 <span class="sd">        The Hikari interaction server client this will use if applicable.</span>
-<span class="sd">    shard : hikari.traits.ShardAware</span>
+<span class="sd">    shards : hikari.traits.ShardAware</span>
 <span class="sd">        The Hikari shard aware client this will use if applicable.</span>
 <span class="sd">    event_managed : bool</span>
 <span class="sd">        Whether or not this client is managed by the event manager.</span>
@@ -2036,7 +2037,7 @@ to the provided client using it's abstract methods.</li>
         <span class="n">cache</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">Cache</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">events</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">EventManager</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">server</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionServer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">shard</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">shards</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -2070,7 +2071,7 @@ to the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span> <span class="o">=</span> <span class="n">rest</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">server</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_shards</span> <span class="o">=</span> <span class="n">shard</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shards</span> <span class="o">=</span> <span class="n">shards</span>
 
         <span class="k">if</span> <span class="n">event_managed</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">events</span><span class="p">:</span>
@@ -2107,9 +2108,9 @@ to the provided client using it's abstract methods.</li>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionServer</span><span class="p">,</span> <span class="n">server</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">server</span><span class="p">),</span> <span class="n">server</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">shard</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">,</span> <span class="n">shard</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">shard</span><span class="p">),</span> <span class="n">shard</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shards</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">,</span> <span class="n">shards</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">shards</span><span class="p">),</span> <span class="n">shards</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_gateway_bot</span><span class="p">(</span>
@@ -2169,7 +2170,7 @@ to the provided client using it's abstract methods.</li>
                 <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span>
                 <span class="n">cache</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
                 <span class="n">events</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">event_manager</span><span class="p">,</span>
-                <span class="n">shard</span><span class="o">=</span><span class="n">bot</span><span class="p">,</span>
+                <span class="n">shards</span><span class="o">=</span><span class="n">bot</span><span class="p">,</span>
                 <span class="n">event_managed</span><span class="o">=</span><span class="n">event_managed</span><span class="p">,</span>
                 <span class="n">mention_prefix</span><span class="o">=</span><span class="n">mention_prefix</span><span class="p">,</span>
                 <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
@@ -2378,7 +2379,7 @@ to the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflakeish</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -2397,8 +2398,8 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]</span>
-<span class="sd">            Object or ID of the command to update.</span>
+<span class="sd">        command_id : typing.Optional[hikari.snowflakes.Snowflakeish]</span>
+<span class="sd">            ID of the command to update.</span>
 <span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
 <span class="sd">            Object or ID of the guild to register the command with.</span>
 
@@ -2413,13 +2414,14 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        hikari.interactions.commands.Command</span>
+<span class="sd">        hikari.Command</span>
 <span class="sd">            API representation of the command that was registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">builder</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">command_id</span><span class="p">:</span>
-            <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">create_application_command</span><span class="p">(</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">edit_application_command</span><span class="p">(</span>
                 <span class="n">application</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">(),</span>
+                <span class="n">command_id</span><span class="p">,</span>
                 <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">builder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="n">builder</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
@@ -2473,7 +2475,7 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari.interactions.commands.Command]</span>
+<span class="sd">        collections.abc.Sequence[hikari.Command]</span>
 <span class="sd">            API representations of the commands which were registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -2705,7 +2707,7 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari.interactions.command.Command]</span>
+<span class="sd">        collections.abc.Sequence[hikari..Command]</span>
 <span class="sd">            API representations of the set commands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">commands</span> <span class="o">=</span> <span class="p">(</span>
@@ -3111,7 +3113,7 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            Any event where `event.interaction` is not</span>
-<span class="sd">            `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
+<span class="sd">            `hikari.CommandInteraction` will be ignored.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -3154,7 +3156,7 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        interaction : hikari.interactions.commands.CommandInteraction</span>
+<span class="sd">        interaction : hikari.CommandInteraction</span>
 <span class="sd">            The interaction to execute a command based on.</span>
 
 <span class="sd">        Returns</span>
@@ -3200,8 +3202,8 @@ to the provided client using it's abstract methods.</li>
             <div class="docstring"><p>Tanjun's standard <code><a href="abc.html#Client">tanjun.abc.Client</a></code> implementation.</p>
 
 <p>This implementation supports dependency injection for checks, command
-callbacks, and prefix getters. For more information on how
-this works see <code><a href="../tanjun.html#injector">tanjun.injector</a></code>.</p>
+callbacks, prefix getters and event listeners. For more information on how
+this works see <code><a href="injecting.html">tanjun.injecting</a></code>.</p>
 
 <h6 id="notes">Notes</h6>
 
@@ -3234,7 +3236,7 @@ The Hikari cache client this will use if applicable.</li>
 The Hikari event manager client this will use if applicable.</li>
 <li><strong>server</strong> (hikari.api.interaction_server.InteractionServer):
 The Hikari interaction server client this will use if applicable.</li>
-<li><strong>shard</strong> (hikari.traits.ShardAware):
+<li><strong>shards</strong> (hikari.traits.ShardAware):
 The Hikari shard aware client this will use if applicable.</li>
 <li><p><strong>event_managed</strong> (bool):
 Whether or not this client is managed by the event manager.</p>
@@ -3279,7 +3281,7 @@ when set on a specific guild.</p></li>
     cache: Optional[hikari.api.cache.Cache] = None,
     events: Optional[hikari.api.event_manager.EventManager] = None,
     server: Optional[hikari.api.interaction_server.InteractionServer] = None,
-    shard: Optional[hikari.traits.ShardAware] = None,
+    shards: Optional[hikari.traits.ShardAware] = None,
     event_managed: bool = False,
     mention_prefix: bool = False,
     set_global_commands: Union[hikari.snowflakes.Snowflake, bool] = False
@@ -3295,7 +3297,7 @@ when set on a specific guild.</p></li>
         <span class="n">cache</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">Cache</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">events</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">EventManager</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">server</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionServer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">shard</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">shards</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -3329,7 +3331,7 @@ when set on a specific guild.</p></li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span> <span class="o">=</span> <span class="n">rest</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">server</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_shards</span> <span class="o">=</span> <span class="n">shard</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shards</span> <span class="o">=</span> <span class="n">shards</span>
 
         <span class="k">if</span> <span class="n">event_managed</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">events</span><span class="p">:</span>
@@ -3366,9 +3368,9 @@ when set on a specific guild.</p></li>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionServer</span><span class="p">,</span> <span class="n">server</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">server</span><span class="p">),</span> <span class="n">server</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">shard</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">,</span> <span class="n">shard</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">shard</span><span class="p">),</span> <span class="n">shard</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shards</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">,</span> <span class="n">shards</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">shards</span><span class="p">),</span> <span class="n">shards</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -3453,7 +3455,7 @@ when set on a specific guild.</p></li>
                 <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span>
                 <span class="n">cache</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
                 <span class="n">events</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">event_manager</span><span class="p">,</span>
-                <span class="n">shard</span><span class="o">=</span><span class="n">bot</span><span class="p">,</span>
+                <span class="n">shards</span><span class="o">=</span><span class="n">bot</span><span class="p">,</span>
                 <span class="n">event_managed</span><span class="o">=</span><span class="n">event_managed</span><span class="p">,</span>
                 <span class="n">mention_prefix</span><span class="o">=</span><span class="n">mention_prefix</span><span class="p">,</span>
                 <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
@@ -3916,7 +3918,7 @@ if provided, else <code>None</code>.</li>
     self,
     command: <a href="abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>,
     /,
-    command_id: Optional[hikari.snowflakes.Snowflake] = None,
+    command_id: Union[hikari.snowflakes.Snowflake, int, NoneType] = None,
     *,
     application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
     guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED
@@ -3929,7 +3931,7 @@ if provided, else <code>None</code>.</li>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflakeish</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -3948,8 +3950,8 @@ if provided, else <code>None</code>.</li>
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]</span>
-<span class="sd">            Object or ID of the command to update.</span>
+<span class="sd">        command_id : typing.Optional[hikari.snowflakes.Snowflakeish]</span>
+<span class="sd">            ID of the command to update.</span>
 <span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
 <span class="sd">            Object or ID of the guild to register the command with.</span>
 
@@ -3964,13 +3966,14 @@ if provided, else <code>None</code>.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        hikari.interactions.commands.Command</span>
+<span class="sd">        hikari.Command</span>
 <span class="sd">            API representation of the command that was registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">builder</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">command_id</span><span class="p">:</span>
-            <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">create_application_command</span><span class="p">(</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">edit_application_command</span><span class="p">(</span>
                 <span class="n">application</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">(),</span>
+                <span class="n">command_id</span><span class="p">,</span>
                 <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">builder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="n">builder</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
@@ -4010,8 +4013,8 @@ The application to register the command with.</p>
 
 <p>If left as <code>None</code> then this will be inferred from the authorization
 being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
-<li><strong>command_id</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]):
-Object or ID of the command to update.</li>
+<li><strong>command_id</strong> (typing.Optional[hikari.snowflakes.Snowflakeish]):
+ID of the command to update.</li>
 <li><p><strong>guild</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]):
 Object or ID of the guild to register the command with.</p>
 
@@ -4030,7 +4033,7 @@ command's name).</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>hikari.interactions.commands.Command</strong>: API representation of the command that was registered.</li>
+<li><strong>hikari.Command</strong>: API representation of the command that was registered.</li>
 </ul>
 </div>
 
@@ -4087,7 +4090,7 @@ command's name).</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari.interactions.commands.Command]</span>
+<span class="sd">        collections.abc.Sequence[hikari.Command]</span>
 <span class="sd">            API representations of the commands which were registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -4154,7 +4157,7 @@ Object or ID of the guild to register the commands with.</p>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Sequence[hikari.interactions.commands.Command]</strong>: API representations of the commands which were registered.</li>
+<li><strong>collections.abc.Sequence[hikari.Command]</strong>: API representations of the commands which were registered.</li>
 </ul>
 </div>
 
@@ -4646,7 +4649,7 @@ Object or ID of the guild to clear commands for.</p>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari.interactions.command.Command]</span>
+<span class="sd">        collections.abc.Sequence[hikari..Command]</span>
 <span class="sd">            API representations of the set commands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">commands</span> <span class="o">=</span> <span class="p">(</span>
@@ -4693,7 +4696,7 @@ Object or ID of the guild to set the global commands to.</p>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Sequence[hikari.interactions.command.Command]</strong>: API representations of the set commands.</li>
+<li><strong>collections.abc.Sequence[hikari..Command]</strong>: API representations of the set commands.</li>
 </ul>
 </div>
 
@@ -5645,7 +5648,7 @@ of type <code><a href="#Client">Client</a></code>.</p>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            Any event where `event.interaction` is not</span>
-<span class="sd">            `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
+<span class="sd">            `hikari.CommandInteraction` will be ignored.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -5690,7 +5693,7 @@ of type <code><a href="#Client">Client</a></code>.</p>
 
 <p><em>Note:</em>
 Any event where <code>event.interaction</code> is not
-<code>hikari.interactions.commands.CommandInteraction</code> will be ignored.</p>
+<code>hikari.CommandInteraction</code> will be ignored.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -5721,7 +5724,7 @@ The event to execute commands based on.</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        interaction : hikari.interactions.commands.CommandInteraction</span>
+<span class="sd">        interaction : hikari.CommandInteraction</span>
 <span class="sd">            The interaction to execute a command based on.</span>
 
 <span class="sd">        Returns</span>
@@ -5769,7 +5772,7 @@ The event to execute commands based on.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>interaction</strong> (hikari.interactions.commands.CommandInteraction):
+<li><strong>interaction</strong> (hikari.CommandInteraction):
 The interaction to execute a command based on.</li>
 </ul>
 
