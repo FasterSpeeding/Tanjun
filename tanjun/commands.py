@@ -845,7 +845,7 @@ def _convert_to_injectable(converter: ConverterSig) -> conversion.InjectableConv
 
 
 class _TrackedOption:
-    __slots__ = ("is_always_float", "converters", "default", "is_only_member", "name", "type")
+    __slots__ = ("converters", "default", "is_always_float", "is_only_member", "name", "type")
 
     def __init__(
         self,
@@ -856,9 +856,9 @@ class _TrackedOption:
         only_member: bool,
         default: typing.Any = _UNDEFINED_DEFAULT,
     ) -> None:
-        self.is_always_float = always_float
         self.converters = converters
         self.default = default
+        self.is_always_float = always_float
         self.is_only_member = only_member
         self.name = name
         self.type = option_type
