@@ -516,6 +516,7 @@ def with_float_slash_option(
     description: str,
     /,
     *,
+    always_float: bool = True,
     choices: typing.Optional[collections.Iterable[tuple[str, float]]] = None,
     converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
     default: typing.Any = _UNDEFINED_DEFAULT,
@@ -541,6 +542,12 @@ def with_float_slash_option(
 
     Other Parameters
     ----------------
+    always_float : bool
+        If this is set to `True` then the value will always be converted to a
+        float (this will happen before it's passed to converters).
+
+        This masks behaviour from Discord's where we will be provided a `float`
+        or `int` dependent on what the user provided and defaults to `True`.
     choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]
         The option's choices.
 
@@ -565,7 +572,13 @@ def with_float_slash_option(
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_option(
-        name, description, hikari.OptionType.FLOAT, default=default, choices=choices, converters=converters
+        name,
+        description,
+        hikari.OptionType.FLOAT,
+        always_float=always_float,
+        default=default,
+        choices=choices,
+        converters=converters,
     )
 
 
@@ -832,16 +845,18 @@ def _convert_to_injectable(converter: ConverterSig) -> conversion.InjectableConv
 
 
 class _TrackedOption:
-    __slots__ = ("converters", "default", "is_only_member", "name", "type")
+    __slots__ = ("is_always_float", "converters", "default", "is_only_member", "name", "type")
 
     def __init__(
         self,
         name: str,
         option_type: typing.Union[hikari.OptionType, int],
+        always_float: bool,
         converters: list[conversion.InjectableConverter[typing.Any]],
         only_member: bool,
         default: typing.Any = _UNDEFINED_DEFAULT,
     ) -> None:
+        self.is_always_float = always_float
         self.converters = converters
         self.default = default
         self.is_only_member = only_member
@@ -1256,6 +1271,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         type_: typing.Union[hikari.OptionType, int] = hikari.OptionType.STRING,
         /,
         *,
+        always_float: bool = True,
         choices: typing.Optional[collections.Iterable[tuple[str, typing.Union[str, int, float]]]] = None,
         converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
         default: typing.Any = _UNDEFINED_DEFAULT,
@@ -1288,6 +1304,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             self._tracked_options[name] = _TrackedOption(
                 name=name,
                 option_type=type_,
+                always_float=always_float,
                 converters=converters,
                 default=default,
                 only_member=only_member,
@@ -1354,7 +1371,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
                 value = option.value
                 # To be type safe we obfuscate the fact that discord's double type will provide am int or float
                 # depending on the value Disocrd input by always casting to float.
-                if tracked_option.type is hikari.OptionType.FLOAT:
+                if tracked_option.type is hikari.OptionType.FLOAT and tracked_option.is_always_float:
                     value = float(value)
 
                 if tracked_option.converters:
