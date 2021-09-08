@@ -1108,7 +1108,7 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
 
         Parameters
         ----------
-        command : hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]
+        command : hikari.snowflakes.SnowflakeishOr[hikari.Command]
             Object or ID of the command this tracks.
 
         Returns
