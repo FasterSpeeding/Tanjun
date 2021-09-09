@@ -132,7 +132,7 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
         self._metadata = dict(metadata) if metadata else {}
 
     @property
-    def checks(self) -> collections.Set[abc.CheckSig]:
+    def checks(self) -> collections.Collection[abc.CheckSig]:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return {check.callback for check in self._checks}
 
@@ -1079,7 +1079,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         self._default_permission = default_permission
 
     @property
-    def commands(self) -> collections.ValuesView[abc.BaseSlashCommand]:
+    def commands(self) -> collections.Collection[abc.BaseSlashCommand]:
         # <<inherited docstring from tanjun.abc.SlashCommandGroup>>.
         return self._commands.copy().values()
 
@@ -1311,61 +1311,49 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             )
         return self
 
-    async def _process_args(
-        self,
-        ctx: abc.SlashContext,
-        options: collections.Iterable[hikari.CommandInteractionOption],
-        option_data: hikari.ResolvedOptionData,
-        /,
-    ) -> dict[str, typing.Any]:
-        keyword_args: dict[str, typing.Any] = {}
-        options_dict = {option.name: option for option in options}
-        for tracked_option in self._tracked_options.values():
-            option = options_dict.get(tracked_option.name)
-            if not option or not option.value:
-                if tracked_option.default is _UNDEFINED_DEFAULT:
-                    if tracked_option.type is not hikari.OptionType.BOOLEAN:
-                        raise RuntimeError(  # TODO: ConversionError?
-                            f"Required option {tracked_option.name} is missing data, are you sure your commands"
-                            " are up to date?"
-                        )
+    async def _process_args(self, ctx: abc.SlashContext, /) -> collections.Mapping[str, typing.Any]:
+        if not self._tracked_options:
+            return _EMPTY_DICT
 
-                    # If a required boolean field is passed as False then Discord just won't include the option in the
-                    # interaction event cause payload size reduction so we have to always default to False.
-                    keyword_args[tracked_option.name] = False
+        keyword_args: dict[str, typing.Union[int, float, str, hikari.User, hikari.Role, hikari.InteractionChannel]] = {}
+        for tracked_option in self._tracked_options.values():
+            if not (option := ctx.options.get(tracked_option.name)):
+                if tracked_option.default is _UNDEFINED_DEFAULT:
+                    raise RuntimeError(  # TODO: ConversionError?
+                        f"Required option {tracked_option.name} is missing data, are you sure your commands"
+                        " are up to date?"
+                    )
 
                 else:
                     keyword_args[tracked_option.name] = tracked_option.default
 
             elif option.type is hikari.OptionType.USER:
-                user_id = hikari.Snowflake(option.value)
-                member = option_data.members.get(user_id)
-                if not member and tracked_option.is_only_member:
+                member: typing.Optional[hikari.InteractionMember] = None
+                if tracked_option.is_only_member and not (member := option.resolve_to_member(default=None)):
                     raise errors.ConversionError(
-                        tracked_option.name, f"Couldn't find member for provided user: {user_id}"
+                        tracked_option.name, f"Couldn't find member for provided user: {option.value}"
                     )
 
-                keyword_args[option.name] = member or option_data.users[user_id]
+                keyword_args[option.name] = member or option.resolve_to_user()
 
             elif option.type is hikari.OptionType.CHANNEL:
-                keyword_args[option.name] = option_data.channels[hikari.Snowflake(option.value)]
+                keyword_args[option.name] = option.resolve_to_channel()
 
             elif option.type is hikari.OptionType.ROLE:
-                keyword_args[option.name] = option_data.roles[hikari.Snowflake(option.value)]
+                keyword_args[option.name] = option.resolve_to_role()
 
             elif option.type is hikari.OptionType.MENTIONABLE:
-                id_ = hikari.Snowflake(option.value)
-                if role := option_data.roles.get(id_):
-                    keyword_args[option.name] = role
+                if option.type is hikari.OptionType.ROLE:
+                    keyword_args[option.name] = option.resolve_to_role()
 
                 else:
-                    member = option_data.members.get(id_)
-                    if not member and tracked_option.is_only_member:
+                    member: typing.Optional[hikari.InteractionMember] = None
+                    if tracked_option.is_only_member and not (member := option.resolve_to_member()):
                         raise errors.ConversionError(
-                            tracked_option.name, f"Couldn't find member for provided user: {id_}"
+                            tracked_option.name, f"Couldn't find member for provided user: {option.value}"
                         )
 
-                    keyword_args[option.name] = member or option_data.users[id_]
+                    keyword_args[option.name] = member or option.resolve_to_mentionable()
 
             else:
                 value = option.value
@@ -1396,10 +1384,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
 
             if self._tracked_options:
-                options = option.options if option else None
-                kwargs = await self._process_args(
-                    ctx, options or ctx.interaction.options or _EMPTY_LIST, ctx.interaction.resolved or _EMPTY_RESOLVED
-                )
+                kwargs = await self._process_args(ctx)
 
             else:
                 kwargs = _EMPTY_DICT
@@ -1527,7 +1512,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
 
     @property
     # <<inherited docstring from tanjun.abc.MessageCommand>>.
-    def names(self) -> collections.Set[str]:
+    def names(self) -> collections.Collection[str]:
         return self._names.copy()
 
     @property
@@ -1679,7 +1664,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
         return f"CommandGroup <{len(self._commands)}: {self._names}>"
 
     @property
-    def commands(self) -> collections.Set[abc.MessageCommand]:
+    def commands(self) -> collections.Collection[abc.MessageCommand]:
         # <<inherited docstring from tanjun.abc.MessageCommandGroup>>.
         return self._commands.copy()
 

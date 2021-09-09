@@ -150,6 +150,7 @@ __all__: list[str] = [
     "context",
     "MessageContext",
     "SlashContext",
+    "SlashOption",
     # conversion.py
     "conversion",
     "to_channel",
