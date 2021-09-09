@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Add `always_float` keyword argument to with_float_slash_option.
+- SlashContext.options mapping plus a resolvable option type to allow for more easily getting slash command
+  options without relying on passed keyword arguments.
 
 ### Changed
 - Renamed `Client.__init__` "shard" arg to "shards".
+- Annotate implimation functions/properties which return collections as returning `collections.abc.Collection`
+  instead of their implemation specific subclass of Collcetion.
 
 ### Fixed
 - Edit the command if command_id is passed to declare_slash_command instead of creating a new command.

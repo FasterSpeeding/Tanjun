@@ -608,13 +608,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self._cache
 
     @property
-    def checks(self) -> collections.Set[tanjun_abc.CheckSig]:
-        """Set of the top level `tanjun.abc.Context` checks registered to this client.
+    def checks(self) -> collections.Collection[tanjun_abc.CheckSig]:
+        """Return a collcetion of the level `tanjun.abc.Context` checks registered to this client.
 
         Returns
         -------
         collections.abc.Set[tanjun.abc.CheckSig]
-            Set of the `tanjun.abc.Context` based checks registered for
+            Colleciton of the `tanjun.abc.Context` based checks registered for
             this client.
 
             These may be taking advantage of the standard dependency injection.
@@ -622,7 +622,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return {check.callback for check in self._checks}
 
     @property
-    def components(self) -> collections.Set[tanjun_abc.Component]:
+    def components(self) -> collections.Collection[tanjun_abc.Component]:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._components.copy()
 
