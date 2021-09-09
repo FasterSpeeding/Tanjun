@@ -156,7 +156,7 @@ class ApplicationOwnerCheck:
     def __init__(
         self,
         *,
-        error_message: typing.Optional[str] = None,
+        error_message: typing.Optional[str] = "Only bot owners can use this command",
         expire_delta: datetime.timedelta = datetime.timedelta(minutes=5),
         halt_execution: bool = False,
         owner_ids: typing.Optional[collections.Iterable[hikari.SnowflakeishOr[hikari.User]]] = None,
@@ -278,7 +278,7 @@ async def nsfw_check(
     ctx: tanjun_abc.Context,
     /,
     *,
-    error_message: typing.Optional[str] = None,
+    error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
     halt_execution: bool = False,
 ) -> bool:
 
@@ -289,7 +289,7 @@ async def sfw_check(
     ctx: tanjun_abc.Context,
     /,
     *,
-    error_message: typing.Optional[str] = None,
+    error_message: typing.Optional[str] = "Command can only be used in SFW channels",
     halt_execution: bool = False,
 ) -> bool:
     return _handle_result(not await _get_is_nsfw(ctx), error_message, halt_execution)
@@ -299,7 +299,7 @@ def dm_check(
     ctx: tanjun_abc.Context,
     /,
     *,
-    error_message: typing.Optional[str] = None,
+    error_message: typing.Optional[str] = "Command can only be used in DMs",
     halt_execution: bool = False,
 ) -> bool:
     return _handle_result(ctx.guild_id is None, error_message, halt_execution)
@@ -309,7 +309,7 @@ def guild_check(
     ctx: tanjun_abc.Context,
     /,
     *,
-    error_message: typing.Optional[str] = None,
+    error_message: typing.Optional[str] = "Command can only be used in guild channels",
     halt_execution: bool = False,
 ) -> bool:
     return _handle_result(ctx.guild_id is not None, error_message, halt_execution)
@@ -323,7 +323,7 @@ class PermissionCheck(abc.ABC):
         permissions: typing.Union[hikari.Permissions, int],
         /,
         *,
-        error_message: typing.Optional[str] = None,
+        error_message: typing.Optional[str],
         halt_execution: bool = False,
     ) -> None:
         self._halt_execution = halt_execution
@@ -347,7 +347,7 @@ class AuthorPermissionCheck(PermissionCheck):
         permissions: typing.Union[hikari.Permissions, int],
         /,
         *,
-        error_message: typing.Optional[str] = None,
+        error_message: typing.Optional[str] = "You don't have the permissions required to use this command",
         halt_execution: bool = False,
     ) -> None:
         super().__init__(permissions, error_message=error_message, halt_execution=halt_execution)
@@ -376,7 +376,7 @@ class OwnPermissionsCheck(PermissionCheck):
         permissions: typing.Union[hikari.Permissions, int],
         /,
         *,
-        error_message: typing.Optional[str] = None,
+        error_message: typing.Optional[str] = "Bot doesn't have the permissions required to run this command",
         halt_execution: bool = False,
     ) -> None:
         super().__init__(permissions, error_message=error_message, halt_execution=halt_execution)

@@ -150,6 +150,7 @@ __all__: list[str] = [
     "context",
     "MessageContext",
     "SlashContext",
+    "SlashOption",
     # conversion.py
     "conversion",
     "to_channel",
@@ -228,4 +229,4 @@ __email__: typing.Final[str] = "lucina@lmbyrne.dev"
 __issue_tracker__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun/issues"
 __license__: typing.Final[str] = "BSD"
 __url__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun"
-__version__: typing.Final[str] = "2.0.0a2"
+__version__: typing.Final[str] = "2.0.0a3"

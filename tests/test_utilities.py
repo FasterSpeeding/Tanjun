@@ -277,12 +277,12 @@ class TestCastedView:
     def test___iter__(self):
         mock_iter = iter((1, 2, 3))
         mock_dict = mock.Mock(__iter__=mock.Mock(return_value=mock_iter))
-        view = utilities.CastedView(mock_dict, mock.Mock())
+        view = utilities.CastedView[int, int](mock_dict, mock.Mock())
 
         assert iter(view) is mock_dict.__iter__.return_value
 
     def test___len___(self):
         mock_dict = mock.Mock(__len__=mock.Mock(return_value=43123))
-        view = utilities.CastedView(mock_dict, mock.Mock())
+        view = utilities.CastedView[int, int](mock_dict, mock.Mock())
 
         assert len(view) == 43123

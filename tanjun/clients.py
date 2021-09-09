@@ -302,8 +302,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     """Tanjun's standard `tanjun.abc.Client` implementation.
 
     This implementation supports dependency injection for checks, command
-    callbacks, and prefix getters. For more information on how
-    this works see `tanjun.injector`.
+    callbacks, prefix getters and event listeners. For more information on how
+    this works see `tanjun.injecting`.
 
     Notes
     -----
@@ -331,7 +331,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         The Hikari event manager client this will use if applicable.
     server : hikari.api.interaction_server.InteractionServer
         The Hikari interaction server client this will use if applicable.
-    shard : hikari.traits.ShardAware
+    shards : hikari.traits.ShardAware
         The Hikari shard aware client this will use if applicable.
     event_managed : bool
         Whether or not this client is managed by the event manager.
@@ -397,7 +397,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         cache: typing.Optional[hikari.api.Cache] = None,
         events: typing.Optional[hikari.api.EventManager] = None,
         server: typing.Optional[hikari.api.InteractionServer] = None,
-        shard: typing.Optional[hikari_traits.ShardAware] = None,
+        shards: typing.Optional[hikari_traits.ShardAware] = None,
         event_managed: bool = False,
         mention_prefix: bool = False,
         set_global_commands: typing.Union[hikari.Snowflake, bool] = False,
@@ -431,7 +431,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._prefixes: set[str] = set()
         self._rest = rest
         self._server = server
-        self._shards = shard
+        self._shards = shards
 
         if event_managed:
             if not events:
@@ -468,9 +468,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             self.set_type_special_case(hikari.api.InteractionServer, server)
             self.set_type_special_case(type(server), server)
 
-        if shard:
-            self.set_type_special_case(hikari_traits.ShardAware, shard)
-            self.set_type_special_case(type(shard), shard)
+        if shards:
+            self.set_type_special_case(hikari_traits.ShardAware, shards)
+            self.set_type_special_case(type(shards), shards)
 
     @classmethod
     def from_gateway_bot(
@@ -530,7 +530,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 rest=bot.rest,
                 cache=bot.cache,
                 events=bot.event_manager,
-                shard=bot,
+                shards=bot,
                 event_managed=event_managed,
                 mention_prefix=mention_prefix,
                 set_global_commands=set_global_commands,
@@ -608,13 +608,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self._cache
 
     @property
-    def checks(self) -> collections.Set[tanjun_abc.CheckSig]:
-        """Set of the top level `tanjun.abc.Context` checks registered to this client.
+    def checks(self) -> collections.Collection[tanjun_abc.CheckSig]:
+        """Return a collcetion of the level `tanjun.abc.Context` checks registered to this client.
 
         Returns
         -------
         collections.abc.Set[tanjun.abc.CheckSig]
-            Set of the `tanjun.abc.Context` based checks registered for
+            Colleciton of the `tanjun.abc.Context` based checks registered for
             this client.
 
             These may be taking advantage of the standard dependency injection.
@@ -622,7 +622,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return {check.callback for check in self._checks}
 
     @property
-    def components(self) -> collections.Set[tanjun_abc.Component]:
+    def components(self) -> collections.Collection[tanjun_abc.Component]:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._components.copy()
 
@@ -739,7 +739,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self,
         command: tanjun_abc.BaseSlashCommand,
         /,
-        command_id: typing.Optional[hikari.Snowflake] = None,
+        command_id: typing.Optional[hikari.Snowflakeish] = None,
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
@@ -758,8 +758,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             If left as `None` then this will be inferred from the authorization
             being used by `Client.rest`.
-        command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]
-            Object or ID of the command to update.
+        command_id : typing.Optional[hikari.snowflakes.Snowflakeish]
+            ID of the command to update.
         guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
             Object or ID of the guild to register the command with.
 
@@ -774,13 +774,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Returns
         -------
-        hikari.interactions.commands.Command
+        hikari.Command
             API representation of the command that was registered.
         """
         builder = command.build()
         if command_id:
-            response = await self._rest.create_application_command(
+            response = await self._rest.edit_application_command(
                 application or self._cached_application_id or await self.fetch_rest_application_id(),
+                command_id,
                 guild=guild,
                 name=builder.name,
                 description=builder.description,
@@ -834,7 +835,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Returns
         -------
-        collections.abc.Sequence[hikari.interactions.commands.Command]
+        collections.abc.Sequence[hikari.Command]
             API representations of the commands which were registered.
         """
         names_to_commands: dict[str, tanjun_abc.BaseSlashCommand] = {}
@@ -1066,7 +1067,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Returns
         -------
-        collections.abc.Sequence[hikari.interactions.command.Command]
+        collections.abc.Sequence[hikari..Command]
             API representations of the set commands.
         """
         commands = (
@@ -1472,7 +1473,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         .. note::
             Any event where `event.interaction` is not
-            `hikari.interactions.commands.CommandInteraction` will be ignored.
+            `hikari.CommandInteraction` will be ignored.
 
         Parameters
         ----------
@@ -1515,7 +1516,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Parameters
         ----------
-        interaction : hikari.interactions.commands.CommandInteraction
+        interaction : hikari.CommandInteraction
             The interaction to execute a command based on.
 
         Returns

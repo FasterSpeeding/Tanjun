@@ -31,7 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import annotations
 
-__all__: list[str] = ["MessageContext", "ResponseTypeT", "SlashContext"]
+__all__: list[str] = ["MessageContext", "ResponseTypeT", "SlashContext", "SlashOption"]
 
 import asyncio
 import typing
@@ -51,7 +51,7 @@ if typing.TYPE_CHECKING:
     _BaseContextT = typing.TypeVar("_BaseContextT", bound="BaseContext")
     _MessageContextT = typing.TypeVar("_MessageContextT", bound="MessageContext")
     _SlashContextT = typing.TypeVar("_SlashContextT", bound="SlashContext")
-
+    _T = typing.TypeVar("_T")
 
 ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
 
@@ -419,6 +419,140 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
             return message
 
 
+class SlashOption(tanjun_abc.SlashOption):
+    __slots__ = ("_interaction", "_option")
+
+    def __init__(self, interaction: hikari.CommandInteraction, option: hikari.CommandInteractionOption, /):
+        if option.value is None:
+            raise ValueError("Cannot build a slash option with a value-less API representation")
+
+        self._interaction = interaction
+        self._option = option
+
+    @property
+    def name(self) -> str:
+        return self._option.name
+
+    @property
+    def type(self) -> typing.Union[hikari.OptionType, int]:
+        return self._option.type
+
+    @property
+    def value(self) -> typing.Union[str, int, bool, float]:
+        # This is asserted in __init__
+        assert self._option.value is not None
+        return self._option.value
+
+    def resolve_value(
+        self,
+    ) -> typing.Union[hikari.InteractionChannel, hikari.InteractionMember, hikari.Role, hikari.User]:
+        if self._option.type is hikari.OptionType.CHANNEL:
+            return self.resolve_to_channel()
+
+        if self._option.type is hikari.OptionType.ROLE:
+            return self.resolve_to_role()
+
+        if self._option.type is hikari.OptionType.USER:
+            return self.resolve_to_user()
+
+        if self._option.type is hikari.OptionType.MENTIONABLE:
+            return self.resolve_to_mentionable()
+
+        raise TypeError(f"Option type {self._option.type} isn't resolvable")
+
+    def resolve_to_channel(self) -> hikari.InteractionChannel:
+        # What does self.value being None mean?
+        if self._option.type is hikari.OptionType.CHANNEL:
+            assert self._interaction.resolved
+            return self._interaction.resolved.channels[hikari.Snowflake(self.value)]
+
+        raise TypeError(f"Cannot resolve non-channel option type {self._option.type} to a user")
+
+    @typing.overload
+    def resolve_to_member(self) -> hikari.InteractionMember:
+        ...
+
+    @typing.overload
+    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]:
+        ...
+
+    def resolve_to_member(self, *, default: _T = ...) -> typing.Union[hikari.InteractionMember, _T]:
+        # What does self.value being None mean?
+        if self._option.type is hikari.OptionType.USER:
+            assert self._interaction.resolved
+            if member := self._interaction.resolved.members.get(hikari.Snowflake(self.value)):
+                return member
+
+            if default is not ...:
+                return default
+
+            raise LookupError("User isn't in the current guild") from None
+
+        if self._option.type is hikari.OptionType.MENTIONABLE:
+            target_id = hikari.Snowflake(self.value)
+            assert self._interaction.resolved
+            if member := self._interaction.resolved.members.get(target_id):
+                return member
+
+            if target_id in self._interaction.resolved.users:
+                if default is not ...:
+                    return default
+
+                raise LookupError("User isn't in the current guild")
+
+        raise TypeError(f"Cannot resolve non-user option type {self._option.type} to a member")
+
+    def resolve_to_mentionable(self) -> typing.Union[hikari.Role, hikari.User, hikari.Member]:
+        if self._option.type is hikari.OptionType.MENTIONABLE:
+            target_id = hikari.Snowflake(self.value)
+            assert self._interaction.resolved
+            if role := self._interaction.resolved.roles.get(target_id):
+                return role
+
+            return self._interaction.resolved.members.get(target_id) or self._interaction.resolved.users[target_id]
+
+        if self._option.type is hikari.OptionType.USER:
+            return self.resolve_to_user()
+
+        if self._option.type is hikari.OptionType.ROLE:
+            return self.resolve_to_role()
+
+        raise TypeError(f"Cannot resolve non-mentionable option type {self._option.type} to a mentionable entity.")
+
+    def resolve_to_role(self) -> hikari.Role:
+        if self._option.type is hikari.OptionType.ROLE:
+            assert self._interaction.resolved
+            return self._interaction.resolved.roles[hikari.Snowflake(self.value)]
+
+        if self._option.type is hikari.OptionType.MENTIONABLE:
+            assert self._interaction.resolved
+            if role := self._interaction.resolved.roles.get(hikari.Snowflake(self.value)):
+                return role
+
+        raise TypeError(f"Cannot resolve non-role option type {self._option.type} to a role")
+
+    def resolve_to_user(self) -> typing.Union[hikari.User, hikari.Member]:
+        if self._option.type is hikari.OptionType.USER:
+            assert self._interaction.resolved
+            user_id = hikari.Snowflake(self.value)
+            return self._interaction.resolved.members.get(user_id) or self._interaction.resolved.users[user_id]
+
+        if self._option.type is hikari.OptionType.MENTIONABLE:
+            assert self._interaction.resolved
+            user_id = hikari.Snowflake(self.value)
+            if result := self._interaction.resolved.members.get(user_id) or self._interaction.resolved.users.get(
+                user_id
+            ):
+                return result
+
+        raise TypeError(f"Cannot resolve non-user option type {self._option.type} to a user")
+
+
+_COMMAND_OPTION_TYPES: typing.Final[frozenset[hikari.OptionType]] = frozenset(
+    [hikari.OptionType.SUB_COMMAND, hikari.OptionType.SUB_COMMAND_GROUP]
+)
+
+
 class SlashContext(BaseContext, tanjun_abc.SlashContext):
     __slots__ = (
         "_command",
@@ -429,6 +563,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         "_interaction",
         "_last_response_id",
         "_not_found_message",
+        "_options",
         "_response_future",
         "_response_lock",
     )
@@ -458,6 +593,16 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         self.set_type_special_case(tanjun_abc.SlashContext, self)
         self.set_type_special_case(SlashContext, self)
         self.set_type_special_case(type(self), self)
+
+        options = interaction.options
+        while options and (first_option := options[0]).type in _COMMAND_OPTION_TYPES:
+            options = first_option.options
+
+        if options:
+            self._options = {option.name: SlashOption(interaction, option) for option in options}
+
+        else:
+            self._options = {}
 
     @property
     def author(self) -> hikari.User:
@@ -511,6 +656,10 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
     @property
     def interaction(self) -> hikari.CommandInteraction:
         return self._interaction
+
+    @property
+    def options(self) -> collections.Mapping[str, tanjun_abc.SlashOption]:
+        return self._options.copy()
 
     async def _auto_defer(self, countdown: typing.Union[int, float], /) -> None:
         await asyncio.sleep(countdown)

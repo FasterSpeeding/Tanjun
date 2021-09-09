@@ -132,7 +132,7 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
         self._metadata = dict(metadata) if metadata else {}
 
     @property
-    def checks(self) -> collections.Set[abc.CheckSig]:
+    def checks(self) -> collections.Collection[abc.CheckSig]:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return {check.callback for check in self._checks}
 
@@ -343,7 +343,7 @@ def as_slash_command(
 
     Other Parameters
     ----------------
-    command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]
+    command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.Command]]
         ID of the global command this should be tracking.
 
         This is useful when bulk updating the commands as if the ID isn't
@@ -516,6 +516,7 @@ def with_float_slash_option(
     description: str,
     /,
     *,
+    always_float: bool = True,
     choices: typing.Optional[collections.Iterable[tuple[str, float]]] = None,
     converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
     default: typing.Any = _UNDEFINED_DEFAULT,
@@ -541,6 +542,12 @@ def with_float_slash_option(
 
     Other Parameters
     ----------------
+    always_float : bool
+        If this is set to `True` then the value will always be converted to a
+        float (this will happen before it's passed to converters).
+
+        This masks behaviour from Discord where we will either be provided a `float`
+        or `int` dependent on what the user provided and defaults to `True`.
     choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]
         The option's choices.
 
@@ -565,7 +572,13 @@ def with_float_slash_option(
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_option(
-        name, description, hikari.OptionType.FLOAT, default=default, choices=choices, converters=converters
+        name,
+        description,
+        hikari.OptionType.FLOAT,
+        always_float=always_float,
+        default=default,
+        choices=choices,
+        converters=converters,
     )
 
 
@@ -619,7 +632,7 @@ def with_user_slash_option(
     """Add a user option to a slash command.
 
     .. note::
-        This may result in `hikari.interactions.commands.InteractionMember` or
+        This may result in `hikari.InteractionMember` or
         `hikari.users.User` if the user isn't in the current guild or if this
         command was executed in a DM channel.
 
@@ -664,7 +677,7 @@ def with_member_slash_option(
     """Add a member option to a slash command.
 
     .. note::
-        This will always result in `hikari.interactions.commands.InteractionMember`.
+        This will always result in `hikari.InteractionMember`.
 
     Examples
     --------
@@ -707,7 +720,7 @@ def with_channel_slash_option(
     """Add a channel option to a slash command.
 
     .. note::
-        This will always result in `hikari.interactions.commands.InteractionChannel`.
+        This will always result in `hikari..InteractionChannel`.
 
     Examples
     --------
@@ -832,18 +845,20 @@ def _convert_to_injectable(converter: ConverterSig) -> conversion.InjectableConv
 
 
 class _TrackedOption:
-    __slots__ = ("converters", "default", "is_only_member", "name", "type")
+    __slots__ = ("converters", "default", "is_always_float", "is_only_member", "name", "type")
 
     def __init__(
         self,
         name: str,
         option_type: typing.Union[hikari.OptionType, int],
+        always_float: bool,
         converters: list[conversion.InjectableConverter[typing.Any]],
         only_member: bool,
         default: typing.Any = _UNDEFINED_DEFAULT,
     ) -> None:
         self.converters = converters
         self.default = default
+        self.is_always_float = always_float
         self.is_only_member = only_member
         self.name = name
         self.type = option_type
@@ -984,7 +999,7 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
 
         Parameters
         ----------
-        command_id : hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]
+        command_id : hikari.snowflakes.SnowflakeishOr[hikari.Command]
             object or ID of the global command this should be tracking.
         """
         self._command_id = hikari.Snowflake(command_id)
@@ -1064,7 +1079,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         self._default_permission = default_permission
 
     @property
-    def commands(self) -> collections.ValuesView[abc.BaseSlashCommand]:
+    def commands(self) -> collections.Collection[abc.BaseSlashCommand]:
         # <<inherited docstring from tanjun.abc.SlashCommandGroup>>.
         return self._commands.copy().values()
 
@@ -1256,6 +1271,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         type_: typing.Union[hikari.OptionType, int] = hikari.OptionType.STRING,
         /,
         *,
+        always_float: bool = True,
         choices: typing.Optional[collections.Iterable[tuple[str, typing.Union[str, int, float]]]] = None,
         converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
         default: typing.Any = _UNDEFINED_DEFAULT,
@@ -1288,73 +1304,62 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             self._tracked_options[name] = _TrackedOption(
                 name=name,
                 option_type=type_,
+                always_float=always_float,
                 converters=converters,
                 default=default,
                 only_member=only_member,
             )
         return self
 
-    async def _process_args(
-        self,
-        ctx: abc.SlashContext,
-        options: collections.Iterable[hikari.CommandInteractionOption],
-        option_data: hikari.ResolvedOptionData,
-        /,
-    ) -> dict[str, typing.Any]:
-        keyword_args: dict[str, typing.Any] = {}
-        options_dict = {option.name: option for option in options}
-        for tracked_option in self._tracked_options.values():
-            option = options_dict.get(tracked_option.name)
-            if not option or not option.value:
-                if tracked_option.default is _UNDEFINED_DEFAULT:
-                    if tracked_option.type is not hikari.OptionType.BOOLEAN:
-                        raise RuntimeError(  # TODO: ConversionError?
-                            f"Required option {tracked_option.name} is missing data, are you sure your commands"
-                            " are up to date?"
-                        )
+    async def _process_args(self, ctx: abc.SlashContext, /) -> collections.Mapping[str, typing.Any]:
+        if not self._tracked_options:
+            return _EMPTY_DICT
 
-                    # If a required boolean field is passed as False then Discord just won't include the option in the
-                    # interaction event cause payload size reduction so we have to always default to False.
-                    keyword_args[tracked_option.name] = False
+        keyword_args: dict[str, typing.Union[int, float, str, hikari.User, hikari.Role, hikari.InteractionChannel]] = {}
+        for tracked_option in self._tracked_options.values():
+            if not (option := ctx.options.get(tracked_option.name)):
+                if tracked_option.default is _UNDEFINED_DEFAULT:
+                    raise RuntimeError(  # TODO: ConversionError?
+                        f"Required option {tracked_option.name} is missing data, are you sure your commands"
+                        " are up to date?"
+                    )
 
                 else:
                     keyword_args[tracked_option.name] = tracked_option.default
 
             elif option.type is hikari.OptionType.USER:
-                user_id = hikari.Snowflake(option.value)
-                member = option_data.members.get(user_id)
-                if not member and tracked_option.is_only_member:
+                member: typing.Optional[hikari.InteractionMember] = None
+                if tracked_option.is_only_member and not (member := option.resolve_to_member(default=None)):
                     raise errors.ConversionError(
-                        tracked_option.name, f"Couldn't find member for provided user: {user_id}"
+                        tracked_option.name, f"Couldn't find member for provided user: {option.value}"
                     )
 
-                keyword_args[option.name] = member or option_data.users[user_id]
+                keyword_args[option.name] = member or option.resolve_to_user()
 
             elif option.type is hikari.OptionType.CHANNEL:
-                keyword_args[option.name] = option_data.channels[hikari.Snowflake(option.value)]
+                keyword_args[option.name] = option.resolve_to_channel()
 
             elif option.type is hikari.OptionType.ROLE:
-                keyword_args[option.name] = option_data.roles[hikari.Snowflake(option.value)]
+                keyword_args[option.name] = option.resolve_to_role()
 
             elif option.type is hikari.OptionType.MENTIONABLE:
-                id_ = hikari.Snowflake(option.value)
-                if role := option_data.roles.get(id_):
-                    keyword_args[option.name] = role
+                if option.type is hikari.OptionType.ROLE:
+                    keyword_args[option.name] = option.resolve_to_role()
 
                 else:
-                    member = option_data.members.get(id_)
-                    if not member and tracked_option.is_only_member:
+                    member: typing.Optional[hikari.InteractionMember] = None
+                    if tracked_option.is_only_member and not (member := option.resolve_to_member()):
                         raise errors.ConversionError(
-                            tracked_option.name, f"Couldn't find member for provided user: {id_}"
+                            tracked_option.name, f"Couldn't find member for provided user: {option.value}"
                         )
 
-                    keyword_args[option.name] = member or option_data.users[id_]
+                    keyword_args[option.name] = member or option.resolve_to_mentionable()
 
             else:
                 value = option.value
                 # To be type safe we obfuscate the fact that discord's double type will provide am int or float
                 # depending on the value Disocrd input by always casting to float.
-                if tracked_option.type is hikari.OptionType.FLOAT:
+                if tracked_option.type is hikari.OptionType.FLOAT and tracked_option.is_always_float:
                     value = float(value)
 
                 if tracked_option.converters:
@@ -1379,10 +1384,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
 
             if self._tracked_options:
-                options = option.options if option else None
-                kwargs = await self._process_args(
-                    ctx, options or ctx.interaction.options or _EMPTY_LIST, ctx.interaction.resolved or _EMPTY_RESOLVED
-                )
+                kwargs = await self._process_args(ctx)
 
             else:
                 kwargs = _EMPTY_DICT
@@ -1510,7 +1512,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
 
     @property
     # <<inherited docstring from tanjun.abc.MessageCommand>>.
-    def names(self) -> collections.Set[str]:
+    def names(self) -> collections.Collection[str]:
         return self._names.copy()
 
     @property
@@ -1662,7 +1664,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
         return f"CommandGroup <{len(self._commands)}: {self._names}>"
 
     @property
-    def commands(self) -> collections.Set[abc.MessageCommand]:
+    def commands(self) -> collections.Collection[abc.MessageCommand]:
         # <<inherited docstring from tanjun.abc.MessageCommandGroup>>.
         return self._commands.copy()
 

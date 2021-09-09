@@ -117,7 +117,6 @@ jobs:
           python -m nox -s test-coverage
 
       - name: Upload coverage
-        if: github.event_name == 'push'
         uses: paambaati/codeclimate-action@v2.7.5
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}

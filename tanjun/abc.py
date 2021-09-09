@@ -55,6 +55,7 @@ __all__: list[str] = [
     "SlashCommand",
     "SlashCommandGroup",
     "SlashContext",
+    "SlashOption",
     "Component",
     "Client",
 ]
@@ -1136,7 +1137,176 @@ class MessageContext(Context, abc.ABC):
         """  # noqa: E501 - Line too long
 
 
+class SlashOption(abc.ABC):
+    """Interface of slash command option with extra logic to help resolve it."""
+
+    __slots__ = ()
+
+    @property
+    @abc.abstractmethod
+    def name(self) -> str:
+        """Name of this option."""
+
+    @property
+    @abc.abstractmethod
+    def type(self) -> typing.Union[hikari.OptionType, int]:
+        """Type of this option."""
+
+    @property
+    @abc.abstractmethod
+    def value(self) -> typing.Union[str, int, bool, float]:
+        """Value provided for this option.
+
+        .. note::
+            For discord entity option types (e.g. user, member, channel and
+            role) this will be the entity's ID.
+
+        Returns
+        -------
+        typing.Union[str, int, bool, float]
+            The value provided for this option.
+        """
+
+    @abc.abstractmethod
+    def resolve_value(
+        self,
+    ) -> typing.Union[hikari.InteractionChannel, hikari.InteractionMember, hikari.Role, hikari.User]:
+        """Resolve this option to an object value.
+
+        Returns
+        -------
+        typing.Union[hikari.InteractionChannel, hikari.InteractionMember, hikari.Role, hikari.User]
+            The object value of this option.
+
+        Raises
+        ------
+        TypeError
+            If the option isn't resolvable.
+        """
+
+    @abc.abstractmethod
+    def resolve_to_channel(self) -> hikari.InteractionChannel:
+        """Resolve this option to a channel object.
+
+        Returns
+        -------
+        hikari.InteractionChannel
+            The channel object.
+
+        Raises
+        ------
+        TypeError
+            If the option is not a channel and a `default` wasn't provided.
+        """
+
+    @typing.overload
+    @abc.abstractmethod
+    def resolve_to_member(self) -> hikari.InteractionMember:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]:
+        ...
+
+    @abc.abstractmethod
+    def resolve_to_member(self, *, default: _T = ...) -> typing.Union[hikari.InteractionMember, _T]:
+        """Resolve this option to a member object.
+
+        Other Parameters
+        ----------------
+        default:
+            The default value to return if this option cannot be resolved.
+
+            If this is not provided, this method will raise a `TypeError` if
+            this option cannot be resolved.
+
+        Returns
+        -------
+        typing.Union[hikari.InteractionMember, _T]
+            The member object or `default` if it was provided and this option
+            was a user type but had no member.
+
+        Raises
+        ------
+        LookupError
+            If no member was found for this option and a `default` wasn't provided.
+
+            This includes if the option is a mentionable type which targets a
+            member-less user.
+
+            This could happen if the user isn't in the current guild or if this
+            command was executed in a DM and this option should still be resolvable
+            to a user.
+        TypeError
+            If the option is not a user option and a `default` wasn't provided.
+
+            This includes if the option is a mentionable type but doesn't
+            target a user.
+        """
+
+    @abc.abstractmethod
+    def resolve_to_mentionable(self) -> typing.Union[hikari.Role, hikari.User, hikari.Member]:
+        """Resolve this option to a mentionable object.
+
+        Returns
+        -------
+        typing.Union[hikari.Role, hikari.User, hikari.Member]
+            The mentionable object.
+
+        Raises
+        ------
+        TypeError
+            If the option is not a mentionable, user or role type.
+        """
+
+    @abc.abstractmethod
+    def resolve_to_role(self) -> hikari.Role:
+        """Resolve this option to a role object.
+
+        Returns
+        -------
+        hikari.Role
+            The role object.
+
+        Raises
+        ------
+        TypeError
+            If the option is not a role.
+
+            This includes mentionable options which point towards a user.
+        """
+
+    @abc.abstractmethod
+    def resolve_to_user(self) -> typing.Union[hikari.User, hikari.Member]:
+        """Resolve this option to a user object.
+
+        .. note::
+            This will resolve to a `hikari.Member` first if the relevant
+            command was executed within a guild and the option targeted one of
+            the guild's members, otherwise it will resolve to `hikari.User`.
+
+            It's also worth noting that hikari.Member inherits from hikari.User
+            meaning that the return value of this can always be treated as a
+            user.
+
+        Returns
+        -------
+        typing.Union[hikari.User, hikari.Member]
+            The user object.
+
+        Raises
+        ------
+        TypeError
+            If the option is not a user.
+
+            This includes mentionable options which point towards a role.
+        """
+
+
 class SlashContext(Context, abc.ABC):
+    """Interface of a slash command specific context."""
+
     __slots__ = ()
 
     @property
@@ -1207,6 +1377,17 @@ class SlashContext(Context, abc.ABC):
         -------
         typing.Optional[hikari.InteractionMember]
             The member that triggered this command if this is in a guild.
+        """
+
+    @property
+    @abc.abstractmethod
+    def options(self) -> collections.Mapping[str, SlashOption]:
+        """Return a mapping of option names to the values provided for them.
+
+        Returns
+        -------
+        collections.abc.Mapping[str, SlashOption]
+            Mapping of option names to their values.
         """
 
     @abc.abstractmethod
@@ -1652,7 +1833,7 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
 
         Parameters
         ----------
-        command : hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]
+        command : hikari.snowflakes.SnowflakeishOr[hikari.Command]
             Object or ID of the command this tracks.
 
         Returns

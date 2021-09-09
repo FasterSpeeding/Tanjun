@@ -92,7 +92,9 @@ class Component(abc.Component):
     callbacks which can be added to a generic client.
 
     .. note::
-        This implementation supports dependency injection for its checks.
+        This implementation supports dependency injection for its checks,
+        command callbacks and listeners when linked to a client which
+        supports dependency injection.
 
     Parameters
     ----------
@@ -168,7 +170,7 @@ class Component(abc.Component):
         return f"{type(self).__name__}({self.checks=}, {self.hooks=}, {self.slash_hooks=}, {self.message_hooks=})"
 
     @property
-    def checks(self) -> collections.Set[abc.CheckSig]:
+    def checks(self) -> collections.Collection[abc.CheckSig]:
         return {check.callback for check in self._checks}
 
     @property
@@ -184,7 +186,7 @@ class Component(abc.Component):
         return self._name
 
     @property
-    def slash_commands(self) -> collections.ValuesView[abc.BaseSlashCommand]:
+    def slash_commands(self) -> collections.Collection[abc.BaseSlashCommand]:
         return self._slash_commands.copy().values()
 
     @property
@@ -192,7 +194,7 @@ class Component(abc.Component):
         return self._slash_hooks
 
     @property
-    def message_commands(self) -> collections.Set[abc.MessageCommand]:
+    def message_commands(self) -> collections.Collection[abc.MessageCommand]:
         return self._message_commands.copy()
 
     @property
