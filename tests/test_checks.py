@@ -140,7 +140,7 @@ class TestPermissionCheck:
         self, permission_check_cls: type[tanjun.checks.PermissionCheck], context: tanjun.abc.Context
     ):
         permission_check_cls.get_permissions.return_value = permissions.Permissions(75)
-        check = permission_check_cls(permissions.Permissions(11))
+        check = permission_check_cls(permissions.Permissions(11), error_message=None, halt_execution=False)
 
         assert await check(context) is True
         check.get_permissions.assert_awaited_once_with(context)
@@ -150,7 +150,7 @@ class TestPermissionCheck:
         self, permission_check_cls: type[tanjun.checks.PermissionCheck], context: tanjun.abc.Context
     ):
         permission_check_cls.get_permissions.return_value = permissions.Permissions(16)
-        check = permission_check_cls(422)
+        check = permission_check_cls(422, error_message=None, halt_execution=False)
 
         assert await check(context) is False
         check.get_permissions.assert_awaited_once_with(context)
@@ -160,7 +160,7 @@ class TestPermissionCheck:
         self, permission_check_cls: type[tanjun.checks.PermissionCheck], context: tanjun.abc.Context
     ):
         permission_check_cls.get_permissions.return_value = permissions.Permissions(16)
-        check = permission_check_cls(422, halt_execution=True)
+        check = permission_check_cls(422, halt_execution=True, error_message=None)
 
         with pytest.raises(tanjun.HaltExecution):
             await check(context)
