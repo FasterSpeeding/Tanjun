@@ -379,7 +379,7 @@ class Context(abc.ABC):
         -------
         typing.Optional[hikari.Guild]
             An optional guild the context was invoked in.
-            `None` will be returned if the guild was not found.
+            `None` will be returned if the guild was not found or the context was invoked in a DM channel .
 
         Raises
         ------
@@ -523,31 +523,32 @@ class Context(abc.ABC):
             `hikari.guilds.PartialRole` derivatives to enforce mentioning
             specific roles.
 
-        .. note::
-            Attachments can be passed as many different things, to aid in
-            convenience.
-            - If a `pathlib.PurePath` or `str` to a valid URL, the
-                resource at the given URL will be streamed to Discord when
-                sending the message. Subclasses of
-                `hikari.files.WebResource` such as
-                `hikari.files.URL`,
-                `hikari.messages.Attachment`,
-                `hikari.emojis.Emoji`,
-                `EmbedResource`, etc will also be uploaded this way.
-                This will use bit-inception, so only a small percentage of the
-                resource will remain in memory at any one time, thus aiding in
-                scalability.
-            - If a `hikari.files.Bytes` is passed, or a `str`
-                that contains a valid data URI is passed, then this is uploaded
-                with a randomized file name if not provided.
-            - If a `hikari.files.File`, `pathlib.PurePath` or
-                `str` that is an absolute or relative path to a file
-                on your file system is passed, then this resource is uploaded
-                as an attachment using non-blocking code internally and streamed
-                using bit-inception where possible. This depends on the
-                type of `concurrent.futures.Executor` that is being used for
-                the application (default is a thread pool which supports this
-                behaviour).
+        Notes
+        -----
+        Attachments can be passed as many different things, to aid in
+        convenience.
+        * If a `pathlib.PurePath` or `str` to a valid URL, the
+            resource at the given URL will be streamed to Discord when
+            sending the message. Subclasses of
+            `hikari.files.WebResource` such as
+            `hikari.files.URL`,
+            `hikari.messages.Attachment`,
+            `hikari.emojis.Emoji`,
+            `EmbedResource`, etc will also be uploaded this way.
+            This will use bit-inception, so only a small percentage of the
+            resource will remain in memory at any one time, thus aiding in
+            scalability.
+        * If a `hikari.files.Bytes` is passed, or a `str`
+            that contains a valid data URI is passed, then this is uploaded
+            with a randomized file name if not provided.
+        * If a `hikari.files.File`, `pathlib.PurePath` or
+            `str` that is an absolute or relative path to a file
+            on your file system is passed, then this resource is uploaded
+            as an attachment using non-blocking code internally and streamed
+            using bit-inception where possible. This depends on the
+            type of `concurrent.futures.Executor` that is being used for
+            the application (default is a thread pool which supports this
+            behaviour).
 
         Returns
         -------
@@ -661,31 +662,32 @@ class Context(abc.ABC):
             `hikari.guilds.PartialRole` derivatives to enforce mentioning
             specific roles.
 
-        .. note::
-            Attachments can be passed as many different things, to aid in
-            convenience.
-            - If a `pathlib.PurePath` or `str` to a valid URL, the
-                resource at the given URL will be streamed to Discord when
-                sending the message. Subclasses of
-                `hikari.files.WebResource` such as
-                `hikari.files.URL`,
-                `hikari.messages.Attachment`,
-                `hikari.emojis.Emoji`,
-                `EmbedResource`, etc will also be uploaded this way.
-                This will use bit-inception, so only a small percentage of the
-                resource will remain in memory at any one time, thus aiding in
-                scalability.
-            - If a `hikari.files.Bytes` is passed, or a `str`
-                that contains a valid data URI is passed, then this is uploaded
-                with a randomized file name if not provided.
-            - If a `hikari.files.File`, `pathlib.PurePath` or
-                `str` that is an absolute or relative path to a file
-                on your file system is passed, then this resource is uploaded
-                as an attachment using non-blocking code internally and streamed
-                using bit-inception where possible. This depends on the
-                type of `concurrent.futures.Executor` that is being used for
-                the application (default is a thread pool which supports this
-                behaviour).
+        Notes
+        -----
+        Attachments can be passed as many different things, to aid in
+        convenience.
+        * If a `pathlib.PurePath` or `str` to a valid URL, the
+            resource at the given URL will be streamed to Discord when
+            sending the message. Subclasses of
+            `hikari.files.WebResource` such as
+            `hikari.files.URL`,
+            `hikari.messages.Attachment`,
+            `hikari.emojis.Emoji`,
+            `EmbedResource`, etc will also be uploaded this way.
+            This will use bit-inception, so only a small percentage of the
+            resource will remain in memory at any one time, thus aiding in
+            scalability.
+        * If a `hikari.files.Bytes` is passed, or a `str`
+            that contains a valid data URI is passed, then this is uploaded
+            with a randomized file name if not provided.
+        * If a `hikari.files.File`, `pathlib.PurePath` or
+            `str` that is an absolute or relative path to a file
+            on your file system is passed, then this resource is uploaded
+            as an attachment using non-blocking code internally and streamed
+            using bit-inception where possible. This depends on the
+            type of `concurrent.futures.Executor` that is being used for
+            the application (default is a thread pool which supports this
+            behaviour).
 
         Returns
         -------
@@ -1069,31 +1071,32 @@ class MessageContext(Context, abc.ABC):
             `hikari.guilds.PartialRole` derivatives to enforce mentioning
             specific roles.
 
-        .. note::
-            Attachments can be passed as many different things, to aid in
-            convenience.
-            - If a `pathlib.PurePath` or `str` to a valid URL, the
-                resource at the given URL will be streamed to Discord when
-                sending the message. Subclasses of
-                `hikari.files.WebResource` such as
-                `hikari.files.URL`,
-                `hikari.messages.Attachment`,
-                `hikari.emojis.Emoji`,
-                `EmbedResource`, etc will also be uploaded this way.
-                This will use bit-inception, so only a small percentage of the
-                resource will remain in memory at any one time, thus aiding in
-                scalability.
-            - If a `hikari.files.Bytes` is passed, or a `str`
-                that contains a valid data URI is passed, then this is uploaded
-                with a randomized file name if not provided.
-            - If a `hikari.files.File`, `pathlib.PurePath` or
-                `str` that is an absolute or relative path to a file
-                on your file system is passed, then this resource is uploaded
-                as an attachment using non-blocking code internally and streamed
-                using bit-inception where possible. This depends on the
-                type of `concurrent.futures.Executor` that is being used for
-                the application (default is a thread pool which supports this
-                behaviour).
+        Notes
+        -----
+        Attachments can be passed as many different things, to aid in
+        convenience.
+        * If a `pathlib.PurePath` or `str` to a valid URL, the
+            resource at the given URL will be streamed to Discord when
+            sending the message. Subclasses of
+            `hikari.files.WebResource` such as
+            `hikari.files.URL`,
+            `hikari.messages.Attachment`,
+            `hikari.emojis.Emoji`,
+            `EmbedResource`, etc will also be uploaded this way.
+            This will use bit-inception, so only a small percentage of the
+            resource will remain in memory at any one time, thus aiding in
+            scalability.
+        * If a `hikari.files.Bytes` is passed, or a `str`
+            that contains a valid data URI is passed, then this is uploaded
+            with a randomized file name if not provided.
+        * If a `hikari.files.File`, `pathlib.PurePath` or
+            `str` that is an absolute or relative path to a file
+            on your file system is passed, then this resource is uploaded
+            as an attachment using non-blocking code internally and streamed
+            using bit-inception where possible. This depends on the
+            type of `concurrent.futures.Executor` that is being used for
+            the application (default is a thread pool which supports this
+            behaviour).
 
         Returns
         -------
