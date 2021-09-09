@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed `Client.__init__` "shard" arg to "shards".
 - Annotate implimation functions/properties which return collections as returning `collections.abc.Collection`
   instead of their implemation specific subclass of Collcetion.
+- Standard checks now have the same defaults as their with_* counterparts.
 
 ### Fixed
 - Edit the command if command_id is passed to declare_slash_command instead of creating a new command.
