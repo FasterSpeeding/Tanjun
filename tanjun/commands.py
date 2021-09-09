@@ -1317,7 +1317,6 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
         keyword_args: dict[str, typing.Union[int, float, str, hikari.User, hikari.Role, hikari.InteractionChannel]] = {}
         for tracked_option in self._tracked_options.values():
-            # TODO: investigate difference between not present and None
             if not (option := ctx.options.get(tracked_option.name)):
                 if tracked_option.default is _UNDEFINED_DEFAULT:
                     raise RuntimeError(  # TODO: ConversionError?
