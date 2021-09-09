@@ -16,7 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   instead of their implemation specific subclass of Collcetion.
 
 ### Fixed
+- Bug around checks not being respected if they returned False.
+- Client level check errors not being caught during execution.
+- Don't fall back to normal command search in "strict" components and message command groups.
 - Edit the command if command_id is passed to declare_slash_command instead of creating a new command.
+- Missing call to checks in interaction request handler logic.
 
 ## [2.0.0a2] - 2021-09-07
 ### Added

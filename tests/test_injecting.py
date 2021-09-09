@@ -641,6 +641,12 @@ class TestBaseInjectableCallback:
         mock_callback = mock.Mock()
         assert hash(tanjun.injecting.BaseInjectableCallback(mock_callback)) == hash(mock_callback)
 
+    def test___repr___(self):
+        mock_callback = mock.Mock()
+        wrapped = tanjun.injecting.BaseInjectableCallback(mock_callback)
+
+        assert repr(wrapped) == f"BaseInjectableCallback({mock_callback!r})"
+
     def test_callback_property(self):
         mock_callback = mock.Mock()
         assert tanjun.injecting.BaseInjectableCallback(mock_callback).callback is mock_callback

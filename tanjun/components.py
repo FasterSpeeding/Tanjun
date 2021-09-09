@@ -474,7 +474,7 @@ class Component(abc.Component):
     async def _check_context(self, ctx: abc.Context, /) -> bool:
         return await utilities.gather_checks(ctx, self._checks)
 
-    async def check_message_context(
+    async def _check_message_context(
         self, ctx: abc.MessageContext, /
     ) -> collections.AsyncIterator[tuple[str, abc.MessageCommand]]:
         ctx.set_component(self)
@@ -484,8 +484,11 @@ class Component(abc.Component):
             command = self._names_to_commands.get(name)
             if command and await self._check_context(ctx) and await command.check_context(ctx):
                 yield name, command
+
+            else:
                 ctx.set_component(None)
-                return
+
+            return
 
         checks_run = False
         for name, command in self.check_message_name(ctx.content):
@@ -564,7 +567,7 @@ class Component(abc.Component):
         *,
         hooks: typing.Optional[collections.MutableSet[abc.MessageHooks]] = None,
     ) -> bool:
-        async for name, command in self.check_message_context(ctx):
+        async for name, command in self._check_message_context(ctx):
             ctx.set_triggering_name(name)
             ctx.set_content(ctx.content[len(name) :].lstrip())
             ctx.set_component(self)

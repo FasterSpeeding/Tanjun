@@ -1213,12 +1213,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self.set_prefix_getter(getter)
         return getter
 
-    def check_message_context(
-        self, ctx: tanjun_abc.MessageContext, /
-    ) -> collections.AsyncIterator[tuple[str, tanjun_abc.MessageCommand]]:
-        # <<inherited docstring from tanjun.abc.Client>>.
-        return utilities.async_chain(component.check_message_context(ctx) for component in self._components)
-
     def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, tanjun_abc.MessageCommand]]:
         # <<inherited docstring from tanjun.abc.Client>>.
         return itertools.chain.from_iterable(component.check_message_name(name) for component in self._components)
@@ -1428,9 +1422,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             return
 
         ctx.set_content(ctx.content.lstrip()[len(prefix) :].lstrip()).set_triggering_prefix(prefix)
-        if not await self.check(ctx):
-            return
-
         hooks: typing.Optional[set[tanjun_abc.MessageHooks]] = None
         if self._hooks and self._message_hooks:
             hooks = {self._hooks, self._message_hooks}
@@ -1442,9 +1433,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             hooks = {self._message_hooks}
 
         try:
-            for component in self._components:
-                if await component.execute_message(ctx, hooks=hooks):
-                    break
+            if await self.check(ctx):
+                for component in self._components:
+                    if await component.execute_message(ctx, hooks=hooks):
+                        break
 
         except errors.HaltExecution:
             pass
@@ -1495,10 +1487,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             ctx.start_defer_timer(self._auto_defer_after)
 
         try:
-            for component in self._components:
-                if future := await component.execute_interaction(ctx, hooks=hooks):
-                    await future
-                    return
+            if await self.check(ctx):
+                for component in self._components:
+                    if future := await component.execute_interaction(ctx, hooks=hooks):
+                        await future
+                        return
 
         except errors.HaltExecution:
             pass
@@ -1533,9 +1526,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         hooks = self._get_slash_hooks()
         future = ctx.get_response_future()
         try:
-            for component in self._components:
-                if await component.execute_interaction(ctx, hooks=hooks):
-                    return await future
+            if self.check(ctx):
+                for component in self._components:
+                    if await component.execute_interaction(ctx, hooks=hooks):
+                        return await future
 
         except errors.HaltExecution:
             pass

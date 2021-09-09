@@ -1762,12 +1762,6 @@ class Component(abc.ABC):
     def unbind_client(self, client: Client, /) -> None:
         raise NotImplementedError
 
-    # As far as MYPY is concerned, unless you explicitly yield within an async callback typed as returning an
-    # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
-    @abc.abstractmethod
-    def check_message_context(self, ctx: MessageContext, /) -> collections.AsyncIterator[tuple[str, MessageCommand]]:
-        raise NotImplementedError
-
     @abc.abstractmethod
     def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, MessageCommand]]:
         raise NotImplementedError
@@ -1951,12 +1945,6 @@ class Client(abc.ABC):
     def with_listener(
         self, event_type: type[hikari.Event], /
     ) -> collections.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]:
-        raise NotImplementedError
-
-    # As far as MYPY is concerned, unless you explicitly yield within an async callback typed as returning an
-    # AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.
-    @abc.abstractmethod
-    def check_message_context(self, ctx: MessageContext, /) -> collections.AsyncIterator[tuple[str, MessageCommand]]:
         raise NotImplementedError
 
     @abc.abstractmethod
