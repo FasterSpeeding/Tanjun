@@ -920,13 +920,13 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Set of the top level `tanjun.abc.Context` checks registered to this client.</span>
+    <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Return a collcetion of the level `tanjun.abc.Context` checks registered to this client.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        collections.abc.Set[tanjun.abc.CheckSig]</span>
-<span class="sd">            Set of the `tanjun.abc.Context` based checks registered for</span>
+<span class="sd">            Colleciton of the `tanjun.abc.Context` based checks registered for</span>
 <span class="sd">            this client.</span>
 
 <span class="sd">            These may be taking advantage of the standard dependency injection.</span>
@@ -934,7 +934,7 @@
         <span class="k">return</span> <span class="p">{</span><span class="n">check</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">}</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
@@ -2248,13 +2248,13 @@ to the provided client using it's abstract methods.</li>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Set of the top level `tanjun.abc.Context` checks registered to this client.</span>
+    <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Return a collcetion of the level `tanjun.abc.Context` checks registered to this client.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        collections.abc.Set[tanjun.abc.CheckSig]</span>
-<span class="sd">            Set of the `tanjun.abc.Context` based checks registered for</span>
+<span class="sd">            Colleciton of the `tanjun.abc.Context` based checks registered for</span>
 <span class="sd">            this client.</span>
 
 <span class="sd">            These may be taking advantage of the standard dependency injection.</span>
@@ -2262,7 +2262,7 @@ to the provided client using it's abstract methods.</li>
         <span class="k">return</span> <span class="p">{</span><span class="n">check</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">}</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
@@ -3655,15 +3655,15 @@ with if provided, else <code>None</code>.</li>
                             <div id="Client.checks" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Client.checks">#&nbsp;&nbsp</a>
 
-        <span class="name">checks</span><span class="annotation">: collections.abc.Set[collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]]]</span>
+        <span class="name">checks</span><span class="annotation">: collections.abc.Collection[collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]]]</span>
     </div>
 
-            <div class="docstring"><p>Set of the top level <code><a href="abc.html#Context">tanjun.abc.Context</a></code> checks registered to this client.</p>
+            <div class="docstring"><p>Return a collcetion of the level <code><a href="abc.html#Context">tanjun.abc.Context</a></code> checks registered to this client.</p>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Set[<a href="abc.html#CheckSig">tanjun.abc.CheckSig</a>]</strong>: Set of the <code><a href="abc.html#Context">tanjun.abc.Context</a></code> based checks registered for
+<li><strong>collections.abc.Set[<a href="abc.html#CheckSig">tanjun.abc.CheckSig</a>]</strong>: Colleciton of the <code><a href="abc.html#Context">tanjun.abc.Context</a></code> based checks registered for
 this client.</li>
 </ul>
 
@@ -3675,7 +3675,7 @@ this client.</li>
                             <div id="Client.components" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Client.components">#&nbsp;&nbsp</a>
 
-        <span class="name">components</span><span class="annotation">: collections.abc.Set[<a href="abc.html#Component">tanjun.abc.Component</a>]</span>
+        <span class="name">components</span><span class="annotation">: collections.abc.Collection[<a href="abc.html#Component">tanjun.abc.Component</a>]</span>
     </div>
 
             <div class="docstring"><p>Get a collection of the components this command client is using.</p>

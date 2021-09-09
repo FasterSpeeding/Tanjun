@@ -382,6 +382,9 @@
                                 <a class="variable" href="#SlashContext.member">member</a>
                         </li>
                         <li>
+                                <a class="variable" href="#SlashContext.options">options</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#SlashContext.set_command">set_command</a>
                         </li>
                         <li>
@@ -401,6 +404,39 @@
                         </li>
                         <li>
                                 <a class="function" href="#SlashContext.respond">respond</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#SlashOption">SlashOption</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#SlashOption.name">name</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#SlashOption.type">type</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#SlashOption.value">value</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#SlashOption.resolve_value">resolve_value</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#SlashOption.resolve_to_channel">resolve_to_channel</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#SlashOption.resolve_to_member">resolve_to_member</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#SlashOption.resolve_to_mentionable">resolve_to_mentionable</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#SlashOption.resolve_to_role">resolve_to_role</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#SlashOption.resolve_to_user">resolve_to_user</a>
                         </li>
                 </ul>
 
@@ -624,6 +660,7 @@
     <span class="s2">&quot;SlashCommand&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SlashCommandGroup&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SlashContext&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SlashOption&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Component&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Client&quot;</span><span class="p">,</span>
 <span class="p">]</span>
@@ -1161,7 +1198,176 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 
+<span class="k">class</span> <span class="nc">SlashOption</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Interface of slash command option with extra logic to help resolve it.&quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Name of this option.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Type of this option.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Value provided for this option.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            For discord entity option types (e.g. user, member, channel and</span>
+<span class="sd">            role) this will be the entity&#39;s ID.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Union[str, int, bool, float]</span>
+<span class="sd">            The value provided for this option.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_value</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to an object value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Union[hikari.InteractionChannel, hikari.InteractionMember, hikari.Role, hikari.User]</span>
+<span class="sd">            The object value of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option isn&#39;t resolvable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a channel object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.InteractionChannel</span>
+<span class="sd">            The channel object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not a channel and a `default` wasn&#39;t provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
+        <span class="o">...</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_T</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a member object.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default:</span>
+<span class="sd">            The default value to return if this option cannot be resolved.</span>
+
+<span class="sd">            If this is not provided, this method will raise a `TypeError` if</span>
+<span class="sd">            this option cannot be resolved.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Union[hikari.InteractionMember, _T]</span>
+<span class="sd">            The member object or `default` if it was provided and this option</span>
+<span class="sd">            was a user type but had no member.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        LookupError</span>
+<span class="sd">            If no member was found for this option and a `default` wasn&#39;t provided.</span>
+
+<span class="sd">            This includes if the option is a mentionable type which targets a</span>
+<span class="sd">            member-less user.</span>
+
+<span class="sd">            This could happen if the user isn&#39;t in the current guild or if this</span>
+<span class="sd">            command was executed in a DM and this option should still be resolvable</span>
+<span class="sd">            to a user.</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not a user option and a `default` wasn&#39;t provided.</span>
+
+<span class="sd">            This includes if the option is a mentionable type but doesn&#39;t</span>
+<span class="sd">            target a user.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_mentionable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a mentionable object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Union[hikari.Role, hikari.User, hikari.Member]</span>
+<span class="sd">            The mentionable object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not a mentionable, user or role type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_role</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a role object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Role</span>
+<span class="sd">            The role object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not a role.</span>
+
+<span class="sd">            This includes mentionable options which point towards a user.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_user</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a user object.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This will resolve to a `hikari.Member` first if the relevant</span>
+<span class="sd">            command was executed within a guild and the option targeted one of</span>
+<span class="sd">            the guild&#39;s members, otherwise it will resolve to `hikari.User`.</span>
+
+<span class="sd">            It&#39;s also worth noting that hikari.Member inherits from hikari.User</span>
+<span class="sd">            meaning that the return value of this can always be treated as a</span>
+<span class="sd">            user.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Union[hikari.User, hikari.Member]</span>
+<span class="sd">            The user object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not a user.</span>
+
+<span class="sd">            This includes mentionable options which point towards a role.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
 <span class="k">class</span> <span class="nc">SlashContext</span><span class="p">(</span><span class="n">Context</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Interface of a slash command specific context.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -1232,6 +1438,17 @@
 <span class="sd">        -------</span>
 <span class="sd">        typing.Optional[hikari.InteractionMember]</span>
 <span class="sd">            The member that triggered this command if this is in a guild.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SlashOption</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Return a mapping of option names to the values provided for them.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Mapping[str, SlashOption]</span>
+<span class="sd">            Mapping of option names to their values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -5853,6 +6070,8 @@ The command to add.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SlashContext</span><span class="p">(</span><span class="n">Context</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Interface of a slash command specific context.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -5923,6 +6142,17 @@ The command to add.</li>
 <span class="sd">        -------</span>
 <span class="sd">        typing.Optional[hikari.InteractionMember]</span>
 <span class="sd">            The member that triggered this command if this is in a guild.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SlashOption</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Return a mapping of option names to the values provided for them.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Mapping[str, SlashOption]</span>
+<span class="sd">            Mapping of option names to their values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -6087,7 +6317,7 @@ The command to add.</li>
 
         </details>
 
-            <div class="docstring"><p>Interface for the context of a command execution.</p>
+            <div class="docstring"><p>Interface of a slash command specific context.</p>
 </div>
 
 
@@ -6186,6 +6416,23 @@ to create the initial response rather than
 
 <ul>
 <li><strong>typing.Optional[hikari.InteractionMember]</strong>: The member that triggered this command if this is in a guild.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="SlashContext.options" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#SlashContext.options">#&nbsp;&nbsp</a>
+
+        <span class="name">options</span><span class="annotation">: collections.abc.Mapping[str, <a href="#SlashOption">tanjun.abc.SlashOption</a>]</span>
+    </div>
+
+            <div class="docstring"><p>Return a mapping of option names to the values provided for them.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Mapping[str, SlashOption]</strong>: Mapping of option names to their values.</li>
 </ul>
 </div>
 
@@ -6527,6 +6774,591 @@ response message being sent.</p>
 
             </div>
                                 </dl>
+                            </div>
+                </section>
+                <section id="SlashOption">
+                                <div class="attr class">
+        <a class="headerlink" href="#SlashOption">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">SlashOption</span><wbr>(<span class="base">abc.ABC</span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SlashOption</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Interface of slash command option with extra logic to help resolve it.&quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Name of this option.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Type of this option.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Value provided for this option.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            For discord entity option types (e.g. user, member, channel and</span>
+<span class="sd">            role) this will be the entity&#39;s ID.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Union[str, int, bool, float]</span>
+<span class="sd">            The value provided for this option.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_value</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to an object value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Union[hikari.InteractionChannel, hikari.InteractionMember, hikari.Role, hikari.User]</span>
+<span class="sd">            The object value of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option isn&#39;t resolvable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a channel object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.InteractionChannel</span>
+<span class="sd">            The channel object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not a channel and a `default` wasn&#39;t provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
+        <span class="o">...</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_T</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a member object.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default:</span>
+<span class="sd">            The default value to return if this option cannot be resolved.</span>
+
+<span class="sd">            If this is not provided, this method will raise a `TypeError` if</span>
+<span class="sd">            this option cannot be resolved.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Union[hikari.InteractionMember, _T]</span>
+<span class="sd">            The member object or `default` if it was provided and this option</span>
+<span class="sd">            was a user type but had no member.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        LookupError</span>
+<span class="sd">            If no member was found for this option and a `default` wasn&#39;t provided.</span>
+
+<span class="sd">            This includes if the option is a mentionable type which targets a</span>
+<span class="sd">            member-less user.</span>
+
+<span class="sd">            This could happen if the user isn&#39;t in the current guild or if this</span>
+<span class="sd">            command was executed in a DM and this option should still be resolvable</span>
+<span class="sd">            to a user.</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not a user option and a `default` wasn&#39;t provided.</span>
+
+<span class="sd">            This includes if the option is a mentionable type but doesn&#39;t</span>
+<span class="sd">            target a user.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_mentionable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a mentionable object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Union[hikari.Role, hikari.User, hikari.Member]</span>
+<span class="sd">            The mentionable object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not a mentionable, user or role type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_role</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a role object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Role</span>
+<span class="sd">            The role object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not a role.</span>
+
+<span class="sd">            This includes mentionable options which point towards a user.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_user</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a user object.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This will resolve to a `hikari.Member` first if the relevant</span>
+<span class="sd">            command was executed within a guild and the option targeted one of</span>
+<span class="sd">            the guild&#39;s members, otherwise it will resolve to `hikari.User`.</span>
+
+<span class="sd">            It&#39;s also worth noting that hikari.Member inherits from hikari.User</span>
+<span class="sd">            meaning that the return value of this can always be treated as a</span>
+<span class="sd">            user.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Union[hikari.User, hikari.Member]</span>
+<span class="sd">            The user object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not a user.</span>
+
+<span class="sd">            This includes mentionable options which point towards a role.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Interface of slash command option with extra logic to help resolve it.</p>
+</div>
+
+
+                            <div id="SlashOption.name" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#SlashOption.name">#&nbsp;&nbsp</a>
+
+        <span class="name">name</span><span class="annotation">: str</span>
+    </div>
+
+            <div class="docstring"><p>Name of this option.</p>
+</div>
+
+
+                            </div>
+                            <div id="SlashOption.type" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#SlashOption.type">#&nbsp;&nbsp</a>
+
+        <span class="name">type</span><span class="annotation">: Union[hikari.commands.OptionType, int]</span>
+    </div>
+
+            <div class="docstring"><p>Type of this option.</p>
+</div>
+
+
+                            </div>
+                            <div id="SlashOption.value" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#SlashOption.value">#&nbsp;&nbsp</a>
+
+        <span class="name">value</span><span class="annotation">: Union[str, int, bool, float]</span>
+    </div>
+
+            <div class="docstring"><p>Value provided for this option.</p>
+
+<p><em>Note:</em>
+For discord entity option types (e.g. user, member, channel and
+role) this will be the entity's ID.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>typing.Union[str, int, bool, float]</strong>: The value provided for this option.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="SlashOption.resolve_value" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashOption.resolve_value">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">resolve_value</span><span class="signature">(
+    self
+) -&gt; Union[hikari.interactions.command_interactions.InteractionChannel, hikari.interactions.base_interactions.InteractionMember, hikari.guilds.Role, hikari.users.User]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_value</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to an object value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Union[hikari.InteractionChannel, hikari.InteractionMember, hikari.Role, hikari.User]</span>
+<span class="sd">            The object value of this option.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option isn&#39;t resolvable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Resolve this option to an object value.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>typing.Union[hikari.InteractionChannel, hikari.InteractionMember, hikari.Role, hikari.User]</strong>: The object value of this option.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>TypeError</strong>: If the option isn't resolvable.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="SlashOption.resolve_to_channel" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashOption.resolve_to_channel">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">resolve_to_channel</span><span class="signature">(self) -&gt; hikari.interactions.command_interactions.InteractionChannel</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a channel object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.InteractionChannel</span>
+<span class="sd">            The channel object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not a channel and a `default` wasn&#39;t provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Resolve this option to a channel object.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.InteractionChannel</strong>: The channel object.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>TypeError</strong>: If the option is not a channel and a <code>default</code> wasn't provided.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="SlashOption.resolve_to_member" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashOption.resolve_to_member">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">resolve_to_member</span><span class="signature">(
+    self,
+    *,
+    default: ~_T = Ellipsis
+) -&gt; Union[hikari.interactions.base_interactions.InteractionMember, ~_T]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_member</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_T</span> <span class="o">=</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a member object.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        default:</span>
+<span class="sd">            The default value to return if this option cannot be resolved.</span>
+
+<span class="sd">            If this is not provided, this method will raise a `TypeError` if</span>
+<span class="sd">            this option cannot be resolved.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Union[hikari.InteractionMember, _T]</span>
+<span class="sd">            The member object or `default` if it was provided and this option</span>
+<span class="sd">            was a user type but had no member.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        LookupError</span>
+<span class="sd">            If no member was found for this option and a `default` wasn&#39;t provided.</span>
+
+<span class="sd">            This includes if the option is a mentionable type which targets a</span>
+<span class="sd">            member-less user.</span>
+
+<span class="sd">            This could happen if the user isn&#39;t in the current guild or if this</span>
+<span class="sd">            command was executed in a DM and this option should still be resolvable</span>
+<span class="sd">            to a user.</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not a user option and a `default` wasn&#39;t provided.</span>
+
+<span class="sd">            This includes if the option is a mentionable type but doesn&#39;t</span>
+<span class="sd">            target a user.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Resolve this option to a member object.</p>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>default:</strong>: The default value to return if this option cannot be resolved.</li>
+</ul>
+
+<p>If this is not provided, this method will raise a <code>TypeError</code> if
+this option cannot be resolved.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>typing.Union[hikari.InteractionMember, _T]</strong>: The member object or <code>default</code> if it was provided and this option
+was a user type but had no member.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>LookupError</strong>: If no member was found for this option and a <code>default</code> wasn't provided.</li>
+</ul>
+
+<p>This includes if the option is a mentionable type which targets a
+member-less user.</p>
+
+<p>This could happen if the user isn't in the current guild or if this
+command was executed in a DM and this option should still be resolvable
+to a user.</p>
+
+<ul>
+<li><strong>TypeError</strong>: If the option is not a user option and a <code>default</code> wasn't provided.</li>
+</ul>
+
+<p>This includes if the option is a mentionable type but doesn't
+target a user.</p>
+</div>
+
+
+                            </div>
+                            <div id="SlashOption.resolve_to_mentionable" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashOption.resolve_to_mentionable">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">resolve_to_mentionable</span><span class="signature">(
+    self
+) -&gt; Union[hikari.guilds.Role, hikari.users.User, hikari.guilds.Member]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_mentionable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a mentionable object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Union[hikari.Role, hikari.User, hikari.Member]</span>
+<span class="sd">            The mentionable object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not a mentionable, user or role type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Resolve this option to a mentionable object.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>typing.Union[hikari.Role, hikari.User, hikari.Member]</strong>: The mentionable object.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>TypeError</strong>: If the option is not a mentionable, user or role type.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="SlashOption.resolve_to_role" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashOption.resolve_to_role">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">resolve_to_role</span><span class="signature">(self) -&gt; hikari.guilds.Role</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_role</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a role object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Role</span>
+<span class="sd">            The role object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not a role.</span>
+
+<span class="sd">            This includes mentionable options which point towards a user.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Resolve this option to a role object.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Role</strong>: The role object.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>TypeError</strong>: If the option is not a role.</li>
+</ul>
+
+<p>This includes mentionable options which point towards a user.</p>
+</div>
+
+
+                            </div>
+                            <div id="SlashOption.resolve_to_user" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashOption.resolve_to_user">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">resolve_to_user</span><span class="signature">(self) -&gt; Union[hikari.users.User, hikari.guilds.Member]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">resolve_to_user</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve this option to a user object.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This will resolve to a `hikari.Member` first if the relevant</span>
+<span class="sd">            command was executed within a guild and the option targeted one of</span>
+<span class="sd">            the guild&#39;s members, otherwise it will resolve to `hikari.User`.</span>
+
+<span class="sd">            It&#39;s also worth noting that hikari.Member inherits from hikari.User</span>
+<span class="sd">            meaning that the return value of this can always be treated as a</span>
+<span class="sd">            user.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Union[hikari.User, hikari.Member]</span>
+<span class="sd">            The user object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the option is not a user.</span>
+
+<span class="sd">            This includes mentionable options which point towards a role.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Resolve this option to a user object.</p>
+
+<p><em>Note:</em>
+This will resolve to a <code>hikari.Member</code> first if the relevant
+command was executed within a guild and the option targeted one of
+the guild's members, otherwise it will resolve to <code>hikari.User</code>.</p>
+
+<p>It's also worth noting that hikari.Member inherits from hikari.User
+meaning that the return value of this can always be treated as a
+user.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>typing.Union[hikari.User, hikari.Member]</strong>: The user object.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>TypeError</strong>: If the option is not a user.</li>
+</ul>
+
+<p>This includes mentionable options which point towards a role.</p>
+</div>
+
+
                             </div>
                 </section>
                 <section id="Component">

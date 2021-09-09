@@ -374,7 +374,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">checks</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hooks</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">slash_hooks</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">message_hooks</span><span class="si">=}</span><span class="s2">)&quot;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">check</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">}</span>
 
     <span class="nd">@property</span>
@@ -390,7 +390,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">slash_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">ValuesView</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">slash_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -398,7 +398,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -907,7 +907,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">checks</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hooks</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">slash_hooks</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">message_hooks</span><span class="si">=}</span><span class="s2">)&quot;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">check</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">}</span>
 
     <span class="nd">@property</span>
@@ -923,7 +923,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">slash_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">ValuesView</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">slash_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -931,7 +931,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -1427,7 +1427,7 @@ spaces and will have to be unique to one command within the component.</p></li>
                             <div id="Component.checks" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Component.checks">#&nbsp;&nbsp</a>
 
-        <span class="name">checks</span><span class="annotation">: collections.abc.Set[collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]]]</span>
+        <span class="name">checks</span><span class="annotation">: collections.abc.Collection[collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]]]</span>
     </div>
 
     
@@ -1484,7 +1484,7 @@ The name of this component.</li>
                             <div id="Component.slash_commands" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Component.slash_commands">#&nbsp;&nbsp</a>
 
-        <span class="name">slash_commands</span><span class="annotation">: collections.abc.ValuesView[<a href="abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>]</span>
+        <span class="name">slash_commands</span><span class="annotation">: collections.abc.Collection[<a href="abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>]</span>
     </div>
 
             <div class="docstring"><p>Get a collection of the slash commands in this component.</p>
@@ -1510,7 +1510,7 @@ The name of this component.</li>
                             <div id="Component.message_commands" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Component.message_commands">#&nbsp;&nbsp</a>
 
-        <span class="name">message_commands</span><span class="annotation">: collections.abc.Set[<a href="abc.html#MessageCommand">tanjun.abc.MessageCommand</a>]</span>
+        <span class="name">message_commands</span><span class="annotation">: collections.abc.Collection[<a href="abc.html#MessageCommand">tanjun.abc.MessageCommand</a>]</span>
     </div>
 
             <div class="docstring"><p>Get a cllection of the message commands in this component.</p>
