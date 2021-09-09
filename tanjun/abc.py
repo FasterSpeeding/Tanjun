@@ -629,14 +629,6 @@ class SlashOption(abc.ABC):
     ) -> typing.Union[hikari.InteractionChannel, hikari.InteractionMember, hikari.Role, hikari.User]:
         """Resolve this option to an object value.
 
-        Other Parameters
-        ----------------
-        default:
-            The default value to return if this option cannot be resolved.
-
-            If this is not provided, this method will raise a `TypeError` if
-            this option cannot be resolved.
-
         Returns
         -------
         typing.Union[hikari.InteractionChannel, hikari.InteractionMember, hikari.Role, hikari.User]
