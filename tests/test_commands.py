@@ -328,23 +328,34 @@ def test_with_int_slash_option_with_defaults():
     )
 
 
-def test_with_float_slash_option():
+def test_with_float_slash_option_with_defaults():
     mock_command = mock.MagicMock()
 
     result = tanjun.with_float_slash_option("hi", "bye")(mock_command)
 
     assert result is mock_command.add_option.return_value
     mock_command.add_option.assert_called_once_with(
-        "hi", "bye", hikari.OptionType.FLOAT, default=tanjun.commands._UNDEFINED_DEFAULT, choices=None, converters=()
+        "hi",
+        "bye",
+        hikari.OptionType.FLOAT,
+        always_float=True,
+        default=tanjun.commands._UNDEFINED_DEFAULT,
+        choices=None,
+        converters=(),
     )
 
 
-def test_with_float_slash_option_with_defaults():
+def test_with_float_slash_option():
     mock_command = mock.MagicMock()
     mock_converter = mock.Mock()
 
     result = tanjun.with_float_slash_option(
-        "di", "ni", choices=[("no", 3.14), ("bye", 2.33)], converters=[mock_converter], default=21.321
+        "di",
+        "ni",
+        always_float=False,
+        choices=[("no", 3.14), ("bye", 2.33)],
+        converters=[mock_converter],
+        default=21.321,
     )(mock_command)
 
     assert result is mock_command.add_option.return_value
@@ -352,6 +363,7 @@ def test_with_float_slash_option_with_defaults():
         "di",
         "ni",
         hikari.OptionType.FLOAT,
+        always_float=False,
         default=21.321,
         choices=[("no", 3.14), ("bye", 2.33)],
         converters=[mock_converter],
@@ -465,10 +477,13 @@ def test_with_mentionable_slash_option_with_defaults():
 class Test_TrackedOption:
     def test_init(self):
         mock_converter = mock.Mock()
-        option = tanjun.commands._TrackedOption("name", hikari.OptionType.FLOAT, [mock_converter], True, "default")
+        option = tanjun.commands._TrackedOption(
+            "name", hikari.OptionType.FLOAT, False, [mock_converter], True, "default"
+        )
 
         assert option.name == "name"
         assert option.type is hikari.OptionType.FLOAT
+        assert option.is_always_float is False
         assert option.converters == [mock_converter]
         assert option.is_only_member is True
         assert option.default == "default"
@@ -477,6 +492,7 @@ class Test_TrackedOption:
         option = tanjun.commands._TrackedOption(
             "no",
             hikari.OptionType.INTEGER,
+            True,
             [mock.Mock(needs_injector=False), mock.Mock(needs_injector=False), mock.Mock(needs_injector=False)],
             True,
             None,
@@ -485,7 +501,7 @@ class Test_TrackedOption:
         assert option.needs_injector is False
 
     def test_needs_converter_property_when_no_converters(self):
-        option = tanjun.commands._TrackedOption("no", hikari.OptionType.FLOAT, [], True, None)
+        option = tanjun.commands._TrackedOption("no", hikari.OptionType.FLOAT, True, [], True, None)
 
         assert option.needs_injector is False
 
@@ -493,6 +509,7 @@ class Test_TrackedOption:
         option = tanjun.commands._TrackedOption(
             "no",
             hikari.OptionType.FLOAT,
+            True,
             [mock.Mock(needs_injector=True), mock.Mock(needs_injector=False), mock.Mock(needs_injector=False)],
             True,
             None,
@@ -503,7 +520,7 @@ class Test_TrackedOption:
     @pytest.mark.asyncio()
     async def test_convert_when_no_converters(self):
         mock_value = mock.Mock()
-        option = tanjun.commands._TrackedOption("hi", hikari.OptionType.INTEGER, [], True, None)
+        option = tanjun.commands._TrackedOption("hi", hikari.OptionType.INTEGER, True, [], True, None)
 
         assert await option.convert(mock.Mock(), mock_value) is mock_value
 
@@ -514,7 +531,7 @@ class Test_TrackedOption:
         mock_context = mock.Mock()
         mock_value = mock.Mock()
         option = tanjun.commands._TrackedOption(
-            "no", hikari.OptionType.FLOAT, [mock_converter_1, mock_converter_2], True, None
+            "no", hikari.OptionType.FLOAT, True, [mock_converter_1, mock_converter_2], True, None
         )
 
         with pytest.raises(tanjun.ConversionError) as exc_info:
@@ -534,7 +551,7 @@ class Test_TrackedOption:
         mock_context = mock.Mock()
         mock_value = mock.Mock()
         option = tanjun.commands._TrackedOption(
-            "no", hikari.OptionType.FLOAT, [mock_converter_1, mock_converter_2, mock_converter_3], True, None
+            "no", hikari.OptionType.FLOAT, True, [mock_converter_1, mock_converter_2, mock_converter_3], True, None
         )
 
         result = await option.convert(mock_context, mock_value)
