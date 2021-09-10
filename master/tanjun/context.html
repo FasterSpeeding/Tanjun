@@ -385,6 +385,17 @@
 
     <span class="k">def</span> <span class="nf">set_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BaseContextT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseContextT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_assert_not_final</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">component</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">component</span><span class="p">),</span> <span class="n">component</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">component_case</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="n">include_client</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">injecting</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component_case</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">component_case</span><span class="p">))</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">component</span>
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -519,6 +530,19 @@
     <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_MessageContextT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MessageContextT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_assert_not_final</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span> <span class="o">=</span> <span class="n">command</span>
+        <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">command</span><span class="p">),</span> <span class="n">command</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">command_case</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">,</span> <span class="n">include_client</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">injecting</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command_case</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">)</span>  <span class="c1"># TODO: command group?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">command_case</span><span class="p">))</span>
+
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_content</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_MessageContextT</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MessageContextT</span><span class="p">:</span>
@@ -986,6 +1010,21 @@
     <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_SlashContextT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashContextT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_assert_not_final</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span> <span class="o">=</span> <span class="n">command</span>
+        <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">command</span><span class="p">),</span> <span class="n">command</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">command_case</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">,</span> <span class="n">include_client</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">injecting</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command_case</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">)</span>  <span class="c1"># TODO: command group?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">command_case</span><span class="p">))</span>
+
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_SlashContextT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashContextT</span><span class="p">:</span>
@@ -1528,6 +1567,19 @@
     <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_MessageContextT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MessageContextT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_assert_not_final</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span> <span class="o">=</span> <span class="n">command</span>
+        <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">command</span><span class="p">),</span> <span class="n">command</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">command_case</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">,</span> <span class="n">include_client</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">injecting</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command_case</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">)</span>  <span class="c1"># TODO: command group?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">command_case</span><span class="p">))</span>
+
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_content</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_MessageContextT</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MessageContextT</span><span class="p">:</span>
@@ -2008,6 +2060,19 @@ Otherwise, returns <code>None</code>.</li>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_MessageContextT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MessageContextT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_assert_not_final</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span> <span class="o">=</span> <span class="n">command</span>
+        <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">command</span><span class="p">),</span> <span class="n">command</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">command_case</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">,</span> <span class="n">include_client</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">injecting</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command_case</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">)</span>  <span class="c1"># TODO: command group?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">command_case</span><span class="p">))</span>
+
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
@@ -2761,6 +2826,7 @@ nature, and will trigger this exception if they occur.</li>
                 <dd id="MessageContext.get_cached_result" class="function"><a href="injecting.html#BasicInjectionContext.get_cached_result">get_cached_result</a></dd>
                 <dd id="MessageContext.get_type_special_case" class="function"><a href="injecting.html#BasicInjectionContext.get_type_special_case">get_type_special_case</a></dd>
                 <dd id="MessageContext.set_type_special_case" class="function"><a href="injecting.html#BasicInjectionContext.set_type_special_case">set_type_special_case</a></dd>
+                <dd id="MessageContext.remove_type_special_case" class="function"><a href="injecting.html#BasicInjectionContext.remove_type_special_case">remove_type_special_case</a></dd>
 
             </div>
                                 </dl>
@@ -2949,6 +3015,21 @@ nature, and will trigger this exception if they occur.</li>
     <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_SlashContextT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashContextT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_assert_not_final</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span> <span class="o">=</span> <span class="n">command</span>
+        <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">command</span><span class="p">),</span> <span class="n">command</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">command_case</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">,</span> <span class="n">include_client</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">injecting</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command_case</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">)</span>  <span class="c1"># TODO: command group?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">command_case</span><span class="p">))</span>
+
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_SlashContextT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashContextT</span><span class="p">:</span>
@@ -3828,6 +3909,21 @@ response message being sent.</p>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_SlashContextT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashContextT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_assert_not_final</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span> <span class="o">=</span> <span class="n">command</span>
+        <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">command</span><span class="p">),</span> <span class="n">command</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">command_case</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">,</span> <span class="n">include_client</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">injecting</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command_case</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">)</span>  <span class="c1"># TODO: command group?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">command_case</span><span class="p">))</span>
+
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
@@ -4769,6 +4865,7 @@ nature, and will trigger this exception if they occur.</li>
                 <dd id="SlashContext.get_cached_result" class="function"><a href="injecting.html#BasicInjectionContext.get_cached_result">get_cached_result</a></dd>
                 <dd id="SlashContext.get_type_special_case" class="function"><a href="injecting.html#BasicInjectionContext.get_type_special_case">get_type_special_case</a></dd>
                 <dd id="SlashContext.set_type_special_case" class="function"><a href="injecting.html#BasicInjectionContext.set_type_special_case">set_type_special_case</a></dd>
+                <dd id="SlashContext.remove_type_special_case" class="function"><a href="injecting.html#BasicInjectionContext.remove_type_special_case">remove_type_special_case</a></dd>
 
             </div>
                                 </dl>
