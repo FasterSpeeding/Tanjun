@@ -113,6 +113,14 @@ class TestBasicInjectionContext:
         assert ctx.get_type_special_case(mock_type) is mock_client.get_type_special_case.return_value
         mock_client.get_type_special_case.assert_called_once_with(mock_type)
 
+    def test_get_type_special_case_when_not_set_and_not_falling_back_to_client(self):
+        mock_client = mock.Mock()
+        mock_type: type[typing.Any] = mock.Mock()
+        ctx = tanjun.injecting.BasicInjectionContext(mock_client)
+
+        assert ctx.get_type_special_case(mock_type, include_client=False) is tanjun.injecting.UNDEFINED
+        mock_client.get_type_special_case.assert_not_called()
+
 
 class TestCallbackDescriptor:
     def test___init___handles_signature_less_builtin_function(self):

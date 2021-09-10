@@ -151,7 +151,7 @@ class AbstractInjectionContext(abc.ABC):
         """
 
     @abc.abstractmethod
-    def get_type_special_case(self, type_: type[_T], /) -> UndefinedOr[_T]:
+    def get_type_special_case(self, type_: type[_T], /, *, include_client: bool = True) -> UndefinedOr[_T]:
         """Get a special-case value for a type.
 
         .. note:
@@ -161,6 +161,11 @@ class AbstractInjectionContext(abc.ABC):
         ----------
         type_ : type[_T]
             The type to get a special-case value for.
+
+        Other Parameters
+        ----------------
+        include_client : bool
+            Whether to fallback to the client's special-cases.
 
         Returns
         -------
@@ -203,15 +208,21 @@ class BasicInjectionContext(AbstractInjectionContext):
         # <<inherited docstring from tanjun.injecting.AbstractInjectionContext>>.
         return self._result_cache.get(callback, UNDEFINED)
 
-    def get_type_special_case(self, type_: type[_T], /) -> UndefinedOr[_T]:
+    def get_type_special_case(self, type_: type[_T], /, *, include_client: bool = True) -> UndefinedOr[_T]:
         # <<inherited docstring from tanjun.injecting.AbstractInjectionContext>>.
         if (value := self._special_case_types.get(type_, UNDEFINED)) is not UNDEFINED:
             return value
 
-        return self._injection_client.get_type_special_case(type_)
+        if include_client:
+            return self._injection_client.get_type_special_case(type_)
+
+        return UNDEFINED
 
     def set_type_special_case(self, type_: type[_T], value: _T, /) -> None:
         self._special_case_types[type_] = value
+
+    def remove_type_special_case(self, type_: type[typing.Any], /) -> None:
+        del self._special_case_types[type_]
 
 
 class CallbackDescriptor(typing.Generic[_T]):
@@ -538,6 +549,9 @@ class InjectorClient:
         """
         return self._type_dependencies.get(type_)
 
+    def remove_type_dependency(self, type_: type[typing.Any], /) -> None:
+        del self._type_dependencies[type_]
+
     def get_type_special_case(self, type_: type[_T], /) -> UndefinedOr[_T]:
         return self._special_case_types.get(type_, UNDEFINED)
 
@@ -547,8 +561,8 @@ class InjectorClient:
         self._special_case_types[type_] = value
         return self
 
-    def remove_type_dependency(self, type_: type[typing.Any], /) -> None:
-        del self._type_dependencies[type_]
+    def remove_type_special_case(self, type_: type[typing.Any], /) -> None:
+        del self._special_case_types[type_]
 
     def add_callback_override(
         self: _InjectorClientT, callback: CallbackSig[_T], override: CallbackSig[_T], /

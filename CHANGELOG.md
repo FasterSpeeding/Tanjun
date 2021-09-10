@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `always_float` keyword argument to with_float_slash_option.
 - SlashContext.options mapping plus a resolvable option type to allow for more easily getting slash command
   options without relying on passed keyword arguments.
+- Automatic type injector special casing for components and commands within a command context.
 
 ### Changed
 - Renamed `Client.__init__` "shard" arg to "shards".

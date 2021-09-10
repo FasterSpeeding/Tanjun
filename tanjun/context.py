@@ -115,6 +115,17 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
 
     def set_component(self: _BaseContextT, component: typing.Optional[tanjun_abc.Component], /) -> _BaseContextT:
         self._assert_not_final()
+        if component:
+            self.set_type_special_case(tanjun_abc.Component, component)
+            self.set_type_special_case(type(component), component)
+
+        elif (
+            component_case := self.get_type_special_case(tanjun_abc.Component, include_client=False)
+        ) is not injecting.UNDEFINED:
+            assert not isinstance(component_case, injecting.Undefined)
+            self.remove_type_special_case(tanjun_abc.Component)
+            self.remove_type_special_case(type(component_case))
+
         self._component = component
         return self
 
@@ -249,6 +260,19 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
     def set_command(self: _MessageContextT, command: typing.Optional[tanjun_abc.MessageCommand], /) -> _MessageContextT:
         self._assert_not_final()
         self._command = command
+        if command:
+            self.set_type_special_case(tanjun_abc.ExecutableCommand, command)
+            self.set_type_special_case(tanjun_abc.MessageCommand, command)
+            self.set_type_special_case(type(command), command)
+
+        elif (
+            command_case := self.get_type_special_case(tanjun_abc.ExecutableCommand, include_client=False)
+        ) is not injecting.UNDEFINED:
+            assert not isinstance(command_case, injecting.Undefined)
+            self.remove_type_special_case(tanjun_abc.ExecutableCommand)
+            self.remove_type_special_case(tanjun_abc.MessageCommand)  # TODO: command group?
+            self.remove_type_special_case(type(command_case))
+
         return self
 
     def set_content(self: _MessageContextT, content: str, /) -> _MessageContextT:
@@ -716,6 +740,21 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
     def set_command(self: _SlashContextT, command: typing.Optional[tanjun_abc.BaseSlashCommand], /) -> _SlashContextT:
         self._assert_not_final()
         self._command = command
+        if command:
+            self.set_type_special_case(tanjun_abc.ExecutableCommand, command)
+            self.set_type_special_case(tanjun_abc.BaseSlashCommand, command)
+            self.set_type_special_case(tanjun_abc.SlashCommand, command)
+            self.set_type_special_case(type(command), command)
+
+        elif (
+            command_case := self.get_type_special_case(tanjun_abc.ExecutableCommand, include_client=False)
+        ) is not injecting.UNDEFINED:
+            assert not isinstance(command_case, injecting.Undefined)
+            self.remove_type_special_case(tanjun_abc.ExecutableCommand)
+            self.remove_type_special_case(tanjun_abc.BaseSlashCommand)
+            self.remove_type_special_case(tanjun_abc.SlashCommand)  # TODO: command group?
+            self.remove_type_special_case(type(command_case))
+
         return self
 
     def set_ephemeral_default(self: _SlashContextT, state: bool, /) -> _SlashContextT:
