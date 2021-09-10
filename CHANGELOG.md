@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SlashContext.options mapping plus a resolvable option type to allow for more easily getting slash command
   options without relying on passed keyword arguments.
 - Automatic type injector special casing for components and commands within a command context.
+- Split up tanjun.commands.SlashCommand.add_option into specific methods.
+- Add `pass_as_kwarg` keyword argument to with slash option decorators with True default.
 
 ### Changed
 - Renamed `Client.__init__` "shard" arg to "shards".
@@ -27,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - Client.check_message_context and Component.check_message_context.
+- tanjun.commands.SlashCommand.add_option.
 
 ## [2.0.0a2] - 2021-09-07
 ### Added
@@ -39,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add default_permission argument to slash command types.
 - Dependency injection support to client callbacks.
 - Injection type special casing is more granular on a context to context basis now rather than top level hardcoded.
-- Injection.Descriptor, TypeDescriptor and CallbackDescriptor replaced the Getter and InjectableValue classes
+- Injection.Descriptor, TypeDescriptor and CallbackDescriptor replaced the Getter and InjectableValue classes.
 
 ### Changed
 - Component.listeners and Client.listeners now return Mapping[type[Event], Collection[Callback]].
