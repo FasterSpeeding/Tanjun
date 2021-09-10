@@ -105,7 +105,10 @@ class InjectableCheck(injecting.BaseInjectableCallback[bool]):
     __slots__ = ()
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
-        return await self.descriptor.resolve_with_command_context(ctx, ctx)
+        if result := await self.descriptor.resolve_with_command_context(ctx, ctx):
+            return result
+
+        raise errors.FailedCheck
 
 
 @dataclasses.dataclass(frozen=True)

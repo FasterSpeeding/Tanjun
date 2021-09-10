@@ -1750,7 +1750,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
             name = content.split(" ")[0]
             if command := self._names_to_commands.get(name):
                 yield name, command
-                return
+            return
 
         for command in self._commands:
             if (name := utilities.match_prefix_names(content, command.names)) is not None:

@@ -75,6 +75,25 @@ class TestInjectableCheck:
             mock_context, mock_context
         )
 
+    @pytest.mark.asyncio()
+    async def test_when_returns_false(self):
+        mock_callback = mock.Mock()
+        mock_context = mock.Mock()
+        mock_descriptor = mock.AsyncMock()
+        mock_descriptor.resolve_with_command_context.return_value = False
+
+        with mock.patch.object(
+            tanjun.injecting, "CallbackDescriptor", return_value=mock_descriptor
+        ) as callback_descriptor:
+            check = tanjun.checks.InjectableCheck(mock_callback)
+
+            callback_descriptor.assert_called_once_with(mock_callback)
+
+        with pytest.raises(tanjun.errors.FailedCheck):
+            await check(mock_context)
+
+        mock_descriptor.resolve_with_command_context.assert_awaited_once_with(mock_context, mock_context)
+
 
 class TestApplicationOwnerCheck:
     ...
