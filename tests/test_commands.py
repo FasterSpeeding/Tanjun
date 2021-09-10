@@ -276,7 +276,7 @@ def test_with_str_slash_option():
         "a_name",
         "a_value",
         default="ANY",
-        choices=[("Ok", "ok"), ("no", "u")],
+        choices=["ok", ("no", "u")],
         converters=[mock_converter],
         pass_as_kwarg=False,
     )
@@ -289,7 +289,7 @@ def test_with_str_slash_option_with_defaults():
 
     assert result is mock_command.add_str_option.return_value
     mock_command.add_str_option.assert_called_once_with(
-        "a_name", "a_value", default=tanjun.commands._UNDEFINED_DEFAULT, choices=(), converters=(), pass_as_kwarg=True
+        "a_name", "a_value", default=tanjun.commands._UNDEFINED_DEFAULT, choices=None, converters=(), pass_as_kwarg=True
     )
 
 

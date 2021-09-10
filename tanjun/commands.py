@@ -1079,6 +1079,44 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._builder.copy()
 
+    def _add_option(
+        self: _SlashCommandT,
+        name: str,
+        description: str,
+        type_: typing.Union[hikari.OptionType, int] = hikari.OptionType.STRING,
+        /,
+        *,
+        always_float: bool = False,
+        choices: typing.Optional[collections.Iterable[tuple[str, typing.Union[str, int, float]]]] = None,
+        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
+        default: typing.Any = _UNDEFINED_DEFAULT,
+        only_member: bool = False,
+        pass_as_kwarg: bool = True,
+    ) -> _SlashCommandT:
+        # TODO: validate name
+        type_ = hikari.OptionType(type_)
+        if isinstance(converters, collections.Iterable):
+            converters = list(map(_convert_to_injectable, converters))
+
+        else:
+            converters = [_convert_to_injectable(converters)]
+
+        choices_ = [hikari.CommandChoice(name=name, value=value) for name, value in choices] if choices else None
+        required = default is _UNDEFINED_DEFAULT
+        self._builder.add_option(
+            hikari.CommandOption(type=type_, name=name, description=description, is_required=required, choices=choices_)
+        )
+        if pass_as_kwarg:
+            self._tracked_options[name] = _TrackedOption(
+                name=name,
+                option_type=type_,
+                always_float=always_float,
+                converters=converters,
+                default=default,
+                only_member=only_member,
+            )
+        return self
+
     def add_str_option(
         self: _SlashCommandT,
         name: str,
@@ -1130,45 +1168,26 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
             Defaults to `True`. If `False` is passed here then `default` will
             only decide whether the option is required without the actual value
-            being used and the fields `coverters`, and `always_float` will be
-            ignored.
+            being used and the `coverters` field will be ignored.
 
         Returns
         -------
         Self
             The command object for chaining.
         """
-        choices_: list[hikari.CommandChoice] = []
+        choices_: typing.Optional[collections.Iterator[tuple[str, str]]] = None
         if choices is not None:
-            choices_ = [
-                hikari.CommandChoice(name=choice[0], value=choice[1])
-                if isinstance(choice, tuple)
-                else hikari.CommandChoice(name=choice.capitalize(), value=choice)
-                for choice in choices
-            ]
+            choices_ = (choice if isinstance(choice, tuple) else (choice.capitalize(), choice) for choice in choices)
 
-        if isinstance(converters, collections.Iterable):
-            converters = list(map(_convert_to_injectable, converters))
-
-        else:
-            converters = [_convert_to_injectable(converters)]
-
-        required = default is _UNDEFINED_DEFAULT
-        self._builder.add_option(
-            hikari.CommandOption(
-                type=hikari.OptionType.STRING,
-                name=name,
-                description=description,
-                is_required=required,
-                choices=choices_,
-            )
+        return self._add_option(
+            name,
+            description,
+            hikari.OptionType.STRING,
+            choices=choices_,
+            converters=converters,
+            default=default,
+            pass_as_kwarg=pass_as_kwarg,
         )
-        if pass_as_kwarg:
-            self._tracked_options[name] = _TrackedOption(
-                name=name, option_type=hikari.OptionType.STRING, converters=converters, default=default
-            )
-
-        return self
 
     def add_int_option(
         self: _SlashCommandT,
@@ -1216,37 +1235,22 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
             Defaults to `True`. If `False` is passed here then `default` will
             only decide whether the option is required without the actual value
-            being used and the fields `coverters`, and `always_float` will be
-            ignored.
+            being used and the `coverters` field will be ignored.
 
         Returns
         -------
         Self
             The command object for chaining.
         """
-        if isinstance(converters, collections.Iterable):
-            converters = list(map(_convert_to_injectable, converters))
-
-        else:
-            converters = [_convert_to_injectable(converters)]
-
-        choices_ = [hikari.CommandChoice(name=name, value=value) for name, value in choices] if choices else None
-        required = default is _UNDEFINED_DEFAULT
-        self._builder.add_option(
-            hikari.CommandOption(
-                type=hikari.OptionType.INTEGER,
-                name=name,
-                description=description,
-                is_required=required,
-                choices=choices_,
-            )
+        return self._add_option(
+            name,
+            description,
+            hikari.OptionType.INTEGER,
+            choices=choices,
+            converters=converters,
+            default=default,
+            pass_as_kwarg=pass_as_kwarg,
         )
-        if pass_as_kwarg:
-            self._tracked_options[name] = _TrackedOption(
-                name=name, option_type=hikari.OptionType.INTEGER, converters=converters, default=default
-            )
-
-        return self
 
     def add_float_option(
         self: _SlashCommandT,
@@ -1309,29 +1313,16 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         Self
             The command object for chaining.
         """
-        if isinstance(converters, collections.Iterable):
-            converters = list(map(_convert_to_injectable, converters))
-
-        else:
-            converters = [_convert_to_injectable(converters)]
-
-        choices_ = [hikari.CommandChoice(name=name, value=value) for name, value in choices] if choices else None
-        required = default is _UNDEFINED_DEFAULT
-        self._builder.add_option(
-            hikari.CommandOption(
-                type=hikari.OptionType.FLOAT, name=name, description=description, is_required=required, choices=choices_
-            )
+        return self._add_option(
+            name,
+            description,
+            hikari.OptionType.FLOAT,
+            choices=choices,
+            converters=converters,
+            default=default,
+            pass_as_kwarg=pass_as_kwarg,
+            always_float=always_float,
         )
-        if pass_as_kwarg:
-            self._tracked_options[name] = _TrackedOption(
-                name=name,
-                option_type=hikari.OptionType.FLOAT,
-                always_float=always_float,
-                converters=converters,
-                default=default,
-            )
-
-        return self
 
     def add_bool_option(
         self: _SlashCommandT,
@@ -1370,20 +1361,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         Self
             The command object for chaining.
         """
-        required = default is _UNDEFINED_DEFAULT
-        self._builder.add_option(
-            hikari.CommandOption(
-                type=hikari.OptionType.BOOLEAN, name=name, description=description, is_required=required, choices=None
-            )
+        return self._add_option(
+            name, description, hikari.OptionType.BOOLEAN, default=default, pass_as_kwarg=pass_as_kwarg
         )
-        if pass_as_kwarg:
-            self._tracked_options[name] = _TrackedOption(
-                name=name,
-                option_type=hikari.OptionType.BOOLEAN,
-                default=default,
-            )
-
-        return self
 
     def add_user_option(
         self: _SlashCommandT,
@@ -1427,16 +1407,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         Self
             The command object for chaining.
         """
-        required = default is _UNDEFINED_DEFAULT
-        self._builder.add_option(
-            hikari.CommandOption(
-                type=hikari.OptionType.USER, name=name, description=description, is_required=required, choices=None
-            )
-        )
-        if pass_as_kwarg:
-            self._tracked_options[name] = _TrackedOption(name=name, option_type=hikari.OptionType.USER, default=default)
-
-        return self
+        return self._add_option(name, description, hikari.OptionType.USER, default=default, pass_as_kwarg=pass_as_kwarg)
 
     def add_member_option(
         self: _SlashCommandT,
@@ -1485,16 +1456,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         Self
             The command object for chaining.
         """
-        required = default is _UNDEFINED_DEFAULT
-        self._builder.add_option(
-            hikari.CommandOption(type=hikari.OptionType.USER, name=name, description=description, is_required=required)
+        return self._add_option(
+            name, description, hikari.OptionType.USER, default=default, only_member=True, pass_as_kwarg=pass_as_kwarg
         )
-        if pass_as_kwarg:
-            self._tracked_options[name] = _TrackedOption(
-                name=name, option_type=hikari.OptionType.USER, default=default, only_member=True
-            )
-
-        return self
 
     def add_channel_option(
         self: _SlashCommandT,
@@ -1536,18 +1500,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         Self
             The command object for chaining.
         """
-        required = default is _UNDEFINED_DEFAULT
-        self._builder.add_option(
-            hikari.CommandOption(
-                type=hikari.OptionType.CHANNEL, name=name, description=description, is_required=required, choices=None
-            )
+        return self._add_option(
+            name, description, hikari.OptionType.CHANNEL, default=default, pass_as_kwarg=pass_as_kwarg
         )
-        if pass_as_kwarg:
-            self._tracked_options[name] = _TrackedOption(
-                name=name, option_type=hikari.OptionType.CHANNEL, default=default
-            )
-
-        return self
 
     def add_role_option(
         self: _SlashCommandT,
@@ -1586,16 +1541,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         Self
             The command object for chaining.
         """
-        required = default is _UNDEFINED_DEFAULT
-        self._builder.add_option(
-            hikari.CommandOption(
-                type=hikari.OptionType.ROLE, name=name, description=description, is_required=required, choices=None
-            )
-        )
-        if pass_as_kwarg:
-            self._tracked_options[name] = _TrackedOption(name=name, option_type=hikari.OptionType.ROLE, default=default)
-
-        return self
+        return self._add_option(name, description, hikari.OptionType.ROLE, default=default, pass_as_kwarg=pass_as_kwarg)
 
     def add_mentionable_option(
         self: _SlashCommandT,
@@ -1638,22 +1584,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         Self
             The command object for chaining.
         """
-        required = default is _UNDEFINED_DEFAULT
-        self._builder.add_option(
-            hikari.CommandOption(
-                type=hikari.OptionType.MENTIONABLE,
-                name=name,
-                description=description,
-                is_required=required,
-                choices=None,
-            )
+        return self._add_option(
+            name, description, hikari.OptionType.MENTIONABLE, default=default, pass_as_kwarg=pass_as_kwarg
         )
-        if pass_as_kwarg:
-            self._tracked_options[name] = _TrackedOption(
-                name=name, option_type=hikari.OptionType.MENTIONABLE, default=default
-            )
-
-        return self
 
     async def _process_args(self, ctx: abc.SlashContext, /) -> collections.Mapping[str, typing.Any]:
         if not self._tracked_options:
