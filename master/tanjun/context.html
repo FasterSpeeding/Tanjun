@@ -2102,7 +2102,15 @@ Otherwise, returns <code>None</code>.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Delete the initial response after invoking this context.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>LookupError, hikari.errors.NotFoundError</strong>: The last context has no initial response.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="MessageContext.delete_last_response" class="classattr">
@@ -2124,7 +2132,15 @@ Otherwise, returns <code>None</code>.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Delete the last response after invoking this context.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>LookupError, hikari.errors.NotFoundError</strong>: The last context has no responses.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="MessageContext.edit_initial_response" class="classattr">
@@ -2192,7 +2208,124 @@ Otherwise, returns <code>None</code>.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Edit the initial response for this context.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>content</strong> (hikari.UndefinedOr[typing.Any]):
+The content to edit the response with.</p>
+
+<p>If provided, the message contents. If
+<code>hikari.undefined.UNDEFINED</code>, then nothing will be sent
+in the content. Any other value here will be cast to a
+<code>str</code>.</p>
+
+<p>If this is a <code>hikari.embeds.Embed</code> and no <code>embed</code> nor <code>embeds</code> kwarg
+is provided, then this will instead update the embed. This allows
+for simpler syntax when sending an embed alone.</p>
+
+<p>Likewise, if this is a <code>hikari.files.Resource</code>, then the
+content is instead treated as an attachment if no <code>attachment</code> and
+no <code>attachments</code> kwargs are provided.</p></li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
+A singular attachment to edit the response with.</li>
+<li><strong>attachments</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]):
+A sequence of attachments to edit the response with.</li>
+<li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
+An embed to replace the response with.</li>
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+A sequence of embeds to replace the response with.</li>
+<li><strong>replace_attachments</strong> (bool):
+Whether to replace the attachments of the response or not. Default to <code>False</code>.</li>
+<li><strong>mentions_everyone</strong> (hikari.undefined.UndefinedOr[bool]):
+If provided, whether the message should parse @everyone/@here
+mentions.</li>
+<li><strong>user_mentions</strong> (hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.users.PartialUser], bool]]):
+If provided, and <code>True</code>, all mentions will be parsed.
+If provided, and <code>False</code>, no mentions will be parsed.
+Alternatively this may be a collection of
+<code>hikari.snowflakes.Snowflake</code>, or <code>hikari.users.PartialUser</code>
+derivatives to enforce mentioning specific users.</li>
+<li><strong>role_mentions</strong> (hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.guilds.PartialRole], bool]]):
+If provided, and <code>True</code>, all mentions will be parsed.
+If provided, and <code>False</code>, no mentions will be parsed.
+Alternatively this may be a collection of
+<code>hikari.snowflakes.Snowflake</code>, or
+<code>hikari.guilds.PartialRole</code> derivatives to enforce mentioning
+specific roles.</li>
+</ul>
+
+<h6 id="notes">Notes</h6>
+
+<p>Attachments can be passed as many different things, to aid in
+convenience.</p>
+
+<ul>
+<li>If a <code>pathlib.PurePath</code> or <code>str</code> to a valid URL, the
+resource at the given URL will be streamed to Discord when
+sending the message. Subclasses of
+<code>hikari.files.WebResource</code> such as
+<code>hikari.files.URL</code>,
+<code>hikari.messages.Attachment</code>,
+<code>hikari.emojis.Emoji</code>,
+<code>EmbedResource</code>, etc will also be uploaded this way.
+This will use bit-inception, so only a small percentage of the
+resource will remain in memory at any one time, thus aiding in
+scalability.</li>
+<li>If a <code>hikari.files.Bytes</code> is passed, or a <code>str</code>
+that contains a valid data URI is passed, then this is uploaded
+with a randomized file name if not provided.</li>
+<li>If a <code>hikari.files.File</code>, <code>pathlib.PurePath</code> or
+<code>str</code> that is an absolute or relative path to a file
+on your file system is passed, then this resource is uploaded
+as an attachment using non-blocking code internally and streamed
+using bit-inception where possible. This depends on the
+type of <code>concurrent.futures.Executor</code> that is being used for
+the application (default is a thread pool which supports this
+behaviour).</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.messages.Message</strong>: The message that has been edited.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If more than 100 unique objects/entities are passed for
+<code>role_mentions</code> or <code>user_mentions</code>.</li>
+<li><strong>TypeError</strong>: If both <code>attachment</code> and <code>attachments</code> are specified.</li>
+<li><strong>hikari.errors.BadRequestError</strong>: This may be raised in several discrete situations, such as messages
+being empty with no attachments or embeds; messages with more than
+2000 characters in them, embeds that exceed one of the many embed
+limits; too many attachments; attachments that are too large;
+invalid image URLs in embeds; if <code>reply</code> is not found or not in the
+same channel as <code>channel</code>; too many components.</li>
+<li><strong>hikari.errors.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
+<li><strong>hikari.errors.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
+person you are trying to message has the DM's disabled.</li>
+<li><strong>hikari.errors.NotFoundError</strong>: If the channel is not found.</li>
+<li><strong>hikari.errors.RateLimitTooLongError</strong>: Raised in the event that a rate limit occurs that is
+longer than <code>max_rate_limit</code> when making a request.</li>
+<li><strong>hikari.errors.RateLimitedError</strong>: Usually, Hikari will handle and retry on hitting
+rate-limits automatically. This includes most bucket-specific
+rate-limits and global rate-limits. In some rare edge cases,
+however, Discord implements other undocumented rules for
+rate-limiting, such as limits per attribute. These cannot be
+detected or handled normally by Hikari due to their undocumented
+nature, and will trigger this exception if they occur.</li>
+<li><strong>hikari.errors.InternalServerError</strong>: If an internal error occurs on Discord while handling the request.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="MessageContext.edit_last_response" class="classattr">
@@ -2260,7 +2393,124 @@ Otherwise, returns <code>None</code>.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Edit the last response for this context.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>content</strong> (hikari.UndefinedOr[typing.Any]):
+The content to edit the response with.</p>
+
+<p>If provided, the message contents. If
+<code>hikari.undefined.UNDEFINED</code>, then nothing will be sent
+in the content. Any other value here will be cast to a
+<code>str</code>.</p>
+
+<p>If this is a <code>hikari.embeds.Embed</code> and no <code>embed</code> nor <code>embeds</code> kwarg
+is provided, then this will instead update the embed. This allows
+for simpler syntax when sending an embed alone.</p>
+
+<p>Likewise, if this is a <code>hikari.files.Resource</code>, then the
+content is instead treated as an attachment if no <code>attachment</code> and
+no <code>attachments</code> kwargs are provided.</p></li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
+A singular attachment to edit the response with.</li>
+<li><strong>attachments</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]):
+A sequence of attachments to edit the response with.</li>
+<li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
+An embed to replace the response with.</li>
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+A sequence of embeds to replace the response with.</li>
+<li><strong>replace_attachments</strong> (bool):
+Whether to replace the attachments of the response or not. Default to <code>False</code>.</li>
+<li><strong>mentions_everyone</strong> (hikari.undefined.UndefinedOr[bool]):
+If provided, whether the message should parse @everyone/@here
+mentions.</li>
+<li><strong>user_mentions</strong> (hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.users.PartialUser], bool]]):
+If provided, and <code>True</code>, all mentions will be parsed.
+If provided, and <code>False</code>, no mentions will be parsed.
+Alternatively this may be a collection of
+<code>hikari.snowflakes.Snowflake</code>, or <code>hikari.users.PartialUser</code>
+derivatives to enforce mentioning specific users.</li>
+<li><strong>role_mentions</strong> (hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.guilds.PartialRole], bool]]):
+If provided, and <code>True</code>, all mentions will be parsed.
+If provided, and <code>False</code>, no mentions will be parsed.
+Alternatively this may be a collection of
+<code>hikari.snowflakes.Snowflake</code>, or
+<code>hikari.guilds.PartialRole</code> derivatives to enforce mentioning
+specific roles.</li>
+</ul>
+
+<h6 id="notes">Notes</h6>
+
+<p>Attachments can be passed as many different things, to aid in
+convenience.</p>
+
+<ul>
+<li>If a <code>pathlib.PurePath</code> or <code>str</code> to a valid URL, the
+resource at the given URL will be streamed to Discord when
+sending the message. Subclasses of
+<code>hikari.files.WebResource</code> such as
+<code>hikari.files.URL</code>,
+<code>hikari.messages.Attachment</code>,
+<code>hikari.emojis.Emoji</code>,
+<code>EmbedResource</code>, etc will also be uploaded this way.
+This will use bit-inception, so only a small percentage of the
+resource will remain in memory at any one time, thus aiding in
+scalability.</li>
+<li>If a <code>hikari.files.Bytes</code> is passed, or a <code>str</code>
+that contains a valid data URI is passed, then this is uploaded
+with a randomized file name if not provided.</li>
+<li>If a <code>hikari.files.File</code>, <code>pathlib.PurePath</code> or
+<code>str</code> that is an absolute or relative path to a file
+on your file system is passed, then this resource is uploaded
+as an attachment using non-blocking code internally and streamed
+using bit-inception where possible. This depends on the
+type of <code>concurrent.futures.Executor</code> that is being used for
+the application (default is a thread pool which supports this
+behaviour).</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.messages.Message</strong>: The message that has been edited.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If more than 100 unique objects/entities are passed for
+<code>role_mentions</code> or <code>user_mentions</code>.</li>
+<li><strong>TypeError</strong>: If both <code>attachment</code> and <code>attachments</code> are specified.</li>
+<li><strong>hikari.errors.BadRequestError</strong>: This may be raised in several discrete situations, such as messages
+being empty with no attachments or embeds; messages with more than
+2000 characters in them, embeds that exceed one of the many embed
+limits; too many attachments; attachments that are too large;
+invalid image URLs in embeds; if <code>reply</code> is not found or not in the
+same channel as <code>channel</code>; too many components.</li>
+<li><strong>hikari.errors.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
+<li><strong>hikari.errors.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
+person you are trying to message has the DM's disabled.</li>
+<li><strong>hikari.errors.NotFoundError</strong>: If the channel is not found.</li>
+<li><strong>hikari.errors.RateLimitTooLongError</strong>: Raised in the event that a rate limit occurs that is
+longer than <code>max_rate_limit</code> when making a request.</li>
+<li><strong>hikari.errors.RateLimitedError</strong>: Usually, Hikari will handle and retry on hitting
+rate-limits automatically. This includes most bucket-specific
+rate-limits and global rate-limits. In some rare edge cases,
+however, Discord implements other undocumented rules for
+rate-limiting, such as limits per attribute. These cannot be
+detected or handled normally by Hikari due to their undocumented
+nature, and will trigger this exception if they occur.</li>
+<li><strong>hikari.errors.InternalServerError</strong>: If an internal error occurs on Discord while handling the request.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="MessageContext.fetch_initial_response" class="classattr">
@@ -2282,7 +2532,15 @@ Otherwise, returns <code>None</code>.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Fetch the initial response for this context.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>LookupError, hikari.errors.NotFoundError</strong>: The response was not found.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="MessageContext.fetch_last_response" class="classattr">
@@ -2304,7 +2562,15 @@ Otherwise, returns <code>None</code>.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Fetch the last response for this context.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>LookupError, hikari.errors.NotFoundError</strong>: The response was not found.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="MessageContext.respond" class="classattr">
@@ -2384,7 +2650,90 @@ Otherwise, returns <code>None</code>.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Respond to this context.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>content</strong> (hikari.UndefinedOr[typing.Any]):
+The content to respond with.</p>
+
+<p>If provided, the message contents. If
+<code>hikari.undefined.UNDEFINED</code>, then nothing will be sent
+in the content. Any other value here will be cast to a
+<code>str</code>.</p>
+
+<p>If this is a <code>hikari.embeds.Embed</code> and no <code>embed</code> nor <code>embeds</code> kwarg
+is provided, then this will instead update the embed. This allows
+for simpler syntax when sending an embed alone.</p>
+
+<p>Likewise, if this is a <code>hikari.files.Resource</code>, then the
+content is instead treated as an attachment if no <code>attachment</code> and
+no <code>attachments</code> kwargs are provided.</p></li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>ensure_result</strong> (bool):
+If provided and set to <code>True</code>, It may perform an extra API call</li>
+<li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
+An embed to respond with.</li>
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+A sequence of embeds to respond with.</li>
+<li><strong>mentions_everyone</strong> (hikari.undefined.UndefinedOr[bool]):
+If provided, whether the message should parse @everyone/@here
+mentions.</li>
+<li><strong>user_mentions</strong> (hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.users.PartialUser], bool]]):
+If provided, and <code>True</code>, all mentions will be parsed.
+If provided, and <code>False</code>, no mentions will be parsed.
+Alternatively this may be a collection of
+<code>hikari.snowflakes.Snowflake</code>, or <code>hikari.users.PartialUser</code>
+derivatives to enforce mentioning specific users.</li>
+<li><strong>role_mentions</strong> (hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.guilds.PartialRole], bool]]):
+If provided, and <code>True</code>, all mentions will be parsed.
+If provided, and <code>False</code>, no mentions will be parsed.
+Alternatively this may be a collection of
+<code>hikari.snowflakes.Snowflake</code>, or
+<code>hikari.guilds.PartialRole</code> derivatives to enforce mentioning
+specific roles.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.messages.Message</strong>: The message that has been created.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If more than 100 unique objects/entities are passed for
+<code>role_mentions</code> or <code>user_mentions</code>.</li>
+<li><strong>TypeError</strong>: If both <code>attachment</code> and <code>attachments</code> are specified.</li>
+<li><strong>hikari.errors.BadRequestError</strong>: This may be raised in several discrete situations, such as messages
+being empty with no attachments or embeds; messages with more than
+2000 characters in them, embeds that exceed one of the many embed
+limits; too many attachments; attachments that are too large;
+invalid image URLs in embeds; if <code>reply</code> is not found or not in the
+same channel as <code>channel</code>; too many components.</li>
+<li><strong>hikari.errors.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
+<li><strong>hikari.errors.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
+person you are trying to message has the DM's disabled.</li>
+<li><strong>hikari.errors.NotFoundError</strong>: If the channel is not found.</li>
+<li><strong>hikari.errors.RateLimitTooLongError</strong>: Raised in the event that a rate limit occurs that is
+longer than <code>max_rate_limit</code> when making a request.</li>
+<li><strong>hikari.errors.RateLimitedError</strong>: Usually, Hikari will handle and retry on hitting
+rate-limits automatically. This includes most bucket-specific
+rate-limits and global rate-limits. In some rare edge cases,
+however, Discord implements other undocumented rules for
+rate-limiting, such as limits per attribute. These cannot be
+detected or handled normally by Hikari due to their undocumented
+nature, and will trigger this exception if they occur.</li>
+<li><strong>hikari.errors.InternalServerError</strong>: If an internal error occurs on Discord while handling the request.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -3734,7 +4083,15 @@ The flags to use for the initial response.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Delete the initial response after invoking this context.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>LookupError, hikari.errors.NotFoundError</strong>: The last context has no initial response.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="SlashContext.delete_last_response" class="classattr">
@@ -3760,7 +4117,15 @@ The flags to use for the initial response.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Delete the last response after invoking this context.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>LookupError, hikari.errors.NotFoundError</strong>: The last context has no responses.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="SlashContext.edit_initial_response" class="classattr">
@@ -3825,7 +4190,124 @@ The flags to use for the initial response.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Edit the initial response for this context.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>content</strong> (hikari.UndefinedOr[typing.Any]):
+The content to edit the response with.</p>
+
+<p>If provided, the message contents. If
+<code>hikari.undefined.UNDEFINED</code>, then nothing will be sent
+in the content. Any other value here will be cast to a
+<code>str</code>.</p>
+
+<p>If this is a <code>hikari.embeds.Embed</code> and no <code>embed</code> nor <code>embeds</code> kwarg
+is provided, then this will instead update the embed. This allows
+for simpler syntax when sending an embed alone.</p>
+
+<p>Likewise, if this is a <code>hikari.files.Resource</code>, then the
+content is instead treated as an attachment if no <code>attachment</code> and
+no <code>attachments</code> kwargs are provided.</p></li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
+A singular attachment to edit the response with.</li>
+<li><strong>attachments</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]):
+A sequence of attachments to edit the response with.</li>
+<li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
+An embed to replace the response with.</li>
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+A sequence of embeds to replace the response with.</li>
+<li><strong>replace_attachments</strong> (bool):
+Whether to replace the attachments of the response or not. Default to <code>False</code>.</li>
+<li><strong>mentions_everyone</strong> (hikari.undefined.UndefinedOr[bool]):
+If provided, whether the message should parse @everyone/@here
+mentions.</li>
+<li><strong>user_mentions</strong> (hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.users.PartialUser], bool]]):
+If provided, and <code>True</code>, all mentions will be parsed.
+If provided, and <code>False</code>, no mentions will be parsed.
+Alternatively this may be a collection of
+<code>hikari.snowflakes.Snowflake</code>, or <code>hikari.users.PartialUser</code>
+derivatives to enforce mentioning specific users.</li>
+<li><strong>role_mentions</strong> (hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.guilds.PartialRole], bool]]):
+If provided, and <code>True</code>, all mentions will be parsed.
+If provided, and <code>False</code>, no mentions will be parsed.
+Alternatively this may be a collection of
+<code>hikari.snowflakes.Snowflake</code>, or
+<code>hikari.guilds.PartialRole</code> derivatives to enforce mentioning
+specific roles.</li>
+</ul>
+
+<h6 id="notes">Notes</h6>
+
+<p>Attachments can be passed as many different things, to aid in
+convenience.</p>
+
+<ul>
+<li>If a <code>pathlib.PurePath</code> or <code>str</code> to a valid URL, the
+resource at the given URL will be streamed to Discord when
+sending the message. Subclasses of
+<code>hikari.files.WebResource</code> such as
+<code>hikari.files.URL</code>,
+<code>hikari.messages.Attachment</code>,
+<code>hikari.emojis.Emoji</code>,
+<code>EmbedResource</code>, etc will also be uploaded this way.
+This will use bit-inception, so only a small percentage of the
+resource will remain in memory at any one time, thus aiding in
+scalability.</li>
+<li>If a <code>hikari.files.Bytes</code> is passed, or a <code>str</code>
+that contains a valid data URI is passed, then this is uploaded
+with a randomized file name if not provided.</li>
+<li>If a <code>hikari.files.File</code>, <code>pathlib.PurePath</code> or
+<code>str</code> that is an absolute or relative path to a file
+on your file system is passed, then this resource is uploaded
+as an attachment using non-blocking code internally and streamed
+using bit-inception where possible. This depends on the
+type of <code>concurrent.futures.Executor</code> that is being used for
+the application (default is a thread pool which supports this
+behaviour).</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.messages.Message</strong>: The message that has been edited.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If more than 100 unique objects/entities are passed for
+<code>role_mentions</code> or <code>user_mentions</code>.</li>
+<li><strong>TypeError</strong>: If both <code>attachment</code> and <code>attachments</code> are specified.</li>
+<li><strong>hikari.errors.BadRequestError</strong>: This may be raised in several discrete situations, such as messages
+being empty with no attachments or embeds; messages with more than
+2000 characters in them, embeds that exceed one of the many embed
+limits; too many attachments; attachments that are too large;
+invalid image URLs in embeds; if <code>reply</code> is not found or not in the
+same channel as <code>channel</code>; too many components.</li>
+<li><strong>hikari.errors.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
+<li><strong>hikari.errors.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
+person you are trying to message has the DM's disabled.</li>
+<li><strong>hikari.errors.NotFoundError</strong>: If the channel is not found.</li>
+<li><strong>hikari.errors.RateLimitTooLongError</strong>: Raised in the event that a rate limit occurs that is
+longer than <code>max_rate_limit</code> when making a request.</li>
+<li><strong>hikari.errors.RateLimitedError</strong>: Usually, Hikari will handle and retry on hitting
+rate-limits automatically. This includes most bucket-specific
+rate-limits and global rate-limits. In some rare edge cases,
+however, Discord implements other undocumented rules for
+rate-limiting, such as limits per attribute. These cannot be
+detected or handled normally by Hikari due to their undocumented
+nature, and will trigger this exception if they occur.</li>
+<li><strong>hikari.errors.InternalServerError</strong>: If an internal error occurs on Discord while handling the request.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="SlashContext.edit_last_response" class="classattr">
@@ -3907,7 +4389,124 @@ The flags to use for the initial response.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Edit the last response for this context.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>content</strong> (hikari.UndefinedOr[typing.Any]):
+The content to edit the response with.</p>
+
+<p>If provided, the message contents. If
+<code>hikari.undefined.UNDEFINED</code>, then nothing will be sent
+in the content. Any other value here will be cast to a
+<code>str</code>.</p>
+
+<p>If this is a <code>hikari.embeds.Embed</code> and no <code>embed</code> nor <code>embeds</code> kwarg
+is provided, then this will instead update the embed. This allows
+for simpler syntax when sending an embed alone.</p>
+
+<p>Likewise, if this is a <code>hikari.files.Resource</code>, then the
+content is instead treated as an attachment if no <code>attachment</code> and
+no <code>attachments</code> kwargs are provided.</p></li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
+A singular attachment to edit the response with.</li>
+<li><strong>attachments</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]):
+A sequence of attachments to edit the response with.</li>
+<li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
+An embed to replace the response with.</li>
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+A sequence of embeds to replace the response with.</li>
+<li><strong>replace_attachments</strong> (bool):
+Whether to replace the attachments of the response or not. Default to <code>False</code>.</li>
+<li><strong>mentions_everyone</strong> (hikari.undefined.UndefinedOr[bool]):
+If provided, whether the message should parse @everyone/@here
+mentions.</li>
+<li><strong>user_mentions</strong> (hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.users.PartialUser], bool]]):
+If provided, and <code>True</code>, all mentions will be parsed.
+If provided, and <code>False</code>, no mentions will be parsed.
+Alternatively this may be a collection of
+<code>hikari.snowflakes.Snowflake</code>, or <code>hikari.users.PartialUser</code>
+derivatives to enforce mentioning specific users.</li>
+<li><strong>role_mentions</strong> (hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.guilds.PartialRole], bool]]):
+If provided, and <code>True</code>, all mentions will be parsed.
+If provided, and <code>False</code>, no mentions will be parsed.
+Alternatively this may be a collection of
+<code>hikari.snowflakes.Snowflake</code>, or
+<code>hikari.guilds.PartialRole</code> derivatives to enforce mentioning
+specific roles.</li>
+</ul>
+
+<h6 id="notes">Notes</h6>
+
+<p>Attachments can be passed as many different things, to aid in
+convenience.</p>
+
+<ul>
+<li>If a <code>pathlib.PurePath</code> or <code>str</code> to a valid URL, the
+resource at the given URL will be streamed to Discord when
+sending the message. Subclasses of
+<code>hikari.files.WebResource</code> such as
+<code>hikari.files.URL</code>,
+<code>hikari.messages.Attachment</code>,
+<code>hikari.emojis.Emoji</code>,
+<code>EmbedResource</code>, etc will also be uploaded this way.
+This will use bit-inception, so only a small percentage of the
+resource will remain in memory at any one time, thus aiding in
+scalability.</li>
+<li>If a <code>hikari.files.Bytes</code> is passed, or a <code>str</code>
+that contains a valid data URI is passed, then this is uploaded
+with a randomized file name if not provided.</li>
+<li>If a <code>hikari.files.File</code>, <code>pathlib.PurePath</code> or
+<code>str</code> that is an absolute or relative path to a file
+on your file system is passed, then this resource is uploaded
+as an attachment using non-blocking code internally and streamed
+using bit-inception where possible. This depends on the
+type of <code>concurrent.futures.Executor</code> that is being used for
+the application (default is a thread pool which supports this
+behaviour).</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.messages.Message</strong>: The message that has been edited.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If more than 100 unique objects/entities are passed for
+<code>role_mentions</code> or <code>user_mentions</code>.</li>
+<li><strong>TypeError</strong>: If both <code>attachment</code> and <code>attachments</code> are specified.</li>
+<li><strong>hikari.errors.BadRequestError</strong>: This may be raised in several discrete situations, such as messages
+being empty with no attachments or embeds; messages with more than
+2000 characters in them, embeds that exceed one of the many embed
+limits; too many attachments; attachments that are too large;
+invalid image URLs in embeds; if <code>reply</code> is not found or not in the
+same channel as <code>channel</code>; too many components.</li>
+<li><strong>hikari.errors.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
+<li><strong>hikari.errors.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
+person you are trying to message has the DM's disabled.</li>
+<li><strong>hikari.errors.NotFoundError</strong>: If the channel is not found.</li>
+<li><strong>hikari.errors.RateLimitTooLongError</strong>: Raised in the event that a rate limit occurs that is
+longer than <code>max_rate_limit</code> when making a request.</li>
+<li><strong>hikari.errors.RateLimitedError</strong>: Usually, Hikari will handle and retry on hitting
+rate-limits automatically. This includes most bucket-specific
+rate-limits and global rate-limits. In some rare edge cases,
+however, Discord implements other undocumented rules for
+rate-limiting, such as limits per attribute. These cannot be
+detected or handled normally by Hikari due to their undocumented
+nature, and will trigger this exception if they occur.</li>
+<li><strong>hikari.errors.InternalServerError</strong>: If an internal error occurs on Discord while handling the request.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="SlashContext.fetch_initial_response" class="classattr">
@@ -3926,7 +4525,15 @@ The flags to use for the initial response.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Fetch the initial response for this context.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>LookupError, hikari.errors.NotFoundError</strong>: The response was not found.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="SlashContext.fetch_last_response" class="classattr">
@@ -3951,7 +4558,15 @@ The flags to use for the initial response.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Fetch the last response for this context.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>LookupError, hikari.errors.NotFoundError</strong>: The response was not found.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="SlashContext.respond" class="classattr">
@@ -4044,7 +4659,90 @@ The flags to use for the initial response.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Respond to this context.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>content</strong> (hikari.UndefinedOr[typing.Any]):
+The content to respond with.</p>
+
+<p>If provided, the message contents. If
+<code>hikari.undefined.UNDEFINED</code>, then nothing will be sent
+in the content. Any other value here will be cast to a
+<code>str</code>.</p>
+
+<p>If this is a <code>hikari.embeds.Embed</code> and no <code>embed</code> nor <code>embeds</code> kwarg
+is provided, then this will instead update the embed. This allows
+for simpler syntax when sending an embed alone.</p>
+
+<p>Likewise, if this is a <code>hikari.files.Resource</code>, then the
+content is instead treated as an attachment if no <code>attachment</code> and
+no <code>attachments</code> kwargs are provided.</p></li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>ensure_result</strong> (bool):
+If provided and set to <code>True</code>, It may perform an extra API call</li>
+<li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
+An embed to respond with.</li>
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+A sequence of embeds to respond with.</li>
+<li><strong>mentions_everyone</strong> (hikari.undefined.UndefinedOr[bool]):
+If provided, whether the message should parse @everyone/@here
+mentions.</li>
+<li><strong>user_mentions</strong> (hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.users.PartialUser], bool]]):
+If provided, and <code>True</code>, all mentions will be parsed.
+If provided, and <code>False</code>, no mentions will be parsed.
+Alternatively this may be a collection of
+<code>hikari.snowflakes.Snowflake</code>, or <code>hikari.users.PartialUser</code>
+derivatives to enforce mentioning specific users.</li>
+<li><strong>role_mentions</strong> (hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.guilds.PartialRole], bool]]):
+If provided, and <code>True</code>, all mentions will be parsed.
+If provided, and <code>False</code>, no mentions will be parsed.
+Alternatively this may be a collection of
+<code>hikari.snowflakes.Snowflake</code>, or
+<code>hikari.guilds.PartialRole</code> derivatives to enforce mentioning
+specific roles.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.messages.Message</strong>: The message that has been created.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If more than 100 unique objects/entities are passed for
+<code>role_mentions</code> or <code>user_mentions</code>.</li>
+<li><strong>TypeError</strong>: If both <code>attachment</code> and <code>attachments</code> are specified.</li>
+<li><strong>hikari.errors.BadRequestError</strong>: This may be raised in several discrete situations, such as messages
+being empty with no attachments or embeds; messages with more than
+2000 characters in them, embeds that exceed one of the many embed
+limits; too many attachments; attachments that are too large;
+invalid image URLs in embeds; if <code>reply</code> is not found or not in the
+same channel as <code>channel</code>; too many components.</li>
+<li><strong>hikari.errors.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
+<li><strong>hikari.errors.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
+person you are trying to message has the DM's disabled.</li>
+<li><strong>hikari.errors.NotFoundError</strong>: If the channel is not found.</li>
+<li><strong>hikari.errors.RateLimitTooLongError</strong>: Raised in the event that a rate limit occurs that is
+longer than <code>max_rate_limit</code> when making a request.</li>
+<li><strong>hikari.errors.RateLimitedError</strong>: Usually, Hikari will handle and retry on hitting
+rate-limits automatically. This includes most bucket-specific
+rate-limits and global rate-limits. In some rare edge cases,
+however, Discord implements other undocumented rules for
+rate-limiting, such as limits per attribute. These cannot be
+detected or handled normally by Hikari due to their undocumented
+nature, and will trigger this exception if they occur.</li>
+<li><strong>hikari.errors.InternalServerError</strong>: If an internal error occurs on Discord while handling the request.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div class="inherited">
