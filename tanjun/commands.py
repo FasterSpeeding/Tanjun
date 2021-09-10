@@ -394,13 +394,11 @@ def with_str_slash_option(
     choices: typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]] = None,
     converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig] = (),
     default: typing.Any = _UNDEFINED_DEFAULT,
+    pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a string option to a slash command.
 
-    .. note::
-        As a shorthand, `choices` also supports passing strings in place of
-        tuples each string will be used as both the choice's name and value
-        (with the name being capitalised).
+    For more information on this function's parameters see `SlashCommand.add_str_option`.
 
     Examples
     --------
@@ -411,45 +409,13 @@ def with_str_slash_option(
         ...
     ```
 
-    Parameters
-    ----------
-    name : str
-        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
-    description : str
-        The option's description.
-        This should be inclusively between 1-100 characters in length.
-
-    Other Parameters
-    ----------------
-    choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]]
-        The option's choices.
-
-        This may be either one or multiple `tuple[opton_name, option_value]`
-        Where both option_name and option_value should be strings of up to 100
-        characters.
-    converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig]
-        The option's converters.
-
-        This may be either one or multiple `ConverterSig` callbacks used to
-        convert the option's value to the final form.
-        If no converters are provided then the raw value will be passed.
-
-        Only the first converter to pass will be used.
-    default : typing.Any
-        The option's default value.
-        If this is left as undefined then this option will be required.
-
     Returns
     -------
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    new_choices: collections.Iterable[tuple[str, str]] = ()
-    if choices is not None:
-        new_choices = [choice if isinstance(choice, tuple) else (choice.capitalize(), choice) for choice in choices]
-
-    return lambda c: c.add_option(
-        name, description, hikari.OptionType.STRING, default=default, choices=new_choices, converters=converters
+    return lambda c: c.add_str_option(
+        name, description, default=default, choices=choices, converters=converters, pass_as_kwarg=pass_as_kwarg
     )
 
 
@@ -461,8 +427,11 @@ def with_int_slash_option(
     choices: typing.Optional[collections.Iterable[tuple[str, int]]] = None,
     converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
     default: typing.Any = _UNDEFINED_DEFAULT,
+    pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add an integer option to a slash command.
+
+    For information on this function's parameters see `SlashCommand.add_int_option`.
 
     Examples
     --------
@@ -473,41 +442,13 @@ def with_int_slash_option(
         ...
     ```
 
-    Parameters
-    ----------
-    name : str
-        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
-    description : str
-        The option's description.
-        This should be inclusively between 1-100 characters in length.
-
-    Other Parameters
-    ----------------
-    choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, int]]]]
-        The option's choices.
-
-        This may be either one or multiple `tuple[opton_name, option_value]`
-        where option_name should be a string of up to 100 characters and
-        option_value should be an integer.
-    converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]
-        The option's converters.
-
-        This may be either one or multiple `ConverterSig` callbacks used to
-        convert the option's value to the final form.
-        If no converters are provided then the raw value will be passed.
-
-        Only the first converter to pass will be used.
-    default : typing.Any
-        The option's default value.
-        If this is left as undefined then this option will be required.
-
     Returns
     -------
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    return lambda c: c.add_option(
-        name, description, hikari.OptionType.INTEGER, default=default, choices=choices, converters=converters
+    return lambda c: c.add_int_option(
+        name, description, default=default, choices=choices, converters=converters, pass_as_kwarg=pass_as_kwarg
     )
 
 
@@ -520,8 +461,11 @@ def with_float_slash_option(
     choices: typing.Optional[collections.Iterable[tuple[str, float]]] = None,
     converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
     default: typing.Any = _UNDEFINED_DEFAULT,
+    pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a float option to a slash command.
+
+    For information on this function's parameters see `SlashCommand.add_float_option`.
 
     Examples
     --------
@@ -532,64 +476,28 @@ def with_float_slash_option(
         ...
     ```
 
-    Parameters
-    ----------
-    name : str
-        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
-    description : str
-        The option's description.
-        This should be inclusively between 1-100 characters in length.
-
-    Other Parameters
-    ----------------
-    always_float : bool
-        If this is set to `True` then the value will always be converted to a
-        float (this will happen before it's passed to converters).
-
-        This masks behaviour from Discord where we will either be provided a `float`
-        or `int` dependent on what the user provided and defaults to `True`.
-    choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]
-        The option's choices.
-
-        This may be either one or multiple `tuple[opton_name, option_value]`
-        where option_name should be a string of up to 100 characters and
-        option_value should be a float.
-    converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]
-        The option's converters.
-
-        This may be either one or multiple `ConverterSig` callbacks used to
-        convert the option's value to the final form.
-        If no converters are provided then the raw value will be passed.
-
-        Only the first converter to pass will be used.
-    default : typing.Any
-        The option's default value.
-        If this is left as undefined then this option will be required.
-
     Returns
     -------
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    return lambda c: c.add_option(
+    return lambda c: c.add_float_option(
         name,
         description,
-        hikari.OptionType.FLOAT,
         always_float=always_float,
         default=default,
         choices=choices,
         converters=converters,
+        pass_as_kwarg=pass_as_kwarg,
     )
 
 
 def with_bool_slash_option(
-    name: str,
-    description: str,
-    /,
-    *,
-    default: typing.Any = _UNDEFINED_DEFAULT,
+    name: str, description: str, /, *, default: typing.Any = _UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a boolean option to a slash command.
+
+    For information on this function's parameters see `SlashContext.add_bool_option`.
 
     Examples
     --------
@@ -600,36 +508,20 @@ def with_bool_slash_option(
         ...
     ```
 
-    Parameters
-    ----------
-    name : str
-        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
-    description : str
-        The option's description.
-        This should be inclusively between 1-100 characters in length.
-
-    Other Parameters
-    ----------------
-    default : typing.Any
-        The option's default value.
-        If this is left as undefined then this option will be required.
-
     Returns
     -------
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    return lambda c: c.add_option(name, description, hikari.OptionType.BOOLEAN, default=default)
+    return lambda c: c.add_bool_option(name, description, default=default, pass_as_kwarg=pass_as_kwarg)
 
 
 def with_user_slash_option(
-    name: str,
-    description: str,
-    /,
-    *,
-    default: typing.Any = _UNDEFINED_DEFAULT,
+    name: str, description: str, /, *, default: typing.Any = _UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a user option to a slash command.
+
+    For information on this function's parameters see `SlashContext.add_user_option`.
 
     .. note::
         This may result in `hikari.InteractionMember` or
@@ -645,36 +537,20 @@ def with_user_slash_option(
         ...
     ```
 
-    Parameters
-    ----------
-    name : str
-        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
-    description : str
-        The option's description.
-        This should be inclusively between 1-100 characters in length.
-
-    Other Parameters
-    ----------------
-    default : typing.Any
-        The option's default value.
-        If this is left as undefined then this option will be required.
-
     Returns
     -------
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    return lambda c: c.add_option(name, description, hikari.OptionType.USER, default=default)
+    return lambda c: c.add_user_option(name, description, default=default, pass_as_kwarg=pass_as_kwarg)
 
 
 def with_member_slash_option(
-    name: str,
-    description: str,
-    /,
-    *,
-    default: typing.Any = _UNDEFINED_DEFAULT,
+    name: str, description: str, /, *, default: typing.Any = _UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a member option to a slash command.
+
+    For information on this function's arguments see `SlashCommand.add_member_option`.
 
     .. note::
         This will always result in `hikari.InteractionMember`.
@@ -688,36 +564,20 @@ def with_member_slash_option(
         ...
     ```
 
-    Parameters
-    ----------
-    name : str
-        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
-    description : str
-        The option's description.
-        This should be inclusively between 1-100 characters in length.
-
-    Other Parameters
-    ----------------
-    default : typing.Any
-        The option's default value.
-        If this is left as undefined then this option will be required.
-
     Returns
     -------
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    return lambda c: c.add_option(name, description, hikari.OptionType.USER, default=default, only_member=True)
+    return lambda c: c.add_member_option(name, description, default=default, pass_as_kwarg=pass_as_kwarg)
 
 
 def with_channel_slash_option(
-    name: str,
-    description: str,
-    /,
-    *,
-    default: typing.Any = _UNDEFINED_DEFAULT,
+    name: str, description: str, /, *, default: typing.Any = _UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a channel option to a slash command.
+
+    For information on this function's parameters see `SlashCommand.add_channel_option`.
 
     .. note::
         This will always result in `hikari..InteractionChannel`.
@@ -731,36 +591,20 @@ def with_channel_slash_option(
         ...
     ```
 
-    Parameters
-    ----------
-    name : str
-        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
-    description : str
-        The option's description.
-        This should be inclusively between 1-100 characters in length.
-
-    Parameters
-    ----------
-    default : typing.Any
-        The option's default value.
-        If this is left as undefined then this option will be required.
-
     Returns
     -------
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    return lambda c: c.add_option(name, description, hikari.OptionType.CHANNEL, default=default)
+    return lambda c: c.add_channel_option(name, description, default=default, pass_as_kwarg=pass_as_kwarg)
 
 
 def with_role_slash_option(
-    name: str,
-    description: str,
-    /,
-    *,
-    default: typing.Any = _UNDEFINED_DEFAULT,
+    name: str, description: str, /, *, default: typing.Any = _UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a role option to a slash command.
+
+    For information on this function's parameters see `SlashCommand.add_role_option`.
 
     Examples
     --------
@@ -771,36 +615,20 @@ def with_role_slash_option(
         ...
     ```
 
-    Parameters
-    ----------
-    name : str
-        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
-    description : str
-        The option's description.
-        This should be inclusively between 1-100 characters in length.
-
-    Other Parameters
-    ----------------
-    default : typing.Any
-        The option's default value.
-        If this is left as undefined then this option will be required.
-
     Returns
     -------
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    return lambda c: c.add_option(name, description, hikari.OptionType.ROLE, default=default)
+    return lambda c: c.add_role_option(name, description, default=default, pass_as_kwarg=pass_as_kwarg)
 
 
 def with_mentionable_slash_option(
-    name: str,
-    description: str,
-    /,
-    *,
-    default: typing.Any = _UNDEFINED_DEFAULT,
+    name: str, description: str, /, *, default: typing.Any = _UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a mentionable option to a slash command.
+
+    For information on this function's arguments see `SlashCommand.add_mentionable_option`.
 
     .. note::
         This may target roles, guild members or users and results in
@@ -815,26 +643,12 @@ def with_mentionable_slash_option(
         ...
     ```
 
-    Parameters
-    ----------
-    name : str
-        The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
-    description : str
-        The option's description.
-        This should be inclusively between 1-100 characters in length.
-
-    Other Parameters
-    ----------------
-    default : typing.Any
-        The option's default value.
-        If this is left as undefined then this option will be required.
-
     Returns
     -------
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    return lambda c: c.add_option(name, description, hikari.OptionType.MENTIONABLE, default=default)
+    return lambda c: c.add_mentionable_option(name, description, default=default, pass_as_kwarg=pass_as_kwarg)
 
 
 def _convert_to_injectable(converter: ConverterSig) -> conversion.InjectableConverter[typing.Any]:
@@ -849,14 +663,15 @@ class _TrackedOption:
 
     def __init__(
         self,
+        *,
         name: str,
         option_type: typing.Union[hikari.OptionType, int],
-        always_float: bool,
-        converters: list[conversion.InjectableConverter[typing.Any]],
-        only_member: bool,
+        always_float: bool = False,
+        converters: typing.Optional[list[conversion.InjectableConverter[typing.Any]]] = None,
+        only_member: bool = False,
         default: typing.Any = _UNDEFINED_DEFAULT,
     ) -> None:
-        self.converters = converters
+        self.converters = converters or []
         self.default = default
         self.is_always_float = always_float
         self.is_only_member = only_member
@@ -1264,14 +1079,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._builder.copy()
 
-    def add_option(
+    def _add_option(
         self: _SlashCommandT,
         name: str,
         description: str,
         type_: typing.Union[hikari.OptionType, int] = hikari.OptionType.STRING,
         /,
         *,
-        always_float: bool = True,
+        always_float: bool = False,
         choices: typing.Optional[collections.Iterable[tuple[str, typing.Union[str, int, float]]]] = None,
         converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
         default: typing.Any = _UNDEFINED_DEFAULT,
@@ -1280,15 +1095,6 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
     ) -> _SlashCommandT:
         # TODO: validate name
         type_ = hikari.OptionType(type_)
-        if type in _SUB_COMMAND_OPTIONS_TYPES:
-            raise NotImplementedError
-
-        if only_member and type_ not in _MEMBER_OPTION_TYPES:
-            raise ValueError("only_member may only be set for a USER or MENTIONABLE option")
-
-        if converters and (type_ in _OBJECT_OPTION_TYPES or type_ is hikari.OptionType.BOOLEAN):
-            raise ValueError("Converters cannot be provided for bool or object options")
-
         if isinstance(converters, collections.Iterable):
             converters = list(map(_convert_to_injectable, converters))
 
@@ -1310,6 +1116,483 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
                 only_member=only_member,
             )
         return self
+
+    def add_str_option(
+        self: _SlashCommandT,
+        name: str,
+        description: str,
+        /,
+        *,
+        choices: typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]] = None,
+        converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig] = (),
+        default: typing.Any = _UNDEFINED_DEFAULT,
+        pass_as_kwarg: bool = True,
+    ) -> _SlashCommandT:
+        """Add a string option to the slash command.
+
+        .. note::
+            As a shorthand, `choices` also supports passing strings in place of
+            tuples each string will be used as both the choice's name and value
+            (with the name being capitalised).
+
+        Parameters
+        ----------
+        name : str
+            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+        description : str
+            The option's description.
+            This should be inclusively between 1-100 characters in length.
+
+        Other Parameters
+        ----------------
+        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]]
+            The option's choices.
+
+            This may be either one or multiple `tuple[opton_name, option_value]`
+            Where both option_name and option_value should be strings of up to 100
+            characters.
+        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig]
+            The option's converters.
+
+            This may be either one or multiple `ConverterSig` callbacks used to
+            convert the option's value to the final form.
+            If no converters are provided then the raw value will be passed.
+
+            Only the first converter to pass will be used.
+        default : typing.Any
+            The option's default value.
+            If this is left as undefined then this option will be required.
+        pass_as_kwarg : bool
+            Whether or not to pass this option as a keyword argument to the
+            command callback.
+
+            Defaults to `True`. If `False` is passed here then `default` will
+            only decide whether the option is required without the actual value
+            being used and the `coverters` field will be ignored.
+
+        Returns
+        -------
+        Self
+            The command object for chaining.
+        """
+        choices_: typing.Optional[collections.Iterator[tuple[str, str]]] = None
+        if choices is not None:
+            choices_ = (choice if isinstance(choice, tuple) else (choice.capitalize(), choice) for choice in choices)
+
+        return self._add_option(
+            name,
+            description,
+            hikari.OptionType.STRING,
+            choices=choices_,
+            converters=converters,
+            default=default,
+            pass_as_kwarg=pass_as_kwarg,
+        )
+
+    def add_int_option(
+        self: _SlashCommandT,
+        name: str,
+        description: str,
+        /,
+        *,
+        choices: typing.Optional[collections.Iterable[tuple[str, int]]] = None,
+        converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
+        default: typing.Any = _UNDEFINED_DEFAULT,
+        pass_as_kwarg: bool = True,
+    ) -> _SlashCommandT:
+        """Add an integer option to the slash command.
+
+        Parameters
+        ----------
+        name : str
+            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+        description : str
+            The option's description.
+            This should be inclusively between 1-100 characters in length.
+
+        Other Parameters
+        ----------------
+        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, int]]]]
+            The option's choices.
+
+            This may be either one or multiple `tuple[opton_name, option_value]`
+            where option_name should be a string of up to 100 characters and
+            option_value should be an integer.
+        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]
+            The option's converters.
+
+            This may be either one or multiple `ConverterSig` callbacks used to
+            convert the option's value to the final form.
+            If no converters are provided then the raw value will be passed.
+
+            Only the first converter to pass will be used.
+        default : typing.Any
+            The option's default value.
+            If this is left as undefined then this option will be required.
+        pass_as_kwarg : bool
+            Whether or not to pass this option as a keyword argument to the
+            command callback.
+
+            Defaults to `True`. If `False` is passed here then `default` will
+            only decide whether the option is required without the actual value
+            being used and the `coverters` field will be ignored.
+
+        Returns
+        -------
+        Self
+            The command object for chaining.
+        """
+        return self._add_option(
+            name,
+            description,
+            hikari.OptionType.INTEGER,
+            choices=choices,
+            converters=converters,
+            default=default,
+            pass_as_kwarg=pass_as_kwarg,
+        )
+
+    def add_float_option(
+        self: _SlashCommandT,
+        name: str,
+        description: str,
+        /,
+        *,
+        always_float: bool = True,
+        choices: typing.Optional[collections.Iterable[tuple[str, float]]] = None,
+        converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
+        default: typing.Any = _UNDEFINED_DEFAULT,
+        pass_as_kwarg: bool = True,
+    ) -> _SlashCommandT:
+        """Add a float option to a slash command.
+
+        Parameters
+        ----------
+        name : str
+            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+        description : str
+            The option's description.
+            This should be inclusively between 1-100 characters in length.
+
+        Other Parameters
+        ----------------
+        always_float : bool
+            If this is set to `True` then the value will always be converted to a
+            float (this will happen before it's passed to converters).
+
+            This masks behaviour from Discord where we will either be provided a `float`
+            or `int` dependent on what the user provided and defaults to `True`.
+        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]
+            The option's choices.
+
+            This may be either one or multiple `tuple[opton_name, option_value]`
+            where option_name should be a string of up to 100 characters and
+            option_value should be a float.
+        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]
+            The option's converters.
+
+            This may be either one or multiple `ConverterSig` callbacks used to
+            convert the option's value to the final form.
+            If no converters are provided then the raw value will be passed.
+
+            Only the first converter to pass will be used.
+        default : typing.Any
+            The option's default value.
+            If this is left as undefined then this option will be required.
+        pass_as_kwarg : bool
+            Whether or not to pass this option as a keyword argument to the
+            command callback.
+
+            Defaults to `True`. If `False` is passed here then `default` will
+            only decide whether the option is required without the actual value
+            being used and the fields `coverters`, and `always_float` will be
+            ignored.
+
+        Returns
+        -------
+        Self
+            The command object for chaining.
+        """
+        return self._add_option(
+            name,
+            description,
+            hikari.OptionType.FLOAT,
+            choices=choices,
+            converters=converters,
+            default=default,
+            pass_as_kwarg=pass_as_kwarg,
+            always_float=always_float,
+        )
+
+    def add_bool_option(
+        self: _SlashCommandT,
+        name: str,
+        description: str,
+        /,
+        *,
+        default: typing.Any = _UNDEFINED_DEFAULT,
+        pass_as_kwarg: bool = True,
+    ) -> _SlashCommandT:
+        """Add a boolean option to a slash command.
+
+        Parameters
+        ----------
+        name : str
+            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+        description : str
+            The option's description.
+            This should be inclusively between 1-100 characters in length.
+
+        Other Parameters
+        ----------------
+        default : typing.Any
+            The option's default value.
+            If this is left as undefined then this option will be required.
+        pass_as_kwarg : bool
+            Whether or not to pass this option as a keyword argument to the
+            command callback.
+
+            Defaults to `True`. If `False` is passed here then `default` will
+            only decide whether the option is required without the actual value
+            being used.
+
+        Returns
+        -------
+        Self
+            The command object for chaining.
+        """
+        return self._add_option(
+            name, description, hikari.OptionType.BOOLEAN, default=default, pass_as_kwarg=pass_as_kwarg
+        )
+
+    def add_user_option(
+        self: _SlashCommandT,
+        name: str,
+        description: str,
+        /,
+        *,
+        default: typing.Any = _UNDEFINED_DEFAULT,
+        pass_as_kwarg: bool = True,
+    ) -> _SlashCommandT:
+        """Add a user option to a slash command.
+
+        .. note::
+            This may result in `hikari.InteractionMember` or
+            `hikari.users.User` if the user isn't in the current guild or if this
+            command was executed in a DM channel.
+
+        Parameters
+        ----------
+        name : str
+            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+        description : str
+            The option's description.
+            This should be inclusively between 1-100 characters in length.
+
+        Other Parameters
+        ----------------
+        default : typing.Any
+            The option's default value.
+            If this is left as undefined then this option will be required.
+        pass_as_kwarg : bool
+            Whether or not to pass this option as a keyword argument to the
+            command callback.
+
+            Defaults to `True`. If `False` is passed here then `default` will
+            only decide whether the option is required without the actual value
+            being used.
+
+        Returns
+        -------
+        Self
+            The command object for chaining.
+        """
+        return self._add_option(name, description, hikari.OptionType.USER, default=default, pass_as_kwarg=pass_as_kwarg)
+
+    def add_member_option(
+        self: _SlashCommandT,
+        name: str,
+        description: str,
+        /,
+        *,
+        default: typing.Any = _UNDEFINED_DEFAULT,
+        pass_as_kwarg: bool = True,
+    ) -> _SlashCommandT:
+        """Add a member option to a slash command.
+
+        .. note::
+            This will always result in `hikari.InteractionMember`.
+
+        .. warning::
+            Unlike the other options, this is an artificial option which adds
+            a restraint to the USER option type and therefore doesn't guarantee
+            that a member will be present if `pass_as_kwarg` is `False`
+            (although there will always be a user object provided).
+
+        Parameters
+        ----------
+        name : str
+            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+        description : str
+            The option's description.
+            This should be inclusively between 1-100 characters in length.
+        pass_as_kwarg : bool
+            Whether or not to pass this option as a keyword argument to the
+            command callback.
+
+            Defaults to `True` and if `False` is passed here then `default`
+            will only decide whether the option is required without the actual
+            value being used.
+
+        Other Parameters
+        ----------------
+        default : typing.Any
+            The option's default value.
+            If this is left as undefined then this option will be required.
+        pass_as_kwarg : bool
+            Whether or not to pass this option as a keyword argument to the
+            command callback.
+
+            Defaults to `True`. If `False` is passed here then `default` will
+            only decide whether the option is required without the actual value
+            being used.
+
+        Returns
+        -------
+        Self
+            The command object for chaining.
+        """
+        return self._add_option(
+            name, description, hikari.OptionType.USER, default=default, only_member=True, pass_as_kwarg=pass_as_kwarg
+        )
+
+    def add_channel_option(
+        self: _SlashCommandT,
+        name: str,
+        description: str,
+        /,
+        *,
+        default: typing.Any = _UNDEFINED_DEFAULT,
+        pass_as_kwarg: bool = True,
+    ) -> _SlashCommandT:
+        """Add a channel option to a slash command.
+
+        .. note::
+            This will always result in `hikari..InteractionChannel`.
+
+        Parameters
+        ----------
+        name : str
+            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+        description : str
+            The option's description.
+            This should be inclusively between 1-100 characters in length.
+
+        Parameters
+        ----------
+        default : typing.Any
+            The option's default value.
+            If this is left as undefined then this option will be required.
+        pass_as_kwarg : bool
+            Whether or not to pass this option as a keyword argument to the
+            command callback.
+
+            Defaults to `True`. If `False` is passed here then `default` will
+            only decide whether the option is required without the actual value
+            being used.
+
+        Returns
+        -------
+        Self
+            The command object for chaining.
+        """
+        return self._add_option(
+            name, description, hikari.OptionType.CHANNEL, default=default, pass_as_kwarg=pass_as_kwarg
+        )
+
+    def add_role_option(
+        self: _SlashCommandT,
+        name: str,
+        description: str,
+        /,
+        *,
+        default: typing.Any = _UNDEFINED_DEFAULT,
+        pass_as_kwarg: bool = True,
+    ) -> _SlashCommandT:
+        """Add a role option to a slash command.
+
+        Parameters
+        ----------
+        name : str
+            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+        description : str
+            The option's description.
+            This should be inclusively between 1-100 characters in length.
+
+        Other Parameters
+        ----------------
+        default : typing.Any
+            The option's default value.
+            If this is left as undefined then this option will be required.
+        pass_as_kwarg : bool
+            Whether or not to pass this option as a keyword argument to the
+            command callback.
+
+            Defaults to `True`. If `False` is passed here then `default` will
+            only decide whether the option is required without the actual value
+            being used.
+
+        Returns
+        -------
+        Self
+            The command object for chaining.
+        """
+        return self._add_option(name, description, hikari.OptionType.ROLE, default=default, pass_as_kwarg=pass_as_kwarg)
+
+    def add_mentionable_option(
+        self: _SlashCommandT,
+        name: str,
+        description: str,
+        /,
+        *,
+        default: typing.Any = _UNDEFINED_DEFAULT,
+        pass_as_kwarg: bool = True,
+    ) -> _SlashCommandT:
+        """Add a mentionable option to a slash command.
+
+        .. note::
+            This may target roles, guild members or users and results in
+            `Union[hikari.User, hikari.InteractionMember, hikari.Role]`.
+
+        Parameters
+        ----------
+        name : str
+            The option's name. This should match the regex `^[a-z0-9_-]{1,32}$`.
+        description : str
+            The option's description.
+            This should be inclusively between 1-100 characters in length.
+
+        Other Parameters
+        ----------------
+        default : typing.Any
+            The option's default value.
+            If this is left as undefined then this option will be required.
+        pass_as_kwarg : bool
+            Whether or not to pass this option as a keyword argument to the
+            command callback.
+
+            Defaults to `True`. If `False` is passed here then `default` will
+            only decide whether the option is required without the actual value
+            being used.
+
+        Returns
+        -------
+        Self
+            The command object for chaining.
+        """
+        return self._add_option(
+            name, description, hikari.OptionType.MENTIONABLE, default=default, pass_as_kwarg=pass_as_kwarg
+        )
 
     async def _process_args(self, ctx: abc.SlashContext, /) -> collections.Mapping[str, typing.Any]:
         if not self._tracked_options:
