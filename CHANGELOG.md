@@ -18,9 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Bug around checks not being respected if they returned False.
 - Client level check errors not being caught during execution.
+- Don't erroneously dispatch message command not found callbacks when a component's execution returns true
 - Don't fall back to normal command search in "strict" components and message command groups.
 - Edit the command if command_id is passed to declare_slash_command instead of creating a new command.
 - Missing call to checks in interaction request handler logic.
+
+### Removed
+- Client.check_message_context and Component.check_message_context.
 
 ## [2.0.0a2] - 2021-09-07
 ### Added

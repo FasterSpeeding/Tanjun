@@ -414,7 +414,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._cached_application_id: typing.Optional[hikari.Snowflake] = None
         self._checks: set[checks.InjectableCheck] = set()
         self._client_callbacks: dict[str, set[injecting.CallbackDescriptor[None]]] = {}
-        self._components: set[tanjun_abc.Component] = set()
+        self._components: list[tanjun_abc.Component] = []
         self._make_message_context: _MessageContextMakerProto = context.MessageContext
         self._make_slash_context: _SlashContextMakerProto = context.SlashContext
         self._events = events
@@ -1093,8 +1093,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     def add_component(self: _ClientT, component: tanjun_abc.Component, /, *, add_injector: bool = False) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
+        if component in self._components:
+            return self
+
         component.bind_client(self)
-        self._components.add(component)
+        self._components.append(component)
 
         if add_injector:
             self.set_type_dependency(type(component), lambda: component)
@@ -1436,7 +1439,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             if await self.check(ctx):
                 for component in self._components:
                     if await component.execute_message(ctx, hooks=hooks):
-                        break
+                        return
 
         except errors.HaltExecution:
             pass
@@ -1538,7 +1541,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             # Under very specific timing there may be another future which could set a result while we await
             # ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create
             # another response before it's returned the initial response.
-            asyncio.get_running_loop().create_task(ctx.respond(exc.message))
+            asyncio.get_running_loop().create_task(
+                ctx.respond(exc.message), name=f"{interaction.id} command error responder"
+            )
             return await future
 
         async def callback(_: asyncio.Future[None]) -> None:
@@ -1546,6 +1551,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             ctx.cancel_defer()
 
         asyncio.get_running_loop().create_task(
-            self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
+            self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx),
+            name=f"{interaction.id} not found",
         ).add_done_callback(callback)
         return await future

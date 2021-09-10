@@ -432,3 +432,856 @@ class TestClient:
             import_module.assert_called_once_with("okokok.no.u")
 
         mock_module.loader.assert_called_once_with(client)
+
+    # Message create event
+
+    @pytest.fixture()
+    def command_dispatch_client(self) -> tanjun.Client:
+        class StubClient(tanjun.Client):
+            check = mock.AsyncMock()
+            dispatch_client_callback = mock.AsyncMock()
+
+        return (
+            StubClient(mock.AsyncMock())
+            .add_component(mock.AsyncMock(bind_client=mock.Mock()))
+            .add_component(mock.AsyncMock(bind_client=mock.Mock()))
+            .set_hooks(mock.Mock())
+            .set_message_hooks(mock.Mock())
+            .set_slash_hooks(mock.Mock())
+            .set_prefix_getter(mock.AsyncMock())
+        )
+
+    @pytest.mark.asyncio()
+    async def test_on_message_create_event(self, command_dispatch_client: tanjun.Client):
+        ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
+        ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_message.return_value = True
+        command_dispatch_client.add_prefix("!").set_message_ctx_maker(ctx_maker)
+        command_dispatch_client.check.return_value = True
+        mock_event = mock.Mock(message=mock.Mock(content="eye"))
+
+        await command_dispatch_client.on_message_create_event(mock_event)
+
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+        )
+        ctx_maker.return_value.set_content.assert_called_once_with("42")
+        ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
+        command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
+        mock_components[0].execute_message.assert_awaited_once_with(
+            ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.message_hooks}
+        )
+        mock_components[1].execute_message.assert_not_called()
+        ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_message_create_event_when_no_message_content(self, command_dispatch_client: tanjun.Client):
+        ctx_maker = mock.Mock()
+        command_dispatch_client.set_message_ctx_maker(ctx_maker)
+        mock_components = list(command_dispatch_client.components)
+
+        await command_dispatch_client.on_message_create_event(mock.Mock(message=mock.Mock(content=None)))
+
+        ctx_maker.assert_not_called()
+        mock_components[0].execute_message.assert_not_called()
+        mock_components[1].execute_message.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_message_create_event_when_prefix_not_found(self, command_dispatch_client: tanjun.Client):
+        ctx_maker = mock.Mock(return_value=mock.Mock(content="42"))
+        mock_components = list(command_dispatch_client.components)
+        command_dispatch_client.add_prefix("gay").set_message_ctx_maker(ctx_maker)
+        mock_event = mock.Mock(message=mock.Mock(content="eye"))
+
+        await command_dispatch_client.on_message_create_event(mock_event)
+
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+        )
+        mock_components[0].execute_message.assert_not_called()
+        mock_components[1].execute_message.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_message_create_event_when_custom_prefix_getter_not_found(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        ctx_maker = mock.Mock(return_value=mock.Mock(content="42"))
+        mock_components = list(command_dispatch_client.components)
+        prefix_getter = mock.AsyncMock(return_value=["aye", "naye"])
+        command_dispatch_client.add_prefix("gay").set_message_ctx_maker(ctx_maker).set_prefix_getter(prefix_getter)
+        mock_event = mock.Mock(message=mock.Mock(content="eye"))
+
+        await command_dispatch_client.on_message_create_event(mock_event)
+
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+        )
+        mock_components[0].execute_message.assert_not_called()
+        mock_components[1].execute_message.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_message_create_event_when_only_message_hooks(self, command_dispatch_client: tanjun.Client):
+        ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
+        ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_message.return_value = True
+        command_dispatch_client.add_prefix("!").set_message_ctx_maker(ctx_maker).set_hooks(None)
+        command_dispatch_client.check.return_value = True
+        mock_event = mock.Mock(message=mock.Mock(content="eye"))
+
+        await command_dispatch_client.on_message_create_event(mock_event)
+
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+        )
+        ctx_maker.return_value.set_content.assert_called_once_with("42")
+        ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
+        command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
+        mock_components[0].execute_message.assert_awaited_once_with(
+            ctx_maker.return_value, hooks={command_dispatch_client.message_hooks}
+        )
+        mock_components[1].execute_message.assert_not_called()
+        ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_message_create_event_when_only_generic_hooks(self, command_dispatch_client: tanjun.Client):
+        ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
+        ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_message.return_value = True
+        command_dispatch_client.add_prefix("!").set_message_ctx_maker(ctx_maker).set_message_hooks(None)
+        command_dispatch_client.check.return_value = True
+        mock_event = mock.Mock(message=mock.Mock(content="eye"))
+
+        await command_dispatch_client.on_message_create_event(mock_event)
+
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+        )
+        ctx_maker.return_value.set_content.assert_called_once_with("42")
+        ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
+        command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
+        mock_components[0].execute_message.assert_awaited_once_with(
+            ctx_maker.return_value, hooks={command_dispatch_client.hooks}
+        )
+        mock_components[1].execute_message.assert_not_called()
+        ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_message_create_event_when_no_hooks(self, command_dispatch_client: tanjun.Client):
+        ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
+        ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_message.return_value = True
+        command_dispatch_client.add_prefix("!").set_message_ctx_maker(ctx_maker).set_hooks(None).set_message_hooks(None)
+        command_dispatch_client.check.return_value = True
+        mock_event = mock.Mock(message=mock.Mock(content="eye"))
+
+        await command_dispatch_client.on_message_create_event(mock_event)
+
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+        )
+        ctx_maker.return_value.set_content.assert_called_once_with("42")
+        ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
+        command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
+        mock_components[0].execute_message.assert_awaited_once_with(ctx_maker.return_value, hooks=None)
+        mock_components[1].execute_message.assert_not_called()
+        ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_message_create_event_when_checks_raise_command_error(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
+        ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
+        mock_components = list(command_dispatch_client.components)
+        command_dispatch_client.add_prefix("!").set_message_ctx_maker(ctx_maker)
+        command_dispatch_client.check.side_effect = tanjun.CommandError("eee")
+        mock_event = mock.Mock(message=mock.Mock(content="eye"))
+
+        await command_dispatch_client.on_message_create_event(mock_event)
+
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+        )
+        ctx_maker.return_value.set_content.assert_called_once_with("42")
+        ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
+        command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
+        mock_components[0].execute_message.assert_not_called()
+        mock_components[1].execute_message.assert_not_called()
+        ctx_maker.return_value.respond.assert_awaited_once_with("eee")
+        command_dispatch_client.dispatch_client_callback.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_message_create_event_when_checks_raise_halt_execution(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
+        ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
+        mock_components = list(command_dispatch_client.components)
+        command_dispatch_client.add_prefix("!").set_message_ctx_maker(ctx_maker)
+        command_dispatch_client.check.side_effect = tanjun.HaltExecution()
+        mock_event = mock.Mock(message=mock.Mock(content="eye"))
+
+        await command_dispatch_client.on_message_create_event(mock_event)
+
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+        )
+        ctx_maker.return_value.set_content.assert_called_once_with("42")
+        ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
+        command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
+        mock_components[0].execute_message.assert_not_called()
+        mock_components[1].execute_message.assert_not_called()
+        ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_awaited_once_with(
+            tanjun.ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx_maker.return_value
+        )
+
+    @pytest.mark.asyncio()
+    async def test_on_message_create_event_when_checks_returns_false(self, command_dispatch_client: tanjun.Client):
+        ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
+        ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
+        mock_components = list(command_dispatch_client.components)
+        command_dispatch_client.add_prefix("!").set_message_ctx_maker(ctx_maker)
+        command_dispatch_client.check.return_value = False
+        mock_event = mock.Mock(message=mock.Mock(content="eye"))
+
+        await command_dispatch_client.on_message_create_event(mock_event)
+
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+        )
+        ctx_maker.return_value.set_content.assert_called_once_with("42")
+        ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
+        command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
+        mock_components[0].execute_message.assert_not_called()
+        mock_components[1].execute_message.assert_not_called()
+        ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_awaited_once_with(
+            tanjun.ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx_maker.return_value
+        )
+
+    @pytest.mark.asyncio()
+    async def test_on_message_create_event_when_component_raises_command_error(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
+        ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_message.return_value = False
+        mock_components[1].execute_message.side_effect = tanjun.CommandError("eeea")
+        command_dispatch_client.add_prefix("!").set_message_ctx_maker(ctx_maker)
+        command_dispatch_client.check.return_value = True
+        mock_event = mock.Mock(message=mock.Mock(content="eye"))
+
+        await command_dispatch_client.on_message_create_event(mock_event)
+
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+        )
+        ctx_maker.return_value.set_content.assert_called_once_with("42")
+        ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
+        command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
+        mock_components[0].execute_message.assert_awaited_once_with(
+            ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.message_hooks}
+        )
+        mock_components[1].execute_message.assert_awaited_once_with(
+            ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.message_hooks}
+        )
+        ctx_maker.return_value.respond.assert_awaited_once_with("eeea")
+        command_dispatch_client.dispatch_client_callback.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_message_create_event_when_component_raises_halt_execution(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
+        ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_message.return_value = False
+        mock_components[1].execute_message.side_effect = tanjun.HaltExecution
+        command_dispatch_client.add_prefix("!").set_message_ctx_maker(ctx_maker)
+        command_dispatch_client.check.return_value = True
+        mock_event = mock.Mock(message=mock.Mock(content="eye"))
+
+        await command_dispatch_client.on_message_create_event(mock_event)
+
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+        )
+        ctx_maker.return_value.set_content.assert_called_once_with("42")
+        ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
+        command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
+        mock_components[0].execute_message.assert_awaited_once_with(
+            ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.message_hooks}
+        )
+        mock_components[1].execute_message.assert_awaited_once_with(
+            ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.message_hooks}
+        )
+        ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_awaited_once_with(
+            tanjun.ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx_maker.return_value
+        )
+
+    @pytest.mark.asyncio()
+    async def test_on_message_create_event_when_not_found(self, command_dispatch_client: tanjun.Client):
+        ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
+        ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_message.return_value = False
+        mock_components[1].execute_message.return_value = False
+        command_dispatch_client.add_prefix("!").set_message_ctx_maker(ctx_maker)
+        command_dispatch_client.check.return_value = True
+        mock_event = mock.Mock(message=mock.Mock(content="eye"))
+
+        await command_dispatch_client.on_message_create_event(mock_event)
+
+        ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            content="eye",
+            message=mock_event.message,
+        )
+        ctx_maker.return_value.set_content.assert_called_once_with("42")
+        ctx_maker.return_value.set_triggering_prefix.assert_called_once_with("!")
+        command_dispatch_client.check.assert_awaited_once_with(ctx_maker.return_value)
+        mock_components[0].execute_message.assert_awaited_once_with(
+            ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.message_hooks}
+        )
+        mock_components[1].execute_message.assert_awaited_once_with(
+            ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.message_hooks}
+        )
+        ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_awaited_once_with(
+            tanjun.ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx_maker.return_value
+        )
+
+    # Interaction create event
+
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event(self, command_dispatch_client: tanjun.Client):
+        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
+            "Interaction not found"
+        ).set_auto_defer_after(2.2)
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_interaction.return_value = None
+        mock_future = mock.AsyncMock()
+        mock_components[1].execute_interaction.return_value = mock_future()
+        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        command_dispatch_client.check.return_value = True
+
+        await command_dispatch_client.on_interaction_create_event(mock_event)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_event.interaction,
+            not_found_message="Interaction not found",
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_components[0].execute_interaction.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
+        )
+        mock_components[1].execute_interaction.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
+        )
+        mock_future.assert_awaited_once()
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
+
+    @pytest.mark.parametrize("interaction_type", [hikari.MessageInteraction])
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event_when_not_message_interaction(
+        self, command_dispatch_client: tanjun.Client, interaction_type: type[hikari.PartialInteraction]
+    ):
+        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker)
+        mock_components = list(command_dispatch_client.components)
+
+        await command_dispatch_client.on_interaction_create_event(mock.Mock(interaction=mock.Mock(interaction_type)))
+
+        mock_ctx_maker.assert_not_called()
+        mock_components[0].execute_interaction.assert_not_called()
+        mock_components[1].execute_interaction.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event_when_no_interaction_not_found_message(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
+            None
+        ).set_auto_defer_after(2.2)
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_interaction.return_value = None
+        mock_future = mock.AsyncMock()
+        mock_components[1].execute_interaction.return_value = mock_future()
+        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        command_dispatch_client.check.return_value = True
+
+        await command_dispatch_client.on_interaction_create_event(mock_event)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_event.interaction,
+            not_found_message=None,
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_components[0].execute_interaction.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
+        )
+        mock_components[1].execute_interaction.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
+        )
+        mock_future.assert_awaited_once()
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event_when_not_auto_deferring(self, command_dispatch_client: tanjun.Client):
+        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
+            "Interaction not found"
+        ).set_auto_defer_after(None)
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_interaction.return_value = None
+        mock_components[1].execute_interaction.return_value = None
+        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+
+        await command_dispatch_client.on_interaction_create_event(mock_event)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_event.interaction,
+            not_found_message="Interaction not found",
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_not_called()
+        mock_components[0].execute_interaction.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
+        )
+        mock_components[1].execute_interaction.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
+        )
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_awaited_once_with(
+            tanjun.ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, mock_ctx_maker.return_value
+        )
+        mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event_when_no_hooks(self, command_dispatch_client: tanjun.Client):
+        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
+            "Interaction not found"
+        ).set_auto_defer_after(2.2).set_slash_hooks(None).set_hooks(None)
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_interaction.return_value = None
+        mock_future = mock.AsyncMock()
+        mock_components[1].execute_interaction.return_value = mock_future()
+        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        command_dispatch_client.check.return_value = True
+
+        await command_dispatch_client.on_interaction_create_event(mock_event)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_event.interaction,
+            not_found_message="Interaction not found",
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_components[0].execute_interaction.assert_awaited_once_with(mock_ctx_maker.return_value, hooks=None)
+        mock_components[1].execute_interaction.assert_awaited_once_with(mock_ctx_maker.return_value, hooks=None)
+        mock_future.assert_awaited_once()
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event_when_only_slash_hooks(self, command_dispatch_client: tanjun.Client):
+        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
+            "Interaction not found"
+        ).set_auto_defer_after(2.2).set_hooks(None)
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_interaction.return_value = None
+        mock_future = mock.AsyncMock()
+        mock_components[1].execute_interaction.return_value = mock_future()
+        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        command_dispatch_client.check.return_value = True
+
+        await command_dispatch_client.on_interaction_create_event(mock_event)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_event.interaction,
+            not_found_message="Interaction not found",
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_components[0].execute_interaction.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.slash_hooks}
+        )
+        mock_components[1].execute_interaction.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.slash_hooks}
+        )
+        mock_future.assert_awaited_once()
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event_when_only_generic_hooks(self, command_dispatch_client: tanjun.Client):
+        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
+            "Interaction not found"
+        ).set_auto_defer_after(2.2).set_slash_hooks(None)
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_interaction.return_value = None
+        mock_future = mock.AsyncMock()
+        mock_components[1].execute_interaction.return_value = mock_future()
+        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        command_dispatch_client.check.return_value = True
+
+        await command_dispatch_client.on_interaction_create_event(mock_event)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_event.interaction,
+            not_found_message="Interaction not found",
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_components[0].execute_interaction.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks}
+        )
+        mock_components[1].execute_interaction.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks}
+        )
+        mock_future.assert_awaited_once()
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event_when_not_found(self, command_dispatch_client: tanjun.Client):
+        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
+            "Interaction not found"
+        ).set_auto_defer_after(2.2)
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_interaction.return_value = None
+        mock_components[1].execute_interaction.return_value = None
+        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+
+        await command_dispatch_client.on_interaction_create_event(mock_event)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_event.interaction,
+            not_found_message="Interaction not found",
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_components[0].execute_interaction.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
+        )
+        mock_components[1].execute_interaction.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
+        )
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_awaited_once_with(
+            tanjun.ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, mock_ctx_maker.return_value
+        )
+        mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event_when_checks_raise_command_error(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
+            "Interaction not found"
+        ).set_auto_defer_after(2.2)
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_interaction.return_value = None
+        mock_components[1].execute_interaction.return_value = None
+        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        command_dispatch_client.check.side_effect = tanjun.CommandError("3903939")
+
+        await command_dispatch_client.on_interaction_create_event(mock_event)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_event.interaction,
+            not_found_message="Interaction not found",
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_components[0].execute_interaction.assert_not_called()
+        mock_components[1].execute_interaction.assert_not_called()
+        mock_ctx_maker.return_value.respond.assert_awaited_once_with("3903939")
+        command_dispatch_client.dispatch_client_callback.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event_when_checks_raise_halt_execution(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
+            "Interaction not found"
+        ).set_auto_defer_after(2.2)
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_interaction.return_value = None
+        mock_components[1].execute_interaction.return_value = None
+        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        command_dispatch_client.check.side_effect = tanjun.HaltExecution()
+
+        await command_dispatch_client.on_interaction_create_event(mock_event)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_event.interaction,
+            not_found_message="Interaction not found",
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_components[0].execute_interaction.assert_not_called()
+        mock_components[1].execute_interaction.assert_not_called()
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_awaited_once_with(
+            tanjun.ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, mock_ctx_maker.return_value
+        )
+        mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event_when_component_raises_command_error(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
+            "Interaction not found"
+        ).set_auto_defer_after(2.2)
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_interaction.return_value = None
+        mock_components[1].execute_interaction.side_effect = tanjun.CommandError("123321")
+        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        command_dispatch_client.check.return_value = True
+
+        await command_dispatch_client.on_interaction_create_event(mock_event)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_event.interaction,
+            not_found_message="Interaction not found",
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_components[0].execute_interaction.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
+        )
+        mock_components[1].execute_interaction.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
+        )
+        mock_ctx_maker.return_value.respond.assert_awaited_once_with("123321")
+        command_dispatch_client.dispatch_client_callback.assert_not_called()
+        mock_ctx_maker.return_value.mark_not_found.assert_not_called()
+        mock_ctx_maker.return_value.cancel_defer.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event_when_component_raises_halt_execution(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
+            "Interaction not found"
+        ).set_auto_defer_after(2.2)
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_interaction.return_value = None
+        mock_components[1].execute_interaction.side_effect = tanjun.HaltExecution
+        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        command_dispatch_client.check.return_value = True
+
+        await command_dispatch_client.on_interaction_create_event(mock_event)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_event.interaction,
+            not_found_message="Interaction not found",
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_components[0].execute_interaction.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
+        )
+        mock_components[1].execute_interaction.assert_awaited_once_with(
+            mock_ctx_maker.return_value, hooks={command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
+        )
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_awaited_once_with(
+            tanjun.ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, mock_ctx_maker.return_value
+        )
+        mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event_when_checks_fail(self, command_dispatch_client: tanjun.Client):
+        mock_ctx_maker = mock.Mock(return_value=mock.Mock(respond=mock.AsyncMock(), mark_not_found=mock.AsyncMock()))
+        command_dispatch_client.set_slash_ctx_maker(mock_ctx_maker).set_interaction_not_found(
+            "Interaction not found"
+        ).set_auto_defer_after(2.2)
+        mock_components = list(command_dispatch_client.components)
+        mock_components[0].execute_interaction.return_value = None
+        mock_components[1].execute_interaction.return_value = None
+        mock_event = mock.Mock(interaction=mock.Mock(hikari.CommandInteraction))
+        command_dispatch_client.check.return_value = False
+
+        await command_dispatch_client.on_interaction_create_event(mock_event)
+
+        mock_ctx_maker.assert_called_once_with(
+            client=command_dispatch_client,
+            injection_client=command_dispatch_client,
+            interaction=mock_event.interaction,
+            not_found_message="Interaction not found",
+        )
+        mock_ctx_maker.return_value.start_defer_timer.assert_called_once_with(2.2)
+        mock_components[0].execute_interaction.assert_not_called()
+        mock_components[1].execute_interaction.assert_not_called()
+        mock_ctx_maker.return_value.respond.assert_not_called()
+        command_dispatch_client.dispatch_client_callback.assert_awaited_once_with(
+            tanjun.ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, mock_ctx_maker.return_value
+        )
+        mock_ctx_maker.return_value.mark_not_found.assert_awaited_once_with()
+        mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
+
+    # Note, these will likely need to be more integrationy than the above tests to ensure there's no deadlocking
+    # behaviour around ctx and its owned future.
+    # Interaction create REST request
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_request(self, command_dispatch_client: tanjun.Client):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_request_when_no_interaction_not_found_message(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_request_when_not_auto_deferring(self, command_dispatch_client: tanjun.Client):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_request_when_no_hooks(self, command_dispatch_client: tanjun.Client):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_request_when_only_slash_hooks(self, command_dispatch_client: tanjun.Client):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_request_when_only_generic_hooks(self, command_dispatch_client: tanjun.Client):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_request_when_not_found(self, command_dispatch_client: tanjun.Client):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_request_when_checks_raise_command_error(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_request_when_checks_raise_halt_execution(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_request_when_component_raises_command_error(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_request_when_component_raises_halt_execution(
+        self, command_dispatch_client: tanjun.Client
+    ):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_request_when_checks_fail(self, command_dispatch_client: tanjun.Client):
+        ...
