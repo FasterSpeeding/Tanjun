@@ -269,9 +269,6 @@
                                 <a class="function" href="#Client.with_prefix_getter">with_prefix_getter</a>
                         </li>
                         <li>
-                                <a class="function" href="#Client.check_message_context">check_message_context</a>
-                        </li>
-                        <li>
                                 <a class="function" href="#Client.check_message_name">check_message_name</a>
                         </li>
                         <li>
@@ -672,9 +669,6 @@
                         </li>
                         <li>
                                 <a class="function" href="#Component.unbind_client">unbind_client</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Component.check_message_context">check_message_context</a>
                         </li>
                         <li>
                                 <a class="function" href="#Component.check_message_name">check_message_name</a>
@@ -3420,12 +3414,6 @@ enable slash (interaction) command execution:</p>
     <span class="k">def</span> <span class="nf">unbind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="c1"># As far as MYPY is concerned, unless you explicitly yield within an async callback typed as returning an</span>
-    <span class="c1"># AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
@@ -3611,12 +3599,6 @@ enable slash (interaction) command execution:</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="c1"># As far as MYPY is concerned, unless you explicitly yield within an async callback typed as returning an</span>
-    <span class="c1"># AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
@@ -3746,7 +3728,10 @@ enable slash (interaction) command execution:</p>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">descriptor</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">descriptor</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">FailedCheck</span>
 
 
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -5651,7 +5636,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
@@ -6330,8 +6315,11 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
     <span class="k">def</span> <span class="nf">add_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">add_injector</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
         <span class="n">component</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">add_injector</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">component</span><span class="p">),</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">component</span><span class="p">)</span>
@@ -6449,12 +6437,6 @@ a DM context (e.g. can't have any moderation permissions)</li>
     <span class="k">def</span> <span class="nf">with_prefix_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">getter</span><span class="p">:</span> <span class="n">PrefixGetterSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrefixGetterSigT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_prefix_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">getter</span>
-
-    <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="k">return</span> <span class="n">utilities</span><span class="o">.</span><span class="n">async_chain</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
@@ -6665,9 +6647,6 @@ a DM context (e.g. can't have any moderation permissions)</li>
             <span class="k">return</span>
 
         <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span><span class="o">.</span><span class="n">set_triggering_prefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">return</span>
-
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span>
             <span class="n">hooks</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">}</span>
@@ -6679,9 +6658,10 @@ a DM context (e.g. can't have any moderation permissions)</li>
             <span class="n">hooks</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">}</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_message</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">break</span>
+            <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_message</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">return</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -6732,10 +6712,11 @@ a DM context (e.g. can't have any moderation permissions)</li>
             <span class="n">ctx</span><span class="o">.</span><span class="n">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">await</span> <span class="n">future</span>
-                    <span class="k">return</span>
+            <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">await</span> <span class="n">future</span>
+                        <span class="k">return</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -6770,9 +6751,10 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
         <span class="n">future</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_response_future</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -6781,7 +6763,9 @@ a DM context (e.g. can't have any moderation permissions)</li>
             <span class="c1"># Under very specific timing there may be another future which could set a result while we await</span>
             <span class="c1"># ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create</span>
             <span class="c1"># another response before it&#39;s returned the initial response.</span>
-            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> command error responder&quot;</span>
+            <span class="p">)</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
         <span class="k">async</span> <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">_</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -6789,7 +6773,8 @@ a DM context (e.g. can't have any moderation permissions)</li>
             <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
 
         <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 </pre></div>
@@ -6981,7 +6966,7 @@ to the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
@@ -7660,8 +7645,11 @@ to the provided client using it's abstract methods.</li>
 
     <span class="k">def</span> <span class="nf">add_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">add_injector</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
         <span class="n">component</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">add_injector</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">component</span><span class="p">),</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">component</span><span class="p">)</span>
@@ -7779,12 +7767,6 @@ to the provided client using it's abstract methods.</li>
     <span class="k">def</span> <span class="nf">with_prefix_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">getter</span><span class="p">:</span> <span class="n">PrefixGetterSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrefixGetterSigT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_prefix_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">getter</span>
-
-    <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="k">return</span> <span class="n">utilities</span><span class="o">.</span><span class="n">async_chain</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
@@ -7995,9 +7977,6 @@ to the provided client using it's abstract methods.</li>
             <span class="k">return</span>
 
         <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span><span class="o">.</span><span class="n">set_triggering_prefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">return</span>
-
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span>
             <span class="n">hooks</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">}</span>
@@ -8009,9 +7988,10 @@ to the provided client using it's abstract methods.</li>
             <span class="n">hooks</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">}</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_message</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">break</span>
+            <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_message</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">return</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -8062,10 +8042,11 @@ to the provided client using it's abstract methods.</li>
             <span class="n">ctx</span><span class="o">.</span><span class="n">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">await</span> <span class="n">future</span>
-                    <span class="k">return</span>
+            <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">await</span> <span class="n">future</span>
+                        <span class="k">return</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -8100,9 +8081,10 @@ to the provided client using it's abstract methods.</li>
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
         <span class="n">future</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_response_future</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -8111,7 +8093,9 @@ to the provided client using it's abstract methods.</li>
             <span class="c1"># Under very specific timing there may be another future which could set a result while we await</span>
             <span class="c1"># ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create</span>
             <span class="c1"># another response before it&#39;s returned the initial response.</span>
-            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> command error responder&quot;</span>
+            <span class="p">)</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
         <span class="k">async</span> <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">_</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -8119,7 +8103,8 @@ to the provided client using it's abstract methods.</li>
             <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
 
         <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 </pre></div>
@@ -8241,7 +8226,7 @@ when set on a specific guild.</p></li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
@@ -9725,8 +9710,11 @@ Object or ID of the guild to set the global commands to.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">add_injector</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
         <span class="n">component</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">add_injector</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">component</span><span class="p">),</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">component</span><span class="p">)</span>
@@ -10094,32 +10082,6 @@ Object or ID of the guild to set the global commands to.</p>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_prefix_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">getter</span><span class="p">:</span> <span class="n">PrefixGetterSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrefixGetterSigT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_prefix_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">getter</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
-                            <div id="Client.check_message_context" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Client.check_message_context">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">check_message_context</span><span class="signature">(
-    self,
-    ctx: <a href="tanjun/abc.html#MessageContext">tanjun.abc.MessageContext</a>,
-    /
-) -&gt; collections.abc.AsyncIterator[tuple[str, <a href="tanjun/abc.html#MessageCommand">tanjun.abc.MessageCommand</a>]]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="k">return</span> <span class="n">utilities</span><span class="o">.</span><span class="n">async_chain</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -10515,9 +10477,6 @@ of type <code><a href="#Client">Client</a></code>.</p>
             <span class="k">return</span>
 
         <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span><span class="o">.</span><span class="n">set_triggering_prefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">return</span>
-
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span>
             <span class="n">hooks</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">}</span>
@@ -10529,9 +10488,10 @@ of type <code><a href="#Client">Client</a></code>.</p>
             <span class="n">hooks</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">}</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_message</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">break</span>
+            <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_message</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">return</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -10597,10 +10557,11 @@ of type <code><a href="#Client">Client</a></code>.</p>
             <span class="n">ctx</span><span class="o">.</span><span class="n">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">await</span> <span class="n">future</span>
-                    <span class="k">return</span>
+            <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">await</span> <span class="n">future</span>
+                        <span class="k">return</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -10668,9 +10629,10 @@ The event to execute commands based on.</li>
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
         <span class="n">future</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_response_future</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -10679,7 +10641,9 @@ The event to execute commands based on.</li>
             <span class="c1"># Under very specific timing there may be another future which could set a result while we await</span>
             <span class="c1"># ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create</span>
             <span class="c1"># another response before it&#39;s returned the initial response.</span>
-            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> command error responder&quot;</span>
+            <span class="p">)</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
         <span class="k">async</span> <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">_</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -10687,7 +10651,8 @@ The event to execute commands based on.</li>
             <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
 
         <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 </pre></div>
@@ -12935,7 +12900,7 @@ message create events.</p>
             <span class="n">name</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
-                <span class="k">return</span>
+            <span class="k">return</span>
 
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -14190,7 +14155,7 @@ The parent of this command.</li>
             <span class="n">name</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
-                <span class="k">return</span>
+            <span class="k">return</span>
 
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -14573,7 +14538,7 @@ The command to add.</li>
             <span class="n">name</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
-                <span class="k">return</span>
+            <span class="k">return</span>
 
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -17388,7 +17353,7 @@ If this is left as undefined then this option will be required.</li>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_check_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">utilities</span><span class="o">.</span><span class="n">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_check_message_context</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -17398,8 +17363,11 @@ If this is left as undefined then this option will be required.</li>
             <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">command</span> <span class="ow">and</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="ow">and</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
+
+            <span class="k">else</span><span class="p">:</span>
                 <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-                <span class="k">return</span>
+
+            <span class="k">return</span>
 
         <span class="n">checks_run</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_message_name</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
@@ -17478,7 +17446,7 @@ If this is left as undefined then this option will be required.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">async</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+        <span class="k">async</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_triggering_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -17914,7 +17882,7 @@ If this is left as undefined then this option will be required.</li>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_check_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">utilities</span><span class="o">.</span><span class="n">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_check_message_context</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -17924,8 +17892,11 @@ If this is left as undefined then this option will be required.</li>
             <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">command</span> <span class="ow">and</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="ow">and</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
+
+            <span class="k">else</span><span class="p">:</span>
                 <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-                <span class="k">return</span>
+
+            <span class="k">return</span>
 
         <span class="n">checks_run</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_message_name</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
@@ -18004,7 +17975,7 @@ If this is left as undefined then this option will be required.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">async</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+        <span class="k">async</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_triggering_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -19117,52 +19088,6 @@ The event to listen for.</li>
     
 
                             </div>
-                            <div id="Component.check_message_context" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Component.check_message_context">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">async def</span>
-            <span class="name">check_message_context</span><span class="signature">(
-    self,
-    ctx: <a href="tanjun/abc.html#MessageContext">tanjun.abc.MessageContext</a>,
-    /
-) -&gt; collections.abc.AsyncIterator[tuple[str, <a href="tanjun/abc.html#MessageCommand">tanjun.abc.MessageCommand</a>]]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">command</span> <span class="ow">and</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="ow">and</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-                <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
-                <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-                <span class="k">return</span>
-
-        <span class="n">checks_run</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_message_name</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">checks_run</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-                    <span class="k">return</span>
-
-                <span class="n">checks_run</span> <span class="o">=</span> <span class="kc">True</span>
-
-            <span class="k">if</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-                <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
-
-        <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
                             <div id="Component.check_message_name" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Component.check_message_name">#&nbsp;&nbsp</a>
 
@@ -19277,7 +19202,7 @@ The event to listen for.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">async</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+        <span class="k">async</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_triggering_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -27163,6 +27088,9 @@ The command to add the hooks to.</li>
     <span class="c1"># This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.</span>
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="si">!r}</span><span class="s2">)&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>

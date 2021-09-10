@@ -148,9 +148,6 @@
                                 <a class="function" href="#Component.unbind_client">unbind_client</a>
                         </li>
                         <li>
-                                <a class="function" href="#Component.check_message_context">check_message_context</a>
-                        </li>
-                        <li>
                                 <a class="function" href="#Component.check_message_name">check_message_name</a>
                         </li>
                         <li>
@@ -678,7 +675,7 @@
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_check_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">utilities</span><span class="o">.</span><span class="n">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_check_message_context</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -688,8 +685,11 @@
             <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">command</span> <span class="ow">and</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="ow">and</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
+
+            <span class="k">else</span><span class="p">:</span>
                 <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-                <span class="k">return</span>
+
+            <span class="k">return</span>
 
         <span class="n">checks_run</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_message_name</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
@@ -768,7 +768,7 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">async</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+        <span class="k">async</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_triggering_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -1211,7 +1211,7 @@
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_check_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">utilities</span><span class="o">.</span><span class="n">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_check_message_context</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -1221,8 +1221,11 @@
             <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">command</span> <span class="ow">and</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="ow">and</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
+
+            <span class="k">else</span><span class="p">:</span>
                 <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-                <span class="k">return</span>
+
+            <span class="k">return</span>
 
         <span class="n">checks_run</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_message_name</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
@@ -1301,7 +1304,7 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">async</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+        <span class="k">async</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_triggering_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -2414,52 +2417,6 @@ The event to listen for.</li>
     
 
                             </div>
-                            <div id="Component.check_message_context" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Component.check_message_context">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">async def</span>
-            <span class="name">check_message_context</span><span class="signature">(
-    self,
-    ctx: <a href="abc.html#MessageContext">tanjun.abc.MessageContext</a>,
-    /
-) -&gt; collections.abc.AsyncIterator[tuple[str, <a href="abc.html#MessageCommand">tanjun.abc.MessageCommand</a>]]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">command</span> <span class="ow">and</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="ow">and</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-                <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
-                <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-                <span class="k">return</span>
-
-        <span class="n">checks_run</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_message_name</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">checks_run</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-                    <span class="k">return</span>
-
-                <span class="n">checks_run</span> <span class="o">=</span> <span class="kc">True</span>
-
-            <span class="k">if</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-                <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
-
-        <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
                             <div id="Component.check_message_name" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Component.check_message_name">#&nbsp;&nbsp</a>
 
@@ -2574,7 +2531,7 @@ The event to listen for.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">async</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+        <span class="k">async</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_triggering_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">set_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>

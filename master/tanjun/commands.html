@@ -2092,7 +2092,7 @@
             <span class="n">name</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
-                <span class="k">return</span>
+            <span class="k">return</span>
 
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -3376,7 +3376,7 @@ The parent of this command.</li>
             <span class="n">name</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
-                <span class="k">return</span>
+            <span class="k">return</span>
 
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -3759,7 +3759,7 @@ The command to add.</li>
             <span class="n">name</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
-                <span class="k">return</span>
+            <span class="k">return</span>
 
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

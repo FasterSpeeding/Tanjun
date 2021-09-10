@@ -496,9 +496,6 @@
                                 <a class="function" href="#Component.unbind_client">unbind_client</a>
                         </li>
                         <li>
-                                <a class="function" href="#Component.check_message_context">check_message_context</a>
-                        </li>
-                        <li>
                                 <a class="function" href="#Component.check_message_name">check_message_name</a>
                         </li>
                         <li>
@@ -569,9 +566,6 @@
                         </li>
                         <li>
                                 <a class="function" href="#Client.with_listener">with_listener</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Client.check_message_context">check_message_context</a>
                         </li>
                         <li>
                                 <a class="function" href="#Client.check_message_name">check_message_name</a>
@@ -2367,12 +2361,6 @@
     <span class="k">def</span> <span class="nf">unbind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="c1"># As far as MYPY is concerned, unless you explicitly yield within an async callback typed as returning an</span>
-    <span class="c1"># AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
@@ -2556,12 +2544,6 @@
     <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
-    <span class="c1"># As far as MYPY is concerned, unless you explicitly yield within an async callback typed as returning an</span>
-    <span class="c1"># AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -7623,12 +7605,6 @@ user.</p>
     <span class="k">def</span> <span class="nf">unbind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="c1"># As far as MYPY is concerned, unless you explicitly yield within an async callback typed as returning an</span>
-    <span class="c1"># AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
@@ -8259,31 +8235,6 @@ The event to listen for.</li>
     
 
                             </div>
-                            <div id="Component.check_message_context" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Component.check_message_context">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@abc.abstractmethod</div>
-
-            <span class="def">def</span>
-            <span class="name">check_message_context</span><span class="signature">(
-    self,
-    ctx: <a href="#MessageContext">tanjun.abc.MessageContext</a>,
-    /
-) -&gt; collections.abc.AsyncIterator[tuple[str, <a href="#MessageCommand">tanjun.abc.MessageCommand</a>]]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
                             <div id="Component.check_message_name" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Component.check_message_name">#&nbsp;&nbsp</a>
 
@@ -8566,12 +8517,6 @@ The event to listen for.</li>
     <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
-    <span class="c1"># As far as MYPY is concerned, unless you explicitly yield within an async callback typed as returning an</span>
-    <span class="c1"># AsyncIterator/AsyncGenerator you are returning an AsyncIterator/AsyncGenerator as the result of a coroutine.</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -8969,31 +8914,6 @@ if provided, else <code>None</code>.</li>
     <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
-                            <div id="Client.check_message_context" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Client.check_message_context">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@abc.abstractmethod</div>
-
-            <span class="def">def</span>
-            <span class="name">check_message_context</span><span class="signature">(
-    self,
-    ctx: <a href="#MessageContext">tanjun.abc.MessageContext</a>,
-    /
-) -&gt; collections.abc.AsyncIterator[tuple[str, <a href="#MessageCommand">tanjun.abc.MessageCommand</a>]]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </pre></div>
 
