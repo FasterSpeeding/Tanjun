@@ -113,6 +113,28 @@ class TestBaseContext:
         assert context.set_component(component) is context
 
         assert context.component is component
+        assert context.get_type_special_case(tanjun.abc.Component, include_client=False) is component
+        assert context.get_type_special_case(type(component), include_client=False) is component
+
+    def test_set_component_when_none_and_previously_set(self, context: tanjun.context.BaseContext):
+        mock_component = mock.Mock()
+        context.set_component(mock_component)
+        context.set_component(None)
+
+        assert context.component is None
+        assert context.get_type_special_case(tanjun.abc.Component, include_client=False) is tanjun.injecting.UNDEFINED
+        assert context.get_type_special_case(type(mock_component), include_client=False) is tanjun.injecting.UNDEFINED
+
+    def test_set_component_when_none(self, context: tanjun.context.BaseContext):
+        context.set_component(None)
+        context.set_component(None)
+
+        assert context.component is None
+        assert context.get_type_special_case(tanjun.abc.Component, include_client=False) is tanjun.injecting.UNDEFINED
+        assert (
+            context.get_type_special_case(type(tanjun.abc.Component), include_client=False)
+            is tanjun.injecting.UNDEFINED
+        )
 
     def test_set_component_when_final(self, context: tanjun.context.BaseContext):
         component = mock.Mock()
@@ -272,6 +294,37 @@ class TestMessageContext:
         assert context.set_command(mock_command) is context
 
         assert context.command is mock_command
+        assert context.get_type_special_case(tanjun.abc.ExecutableCommand, include_client=False) is mock_command
+        assert context.get_type_special_case(tanjun.abc.MessageCommand, include_client=False) is mock_command
+        assert context.get_type_special_case(type(mock_command), include_client=False) is mock_command
+
+    def test_set_command_when_none(self, context: tanjun.MessageContext):
+        context.set_command(None)
+        context.set_command(None)
+
+        assert context.command is None
+        assert (
+            context.get_type_special_case(tanjun.abc.ExecutableCommand, include_client=False)
+            is tanjun.injecting.UNDEFINED
+        )
+        assert (
+            context.get_type_special_case(tanjun.abc.MessageCommand, include_client=False) is tanjun.injecting.UNDEFINED
+        )
+
+    def test_set_command_when_none_and_previously_set(self, context: tanjun.MessageContext):
+        mock_command = mock.Mock()
+        context.set_command(mock_command)
+        context.set_command(None)
+
+        assert context.command is None
+        assert (
+            context.get_type_special_case(tanjun.abc.ExecutableCommand, include_client=False)
+            is tanjun.injecting.UNDEFINED
+        )
+        assert (
+            context.get_type_special_case(tanjun.abc.MessageCommand, include_client=False) is tanjun.injecting.UNDEFINED
+        )
+        assert context.get_type_special_case(type(mock_command), include_client=False) is tanjun.injecting.UNDEFINED
 
     def test_set_command_when_finalised(self, context: tanjun.MessageContext):
         context.finalise()
@@ -1239,6 +1292,46 @@ class TestSlashContext:
         assert context.set_command(mock_command) is context
 
         assert context.command is mock_command
+        assert context.get_type_special_case(tanjun.abc.ExecutableCommand, include_client=False) is mock_command
+        assert context.get_type_special_case(tanjun.abc.BaseSlashCommand, include_client=False) is mock_command
+        assert context.get_type_special_case(tanjun.abc.SlashCommand, include_client=False) is mock_command
+        assert context.get_type_special_case(type(mock_command), include_client=False) is mock_command
+
+    def test_set_command_when_none(self, context: tanjun.MessageContext):
+        context.set_command(None)
+        context.set_command(None)
+
+        assert context.command is None
+        assert (
+            context.get_type_special_case(tanjun.abc.ExecutableCommand, include_client=False)
+            is tanjun.injecting.UNDEFINED
+        )
+        assert (
+            context.get_type_special_case(tanjun.abc.BaseSlashCommand, include_client=False)
+            is tanjun.injecting.UNDEFINED
+        )
+        assert (
+            context.get_type_special_case(tanjun.abc.SlashCommand, include_client=False) is tanjun.injecting.UNDEFINED
+        )
+
+    def test_set_command_when_none_and_previously_set(self, context: tanjun.MessageContext):
+        mock_command = mock.Mock()
+        context.set_command(mock_command)
+        context.set_command(None)
+
+        assert context.command is None
+        assert (
+            context.get_type_special_case(tanjun.abc.ExecutableCommand, include_client=False)
+            is tanjun.injecting.UNDEFINED
+        )
+        assert (
+            context.get_type_special_case(tanjun.abc.BaseSlashCommand, include_client=False)
+            is tanjun.injecting.UNDEFINED
+        )
+        assert (
+            context.get_type_special_case(tanjun.abc.SlashCommand, include_client=False) is tanjun.injecting.UNDEFINED
+        )
+        assert context.get_type_special_case(type(mock_command), include_client=False) is tanjun.injecting.UNDEFINED
 
     def test_set_command_when_finalised(self, context: tanjun.SlashContext):
         context.finalise()
