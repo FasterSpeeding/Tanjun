@@ -330,27 +330,127 @@ class Context(abc.ABC):
 
     @abc.abstractmethod
     async def fetch_channel(self) -> hikari.PartialChannel:
-        raise NotImplementedError
+        """Fetch the channel the context was invoked in.
+
+        .. note::
+            This performs an API call. Consider using `Context.get_channel`
+            if you have `hikari.config.CacheComponents.GUILD_CHANNELS` cache component enabled.
+
+        Returns
+        -------
+        hikari.PartialChannel
+            The dm or guild channel the context was invoked in.
+
+        Raises
+        ------
+        hikari.errors.UnauthorizedError
+            If you are unauthorized to make the request (invalid/missing token).
+        hikari.errors.ForbiddenError
+            If you are missing the `READ_MESSAGES` permission in the channel.
+        hikari.errors.NotFoundError
+            If the channel is not found.
+        hikari.errors.RateLimitTooLongError
+            Raised in the event that a rate limit occurs that is
+            longer than `max_rate_limit` when making a request.
+        hikari.errors.RateLimitTooLongError
+            Raised in the event that a rate limit occurs that is
+            longer than `max_rate_limit` when making a request.
+        hikari.errors.RateLimitedError
+            Usually, Hikari will handle and retry on hitting
+            rate-limits automatically. This includes most bucket-specific
+            rate-limits and global rate-limits. In some rare edge cases,
+            however, Discord implements other undocumented rules for
+            rate-limiting, such as limits per attribute. These cannot be
+            detected or handled normally by Hikari due to their undocumented
+            nature, and will trigger this exception if they occur.
+        hikari.errors.InternalServerError
+            If an internal error occurs on Discord while handling the request.
+        """
 
     @abc.abstractmethod
     async def fetch_guild(self) -> typing.Optional[hikari.Guild]:
-        raise NotImplementedError
+        """Fetch the guild the context was invoked in.
+
+        .. note::
+            This performs an API call. Consider using `Context.get_guild`
+            if you have `hikari.config.CacheComponents.GUILDS` cache component enabled.
+
+        Returns
+        -------
+        typing.Optional[hikari.Guild]
+            An optional guild the context was invoked in.
+            `None` will be returned if the guild was not found or the context was invoked in a DM channel .
+
+        Raises
+        ------
+        hikari.errors.ForbiddenError
+            If you are not part of the guild.
+        hikari.errors.NotFoundError
+            If the guild is not found.
+        hikari.errors.UnauthorizedError
+            If you are unauthorized to make the request (invalid/missing token).
+        hikari.errors.RateLimitTooLongError
+            Raised in the event that a rate limit occurs that is
+            longer than `max_rate_limit` when making a request.
+        hikari.errors.RateLimitedError
+            Usually, Hikari will handle and retry on hitting
+            rate-limits automatically. This includes most bucket-specific
+            rate-limits and global rate-limits. In some rare edge cases,
+            however, Discord implements other undocumented rules for
+            rate-limiting, such as limits per attribute. These cannot be
+            detected or handled normally by Hikari due to their undocumented
+            nature, and will trigger this exception if they occur.
+        hikari.errors.InternalServerError
+            If an internal error occurs on Discord while handling the request.
+        """
 
     @abc.abstractmethod
     def get_channel(self) -> typing.Optional[hikari.PartialChannel]:
-        raise NotImplementedError
+        """Retrieve the channel the context was invoked in from the cache.
+
+        .. note::
+            This method requires the `hikari.config.CacheComponents.GUILD_CHANNELS` cache component.
+
+        Returns
+        -------
+        typing.Optional[hikari.PartialChannel]
+            An optional dm or guild channel the context was invoked in.
+            `None` will be returned if the channel was not found.
+        """
 
     @abc.abstractmethod
     def get_guild(self) -> typing.Optional[hikari.Guild]:
-        raise NotImplementedError
+        """Fetch the guild that the context was invoked in.
+
+        .. note::
+            This method requires `hikari.config.CacheComponents.GUILDS` cache component enabled.
+
+        Returns
+        -------
+        typing.Optional[hikari.Guild]
+            An optional guild the context was invoked in.
+            `None` will be returned if the guild was not found.
+        """
 
     @abc.abstractmethod
     async def delete_initial_response(self) -> None:
-        raise NotImplementedError
+        """Delete the initial response after invoking this context.
+
+        Raises
+        ------
+        LookupError, hikari.errors.NotFoundError
+            The last context has no initial response.
+        """
 
     @abc.abstractmethod
     async def delete_last_response(self) -> None:
-        raise NotImplementedError
+        """Delete the last response after invoking this context.
+
+        Raises
+        ------
+        LookupError, hikari.errors.NotFoundError
+            The last context has no responses.
+        """
 
     @abc.abstractmethod
     async def edit_initial_response(
@@ -374,7 +474,122 @@ class Context(abc.ABC):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
-        raise NotImplementedError
+        """Edit the initial response for this context.
+
+        Parameters
+        ----------
+        content : hikari.UndefinedOr[typing.Any]
+            The content to edit the response with.
+
+            If provided, the message contents. If
+            `hikari.undefined.UNDEFINED`, then nothing will be sent
+            in the content. Any other value here will be cast to a
+            `str`.
+
+            If this is a `hikari.embeds.Embed` and no `embed` nor `embeds` kwarg
+            is provided, then this will instead update the embed. This allows
+            for simpler syntax when sending an embed alone.
+
+            Likewise, if this is a `hikari.files.Resource`, then the
+            content is instead treated as an attachment if no `attachment` and
+            no `attachments` kwargs are provided.
+
+        Other Parameters
+        ----------------
+        attachment : hikari.UndefinedOr[hikari.Resourceish]
+            A singular attachment to edit the response with.
+        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]
+            A sequence of attachments to edit the response with.
+        embed : hikari.UndefinedOr[hikari.Embed]
+            An embed to replace the response with.
+        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
+            A sequence of embeds to replace the response with.
+        replace_attachments : bool
+            Whether to replace the attachments of the response or not. Default to `False`.
+        mentions_everyone : hikari.undefined.UndefinedOr[bool]
+            If provided, whether the message should parse @everyone/@here
+            mentions.
+        user_mentions : hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.users.PartialUser], bool]]
+            If provided, and `True`, all mentions will be parsed.
+            If provided, and `False`, no mentions will be parsed.
+            Alternatively this may be a collection of
+            `hikari.snowflakes.Snowflake`, or `hikari.users.PartialUser`
+            derivatives to enforce mentioning specific users.
+        role_mentions : hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.guilds.PartialRole], bool]]
+            If provided, and `True`, all mentions will be parsed.
+            If provided, and `False`, no mentions will be parsed.
+            Alternatively this may be a collection of
+            `hikari.snowflakes.Snowflake`, or
+            `hikari.guilds.PartialRole` derivatives to enforce mentioning
+            specific roles.
+
+        Notes
+        -----
+        Attachments can be passed as many different things, to aid in
+        convenience.
+        * If a `pathlib.PurePath` or `str` to a valid URL, the
+            resource at the given URL will be streamed to Discord when
+            sending the message. Subclasses of
+            `hikari.files.WebResource` such as
+            `hikari.files.URL`,
+            `hikari.messages.Attachment`,
+            `hikari.emojis.Emoji`,
+            `EmbedResource`, etc will also be uploaded this way.
+            This will use bit-inception, so only a small percentage of the
+            resource will remain in memory at any one time, thus aiding in
+            scalability.
+        * If a `hikari.files.Bytes` is passed, or a `str`
+            that contains a valid data URI is passed, then this is uploaded
+            with a randomized file name if not provided.
+        * If a `hikari.files.File`, `pathlib.PurePath` or
+            `str` that is an absolute or relative path to a file
+            on your file system is passed, then this resource is uploaded
+            as an attachment using non-blocking code internally and streamed
+            using bit-inception where possible. This depends on the
+            type of `concurrent.futures.Executor` that is being used for
+            the application (default is a thread pool which supports this
+            behaviour).
+
+        Returns
+        -------
+        hikari.messages.Message
+            The message that has been edited.
+
+        Raises
+        ------
+        ValueError
+            If more than 100 unique objects/entities are passed for
+            `role_mentions` or `user_mentions`.
+        TypeError
+            If both `attachment` and `attachments` are specified.
+        hikari.errors.BadRequestError
+            This may be raised in several discrete situations, such as messages
+            being empty with no attachments or embeds; messages with more than
+            2000 characters in them, embeds that exceed one of the many embed
+            limits; too many attachments; attachments that are too large;
+            invalid image URLs in embeds; if `reply` is not found or not in the
+            same channel as `channel`; too many components.
+        hikari.errors.UnauthorizedError
+            If you are unauthorized to make the request (invalid/missing token).
+        hikari.errors.ForbiddenError
+            If you are missing the `SEND_MESSAGES` in the channel or the
+            person you are trying to message has the DM's disabled.
+        hikari.errors.NotFoundError
+            If the channel is not found.
+        hikari.errors.RateLimitTooLongError
+            Raised in the event that a rate limit occurs that is
+            longer than `max_rate_limit` when making a request.
+        hikari.errors.RateLimitedError
+            Usually, Hikari will handle and retry on hitting
+            rate-limits automatically. This includes most bucket-specific
+            rate-limits and global rate-limits. In some rare edge cases,
+            however, Discord implements other undocumented rules for
+            rate-limiting, such as limits per attribute. These cannot be
+            detected or handled normally by Hikari due to their undocumented
+            nature, and will trigger this exception if they occur.
+        hikari.errors.InternalServerError
+            If an internal error occurs on Discord while handling the request.
+        """  # noqa: E501 - Line too long
 
     @abc.abstractmethod
     async def edit_last_response(
@@ -398,15 +613,142 @@ class Context(abc.ABC):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
-        raise NotImplementedError
+        """Edit the last response for this context.
+
+        Parameters
+        ----------
+        content : hikari.UndefinedOr[typing.Any]
+            The content to edit the response with.
+
+            If provided, the message contents. If
+            `hikari.undefined.UNDEFINED`, then nothing will be sent
+            in the content. Any other value here will be cast to a
+            `str`.
+
+            If this is a `hikari.embeds.Embed` and no `embed` nor `embeds` kwarg
+            is provided, then this will instead update the embed. This allows
+            for simpler syntax when sending an embed alone.
+
+            Likewise, if this is a `hikari.files.Resource`, then the
+            content is instead treated as an attachment if no `attachment` and
+            no `attachments` kwargs are provided.
+
+        Other Parameters
+        ----------------
+        attachment : hikari.UndefinedOr[hikari.Resourceish]
+            A singular attachment to edit the response with.
+        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]
+            A sequence of attachments to edit the response with.
+        embed : hikari.UndefinedOr[hikari.Embed]
+            An embed to replace the response with.
+        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
+            A sequence of embeds to replace the response with.
+        replace_attachments : bool
+            Whether to replace the attachments of the response or not. Default to `False`.
+        mentions_everyone : hikari.undefined.UndefinedOr[bool]
+            If provided, whether the message should parse @everyone/@here
+            mentions.
+        user_mentions : hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.users.PartialUser], bool]]
+            If provided, and `True`, all mentions will be parsed.
+            If provided, and `False`, no mentions will be parsed.
+            Alternatively this may be a collection of
+            `hikari.snowflakes.Snowflake`, or `hikari.users.PartialUser`
+            derivatives to enforce mentioning specific users.
+        role_mentions : hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.guilds.PartialRole], bool]]
+            If provided, and `True`, all mentions will be parsed.
+            If provided, and `False`, no mentions will be parsed.
+            Alternatively this may be a collection of
+            `hikari.snowflakes.Snowflake`, or
+            `hikari.guilds.PartialRole` derivatives to enforce mentioning
+            specific roles.
+
+        Notes
+        -----
+        Attachments can be passed as many different things, to aid in
+        convenience.
+        * If a `pathlib.PurePath` or `str` to a valid URL, the
+            resource at the given URL will be streamed to Discord when
+            sending the message. Subclasses of
+            `hikari.files.WebResource` such as
+            `hikari.files.URL`,
+            `hikari.messages.Attachment`,
+            `hikari.emojis.Emoji`,
+            `EmbedResource`, etc will also be uploaded this way.
+            This will use bit-inception, so only a small percentage of the
+            resource will remain in memory at any one time, thus aiding in
+            scalability.
+        * If a `hikari.files.Bytes` is passed, or a `str`
+            that contains a valid data URI is passed, then this is uploaded
+            with a randomized file name if not provided.
+        * If a `hikari.files.File`, `pathlib.PurePath` or
+            `str` that is an absolute or relative path to a file
+            on your file system is passed, then this resource is uploaded
+            as an attachment using non-blocking code internally and streamed
+            using bit-inception where possible. This depends on the
+            type of `concurrent.futures.Executor` that is being used for
+            the application (default is a thread pool which supports this
+            behaviour).
+
+        Returns
+        -------
+        hikari.messages.Message
+            The message that has been edited.
+
+        Raises
+        ------
+        ValueError
+            If more than 100 unique objects/entities are passed for
+            `role_mentions` or `user_mentions`.
+        TypeError
+            If both `attachment` and `attachments` are specified.
+        hikari.errors.BadRequestError
+            This may be raised in several discrete situations, such as messages
+            being empty with no attachments or embeds; messages with more than
+            2000 characters in them, embeds that exceed one of the many embed
+            limits; too many attachments; attachments that are too large;
+            invalid image URLs in embeds; if `reply` is not found or not in the
+            same channel as `channel`; too many components.
+        hikari.errors.UnauthorizedError
+            If you are unauthorized to make the request (invalid/missing token).
+        hikari.errors.ForbiddenError
+            If you are missing the `SEND_MESSAGES` in the channel or the
+            person you are trying to message has the DM's disabled.
+        hikari.errors.NotFoundError
+            If the channel is not found.
+        hikari.errors.RateLimitTooLongError
+            Raised in the event that a rate limit occurs that is
+            longer than `max_rate_limit` when making a request.
+        hikari.errors.RateLimitedError
+            Usually, Hikari will handle and retry on hitting
+            rate-limits automatically. This includes most bucket-specific
+            rate-limits and global rate-limits. In some rare edge cases,
+            however, Discord implements other undocumented rules for
+            rate-limiting, such as limits per attribute. These cannot be
+            detected or handled normally by Hikari due to their undocumented
+            nature, and will trigger this exception if they occur.
+        hikari.errors.InternalServerError
+            If an internal error occurs on Discord while handling the request.
+        """  # noqa: E501 - Line too long
 
     @abc.abstractmethod
     async def fetch_initial_response(self) -> hikari.Message:
-        raise NotImplementedError
+        """Fetch the initial response for this context.
+
+        Raises
+        ------
+        LookupError, hikari.errors.NotFoundError
+            The response was not found.
+        """
 
     @abc.abstractmethod
     async def fetch_last_response(self) -> hikari.Message:
-        raise NotImplementedError
+        """Fetch the last response for this context.
+
+        Raises
+        ------
+        LookupError, hikari.errors.NotFoundError
+            The response was not found.
+        """
 
     @typing.overload
     @abc.abstractmethod
@@ -474,7 +816,91 @@ class Context(abc.ABC):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> typing.Optional[hikari.Message]:
-        raise NotImplementedError
+        """Respond to this context.
+
+        Parameters
+        ----------
+        content : hikari.UndefinedOr[typing.Any]
+            The content to respond with.
+
+            If provided, the message contents. If
+            `hikari.undefined.UNDEFINED`, then nothing will be sent
+            in the content. Any other value here will be cast to a
+            `str`.
+
+            If this is a `hikari.embeds.Embed` and no `embed` nor `embeds` kwarg
+            is provided, then this will instead update the embed. This allows
+            for simpler syntax when sending an embed alone.
+
+            Likewise, if this is a `hikari.files.Resource`, then the
+            content is instead treated as an attachment if no `attachment` and
+            no `attachments` kwargs are provided.
+
+        Other Parameters
+        ----------------
+        ensure_result : bool
+            If provided and set to `True`, It may perform an extra API call
+        embed : hikari.UndefinedOr[hikari.Embed]
+            An embed to respond with.
+        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
+            A sequence of embeds to respond with.
+        mentions_everyone : hikari.undefined.UndefinedOr[bool]
+            If provided, whether the message should parse @everyone/@here
+            mentions.
+        user_mentions : hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.users.PartialUser], bool]]
+            If provided, and `True`, all mentions will be parsed.
+            If provided, and `False`, no mentions will be parsed.
+            Alternatively this may be a collection of
+            `hikari.snowflakes.Snowflake`, or `hikari.users.PartialUser`
+            derivatives to enforce mentioning specific users.
+        role_mentions : hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.guilds.PartialRole], bool]]
+            If provided, and `True`, all mentions will be parsed.
+            If provided, and `False`, no mentions will be parsed.
+            Alternatively this may be a collection of
+            `hikari.snowflakes.Snowflake`, or
+            `hikari.guilds.PartialRole` derivatives to enforce mentioning
+            specific roles.
+
+        Returns
+        -------
+        hikari.messages.Message
+            The message that has been created.
+
+        Raises
+        ------
+        ValueError
+            If more than 100 unique objects/entities are passed for
+            `role_mentions` or `user_mentions`.
+        TypeError
+            If both `attachment` and `attachments` are specified.
+        hikari.errors.BadRequestError
+            This may be raised in several discrete situations, such as messages
+            being empty with no attachments or embeds; messages with more than
+            2000 characters in them, embeds that exceed one of the many embed
+            limits; too many attachments; attachments that are too large;
+            invalid image URLs in embeds; if `reply` is not found or not in the
+            same channel as `channel`; too many components.
+        hikari.errors.UnauthorizedError
+            If you are unauthorized to make the request (invalid/missing token).
+        hikari.errors.ForbiddenError
+            If you are missing the `SEND_MESSAGES` in the channel or the
+            person you are trying to message has the DM's disabled.
+        hikari.errors.NotFoundError
+            If the channel is not found.
+        hikari.errors.RateLimitTooLongError
+            Raised in the event that a rate limit occurs that is
+            longer than `max_rate_limit` when making a request.
+        hikari.errors.RateLimitedError
+            Usually, Hikari will handle and retry on hitting
+            rate-limits automatically. This includes most bucket-specific
+            rate-limits and global rate-limits. In some rare edge cases,
+            however, Discord implements other undocumented rules for
+            rate-limiting, such as limits per attribute. These cannot be
+            detected or handled normally by Hikari due to their undocumented
+            nature, and will trigger this exception if they occur.
+        hikari.errors.InternalServerError
+            If an internal error occurs on Discord while handling the request.
+        """  # noqa: E501 - Line too long
 
 
 class MessageContext(Context, abc.ABC):
@@ -590,7 +1016,128 @@ class MessageContext(Context, abc.ABC):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
-        raise NotImplementedError
+        """Respond to this context.
+
+        Parameters
+        ----------
+        content : hikari.UndefinedOr[typing.Any]
+            The content to respond with.
+
+            If provided, the message contents. If
+            `hikari.undefined.UNDEFINED`, then nothing will be sent
+            in the content. Any other value here will be cast to a
+            `str`.
+
+            If this is a `hikari.embeds.Embed` and no `embed` nor `embeds` kwarg
+            is provided, then this will instead update the embed. This allows
+            for simpler syntax when sending an embed alone.
+
+            Likewise, if this is a `hikari.files.Resource`, then the
+            content is instead treated as an attachment if no `attachment` and
+            no `attachments` kwargs are provided.
+
+        Other Parameters
+        ----------------
+        ensure_result : bool
+            This parameter does nothing but necessary to keep the signature with `Context`.
+        tts : hikari.UndefinedOr[bool]
+            Whether to respond with tts/text to speech or no.
+        reply : hikari.Undefinedor[hikari.SnowflakeishOr[hikari.PartialMessage]]
+            Whether to reply instead of sending the content to the context.
+        nonce : hikari.UndefinedOr[str]
+            The nonce that validates that the message was sent.
+        attachment : hikari.UndefinedOr[hikari.Resourceish]
+            A singular attachment to respond with.
+        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]
+            A sequence of attachments to respond with.
+        embed : hikari.UndefinedOr[hikari.Embed]
+            An embed to respond with.
+        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
+            A sequence of embeds to respond with.
+        mentions_everyone : hikari.undefined.UndefinedOr[bool]
+            If provided, whether the message should parse @everyone/@here
+            mentions.
+        user_mentions : hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.users.PartialUser], bool]]
+            If provided, and `True`, all mentions will be parsed.
+            If provided, and `False`, no mentions will be parsed.
+            Alternatively this may be a collection of
+            `hikari.snowflakes.Snowflake`, or `hikari.users.PartialUser`
+            derivatives to enforce mentioning specific users.
+        role_mentions : hikari.undefined.UndefinedOr[typing.Union[hikari.snowflakes.SnowflakeishSequence[hikari.guilds.PartialRole], bool]]
+            If provided, and `True`, all mentions will be parsed.
+            If provided, and `False`, no mentions will be parsed.
+            Alternatively this may be a collection of
+            `hikari.snowflakes.Snowflake`, or
+            `hikari.guilds.PartialRole` derivatives to enforce mentioning
+            specific roles.
+
+        Notes
+        -----
+        Attachments can be passed as many different things, to aid in
+        convenience.
+        * If a `pathlib.PurePath` or `str` to a valid URL, the
+            resource at the given URL will be streamed to Discord when
+            sending the message. Subclasses of
+            `hikari.files.WebResource` such as
+            `hikari.files.URL`,
+            `hikari.messages.Attachment`,
+            `hikari.emojis.Emoji`,
+            `EmbedResource`, etc will also be uploaded this way.
+            This will use bit-inception, so only a small percentage of the
+            resource will remain in memory at any one time, thus aiding in
+            scalability.
+        * If a `hikari.files.Bytes` is passed, or a `str`
+            that contains a valid data URI is passed, then this is uploaded
+            with a randomized file name if not provided.
+        * If a `hikari.files.File`, `pathlib.PurePath` or
+            `str` that is an absolute or relative path to a file
+            on your file system is passed, then this resource is uploaded
+            as an attachment using non-blocking code internally and streamed
+            using bit-inception where possible. This depends on the
+            type of `concurrent.futures.Executor` that is being used for
+            the application (default is a thread pool which supports this
+            behaviour).
+
+        Returns
+        -------
+        hikari.messages.Message
+            The message that has been created.
+
+        Raises
+        ------
+        ValueError
+            If more than 100 unique objects/entities are passed for
+            `role_mentions` or `user_mentions`.
+        TypeError
+            If both `attachment` and `attachments` are specified.
+        hikari.errors.BadRequestError
+            This may be raised in several discrete situations, such as messages
+            being empty with no attachments or embeds; messages with more than
+            2000 characters in them, embeds that exceed one of the many embed
+            limits; too many attachments; attachments that are too large;
+            invalid image URLs in embeds; if `reply` is not found or not in the
+            same channel as `channel`; too many components.
+        hikari.errors.UnauthorizedError
+            If you are unauthorized to make the request (invalid/missing token).
+        hikari.errors.ForbiddenError
+            If you are missing the `SEND_MESSAGES` in the channel or the
+            person you are trying to message has the DM's disabled.
+        hikari.errors.NotFoundError
+            If the channel is not found.
+        hikari.errors.RateLimitTooLongError
+            Raised in the event that a rate limit occurs that is
+            longer than `max_rate_limit` when making a request.
+        hikari.errors.RateLimitedError
+            Usually, Hikari will handle and retry on hitting
+            rate-limits automatically. This includes most bucket-specific
+            rate-limits and global rate-limits. In some rare edge cases,
+            however, Discord implements other undocumented rules for
+            rate-limiting, such as limits per attribute. These cannot be
+            detected or handled normally by Hikari due to their undocumented
+            nature, and will trigger this exception if they occur.
+        hikari.errors.InternalServerError
+            If an internal error occurs on Discord while handling the request.
+        """  # noqa: E501 - Line too long
 
 
 class SlashOption(abc.ABC):
