@@ -1423,6 +1423,12 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         .. note::
             This will always result in `hikari.InteractionMember`.
 
+        .. warning::
+            Unlike the other options, this is an artificial option which adds
+            a restraint to the USER option type and therefore doesn't guarantee
+            that a member will be present if `pass_as_kwarg` is `False`
+            (although there will always be a user object provided).
+
         Parameters
         ----------
         name : str

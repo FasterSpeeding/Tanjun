@@ -800,6 +800,10 @@ class TestSlashCommandGroup:
 
 
 class TestSlashCommand:
+    @pytest.fixture()
+    def command(self) -> tanjun.SlashCommand:
+        return tanjun.SlashCommand(mock.AsyncMock(), "yee", "nsoosos")
+
     @pytest.mark.asyncio()
     async def test___call__(self):
         mock_callback = typing.cast(collections.Callable[..., collections.Awaitable[typing.Any]], mock.AsyncMock())
@@ -815,16 +819,445 @@ class TestSlashCommand:
 
         assert command.callback is mock_callback
 
+    def test_add_str_option(self, command: tanjun.SlashCommand):
+        mock_converter = mock.Mock()
+        command.add_str_option(
+            "boom", "No u", choices=["aye", ("Bye man", "bye")], converters=[mock_converter], default="ayya"
+        )
+
+        option = command.build().options[0]
+        assert option.name == "boom"
+        assert option.description == "No u"
+        assert option.is_required is False
+        assert option.options is None
+        assert option.type is hikari.OptionType.STRING
+        assert option.choices == [
+            hikari.CommandChoice(name="Aye", value="aye"),
+            hikari.CommandChoice(name="Bye man", value="bye"),
+        ]
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.STRING
+        assert tracked.default == "ayya"
+        assert tracked.converters == [mock_converter]
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_str_option_with_defaults(self, command: tanjun.SlashCommand):
+        command.add_str_option("boom", "No u")
+
+        option = command.build().options[0]
+        assert option.name == "boom"
+        assert option.description == "No u"
+        assert option.is_required is True
+        assert option.options is None
+        assert option.type is hikari.OptionType.STRING
+        assert option.choices is None
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.STRING
+        assert tracked.default is tanjun.commands._UNDEFINED_DEFAULT
+        assert tracked.converters == []
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_str_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+        command.add_str_option("hi", "Nou", pass_as_kwarg=False)
+
+        option = command.build().options[0]
+        assert option.name == "hi"
+        assert option.description == "Nou"
+        assert option.type is hikari.OptionType.STRING
+        assert option.name not in command._tracked_options
+
+    def test_add_int_option(self, command: tanjun.SlashCommand):
+        mock_converter = mock.Mock()
+        command.add_int_option("see", "seesee", choices=[("no", 4)], converters=[mock_converter], default="nya")
+
+        option = command.build().options[0]
+        assert option.name == "see"
+        assert option.description == "seesee"
+        assert option.is_required is False
+        assert option.options is None
+        assert option.type is hikari.OptionType.INTEGER
+        assert option.choices == [hikari.CommandChoice(name="no", value=4)]
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.INTEGER
+        assert tracked.default == "nya"
+        assert tracked.converters == [mock_converter]
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_int_option_with_defaults(self, command: tanjun.SlashCommand):
+        command.add_int_option("e", "a")
+
+        option = command.build().options[0]
+        assert option.name == "e"
+        assert option.description == "a"
+        assert option.is_required is True
+        assert option.options is None
+        assert option.type is hikari.OptionType.INTEGER
+        assert option.choices is None
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.INTEGER
+        assert tracked.default is tanjun.commands._UNDEFINED_DEFAULT
+        assert tracked.converters == []
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_int_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+        command.add_int_option("hiu", "Nouu", pass_as_kwarg=False)
+
+        option = command.build().options[0]
+        assert option.name == "hiu"
+        assert option.description == "Nouu"
+        assert option.type is hikari.OptionType.INTEGER
+        assert option.name not in command._tracked_options
+
+    def test_add_float_option(self, command: tanjun.SlashCommand):
+        mock_converter = mock.Mock()
+        command.add_float_option(
+            "sesese", "asasasa", choices=[("no", 4.4)], converters=[mock_converter], default="eaf", always_float=False
+        )
+
+        option = command.build().options[0]
+        assert option.name == "sesese"
+        assert option.description == "asasasa"
+        assert option.is_required is False
+        assert option.options is None
+        assert option.type is hikari.OptionType.FLOAT
+        assert option.choices == [hikari.CommandChoice(name="no", value=4.4)]
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.FLOAT
+        assert tracked.default == "eaf"
+        assert tracked.converters == [mock_converter]
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_float_option_with_defaults(self, command: tanjun.SlashCommand):
+        command.add_float_option("easy", "aaa")
+
+        option = command.build().options[0]
+        assert option.name == "easy"
+        assert option.description == "aaa"
+        assert option.is_required is True
+        assert option.options is None
+        assert option.type is hikari.OptionType.FLOAT
+        assert option.choices is None
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.FLOAT
+        assert tracked.default is tanjun.commands._UNDEFINED_DEFAULT
+        assert tracked.converters == []
+        assert tracked.is_always_float is True
+        assert tracked.is_only_member is False
+
+    def test_add_float_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+        command.add_float_option("123", "321", pass_as_kwarg=False)
+
+        option = command.build().options[0]
+        assert option.name == "123"
+        assert option.description == "321"
+        assert option.type is hikari.OptionType.FLOAT
+        assert option.name not in command._tracked_options
+
+    def test_add_bool_option(self, command: tanjun.SlashCommand):
+        command.add_bool_option("eaassa", "saas", default="feel")
+
+        option = command.build().options[0]
+        assert option.name == "eaassa"
+        assert option.description == "saas"
+        assert option.is_required is False
+        assert option.options is None
+        assert option.type is hikari.OptionType.BOOLEAN
+        assert option.choices is None
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.BOOLEAN
+        assert tracked.default == "feel"
+        assert tracked.converters == []
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_bool_option_with_defaults(self, command: tanjun.SlashCommand):
+        command.add_bool_option("essssss", "aaaaaaa")
+
+        option = command.build().options[0]
+        assert option.name == "essssss"
+        assert option.description == "aaaaaaa"
+        assert option.is_required is True
+        assert option.options is None
+        assert option.type is hikari.OptionType.BOOLEAN
+        assert option.choices is None
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.BOOLEAN
+        assert tracked.default is tanjun.commands._UNDEFINED_DEFAULT
+        assert tracked.converters == []
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_bool_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+        command.add_bool_option("222", "333", pass_as_kwarg=False)
+
+        option = command.build().options[0]
+        assert option.name == "222"
+        assert option.description == "333"
+        assert option.type is hikari.OptionType.BOOLEAN
+        assert option.name not in command._tracked_options
+
+    def test_add_user_option(self, command: tanjun.SlashCommand):
+        command.add_user_option("yser", "nanm", default="nou")
+
+        option = command.build().options[0]
+        assert option.name == "yser"
+        assert option.description == "nanm"
+        assert option.is_required is False
+        assert option.options is None
+        assert option.type is hikari.OptionType.USER
+        assert option.choices is None
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.USER
+        assert tracked.default == "nou"
+        assert tracked.converters == []
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_user_option_with_defaults(self, command: tanjun.SlashCommand):
+        command.add_user_option("fafafa", "sfsfsf")
+
+        option = command.build().options[0]
+        assert option.name == "fafafa"
+        assert option.description == "sfsfsf"
+        assert option.is_required is True
+        assert option.options is None
+        assert option.type is hikari.OptionType.USER
+        assert option.choices is None
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.USER
+        assert tracked.default is tanjun.commands._UNDEFINED_DEFAULT
+        assert tracked.converters == []
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_user_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+        command.add_user_option("eee", "333", pass_as_kwarg=False)
+
+        option = command.build().options[0]
+        assert option.name == "eee"
+        assert option.description == "333"
+        assert option.type is hikari.OptionType.USER
+        assert option.name not in command._tracked_options
+
+    def test_add_member_option(self, command: tanjun.SlashCommand):
+        command.add_member_option("ddddd", "sssss", default="dsasds")
+
+        option = command.build().options[0]
+        assert option.name == "ddddd"
+        assert option.description == "sssss"
+        assert option.is_required is False
+        assert option.options is None
+        assert option.type is hikari.OptionType.USER
+        assert option.choices is None
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.USER
+        assert tracked.default == "dsasds"
+        assert tracked.converters == []
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is True
+
+    def test_add_member_option_with_defaults(self, command: tanjun.SlashCommand):
+        command.add_member_option("asasas", "fdssdddsds")
+
+        option = command.build().options[0]
+        assert option.name == "asasas"
+        assert option.description == "fdssdddsds"
+        assert option.is_required is True
+        assert option.options is None
+        assert option.type is hikari.OptionType.USER
+        assert option.choices is None
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.USER
+        assert tracked.default is tanjun.commands._UNDEFINED_DEFAULT
+        assert tracked.converters == []
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is True
+
+    def test_add_member_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+        command.add_member_option("sss", "ddd", pass_as_kwarg=False)
+
+        option = command.build().options[0]
+        assert option.name == "sss"
+        assert option.description == "ddd"
+        assert option.type is hikari.OptionType.USER
+        assert option.name not in command._tracked_options
+
+    def test_add_channel_option(self, command: tanjun.SlashCommand):
+        command.add_channel_option("c", "d", default="eee")
+
+        option = command.build().options[0]
+        assert option.name == "c"
+        assert option.description == "d"
+        assert option.is_required is False
+        assert option.options is None
+        assert option.type is hikari.OptionType.CHANNEL
+        assert option.choices is None
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.CHANNEL
+        assert tracked.default == "eee"
+        assert tracked.converters == []
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_channel_option_with_defaults(self, command: tanjun.SlashCommand):
+        command.add_channel_option("channel", "chaaa")
+
+        option = command.build().options[0]
+        assert option.name == "channel"
+        assert option.description == "chaaa"
+        assert option.is_required is True
+        assert option.options is None
+        assert option.type is hikari.OptionType.CHANNEL
+        assert option.choices is None
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.CHANNEL
+        assert tracked.default is tanjun.commands._UNDEFINED_DEFAULT
+        assert tracked.converters == []
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_channel_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+        command.add_channel_option("dsds", "www", pass_as_kwarg=False)
+
+        option = command.build().options[0]
+        assert option.name == "dsds"
+        assert option.description == "www"
+        assert option.type is hikari.OptionType.CHANNEL
+        assert option.name not in command._tracked_options
+
+    def test_add_role_option(self, command: tanjun.SlashCommand):
+        command.add_role_option("jhjh", "h", default="shera")
+
+        option = command.build().options[0]
+        assert option.name == "jhjh"
+        assert option.description == "h"
+        assert option.is_required is False
+        assert option.options is None
+        assert option.type is hikari.OptionType.ROLE
+        assert option.choices is None
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.ROLE
+        assert tracked.default == "shera"
+        assert tracked.converters == []
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_role_option_with_defaults(self, command: tanjun.SlashCommand):
+        command.add_role_option("hhhhh", "h")
+
+        option = command.build().options[0]
+        assert option.name == "hhhhh"
+        assert option.description == "h"
+        assert option.is_required is True
+        assert option.options is None
+        assert option.type is hikari.OptionType.ROLE
+        assert option.choices is None
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.ROLE
+        assert tracked.default is tanjun.commands._UNDEFINED_DEFAULT
+        assert tracked.converters == []
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_role_option_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+        command.add_role_option("22222", "ddddd", pass_as_kwarg=False)
+
+        option = command.build().options[0]
+        assert option.name == "22222"
+        assert option.description == "ddddd"
+        assert option.type is hikari.OptionType.ROLE
+        assert option.name not in command._tracked_options
+
+    def test_add_mentionable_option(self, command: tanjun.SlashCommand):
+        command.add_mentionable_option("owo", "iwi", default="ywy")
+
+        option = command.build().options[0]
+        assert option.name == "owo"
+        assert option.description == "iwi"
+        assert option.is_required is False
+        assert option.options is None
+        assert option.type is hikari.OptionType.MENTIONABLE
+        assert option.choices is None
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.MENTIONABLE
+        assert tracked.default == "ywy"
+        assert tracked.converters == []
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_mentionable_option_with_defaults(self, command: tanjun.SlashCommand):
+        command.add_mentionable_option("shera-ra", "hhh")
+
+        option = command.build().options[0]
+        assert option.name == "shera-ra"
+        assert option.description == "hhh"
+        assert option.is_required is True
+        assert option.options is None
+        assert option.type is hikari.OptionType.MENTIONABLE
+        assert option.choices is None
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.MENTIONABLE
+        assert tracked.default is tanjun.commands._UNDEFINED_DEFAULT
+        assert tracked.converters == []
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_mentionable_option_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+        command.add_mentionable_option("333ww", "dsdsds", pass_as_kwarg=False)
+
+        option = command.build().options[0]
+        assert option.name == "333ww"
+        assert option.description == "dsdsds"
+        assert option.type is hikari.OptionType.MENTIONABLE
+        assert option.name not in command._tracked_options
+
     @pytest.mark.skip(reason="TODO")
     def test_needs_injector_property(self):
         ...
 
     @pytest.mark.skip(reason="TODO")
     def test_build(self):
-        ...
-
-    @pytest.mark.skip(reason="TODO")
-    def test_add_option(self):
         ...
 
     @pytest.mark.skip(reason="TODO")
