@@ -184,9 +184,6 @@
                                 <a class="function" href="#Client.with_prefix_getter">with_prefix_getter</a>
                         </li>
                         <li>
-                                <a class="function" href="#Client.check_message_context">check_message_context</a>
-                        </li>
-                        <li>
                                 <a class="function" href="#Client.check_message_name">check_message_name</a>
                         </li>
                         <li>
@@ -614,8 +611,8 @@
     <span class="sd">&quot;&quot;&quot;Tanjun&#39;s standard `tanjun.abc.Client` implementation.</span>
 
 <span class="sd">    This implementation supports dependency injection for checks, command</span>
-<span class="sd">    callbacks, and prefix getters. For more information on how</span>
-<span class="sd">    this works see `tanjun.injector`.</span>
+<span class="sd">    callbacks, prefix getters and event listeners. For more information on how</span>
+<span class="sd">    this works see `tanjun.injecting`.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -643,7 +640,7 @@
 <span class="sd">        The Hikari event manager client this will use if applicable.</span>
 <span class="sd">    server : hikari.api.interaction_server.InteractionServer</span>
 <span class="sd">        The Hikari interaction server client this will use if applicable.</span>
-<span class="sd">    shard : hikari.traits.ShardAware</span>
+<span class="sd">    shards : hikari.traits.ShardAware</span>
 <span class="sd">        The Hikari shard aware client this will use if applicable.</span>
 <span class="sd">    event_managed : bool</span>
 <span class="sd">        Whether or not this client is managed by the event manager.</span>
@@ -709,7 +706,7 @@
         <span class="n">cache</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">Cache</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">events</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">EventManager</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">server</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionServer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">shard</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">shards</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -726,7 +723,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
@@ -743,7 +740,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span> <span class="o">=</span> <span class="n">rest</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">server</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_shards</span> <span class="o">=</span> <span class="n">shard</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shards</span> <span class="o">=</span> <span class="n">shards</span>
 
         <span class="k">if</span> <span class="n">event_managed</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">events</span><span class="p">:</span>
@@ -780,9 +777,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionServer</span><span class="p">,</span> <span class="n">server</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">server</span><span class="p">),</span> <span class="n">server</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">shard</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">,</span> <span class="n">shard</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">shard</span><span class="p">),</span> <span class="n">shard</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shards</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">,</span> <span class="n">shards</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">shards</span><span class="p">),</span> <span class="n">shards</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_gateway_bot</span><span class="p">(</span>
@@ -842,7 +839,7 @@
                 <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span>
                 <span class="n">cache</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
                 <span class="n">events</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">event_manager</span><span class="p">,</span>
-                <span class="n">shard</span><span class="o">=</span><span class="n">bot</span><span class="p">,</span>
+                <span class="n">shards</span><span class="o">=</span><span class="n">bot</span><span class="p">,</span>
                 <span class="n">event_managed</span><span class="o">=</span><span class="n">event_managed</span><span class="p">,</span>
                 <span class="n">mention_prefix</span><span class="o">=</span><span class="n">mention_prefix</span><span class="p">,</span>
                 <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
@@ -920,13 +917,13 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Set of the top level `tanjun.abc.Context` checks registered to this client.</span>
+    <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Return a collcetion of the level `tanjun.abc.Context` checks registered to this client.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        collections.abc.Set[tanjun.abc.CheckSig]</span>
-<span class="sd">            Set of the `tanjun.abc.Context` based checks registered for</span>
+<span class="sd">            Colleciton of the `tanjun.abc.Context` based checks registered for</span>
 <span class="sd">            this client.</span>
 
 <span class="sd">            These may be taking advantage of the standard dependency injection.</span>
@@ -934,7 +931,7 @@
         <span class="k">return</span> <span class="p">{</span><span class="n">check</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">}</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
@@ -1051,7 +1048,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflakeish</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -1070,8 +1067,8 @@
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]</span>
-<span class="sd">            Object or ID of the command to update.</span>
+<span class="sd">        command_id : typing.Optional[hikari.snowflakes.Snowflakeish]</span>
+<span class="sd">            ID of the command to update.</span>
 <span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
 <span class="sd">            Object or ID of the guild to register the command with.</span>
 
@@ -1086,13 +1083,14 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        hikari.interactions.commands.Command</span>
+<span class="sd">        hikari.Command</span>
 <span class="sd">            API representation of the command that was registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">builder</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">command_id</span><span class="p">:</span>
-            <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">create_application_command</span><span class="p">(</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">edit_application_command</span><span class="p">(</span>
                 <span class="n">application</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">(),</span>
+                <span class="n">command_id</span><span class="p">,</span>
                 <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">builder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="n">builder</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
@@ -1146,7 +1144,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari.interactions.commands.Command]</span>
+<span class="sd">        collections.abc.Sequence[hikari.Command]</span>
 <span class="sd">            API representations of the commands which were registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1378,7 +1376,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari.interactions.command.Command]</span>
+<span class="sd">        collections.abc.Sequence[hikari..Command]</span>
 <span class="sd">            API representations of the set commands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">commands</span> <span class="o">=</span> <span class="p">(</span>
@@ -1404,8 +1402,11 @@
 
     <span class="k">def</span> <span class="nf">add_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">add_injector</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
         <span class="n">component</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">add_injector</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">component</span><span class="p">),</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">component</span><span class="p">)</span>
@@ -1523,12 +1524,6 @@
     <span class="k">def</span> <span class="nf">with_prefix_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">getter</span><span class="p">:</span> <span class="n">PrefixGetterSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrefixGetterSigT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_prefix_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">getter</span>
-
-    <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="k">return</span> <span class="n">utilities</span><span class="o">.</span><span class="n">async_chain</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
@@ -1739,9 +1734,6 @@
             <span class="k">return</span>
 
         <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span><span class="o">.</span><span class="n">set_triggering_prefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">return</span>
-
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span>
             <span class="n">hooks</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">}</span>
@@ -1753,9 +1745,10 @@
             <span class="n">hooks</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">}</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_message</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">break</span>
+            <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_message</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">return</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -1784,7 +1777,7 @@
 
 <span class="sd">        .. note::</span>
 <span class="sd">            Any event where `event.interaction` is not</span>
-<span class="sd">            `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
+<span class="sd">            `hikari.CommandInteraction` will be ignored.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1806,10 +1799,11 @@
             <span class="n">ctx</span><span class="o">.</span><span class="n">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">await</span> <span class="n">future</span>
-                    <span class="k">return</span>
+            <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">await</span> <span class="n">future</span>
+                        <span class="k">return</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -1827,7 +1821,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        interaction : hikari.interactions.commands.CommandInteraction</span>
+<span class="sd">        interaction : hikari.CommandInteraction</span>
 <span class="sd">            The interaction to execute a command based on.</span>
 
 <span class="sd">        Returns</span>
@@ -1844,9 +1838,10 @@
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
         <span class="n">future</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_response_future</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -1855,7 +1850,9 @@
             <span class="c1"># Under very specific timing there may be another future which could set a result while we await</span>
             <span class="c1"># ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create</span>
             <span class="c1"># another response before it&#39;s returned the initial response.</span>
-            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> command error responder&quot;</span>
+            <span class="p">)</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
         <span class="k">async</span> <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">_</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1863,7 +1860,8 @@
             <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
 
         <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 </pre></div>
@@ -1941,8 +1939,8 @@ to the provided client using it's abstract methods.</li>
     <span class="sd">&quot;&quot;&quot;Tanjun&#39;s standard `tanjun.abc.Client` implementation.</span>
 
 <span class="sd">    This implementation supports dependency injection for checks, command</span>
-<span class="sd">    callbacks, and prefix getters. For more information on how</span>
-<span class="sd">    this works see `tanjun.injector`.</span>
+<span class="sd">    callbacks, prefix getters and event listeners. For more information on how</span>
+<span class="sd">    this works see `tanjun.injecting`.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -1970,7 +1968,7 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">        The Hikari event manager client this will use if applicable.</span>
 <span class="sd">    server : hikari.api.interaction_server.InteractionServer</span>
 <span class="sd">        The Hikari interaction server client this will use if applicable.</span>
-<span class="sd">    shard : hikari.traits.ShardAware</span>
+<span class="sd">    shards : hikari.traits.ShardAware</span>
 <span class="sd">        The Hikari shard aware client this will use if applicable.</span>
 <span class="sd">    event_managed : bool</span>
 <span class="sd">        Whether or not this client is managed by the event manager.</span>
@@ -2036,7 +2034,7 @@ to the provided client using it's abstract methods.</li>
         <span class="n">cache</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">Cache</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">events</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">EventManager</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">server</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionServer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">shard</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">shards</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -2053,7 +2051,7 @@ to the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
@@ -2070,7 +2068,7 @@ to the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span> <span class="o">=</span> <span class="n">rest</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">server</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_shards</span> <span class="o">=</span> <span class="n">shard</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shards</span> <span class="o">=</span> <span class="n">shards</span>
 
         <span class="k">if</span> <span class="n">event_managed</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">events</span><span class="p">:</span>
@@ -2107,9 +2105,9 @@ to the provided client using it's abstract methods.</li>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionServer</span><span class="p">,</span> <span class="n">server</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">server</span><span class="p">),</span> <span class="n">server</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">shard</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">,</span> <span class="n">shard</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">shard</span><span class="p">),</span> <span class="n">shard</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shards</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">,</span> <span class="n">shards</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">shards</span><span class="p">),</span> <span class="n">shards</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_gateway_bot</span><span class="p">(</span>
@@ -2169,7 +2167,7 @@ to the provided client using it's abstract methods.</li>
                 <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span>
                 <span class="n">cache</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
                 <span class="n">events</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">event_manager</span><span class="p">,</span>
-                <span class="n">shard</span><span class="o">=</span><span class="n">bot</span><span class="p">,</span>
+                <span class="n">shards</span><span class="o">=</span><span class="n">bot</span><span class="p">,</span>
                 <span class="n">event_managed</span><span class="o">=</span><span class="n">event_managed</span><span class="p">,</span>
                 <span class="n">mention_prefix</span><span class="o">=</span><span class="n">mention_prefix</span><span class="p">,</span>
                 <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
@@ -2247,13 +2245,13 @@ to the provided client using it's abstract methods.</li>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Set of the top level `tanjun.abc.Context` checks registered to this client.</span>
+    <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Return a collcetion of the level `tanjun.abc.Context` checks registered to this client.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        collections.abc.Set[tanjun.abc.CheckSig]</span>
-<span class="sd">            Set of the `tanjun.abc.Context` based checks registered for</span>
+<span class="sd">            Colleciton of the `tanjun.abc.Context` based checks registered for</span>
 <span class="sd">            this client.</span>
 
 <span class="sd">            These may be taking advantage of the standard dependency injection.</span>
@@ -2261,7 +2259,7 @@ to the provided client using it's abstract methods.</li>
         <span class="k">return</span> <span class="p">{</span><span class="n">check</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">}</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
@@ -2378,7 +2376,7 @@ to the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflakeish</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -2397,8 +2395,8 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]</span>
-<span class="sd">            Object or ID of the command to update.</span>
+<span class="sd">        command_id : typing.Optional[hikari.snowflakes.Snowflakeish]</span>
+<span class="sd">            ID of the command to update.</span>
 <span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
 <span class="sd">            Object or ID of the guild to register the command with.</span>
 
@@ -2413,13 +2411,14 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        hikari.interactions.commands.Command</span>
+<span class="sd">        hikari.Command</span>
 <span class="sd">            API representation of the command that was registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">builder</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">command_id</span><span class="p">:</span>
-            <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">create_application_command</span><span class="p">(</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">edit_application_command</span><span class="p">(</span>
                 <span class="n">application</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">(),</span>
+                <span class="n">command_id</span><span class="p">,</span>
                 <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">builder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="n">builder</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
@@ -2473,7 +2472,7 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari.interactions.commands.Command]</span>
+<span class="sd">        collections.abc.Sequence[hikari.Command]</span>
 <span class="sd">            API representations of the commands which were registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -2705,7 +2704,7 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari.interactions.command.Command]</span>
+<span class="sd">        collections.abc.Sequence[hikari..Command]</span>
 <span class="sd">            API representations of the set commands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">commands</span> <span class="o">=</span> <span class="p">(</span>
@@ -2731,8 +2730,11 @@ to the provided client using it's abstract methods.</li>
 
     <span class="k">def</span> <span class="nf">add_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">add_injector</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
         <span class="n">component</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">add_injector</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">component</span><span class="p">),</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">component</span><span class="p">)</span>
@@ -2850,12 +2852,6 @@ to the provided client using it's abstract methods.</li>
     <span class="k">def</span> <span class="nf">with_prefix_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">getter</span><span class="p">:</span> <span class="n">PrefixGetterSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrefixGetterSigT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_prefix_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">getter</span>
-
-    <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="k">return</span> <span class="n">utilities</span><span class="o">.</span><span class="n">async_chain</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
@@ -3066,9 +3062,6 @@ to the provided client using it's abstract methods.</li>
             <span class="k">return</span>
 
         <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span><span class="o">.</span><span class="n">set_triggering_prefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">return</span>
-
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span>
             <span class="n">hooks</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">}</span>
@@ -3080,9 +3073,10 @@ to the provided client using it's abstract methods.</li>
             <span class="n">hooks</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">}</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_message</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">break</span>
+            <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_message</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">return</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -3111,7 +3105,7 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            Any event where `event.interaction` is not</span>
-<span class="sd">            `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
+<span class="sd">            `hikari.CommandInteraction` will be ignored.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -3133,10 +3127,11 @@ to the provided client using it's abstract methods.</li>
             <span class="n">ctx</span><span class="o">.</span><span class="n">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">await</span> <span class="n">future</span>
-                    <span class="k">return</span>
+            <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">await</span> <span class="n">future</span>
+                        <span class="k">return</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -3154,7 +3149,7 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        interaction : hikari.interactions.commands.CommandInteraction</span>
+<span class="sd">        interaction : hikari.CommandInteraction</span>
 <span class="sd">            The interaction to execute a command based on.</span>
 
 <span class="sd">        Returns</span>
@@ -3171,9 +3166,10 @@ to the provided client using it's abstract methods.</li>
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
         <span class="n">future</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_response_future</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -3182,7 +3178,9 @@ to the provided client using it's abstract methods.</li>
             <span class="c1"># Under very specific timing there may be another future which could set a result while we await</span>
             <span class="c1"># ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create</span>
             <span class="c1"># another response before it&#39;s returned the initial response.</span>
-            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> command error responder&quot;</span>
+            <span class="p">)</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
         <span class="k">async</span> <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">_</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -3190,7 +3188,8 @@ to the provided client using it's abstract methods.</li>
             <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
 
         <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 </pre></div>
@@ -3200,8 +3199,8 @@ to the provided client using it's abstract methods.</li>
             <div class="docstring"><p>Tanjun's standard <code><a href="abc.html#Client">tanjun.abc.Client</a></code> implementation.</p>
 
 <p>This implementation supports dependency injection for checks, command
-callbacks, and prefix getters. For more information on how
-this works see <code><a href="../tanjun.html#injector">tanjun.injector</a></code>.</p>
+callbacks, prefix getters and event listeners. For more information on how
+this works see <code><a href="injecting.html">tanjun.injecting</a></code>.</p>
 
 <h6 id="notes">Notes</h6>
 
@@ -3234,7 +3233,7 @@ The Hikari cache client this will use if applicable.</li>
 The Hikari event manager client this will use if applicable.</li>
 <li><strong>server</strong> (hikari.api.interaction_server.InteractionServer):
 The Hikari interaction server client this will use if applicable.</li>
-<li><strong>shard</strong> (hikari.traits.ShardAware):
+<li><strong>shards</strong> (hikari.traits.ShardAware):
 The Hikari shard aware client this will use if applicable.</li>
 <li><p><strong>event_managed</strong> (bool):
 Whether or not this client is managed by the event manager.</p>
@@ -3279,7 +3278,7 @@ when set on a specific guild.</p></li>
     cache: Optional[hikari.api.cache.Cache] = None,
     events: Optional[hikari.api.event_manager.EventManager] = None,
     server: Optional[hikari.api.interaction_server.InteractionServer] = None,
-    shard: Optional[hikari.traits.ShardAware] = None,
+    shards: Optional[hikari.traits.ShardAware] = None,
     event_managed: bool = False,
     mention_prefix: bool = False,
     set_global_commands: Union[hikari.snowflakes.Snowflake, bool] = False
@@ -3295,7 +3294,7 @@ when set on a specific guild.</p></li>
         <span class="n">cache</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">Cache</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">events</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">EventManager</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">server</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionServer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">shard</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">shards</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -3312,7 +3311,7 @@ when set on a specific guild.</p></li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
@@ -3329,7 +3328,7 @@ when set on a specific guild.</p></li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span> <span class="o">=</span> <span class="n">rest</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">server</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_shards</span> <span class="o">=</span> <span class="n">shard</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shards</span> <span class="o">=</span> <span class="n">shards</span>
 
         <span class="k">if</span> <span class="n">event_managed</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">events</span><span class="p">:</span>
@@ -3366,9 +3365,9 @@ when set on a specific guild.</p></li>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionServer</span><span class="p">,</span> <span class="n">server</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">server</span><span class="p">),</span> <span class="n">server</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">shard</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">,</span> <span class="n">shard</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">shard</span><span class="p">),</span> <span class="n">shard</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shards</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">,</span> <span class="n">shards</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_type_special_case</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">shards</span><span class="p">),</span> <span class="n">shards</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -3453,7 +3452,7 @@ when set on a specific guild.</p></li>
                 <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span>
                 <span class="n">cache</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
                 <span class="n">events</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">event_manager</span><span class="p">,</span>
-                <span class="n">shard</span><span class="o">=</span><span class="n">bot</span><span class="p">,</span>
+                <span class="n">shards</span><span class="o">=</span><span class="n">bot</span><span class="p">,</span>
                 <span class="n">event_managed</span><span class="o">=</span><span class="n">event_managed</span><span class="p">,</span>
                 <span class="n">mention_prefix</span><span class="o">=</span><span class="n">mention_prefix</span><span class="p">,</span>
                 <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
@@ -3653,15 +3652,15 @@ with if provided, else <code>None</code>.</li>
                             <div id="Client.checks" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Client.checks">#&nbsp;&nbsp</a>
 
-        <span class="name">checks</span><span class="annotation">: collections.abc.Set[collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]]]</span>
+        <span class="name">checks</span><span class="annotation">: collections.abc.Collection[collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]]]</span>
     </div>
 
-            <div class="docstring"><p>Set of the top level <code><a href="abc.html#Context">tanjun.abc.Context</a></code> checks registered to this client.</p>
+            <div class="docstring"><p>Return a collcetion of the level <code><a href="abc.html#Context">tanjun.abc.Context</a></code> checks registered to this client.</p>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Set[<a href="abc.html#CheckSig">tanjun.abc.CheckSig</a>]</strong>: Set of the <code><a href="abc.html#Context">tanjun.abc.Context</a></code> based checks registered for
+<li><strong>collections.abc.Set[<a href="abc.html#CheckSig">tanjun.abc.CheckSig</a>]</strong>: Colleciton of the <code><a href="abc.html#Context">tanjun.abc.Context</a></code> based checks registered for
 this client.</li>
 </ul>
 
@@ -3673,7 +3672,7 @@ this client.</li>
                             <div id="Client.components" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#Client.components">#&nbsp;&nbsp</a>
 
-        <span class="name">components</span><span class="annotation">: collections.abc.Set[<a href="abc.html#Component">tanjun.abc.Component</a>]</span>
+        <span class="name">components</span><span class="annotation">: collections.abc.Collection[<a href="abc.html#Component">tanjun.abc.Component</a>]</span>
     </div>
 
             <div class="docstring"><p>Get a collection of the components this command client is using.</p>
@@ -3916,7 +3915,7 @@ if provided, else <code>None</code>.</li>
     self,
     command: <a href="abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>,
     /,
-    command_id: Optional[hikari.snowflakes.Snowflake] = None,
+    command_id: Union[hikari.snowflakes.Snowflake, int, NoneType] = None,
     *,
     application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
     guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED
@@ -3929,7 +3928,7 @@ if provided, else <code>None</code>.</li>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflakeish</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -3948,8 +3947,8 @@ if provided, else <code>None</code>.</li>
 
 <span class="sd">            If left as `None` then this will be inferred from the authorization</span>
 <span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]</span>
-<span class="sd">            Object or ID of the command to update.</span>
+<span class="sd">        command_id : typing.Optional[hikari.snowflakes.Snowflakeish]</span>
+<span class="sd">            ID of the command to update.</span>
 <span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
 <span class="sd">            Object or ID of the guild to register the command with.</span>
 
@@ -3964,13 +3963,14 @@ if provided, else <code>None</code>.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        hikari.interactions.commands.Command</span>
+<span class="sd">        hikari.Command</span>
 <span class="sd">            API representation of the command that was registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">builder</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">command_id</span><span class="p">:</span>
-            <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">create_application_command</span><span class="p">(</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">edit_application_command</span><span class="p">(</span>
                 <span class="n">application</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">(),</span>
+                <span class="n">command_id</span><span class="p">,</span>
                 <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">builder</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="n">builder</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
@@ -4010,8 +4010,8 @@ The application to register the command with.</p>
 
 <p>If left as <code>None</code> then this will be inferred from the authorization
 being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
-<li><strong>command_id</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.interactions.commands.Command]]):
-Object or ID of the command to update.</li>
+<li><strong>command_id</strong> (typing.Optional[hikari.snowflakes.Snowflakeish]):
+ID of the command to update.</li>
 <li><p><strong>guild</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]):
 Object or ID of the guild to register the command with.</p>
 
@@ -4030,7 +4030,7 @@ command's name).</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>hikari.interactions.commands.Command</strong>: API representation of the command that was registered.</li>
+<li><strong>hikari.Command</strong>: API representation of the command that was registered.</li>
 </ul>
 </div>
 
@@ -4087,7 +4087,7 @@ command's name).</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari.interactions.commands.Command]</span>
+<span class="sd">        collections.abc.Sequence[hikari.Command]</span>
 <span class="sd">            API representations of the commands which were registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -4154,7 +4154,7 @@ Object or ID of the guild to register the commands with.</p>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Sequence[hikari.interactions.commands.Command]</strong>: API representations of the commands which were registered.</li>
+<li><strong>collections.abc.Sequence[hikari.Command]</strong>: API representations of the commands which were registered.</li>
 </ul>
 </div>
 
@@ -4646,7 +4646,7 @@ Object or ID of the guild to clear commands for.</p>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari.interactions.command.Command]</span>
+<span class="sd">        collections.abc.Sequence[hikari..Command]</span>
 <span class="sd">            API representations of the set commands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">commands</span> <span class="o">=</span> <span class="p">(</span>
@@ -4693,7 +4693,7 @@ Object or ID of the guild to set the global commands to.</p>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Sequence[hikari.interactions.command.Command]</strong>: API representations of the set commands.</li>
+<li><strong>collections.abc.Sequence[hikari..Command]</strong>: API representations of the set commands.</li>
 </ul>
 </div>
 
@@ -4795,8 +4795,11 @@ Object or ID of the guild to set the global commands to.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">add_injector</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
         <span class="n">component</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">add_injector</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">component</span><span class="p">),</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">component</span><span class="p">)</span>
@@ -5164,32 +5167,6 @@ Object or ID of the guild to set the global commands to.</p>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_prefix_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">getter</span><span class="p">:</span> <span class="n">PrefixGetterSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrefixGetterSigT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_prefix_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">getter</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
-                            <div id="Client.check_message_context" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Client.check_message_context">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">check_message_context</span><span class="signature">(
-    self,
-    ctx: <a href="abc.html#MessageContext">tanjun.abc.MessageContext</a>,
-    /
-) -&gt; collections.abc.AsyncIterator[tuple[str, <a href="abc.html#MessageCommand">tanjun.abc.MessageCommand</a>]]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">check_message_context</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="k">return</span> <span class="n">utilities</span><span class="o">.</span><span class="n">async_chain</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">check_message_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -5585,9 +5562,6 @@ of type <code><a href="#Client">Client</a></code>.</p>
             <span class="k">return</span>
 
         <span class="n">ctx</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="p">:]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span><span class="o">.</span><span class="n">set_triggering_prefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">return</span>
-
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span>
             <span class="n">hooks</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">}</span>
@@ -5599,9 +5573,10 @@ of type <code><a href="#Client">Client</a></code>.</p>
             <span class="n">hooks</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">}</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_message</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">break</span>
+            <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_message</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">return</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -5645,7 +5620,7 @@ of type <code><a href="#Client">Client</a></code>.</p>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            Any event where `event.interaction` is not</span>
-<span class="sd">            `hikari.interactions.commands.CommandInteraction` will be ignored.</span>
+<span class="sd">            `hikari.CommandInteraction` will be ignored.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -5667,10 +5642,11 @@ of type <code><a href="#Client">Client</a></code>.</p>
             <span class="n">ctx</span><span class="o">.</span><span class="n">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">await</span> <span class="n">future</span>
-                    <span class="k">return</span>
+            <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">await</span> <span class="n">future</span>
+                        <span class="k">return</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -5690,7 +5666,7 @@ of type <code><a href="#Client">Client</a></code>.</p>
 
 <p><em>Note:</em>
 Any event where <code>event.interaction</code> is not
-<code>hikari.interactions.commands.CommandInteraction</code> will be ignored.</p>
+<code>hikari.CommandInteraction</code> will be ignored.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -5721,7 +5697,7 @@ The event to execute commands based on.</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        interaction : hikari.interactions.commands.CommandInteraction</span>
+<span class="sd">        interaction : hikari.CommandInteraction</span>
 <span class="sd">            The interaction to execute a command based on.</span>
 
 <span class="sd">        Returns</span>
@@ -5738,9 +5714,10 @@ The event to execute commands based on.</li>
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
         <span class="n">future</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_response_future</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
-                <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
         <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -5749,7 +5726,9 @@ The event to execute commands based on.</li>
             <span class="c1"># Under very specific timing there may be another future which could set a result while we await</span>
             <span class="c1"># ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create</span>
             <span class="c1"># another response before it&#39;s returned the initial response.</span>
-            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> command error responder&quot;</span>
+            <span class="p">)</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
         <span class="k">async</span> <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">_</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -5757,7 +5736,8 @@ The event to execute commands based on.</li>
             <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
 
         <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 </pre></div>
@@ -5769,7 +5749,7 @@ The event to execute commands based on.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>interaction</strong> (hikari.interactions.commands.CommandInteraction):
+<li><strong>interaction</strong> (hikari.CommandInteraction):
 The interaction to execute a command based on.</li>
 </ul>
 
@@ -5789,9 +5769,10 @@ The interaction to execute a command based on.</li>
                                 <dd id="Client.add_type_dependency" class="function"><a href="injecting.html#InjectorClient.add_type_dependency">add_type_dependency</a></dd>
                 <dd id="Client.set_type_dependency" class="function"><a href="injecting.html#InjectorClient.set_type_dependency">set_type_dependency</a></dd>
                 <dd id="Client.get_type_dependency" class="function"><a href="injecting.html#InjectorClient.get_type_dependency">get_type_dependency</a></dd>
+                <dd id="Client.remove_type_dependency" class="function"><a href="injecting.html#InjectorClient.remove_type_dependency">remove_type_dependency</a></dd>
                 <dd id="Client.get_type_special_case" class="function"><a href="injecting.html#InjectorClient.get_type_special_case">get_type_special_case</a></dd>
                 <dd id="Client.set_type_special_case" class="function"><a href="injecting.html#InjectorClient.set_type_special_case">set_type_special_case</a></dd>
-                <dd id="Client.remove_type_dependency" class="function"><a href="injecting.html#InjectorClient.remove_type_dependency">remove_type_dependency</a></dd>
+                <dd id="Client.remove_type_special_case" class="function"><a href="injecting.html#InjectorClient.remove_type_special_case">remove_type_special_case</a></dd>
                 <dd id="Client.add_callback_override" class="function"><a href="injecting.html#InjectorClient.add_callback_override">add_callback_override</a></dd>
                 <dd id="Client.set_callback_override" class="function"><a href="injecting.html#InjectorClient.set_callback_override">set_callback_override</a></dd>
                 <dd id="Client.get_callback_override" class="function"><a href="injecting.html#InjectorClient.get_callback_override">get_callback_override</a></dd>

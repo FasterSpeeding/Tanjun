@@ -69,6 +69,9 @@
                         <li>
                                 <a class="function" href="#BasicInjectionContext.set_type_special_case">set_type_special_case</a>
                         </li>
+                        <li>
+                                <a class="function" href="#BasicInjectionContext.remove_type_special_case">remove_type_special_case</a>
+                        </li>
                 </ul>
 
             </li>
@@ -184,13 +187,16 @@
                                 <a class="function" href="#InjectorClient.get_type_dependency">get_type_dependency</a>
                         </li>
                         <li>
+                                <a class="function" href="#InjectorClient.remove_type_dependency">remove_type_dependency</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#InjectorClient.get_type_special_case">get_type_special_case</a>
                         </li>
                         <li>
                                 <a class="function" href="#InjectorClient.set_type_special_case">set_type_special_case</a>
                         </li>
                         <li>
-                                <a class="function" href="#InjectorClient.remove_type_dependency">remove_type_dependency</a>
+                                <a class="function" href="#InjectorClient.remove_type_special_case">remove_type_special_case</a>
                         </li>
                         <li>
                                 <a class="function" href="#InjectorClient.add_callback_override">add_callback_override</a>
@@ -399,7 +405,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">include_client</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get a special-case value for a type.</span>
 
 <span class="sd">        .. note:</span>
@@ -409,6 +415,11 @@
 <span class="sd">        ----------</span>
 <span class="sd">        type_ : type[_T]</span>
 <span class="sd">            The type to get a special-case value for.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        include_client : bool</span>
+<span class="sd">            Whether to fallback to the client&#39;s special-cases.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -451,15 +462,21 @@
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.injecting.AbstractInjectionContext&gt;&gt;.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">UNDEFINED</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">include_client</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.injecting.AbstractInjectionContext&gt;&gt;.</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">UNDEFINED</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_injection_client</span><span class="o">.</span><span class="n">get_type_special_case</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">include_client</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_injection_client</span><span class="o">.</span><span class="n">get_type_special_case</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">UNDEFINED</span>
 
     <span class="k">def</span> <span class="nf">set_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">remove_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
 
 
 <span class="k">class</span> <span class="nc">CallbackDescriptor</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_T</span><span class="p">]):</span>
@@ -786,6 +803,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">remove_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
+
     <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">UNDEFINED</span><span class="p">)</span>
 
@@ -795,8 +815,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">remove_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">remove_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">add_callback_override</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_InjectorClientT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="n">override</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span>
@@ -858,6 +878,9 @@
     <span class="c1"># This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.</span>
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="si">!r}</span><span class="s2">)&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
@@ -994,7 +1017,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">include_client</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get a special-case value for a type.</span>
 
 <span class="sd">        .. note:</span>
@@ -1004,6 +1027,11 @@
 <span class="sd">        ----------</span>
 <span class="sd">        type_ : type[_T]</span>
 <span class="sd">            The type to get a special-case value for.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        include_client : bool</span>
+<span class="sd">            Whether to fallback to the client&#39;s special-cases.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1135,13 +1163,19 @@ has not been cached within this context.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">get_type_special_case</span><span class="signature">(self, type_: type, /) -&gt; Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>:
+            <span class="name">get_type_special_case</span><span class="signature">(
+    self,
+    type_: type,
+    /,
+    *,
+    include_client: bool = True
+) -&gt; Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">include_client</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Get a special-case value for a type.</span>
 
 <span class="sd">        .. note:</span>
@@ -1151,6 +1185,11 @@ has not been cached within this context.</li>
 <span class="sd">        ----------</span>
 <span class="sd">        type_ : type[_T]</span>
 <span class="sd">            The type to get a special-case value for.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        include_client : bool</span>
+<span class="sd">            Whether to fallback to the client&#39;s special-cases.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1172,6 +1211,13 @@ has not been cached within this context.</li>
 <ul>
 <li><strong>type_</strong> (type[_T]):
 The type to get a special-case value for.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>include_client</strong> (bool):
+Whether to fallback to the client's special-cases.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -1229,15 +1275,21 @@ by this context.</li>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.injecting.AbstractInjectionContext&gt;&gt;.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">UNDEFINED</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">include_client</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.injecting.AbstractInjectionContext&gt;&gt;.</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">UNDEFINED</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_injection_client</span><span class="o">.</span><span class="n">get_type_special_case</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">include_client</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_injection_client</span><span class="o">.</span><span class="n">get_type_special_case</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">UNDEFINED</span>
 
     <span class="k">def</span> <span class="nf">set_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">remove_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
 </pre></div>
 
         </details>
@@ -1370,17 +1422,26 @@ has not been cached within this context.</li>
 
         
             <span class="def">def</span>
-            <span class="name">get_type_special_case</span><span class="signature">(self, type_: type, /) -&gt; Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>:
+            <span class="name">get_type_special_case</span><span class="signature">(
+    self,
+    type_: type,
+    /,
+    *,
+    include_client: bool = True
+) -&gt; Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">include_client</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.injecting.AbstractInjectionContext&gt;&gt;.</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">UNDEFINED</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_injection_client</span><span class="o">.</span><span class="n">get_type_special_case</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">include_client</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_injection_client</span><span class="o">.</span><span class="n">get_type_special_case</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">UNDEFINED</span>
 </pre></div>
 
         </details>
@@ -1395,6 +1456,13 @@ has not been cached within this context.</li>
 <ul>
 <li><strong>type_</strong> (type[_T]):
 The type to get a special-case value for.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>include_client</strong> (bool):
+Whether to fallback to the client's special-cases.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -1419,6 +1487,25 @@ by this context.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
+                            <div id="BasicInjectionContext.remove_type_special_case" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#BasicInjectionContext.remove_type_special_case">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">remove_type_special_case</span><span class="signature">(self, type_: type, /) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
 </pre></div>
 
         </details>
@@ -2407,6 +2494,9 @@ For example, a generic mapping type might be defined as::</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">remove_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
+
     <span class="k">def</span> <span class="nf">get_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UndefinedOr</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">UNDEFINED</span><span class="p">)</span>
 
@@ -2416,8 +2506,8 @@ For example, a generic mapping type might be defined as::</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">remove_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">remove_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">add_callback_override</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_InjectorClientT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="n">override</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span>
@@ -2668,6 +2758,25 @@ The associated type.</li>
 
 
                             </div>
+                            <div id="InjectorClient.remove_type_dependency" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InjectorClient.remove_type_dependency">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">remove_type_dependency</span><span class="signature">(self, type_: type, /) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
                             <div id="InjectorClient.get_type_special_case" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#InjectorClient.get_type_special_case">#&nbsp;&nbsp</a>
 
@@ -2714,18 +2823,18 @@ The associated type.</li>
     
 
                             </div>
-                            <div id="InjectorClient.remove_type_dependency" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#InjectorClient.remove_type_dependency">#&nbsp;&nbsp</a>
+                            <div id="InjectorClient.remove_type_special_case" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#InjectorClient.remove_type_special_case">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">remove_type_dependency</span><span class="signature">(self, type_: type, /) -&gt; None</span>:
+            <span class="name">remove_type_special_case</span><span class="signature">(self, type_: type, /) -&gt; None</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
 </pre></div>
 
         </details>
