@@ -2281,6 +2281,11 @@ class Component(abc.ABC):
             The event to listen for.
         listener : ListenerCallbackSig
             The listener to remove.
+
+        Raises
+        ------
+        LookupError
+            If the listener is not registered for the provided event.
         """
 
     # TODO: make event optional?
@@ -2481,7 +2486,7 @@ class Client(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_listener(self, event_type: type[hikari.Event], callback: ListenerCallbackSig, /) -> None:
+    def add_listener(self: _T, event_type: type[hikari.Event], callback: ListenerCallbackSig, /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod

@@ -424,7 +424,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
         self._is_alive = False
         self._is_closing = False
-        self._listeners: dict[type[hikari.Event], set[_InjectableListener]] = {}
+        self._listeners: dict[type[hikari.Event], list[_InjectableListener]] = {}
         self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._prefix_getter: typing.Optional[_InjectablePrefixGetter] = None
@@ -1168,24 +1168,36 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return decorator
 
-    def add_listener(self, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /) -> None:
+    def add_listener(
+        self: _ClientT, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /
+    ) -> _ClientT:
         injected = _InjectableListener(self, callback)
         try:
-            self._listeners[event_type].add(injected)
+            if callback in self._listeners[event_type]:
+                return self
+
+            self._listeners[event_type].append(injected)
 
         except KeyError:
-            self._listeners[event_type] = {injected}
+            self._listeners[event_type] = [injected]
 
         if self._is_alive and self._events:
-            self._events.subscribe(event_type, injected)  # TODO: does this work?
+            self._events.subscribe(event_type, injected.__call__)
+
+        return self
 
     def remove_listener(self, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /) -> None:
-        self._listeners[event_type].remove(callback)  # type: ignore
+        try:
+            registered_callback = self._listeners[event_type].pop(self._listeners[event_type].index(callback))
+
+        except ValueError:
+            raise LookupError("Event listener not found.") from None
+
         if not self._listeners[event_type]:
             del self._listeners[event_type]
 
         if self._is_alive and self._events:
-            self._events.unsubscribe(event_type, callback)  # TODO: does this work?
+            self._events.unsubscribe(event_type, registered_callback.__call__)
 
     def with_listener(
         self, event_type: type[hikari.Event], /
@@ -1270,7 +1282,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             for event_type, listeners in self._listeners.items():
                 for listener in listeners:
-                    self._try_unsubscribe(self._events, event_type, listener)
+                    self._try_unsubscribe(self._events, event_type, listener.__call__)
 
         if deregister_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, None)
@@ -1323,7 +1335,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             for event_type, listeners in self._listeners.items():
                 for listener in listeners:
-                    self._events.subscribe(event_type, listener)
+                    self._events.subscribe(event_type, listener.__call__)
 
         if register_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, self.on_interaction_create_request)

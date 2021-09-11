@@ -51,13 +51,13 @@ def install_requirements(
     session.install("--upgrade", *other_requirements)
 
 
-def _try_find_option(session: nox.Session, name: str, *other_names: str) -> str | None:
+def _try_find_option(session: nox.Session, name: str, *other_names: str, when_empty: str | None = None) -> str | None:
     args_iter = iter(session.posargs)
     names = {name, *other_names}
 
     for arg in args_iter:
         if arg in names:
-            return next(args_iter, None)
+            return next(args_iter, when_empty)
 
 
 @nox.session(name="check-versions")
@@ -165,6 +165,9 @@ def build(session: nox.Session) -> None:
 
 @nox.session(reuse_venv=True)
 def publish(session: nox.Session, test: bool = False) -> None:
+    if not _try_find_option(session, "--skip-version-check", when_empty="true"):
+        check_versions(session)
+
     session.install("flit")
 
     env: dict[str, str] = {}
