@@ -670,10 +670,6 @@ class _CacheCallback(typing.Generic[_T]):
             not self._last_called or self._expire_after <= (time.monotonic() - self._last_called)
         )
 
-    async def _update_resource(self, ctx: AbstractInjectionContext, *args: typing.Any) -> _T:
-        self._result = await self._callback.resolve(ctx, *args)
-        return self._result
-
     async def __call__(
         self,
         # Positional arg(s) may be guaranteed under some contexts so we want to pass those through.
@@ -690,14 +686,16 @@ class _CacheCallback(typing.Generic[_T]):
         async with self._lock:
             if self._has_expired:
                 self._last_called = time.monotonic()
-                return await self._update_resource(ctx, *args)
+                self._result = await self._callback.resolve(ctx, *args)
+                return await self._result
 
             if self._result is not UNDEFINED:
                 assert not isinstance(self._result, Undefined)
                 return self._result
 
             self._last_called = time.monotonic()
-            return await self._update_resource(ctx, *args)
+            self._result = await self._callback.resolve(ctx, *args)
+            return await self._result
 
 
 def cache_callback(
