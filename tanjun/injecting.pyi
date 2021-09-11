@@ -190,6 +190,14 @@ class BaseInjectableCallback(typing.Generic[_T]):
     def copy(self: _BaseInjectableCallbackT) -> _BaseInjectableCallbackT: ...
     def overwrite_callback(self, callback: CallbackSig[_T], /) -> None: ...
 
+@typing.overload
 def cache_callback(
-    callback: CallbackSig[_T], /, *, expire_after: typing.Optional[datetime.timedelta] = None
+    callback: collections.Callable[..., collections.Awaitable[_T]],
+    /,
+    *,
+    expire_after: typing.Optional[datetime.timedelta] = None,
+) -> collections.Callable[..., collections.Awaitable[_T]]: ...
+@typing.overload
+def cache_callback(
+    callback: collections.Callable[..., _T], /, *, expire_after: typing.Optional[datetime.timedelta] = None
 ) -> collections.Callable[..., collections.Awaitable[_T]]: ...
