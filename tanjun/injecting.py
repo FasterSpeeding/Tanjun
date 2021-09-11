@@ -53,6 +53,7 @@ import asyncio
 import collections.abc as collections
 import copy
 import inspect
+import time
 import typing
 import warnings
 
@@ -60,6 +61,8 @@ from . import abc as tanjun_abc
 from . import errors
 
 if typing.TYPE_CHECKING:
+    import datetime
+
     _BaseInjectableCallbackT = typing.TypeVar("_BaseInjectableCallbackT", bound="BaseInjectableCallback[typing.Any]")
     _CallbackDescriptorT = typing.TypeVar("_CallbackDescriptorT", bound="CallbackDescriptor[typing.Any]")
 
@@ -652,12 +655,20 @@ class BaseInjectableCallback(typing.Generic[_T]):
 
 
 class _CacheCallback(typing.Generic[_T]):
-    __slots__ = ("_callback", "_lock", "_result")
+    __slots__ = ("_callback", "_expire_after", "_last_called", "_lock", "_result")
 
-    def __init__(self, callback: CallbackSig[_T], /) -> None:
+    def __init__(self, callback: CallbackSig[_T], /, *, expire_after: typing.Optional[datetime.timedelta]) -> None:
         self._callback = CallbackDescriptor(callback)
+        self._expire_after = expire_after.total_seconds() if expire_after else None
+        self._last_called: typing.Optional[float] = None
         self._lock: typing.Optional[asyncio.Lock] = None
         self._result: typing.Union[_T, Undefined] = UNDEFINED
+
+    @property
+    def _has_expired(self) -> bool:
+        return self._expire_after is not None and (
+            not self._last_called or self._expire_after <= (time.monotonic() - self._last_called)
+        )
 
     async def __call__(
         self,
@@ -665,7 +676,7 @@ class _CacheCallback(typing.Generic[_T]):
         *args: typing.Any,
         ctx: AbstractInjectionContext = Injected(type=AbstractInjectionContext),  # type: ignore[assignment]
     ) -> _T:
-        if self._result is not UNDEFINED:
+        if self._result is not UNDEFINED and not self._has_expired:
             assert not isinstance(self._result, Undefined)
             return self._result
 
@@ -673,17 +684,23 @@ class _CacheCallback(typing.Generic[_T]):
             self._lock = asyncio.Lock()
 
         async with self._lock:
+            if self._has_expired:
+                self._last_called = time.monotonic()
+                self._result = await self._callback.resolve(ctx, *args)
+                return self._result
+
             if self._result is not UNDEFINED:
                 assert not isinstance(self._result, Undefined)
                 return self._result
 
+            self._last_called = time.monotonic()
             self._result = await self._callback.resolve(ctx, *args)
-
-        assert not isinstance(self._result, Undefined)
-        return self._result
+            return self._result
 
 
-def cache_callback(callback: CallbackSig[_T], /) -> collections.Callable[..., collections.Awaitable[_T]]:
+def cache_callback(
+    callback: CallbackSig[_T], /, *, expire_after: typing.Optional[datetime.timedelta] = None
+) -> collections.Callable[..., collections.Awaitable[_T]]:
     """Cache the result of a callback within a dependency injection context.
 
     This is useful for dependencies which will always resolve to the same value
@@ -695,10 +712,17 @@ def cache_callback(callback: CallbackSig[_T], /) -> collections.Callable[..., co
     callback : CallbackSig[_T]
         The callback to cache the result of.
 
+    Other Parameters
+    ----------------
+    expire_after : typing.Optional[datetime.timedelta]
+        The amount of time to cache the result for.
+
+        Leave this as `None` to cache for the runtime of the application.
+
     Returns
     -------
     Callable[..., Awaitable[_T]]
         A callback which will cache the result of the given callback after the
         first call.
     """
-    return _CacheCallback(callback)
+    return _CacheCallback(callback, expire_after=expire_after)

@@ -48,6 +48,7 @@ __all__: list[str] = [
 ]
 
 import abc
+import datetime
 import typing
 from collections import abc as collections
 
@@ -189,4 +190,6 @@ class BaseInjectableCallback(typing.Generic[_T]):
     def copy(self: _BaseInjectableCallbackT) -> _BaseInjectableCallbackT: ...
     def overwrite_callback(self, callback: CallbackSig[_T], /) -> None: ...
 
-def cache_callback(callback: CallbackSig[_T], /) -> collections.Callable[..., collections.Awaitable[_T]]: ...
+def cache_callback(
+    callback: CallbackSig[_T], /, *, expire_after: typing.Optional[datetime.timedelta] = None
+) -> collections.Callable[..., collections.Awaitable[_T]]: ...
