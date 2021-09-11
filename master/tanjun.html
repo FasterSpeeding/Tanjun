@@ -29325,6 +29325,7 @@ The command to add the hooks to.</li>
 <span class="kn">import</span> <span class="nn">collections.abc</span> <span class="k">as</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">typing</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
@@ -29332,6 +29333,8 @@ The command to add the hooks to.</li>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">datetime</span>
+
     <span class="n">_BaseInjectableCallbackT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_BaseInjectableCallbackT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;BaseInjectableCallback[typing.Any]&quot;</span><span class="p">)</span>
     <span class="n">_CallbackDescriptorT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_CallbackDescriptorT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;CallbackDescriptor[typing.Any]&quot;</span><span class="p">)</span>
 
@@ -29924,12 +29927,20 @@ The command to add the hooks to.</li>
 
 
 <span class="k">class</span> <span class="nc">_CacheCallback</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_T</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_lock&quot;</span><span class="p">,</span> <span class="s2">&quot;_result&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_expire_after&quot;</span><span class="p">,</span> <span class="s2">&quot;_last_called&quot;</span><span class="p">,</span> <span class="s2">&quot;_lock&quot;</span><span class="p">,</span> <span class="s2">&quot;_result&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expire_after</span> <span class="o">=</span> <span class="n">expire_after</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="k">if</span> <span class="n">expire_after</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_called</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">_T</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_has_expired</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expire_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_called</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expire_after</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_called</span><span class="p">)</span>
+        <span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -29937,7 +29948,7 @@ The command to add the hooks to.</li>
         <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">Injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>  <span class="c1"># type: ignore[assignment]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_expired</span><span class="p">:</span>
             <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
 
@@ -29945,17 +29956,23 @@ The command to add the hooks to.</li>
             <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
 
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_expired</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_last_called</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
+
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
 
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_called</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
-
-        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
 
 
-<span class="k">def</span> <span class="nf">cache_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
+<span class="k">def</span> <span class="nf">cache_callback</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;Cache the result of a callback within a dependency injection context.</span>
 
 <span class="sd">    This is useful for dependencies which will always resolve to the same value</span>
@@ -29967,13 +29984,20 @@ The command to add the hooks to.</li>
 <span class="sd">    callback : CallbackSig[_T]</span>
 <span class="sd">        The callback to cache the result of.</span>
 
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    expire_after : typing.Optional[datetime.timedelta]</span>
+<span class="sd">        The amount of time to cache the result for.</span>
+
+<span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    Callable[..., Awaitable[_T]]</span>
 <span class="sd">        A callback which will cache the result of the given callback after the</span>
 <span class="sd">        first call.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_CacheCallback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_CacheCallback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -29990,13 +30014,17 @@ The command to add the hooks to.</li>
             <span class="def">def</span>
             <span class="name">cache_callback</span><span class="signature">(
     callback: collections.abc.Callable,
-    /
+    /,
+    *,
+    expire_after: Optional[datetime.timedelta] = None
 ) -&gt; collections.abc.Callable[..., collections.abc.Awaitable[~_T]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">cache_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">cache_callback</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;Cache the result of a callback within a dependency injection context.</span>
 
 <span class="sd">    This is useful for dependencies which will always resolve to the same value</span>
@@ -30008,13 +30036,20 @@ The command to add the hooks to.</li>
 <span class="sd">    callback : CallbackSig[_T]</span>
 <span class="sd">        The callback to cache the result of.</span>
 
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    expire_after : typing.Optional[datetime.timedelta]</span>
+<span class="sd">        The amount of time to cache the result for.</span>
+
+<span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    Callable[..., Awaitable[_T]]</span>
 <span class="sd">        A callback which will cache the result of the given callback after the</span>
 <span class="sd">        first call.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_CacheCallback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_CacheCallback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -30030,6 +30065,15 @@ connection).</p>
 <ul>
 <li><strong>callback</strong> (CallbackSig[_T]):
 The callback to cache the result of.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>expire_after</strong> (typing.Optional[datetime.timedelta]):
+The amount of time to cache the result for.</p>
+
+<p>Leave this as <code>None</code> to cache for the runtime of the application.</p></li>
 </ul>
 
 <h6 id="returns">Returns</h6>
