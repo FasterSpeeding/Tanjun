@@ -3957,6 +3957,11 @@ enable slash (interaction) command execution:</p>
 <span class="sd">            The event to listen for.</span>
 <span class="sd">        listener : ListenerCallbackSig</span>
 <span class="sd">            The listener to remove.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        LookupError</span>
+<span class="sd">            If the listener is not registered for the provided event.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="c1"># TODO: make event optional?</span>
@@ -4157,7 +4162,7 @@ enable slash (interaction) command execution:</p>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -6217,7 +6222,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="n">_InjectableListener</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">_InjectableListener</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_InjectablePrefixGetter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -6961,24 +6966,36 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
         <span class="k">return</span> <span class="n">decorator</span>
 
-    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="n">injected</span> <span class="o">=</span> <span class="n">_InjectableListener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">injected</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="bp">self</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">injected</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">injected</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">injected</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">injected</span><span class="p">)</span>  <span class="c1"># TODO: does this work?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">injected</span><span class="o">.</span><span class="fm">__call__</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">registered_callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
+
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span><span class="s2">&quot;Event listener not found.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>  <span class="c1"># TODO: does this work?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">registered_callback</span><span class="o">.</span><span class="fm">__call__</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="o">/</span>
@@ -7063,7 +7080,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
             <span class="k">for</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_try_unsubscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">,</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_try_unsubscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">,</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="o">.</span><span class="fm">__call__</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">deregister_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">set_listener</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -7116,7 +7133,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
             <span class="k">for</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="o">.</span><span class="fm">__call__</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">register_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">set_listener</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_interaction_create_request</span><span class="p">)</span>
@@ -7547,7 +7564,7 @@ to the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="n">_InjectableListener</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">_InjectableListener</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_InjectablePrefixGetter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -8291,24 +8308,36 @@ to the provided client using it's abstract methods.</li>
 
         <span class="k">return</span> <span class="n">decorator</span>
 
-    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="n">injected</span> <span class="o">=</span> <span class="n">_InjectableListener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">injected</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="bp">self</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">injected</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">injected</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">injected</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">injected</span><span class="p">)</span>  <span class="c1"># TODO: does this work?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">injected</span><span class="o">.</span><span class="fm">__call__</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">registered_callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
+
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span><span class="s2">&quot;Event listener not found.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>  <span class="c1"># TODO: does this work?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">registered_callback</span><span class="o">.</span><span class="fm">__call__</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="o">/</span>
@@ -8393,7 +8422,7 @@ to the provided client using it's abstract methods.</li>
 
             <span class="k">for</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_try_unsubscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">,</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_try_unsubscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">,</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="o">.</span><span class="fm">__call__</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">deregister_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">set_listener</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -8446,7 +8475,7 @@ to the provided client using it's abstract methods.</li>
 
             <span class="k">for</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="o">.</span><span class="fm">__call__</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">register_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">set_listener</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_interaction_create_request</span><span class="p">)</span>
@@ -8807,7 +8836,7 @@ when set on a specific guild.</p></li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="n">_InjectableListener</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">_InjectableListener</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_InjectablePrefixGetter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -10484,25 +10513,32 @@ Object or ID of the guild to set the global commands to.</p>
         
             <span class="def">def</span>
             <span class="name">add_listener</span><span class="signature">(
-    self,
+    self: ~_ClientT,
     event_type: type,
     callback: collections.abc.Callable,
     /
-) -&gt; None</span>:
+) -&gt; ~_ClientT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="n">injected</span> <span class="o">=</span> <span class="n">_InjectableListener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">injected</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="bp">self</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">injected</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">injected</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">injected</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">injected</span><span class="p">)</span>  <span class="c1"># TODO: does this work?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">injected</span><span class="o">.</span><span class="fm">__call__</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
@@ -10526,12 +10562,17 @@ Object or ID of the guild to set the global commands to.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">registered_callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
+
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span><span class="s2">&quot;Event listener not found.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>  <span class="c1"># TODO: does this work?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">registered_callback</span><span class="o">.</span><span class="fm">__call__</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -10740,7 +10781,7 @@ Object or ID of the guild to set the global commands to.</p>
 
             <span class="k">for</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_try_unsubscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">,</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_try_unsubscribe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">,</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="o">.</span><span class="fm">__call__</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">deregister_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">set_listener</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -10809,7 +10850,7 @@ Object or ID of the guild to set the global commands to.</p>
 
             <span class="k">for</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">listener</span><span class="o">.</span><span class="fm">__call__</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">register_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">set_listener</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_interaction_create_request</span><span class="p">)</span>
@@ -20926,6 +20967,12 @@ The listener to add.</li>
 The event to listen for.</li>
 <li><strong>listener</strong> (ListenerCallbackSig):
 The listener to remove.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>LookupError</strong>: If the listener is not registered for the provided event.</li>
 </ul>
 </div>
 
