@@ -2281,6 +2281,11 @@ class Component(abc.ABC):
             The event to listen for.
         listener : ListenerCallbackSig
             The listener to remove.
+
+        Raises
+        ------
+        LookupError
+            If the listener is not registered for the provided event.
         """
 
     # TODO: make event optional?
