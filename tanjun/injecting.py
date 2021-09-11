@@ -687,7 +687,7 @@ class _CacheCallback(typing.Generic[_T]):
             if self._has_expired:
                 self._last_called = time.monotonic()
                 self._result = await self._callback.resolve(ctx, *args)
-                return await self._result
+                return self._result
 
             if self._result is not UNDEFINED:
                 assert not isinstance(self._result, Undefined)
@@ -695,7 +695,7 @@ class _CacheCallback(typing.Generic[_T]):
 
             self._last_called = time.monotonic()
             self._result = await self._callback.resolve(ctx, *args)
-            return await self._result
+            return self._result
 
 
 def cache_callback(
