@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.0.0a3.pos1] - 2021-09-10
+## [2.0.0a3.post1] - 2021-09-10
 ### Added
 - Client.add_listener is now fluent.
 
