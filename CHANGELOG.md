@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0a3.pos1] - 2021-09-10
+### Added
+- Client.add_listener is now fluent.
+
+### Fixed
+- Bug around registering wrapped listeners where Hikari doesn't allow async callable objects to be registered.
+
 ## [2.0.0a3] - 2021-09-10
 ### Added
 - Add `always_float` keyword argument to with_float_slash_option.

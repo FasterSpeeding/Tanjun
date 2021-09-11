@@ -1168,7 +1168,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return decorator
 
-    def add_listener(self: _ClientT, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /) -> _ClientT:
+    def add_listener(
+        self: _ClientT, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /
+    ) -> _ClientT:
         injected = _InjectableListener(self, callback)
         try:
             if callback in self._listeners[event_type]:

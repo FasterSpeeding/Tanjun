@@ -2486,7 +2486,7 @@ class Client(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_listener(self, event_type: type[hikari.Event], callback: ListenerCallbackSig, /) -> None:
+    def add_listener(self: _T, event_type: type[hikari.Event], callback: ListenerCallbackSig, /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
