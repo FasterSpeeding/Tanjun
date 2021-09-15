@@ -38,6 +38,7 @@ import inspect
 import time
 import types
 import typing
+import warnings
 from unittest import mock
 
 import pytest
@@ -571,7 +572,9 @@ class TestInjectorClient:
         mock_callback = mock.Mock()
         client = stub_class(tanjun.injecting.InjectorClient, set_type_dependency=mock.Mock())()
 
-        result = client.add_type_dependency(mock_type, mock_callback)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            result = client.add_type_dependency(mock_type, mock_callback)
 
         assert result is client.set_type_dependency.return_value
         client.set_type_dependency.assert_called_once_with(mock_type, mock_callback)
@@ -612,7 +615,9 @@ class TestInjectorClient:
         mock_override = mock.Mock()
         client = stub_class(tanjun.injecting.InjectorClient, set_callback_override=mock.Mock())()
 
-        result = client.add_callback_override(mock_callback, mock_override)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            result = client.add_callback_override(mock_callback, mock_override)
 
         assert result is client.set_callback_override.return_value
         client.set_callback_override.assert_called_once_with(mock_callback, mock_override)

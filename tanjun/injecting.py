@@ -503,6 +503,7 @@ class InjectorClient:
             "`InjectorClient.add_type_dependency` is deprecated and marked for removal a"
             " month after the release of v2.0.0a2. Use `InjectorClient.set_type_dependency`.",
             category=DeprecationWarning,
+            stacklevel=2,
         )
         return self.set_type_dependency(type_, callback)  # type: ignore  # pyright bug
 
@@ -581,6 +582,7 @@ class InjectorClient:
             "`InjectorClient.add_callback_override` is deprecated and marked for removal a"
             " month after the release of v2.0.0a2. Use `InjectorClient.set_callback_override`.",
             category=DeprecationWarning,
+            stacklevel=2,
         )
         return self.set_callback_override(callback, override)
 

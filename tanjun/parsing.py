@@ -676,10 +676,7 @@ class Parameter:
     def add_converter(self, converter: ConverterSig, /) -> None:
         if isinstance(converter, conversion.BaseConverter):
             if self._client:
-                converter.bind_client(self._client)
-
-            if self._component:
-                converter.bind_component(self._component)
+                converter.check_client(self._client, f"{self._key} parameter")
 
         if not isinstance(converter, conversion.InjectableConverter):
             # Some types like `bool` and `bytes` are overridden here for the sake of convenience.
@@ -698,13 +695,10 @@ class Parameter:
         self._client = client
         for converter in self._converters:
             if isinstance(converter.callback, conversion.BaseConverter):
-                converter.callback.bind_client(client)
+                converter.callback.check_client(client, f"{self._key} parameter")
 
     def bind_component(self, component: tanjun_abc.Component, /) -> None:
         self._component = component
-        for converter in self._converters:
-            if isinstance(converter.callback, conversion.BaseConverter):
-                converter.callback.bind_component(component)
 
     async def convert(self, ctx: tanjun_abc.Context, value: str) -> typing.Any:
         if not self._converters:

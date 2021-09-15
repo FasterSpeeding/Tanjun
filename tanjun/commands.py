@@ -682,6 +682,11 @@ class _TrackedOption:
     def needs_injector(self) -> bool:
         return any(converter.needs_injector for converter in self.converters)
 
+    def check_client(self, client: abc.Client, /) -> None:
+        for converter in self.converters:
+            if isinstance(converter.callback, conversion.BaseConverter):
+                converter.callback.check_client(client, f"{self.name} slash command option")
+
     async def convert(self, ctx: abc.SlashContext, value: typing.Any, /) -> typing.Any:
         if not self.converters:
             return value
@@ -1016,7 +1021,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
 
 
 class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCallbackSigT]):
-    __slots__ = ("_builder", "_callback", "_tracked_options")
+    __slots__ = ("_builder", "_callback", "_client", "_tracked_options")
 
     def __init__(
         self,
@@ -1050,6 +1055,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             self._builder = self._builder.set_id(self._command_id)
 
         self._callback = injecting.CallbackDescriptor(callback)
+        self._client: typing.Optional[abc.Client] = None
         self._tracked_options: dict[str, _TrackedOption] = {}
         if not _SCOMMAND_NAME_REG.fullmatch(name):
             raise ValueError("Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`")
@@ -1074,6 +1080,12 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             or any(option.needs_injector for option in self._tracked_options.values())
             or super().needs_injector
         )
+
+    def bind_client(self, client: abc.Client, /) -> None:
+        self._client = client
+        super().bind_client(client)
+        for option in self._tracked_options.values():
+            option.check_client(client)
 
     def build(self) -> special_endpoints_api.CommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
@@ -1100,6 +1112,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
         else:
             converters = [_convert_to_injectable(converters)]
+
+        if self._client:
+            for converter in converters:
+                if isinstance(converter.callback, conversion.BaseConverter):
+                    converter.callback.check_client(self._client, f"{self._name}'s slash option '{name}'")
 
         choices_ = [hikari.CommandChoice(name=name, value=value) for name, value in choices] if choices else None
         required = default is _UNDEFINED_DEFAULT

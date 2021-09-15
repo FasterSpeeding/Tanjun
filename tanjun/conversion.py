@@ -45,9 +45,22 @@ __all__: list[str] = [
     "SnowflakeConverter",
     "UserConverter",
     "VoiceStateConverter",
+    "from_datetime",
+    "parse_snowflake",
+    "parse_channel_id",
+    "parse_emoji_id",
+    "parse_role_id",
+    "parse_user_id",
+    "search_snowflakes",
+    "search_channel_ids",
+    "search_emoji_ids",
+    "search_role_ids",
+    "search_user_ids",
+    "to_bool",
     "to_channel",
     "to_color",
     "to_colour",
+    "to_datetime",
     "to_emoji",
     "to_guild",
     "to_invite",
@@ -62,12 +75,12 @@ __all__: list[str] = [
 
 import abc
 import datetime
-import distutils.util
 import operator
 import re
 import typing
 import urllib.parse
 import warnings
+from collections import abc as collections
 
 import hikari
 
@@ -75,7 +88,6 @@ from . import errors
 from . import injecting
 
 if typing.TYPE_CHECKING:
-    from collections import abc as collections
 
     from . import abc as tanjun_abc
     from . import parsing
@@ -86,55 +98,13 @@ _ValueT = typing.TypeVar("_ValueT")
 
 class BaseConverter(typing.Generic[_ValueT], abc.ABC):
     __slots__ = ()
-    __implementations: set[BaseConverter[typing.Any]] = set()
 
     async def __call__(self, argument: ArgumentT, ctx: tanjun_abc.Context) -> _ValueT:
         return await self.convert(ctx, argument)
 
-    def bind_client(self, client: tanjun_abc.Client, /) -> None:
-        cache_bound = self.cache_bound
-        if cache_bound and not client.cache:
-            warnings.warn(
-                f"Registered converter {self!r} will always fail with a stateless client.",
-                category=errors.StateWarning,
-            )
-            return
-
-        if cache_bound and client.shards:  # TODO: alternative message when not state bound and wrong intents
-            required_intents = self.intents
-            if (required_intents & client.shards.intents) != required_intents:
-                warnings.warn(
-                    f"Registered converter {type(self).__name__!r} will not run as expected "
-                    f"when {required_intents!r} intent(s) are not declared",
-                    category=errors.StateWarning,
-                )
-
-    def bind_component(self, _: tanjun_abc.Component, /) -> None:
-        pass
-
-    @classmethod
-    def get_from_type(cls, type_: type[_ValueT], /) -> typing.Optional[BaseConverter[_ValueT]]:
-        for converter in cls.__implementations:
-            is_inheritable = converter.is_inheritable()
-            if is_inheritable and issubclass(type_, converter.types()):
-                return converter
-
-            if not is_inheritable and type_ in converter.types():
-                return converter
-
-        return None
-
-    @classmethod
-    def implementations(cls) -> collections.MutableSet[BaseConverter[typing.Any]]:
-        return cls.__implementations
-
     @property
     @abc.abstractmethod
-    def cache_bound(self) -> bool:  # TODO: replace with cache components
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> _ValueT:
+    def cache_components(self) -> hikari.CacheComponents:
         raise NotImplementedError
 
     @property
@@ -142,15 +112,37 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
     def intents(self) -> hikari.Intents:
         raise NotImplementedError
 
-    @classmethod
+    @property
     @abc.abstractmethod
-    def is_inheritable(cls) -> bool:  # TODO: will this ever actually work when true?
-        raise NotImplementedError  # or do we want to assert specific idk channel types
-
-    @classmethod
-    @abc.abstractmethod
-    def types(cls) -> tuple[type[typing.Any], ...]:
+    def requires_cache(self) -> bool:
         raise NotImplementedError
+
+    @abc.abstractmethod
+    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> _ValueT:
+        raise NotImplementedError
+
+    def check_client(self, client: tanjun_abc.Client, parent_name: str, /) -> None:
+        if not client.cache:
+            if self.requires_cache:
+                warnings.warn(
+                    f"Converter {self!r} registered with {parent_name} will always fail with a stateless client.",
+                    category=errors.StateWarning,
+                )
+
+            elif self.cache_components:
+                warnings.warn(
+                    f"Converter {self!r} registered with {parent_name} may not perform optimally in a stateless client.",
+                )
+
+        # elif missing_components := (self.cache_components & ~client.cache.components):
+        #     warnings.warn(
+
+        if client.shards and (missing_intents := self.intents & ~client.shards.intents):
+            warnings.warn(
+                f"Converter {self!r} registered with {parent_name} may not perform as expected "
+                f"without the following intents: {missing_intents}",
+                category=errors.StateWarning,
+            )
 
 
 class InjectableConverter(injecting.BaseInjectableCallback[_ValueT]):
@@ -172,12 +164,20 @@ class ChannelConverter(BaseConverter[hikari.PartialChannel]):
     __slots__ = ()
 
     @property
-    def cache_bound(self) -> bool:
-        return True
+    def cache_components(self) -> hikari.CacheComponents:
+        return hikari.CacheComponents.GUILD_CHANNELS
+
+    @property
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.GUILDS
+
+    @property
+    def requires_cache(self) -> bool:
+        return False
 
     async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.PartialChannel:
         channel_id = parse_channel_id(argument, message="No valid channel mention or ID  found")
-        if ctx.client.cache and (channel := ctx.client.cache.get_guild_channel(channel_id)):
+        if ctx.cache and (channel := ctx.cache.get_guild_channel(channel_id)):
             return channel
 
         try:
@@ -186,24 +186,20 @@ class ChannelConverter(BaseConverter[hikari.PartialChannel]):
         except hikari.NotFoundError:
             raise ValueError("Couldn't find channel") from None
 
-    @property
-    def intents(self) -> hikari.Intents:
-        return hikari.Intents.GUILDS
-
-    @classmethod
-    def is_inheritable(cls) -> bool:
-        return True
-
-    @classmethod
-    def types(cls) -> tuple[type[typing.Any], ...]:
-        return (hikari.PartialChannel,)
-
 
 class ColorConverter(BaseConverter[hikari.Color]):
     __slots__ = ()
 
     @property
-    def cache_bound(self) -> bool:
+    def cache_components(self) -> hikari.CacheComponents:
+        return hikari.CacheComponents.NONE
+
+    @property
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.NONE
+
+    @property
+    def requires_cache(self) -> bool:
         return False
 
     async def convert(self, _: tanjun_abc.Context, argument: ArgumentT, /) -> typing.Any:
@@ -216,30 +212,26 @@ class ColorConverter(BaseConverter[hikari.Color]):
 
         return hikari.Color.of(argument)
 
-    @property
-    def intents(self) -> hikari.Intents:
-        return hikari.Intents.NONE
-
-    @classmethod
-    def is_inheritable(cls) -> bool:
-        return False
-
-    @classmethod
-    def types(cls) -> tuple[type[typing.Any], ...]:
-        return (hikari.Color,)
-
 
 class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
     __slots__ = ()
 
     @property
-    def cache_bound(self) -> bool:
-        return True
+    def cache_components(self) -> hikari.CacheComponents:
+        return hikari.CacheComponents.EMOJIS
+
+    @property
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.GUILD_EMOJIS | hikari.Intents.GUILDS
+
+    @property
+    def requires_cache(self) -> bool:
+        return False
 
     async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.KnownCustomEmoji:
         emoji_id = parse_emoji_id(argument, message="No valid emoji or emoji ID found")
 
-        if ctx.client.cache and (emoji := ctx.client.cache.get_emoji(emoji_id)):
+        if ctx.cache and (emoji := ctx.cache.get_emoji(emoji_id)):
             return emoji
 
         if ctx.guild_id:
@@ -251,30 +243,26 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
 
         raise ValueError("Couldn't find emoji")
 
-    @property
-    def intents(self) -> hikari.Intents:
-        return hikari.Intents.GUILD_EMOJIS
-
-    @classmethod
-    def is_inheritable(cls) -> bool:
-        return True
-
-    @classmethod
-    def types(cls) -> tuple[type[typing.Any], ...]:
-        return (hikari.CustomEmoji,)
-
 
 class GuildConverter(BaseConverter[hikari.Guild]):
     __slots__ = ()
 
     @property
-    def cache_bound(self) -> bool:
-        return True
+    def cache_components(self) -> hikari.CacheComponents:
+        return hikari.CacheComponents.GUILDS
+
+    @property
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.GUILDS
+
+    @property
+    def requires_cache(self) -> bool:
+        return False
 
     async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.Guild:
         guild_id = parse_snowflake(argument, message="No valid guild ID found")
-        if ctx.client.cache:
-            if guild := ctx.client.cache.get_guild(guild_id):
+        if ctx.cache:
+            if guild := ctx.cache.get_guild(guild_id):
                 return guild
 
         try:
@@ -285,79 +273,78 @@ class GuildConverter(BaseConverter[hikari.Guild]):
 
         raise ValueError("Couldn't find guild")
 
-    @property
-    def intents(self) -> hikari.Intents:
-        return hikari.Intents.GUILDS
-
-    @classmethod
-    def is_inheritable(cls) -> bool:
-        return True
-
-    @classmethod
-    def types(cls) -> tuple[type[typing.Any], ...]:
-        return (hikari.Guild,)
-
 
 class InviteConverter(BaseConverter[hikari.Invite]):
     __slots__ = ()
 
     @property
-    def cache_bound(self) -> bool:
-        return True
-
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.Invite:
-        if ctx.client.cache and isinstance(argument, str):
-            if invite := ctx.client.cache.get_invite(argument):
-                return invite
-
-        raise ValueError("Couldn't find invite")
+    def cache_components(self) -> hikari.CacheComponents:
+        return hikari.CacheComponents.INVITES
 
     @property
     def intents(self) -> hikari.Intents:
         return hikari.Intents.GUILD_INVITES
 
-    @classmethod
-    def is_inheritable(cls) -> bool:
+    @property
+    def requires_cache(self) -> bool:
         return False
 
-    @classmethod
-    def types(cls) -> tuple[type[typing.Any], ...]:
-        return (hikari.Invite,)
+    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.Invite:
+        if not isinstance(argument, str):
+            raise ValueError(f"`{argument}` is not a valid invite code")
+
+        if ctx.cache:
+            if invite := ctx.cache.get_invite(argument):
+                return invite
+
+        try:
+            return await ctx.rest.fetch_invite(argument)
+        except hikari.NotFoundError:
+            pass
+
+        raise ValueError("Couldn't find invite")
 
 
 class InviteWithMetadataConverter(BaseConverter[hikari.InviteWithMetadata]):
     __slots__ = ()
 
     @property
-    def cache_bound(self) -> bool:
-        return True
-
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.InviteWithMetadata:
-        if ctx.client.cache and isinstance(argument, str):
-            if invite := ctx.client.cache.get_invite(argument):
-                return invite
-
-        raise ValueError("Couldn't find invite")
+    def cache_components(self) -> hikari.CacheComponents:
+        return hikari.CacheComponents.INVITES
 
     @property
     def intents(self) -> hikari.Intents:
         return hikari.Intents.GUILD_INVITES
 
-    @classmethod
-    def is_inheritable(cls) -> bool:
-        return False
+    @property
+    def requires_cache(self) -> bool:
+        return True
 
-    @classmethod
-    def types(cls) -> tuple[type[typing.Any], ...]:
-        return (hikari.InviteWithMetadata,)
+    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.InviteWithMetadata:
+        if not isinstance(argument, str):
+            raise ValueError(f"`{argument}` is not a valid invite code")
+
+        if ctx.cache:
+            if invite := ctx.cache.get_invite(argument):
+                return invite
+
+        raise ValueError("Couldn't find invite")
 
 
 class MemberConverter(BaseConverter[hikari.Member]):
     __slots__ = ()
 
     @property
-    def cache_bound(self) -> bool:
-        return True
+    def cache_components(self) -> hikari.CacheComponents:
+        return hikari.CacheComponents.MEMBERS
+
+    @property
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.GUILD_MEMBERS | hikari.Intents.GUILDS
+
+    @property
+    def requires_cache(self) -> bool:
+        return False
 
     async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.Member:
         if ctx.guild_id is None:
@@ -375,8 +362,8 @@ class MemberConverter(BaseConverter[hikari.Member]):
                     pass
 
         else:
-            if ctx.client.cache:
-                if member := ctx.client.cache.get_member(ctx.guild_id, member_id):
+            if ctx.cache:
+                if member := ctx.cache.get_member(ctx.guild_id, member_id):
                     return member
 
             try:
@@ -387,45 +374,29 @@ class MemberConverter(BaseConverter[hikari.Member]):
 
         raise ValueError("Couldn't find member in this guild")
 
-    @property
-    def intents(self) -> hikari.Intents:
-        return hikari.Intents.GUILD_MEMBERS
-
-    @classmethod
-    def is_inheritable(cls) -> bool:
-        return False
-
-    @classmethod
-    def types(cls) -> tuple[type[typing.Any], ...]:
-        return (hikari.Member,)
-
 
 class PresenceConverter(BaseConverter[hikari.MemberPresence]):
     __slots__ = ()
 
     @property
-    def cache_bound(self) -> bool:
-        return True
+    def cache_components(self) -> hikari.CacheComponents:
+        return hikari.CacheComponents.PRESENCES
 
     @property
     def intents(self) -> hikari.Intents:
-        return hikari.Intents.GUILD_PRESENCES
+        return hikari.Intents.GUILD_PRESENCES | hikari.Intents.GUILDS
 
-    @classmethod
-    def is_inheritable(cls) -> bool:
-        return False
-
-    @classmethod
-    def types(cls) -> tuple[type[typing.Any], ...]:
-        return (hikari.MemberPresence,)
+    @property
+    def requires_cache(self) -> bool:
+        return True
 
     async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.MemberPresence:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a presence from a DM channel")
 
-        if ctx.client.cache:
+        if ctx.cache:
             user_id = parse_user_id(argument, message="No valid member mention or ID  found")
-            if user := ctx.client.cache.get_presence(ctx.guild_id, user_id):
+            if user := ctx.cache.get_presence(ctx.guild_id, user_id):
                 return user
 
         raise ValueError("Couldn't find presence in current guild")
@@ -435,13 +406,21 @@ class RoleConverter(BaseConverter[hikari.Role]):
     __slots__ = ()
 
     @property
-    def cache_bound(self) -> bool:
-        return True
+    def cache_components(self) -> hikari.CacheComponents:
+        return hikari.CacheComponents.ROLES
+
+    @property
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.GUILDS
+
+    @property
+    def requires_cache(self) -> bool:
+        return False
 
     async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.Role:
         role_id = parse_role_id(argument, message="No valid role mention or ID  found")
-        if ctx.client.cache:
-            if role := ctx.client.cache.get_role(role_id):
+        if ctx.cache:
+            if role := ctx.cache.get_role(role_id):
                 return role
 
         if ctx.guild_id:
@@ -451,17 +430,82 @@ class RoleConverter(BaseConverter[hikari.Role]):
 
         raise ValueError("Couldn't find role")
 
+
+class SnowflakeConverter(BaseConverter[hikari.Snowflake]):
+    __slots__ = ()
+
+    @property
+    def cache_components(self) -> hikari.CacheComponents:
+        return hikari.CacheComponents.NONE
+
     @property
     def intents(self) -> hikari.Intents:
-        return hikari.Intents.GUILDS
+        return hikari.Intents.NONE
 
-    @classmethod
-    def is_inheritable(cls) -> bool:
+    @property
+    def requires_cache(self) -> bool:
         return False
 
-    @classmethod
-    def types(cls) -> tuple[type[typing.Any], ...]:
-        return (hikari.Role,)
+    async def convert(self, _: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.Snowflake:
+        return parse_snowflake(argument, message="No valid ID found")
+
+
+class UserConverter(BaseConverter[hikari.User]):
+    __slots__ = ()
+
+    @property
+    def cache_components(self) -> hikari.CacheComponents:
+        return hikari.CacheComponents.NONE
+
+    @property
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.GUILDS | hikari.Intents.GUILD_MEMBERS
+
+    @property
+    def requires_cache(self) -> bool:
+        return False
+
+    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.User:
+        # TODO: search by name if this is a guild context
+        user_id = parse_user_id(argument, message="No valid user mention or ID  found")
+        if ctx.cache:
+            if user := ctx.cache.get_user(user_id):
+                return user
+
+        try:
+            return await ctx.rest.fetch_user(user_id)
+
+        except hikari.NotFoundError:
+            pass
+
+        raise ValueError("Couldn't find user")
+
+
+class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
+    __slots__ = ()
+
+    @property
+    def cache_components(self) -> hikari.CacheComponents:
+        return hikari.CacheComponents.VOICE_STATES
+
+    @property
+    def intents(self) -> hikari.Intents:
+        return hikari.Intents.GUILD_VOICE_STATES | hikari.Intents.GUILDS
+
+    @property
+    def requires_cache(self) -> bool:
+        return True
+
+    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.VoiceState:
+        if ctx.guild_id is None:
+            raise ValueError("Cannot get a voice state from a DM channel")
+
+        if ctx.cache:
+            user_id = parse_user_id(argument, message="No valid user mention or ID  found")
+            if user := ctx.cache.get_voice_state(ctx.guild_id, user_id):
+                return user
+
+        raise ValueError("Voice state couldn't be found for current guild")
 
 
 class _IDMatcher(typing.Protocol):
@@ -480,15 +524,15 @@ def make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcher:
                 capture = next(regex.finditer(value), None)
                 result = hikari.Snowflake(capture.groups()[0]) if capture else None
 
-        if result is None:
+        else:
             try:
-                result = hikari.Snowflake(operator.index(message))
+                result = hikari.Snowflake(operator.index(value))
 
             except (TypeError, ValueError):
                 pass
 
         # We should also range check the provided ID.
-        if result is not None and hikari.Snowflake.min() <= result <= hikari.Snowflake.max():
+        if result is not None and _range_check(result):
             return result
 
         raise ValueError(message) from None
@@ -496,99 +540,234 @@ def make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcher:
     return parse
 
 
-parse_snowflake = make_snowflake_parser(re.compile(r"<[@&?!#a]{0,3}(?::\w+:)?(\d+)>"))
-parse_channel_id = make_snowflake_parser(re.compile(r"<#(\d+)>"))
-parse_emoji_id = make_snowflake_parser(re.compile(r"<a?:\w+:(\d+)>"))
-parse_role_id = make_snowflake_parser(re.compile(r"<@&(\d+)>"))
-parse_user_id = make_snowflake_parser(re.compile(r"<@!?(\d+)>"))
+_IDSearcher = collections.Callable[[ArgumentT], collections.Iterator[hikari.Snowflake]]
 
 
-class SnowflakeConverter(BaseConverter[hikari.Snowflake]):
-    __slots__ = ()
-
-    @property
-    def cache_bound(self) -> bool:
-        return False
-
-    async def convert(self, _: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.Snowflake:
-        return parse_snowflake(argument, message="No valid ID found")
-
-    @property
-    def intents(self) -> hikari.Intents:
-        return hikari.Intents.NONE
-
-    @classmethod
-    def is_inheritable(cls) -> bool:
-        return False
-
-    @classmethod
-    def types(cls) -> tuple[type[typing.Any], ...]:
-        return (hikari.Snowflake,)
+def _range_check(snowflake: hikari.Snowflake) -> bool:
+    return snowflake.min() <= snowflake <= snowflake.max()
 
 
-class UserConverter(BaseConverter[hikari.User]):
-    __slots__ = ()
+def make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcher:
+    def parse(value: ArgumentT) -> collections.Iterator[hikari.Snowflake]:
+        if isinstance(value, str):
+            if value.isdigit() and _range_check(result := hikari.Snowflake(value)):
+                yield result
 
-    @property
-    def cache_bound(self) -> bool:
-        return True
+            else:
+                yield from filter(
+                    _range_check, map(hikari.Snowflake, (match.groups()[0] for match in regex.finditer(value)))
+                )
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.User:
-        user_id = parse_user_id(argument, message="No valid user mention or ID  found")
-        if ctx.client.cache:
-            if user := ctx.client.cache.get_user(user_id):
-                return user
+                yield from filter(_range_check, map(hikari.Snowflake, filter(str.isdigit, value.split())))
 
-        try:
-            return await ctx.rest.fetch_user(user_id)
+        else:
+            try:
+                result = hikari.Snowflake(operator.index(value))
 
-        except hikari.NotFoundError:
-            pass
+            except (TypeError, ValueError):
+                pass
 
-        raise ValueError("Couldn't find user")
+            else:
+                if _range_check(result):
+                    yield result
 
-    @property
-    def intents(self) -> hikari.Intents:
-        return hikari.Intents.GUILD_MEMBERS
-
-    @classmethod
-    def is_inheritable(cls) -> bool:
-        return False
-
-    @classmethod
-    def types(cls) -> tuple[type[typing.Any], ...]:
-        return (hikari.User,)
+    return parse
 
 
-class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
-    __slots__ = ()
+_SNOWFLAKE_REGEX = re.compile(r"<[@&?!#a]{0,3}(?::\w+:)?(\d+)>")
+parse_snowflake: _IDMatcher = make_snowflake_parser(_SNOWFLAKE_REGEX)
+"""Parse a snowflake from a string or int value.
 
-    @property
-    def cache_bound(self) -> bool:
-        return True
+Parameters
+----------
+value: typing.Union[str, int]
+    The value to parse (this argument can only be passed positionally).
 
-    async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.VoiceState:
-        if ctx.guild_id is None:
-            raise ValueError("Cannot get a voice state from a DM channel")
+Other Parameters
+----------------
+message: str
+    The error message to raise if the value cannot be parsed.
 
-        if ctx.client.cache:
-            user_id = parse_user_id(argument, message="No valid user mention or ID  found")
-            if user := ctx.client.cache.get_voice_state(ctx.guild_id, user_id):
-                return user
+Returns
+-------
+hikari.Snowflake
+    The parsed snowflake.
 
-        raise ValueError("Voice state couldn't be found for current guild")
+Raises
+------
+ValueError
+    If the value cannot be parsed.
+"""
 
-    @property
-    def intents(self) -> hikari.Intents:
-        return hikari.Intents.GUILD_VOICE_STATES
+search_snowflakes = make_snowflake_searcher(_SNOWFLAKE_REGEX)
+"""Iterate over the snowflakes in a string.
 
-    @classmethod
-    def is_inheritable(cls) -> bool:
-        return False
+Parameters
+----------
+value: typing.Union[str, int]
+    The value to parse (this argument can only be passed positionally).
 
-    @classmethod
-    def types(cls) -> tuple[type[typing.Any], ...]:
-        return (hikari.VoiceState,)
+Returns
+-------
+collections.abc.Iterator[hikari.Snowflake]
+    An iterator over the snowflakes in the string.
+"""
+
+_CHANNEL_ID_REGEX = re.compile(r"<#(\d+)>")
+parse_channel_id: _IDMatcher = make_snowflake_parser(_CHANNEL_ID_REGEX)
+"""Parse a channel ID from a string or int value.
+
+Parameters
+----------
+value: typing.Union[str, int]
+    The value to parse (this argument can only be passed positionally).
+
+Other Parameters
+----------------
+message: str
+    The error message to raise if the value cannot be parsed.
+
+Returns
+-------
+hikari.Snowflake
+    The parsed channel ID.
+
+Raises
+------
+ValueError
+    If the value cannot be parsed.
+"""
+
+search_channel_ids = make_snowflake_searcher(_CHANNEL_ID_REGEX)
+"""Iterate over the channel IDs in a string.
+
+Parameters
+----------
+value: typing.Union[str, int]
+    The value to parse (this argument can only be passed positionally).
+
+Returns
+-------
+collections.abc.Iterator[hikari.Snowflake]
+    An iterator over the channel IDs in the string.
+"""
+
+_EMOJI_ID_REGEX = re.compile(r"<a?:\w+:(\d+)>")
+parse_emoji_id: _IDMatcher = make_snowflake_parser(_EMOJI_ID_REGEX)
+"""Parse an Emoji ID from a string or int value.
+
+Parameters
+----------
+value: typing.Union[str, int]
+    The value to parse (this argument can only be passed positionally).
+
+Other Parameters
+----------------
+message: str
+    The error message to raise if the value cannot be parsed.
+
+Returns
+-------
+hikari.Snowflake
+    The parsed Emoji ID.
+
+Raises
+------
+ValueError
+    If the value cannot be parsed.
+"""
+
+search_emoji_ids = make_snowflake_searcher(_EMOJI_ID_REGEX)
+"""Iterate over the emoji IDs in a string.
+
+Parameters
+----------
+value: typing.Union[str, int]
+    The value to parse (this argument can only be passed positionally).
+
+Returns
+-------
+collections.abc.Iterator[hikari.Snowflake]
+    An iterator over the emoji IDs in the string.
+"""
+
+_ROLE_ID_REGEX = re.compile(r"<@&(\d+)>")
+parse_role_id: _IDMatcher = make_snowflake_parser(_ROLE_ID_REGEX)
+"""Parse a role ID from a string or int value.
+
+Parameters
+----------
+value: typing.Union[str, int]
+    The value to parse (this argument can only be passed positionally).
+
+Other Parameters
+----------------
+message: str
+    The error message to raise if the value cannot be parsed.
+
+Returns
+-------
+hikari.Snowflake
+    The parsed role ID.
+
+Raises
+------
+ValueError
+    If the value cannot be parsed.
+"""
+
+search_role_ids = make_snowflake_searcher(_ROLE_ID_REGEX)
+"""Iterate over the role IDs in a string.
+
+Parameters
+----------
+value: typing.Union[str, int]
+    The value to parse (this argument can only be passed positionally).
+
+Returns
+-------
+collections.abc.Iterator[hikari.Snowflake]
+    An iterator over the role IDs in the string.
+"""
+
+_USER_ID_REGEX = re.compile(r"<@!?(\d+)>")
+parse_user_id: _IDMatcher = make_snowflake_parser(_USER_ID_REGEX)
+"""Parse a user ID from a string or int value.
+
+Parameters
+----------
+value: typing.Union[str, int]
+    The value to parse (this argument can only be passed positionally).
+
+Other Parameters
+----------------
+message: str
+    The error message to raise if the value cannot be parsed.
+
+Returns
+-------
+hikari.Snowflake
+    The parsed user ID.
+
+Raises
+------
+ValueError
+    If the value cannot be parsed.
+"""
+
+search_user_ids = make_snowflake_searcher(_USER_ID_REGEX)
+"""Iterate over the user IDs in a string.
+
+Parameters
+----------
+value: typing.Union[str, int]
+    The value to parse (this argument can only be passed positionally).
+
+Returns
+-------
+collections.abc.Iterator[hikari.Snowflake]
+    An iterator over the user IDs in the string.
+"""
 
 
 def _build_url_parser(callback: collections.Callable[[str], _ValueT], /) -> collections.Callable[[str], _ValueT]:
@@ -609,7 +788,27 @@ split_url = _build_url_parser(urllib.parse.urlsplit)
 _DATETIME_REGEX = re.compile(r"<-?t:(\d+)(?::\w)?>")
 
 
-def convert_datetime(value: str, /) -> datetime.datetime:
+def to_datetime(value: str, /) -> datetime.datetime:
+    """Parse a datetime from Discord's datetime format.
+
+    More information on this format can be found at
+    https://discord.com/developers/docs/reference#message-formatting-timestamp-styles
+
+    Parameters
+    ----------
+    value: str
+        The value to parse.
+
+    Returns
+    -------
+    datetime.datetime
+        The parsed datetime.
+
+    Raises
+    ------
+    ValueError
+        If the value cannot be parsed.
+    """
     try:
         timestamp = int(next(_DATETIME_REGEX.finditer(value)).groups()[0])
 
@@ -619,11 +818,86 @@ def convert_datetime(value: str, /) -> datetime.datetime:
     return datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
 
 
+_VALID_DATETIME_STYLES = frozenset(("t", "T", "d", "D", "f", "F", "R"))
+
+
+def from_datetime(value: datetime.datetime, /, *, style: str = "f") -> str:
+    """Format a datetime as Discord's datetime format.
+
+    More information on this format can be found at
+    https://discord.com/developers/docs/reference#message-formatting-timestamp-styles
+
+    Parameters
+    ----------
+    value: datetime.datetime
+        The datetime to format.
+
+    Other Parameters
+    ----------------
+    style: str
+        The style to use.
+
+        The valid styles can be found at
+        https://discord.com/developers/docs/reference#message-formatting-formats
+        and this defaults to `"f"`.
+
+    Returns
+    -------
+    str
+        The formatted datetime.
+
+    Raises
+    ------
+    ValueError
+        If the provided datetime is timezone naive.
+        If an invalid style is provided.
+    """
+    if style not in _VALID_DATETIME_STYLES:
+        raise ValueError(f"Invalid style: {style}")
+
+    if value.tzinfo is None:
+        raise ValueError("Cannot convert naive datetimes, please specify a timezone.")
+
+    return f"<t:{round(value.timestamp())}:{style}>"
+
+
+_YES_VALUES = frozenset(("y", "yes", "t", "true", "on", "1"))
+_NO_VALUES = frozenset(("n", "no", "f", "false", "off", "0"))
+
+
+def to_bool(value: str, /) -> bool:
+    """Convert user string input into a boolean value.
+
+    Parameters
+    ----------
+    value: str
+        The value to convert.
+
+    Returns
+    -------
+    bool
+        The converted value.
+
+    Raises
+    ------
+    ValueError
+        If the value cannot be converted.
+    """
+    value = value.lower().strip()
+    if value in _YES_VALUES:
+        return True
+
+    if value in _NO_VALUES:
+        return False
+
+    raise ValueError(f"Invalid bool value `{value}`")
+
+
 _TYPE_OVERRIDES: dict[collections.Callable[..., typing.Any], collections.Callable[[str], typing.Any]] = {
-    bool: distutils.util.strtobool,
+    bool: to_bool,
     bytes: lambda d: bytes(d, "utf-8"),
     bytearray: lambda d: bytearray(d, "utf-8"),
-    datetime.datetime: convert_datetime,
+    datetime.datetime: to_datetime,
     hikari.Snowflake: parse_snowflake,
     urllib.parse.DefragResult: defragment_url,
     urllib.parse.ParseResult: parse_url,
@@ -677,10 +951,3 @@ to_user: typing.Final[UserConverter] = UserConverter()
 
 to_voice_state: typing.Final[VoiceStateConverter] = VoiceStateConverter()
 """Convert user input to a cached `hikari.voices.VoiceState`."""
-
-
-for _value in vars().copy().values():
-    if isinstance(_value, BaseConverter):
-        BaseConverter.implementations().add(typing.cast("BaseConverter[typing.Any]", _value))
-
-del _value
