@@ -153,9 +153,11 @@ __all__: list[str] = [
     "SlashOption",
     # conversion.py
     "conversion",
+    "to_bool",
     "to_channel",
     "to_color",
     "to_colour",
+    "to_datetime",
     "to_emoji",
     "to_guild",
     "to_invite",

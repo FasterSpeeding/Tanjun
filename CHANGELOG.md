@@ -7,7 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - `expire_after` argument to `tanjun.injecting.cached_callback`.
+- snowflake "search" functions and from_datetime to conversion.
+- the snowflake "parse" methods are now exported by conversion.
+- BaseConverter.requires_cache and cache_components properties + check_client method to allow for
+  warning if a converter might not run as expected under the provided client (e.g. intent or state issues).
 
+### Changed
+- renamed "conversion.parse_datetime" to "conversion.to_datetime".
+- `Client.__init__` now allows `hikari.SnowflakeishOr[hikari.PartialGuild] | None` for set_global_commands
+
+### Removed
+- BaseConverter.bind_client, bind_component, get_from_type, implementations, cache_bound, is_inheritable
+  and types methods/properties as these were part of an old system which assumed these would be inferred
+  from types which is no longer the case.
+
+### Fixed
+- A failed startup set global commands call will no longer lead to it retrying on the next startup.
 
 ## [2.0.0a3.post1] - 2021-09-10
 ### Changed

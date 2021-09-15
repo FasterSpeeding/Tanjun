@@ -347,7 +347,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Defaults to `False` and it should be noted that this only applies to
         message commands.
-    set_global_commands : typing.Union[hikari.Snowflake, bool]
+    set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
         Whether or not to automatically set global slash commands when this
         client is first started. Defaults to `False`.
 
@@ -400,7 +400,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         shards: typing.Optional[hikari_traits.ShardAware] = None,
         event_managed: bool = False,
         mention_prefix: bool = False,
-        set_global_commands: typing.Union[hikari.Snowflake, bool] = False,
+        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
     ) -> None:
         # InjectorClient.__init__
         super().__init__()
@@ -443,11 +443,15 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if set_global_commands:
 
             async def _set_global_commands_next_start() -> None:
-                guild = (
-                    hikari.UNDEFINED if isinstance(set_global_commands, bool) else hikari.Snowflake(set_global_commands)
-                )
-                await self.set_global_commands(guild=guild)
-                self.remove_client_callback(ClientCallbackNames.STARTING, _set_global_commands_next_start)
+                try:
+                    guild = (
+                        hikari.UNDEFINED
+                        if isinstance(set_global_commands, bool)
+                        else hikari.Snowflake(set_global_commands)
+                    )
+                    await self.set_global_commands(guild=guild)
+                finally:
+                    self.remove_client_callback(ClientCallbackNames.STARTING, _set_global_commands_next_start)
 
             self.add_client_callback(
                 ClientCallbackNames.STARTING,
