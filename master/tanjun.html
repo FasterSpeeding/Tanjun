@@ -476,6 +476,9 @@
                                 <a class="variable" href="#SlashCommand.needs_injector">needs_injector</a>
                         </li>
                         <li>
+                                <a class="function" href="#SlashCommand.bind_client">bind_client</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#SlashCommand.build">build</a>
                         </li>
                         <li>
@@ -932,6 +935,9 @@
                     <a class="module" href="#conversion">conversion</a>
             </li>
             <li>
+                    <a class="function" href="#to_bool">to_bool</a>
+            </li>
+            <li>
                     <a class="variable" href="#to_channel">to_channel</a>
             </li>
             <li>
@@ -939,6 +945,9 @@
             </li>
             <li>
                     <a class="variable" href="#to_colour">to_colour</a>
+            </li>
+            <li>
+                    <a class="function" href="#to_datetime">to_datetime</a>
             </li>
             <li>
                     <a class="variable" href="#to_emoji">to_emoji</a>
@@ -1496,9 +1505,11 @@ enable slash (interaction) command execution:</p>
     <span class="s2">&quot;SlashOption&quot;</span><span class="p">,</span>
     <span class="c1"># conversion.py</span>
     <span class="s2">&quot;conversion&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;to_bool&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_channel&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_color&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_colour&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;to_datetime&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_emoji&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_guild&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_invite&quot;</span><span class="p">,</span>
@@ -6145,7 +6156,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
 <span class="sd">        Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">        message commands.</span>
-<span class="sd">    set_global_commands : typing.Union[hikari.Snowflake, bool]</span>
+<span class="sd">    set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">        Whether or not to automatically set global slash commands when this</span>
 <span class="sd">        client is first started. Defaults to `False`.</span>
 
@@ -6198,7 +6209,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="n">shards</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -6241,11 +6252,15 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="k">if</span> <span class="n">set_global_commands</span><span class="p">:</span>
 
             <span class="k">async</span> <span class="k">def</span> <span class="nf">_set_global_commands_next_start</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">guild</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="k">else</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">)</span>
-                <span class="p">)</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_global_commands</span><span class="p">(</span><span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">remove_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="n">_set_global_commands_next_start</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">guild</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_global_commands</span><span class="p">(</span><span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">remove_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="n">_set_global_commands_next_start</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span>
                 <span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span>
@@ -7487,7 +7502,7 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">        message commands.</span>
-<span class="sd">    set_global_commands : typing.Union[hikari.Snowflake, bool]</span>
+<span class="sd">    set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">        Whether or not to automatically set global slash commands when this</span>
 <span class="sd">        client is first started. Defaults to `False`.</span>
 
@@ -7540,7 +7555,7 @@ to the provided client using it's abstract methods.</li>
         <span class="n">shards</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -7583,11 +7598,15 @@ to the provided client using it's abstract methods.</li>
         <span class="k">if</span> <span class="n">set_global_commands</span><span class="p">:</span>
 
             <span class="k">async</span> <span class="k">def</span> <span class="nf">_set_global_commands_next_start</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">guild</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="k">else</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">)</span>
-                <span class="p">)</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_global_commands</span><span class="p">(</span><span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">remove_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="n">_set_global_commands_next_start</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">guild</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_global_commands</span><span class="p">(</span><span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">remove_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="n">_set_global_commands_next_start</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span>
                 <span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span>
@@ -8764,7 +8783,7 @@ client is first started.</p>
 
 <p>Defaults to <code>False</code> and it should be noted that this only applies to
 message commands.</p></li>
-<li><p><strong>set_global_commands</strong> (typing.Union[hikari.Snowflake, bool]):
+<li><p><strong>set_global_commands</strong> (typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
 Whether or not to automatically set global slash commands when this
 client is first started. Defaults to <code>False</code>.</p>
 
@@ -8796,7 +8815,7 @@ when set on a specific guild.</p></li>
     shards: Optional[hikari.traits.ShardAware] = None,
     event_managed: bool = False,
     mention_prefix: bool = False,
-    set_global_commands: Union[hikari.snowflakes.Snowflake, bool] = False
+    set_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False
 )</span>
     </div>
 
@@ -8812,7 +8831,7 @@ when set on a specific guild.</p></li>
         <span class="n">shards</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -8855,11 +8874,15 @@ when set on a specific guild.</p></li>
         <span class="k">if</span> <span class="n">set_global_commands</span><span class="p">:</span>
 
             <span class="k">async</span> <span class="k">def</span> <span class="nf">_set_global_commands_next_start</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">guild</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="k">else</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">)</span>
-                <span class="p">)</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_global_commands</span><span class="p">(</span><span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">remove_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="n">_set_global_commands_next_start</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">guild</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_global_commands</span><span class="p">(</span><span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">remove_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="n">_set_global_commands_next_start</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span>
                 <span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span>
@@ -12445,6 +12468,11 @@ message create events.</p>
     <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">converters</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">check_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">converters</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
+                <span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> slash command option&quot;</span><span class="p">)</span>
+
     <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">converters</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
@@ -12779,7 +12807,7 @@ message create events.</p>
 
 
 <span class="k">class</span> <span class="nc">SlashCommand</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_builder&quot;</span><span class="p">,</span> <span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_options&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_builder&quot;</span><span class="p">,</span> <span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_options&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -12813,6 +12841,7 @@ message create events.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_TrackedOption</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_SCOMMAND_NAME_REG</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`&quot;</span><span class="p">)</span>
@@ -12837,6 +12866,12 @@ message create events.</p>
             <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             <span class="ow">or</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">needs_injector</span>
         <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">option</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">special_endpoints_api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
@@ -12863,6 +12898,11 @@ message create events.</p>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">converters</span> <span class="o">=</span> <span class="p">[</span><span class="n">_convert_to_injectable</span><span class="p">(</span><span class="n">converters</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="n">converters</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
+                    <span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">&#39;s slash option &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
         <span class="n">choices_</span> <span class="o">=</span> <span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandChoice</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">]</span> <span class="k">if</span> <span class="n">choices</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">required</span> <span class="o">=</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_UNDEFINED_DEFAULT</span>
@@ -15568,7 +15608,7 @@ The command to add.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SlashCommand</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_builder&quot;</span><span class="p">,</span> <span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_options&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_builder&quot;</span><span class="p">,</span> <span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_options&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -15602,6 +15642,7 @@ The command to add.</li>
             <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_TrackedOption</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_SCOMMAND_NAME_REG</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`&quot;</span><span class="p">)</span>
@@ -15626,6 +15667,12 @@ The command to add.</li>
             <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             <span class="ow">or</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">needs_injector</span>
         <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">option</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">special_endpoints_api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
@@ -15652,6 +15699,11 @@ The command to add.</li>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">converters</span> <span class="o">=</span> <span class="p">[</span><span class="n">_convert_to_injectable</span><span class="p">(</span><span class="n">converters</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="n">converters</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
+                    <span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">&#39;s slash option &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
         <span class="n">choices_</span> <span class="o">=</span> <span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandChoice</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">]</span> <span class="k">if</span> <span class="n">choices</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">required</span> <span class="o">=</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_UNDEFINED_DEFAULT</span>
@@ -16327,6 +16379,7 @@ The command to add.</li>
             <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_TrackedOption</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_SCOMMAND_NAME_REG</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`&quot;</span><span class="p">)</span>
@@ -16359,6 +16412,28 @@ The command to add.</li>
 
         <span class="name">needs_injector</span><span class="annotation">: bool</span>
     </div>
+
+    
+
+                            </div>
+                            <div id="SlashCommand.bind_client" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashCommand.bind_client">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">bind_client</span><span class="signature">(self, client: <a href="tanjun/abc.html#Client">tanjun.abc.Client</a>, /) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">option</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+</pre></div>
+
+        </details>
 
     
 
@@ -17629,7 +17704,6 @@ being used.</p></li>
                 <dd id="SlashCommand.add_check" class="function"><a href="tanjun/commands.html#PartialCommand.add_check">add_check</a></dd>
                 <dd id="SlashCommand.remove_check" class="function"><a href="tanjun/commands.html#PartialCommand.remove_check">remove_check</a></dd>
                 <dd id="SlashCommand.with_check" class="function"><a href="tanjun/commands.html#PartialCommand.with_check">with_check</a></dd>
-                <dd id="SlashCommand.bind_client" class="function"><a href="tanjun/commands.html#PartialCommand.bind_client">bind_client</a></dd>
                 <dd id="SlashCommand.bind_component" class="function"><a href="tanjun/commands.html#PartialCommand.bind_component">bind_component</a></dd>
 
             </div>
@@ -26424,9 +26498,22 @@ user.</p>
     <span class="s2">&quot;SnowflakeConverter&quot;</span><span class="p">,</span>
     <span class="s2">&quot;UserConverter&quot;</span><span class="p">,</span>
     <span class="s2">&quot;VoiceStateConverter&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;from_datetime&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;parse_snowflake&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;parse_channel_id&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;parse_emoji_id&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;parse_role_id&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;parse_user_id&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;search_snowflakes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;search_channel_ids&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;search_emoji_ids&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;search_role_ids&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;search_user_ids&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;to_bool&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_channel&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_color&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_colour&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;to_datetime&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_emoji&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_guild&quot;</span><span class="p">,</span>
     <span class="s2">&quot;to_invite&quot;</span><span class="p">,</span>
@@ -26441,12 +26528,12 @@ user.</p>
 
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">import</span> <span class="nn">distutils.util</span>
 <span class="kn">import</span> <span class="nn">operator</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">typing</span>
 <span class="kn">import</span> <span class="nn">urllib.parse</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">collections</span>
 
 <span class="kn">import</span> <span class="nn">hikari</span>
 
@@ -26454,7 +26541,6 @@ user.</p>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">injecting</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">collections</span>
 
     <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">tanjun_abc</span>
     <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">parsing</span>
@@ -26465,55 +26551,13 @@ user.</p>
 
 <span class="k">class</span> <span class="nc">BaseConverter</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-    <span class="n">__implementations</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">argument</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">cache_bound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_bound</span>
-        <span class="k">if</span> <span class="n">cache_bound</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Registered converter </span><span class="si">{</span><span class="bp">self</span><span class="si">!r}</span><span class="s2"> will always fail with a stateless client.&quot;</span><span class="p">,</span>
-                <span class="n">category</span><span class="o">=</span><span class="n">errors</span><span class="o">.</span><span class="n">StateWarning</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="k">return</span>
-
-        <span class="k">if</span> <span class="n">cache_bound</span> <span class="ow">and</span> <span class="n">client</span><span class="o">.</span><span class="n">shards</span><span class="p">:</span>  <span class="c1"># TODO: alternative message when not state bound and wrong intents</span>
-            <span class="n">required_intents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intents</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">required_intents</span> <span class="o">&amp;</span> <span class="n">client</span><span class="o">.</span><span class="n">shards</span><span class="o">.</span><span class="n">intents</span><span class="p">)</span> <span class="o">!=</span> <span class="n">required_intents</span><span class="p">:</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Registered converter </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">!r}</span><span class="s2"> will not run as expected &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;when </span><span class="si">{</span><span class="n">required_intents</span><span class="si">!r}</span><span class="s2"> intent(s) are not declared&quot;</span><span class="p">,</span>
-                    <span class="n">category</span><span class="o">=</span><span class="n">errors</span><span class="o">.</span><span class="n">StateWarning</span><span class="p">,</span>
-                <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">pass</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_from_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]]:</span>
-        <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__implementations</span><span class="p">:</span>
-            <span class="n">is_inheritable</span> <span class="o">=</span> <span class="n">converter</span><span class="o">.</span><span class="n">is_inheritable</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">is_inheritable</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">converter</span><span class="o">.</span><span class="n">types</span><span class="p">()):</span>
-                <span class="k">return</span> <span class="n">converter</span>
-
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_inheritable</span> <span class="ow">and</span> <span class="n">type_</span> <span class="ow">in</span> <span class="n">converter</span><span class="o">.</span><span class="n">types</span><span class="p">():</span>
-                <span class="k">return</span> <span class="n">converter</span>
-
-        <span class="k">return</span> <span class="kc">None</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">implementations</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__implementations</span>
-
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">cache_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># TODO: replace with cache components</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@property</span>
@@ -26521,15 +26565,37 @@ user.</p>
     <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="nd">@classmethod</span>
+    <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">is_inheritable</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># TODO: will this ever actually work when true?</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>  <span class="c1"># or do we want to assert specific idk channel types</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">check_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="n">parent_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_cache</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Converter </span><span class="si">{</span><span class="bp">self</span><span class="si">!r}</span><span class="s2"> registered with </span><span class="si">{</span><span class="n">parent_name</span><span class="si">}</span><span class="s2"> will always fail with a stateless client.&quot;</span><span class="p">,</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">errors</span><span class="o">.</span><span class="n">StateWarning</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_components</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Converter </span><span class="si">{</span><span class="bp">self</span><span class="si">!r}</span><span class="s2"> registered with </span><span class="si">{</span><span class="n">parent_name</span><span class="si">}</span><span class="s2"> may not perform optimally in a stateless client.&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="c1"># elif missing_components := (self.cache_components &amp; ~client.cache.components):</span>
+        <span class="c1">#     warnings.warn(</span>
+
+        <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">shards</span> <span class="ow">and</span> <span class="p">(</span><span class="n">missing_intents</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intents</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">client</span><span class="o">.</span><span class="n">shards</span><span class="o">.</span><span class="n">intents</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Converter </span><span class="si">{</span><span class="bp">self</span><span class="si">!r}</span><span class="s2"> registered with </span><span class="si">{</span><span class="n">parent_name</span><span class="si">}</span><span class="s2"> may not perform as expected &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;without the following intents: </span><span class="si">{</span><span class="n">missing_intents</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">category</span><span class="o">=</span><span class="n">errors</span><span class="o">.</span><span class="n">StateWarning</span><span class="p">,</span>
+            <span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">InjectableConverter</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BaseInjectableCallback</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]):</span>
@@ -26551,12 +26617,20 @@ user.</p>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cache_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="o">.</span><span class="n">GUILD_CHANNELS</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILDS</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">:</span>
         <span class="n">channel_id</span> <span class="o">=</span> <span class="n">parse_channel_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid channel mention or ID  found&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">channel</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_guild_channel</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">channel</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_guild_channel</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)):</span>
             <span class="k">return</span> <span class="n">channel</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -26565,24 +26639,20 @@ user.</p>
         <span class="k">except</span> <span class="n">hikari</span><span class="o">.</span><span class="n">NotFoundError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find channel&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILDS</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">is_inheritable</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">,)</span>
-
 
 <span class="k">class</span> <span class="nc">ColorConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cache_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="o">.</span><span class="n">NONE</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">NONE</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
@@ -26595,30 +26665,26 @@ user.</p>
 
         <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">NONE</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">is_inheritable</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="p">,)</span>
-
 
 <span class="k">class</span> <span class="nc">EmojiConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">KnownCustomEmoji</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cache_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="o">.</span><span class="n">EMOJIS</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILD_EMOJIS</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILDS</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">KnownCustomEmoji</span><span class="p">:</span>
         <span class="n">emoji_id</span> <span class="o">=</span> <span class="n">parse_emoji_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid emoji or emoji ID found&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">emoji</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_emoji</span><span class="p">(</span><span class="n">emoji_id</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="p">(</span><span class="n">emoji</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_emoji</span><span class="p">(</span><span class="n">emoji_id</span><span class="p">)):</span>
             <span class="k">return</span> <span class="n">emoji</span>
 
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">:</span>
@@ -26630,30 +26696,26 @@ user.</p>
 
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find emoji&quot;</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILD_EMOJIS</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">is_inheritable</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">CustomEmoji</span><span class="p">,)</span>
-
 
 <span class="k">class</span> <span class="nc">GuildConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Guild</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cache_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="o">.</span><span class="n">GUILDS</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILDS</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Guild</span><span class="p">:</span>
         <span class="n">guild_id</span> <span class="o">=</span> <span class="n">parse_snowflake</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid guild ID found&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">guild</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_guild</span><span class="p">(</span><span class="n">guild_id</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">guild</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_guild</span><span class="p">(</span><span class="n">guild_id</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">guild</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -26664,79 +26726,78 @@ user.</p>
 
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find guild&quot;</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILDS</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">is_inheritable</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Guild</span><span class="p">,)</span>
-
 
 <span class="k">class</span> <span class="nc">InviteConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Invite</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cache_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Invite</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">invite</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_invite</span><span class="p">(</span><span class="n">argument</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">invite</span>
-
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find invite&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="o">.</span><span class="n">INVITES</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILD_INVITES</span>
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">is_inheritable</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Invite</span><span class="p">,)</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Invite</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">argument</span><span class="si">}</span><span class="s2">` is not a valid invite code&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">invite</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_invite</span><span class="p">(</span><span class="n">argument</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">invite</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_invite</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">hikari</span><span class="o">.</span><span class="n">NotFoundError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find invite&quot;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">InviteWithMetadataConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InviteWithMetadata</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cache_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InviteWithMetadata</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">invite</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_invite</span><span class="p">(</span><span class="n">argument</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">invite</span>
-
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find invite&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="o">.</span><span class="n">INVITES</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILD_INVITES</span>
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">is_inheritable</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">InviteWithMetadata</span><span class="p">,)</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InviteWithMetadata</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">argument</span><span class="si">}</span><span class="s2">` is not a valid invite code&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">invite</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_invite</span><span class="p">(</span><span class="n">argument</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">invite</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find invite&quot;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">MemberConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cache_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="o">.</span><span class="n">MEMBERS</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILD_MEMBERS</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILDS</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -26754,8 +26815,8 @@ user.</p>
                     <span class="k">pass</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">member</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_member</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">member_id</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">member</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_member</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">member_id</span><span class="p">):</span>
                     <span class="k">return</span> <span class="n">member</span>
 
             <span class="k">try</span><span class="p">:</span>
@@ -26766,45 +26827,29 @@ user.</p>
 
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find member in this guild&quot;</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILD_MEMBERS</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">is_inheritable</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">,)</span>
-
 
 <span class="k">class</span> <span class="nc">PresenceConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">MemberPresence</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cache_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="o">.</span><span class="n">PRESENCES</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILD_PRESENCES</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILD_PRESENCES</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILDS</span>
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">is_inheritable</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">MemberPresence</span><span class="p">,)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MemberPresence</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot get a presence from a DM channel&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
             <span class="n">user_id</span> <span class="o">=</span> <span class="n">parse_user_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid member mention or ID  found&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">user</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_presence</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">user</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_presence</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">user</span>
 
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find presence in current guild&quot;</span><span class="p">)</span>
@@ -26814,13 +26859,21 @@ user.</p>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cache_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="o">.</span><span class="n">ROLES</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILDS</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">:</span>
         <span class="n">role_id</span> <span class="o">=</span> <span class="n">parse_role_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid role mention or ID  found&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">role</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_role</span><span class="p">(</span><span class="n">role_id</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">role</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_role</span><span class="p">(</span><span class="n">role_id</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">role</span>
 
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">:</span>
@@ -26830,17 +26883,82 @@ user.</p>
 
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find role&quot;</span><span class="p">)</span>
 
+
+<span class="k">class</span> <span class="nc">SnowflakeConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="o">.</span><span class="n">NONE</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILDS</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">NONE</span>
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">is_inheritable</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,)</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">parse_snowflake</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid ID found&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">UserConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="o">.</span><span class="n">NONE</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILDS</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILD_MEMBERS</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">:</span>
+        <span class="c1"># TODO: search by name if this is a guild context</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="n">parse_user_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid user mention or ID  found&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">user</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_user</span><span class="p">(</span><span class="n">user_id</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">user</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_user</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="n">hikari</span><span class="o">.</span><span class="n">NotFoundError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find user&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">VoiceStateConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">VoiceState</span><span class="p">]):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="o">.</span><span class="n">VOICE_STATES</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILD_VOICE_STATES</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILDS</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">VoiceState</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot get a voice state from a DM channel&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+            <span class="n">user_id</span> <span class="o">=</span> <span class="n">parse_user_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid user mention or ID  found&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">user</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_voice_state</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">user</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Voice state couldn&#39;t be found for current guild&quot;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">_IDMatcher</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Protocol</span><span class="p">):</span>
@@ -26859,15 +26977,15 @@ user.</p>
                 <span class="n">capture</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">capture</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">capture</span> <span class="k">else</span> <span class="kc">None</span>
 
-        <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
 
             <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
                 <span class="k">pass</span>
 
         <span class="c1"># We should also range check the provided ID.</span>
-        <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">result</span> <span class="o">&lt;=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="o">.</span><span class="n">max</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">result</span>
 
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
@@ -26875,99 +26993,234 @@ user.</p>
     <span class="k">return</span> <span class="n">parse</span>
 
 
-<span class="n">parse_snowflake</span> <span class="o">=</span> <span class="n">make_snowflake_parser</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;[@&amp;?!#a]{0,3}(?::\w+:)?(\d+)&gt;&quot;</span><span class="p">))</span>
-<span class="n">parse_channel_id</span> <span class="o">=</span> <span class="n">make_snowflake_parser</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;#(\d+)&gt;&quot;</span><span class="p">))</span>
-<span class="n">parse_emoji_id</span> <span class="o">=</span> <span class="n">make_snowflake_parser</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;a?:\w+:(\d+)&gt;&quot;</span><span class="p">))</span>
-<span class="n">parse_role_id</span> <span class="o">=</span> <span class="n">make_snowflake_parser</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;@&amp;(\d+)&gt;&quot;</span><span class="p">))</span>
-<span class="n">parse_user_id</span> <span class="o">=</span> <span class="n">make_snowflake_parser</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;@!?(\d+)&gt;&quot;</span><span class="p">))</span>
+<span class="n">_IDSearcher</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ArgumentT</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]]</span>
 
 
-<span class="k">class</span> <span class="nc">SnowflakeConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cache_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">parse_snowflake</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid ID found&quot;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">NONE</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">is_inheritable</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,)</span>
+<span class="k">def</span> <span class="nf">_range_check</span><span class="p">(</span><span class="n">snowflake</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">snowflake</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">snowflake</span> <span class="o">&lt;=</span> <span class="n">snowflake</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
 
 
-<span class="k">class</span> <span class="nc">UserConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+<span class="k">def</span> <span class="nf">make_snowflake_searcher</span><span class="p">(</span><span class="n">regex</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_IDSearcher</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
+                <span class="k">yield</span> <span class="n">result</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cache_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield from</span> <span class="nb">filter</span><span class="p">(</span>
+                    <span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+                <span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">:</span>
-        <span class="n">user_id</span> <span class="o">=</span> <span class="n">parse_user_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid user mention or ID  found&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">user</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_user</span><span class="p">(</span><span class="n">user_id</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">user</span>
+                <span class="k">yield from</span> <span class="nb">filter</span><span class="p">(</span><span class="n">_range_check</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isdigit</span><span class="p">,</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">())))</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_user</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
 
-        <span class="k">except</span> <span class="n">hikari</span><span class="o">.</span><span class="n">NotFoundError</span><span class="p">:</span>
-            <span class="k">pass</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+                <span class="k">pass</span>
 
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find user&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">result</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILD_MEMBERS</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">is_inheritable</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,)</span>
+    <span class="k">return</span> <span class="n">parse</span>
 
 
-<span class="k">class</span> <span class="nc">VoiceStateConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">VoiceState</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+<span class="n">_SNOWFLAKE_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;[@&amp;?!#a]{0,3}(?::\w+:)?(\d+)&gt;&quot;</span><span class="p">)</span>
+<span class="n">parse_snowflake</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">make_snowflake_parser</span><span class="p">(</span><span class="n">_SNOWFLAKE_REGEX</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Parse a snowflake from a string or int value.</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cache_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>
+<span class="sd">Parameters</span>
+<span class="sd">----------</span>
+<span class="sd">value: typing.Union[str, int]</span>
+<span class="sd">    The value to parse (this argument can only be passed positionally).</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">VoiceState</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot get a voice state from a DM channel&quot;</span><span class="p">)</span>
+<span class="sd">Other Parameters</span>
+<span class="sd">----------------</span>
+<span class="sd">message: str</span>
+<span class="sd">    The error message to raise if the value cannot be parsed.</span>
 
-        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="n">user_id</span> <span class="o">=</span> <span class="n">parse_user_id</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid user mention or ID  found&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">user</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get_voice_state</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">user</span>
+<span class="sd">Returns</span>
+<span class="sd">-------</span>
+<span class="sd">hikari.Snowflake</span>
+<span class="sd">    The parsed snowflake.</span>
 
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Voice state couldn&#39;t be found for current guild&quot;</span><span class="p">)</span>
+<span class="sd">Raises</span>
+<span class="sd">------</span>
+<span class="sd">ValueError</span>
+<span class="sd">    If the value cannot be parsed.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">GUILD_VOICE_STATES</span>
+<span class="n">search_snowflakes</span> <span class="o">=</span> <span class="n">make_snowflake_searcher</span><span class="p">(</span><span class="n">_SNOWFLAKE_REGEX</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Iterate over the snowflakes in a string.</span>
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">is_inheritable</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
+<span class="sd">Parameters</span>
+<span class="sd">----------</span>
+<span class="sd">value: typing.Union[str, int]</span>
+<span class="sd">    The value to parse (this argument can only be passed positionally).</span>
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">VoiceState</span><span class="p">,)</span>
+<span class="sd">Returns</span>
+<span class="sd">-------</span>
+<span class="sd">collections.abc.Iterator[hikari.Snowflake]</span>
+<span class="sd">    An iterator over the snowflakes in the string.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">_CHANNEL_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;#(\d+)&gt;&quot;</span><span class="p">)</span>
+<span class="n">parse_channel_id</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">make_snowflake_parser</span><span class="p">(</span><span class="n">_CHANNEL_ID_REGEX</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Parse a channel ID from a string or int value.</span>
+
+<span class="sd">Parameters</span>
+<span class="sd">----------</span>
+<span class="sd">value: typing.Union[str, int]</span>
+<span class="sd">    The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">Other Parameters</span>
+<span class="sd">----------------</span>
+<span class="sd">message: str</span>
+<span class="sd">    The error message to raise if the value cannot be parsed.</span>
+
+<span class="sd">Returns</span>
+<span class="sd">-------</span>
+<span class="sd">hikari.Snowflake</span>
+<span class="sd">    The parsed channel ID.</span>
+
+<span class="sd">Raises</span>
+<span class="sd">------</span>
+<span class="sd">ValueError</span>
+<span class="sd">    If the value cannot be parsed.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">search_channel_ids</span> <span class="o">=</span> <span class="n">make_snowflake_searcher</span><span class="p">(</span><span class="n">_CHANNEL_ID_REGEX</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Iterate over the channel IDs in a string.</span>
+
+<span class="sd">Parameters</span>
+<span class="sd">----------</span>
+<span class="sd">value: typing.Union[str, int]</span>
+<span class="sd">    The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">Returns</span>
+<span class="sd">-------</span>
+<span class="sd">collections.abc.Iterator[hikari.Snowflake]</span>
+<span class="sd">    An iterator over the channel IDs in the string.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">_EMOJI_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;a?:\w+:(\d+)&gt;&quot;</span><span class="p">)</span>
+<span class="n">parse_emoji_id</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">make_snowflake_parser</span><span class="p">(</span><span class="n">_EMOJI_ID_REGEX</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Parse an Emoji ID from a string or int value.</span>
+
+<span class="sd">Parameters</span>
+<span class="sd">----------</span>
+<span class="sd">value: typing.Union[str, int]</span>
+<span class="sd">    The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">Other Parameters</span>
+<span class="sd">----------------</span>
+<span class="sd">message: str</span>
+<span class="sd">    The error message to raise if the value cannot be parsed.</span>
+
+<span class="sd">Returns</span>
+<span class="sd">-------</span>
+<span class="sd">hikari.Snowflake</span>
+<span class="sd">    The parsed Emoji ID.</span>
+
+<span class="sd">Raises</span>
+<span class="sd">------</span>
+<span class="sd">ValueError</span>
+<span class="sd">    If the value cannot be parsed.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">search_emoji_ids</span> <span class="o">=</span> <span class="n">make_snowflake_searcher</span><span class="p">(</span><span class="n">_EMOJI_ID_REGEX</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Iterate over the emoji IDs in a string.</span>
+
+<span class="sd">Parameters</span>
+<span class="sd">----------</span>
+<span class="sd">value: typing.Union[str, int]</span>
+<span class="sd">    The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">Returns</span>
+<span class="sd">-------</span>
+<span class="sd">collections.abc.Iterator[hikari.Snowflake]</span>
+<span class="sd">    An iterator over the emoji IDs in the string.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">_ROLE_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;@&amp;(\d+)&gt;&quot;</span><span class="p">)</span>
+<span class="n">parse_role_id</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">make_snowflake_parser</span><span class="p">(</span><span class="n">_ROLE_ID_REGEX</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Parse a role ID from a string or int value.</span>
+
+<span class="sd">Parameters</span>
+<span class="sd">----------</span>
+<span class="sd">value: typing.Union[str, int]</span>
+<span class="sd">    The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">Other Parameters</span>
+<span class="sd">----------------</span>
+<span class="sd">message: str</span>
+<span class="sd">    The error message to raise if the value cannot be parsed.</span>
+
+<span class="sd">Returns</span>
+<span class="sd">-------</span>
+<span class="sd">hikari.Snowflake</span>
+<span class="sd">    The parsed role ID.</span>
+
+<span class="sd">Raises</span>
+<span class="sd">------</span>
+<span class="sd">ValueError</span>
+<span class="sd">    If the value cannot be parsed.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">search_role_ids</span> <span class="o">=</span> <span class="n">make_snowflake_searcher</span><span class="p">(</span><span class="n">_ROLE_ID_REGEX</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Iterate over the role IDs in a string.</span>
+
+<span class="sd">Parameters</span>
+<span class="sd">----------</span>
+<span class="sd">value: typing.Union[str, int]</span>
+<span class="sd">    The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">Returns</span>
+<span class="sd">-------</span>
+<span class="sd">collections.abc.Iterator[hikari.Snowflake]</span>
+<span class="sd">    An iterator over the role IDs in the string.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">_USER_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;@!?(\d+)&gt;&quot;</span><span class="p">)</span>
+<span class="n">parse_user_id</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">make_snowflake_parser</span><span class="p">(</span><span class="n">_USER_ID_REGEX</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Parse a user ID from a string or int value.</span>
+
+<span class="sd">Parameters</span>
+<span class="sd">----------</span>
+<span class="sd">value: typing.Union[str, int]</span>
+<span class="sd">    The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">Other Parameters</span>
+<span class="sd">----------------</span>
+<span class="sd">message: str</span>
+<span class="sd">    The error message to raise if the value cannot be parsed.</span>
+
+<span class="sd">Returns</span>
+<span class="sd">-------</span>
+<span class="sd">hikari.Snowflake</span>
+<span class="sd">    The parsed user ID.</span>
+
+<span class="sd">Raises</span>
+<span class="sd">------</span>
+<span class="sd">ValueError</span>
+<span class="sd">    If the value cannot be parsed.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">search_user_ids</span> <span class="o">=</span> <span class="n">make_snowflake_searcher</span><span class="p">(</span><span class="n">_USER_ID_REGEX</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Iterate over the user IDs in a string.</span>
+
+<span class="sd">Parameters</span>
+<span class="sd">----------</span>
+<span class="sd">value: typing.Union[str, int]</span>
+<span class="sd">    The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">Returns</span>
+<span class="sd">-------</span>
+<span class="sd">collections.abc.Iterator[hikari.Snowflake]</span>
+<span class="sd">    An iterator over the user IDs in the string.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 
 <span class="k">def</span> <span class="nf">_build_url_parser</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">_ValueT</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">_ValueT</span><span class="p">]:</span>
@@ -26988,7 +27241,27 @@ user.</p>
 <span class="n">_DATETIME_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;-?t:(\d+)(?::\w)?&gt;&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">convert_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">to_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Parse a datetime from Discord&#39;s datetime format.</span>
+
+<span class="sd">    More information on this format can be found at</span>
+<span class="sd">    https://discord.com/developers/docs/reference#message-formatting-timestamp-styles</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value: str</span>
+<span class="sd">        The value to parse.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    datetime.datetime</span>
+<span class="sd">        The parsed datetime.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the value cannot be parsed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">timestamp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">_DATETIME_REGEX</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
 
@@ -26998,11 +27271,86 @@ user.</p>
     <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
 
 
+<span class="n">_VALID_DATETIME_STYLES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">from_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;f&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Format a datetime as Discord&#39;s datetime format.</span>
+
+<span class="sd">    More information on this format can be found at</span>
+<span class="sd">    https://discord.com/developers/docs/reference#message-formatting-timestamp-styles</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value: datetime.datetime</span>
+<span class="sd">        The datetime to format.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    style: str</span>
+<span class="sd">        The style to use.</span>
+
+<span class="sd">        The valid styles can be found at</span>
+<span class="sd">        https://discord.com/developers/docs/reference#message-formatting-formats</span>
+<span class="sd">        and this defaults to `&quot;f&quot;`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The formatted datetime.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the provided datetime is timezone naive.</span>
+<span class="sd">        If an invalid style is provided.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">style</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_VALID_DATETIME_STYLES</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid style: </span><span class="si">{</span><span class="n">style</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot convert naive datetimes, please specify a timezone.&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;t:</span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">timestamp</span><span class="p">())</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">style</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
+
+
+<span class="n">_YES_VALUES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;on&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">))</span>
+<span class="n">_NO_VALUES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">((</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;no&quot;</span><span class="p">,</span> <span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span> <span class="s2">&quot;off&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">to_bool</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert user string input into a boolean value.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value: str</span>
+<span class="sd">        The value to convert.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        The converted value.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the value cannot be converted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">_YES_VALUES</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">_NO_VALUES</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid bool value `</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">)</span>
+
+
 <span class="n">_TYPE_OVERRIDES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="nb">bool</span><span class="p">:</span> <span class="n">distutils</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">strtobool</span><span class="p">,</span>
+    <span class="nb">bool</span><span class="p">:</span> <span class="n">to_bool</span><span class="p">,</span>
     <span class="nb">bytes</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">),</span>
     <span class="nb">bytearray</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">),</span>
-    <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span> <span class="n">convert_datetime</span><span class="p">,</span>
+    <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span> <span class="n">to_datetime</span><span class="p">,</span>
     <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span> <span class="n">parse_snowflake</span><span class="p">,</span>
     <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">DefragResult</span><span class="p">:</span> <span class="n">defragment_url</span><span class="p">,</span>
     <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">ParseResult</span><span class="p">:</span> <span class="n">parse_url</span><span class="p">,</span>
@@ -27056,18 +27404,75 @@ user.</p>
 
 <span class="n">to_voice_state</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">VoiceStateConverter</span><span class="p">]</span> <span class="o">=</span> <span class="n">VoiceStateConverter</span><span class="p">()</span>
 <span class="sd">&quot;&quot;&quot;Convert user input to a cached `hikari.voices.VoiceState`.&quot;&quot;&quot;</span>
-
-
-<span class="k">for</span> <span class="n">_value</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_value</span><span class="p">,</span> <span class="n">BaseConverter</span><span class="p">):</span>
-        <span class="n">BaseConverter</span><span class="o">.</span><span class="n">implementations</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;BaseConverter[typing.Any]&quot;</span><span class="p">,</span> <span class="n">_value</span><span class="p">))</span>
-
-<span class="k">del</span> <span class="n">_value</span>
 </pre></div>
 
         </details>
 
     
+
+                </section>
+                <section id="to_bool">
+                            <div class="attr function"><a class="headerlink" href="#to_bool">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">to_bool</span><span class="signature">(value: str, /) -&gt; bool</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">to_bool</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert user string input into a boolean value.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value: str</span>
+<span class="sd">        The value to convert.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        The converted value.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the value cannot be converted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">_YES_VALUES</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">_NO_VALUES</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid bool value `</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Convert user string input into a boolean value.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>value</strong> (str):
+The value to convert.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: The converted value.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the value cannot be converted.</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="to_channel">
@@ -27095,6 +27500,75 @@ user.</p>
     </div>
 
     
+
+                </section>
+                <section id="to_datetime">
+                            <div class="attr function"><a class="headerlink" href="#to_datetime">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">to_datetime</span><span class="signature">(value: str, /) -&gt; datetime.datetime</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">to_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Parse a datetime from Discord&#39;s datetime format.</span>
+
+<span class="sd">    More information on this format can be found at</span>
+<span class="sd">    https://discord.com/developers/docs/reference#message-formatting-timestamp-styles</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value: str</span>
+<span class="sd">        The value to parse.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    datetime.datetime</span>
+<span class="sd">        The parsed datetime.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the value cannot be parsed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">_DATETIME_REGEX</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not a valid datetime&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+
+    <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Parse a datetime from Discord's datetime format.</p>
+
+<p>More information on this format can be found at
+https://discord.com/developers/docs/reference#message-formatting-timestamp-styles</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>value</strong> (str):
+The value to parse.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>datetime.datetime</strong>: The parsed datetime.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the value cannot be parsed.</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="to_emoji">
@@ -29775,6 +30249,7 @@ The command to add the hooks to.</li>
             <span class="s2">&quot;`InjectorClient.add_type_dependency` is deprecated and marked for removal a&quot;</span>
             <span class="s2">&quot; month after the release of v2.0.0a2. Use `InjectorClient.set_type_dependency`.&quot;</span><span class="p">,</span>
             <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>  <span class="c1"># type: ignore  # pyright bug</span>
 
@@ -29853,6 +30328,7 @@ The command to add the hooks to.</li>
             <span class="s2">&quot;`InjectorClient.add_callback_override` is deprecated and marked for removal a&quot;</span>
             <span class="s2">&quot; month after the release of v2.0.0a2. Use `InjectorClient.set_callback_override`.&quot;</span><span class="p">,</span>
             <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_callback_override</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">override</span><span class="p">)</span>
 
@@ -30950,10 +31426,7 @@ For example, a generic mapping type might be defined as::</p>
     <span class="k">def</span> <span class="nf">add_converter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">converter</span><span class="p">:</span> <span class="n">ConverterSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
-                <span class="n">converter</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span>
-                <span class="n">converter</span><span class="o">.</span><span class="n">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">)</span>
+                <span class="n">converter</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_key</span><span class="si">}</span><span class="s2"> parameter&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">):</span>
             <span class="c1"># Some types like `bool` and `bytes` are overridden here for the sake of convenience.</span>
@@ -30972,13 +31445,10 @@ For example, a generic mapping type might be defined as::</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
         <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
-                <span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+                <span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_key</span><span class="si">}</span><span class="s2"> parameter&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_component</span> <span class="o">=</span> <span class="n">component</span>
-        <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
-                <span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">bind_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">:</span>
