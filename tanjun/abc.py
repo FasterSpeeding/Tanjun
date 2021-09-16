@@ -29,7 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Interfaces of the objects used within Tanjun."""
+"""Interfaces of the objects and clients used within Tanjun."""
 from __future__ import annotations
 
 __all__: list[str] = [
@@ -2316,11 +2316,46 @@ class Component(abc.ABC):
 
     @abc.abstractmethod
     def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, MessageCommand]]:
-        raise NotImplementedError
+        """Check whether a name matches any of this component's registered message commands.
+
+        Notes
+        -----
+        * This only checks for name matches against the top level command and
+          will not account for sub-commands.
+        * Dependent on implementation detail this may partial check name against
+          command names using name.startswith(command_name), hence why it
+          also returns the name a command was matched by.
+
+        Parameters
+        ----------
+        name : str
+            The name to check for command matches.
+
+        Returns
+        -------
+        collections.abc.Iterator[tuple[str, MessageCommand]]
+            Iterator of tuples of command name matches to the relevant message
+            command objects.
+        """
 
     @abc.abstractmethod
-    def check_slash_name(self, content: str, /) -> collections.Iterator[BaseSlashCommand]:
-        raise NotImplementedError
+    def check_slash_name(self, name: str, /) -> collections.Iterator[BaseSlashCommand]:
+        """Check whether a name matches any of this component's registered slash commands.
+
+        .. note::
+            This won't check for sub-commands and will expect `name` to simply be
+            the top level command name.
+
+        Parameters
+        ----------
+        name : str
+            The name to check for command matches.
+
+        Returns
+        -------
+        collections.abc.Iterator[BaseSlashCommand]
+            An iterator of the matching slash commands.
+        """
 
     @abc.abstractmethod
     async def execute_interaction(
@@ -2330,13 +2365,54 @@ class Component(abc.ABC):
         *,
         hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None,
     ) -> typing.Optional[collections.Awaitable[None]]:
-        raise NotImplementedError
+        """Execute a slash context.
+
+        Parameters
+        ----------
+        ctx : SlashContext
+            The context to execute.
+
+        Other Parameters
+        ----------------
+        hooks : typing.Optional[collections.abc.MutableSet[SlashHooks]] = None
+            Set of hooks to include in this command execution.
+
+        Returns
+        -------
+        typing.Optional[collections.abc.Awaitable[None]]
+            Awaitable used to wait for the command execution to finish.
+
+            This may be awaited or left to run as a background task.
+
+            If this is `None` then the client should carry on its search for a
+            component with a matching command.
+        """
 
     @abc.abstractmethod
     async def execute_message(
         self, ctx: MessageContext, /, *, hooks: typing.Optional[collections.MutableSet[MessageHooks]] = None
     ) -> bool:
-        raise NotImplementedError
+        """Execute a message context.
+
+        Parameters
+        ----------
+        ctx : MessageContext
+            The context to execute.
+
+        Other Parameters
+        ----------------
+        hooks : typing.Optional[collections.abc.MutableSet[MessageHooks]] = None
+            Set of hooks to include in this command execution.
+
+        Returns
+        -------
+        bool
+            Whether a message command was executed in this component with the
+            provided context.
+
+            If `False` then the client should carry on its search for a
+            component with a matching command.
+        """
 
 
 class Client(abc.ABC):
@@ -2463,46 +2539,214 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     def add_component(self: _T, component: Component, /) -> _T:
-        raise NotImplementedError
+        """Add a component to this client.
+
+        Parameters
+        ----------
+        component: Component
+            The component to move to this client.
+
+        Returns
+        -------
+        Self
+            The client instance to allow chained calls.
+        """
 
     @abc.abstractmethod
     def remove_component(self, component: Component, /) -> None:
-        raise NotImplementedError
+        """Remove a component from this client.
+
+        This will unsubscribe any client callbacks, commands and listeners
+        registered in the provided component.
+
+        Parameters
+        ----------
+        component: Component
+            The component to remove from this client.
+        """
 
     @abc.abstractmethod
-    def add_client_callback(self: _T, event_name: str, callback: MetaEventSig, /) -> _T:
-        raise NotImplementedError
+    def add_client_callback(self: _T, name: str, callback: MetaEventSig, /) -> _T:
+        """Add a client callback.
+
+        Parameters
+        ----------
+        _name : str
+            The name this callback is being registered to.
+
+            This is case-insensitive.
+        callback : MetaEventSigT
+            The callback to register.
+
+            This may be sync or async and must return None. The positional and
+            keyword arguments a callback should expect depend on implementation
+            detail around the `name` being subscribed to.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
+        """
 
     @abc.abstractmethod
-    def get_client_callbacks(self, event_name: str, /) -> collections.Collection[MetaEventSig]:
-        raise NotImplementedError
+    def get_client_callbacks(self, name: str, /) -> collections.Collection[MetaEventSig]:
+        """Get a collection of the callbacks registered for a specific name.
+
+        Parameters
+        ----------
+        name : str
+            The name to get the callbacks registered for.
+
+            This is case-insensitive.
+
+        Returns
+        -------
+        collections.abc.Collection[MetaEventSig]
+            Collection of the callbacks for the provided name.
+        """
 
     @abc.abstractmethod
-    def remove_client_callback(self, event_name: str, callback: MetaEventSig, /) -> None:
-        raise NotImplementedError
+    def remove_client_callback(self, name: str, callback: MetaEventSig, /) -> None:
+        """Remove a client callback.
+
+        Parameters
+        ----------
+        name : str
+            The name this callback is being registered to.
+
+            This is case-insensitive.
+        callback : MetaEventSigT
+            The callback to remove from the client's callbacks.
+        """
 
     @abc.abstractmethod
-    def with_client_callback(self, event_name: str, /) -> collections.Callable[[MetaEventSigT], MetaEventSigT]:
-        raise NotImplementedError
+    def with_client_callback(self, name: str, /) -> collections.Callable[[MetaEventSigT], MetaEventSigT]:
+        """Add a client callback through a decorator call.
+
+        Examples
+        --------
+        ```py
+        client = tanjun.Client.from_rest_bot(bot)
+
+        @client.with_client_callback("closed")
+        async def on_close() -> None:
+            raise NotImplementedError
+        ```
+
+        Parameters
+        ----------
+        name : str
+            The name this callback is being registered to.
+
+            This is case-insensitive.
+
+        Returns
+        -------
+        collections.abc.Callable[[MetaEventSigT], MetaEventSigT]
+            Decorator callback used to register the client callback.
+
+            This may be sync or async and must return None. The positional and
+            keyword arguments a callback should expect depend on implementation
+            detail around the `name` being subscribed to.
+        """
 
     @abc.abstractmethod
     def add_listener(self: _T, event_type: type[hikari.Event], callback: ListenerCallbackSig, /) -> _T:
-        raise NotImplementedError
+        """Add a listener to the client.
+
+        Parameters
+        ----------
+        event_type : type[hikari.Event]
+            The event type to add a listener for.
+        callback: ListenerCallbackSig
+            The callback to register as a listener.
+
+            This callback must be a coroutine function which returns `None` and
+            always takes at least one positional arg of type `hikari.events.Event`
+            regardless of client implementation detail.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
+        """
 
     @abc.abstractmethod
     def remove_listener(self, event_type: type[hikari.Event], callback: ListenerCallbackSig, /) -> None:
-        raise NotImplementedError
+        """Remove a listener from the client.
+
+        Parameters
+        ----------
+        event_type : type[hikari.Event]
+            The event type to remove a listener for.
+        callback: ListenerCallbackSig
+            The callback to remove.
+        """
 
     @abc.abstractmethod
     def with_listener(
         self, event_type: type[hikari.Event], /
     ) -> collections.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]:
-        raise NotImplementedError
+        """Add an event listener to this client through a decorator call.
+
+        Examples
+        --------
+        ```py
+        client = tanjun.Client.from_gateway_bot(bot)
+
+        @client.with_listener(hikari.MessageCreateEvent)
+        async def on_message_create(event: hikari.MessageCreateEvent) -> None:
+            raise NotImplementedError
+        ```
+
+        Parameters
+        ----------
+        event_type : type[hikari.Event]
+            The event type to listener for.
+
+        Returns
+        -------
+        collections.abc.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]
+            Decorator callback used to register the event callback.
+
+            The callback must be a coroutine function which returns `None` and
+            always takes at least one positional arg of type `hikari.events.Event`
+            regardless of client implementation detail.
+        """
 
     @abc.abstractmethod
     def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, MessageCommand]]:
-        raise NotImplementedError
+        """Check whether a message command name is present in the current client.
+
+        .. note::
+            Dependent on implementation this may partial check name against the
+            message command's name based on command_name.startswith(name).
+
+        Parameters
+        ----------
+        name : str
+            The name to match commands against.
+
+        Returns
+        -------
+        collections.abc.Iterator[tuple[str, MessageCommand]]
+            Iterator of the matched command names to the matched message command objects.
+        """
 
     @abc.abstractmethod
     def check_slash_name(self, name: str, /) -> collections.Iterator[BaseSlashCommand]:
-        raise NotImplementedError
+        """Check whether a slash command name is present in the current client.
+
+        .. note::
+            This won't check the commands within command groups.
+
+        Parameters
+        ----------
+        name : str
+            Name to check against.
+
+        Returns
+        -------
+        collections.abc.Iterator[BaseSlashCommand]
+            Iterator of the matched slash command objects.
+        """

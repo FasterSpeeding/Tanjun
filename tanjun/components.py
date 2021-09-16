@@ -29,6 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""Standard implementation of Tanjun's "components" used to manage separate features within a client."""
 from __future__ import annotations
 
 __all__: list[str] = ["CommandT", "Component", "LoadableProtocol", "WithCommandReturnSig"]

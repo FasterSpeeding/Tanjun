@@ -29,6 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""Standard implementation of message command argument parsing."""
 from __future__ import annotations
 
 __all__: list[str] = [
@@ -713,7 +714,7 @@ class Parameter:
                 sources.append(exc)
 
         parameter_type = "option" if isinstance(self, Option) else "argument"
-        raise errors.ConversionError(self.key, f"Couldn't convert {parameter_type} '{self.key}'", sources)
+        raise errors.ConversionError(f"Couldn't convert {parameter_type} '{self.key}'", self.key, sources)
 
     def copy(self: _ParameterT, *, _new: bool = True) -> _ParameterT:
         if not _new:
