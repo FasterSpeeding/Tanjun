@@ -196,7 +196,9 @@
                     <h1 class="modulename">
 <a href="./../tanjun.html">tanjun</a><wbr>.components    </h1>
 
-                
+                        <div class="docstring"><p>Standard implementation of Tanjun's "components" used to manage separate features within a client.</p>
+</div>
+
                         <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
@@ -230,6 +232,7 @@
 <span class="c1"># CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,</span>
 <span class="c1"># OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
 <span class="c1"># OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="sd">&quot;&quot;&quot;Standard implementation of Tanjun&#39;s &quot;components&quot; used to manage separate features within a client.&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CommandT&quot;</span><span class="p">,</span> <span class="s2">&quot;Component&quot;</span><span class="p">,</span> <span class="s2">&quot;LoadableProtocol&quot;</span><span class="p">,</span> <span class="s2">&quot;WithCommandReturnSig&quot;</span><span class="p">]</span>
@@ -245,10 +248,9 @@
 
 <span class="kn">from</span> <span class="nn">hikari.events</span> <span class="kn">import</span> <span class="n">base_events</span>
 
-<span class="kn">import</span> <span class="nn">tanjun</span>
-
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">checks</span> <span class="k">as</span> <span class="n">checks_</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utilities</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -724,13 +726,21 @@
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_execute_interaction</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
-        <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">],</span>
+        <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">],</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">command</span> <span class="ow">or</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">command</span> <span class="ow">or</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">())</span>
+
+        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_future</span><span class="p">()</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">hooks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1260,13 +1270,21 @@
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_execute_interaction</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
-        <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">],</span>
+        <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">],</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">command</span> <span class="ow">or</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">command</span> <span class="ow">or</span> <span class="ow">not</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">HaltExecution</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">())</span>
+
+        <span class="k">except</span> <span class="n">errors</span><span class="o">.</span><span class="n">CommandError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_future</span><span class="p">()</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">hooks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2304,6 +2322,12 @@ The event to listen for.</li>
 <li><strong>listener</strong> (ListenerCallbackSig):
 The listener to remove.</li>
 </ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>LookupError</strong>: If the listener is not registered for the provided event.</li>
+</ul>
 </div>
 
 
@@ -2447,7 +2471,33 @@ The event to listen for.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Check whether a name matches any of this component's registered message commands.</p>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>This only checks for name matches against the top level command and
+will not account for sub-commands.</li>
+<li>Dependent on implementation detail this may partial check name against
+command names using name.startswith(command_name), hence why it
+also returns the name a command was matched by.</li>
+</ul>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>name</strong> (str):
+The name to check for command matches.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[tuple[str, MessageCommand]]</strong>: Iterator of tuples of command name matches to the relevant message
+command objects.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Component.check_slash_name" class="classattr">
@@ -2471,7 +2521,26 @@ The event to listen for.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Check whether a name matches any of this component's registered slash commands.</p>
+
+<p><em>Note:</em>
+This won't check for sub-commands and will expect <code><a href="#Component.name">name</a></code> to simply be
+the top level command name.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>name</strong> (str):
+The name to check for command matches.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[BaseSlashCommand]</strong>: An iterator of the matching slash commands.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Component.execute_interaction" class="classattr">
@@ -2505,7 +2574,38 @@ The event to listen for.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Execute a slash context.</p>
+
+<p>.. info::
+    Unlike <code><a href="#Component.execute_message">Component.execute_message</a></code>, this shouldn't be expected to
+    raise <code><a href="errors.html#HaltExecution">tanjun.errors.HaltExecution</a></code> nor <code><a href="errors.html#CommandError">tanjun.errors.CommandError</a></code>.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ctx</strong> (SlashContext):
+The context to execute.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>hooks</strong> (typing.Optional[collections.abc.MutableSet[SlashHooks]] = None):
+Set of hooks to include in this command execution.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>typing.Optional[collections.abc.Awaitable[None]]</strong>: Awaitable used to wait for the command execution to finish.</li>
+</ul>
+
+<p>This may be awaited or left to run as a background task.</p>
+
+<p>If this is <code>None</code> then the client should carry on its search for a
+component with a matching command.</p>
+</div>
+
 
                             </div>
                             <div id="Component.execute_message" class="classattr">
@@ -2558,7 +2658,41 @@ The event to listen for.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Execute a message context.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ctx</strong> (MessageContext):
+The context to execute.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>hooks</strong> (typing.Optional[collections.abc.MutableSet[MessageHooks]] = None):
+Set of hooks to include in this command execution.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether a message command was executed in this component with the
+provided context.</li>
+</ul>
+
+<p>If <code>False</code> then the client should carry on its search for a
+component with a matching command.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong><a href="errors.html#CommandError">tanjun.errors.CommandError</a></strong>: To end the command's execution with an error response message.</li>
+<li><strong><a href="errors.html#HaltExecution">tanjun.errors.HaltExecution</a></strong>: To indicate that the client should stop searching for commands to
+execute with the current context.</li>
+</ul>
+</div>
+
 
                             </div>
                 </section>
@@ -2631,8 +2765,7 @@ Protocol classes can be generic, they are defined as::</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">_no_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_is_protocol</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Protocols cannot be instantiated&#39;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Protocols cannot be instantiated&#39;</span><span class="p">)</span>
 </pre></div>
 
         </details>

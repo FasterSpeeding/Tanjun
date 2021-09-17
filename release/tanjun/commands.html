@@ -244,6 +244,9 @@
                                 <a class="variable" href="#SlashCommand.needs_injector">needs_injector</a>
                         </li>
                         <li>
+                                <a class="function" href="#SlashCommand.bind_client">bind_client</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#SlashCommand.build">build</a>
                         </li>
                         <li>
@@ -361,7 +364,9 @@
                     <h1 class="modulename">
 <a href="./../tanjun.html">tanjun</a><wbr>.commands    </h1>
 
-                
+                        <div class="docstring"><p>Standard implementation of Tanjun's command objects.</p>
+</div>
+
                         <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
@@ -395,6 +400,7 @@
 <span class="c1"># CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,</span>
 <span class="c1"># OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
 <span class="c1"># OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="sd">&quot;&quot;&quot;Standard implementation of Tanjun&#39;s command objects.&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
@@ -423,7 +429,6 @@
 <span class="p">]</span>
 
 <span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">types</span>
 <span class="kn">import</span> <span class="nn">typing</span>
@@ -462,10 +467,6 @@
 <span class="n">_EMPTY_DICT</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="n">_EMPTY_HOOKS</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">hooks_</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hooks_</span><span class="o">.</span><span class="n">Hooks</span><span class="p">()</span>
 <span class="n">_EMPTY_LIST</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">_EMPTY_RESOLVED</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">ResolvedOptionData</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">ResolvedOptionData</span><span class="p">(</span>
-    <span class="n">users</span><span class="o">=</span><span class="n">_EMPTY_DICT</span><span class="p">,</span> <span class="n">members</span><span class="o">=</span><span class="n">_EMPTY_DICT</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="n">_EMPTY_DICT</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">_EMPTY_DICT</span>
-<span class="p">)</span>
-<span class="n">_LOGGER</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;hikari.tanjun.commands&quot;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">_LoadableInjector</span><span class="p">(</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">):</span>
@@ -1048,6 +1049,11 @@
     <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">converters</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">check_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">converters</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
+                <span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> slash command option&quot;</span><span class="p">)</span>
+
     <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">converters</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
@@ -1060,7 +1066,7 @@
             <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="n">exceptions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
 
-        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConversionError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t convert </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">exceptions</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConversionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Couldn&#39;t convert </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">exceptions</span><span class="p">)</span>
 
 
 <span class="n">_CommandBuilderT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_CommandBuilderT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;_CommandBuilder&quot;</span><span class="p">)</span>
@@ -1382,7 +1388,7 @@
 
 
 <span class="k">class</span> <span class="nc">SlashCommand</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_builder&quot;</span><span class="p">,</span> <span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_options&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_builder&quot;</span><span class="p">,</span> <span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_options&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1416,6 +1422,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_TrackedOption</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_SCOMMAND_NAME_REG</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`&quot;</span><span class="p">)</span>
@@ -1440,6 +1447,12 @@
             <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             <span class="ow">or</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">needs_injector</span>
         <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">option</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">special_endpoints_api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
@@ -1466,6 +1479,11 @@
 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">converters</span> <span class="o">=</span> <span class="p">[</span><span class="n">_convert_to_injectable</span><span class="p">(</span><span class="n">converters</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="n">converters</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
+                    <span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">&#39;s slash option &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
         <span class="n">choices_</span> <span class="o">=</span> <span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandChoice</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">]</span> <span class="k">if</span> <span class="n">choices</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">required</span> <span class="o">=</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_UNDEFINED_DEFAULT</span>
@@ -1961,9 +1979,6 @@
         <span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_process_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">_EMPTY_DICT</span>
-
         <span class="n">keyword_args</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">tracked_option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">option</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tracked_option</span><span class="o">.</span><span class="n">name</span><span class="p">)):</span>
@@ -1980,7 +1995,7 @@
                 <span class="n">member</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">if</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">is_only_member</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">member</span> <span class="o">:=</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_member</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>
                     <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConversionError</span><span class="p">(</span>
-                        <span class="n">tracked_option</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t find member for provided user: </span><span class="si">{</span><span class="n">option</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t find member for provided user: </span><span class="si">{</span><span class="n">option</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">name</span>
                     <span class="p">)</span>
 
                 <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">member</span> <span class="ow">or</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_user</span><span class="p">()</span>
@@ -1999,7 +2014,7 @@
                     <span class="n">member</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
                     <span class="k">if</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">is_only_member</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">member</span> <span class="o">:=</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_member</span><span class="p">()):</span>
                         <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConversionError</span><span class="p">(</span>
-                            <span class="n">tracked_option</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t find member for provided user: </span><span class="si">{</span><span class="n">option</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t find member for provided user: </span><span class="si">{</span><span class="n">option</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">name</span>
                         <span class="p">)</span>
 
                     <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">member</span> <span class="ow">or</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_mentionable</span><span class="p">()</span>
@@ -5094,7 +5109,7 @@ This will be overridden by any response calls which specify flags.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SlashCommand</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommand</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_builder&quot;</span><span class="p">,</span> <span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_options&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_builder&quot;</span><span class="p">,</span> <span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_client&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_options&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -5128,6 +5143,7 @@ This will be overridden by any response calls which specify flags.</li>
             <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_TrackedOption</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_SCOMMAND_NAME_REG</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`&quot;</span><span class="p">)</span>
@@ -5152,6 +5168,12 @@ This will be overridden by any response calls which specify flags.</li>
             <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             <span class="ow">or</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">needs_injector</span>
         <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">option</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">special_endpoints_api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
@@ -5178,6 +5200,11 @@ This will be overridden by any response calls which specify flags.</li>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">converters</span> <span class="o">=</span> <span class="p">[</span><span class="n">_convert_to_injectable</span><span class="p">(</span><span class="n">converters</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="n">converters</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
+                    <span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">&#39;s slash option &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
         <span class="n">choices_</span> <span class="o">=</span> <span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandChoice</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">]</span> <span class="k">if</span> <span class="n">choices</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">required</span> <span class="o">=</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_UNDEFINED_DEFAULT</span>
@@ -5673,9 +5700,6 @@ This will be overridden by any response calls which specify flags.</li>
         <span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_process_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">_EMPTY_DICT</span>
-
         <span class="n">keyword_args</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">tracked_option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">option</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tracked_option</span><span class="o">.</span><span class="n">name</span><span class="p">)):</span>
@@ -5692,7 +5716,7 @@ This will be overridden by any response calls which specify flags.</li>
                 <span class="n">member</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">if</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">is_only_member</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">member</span> <span class="o">:=</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_member</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>
                     <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConversionError</span><span class="p">(</span>
-                        <span class="n">tracked_option</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t find member for provided user: </span><span class="si">{</span><span class="n">option</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t find member for provided user: </span><span class="si">{</span><span class="n">option</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">name</span>
                     <span class="p">)</span>
 
                 <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">member</span> <span class="ow">or</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_user</span><span class="p">()</span>
@@ -5711,7 +5735,7 @@ This will be overridden by any response calls which specify flags.</li>
                     <span class="n">member</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
                     <span class="k">if</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">is_only_member</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">member</span> <span class="o">:=</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_member</span><span class="p">()):</span>
                         <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">ConversionError</span><span class="p">(</span>
-                            <span class="n">tracked_option</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t find member for provided user: </span><span class="si">{</span><span class="n">option</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t find member for provided user: </span><span class="si">{</span><span class="n">option</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">tracked_option</span><span class="o">.</span><span class="n">name</span>
                         <span class="p">)</span>
 
                     <span class="n">keyword_args</span><span class="p">[</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">member</span> <span class="ow">or</span> <span class="n">option</span><span class="o">.</span><span class="n">resolve_to_mentionable</span><span class="p">()</span>
@@ -5853,6 +5877,7 @@ This will be overridden by any response calls which specify flags.</li>
             <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_TrackedOption</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_SCOMMAND_NAME_REG</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`&quot;</span><span class="p">)</span>
@@ -5885,6 +5910,28 @@ This will be overridden by any response calls which specify flags.</li>
 
         <span class="name">needs_injector</span><span class="annotation">: bool</span>
     </div>
+
+    
+
+                            </div>
+                            <div id="SlashCommand.bind_client" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#SlashCommand.bind_client">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">bind_client</span><span class="signature">(self, client: <a href="abc.html#Client">tanjun.abc.Client</a>, /) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">option</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+</pre></div>
+
+        </details>
 
     
 
@@ -7155,7 +7202,6 @@ being used.</p></li>
                 <dd id="SlashCommand.add_check" class="function"><a href="#PartialCommand.add_check">add_check</a></dd>
                 <dd id="SlashCommand.remove_check" class="function"><a href="#PartialCommand.remove_check">remove_check</a></dd>
                 <dd id="SlashCommand.with_check" class="function"><a href="#PartialCommand.with_check">with_check</a></dd>
-                <dd id="SlashCommand.bind_client" class="function"><a href="#PartialCommand.bind_client">bind_client</a></dd>
                 <dd id="SlashCommand.bind_component" class="function"><a href="#PartialCommand.bind_component">bind_component</a></dd>
 
             </div>
