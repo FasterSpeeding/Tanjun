@@ -95,6 +95,7 @@ class TestInjectableCheck:
         mock_descriptor.resolve_with_command_context.assert_awaited_once_with(mock_context, mock_context)
 
 
+@pytest.mark.skip(reason="Not implemented")
 class TestApplicationOwnerCheck:
     ...
 
@@ -199,10 +200,12 @@ class TestPermissionCheck:
         check.get_permissions.assert_awaited_once_with(context)
 
 
+@pytest.mark.skip(reason="Not implemented")
 class TestAuthorPermissionCheck:
     ...
 
 
+@pytest.mark.skip(reason="Not implemented")
 class TestOwnPermissionsCheck:
     ...
 
