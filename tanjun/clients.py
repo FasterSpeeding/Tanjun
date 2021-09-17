@@ -1559,7 +1559,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         hooks = self._get_slash_hooks()
         future = ctx.get_response_future()
         try:
-            if self.check(ctx):
+            if await self.check(ctx):
                 for component in self._components:
                     if await component.execute_interaction(ctx, hooks=hooks):
                         return await future

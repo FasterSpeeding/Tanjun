@@ -2367,6 +2367,10 @@ class Component(abc.ABC):
     ) -> typing.Optional[collections.Awaitable[None]]:
         """Execute a slash context.
 
+        .. info::
+            Unlike `Component.execute_message`, this shouldn't be expected to
+            raise `tanjun.errors.HaltExecution` nor `tanjun.errors.CommandError`.
+
         Parameters
         ----------
         ctx : SlashContext
@@ -2412,6 +2416,14 @@ class Component(abc.ABC):
 
             If `False` then the client should carry on its search for a
             component with a matching command.
+
+        Raises
+        ------
+        tanjun.errors.CommandError
+            To end the command's execution with an error response message.
+        tanjun.errors.HaltExecution
+            To indicate that the client should stop searching for commands to
+            execute with the current context.
         """
 
 

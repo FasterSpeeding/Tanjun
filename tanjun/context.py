@@ -716,6 +716,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             if self._has_responded or not self._not_found_message:
                 return
 
+            self._has_responded = True
             if self._has_been_deferred:
                 await self._interaction.edit_initial_response(content=self._not_found_message)
                 return
