@@ -592,7 +592,7 @@
                     <h1 class="modulename">
 <a href="./../tanjun.html">tanjun</a><wbr>.abc    </h1>
 
-                        <div class="docstring"><p>Interfaces of the objects used within Tanjun.</p>
+                        <div class="docstring"><p>Interfaces of the objects and clients used within Tanjun.</p>
 </div>
 
                         <details>
@@ -628,7 +628,7 @@
 <span class="c1"># CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,</span>
 <span class="c1"># OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
 <span class="c1"># OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
-<span class="sd">&quot;&quot;&quot;Interfaces of the objects used within Tanjun.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Interfaces of the objects and clients used within Tanjun.&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
@@ -2915,11 +2915,46 @@
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Check whether a name matches any of this component&#39;s registered message commands.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This only checks for name matches against the top level command and</span>
+<span class="sd">          will not account for sub-commands.</span>
+<span class="sd">        * Dependent on implementation detail this may partial check name against</span>
+<span class="sd">          command names using name.startswith(command_name), hence why it</span>
+<span class="sd">          also returns the name a command was matched by.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name to check for command matches.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[tuple[str, MessageCommand]]</span>
+<span class="sd">            Iterator of tuples of command name matches to the relevant message</span>
+<span class="sd">            command objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">check_slash_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">check_slash_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Check whether a name matches any of this component&#39;s registered slash commands.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This won&#39;t check for sub-commands and will expect `name` to simply be</span>
+<span class="sd">            the top level command name.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name to check for command matches.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[BaseSlashCommand]</span>
+<span class="sd">            An iterator of the matching slash commands.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">execute_interaction</span><span class="p">(</span>
@@ -2929,13 +2964,66 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Execute a slash context.</span>
+
+<span class="sd">        .. info::</span>
+<span class="sd">            Unlike `Component.execute_message`, this shouldn&#39;t be expected to</span>
+<span class="sd">            raise `tanjun.errors.HaltExecution` nor `tanjun.errors.CommandError`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ctx : SlashContext</span>
+<span class="sd">            The context to execute.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        hooks : typing.Optional[collections.abc.MutableSet[SlashHooks]] = None</span>
+<span class="sd">            Set of hooks to include in this command execution.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Optional[collections.abc.Awaitable[None]]</span>
+<span class="sd">            Awaitable used to wait for the command execution to finish.</span>
+
+<span class="sd">            This may be awaited or left to run as a background task.</span>
+
+<span class="sd">            If this is `None` then the client should carry on its search for a</span>
+<span class="sd">            component with a matching command.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">execute_message</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">MessageHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Execute a message context.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ctx : MessageContext</span>
+<span class="sd">            The context to execute.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        hooks : typing.Optional[collections.abc.MutableSet[MessageHooks]] = None</span>
+<span class="sd">            Set of hooks to include in this command execution.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether a message command was executed in this component with the</span>
+<span class="sd">            provided context.</span>
+
+<span class="sd">            If `False` then the client should carry on its search for a</span>
+<span class="sd">            component with a matching command.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        tanjun.errors.CommandError</span>
+<span class="sd">            To end the command&#39;s execution with an error response message.</span>
+<span class="sd">        tanjun.errors.HaltExecution</span>
+<span class="sd">            To indicate that the client should stop searching for commands to</span>
+<span class="sd">            execute with the current context.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">Client</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
@@ -3062,49 +3150,217 @@
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">add_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Add a component to this client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component: Component</span>
+<span class="sd">            The component to move to this client.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to allow chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">remove_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Remove a component from this client.</span>
+
+<span class="sd">        This will unsubscribe any client callbacks, commands and listeners</span>
+<span class="sd">        registered in the provided component.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component: Component</span>
+<span class="sd">            The component to remove from this client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a client callback.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        _name : str</span>
+<span class="sd">            The name this callback is being registered to.</span>
+
+<span class="sd">            This is case-insensitive.</span>
+<span class="sd">        callback : MetaEventSigT</span>
+<span class="sd">            The callback to register.</span>
+
+<span class="sd">            This may be sync or async and must return None. The positional and</span>
+<span class="sd">            keyword arguments a callback should expect depend on implementation</span>
+<span class="sd">            detail around the `name` being subscribed to.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MetaEventSig</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MetaEventSig</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get a collection of the callbacks registered for a specific name.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name to get the callbacks registered for.</span>
+
+<span class="sd">            This is case-insensitive.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Collection[MetaEventSig]</span>
+<span class="sd">            Collection of the callbacks for the provided name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Remove a client callback.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name this callback is being registered to.</span>
+
+<span class="sd">            This is case-insensitive.</span>
+<span class="sd">        callback : MetaEventSigT</span>
+<span class="sd">            The callback to remove from the client&#39;s callbacks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">MetaEventSigT</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">MetaEventSigT</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Add a client callback through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        client = tanjun.Client.from_rest_bot(bot)</span>
+
+<span class="sd">        @client.with_client_callback(&quot;closed&quot;)</span>
+<span class="sd">        async def on_close() -&gt; None:</span>
+<span class="sd">            raise NotImplementedError</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name this callback is being registered to.</span>
+
+<span class="sd">            This is case-insensitive.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Callable[[MetaEventSigT], MetaEventSigT]</span>
+<span class="sd">            Decorator callback used to register the client callback.</span>
+
+<span class="sd">            This may be sync or async and must return None. The positional and</span>
+<span class="sd">            keyword arguments a callback should expect depend on implementation</span>
+<span class="sd">            detail around the `name` being subscribed to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Add a listener to the client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event_type : type[hikari.Event]</span>
+<span class="sd">            The event type to add a listener for.</span>
+<span class="sd">        callback: ListenerCallbackSig</span>
+<span class="sd">            The callback to register as a listener.</span>
+
+<span class="sd">            This callback must be a coroutine function which returns `None` and</span>
+<span class="sd">            always takes at least one positional arg of type `hikari.events.Event`</span>
+<span class="sd">            regardless of client implementation detail.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Remove a listener from the client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event_type : type[hikari.Event]</span>
+<span class="sd">            The event type to remove a listener for.</span>
+<span class="sd">        callback: ListenerCallbackSig</span>
+<span class="sd">            The callback to remove.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Add an event listener to this client through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        client = tanjun.Client.from_gateway_bot(bot)</span>
+
+<span class="sd">        @client.with_listener(hikari.MessageCreateEvent)</span>
+<span class="sd">        async def on_message_create(event: hikari.MessageCreateEvent) -&gt; None:</span>
+<span class="sd">            raise NotImplementedError</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event_type : type[hikari.Event]</span>
+<span class="sd">            The event type to listener for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</span>
+<span class="sd">            Decorator callback used to register the event callback.</span>
+
+<span class="sd">            The callback must be a coroutine function which returns `None` and</span>
+<span class="sd">            always takes at least one positional arg of type `hikari.events.Event`</span>
+<span class="sd">            regardless of client implementation detail.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Check whether a message command name is present in the current client.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Dependent on implementation this may partial check name against the</span>
+<span class="sd">            message command&#39;s name based on command_name.startswith(name).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name to match commands against.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[tuple[str, MessageCommand]]</span>
+<span class="sd">            Iterator of the matched command names to the matched message command objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">check_slash_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Check whether a slash command name is present in the current client.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This won&#39;t check the commands within command groups.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Name to check against.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[BaseSlashCommand]</span>
+<span class="sd">            Iterator of the matched slash command objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
@@ -9900,11 +10156,46 @@ user.</p>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Check whether a name matches any of this component&#39;s registered message commands.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This only checks for name matches against the top level command and</span>
+<span class="sd">          will not account for sub-commands.</span>
+<span class="sd">        * Dependent on implementation detail this may partial check name against</span>
+<span class="sd">          command names using name.startswith(command_name), hence why it</span>
+<span class="sd">          also returns the name a command was matched by.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name to check for command matches.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[tuple[str, MessageCommand]]</span>
+<span class="sd">            Iterator of tuples of command name matches to the relevant message</span>
+<span class="sd">            command objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">check_slash_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">check_slash_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Check whether a name matches any of this component&#39;s registered slash commands.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This won&#39;t check for sub-commands and will expect `name` to simply be</span>
+<span class="sd">            the top level command name.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name to check for command matches.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[BaseSlashCommand]</span>
+<span class="sd">            An iterator of the matching slash commands.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">execute_interaction</span><span class="p">(</span>
@@ -9914,13 +10205,66 @@ user.</p>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Execute a slash context.</span>
+
+<span class="sd">        .. info::</span>
+<span class="sd">            Unlike `Component.execute_message`, this shouldn&#39;t be expected to</span>
+<span class="sd">            raise `tanjun.errors.HaltExecution` nor `tanjun.errors.CommandError`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ctx : SlashContext</span>
+<span class="sd">            The context to execute.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        hooks : typing.Optional[collections.abc.MutableSet[SlashHooks]] = None</span>
+<span class="sd">            Set of hooks to include in this command execution.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Optional[collections.abc.Awaitable[None]]</span>
+<span class="sd">            Awaitable used to wait for the command execution to finish.</span>
+
+<span class="sd">            This may be awaited or left to run as a background task.</span>
+
+<span class="sd">            If this is `None` then the client should carry on its search for a</span>
+<span class="sd">            component with a matching command.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">execute_message</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">MessageHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Execute a message context.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ctx : MessageContext</span>
+<span class="sd">            The context to execute.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        hooks : typing.Optional[collections.abc.MutableSet[MessageHooks]] = None</span>
+<span class="sd">            Set of hooks to include in this command execution.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether a message command was executed in this component with the</span>
+<span class="sd">            provided context.</span>
+
+<span class="sd">            If `False` then the client should carry on its search for a</span>
+<span class="sd">            component with a matching command.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        tanjun.errors.CommandError</span>
+<span class="sd">            To end the command&#39;s execution with an error response message.</span>
+<span class="sd">        tanjun.errors.HaltExecution</span>
+<span class="sd">            To indicate that the client should stop searching for commands to</span>
+<span class="sd">            execute with the current context.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
@@ -10556,12 +10900,58 @@ The event to listen for.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Check whether a name matches any of this component&#39;s registered message commands.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This only checks for name matches against the top level command and</span>
+<span class="sd">          will not account for sub-commands.</span>
+<span class="sd">        * Dependent on implementation detail this may partial check name against</span>
+<span class="sd">          command names using name.startswith(command_name), hence why it</span>
+<span class="sd">          also returns the name a command was matched by.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name to check for command matches.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[tuple[str, MessageCommand]]</span>
+<span class="sd">            Iterator of tuples of command name matches to the relevant message</span>
+<span class="sd">            command objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Check whether a name matches any of this component's registered message commands.</p>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>This only checks for name matches against the top level command and
+will not account for sub-commands.</li>
+<li>Dependent on implementation detail this may partial check name against
+command names using name.startswith(command_name), hence why it
+also returns the name a command was matched by.</li>
+</ul>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>name</strong> (str):
+The name to check for command matches.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[tuple[str, MessageCommand]]</strong>: Iterator of tuples of command name matches to the relevant message
+command objects.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Component.check_slash_name" class="classattr">
@@ -10572,7 +10962,7 @@ The event to listen for.</li>
             <span class="def">def</span>
             <span class="name">check_slash_name</span><span class="signature">(
     self,
-    content: str,
+    name: str,
     /
 ) -&gt; collections.abc.Iterator[<a href="#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>]</span>:
     </div>
@@ -10580,13 +10970,47 @@ The event to listen for.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">check_slash_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">check_slash_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Check whether a name matches any of this component&#39;s registered slash commands.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This won&#39;t check for sub-commands and will expect `name` to simply be</span>
+<span class="sd">            the top level command name.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name to check for command matches.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[BaseSlashCommand]</span>
+<span class="sd">            An iterator of the matching slash commands.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Check whether a name matches any of this component's registered slash commands.</p>
+
+<p><em>Note:</em>
+This won't check for sub-commands and will expect <code><a href="#Component.name">name</a></code> to simply be
+the top level command name.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>name</strong> (str):
+The name to check for command matches.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[BaseSlashCommand]</strong>: An iterator of the matching slash commands.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Component.execute_interaction" class="classattr">
@@ -10614,12 +11038,68 @@ The event to listen for.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Execute a slash context.</span>
+
+<span class="sd">        .. info::</span>
+<span class="sd">            Unlike `Component.execute_message`, this shouldn&#39;t be expected to</span>
+<span class="sd">            raise `tanjun.errors.HaltExecution` nor `tanjun.errors.CommandError`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ctx : SlashContext</span>
+<span class="sd">            The context to execute.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        hooks : typing.Optional[collections.abc.MutableSet[SlashHooks]] = None</span>
+<span class="sd">            Set of hooks to include in this command execution.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Optional[collections.abc.Awaitable[None]]</span>
+<span class="sd">            Awaitable used to wait for the command execution to finish.</span>
+
+<span class="sd">            This may be awaited or left to run as a background task.</span>
+
+<span class="sd">            If this is `None` then the client should carry on its search for a</span>
+<span class="sd">            component with a matching command.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Execute a slash context.</p>
+
+<p>.. info::
+    Unlike <code><a href="#Component.execute_message">Component.execute_message</a></code>, this shouldn't be expected to
+    raise <code><a href="errors.html#HaltExecution">tanjun.errors.HaltExecution</a></code> nor <code><a href="errors.html#CommandError">tanjun.errors.CommandError</a></code>.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ctx</strong> (SlashContext):
+The context to execute.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>hooks</strong> (typing.Optional[collections.abc.MutableSet[SlashHooks]] = None):
+Set of hooks to include in this command execution.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>typing.Optional[collections.abc.Awaitable[None]]</strong>: Awaitable used to wait for the command execution to finish.</li>
+</ul>
+
+<p>This may be awaited or left to run as a background task.</p>
+
+<p>If this is <code>None</code> then the client should carry on its search for a
+component with a matching command.</p>
+</div>
+
 
                             </div>
                             <div id="Component.execute_message" class="classattr">
@@ -10643,12 +11123,74 @@ The event to listen for.</li>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">execute_message</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">MessageHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Execute a message context.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ctx : MessageContext</span>
+<span class="sd">            The context to execute.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        hooks : typing.Optional[collections.abc.MutableSet[MessageHooks]] = None</span>
+<span class="sd">            Set of hooks to include in this command execution.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether a message command was executed in this component with the</span>
+<span class="sd">            provided context.</span>
+
+<span class="sd">            If `False` then the client should carry on its search for a</span>
+<span class="sd">            component with a matching command.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        tanjun.errors.CommandError</span>
+<span class="sd">            To end the command&#39;s execution with an error response message.</span>
+<span class="sd">        tanjun.errors.HaltExecution</span>
+<span class="sd">            To indicate that the client should stop searching for commands to</span>
+<span class="sd">            execute with the current context.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Execute a message context.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ctx</strong> (MessageContext):
+The context to execute.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>hooks</strong> (typing.Optional[collections.abc.MutableSet[MessageHooks]] = None):
+Set of hooks to include in this command execution.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether a message command was executed in this component with the
+provided context.</li>
+</ul>
+
+<p>If <code>False</code> then the client should carry on its search for a
+component with a matching command.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong><a href="errors.html#CommandError">tanjun.errors.CommandError</a></strong>: To end the command's execution with an error response message.</li>
+<li><strong><a href="errors.html#HaltExecution">tanjun.errors.HaltExecution</a></strong>: To indicate that the client should stop searching for commands to
+execute with the current context.</li>
+</ul>
+</div>
+
 
                             </div>
                 </section>
@@ -10787,49 +11329,217 @@ The event to listen for.</li>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">add_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Add a component to this client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component: Component</span>
+<span class="sd">            The component to move to this client.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to allow chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">remove_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Remove a component from this client.</span>
+
+<span class="sd">        This will unsubscribe any client callbacks, commands and listeners</span>
+<span class="sd">        registered in the provided component.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component: Component</span>
+<span class="sd">            The component to remove from this client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a client callback.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        _name : str</span>
+<span class="sd">            The name this callback is being registered to.</span>
+
+<span class="sd">            This is case-insensitive.</span>
+<span class="sd">        callback : MetaEventSigT</span>
+<span class="sd">            The callback to register.</span>
+
+<span class="sd">            This may be sync or async and must return None. The positional and</span>
+<span class="sd">            keyword arguments a callback should expect depend on implementation</span>
+<span class="sd">            detail around the `name` being subscribed to.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MetaEventSig</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MetaEventSig</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get a collection of the callbacks registered for a specific name.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name to get the callbacks registered for.</span>
+
+<span class="sd">            This is case-insensitive.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Collection[MetaEventSig]</span>
+<span class="sd">            Collection of the callbacks for the provided name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Remove a client callback.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name this callback is being registered to.</span>
+
+<span class="sd">            This is case-insensitive.</span>
+<span class="sd">        callback : MetaEventSigT</span>
+<span class="sd">            The callback to remove from the client&#39;s callbacks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">MetaEventSigT</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">MetaEventSigT</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Add a client callback through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        client = tanjun.Client.from_rest_bot(bot)</span>
+
+<span class="sd">        @client.with_client_callback(&quot;closed&quot;)</span>
+<span class="sd">        async def on_close() -&gt; None:</span>
+<span class="sd">            raise NotImplementedError</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name this callback is being registered to.</span>
+
+<span class="sd">            This is case-insensitive.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Callable[[MetaEventSigT], MetaEventSigT]</span>
+<span class="sd">            Decorator callback used to register the client callback.</span>
+
+<span class="sd">            This may be sync or async and must return None. The positional and</span>
+<span class="sd">            keyword arguments a callback should expect depend on implementation</span>
+<span class="sd">            detail around the `name` being subscribed to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Add a listener to the client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event_type : type[hikari.Event]</span>
+<span class="sd">            The event type to add a listener for.</span>
+<span class="sd">        callback: ListenerCallbackSig</span>
+<span class="sd">            The callback to register as a listener.</span>
+
+<span class="sd">            This callback must be a coroutine function which returns `None` and</span>
+<span class="sd">            always takes at least one positional arg of type `hikari.events.Event`</span>
+<span class="sd">            regardless of client implementation detail.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Remove a listener from the client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event_type : type[hikari.Event]</span>
+<span class="sd">            The event type to remove a listener for.</span>
+<span class="sd">        callback: ListenerCallbackSig</span>
+<span class="sd">            The callback to remove.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Add an event listener to this client through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        client = tanjun.Client.from_gateway_bot(bot)</span>
+
+<span class="sd">        @client.with_listener(hikari.MessageCreateEvent)</span>
+<span class="sd">        async def on_message_create(event: hikari.MessageCreateEvent) -&gt; None:</span>
+<span class="sd">            raise NotImplementedError</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event_type : type[hikari.Event]</span>
+<span class="sd">            The event type to listener for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</span>
+<span class="sd">            Decorator callback used to register the event callback.</span>
+
+<span class="sd">            The callback must be a coroutine function which returns `None` and</span>
+<span class="sd">            always takes at least one positional arg of type `hikari.events.Event`</span>
+<span class="sd">            regardless of client implementation detail.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Check whether a message command name is present in the current client.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Dependent on implementation this may partial check name against the</span>
+<span class="sd">            message command&#39;s name based on command_name.startswith(name).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name to match commands against.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[tuple[str, MessageCommand]]</span>
+<span class="sd">            Iterator of the matched command names to the matched message command objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">check_slash_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Check whether a slash command name is present in the current client.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This won&#39;t check the commands within command groups.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Name to check against.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[BaseSlashCommand]</span>
+<span class="sd">            Iterator of the matched slash command objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
@@ -11021,12 +11731,38 @@ if provided, else <code>None</code>.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">add_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Add a component to this client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component: Component</span>
+<span class="sd">            The component to move to this client.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to allow chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Add a component to this client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>component</strong> (Component):
+The component to move to this client.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The client instance to allow chained calls.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.remove_component" class="classattr">
@@ -11042,12 +11778,33 @@ if provided, else <code>None</code>.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">remove_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Remove a component from this client.</span>
+
+<span class="sd">        This will unsubscribe any client callbacks, commands and listeners</span>
+<span class="sd">        registered in the provided component.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        component: Component</span>
+<span class="sd">            The component to remove from this client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Remove a component from this client.</p>
+
+<p>This will unsubscribe any client callbacks, commands and listeners
+registered in the provided component.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>component</strong> (Component):
+The component to remove from this client.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.add_client_callback" class="classattr">
@@ -11056,24 +11813,61 @@ if provided, else <code>None</code>.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">add_client_callback</span><span class="signature">(
-    self: ~_T,
-    event_name: str,
-    callback: collections.abc.Callable,
-    /
-) -&gt; ~_T</span>:
+            <span class="name">add_client_callback</span><span class="signature">(self: ~_T, name: str, callback: collections.abc.Callable, /) -&gt; ~_T</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a client callback.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        _name : str</span>
+<span class="sd">            The name this callback is being registered to.</span>
+
+<span class="sd">            This is case-insensitive.</span>
+<span class="sd">        callback : MetaEventSigT</span>
+<span class="sd">            The callback to register.</span>
+
+<span class="sd">            This may be sync or async and must return None. The positional and</span>
+<span class="sd">            keyword arguments a callback should expect depend on implementation</span>
+<span class="sd">            detail around the `name` being subscribed to.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Add a client callback.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>_name</strong> (str):
+The name this callback is being registered to.</p>
+
+<p>This is case-insensitive.</p></li>
+<li><p><strong>callback</strong> (MetaEventSigT):
+The callback to register.</p>
+
+<p>This may be sync or async and must return None. The positional and
+keyword arguments a callback should expect depend on implementation
+detail around the <code>name</code> being subscribed to.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The client instance to enable chained calls.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.get_client_callbacks" class="classattr">
@@ -11084,7 +11878,7 @@ if provided, else <code>None</code>.</li>
             <span class="def">def</span>
             <span class="name">get_client_callbacks</span><span class="signature">(
     self,
-    event_name: str,
+    name: str,
     /
 ) -&gt; collections.abc.Collection[collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]]]</span>:
     </div>
@@ -11092,13 +11886,43 @@ if provided, else <code>None</code>.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MetaEventSig</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MetaEventSig</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get a collection of the callbacks registered for a specific name.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name to get the callbacks registered for.</span>
+
+<span class="sd">            This is case-insensitive.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Collection[MetaEventSig]</span>
+<span class="sd">            Collection of the callbacks for the provided name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Get a collection of the callbacks registered for a specific name.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>name</strong> (str):
+The name to get the callbacks registered for.</p>
+
+<p>This is case-insensitive.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Collection[MetaEventSig]</strong>: Collection of the callbacks for the provided name.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.remove_client_callback" class="classattr">
@@ -11107,19 +11931,42 @@ if provided, else <code>None</code>.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">remove_client_callback</span><span class="signature">(self, event_name: str, callback: collections.abc.Callable, /) -&gt; None</span>:
+            <span class="name">remove_client_callback</span><span class="signature">(self, name: str, callback: collections.abc.Callable, /) -&gt; None</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Remove a client callback.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name this callback is being registered to.</span>
+
+<span class="sd">            This is case-insensitive.</span>
+<span class="sd">        callback : MetaEventSigT</span>
+<span class="sd">            The callback to remove from the client&#39;s callbacks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Remove a client callback.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>name</strong> (str):
+The name this callback is being registered to.</p>
+
+<p>This is case-insensitive.</p></li>
+<li><strong>callback</strong> (MetaEventSigT):
+The callback to remove from the client's callbacks.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.with_client_callback" class="classattr">
@@ -11130,7 +11977,7 @@ if provided, else <code>None</code>.</li>
             <span class="def">def</span>
             <span class="name">with_client_callback</span><span class="signature">(
     self,
-    event_name: str,
+    name: str,
     /
 ) -&gt; collections.abc.Callable[[~MetaEventSigT], ~MetaEventSigT]</span>:
     </div>
@@ -11138,13 +11985,70 @@ if provided, else <code>None</code>.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">MetaEventSigT</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">MetaEventSigT</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Add a client callback through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        client = tanjun.Client.from_rest_bot(bot)</span>
+
+<span class="sd">        @client.with_client_callback(&quot;closed&quot;)</span>
+<span class="sd">        async def on_close() -&gt; None:</span>
+<span class="sd">            raise NotImplementedError</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name this callback is being registered to.</span>
+
+<span class="sd">            This is case-insensitive.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Callable[[MetaEventSigT], MetaEventSigT]</span>
+<span class="sd">            Decorator callback used to register the client callback.</span>
+
+<span class="sd">            This may be sync or async and must return None. The positional and</span>
+<span class="sd">            keyword arguments a callback should expect depend on implementation</span>
+<span class="sd">            detail around the `name` being subscribed to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Add a client callback through a decorator call.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_rest_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
+
+<span class="nd">@client</span><span class="o">.</span><span class="n">with_client_callback</span><span class="p">(</span><span class="s2">&quot;closed&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">on_close</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>name</strong> (str):
+The name this callback is being registered to.</p>
+
+<p>This is case-insensitive.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Callable[[MetaEventSigT], MetaEventSigT]</strong>: Decorator callback used to register the client callback.</li>
+</ul>
+
+<p>This may be sync or async and must return None. The positional and
+keyword arguments a callback should expect depend on implementation
+detail around the <code>name</code> being subscribed to.</p>
+</div>
+
 
                             </div>
                             <div id="Client.add_listener" class="classattr">
@@ -11165,12 +12069,50 @@ if provided, else <code>None</code>.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Add a listener to the client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event_type : type[hikari.Event]</span>
+<span class="sd">            The event type to add a listener for.</span>
+<span class="sd">        callback: ListenerCallbackSig</span>
+<span class="sd">            The callback to register as a listener.</span>
+
+<span class="sd">            This callback must be a coroutine function which returns `None` and</span>
+<span class="sd">            always takes at least one positional arg of type `hikari.events.Event`</span>
+<span class="sd">            regardless of client implementation detail.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Add a listener to the client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>event_type</strong> (type[hikari.Event]):
+The event type to add a listener for.</li>
+<li><p><strong>callback</strong> (ListenerCallbackSig):
+The callback to register as a listener.</p>
+
+<p>This callback must be a coroutine function which returns <code>None</code> and
+always takes at least one positional arg of type <code>hikari.events.Event</code>
+regardless of client implementation detail.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The client instance to enable chained calls.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.remove_listener" class="classattr">
@@ -11191,12 +12133,31 @@ if provided, else <code>None</code>.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Remove a listener from the client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event_type : type[hikari.Event]</span>
+<span class="sd">            The event type to remove a listener for.</span>
+<span class="sd">        callback: ListenerCallbackSig</span>
+<span class="sd">            The callback to remove.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Remove a listener from the client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>event_type</strong> (type[hikari.Event]):
+The event type to remove a listener for.</li>
+<li><strong>callback</strong> (ListenerCallbackSig):
+The callback to remove.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.with_listener" class="classattr">
@@ -11218,12 +12179,65 @@ if provided, else <code>None</code>.</li>
     <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Add an event listener to this client through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        client = tanjun.Client.from_gateway_bot(bot)</span>
+
+<span class="sd">        @client.with_listener(hikari.MessageCreateEvent)</span>
+<span class="sd">        async def on_message_create(event: hikari.MessageCreateEvent) -&gt; None:</span>
+<span class="sd">            raise NotImplementedError</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event_type : type[hikari.Event]</span>
+<span class="sd">            The event type to listener for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</span>
+<span class="sd">            Decorator callback used to register the event callback.</span>
+
+<span class="sd">            The callback must be a coroutine function which returns `None` and</span>
+<span class="sd">            always takes at least one positional arg of type `hikari.events.Event`</span>
+<span class="sd">            regardless of client implementation detail.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Add an event listener to this client through a decorator call.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
+
+<span class="nd">@client</span><span class="o">.</span><span class="n">with_listener</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">MessageCreateEvent</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">on_message_create</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageCreateEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>event_type</strong> (type[hikari.Event]):
+The event type to listener for.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</strong>: Decorator callback used to register the event callback.</li>
+</ul>
+
+<p>The callback must be a coroutine function which returns <code>None</code> and
+always takes at least one positional arg of type <code>hikari.events.Event</code>
+regardless of client implementation detail.</p>
+</div>
+
 
                             </div>
                             <div id="Client.check_message_name" class="classattr">
@@ -11243,12 +12257,46 @@ if provided, else <code>None</code>.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MessageCommand</span><span class="p">]]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Check whether a message command name is present in the current client.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Dependent on implementation this may partial check name against the</span>
+<span class="sd">            message command&#39;s name based on command_name.startswith(name).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name to match commands against.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[tuple[str, MessageCommand]]</span>
+<span class="sd">            Iterator of the matched command names to the matched message command objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Check whether a message command name is present in the current client.</p>
+
+<p><em>Note:</em>
+Dependent on implementation this may partial check name against the
+message command's name based on command_name.startswith(name).</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>name</strong> (str):
+The name to match commands against.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[tuple[str, MessageCommand]]</strong>: Iterator of the matched command names to the matched message command objects.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.check_slash_name" class="classattr">
@@ -11268,12 +12316,44 @@ if provided, else <code>None</code>.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">check_slash_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Check whether a slash command name is present in the current client.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This won&#39;t check the commands within command groups.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Name to check against.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[BaseSlashCommand]</span>
+<span class="sd">            Iterator of the matched slash command objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Check whether a slash command name is present in the current client.</p>
+
+<p><em>Note:</em>
+This won't check the commands within command groups.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>name</strong> (str):
+Name to check against.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[BaseSlashCommand]</strong>: Iterator of the matched slash command objects.</li>
+</ul>
+</div>
+
 
                             </div>
                 </section>

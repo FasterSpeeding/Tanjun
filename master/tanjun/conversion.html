@@ -379,7 +379,9 @@
                     <h1 class="modulename">
 <a href="./../tanjun.html">tanjun</a><wbr>.conversion    </h1>
 
-                
+                        <div class="docstring"><p>Functions and classes used to enable more Discord oriented argument converters.</p>
+</div>
+
                         <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
@@ -413,6 +415,7 @@
 <span class="c1"># CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,</span>
 <span class="c1"># OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
 <span class="c1"># OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="sd">&quot;&quot;&quot;Functions and classes used to enable more Discord oriented argument converters.&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
@@ -468,12 +471,11 @@
 
 <span class="kn">import</span> <span class="nn">hikari</span>
 
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">tanjun_abc</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">injecting</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
-
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">tanjun_abc</span>
     <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">parsing</span>
 
 <span class="n">ArgumentT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
@@ -481,31 +483,111 @@
 
 
 <span class="k">class</span> <span class="nc">BaseConverter</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for the standard converters.</span>
+
+<span class="sd">    This is detail of the standard implementation and isn&#39;t guaranteed to work</span>
+<span class="sd">    between implementations but will work for implementations which provide</span>
+<span class="sd">    the standard dependency injection or special cased support for these.</span>
+
+<span class="sd">    While it isn&#39;t necessary to subclass this to implement your own converters</span>
+<span class="sd">    since dependency injection can be used to access fields like the current Context,</span>
+<span class="sd">    this class introduces some niceties around stuff like state warnings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">argument</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Cache component(s) the converter takes advantage of.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Unless `BaseConverter.requires_cache` is `True`, these cache components</span>
+<span class="sd">            aren&#39;t necessary but simply avoid the converter from falling back to</span>
+<span class="sd">            REST requests.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.CacheComponents</span>
+<span class="sd">            The cache components the converter takes advantage of.</span>
+
+<span class="sd">            This will be `hikari.CacheComponents.NONE` if the converter doesn&#39;t</span>
+<span class="sd">            make cache calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Gateway intents this converter takes advantage of.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This field is supplementary to `BaseConverter.cache_components` and</span>
+<span class="sd">            is used to detect when the relevant component might not actually be</span>
+<span class="sd">            being kept up to date or filled by gateway events.</span>
+
+<span class="sd">            Unless `BaseConverter.requires_cache` is `True`, these intents being</span>
+<span class="sd">            disabled won&#39;t stop this converter from working as it&#39;ll still fall</span>
+<span class="sd">            back to REST requests.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Intents</span>
+<span class="sd">            Bitwise flag of the intents this converter takes advantage of.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Whether this converter relies on the relevant cache stores to work.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether the converter relies on the relevant cache stores to work.</span>
+
+<span class="sd">            If this is `True` then this converter will not function properly</span>
+<span class="sd">            in an environment `BaseConverter.intents` or `BaseConverter.cache_components`</span>
+<span class="sd">            isn&#39;t satisfied and will never fallback to REST requests.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Convert an argument.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ArgumentT</span>
+<span class="sd">            The argument to convert.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _ValueT</span>
+<span class="sd">            The resultant value.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the argument couldn&#39;t be converted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">check_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="n">parent_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Check that this converter will work with the given client.</span>
+
+<span class="sd">        This never raises any errors but simply warns the user if the converter</span>
+<span class="sd">        is not compatible with the given client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : tanjun.abc.Client</span>
+<span class="sd">            The client to check against.</span>
+<span class="sd">        parent_name : str</span>
+<span class="sd">            The name of the converter&#39;s parent, used for warning messages.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_cache</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
@@ -530,9 +612,17 @@
 
 
 <span class="k">class</span> <span class="nc">InjectableConverter</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BaseInjectableCallback</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;A specialised injectable callback which accounts for special casing `BaseConverter`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    converter : typing.Union[tanjun.injecting.CallbackSig[_ValueT], BaseConverter[_ValueT]]</span>
+<span class="sd">        The converter callback to use.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_is_base_converter&quot;</span><span class="p">,)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">],</span> <span class="n">BaseConverter</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_base_converter</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">BaseConverter</span><span class="p">)</span>
 
@@ -545,6 +635,8 @@
 
 
 <span class="k">class</span> <span class="nc">ChannelConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for channels mentions/IDs.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -572,6 +664,8 @@
 
 
 <span class="k">class</span> <span class="nc">ColorConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for colour representations.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -598,6 +692,8 @@
 
 
 <span class="k">class</span> <span class="nc">EmojiConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">KnownCustomEmoji</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for custom emojis.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -629,6 +725,8 @@
 
 
 <span class="k">class</span> <span class="nc">GuildConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Guild</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Stanard converter for guilds.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -659,6 +757,8 @@
 
 
 <span class="k">class</span> <span class="nc">InviteConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Invite</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for invites.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -690,6 +790,12 @@
 
 
 <span class="k">class</span> <span class="nc">InviteWithMetadataConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InviteWithMetadata</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for invites with metadata.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        Unlike `InviteConverter`, this converter is cache dependent.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -716,6 +822,12 @@
 
 
 <span class="k">class</span> <span class="nc">MemberConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for guild members.</span>
+
+<span class="sd">    This converter allows both mentions, raw IDs and partial usernames/nicknames</span>
+<span class="sd">    and only works within a guild context.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -760,6 +872,11 @@
 
 
 <span class="k">class</span> <span class="nc">PresenceConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">MemberPresence</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for presences.</span>
+
+<span class="sd">    This converter is cache dependent and only works in a guild context.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -787,6 +904,8 @@
 
 
 <span class="k">class</span> <span class="nc">RoleConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for guild roles.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -816,6 +935,8 @@
 
 
 <span class="k">class</span> <span class="nc">SnowflakeConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for snowflakes.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -835,6 +956,8 @@
 
 
 <span class="k">class</span> <span class="nc">UserConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for users.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -866,6 +989,12 @@
 
 
 <span class="k">class</span> <span class="nc">VoiceStateConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">VoiceState</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for voice states.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        This converter is cache dependent and only works in a guild context.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -897,8 +1026,33 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 
-<span class="k">def</span> <span class="nf">make_snowflake_parser</span><span class="p">(</span><span class="n">regex</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_IDMatcher</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_make_snowflake_parser</span><span class="p">(</span><span class="n">regex</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_IDMatcher</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;No valid mention or ID found&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Parse a snowflake from a string or int value.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value: typing.Union[str, int]</span>
+<span class="sd">            The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        message: str</span>
+<span class="sd">            The error message to raise if the value cannot be parsed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Snowflake</span>
+<span class="sd">            The parsed snowflake.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the value cannot be parsed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
@@ -927,12 +1081,27 @@
 <span class="n">_IDSearcher</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ArgumentT</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]]</span>
 
 
-<span class="k">def</span> <span class="nf">_range_check</span><span class="p">(</span><span class="n">snowflake</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_range_check</span><span class="p">(</span><span class="n">snowflake</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">snowflake</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">snowflake</span> <span class="o">&lt;=</span> <span class="n">snowflake</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
 
 
-<span class="k">def</span> <span class="nf">make_snowflake_searcher</span><span class="p">(</span><span class="n">regex</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_IDSearcher</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">_make_snowflake_searcher</span><span class="p">(</span><span class="n">regex</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_IDSearcher</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Iterate over the snowflakes in a string.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value: typing.Union[str, int]</span>
+<span class="sd">            The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[hikari.Snowflake]</span>
+<span class="sd">            An iterator over the IDs found in the string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
                 <span class="k">yield</span> <span class="n">result</span>
@@ -959,7 +1128,7 @@
 
 
 <span class="n">_SNOWFLAKE_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;[@&amp;?!#a]{0,3}(?::\w+:)?(\d+)&gt;&quot;</span><span class="p">)</span>
-<span class="n">parse_snowflake</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">make_snowflake_parser</span><span class="p">(</span><span class="n">_SNOWFLAKE_REGEX</span><span class="p">)</span>
+<span class="n">parse_snowflake</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">_make_snowflake_parser</span><span class="p">(</span><span class="n">_SNOWFLAKE_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Parse a snowflake from a string or int value.</span>
 
 <span class="sd">Parameters</span>
@@ -983,7 +1152,7 @@
 <span class="sd">    If the value cannot be parsed.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">search_snowflakes</span> <span class="o">=</span> <span class="n">make_snowflake_searcher</span><span class="p">(</span><span class="n">_SNOWFLAKE_REGEX</span><span class="p">)</span>
+<span class="n">search_snowflakes</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_SNOWFLAKE_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Iterate over the snowflakes in a string.</span>
 
 <span class="sd">Parameters</span>
@@ -998,7 +1167,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">_CHANNEL_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;#(\d+)&gt;&quot;</span><span class="p">)</span>
-<span class="n">parse_channel_id</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">make_snowflake_parser</span><span class="p">(</span><span class="n">_CHANNEL_ID_REGEX</span><span class="p">)</span>
+<span class="n">parse_channel_id</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">_make_snowflake_parser</span><span class="p">(</span><span class="n">_CHANNEL_ID_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Parse a channel ID from a string or int value.</span>
 
 <span class="sd">Parameters</span>
@@ -1022,7 +1191,7 @@
 <span class="sd">    If the value cannot be parsed.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">search_channel_ids</span> <span class="o">=</span> <span class="n">make_snowflake_searcher</span><span class="p">(</span><span class="n">_CHANNEL_ID_REGEX</span><span class="p">)</span>
+<span class="n">search_channel_ids</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_CHANNEL_ID_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Iterate over the channel IDs in a string.</span>
 
 <span class="sd">Parameters</span>
@@ -1037,7 +1206,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">_EMOJI_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;a?:\w+:(\d+)&gt;&quot;</span><span class="p">)</span>
-<span class="n">parse_emoji_id</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">make_snowflake_parser</span><span class="p">(</span><span class="n">_EMOJI_ID_REGEX</span><span class="p">)</span>
+<span class="n">parse_emoji_id</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">_make_snowflake_parser</span><span class="p">(</span><span class="n">_EMOJI_ID_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Parse an Emoji ID from a string or int value.</span>
 
 <span class="sd">Parameters</span>
@@ -1061,7 +1230,7 @@
 <span class="sd">    If the value cannot be parsed.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">search_emoji_ids</span> <span class="o">=</span> <span class="n">make_snowflake_searcher</span><span class="p">(</span><span class="n">_EMOJI_ID_REGEX</span><span class="p">)</span>
+<span class="n">search_emoji_ids</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_EMOJI_ID_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Iterate over the emoji IDs in a string.</span>
 
 <span class="sd">Parameters</span>
@@ -1076,7 +1245,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">_ROLE_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;@&amp;(\d+)&gt;&quot;</span><span class="p">)</span>
-<span class="n">parse_role_id</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">make_snowflake_parser</span><span class="p">(</span><span class="n">_ROLE_ID_REGEX</span><span class="p">)</span>
+<span class="n">parse_role_id</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">_make_snowflake_parser</span><span class="p">(</span><span class="n">_ROLE_ID_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Parse a role ID from a string or int value.</span>
 
 <span class="sd">Parameters</span>
@@ -1100,7 +1269,7 @@
 <span class="sd">    If the value cannot be parsed.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">search_role_ids</span> <span class="o">=</span> <span class="n">make_snowflake_searcher</span><span class="p">(</span><span class="n">_ROLE_ID_REGEX</span><span class="p">)</span>
+<span class="n">search_role_ids</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_ROLE_ID_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Iterate over the role IDs in a string.</span>
 
 <span class="sd">Parameters</span>
@@ -1115,7 +1284,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">_USER_ID_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;@!?(\d+)&gt;&quot;</span><span class="p">)</span>
-<span class="n">parse_user_id</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">make_snowflake_parser</span><span class="p">(</span><span class="n">_USER_ID_REGEX</span><span class="p">)</span>
+<span class="n">parse_user_id</span><span class="p">:</span> <span class="n">_IDMatcher</span> <span class="o">=</span> <span class="n">_make_snowflake_parser</span><span class="p">(</span><span class="n">_USER_ID_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Parse a user ID from a string or int value.</span>
 
 <span class="sd">Parameters</span>
@@ -1139,7 +1308,7 @@
 <span class="sd">    If the value cannot be parsed.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">search_user_ids</span> <span class="o">=</span> <span class="n">make_snowflake_searcher</span><span class="p">(</span><span class="n">_USER_ID_REGEX</span><span class="p">)</span>
+<span class="n">search_user_ids</span> <span class="o">=</span> <span class="n">_make_snowflake_searcher</span><span class="p">(</span><span class="n">_USER_ID_REGEX</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Iterate over the user IDs in a string.</span>
 
 <span class="sd">Parameters</span>
@@ -1156,6 +1325,23 @@
 
 <span class="k">def</span> <span class="nf">_build_url_parser</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">_ValueT</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">_ValueT</span><span class="p">]:</span>
     <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Convert an argument to a `urlib.parse` type.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value: str</span>
+<span class="sd">            The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _ValueT</span>
+<span class="sd">            The parsed URL.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the argument couldn&#39;t be parsed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;&lt;&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
@@ -1165,9 +1351,62 @@
 
 
 <span class="n">defragment_url</span> <span class="o">=</span> <span class="n">_build_url_parser</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urldefrag</span><span class="p">)</span>
-<span class="n">parse_url</span> <span class="o">=</span> <span class="n">_build_url_parser</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">)</span>
-<span class="n">split_url</span> <span class="o">=</span> <span class="n">_build_url_parser</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Convert an argument to a defragmented URL.</span>
 
+<span class="sd">Parameters</span>
+<span class="sd">----------</span>
+<span class="sd">value: str</span>
+<span class="sd">    The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">Returns</span>
+<span class="sd">-------</span>
+<span class="sd">urlib.parse.DefragResult</span>
+<span class="sd">    The parsed URL.</span>
+
+<span class="sd">Raises</span>
+<span class="sd">------</span>
+<span class="sd">ValueError</span>
+<span class="sd">    If the argument couldn&#39;t be parsed.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">parse_url</span> <span class="o">=</span> <span class="n">_build_url_parser</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Convert an argument to a parsed URL.</span>
+
+<span class="sd">Parameters</span>
+<span class="sd">----------</span>
+<span class="sd">value: str</span>
+<span class="sd">    The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">Returns</span>
+<span class="sd">-------</span>
+<span class="sd">urlib.parse.ParseResult</span>
+<span class="sd">    The parsed URL.</span>
+
+<span class="sd">Raises</span>
+<span class="sd">------</span>
+<span class="sd">ValueError</span>
+<span class="sd">    If the argument couldn&#39;t be parsed.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="n">split_url</span> <span class="o">=</span> <span class="n">_build_url_parser</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlsplit</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Convert an argument to a split URL.</span>
+
+<span class="sd">Parameters</span>
+<span class="sd">----------</span>
+<span class="sd">value: str</span>
+<span class="sd">    The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">Returns</span>
+<span class="sd">-------</span>
+<span class="sd">urlib.parse.SplitResult</span>
+<span class="sd">    The split URL.</span>
+
+<span class="sd">Raises</span>
+<span class="sd">------</span>
+<span class="sd">ValueError</span>
+<span class="sd">    If the argument couldn&#39;t be parsed.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">_DATETIME_REGEX</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;-?t:(\d+)(?::\w)?&gt;&quot;</span><span class="p">)</span>
 
@@ -1361,31 +1600,111 @@
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">BaseConverter</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for the standard converters.</span>
+
+<span class="sd">    This is detail of the standard implementation and isn&#39;t guaranteed to work</span>
+<span class="sd">    between implementations but will work for implementations which provide</span>
+<span class="sd">    the standard dependency injection or special cased support for these.</span>
+
+<span class="sd">    While it isn&#39;t necessary to subclass this to implement your own converters</span>
+<span class="sd">    since dependency injection can be used to access fields like the current Context,</span>
+<span class="sd">    this class introduces some niceties around stuff like state warnings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">argument</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Cache component(s) the converter takes advantage of.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Unless `BaseConverter.requires_cache` is `True`, these cache components</span>
+<span class="sd">            aren&#39;t necessary but simply avoid the converter from falling back to</span>
+<span class="sd">            REST requests.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.CacheComponents</span>
+<span class="sd">            The cache components the converter takes advantage of.</span>
+
+<span class="sd">            This will be `hikari.CacheComponents.NONE` if the converter doesn&#39;t</span>
+<span class="sd">            make cache calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Gateway intents this converter takes advantage of.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This field is supplementary to `BaseConverter.cache_components` and</span>
+<span class="sd">            is used to detect when the relevant component might not actually be</span>
+<span class="sd">            being kept up to date or filled by gateway events.</span>
+
+<span class="sd">            Unless `BaseConverter.requires_cache` is `True`, these intents being</span>
+<span class="sd">            disabled won&#39;t stop this converter from working as it&#39;ll still fall</span>
+<span class="sd">            back to REST requests.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Intents</span>
+<span class="sd">            Bitwise flag of the intents this converter takes advantage of.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Whether this converter relies on the relevant cache stores to work.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether the converter relies on the relevant cache stores to work.</span>
+
+<span class="sd">            If this is `True` then this converter will not function properly</span>
+<span class="sd">            in an environment `BaseConverter.intents` or `BaseConverter.cache_components`</span>
+<span class="sd">            isn&#39;t satisfied and will never fallback to REST requests.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Convert an argument.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ArgumentT</span>
+<span class="sd">            The argument to convert.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _ValueT</span>
+<span class="sd">            The resultant value.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the argument couldn&#39;t be converted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">check_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="n">parent_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Check that this converter will work with the given client.</span>
+
+<span class="sd">        This never raises any errors but simply warns the user if the converter</span>
+<span class="sd">        is not compatible with the given client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : tanjun.abc.Client</span>
+<span class="sd">            The client to check against.</span>
+<span class="sd">        parent_name : str</span>
+<span class="sd">            The name of the converter&#39;s parent, used for warning messages.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_cache</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
@@ -1411,24 +1730,15 @@
 
         </details>
 
-            <div class="docstring"><p>Abstract base class for generic types.</p>
+            <div class="docstring"><p>Base class for the standard converters.</p>
 
-<p>A generic type is typically declared by inheriting from
-this class parameterized with one or more type variables.
-For example, a generic mapping type might be defined as::</p>
+<p>This is detail of the standard implementation and isn't guaranteed to work
+between implementations but will work for implementations which provide
+the standard dependency injection or special cased support for these.</p>
 
-<p>class Mapping(Generic[KT, VT]):
-      def __getitem__(self, key: KT) -> VT:
-          ...
-      # Etc.</p>
-
-<p>This class can then be used as follows::</p>
-
-<p>def lookup_name(mapping: Mapping[KT, VT], key: KT, default: VT) -> VT:
-      try:
-          return mapping[key]
-      except KeyError:
-          return default</p>
+<p>While it isn't necessary to subclass this to implement your own converters
+since dependency injection can be used to access fields like the current Context,
+this class introduces some niceties around stuff like state warnings.</p>
 </div>
 
 
@@ -1438,7 +1748,23 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">cache_components</span><span class="annotation">: hikari.config.CacheComponents</span>
     </div>
 
-    
+            <div class="docstring"><p>Cache component(s) the converter takes advantage of.</p>
+
+<p><em>Note:</em>
+Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these cache components
+aren't necessary but simply avoid the converter from falling back to
+REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.CacheComponents</strong>: The cache components the converter takes advantage of.</li>
+</ul>
+
+<p>This will be <code>hikari.CacheComponents.NONE</code> if the converter doesn't
+make cache calls.</p>
+</div>
+
 
                             </div>
                             <div id="BaseConverter.intents" class="classattr">
@@ -1447,7 +1773,24 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">intents</span><span class="annotation">: hikari.intents.Intents</span>
     </div>
 
-    
+            <div class="docstring"><p>Gateway intents this converter takes advantage of.</p>
+
+<p><em>Note:</em>
+This field is supplementary to <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code> and
+is used to detect when the relevant component might not actually be
+being kept up to date or filled by gateway events.</p>
+
+<p>Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these intents being
+disabled won't stop this converter from working as it'll still fall
+back to REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Intents</strong>: Bitwise flag of the intents this converter takes advantage of.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="BaseConverter.requires_cache" class="classattr">
@@ -1456,7 +1799,19 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">requires_cache</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this converter relies on the relevant cache stores to work.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether the converter relies on the relevant cache stores to work.</li>
+</ul>
+
+<p>If this is <code>True</code> then this converter will not function properly
+in an environment <code><a href="#BaseConverter.intents">BaseConverter.intents</a></code> or <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code>
+isn't satisfied and will never fallback to REST requests.</p>
+</div>
+
 
                             </div>
                             <div id="BaseConverter.convert" class="classattr">
@@ -1477,12 +1832,48 @@ For example, a generic mapping type might be defined as::</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="sd">&quot;&quot;&quot;Convert an argument.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ArgumentT</span>
+<span class="sd">            The argument to convert.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _ValueT</span>
+<span class="sd">            The resultant value.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the argument couldn&#39;t be converted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Convert an argument.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ArgumentT</strong>: The argument to convert.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>_ValueT</strong>: The resultant value.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the argument couldn't be converted.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="BaseConverter.check_client" class="classattr">
@@ -1496,6 +1887,18 @@ For example, a generic mapping type might be defined as::</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">check_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="n">parent_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Check that this converter will work with the given client.</span>
+
+<span class="sd">        This never raises any errors but simply warns the user if the converter</span>
+<span class="sd">        is not compatible with the given client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : tanjun.abc.Client</span>
+<span class="sd">            The client to check against.</span>
+<span class="sd">        parent_name : str</span>
+<span class="sd">            The name of the converter&#39;s parent, used for warning messages.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">client</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_cache</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
@@ -1521,7 +1924,21 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Check that this converter will work with the given client.</p>
+
+<p>This never raises any errors but simply warns the user if the converter
+is not compatible with the given client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>client</strong> (<a href="abc.html#Client">tanjun.abc.Client</a>):
+The client to check against.</li>
+<li><strong>parent_name</strong> (str):
+The name of the converter's parent, used for warning messages.</li>
+</ul>
+</div>
+
 
                             </div>
                 </section>
@@ -1537,6 +1954,8 @@ For example, a generic mapping type might be defined as::</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ChannelConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for channels mentions/IDs.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -1565,24 +1984,7 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-            <div class="docstring"><p>Abstract base class for generic types.</p>
-
-<p>A generic type is typically declared by inheriting from
-this class parameterized with one or more type variables.
-For example, a generic mapping type might be defined as::</p>
-
-<p>class Mapping(Generic[KT, VT]):
-      def __getitem__(self, key: KT) -> VT:
-          ...
-      # Etc.</p>
-
-<p>This class can then be used as follows::</p>
-
-<p>def lookup_name(mapping: Mapping[KT, VT], key: KT, default: VT) -> VT:
-      try:
-          return mapping[key]
-      except KeyError:
-          return default</p>
+            <div class="docstring"><p>Standard converter for channels mentions/IDs.</p>
 </div>
 
 
@@ -1603,7 +2005,23 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">cache_components</span><span class="annotation">: hikari.config.CacheComponents</span>
     </div>
 
-    
+            <div class="docstring"><p>Cache component(s) the converter takes advantage of.</p>
+
+<p><em>Note:</em>
+Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these cache components
+aren't necessary but simply avoid the converter from falling back to
+REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.CacheComponents</strong>: The cache components the converter takes advantage of.</li>
+</ul>
+
+<p>This will be <code>hikari.CacheComponents.NONE</code> if the converter doesn't
+make cache calls.</p>
+</div>
+
 
                             </div>
                             <div id="ChannelConverter.intents" class="classattr">
@@ -1612,7 +2030,24 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">intents</span><span class="annotation">: hikari.intents.Intents</span>
     </div>
 
-    
+            <div class="docstring"><p>Gateway intents this converter takes advantage of.</p>
+
+<p><em>Note:</em>
+This field is supplementary to <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code> and
+is used to detect when the relevant component might not actually be
+being kept up to date or filled by gateway events.</p>
+
+<p>Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these intents being
+disabled won't stop this converter from working as it'll still fall
+back to REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Intents</strong>: Bitwise flag of the intents this converter takes advantage of.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="ChannelConverter.requires_cache" class="classattr">
@@ -1621,7 +2056,19 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">requires_cache</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this converter relies on the relevant cache stores to work.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether the converter relies on the relevant cache stores to work.</li>
+</ul>
+
+<p>If this is <code>True</code> then this converter will not function properly
+in an environment <code><a href="#BaseConverter.intents">BaseConverter.intents</a></code> or <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code>
+isn't satisfied and will never fallback to REST requests.</p>
+</div>
+
 
                             </div>
                             <div id="ChannelConverter.convert" class="classattr">
@@ -1653,7 +2100,27 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Convert an argument.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ArgumentT</strong>: The argument to convert.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>_ValueT</strong>: The resultant value.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the argument couldn't be converted.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -1678,6 +2145,8 @@ For example, a generic mapping type might be defined as::</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ColorConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for colour representations.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -1705,24 +2174,7 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-            <div class="docstring"><p>Abstract base class for generic types.</p>
-
-<p>A generic type is typically declared by inheriting from
-this class parameterized with one or more type variables.
-For example, a generic mapping type might be defined as::</p>
-
-<p>class Mapping(Generic[KT, VT]):
-      def __getitem__(self, key: KT) -> VT:
-          ...
-      # Etc.</p>
-
-<p>This class can then be used as follows::</p>
-
-<p>def lookup_name(mapping: Mapping[KT, VT], key: KT, default: VT) -> VT:
-      try:
-          return mapping[key]
-      except KeyError:
-          return default</p>
+            <div class="docstring"><p>Standard converter for colour representations.</p>
 </div>
 
 
@@ -1743,7 +2195,23 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">cache_components</span><span class="annotation">: hikari.config.CacheComponents</span>
     </div>
 
-    
+            <div class="docstring"><p>Cache component(s) the converter takes advantage of.</p>
+
+<p><em>Note:</em>
+Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these cache components
+aren't necessary but simply avoid the converter from falling back to
+REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.CacheComponents</strong>: The cache components the converter takes advantage of.</li>
+</ul>
+
+<p>This will be <code>hikari.CacheComponents.NONE</code> if the converter doesn't
+make cache calls.</p>
+</div>
+
 
                             </div>
                             <div id="ColorConverter.intents" class="classattr">
@@ -1752,7 +2220,24 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">intents</span><span class="annotation">: hikari.intents.Intents</span>
     </div>
 
-    
+            <div class="docstring"><p>Gateway intents this converter takes advantage of.</p>
+
+<p><em>Note:</em>
+This field is supplementary to <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code> and
+is used to detect when the relevant component might not actually be
+being kept up to date or filled by gateway events.</p>
+
+<p>Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these intents being
+disabled won't stop this converter from working as it'll still fall
+back to REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Intents</strong>: Bitwise flag of the intents this converter takes advantage of.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="ColorConverter.requires_cache" class="classattr">
@@ -1761,7 +2246,19 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">requires_cache</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this converter relies on the relevant cache stores to work.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether the converter relies on the relevant cache stores to work.</li>
+</ul>
+
+<p>If this is <code>True</code> then this converter will not function properly
+in an environment <code><a href="#BaseConverter.intents">BaseConverter.intents</a></code> or <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code>
+isn't satisfied and will never fallback to REST requests.</p>
+</div>
+
 
                             </div>
                             <div id="ColorConverter.convert" class="classattr">
@@ -1792,7 +2289,27 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Convert an argument.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ArgumentT</strong>: The argument to convert.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>_ValueT</strong>: The resultant value.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the argument couldn't be converted.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -1817,6 +2334,8 @@ For example, a generic mapping type might be defined as::</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">EmojiConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">KnownCustomEmoji</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for custom emojis.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -1849,24 +2368,7 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-            <div class="docstring"><p>Abstract base class for generic types.</p>
-
-<p>A generic type is typically declared by inheriting from
-this class parameterized with one or more type variables.
-For example, a generic mapping type might be defined as::</p>
-
-<p>class Mapping(Generic[KT, VT]):
-      def __getitem__(self, key: KT) -> VT:
-          ...
-      # Etc.</p>
-
-<p>This class can then be used as follows::</p>
-
-<p>def lookup_name(mapping: Mapping[KT, VT], key: KT, default: VT) -> VT:
-      try:
-          return mapping[key]
-      except KeyError:
-          return default</p>
+            <div class="docstring"><p>Standard converter for custom emojis.</p>
 </div>
 
 
@@ -1887,7 +2389,23 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">cache_components</span><span class="annotation">: hikari.config.CacheComponents</span>
     </div>
 
-    
+            <div class="docstring"><p>Cache component(s) the converter takes advantage of.</p>
+
+<p><em>Note:</em>
+Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these cache components
+aren't necessary but simply avoid the converter from falling back to
+REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.CacheComponents</strong>: The cache components the converter takes advantage of.</li>
+</ul>
+
+<p>This will be <code>hikari.CacheComponents.NONE</code> if the converter doesn't
+make cache calls.</p>
+</div>
+
 
                             </div>
                             <div id="EmojiConverter.intents" class="classattr">
@@ -1896,7 +2414,24 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">intents</span><span class="annotation">: hikari.intents.Intents</span>
     </div>
 
-    
+            <div class="docstring"><p>Gateway intents this converter takes advantage of.</p>
+
+<p><em>Note:</em>
+This field is supplementary to <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code> and
+is used to detect when the relevant component might not actually be
+being kept up to date or filled by gateway events.</p>
+
+<p>Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these intents being
+disabled won't stop this converter from working as it'll still fall
+back to REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Intents</strong>: Bitwise flag of the intents this converter takes advantage of.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="EmojiConverter.requires_cache" class="classattr">
@@ -1905,7 +2440,19 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">requires_cache</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this converter relies on the relevant cache stores to work.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether the converter relies on the relevant cache stores to work.</li>
+</ul>
+
+<p>If this is <code>True</code> then this converter will not function properly
+in an environment <code><a href="#BaseConverter.intents">BaseConverter.intents</a></code> or <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code>
+isn't satisfied and will never fallback to REST requests.</p>
+</div>
+
 
                             </div>
                             <div id="EmojiConverter.convert" class="classattr">
@@ -1941,7 +2488,27 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Convert an argument.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ArgumentT</strong>: The argument to convert.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>_ValueT</strong>: The resultant value.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the argument couldn't be converted.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -1966,6 +2533,8 @@ For example, a generic mapping type might be defined as::</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">GuildConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Guild</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Stanard converter for guilds.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -1997,24 +2566,7 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-            <div class="docstring"><p>Abstract base class for generic types.</p>
-
-<p>A generic type is typically declared by inheriting from
-this class parameterized with one or more type variables.
-For example, a generic mapping type might be defined as::</p>
-
-<p>class Mapping(Generic[KT, VT]):
-      def __getitem__(self, key: KT) -> VT:
-          ...
-      # Etc.</p>
-
-<p>This class can then be used as follows::</p>
-
-<p>def lookup_name(mapping: Mapping[KT, VT], key: KT, default: VT) -> VT:
-      try:
-          return mapping[key]
-      except KeyError:
-          return default</p>
+            <div class="docstring"><p>Stanard converter for guilds.</p>
 </div>
 
 
@@ -2035,7 +2587,23 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">cache_components</span><span class="annotation">: hikari.config.CacheComponents</span>
     </div>
 
-    
+            <div class="docstring"><p>Cache component(s) the converter takes advantage of.</p>
+
+<p><em>Note:</em>
+Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these cache components
+aren't necessary but simply avoid the converter from falling back to
+REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.CacheComponents</strong>: The cache components the converter takes advantage of.</li>
+</ul>
+
+<p>This will be <code>hikari.CacheComponents.NONE</code> if the converter doesn't
+make cache calls.</p>
+</div>
+
 
                             </div>
                             <div id="GuildConverter.intents" class="classattr">
@@ -2044,7 +2612,24 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">intents</span><span class="annotation">: hikari.intents.Intents</span>
     </div>
 
-    
+            <div class="docstring"><p>Gateway intents this converter takes advantage of.</p>
+
+<p><em>Note:</em>
+This field is supplementary to <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code> and
+is used to detect when the relevant component might not actually be
+being kept up to date or filled by gateway events.</p>
+
+<p>Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these intents being
+disabled won't stop this converter from working as it'll still fall
+back to REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Intents</strong>: Bitwise flag of the intents this converter takes advantage of.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="GuildConverter.requires_cache" class="classattr">
@@ -2053,7 +2638,19 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">requires_cache</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this converter relies on the relevant cache stores to work.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether the converter relies on the relevant cache stores to work.</li>
+</ul>
+
+<p>If this is <code>True</code> then this converter will not function properly
+in an environment <code><a href="#BaseConverter.intents">BaseConverter.intents</a></code> or <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code>
+isn't satisfied and will never fallback to REST requests.</p>
+</div>
+
 
                             </div>
                             <div id="GuildConverter.convert" class="classattr">
@@ -2088,7 +2685,27 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Convert an argument.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ArgumentT</strong>: The argument to convert.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>_ValueT</strong>: The resultant value.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the argument couldn't be converted.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -2113,6 +2730,8 @@ For example, a generic mapping type might be defined as::</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">InviteConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Invite</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for invites.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -2145,24 +2764,7 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-            <div class="docstring"><p>Abstract base class for generic types.</p>
-
-<p>A generic type is typically declared by inheriting from
-this class parameterized with one or more type variables.
-For example, a generic mapping type might be defined as::</p>
-
-<p>class Mapping(Generic[KT, VT]):
-      def __getitem__(self, key: KT) -> VT:
-          ...
-      # Etc.</p>
-
-<p>This class can then be used as follows::</p>
-
-<p>def lookup_name(mapping: Mapping[KT, VT], key: KT, default: VT) -> VT:
-      try:
-          return mapping[key]
-      except KeyError:
-          return default</p>
+            <div class="docstring"><p>Standard converter for invites.</p>
 </div>
 
 
@@ -2183,7 +2785,23 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">cache_components</span><span class="annotation">: hikari.config.CacheComponents</span>
     </div>
 
-    
+            <div class="docstring"><p>Cache component(s) the converter takes advantage of.</p>
+
+<p><em>Note:</em>
+Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these cache components
+aren't necessary but simply avoid the converter from falling back to
+REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.CacheComponents</strong>: The cache components the converter takes advantage of.</li>
+</ul>
+
+<p>This will be <code>hikari.CacheComponents.NONE</code> if the converter doesn't
+make cache calls.</p>
+</div>
+
 
                             </div>
                             <div id="InviteConverter.intents" class="classattr">
@@ -2192,7 +2810,24 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">intents</span><span class="annotation">: hikari.intents.Intents</span>
     </div>
 
-    
+            <div class="docstring"><p>Gateway intents this converter takes advantage of.</p>
+
+<p><em>Note:</em>
+This field is supplementary to <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code> and
+is used to detect when the relevant component might not actually be
+being kept up to date or filled by gateway events.</p>
+
+<p>Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these intents being
+disabled won't stop this converter from working as it'll still fall
+back to REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Intents</strong>: Bitwise flag of the intents this converter takes advantage of.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="InviteConverter.requires_cache" class="classattr">
@@ -2201,7 +2836,19 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">requires_cache</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this converter relies on the relevant cache stores to work.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether the converter relies on the relevant cache stores to work.</li>
+</ul>
+
+<p>If this is <code>True</code> then this converter will not function properly
+in an environment <code><a href="#BaseConverter.intents">BaseConverter.intents</a></code> or <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code>
+isn't satisfied and will never fallback to REST requests.</p>
+</div>
+
 
                             </div>
                             <div id="InviteConverter.convert" class="classattr">
@@ -2237,7 +2884,27 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Convert an argument.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ArgumentT</strong>: The argument to convert.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>_ValueT</strong>: The resultant value.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the argument couldn't be converted.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -2262,6 +2929,12 @@ For example, a generic mapping type might be defined as::</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MemberConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for guild members.</span>
+
+<span class="sd">    This converter allows both mentions, raw IDs and partial usernames/nicknames</span>
+<span class="sd">    and only works within a guild context.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -2307,24 +2980,10 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-            <div class="docstring"><p>Abstract base class for generic types.</p>
+            <div class="docstring"><p>Standard converter for guild members.</p>
 
-<p>A generic type is typically declared by inheriting from
-this class parameterized with one or more type variables.
-For example, a generic mapping type might be defined as::</p>
-
-<p>class Mapping(Generic[KT, VT]):
-      def __getitem__(self, key: KT) -> VT:
-          ...
-      # Etc.</p>
-
-<p>This class can then be used as follows::</p>
-
-<p>def lookup_name(mapping: Mapping[KT, VT], key: KT, default: VT) -> VT:
-      try:
-          return mapping[key]
-      except KeyError:
-          return default</p>
+<p>This converter allows both mentions, raw IDs and partial usernames/nicknames
+and only works within a guild context.</p>
 </div>
 
 
@@ -2345,7 +3004,23 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">cache_components</span><span class="annotation">: hikari.config.CacheComponents</span>
     </div>
 
-    
+            <div class="docstring"><p>Cache component(s) the converter takes advantage of.</p>
+
+<p><em>Note:</em>
+Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these cache components
+aren't necessary but simply avoid the converter from falling back to
+REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.CacheComponents</strong>: The cache components the converter takes advantage of.</li>
+</ul>
+
+<p>This will be <code>hikari.CacheComponents.NONE</code> if the converter doesn't
+make cache calls.</p>
+</div>
+
 
                             </div>
                             <div id="MemberConverter.intents" class="classattr">
@@ -2354,7 +3029,24 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">intents</span><span class="annotation">: hikari.intents.Intents</span>
     </div>
 
-    
+            <div class="docstring"><p>Gateway intents this converter takes advantage of.</p>
+
+<p><em>Note:</em>
+This field is supplementary to <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code> and
+is used to detect when the relevant component might not actually be
+being kept up to date or filled by gateway events.</p>
+
+<p>Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these intents being
+disabled won't stop this converter from working as it'll still fall
+back to REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Intents</strong>: Bitwise flag of the intents this converter takes advantage of.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="MemberConverter.requires_cache" class="classattr">
@@ -2363,7 +3055,19 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">requires_cache</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this converter relies on the relevant cache stores to work.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether the converter relies on the relevant cache stores to work.</li>
+</ul>
+
+<p>If this is <code>True</code> then this converter will not function properly
+in an environment <code><a href="#BaseConverter.intents">BaseConverter.intents</a></code> or <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code>
+isn't satisfied and will never fallback to REST requests.</p>
+</div>
+
 
                             </div>
                             <div id="MemberConverter.convert" class="classattr">
@@ -2412,7 +3116,27 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Convert an argument.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ArgumentT</strong>: The argument to convert.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>_ValueT</strong>: The resultant value.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the argument couldn't be converted.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -2437,6 +3161,11 @@ For example, a generic mapping type might be defined as::</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">PresenceConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">MemberPresence</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for presences.</span>
+
+<span class="sd">    This converter is cache dependent and only works in a guild context.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -2465,24 +3194,9 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-            <div class="docstring"><p>Abstract base class for generic types.</p>
+            <div class="docstring"><p>Standard converter for presences.</p>
 
-<p>A generic type is typically declared by inheriting from
-this class parameterized with one or more type variables.
-For example, a generic mapping type might be defined as::</p>
-
-<p>class Mapping(Generic[KT, VT]):
-      def __getitem__(self, key: KT) -> VT:
-          ...
-      # Etc.</p>
-
-<p>This class can then be used as follows::</p>
-
-<p>def lookup_name(mapping: Mapping[KT, VT], key: KT, default: VT) -> VT:
-      try:
-          return mapping[key]
-      except KeyError:
-          return default</p>
+<p>This converter is cache dependent and only works in a guild context.</p>
 </div>
 
 
@@ -2503,7 +3217,23 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">cache_components</span><span class="annotation">: hikari.config.CacheComponents</span>
     </div>
 
-    
+            <div class="docstring"><p>Cache component(s) the converter takes advantage of.</p>
+
+<p><em>Note:</em>
+Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these cache components
+aren't necessary but simply avoid the converter from falling back to
+REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.CacheComponents</strong>: The cache components the converter takes advantage of.</li>
+</ul>
+
+<p>This will be <code>hikari.CacheComponents.NONE</code> if the converter doesn't
+make cache calls.</p>
+</div>
+
 
                             </div>
                             <div id="PresenceConverter.intents" class="classattr">
@@ -2512,7 +3242,24 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">intents</span><span class="annotation">: hikari.intents.Intents</span>
     </div>
 
-    
+            <div class="docstring"><p>Gateway intents this converter takes advantage of.</p>
+
+<p><em>Note:</em>
+This field is supplementary to <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code> and
+is used to detect when the relevant component might not actually be
+being kept up to date or filled by gateway events.</p>
+
+<p>Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these intents being
+disabled won't stop this converter from working as it'll still fall
+back to REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Intents</strong>: Bitwise flag of the intents this converter takes advantage of.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="PresenceConverter.requires_cache" class="classattr">
@@ -2521,7 +3268,19 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">requires_cache</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this converter relies on the relevant cache stores to work.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether the converter relies on the relevant cache stores to work.</li>
+</ul>
+
+<p>If this is <code>True</code> then this converter will not function properly
+in an environment <code><a href="#BaseConverter.intents">BaseConverter.intents</a></code> or <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code>
+isn't satisfied and will never fallback to REST requests.</p>
+</div>
+
 
                             </div>
                             <div id="PresenceConverter.convert" class="classattr">
@@ -2553,7 +3312,27 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Convert an argument.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ArgumentT</strong>: The argument to convert.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>_ValueT</strong>: The resultant value.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the argument couldn't be converted.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -2578,6 +3357,8 @@ For example, a generic mapping type might be defined as::</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">RoleConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Role</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for guild roles.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -2608,24 +3389,7 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-            <div class="docstring"><p>Abstract base class for generic types.</p>
-
-<p>A generic type is typically declared by inheriting from
-this class parameterized with one or more type variables.
-For example, a generic mapping type might be defined as::</p>
-
-<p>class Mapping(Generic[KT, VT]):
-      def __getitem__(self, key: KT) -> VT:
-          ...
-      # Etc.</p>
-
-<p>This class can then be used as follows::</p>
-
-<p>def lookup_name(mapping: Mapping[KT, VT], key: KT, default: VT) -> VT:
-      try:
-          return mapping[key]
-      except KeyError:
-          return default</p>
+            <div class="docstring"><p>Standard converter for guild roles.</p>
 </div>
 
 
@@ -2646,7 +3410,23 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">cache_components</span><span class="annotation">: hikari.config.CacheComponents</span>
     </div>
 
-    
+            <div class="docstring"><p>Cache component(s) the converter takes advantage of.</p>
+
+<p><em>Note:</em>
+Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these cache components
+aren't necessary but simply avoid the converter from falling back to
+REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.CacheComponents</strong>: The cache components the converter takes advantage of.</li>
+</ul>
+
+<p>This will be <code>hikari.CacheComponents.NONE</code> if the converter doesn't
+make cache calls.</p>
+</div>
+
 
                             </div>
                             <div id="RoleConverter.intents" class="classattr">
@@ -2655,7 +3435,24 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">intents</span><span class="annotation">: hikari.intents.Intents</span>
     </div>
 
-    
+            <div class="docstring"><p>Gateway intents this converter takes advantage of.</p>
+
+<p><em>Note:</em>
+This field is supplementary to <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code> and
+is used to detect when the relevant component might not actually be
+being kept up to date or filled by gateway events.</p>
+
+<p>Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these intents being
+disabled won't stop this converter from working as it'll still fall
+back to REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Intents</strong>: Bitwise flag of the intents this converter takes advantage of.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="RoleConverter.requires_cache" class="classattr">
@@ -2664,7 +3461,19 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">requires_cache</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this converter relies on the relevant cache stores to work.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether the converter relies on the relevant cache stores to work.</li>
+</ul>
+
+<p>If this is <code>True</code> then this converter will not function properly
+in an environment <code><a href="#BaseConverter.intents">BaseConverter.intents</a></code> or <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code>
+isn't satisfied and will never fallback to REST requests.</p>
+</div>
+
 
                             </div>
                             <div id="RoleConverter.convert" class="classattr">
@@ -2698,7 +3507,27 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Convert an argument.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ArgumentT</strong>: The argument to convert.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>_ValueT</strong>: The resultant value.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the argument couldn't be converted.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -2723,6 +3552,8 @@ For example, a generic mapping type might be defined as::</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SnowflakeConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for snowflakes.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -2743,24 +3574,7 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-            <div class="docstring"><p>Abstract base class for generic types.</p>
-
-<p>A generic type is typically declared by inheriting from
-this class parameterized with one or more type variables.
-For example, a generic mapping type might be defined as::</p>
-
-<p>class Mapping(Generic[KT, VT]):
-      def __getitem__(self, key: KT) -> VT:
-          ...
-      # Etc.</p>
-
-<p>This class can then be used as follows::</p>
-
-<p>def lookup_name(mapping: Mapping[KT, VT], key: KT, default: VT) -> VT:
-      try:
-          return mapping[key]
-      except KeyError:
-          return default</p>
+            <div class="docstring"><p>Standard converter for snowflakes.</p>
 </div>
 
 
@@ -2781,7 +3595,23 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">cache_components</span><span class="annotation">: hikari.config.CacheComponents</span>
     </div>
 
-    
+            <div class="docstring"><p>Cache component(s) the converter takes advantage of.</p>
+
+<p><em>Note:</em>
+Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these cache components
+aren't necessary but simply avoid the converter from falling back to
+REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.CacheComponents</strong>: The cache components the converter takes advantage of.</li>
+</ul>
+
+<p>This will be <code>hikari.CacheComponents.NONE</code> if the converter doesn't
+make cache calls.</p>
+</div>
+
 
                             </div>
                             <div id="SnowflakeConverter.intents" class="classattr">
@@ -2790,7 +3620,24 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">intents</span><span class="annotation">: hikari.intents.Intents</span>
     </div>
 
-    
+            <div class="docstring"><p>Gateway intents this converter takes advantage of.</p>
+
+<p><em>Note:</em>
+This field is supplementary to <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code> and
+is used to detect when the relevant component might not actually be
+being kept up to date or filled by gateway events.</p>
+
+<p>Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these intents being
+disabled won't stop this converter from working as it'll still fall
+back to REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Intents</strong>: Bitwise flag of the intents this converter takes advantage of.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="SnowflakeConverter.requires_cache" class="classattr">
@@ -2799,7 +3646,19 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">requires_cache</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this converter relies on the relevant cache stores to work.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether the converter relies on the relevant cache stores to work.</li>
+</ul>
+
+<p>If this is <code>True</code> then this converter will not function properly
+in an environment <code><a href="#BaseConverter.intents">BaseConverter.intents</a></code> or <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code>
+isn't satisfied and will never fallback to REST requests.</p>
+</div>
+
 
                             </div>
                             <div id="SnowflakeConverter.convert" class="classattr">
@@ -2823,7 +3682,27 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Convert an argument.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ArgumentT</strong>: The argument to convert.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>_ValueT</strong>: The resultant value.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the argument couldn't be converted.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -2848,6 +3727,8 @@ For example, a generic mapping type might be defined as::</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">UserConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for users.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -2880,24 +3761,7 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-            <div class="docstring"><p>Abstract base class for generic types.</p>
-
-<p>A generic type is typically declared by inheriting from
-this class parameterized with one or more type variables.
-For example, a generic mapping type might be defined as::</p>
-
-<p>class Mapping(Generic[KT, VT]):
-      def __getitem__(self, key: KT) -> VT:
-          ...
-      # Etc.</p>
-
-<p>This class can then be used as follows::</p>
-
-<p>def lookup_name(mapping: Mapping[KT, VT], key: KT, default: VT) -> VT:
-      try:
-          return mapping[key]
-      except KeyError:
-          return default</p>
+            <div class="docstring"><p>Standard converter for users.</p>
 </div>
 
 
@@ -2918,7 +3782,23 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">cache_components</span><span class="annotation">: hikari.config.CacheComponents</span>
     </div>
 
-    
+            <div class="docstring"><p>Cache component(s) the converter takes advantage of.</p>
+
+<p><em>Note:</em>
+Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these cache components
+aren't necessary but simply avoid the converter from falling back to
+REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.CacheComponents</strong>: The cache components the converter takes advantage of.</li>
+</ul>
+
+<p>This will be <code>hikari.CacheComponents.NONE</code> if the converter doesn't
+make cache calls.</p>
+</div>
+
 
                             </div>
                             <div id="UserConverter.intents" class="classattr">
@@ -2927,7 +3807,24 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">intents</span><span class="annotation">: hikari.intents.Intents</span>
     </div>
 
-    
+            <div class="docstring"><p>Gateway intents this converter takes advantage of.</p>
+
+<p><em>Note:</em>
+This field is supplementary to <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code> and
+is used to detect when the relevant component might not actually be
+being kept up to date or filled by gateway events.</p>
+
+<p>Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these intents being
+disabled won't stop this converter from working as it'll still fall
+back to REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Intents</strong>: Bitwise flag of the intents this converter takes advantage of.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="UserConverter.requires_cache" class="classattr">
@@ -2936,7 +3833,19 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">requires_cache</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this converter relies on the relevant cache stores to work.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether the converter relies on the relevant cache stores to work.</li>
+</ul>
+
+<p>If this is <code>True</code> then this converter will not function properly
+in an environment <code><a href="#BaseConverter.intents">BaseConverter.intents</a></code> or <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code>
+isn't satisfied and will never fallback to REST requests.</p>
+</div>
+
 
                             </div>
                             <div id="UserConverter.convert" class="classattr">
@@ -2972,7 +3881,27 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Convert an argument.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ArgumentT</strong>: The argument to convert.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>_ValueT</strong>: The resultant value.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the argument couldn't be converted.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -2997,6 +3926,12 @@ For example, a generic mapping type might be defined as::</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">VoiceStateConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">VoiceState</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Standard converter for voice states.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        This converter is cache dependent and only works in a guild context.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -3025,24 +3960,10 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-            <div class="docstring"><p>Abstract base class for generic types.</p>
+            <div class="docstring"><p>Standard converter for voice states.</p>
 
-<p>A generic type is typically declared by inheriting from
-this class parameterized with one or more type variables.
-For example, a generic mapping type might be defined as::</p>
-
-<p>class Mapping(Generic[KT, VT]):
-      def __getitem__(self, key: KT) -> VT:
-          ...
-      # Etc.</p>
-
-<p>This class can then be used as follows::</p>
-
-<p>def lookup_name(mapping: Mapping[KT, VT], key: KT, default: VT) -> VT:
-      try:
-          return mapping[key]
-      except KeyError:
-          return default</p>
+<p><em>Note:</em>
+This converter is cache dependent and only works in a guild context.</p>
 </div>
 
 
@@ -3063,7 +3984,23 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">cache_components</span><span class="annotation">: hikari.config.CacheComponents</span>
     </div>
 
-    
+            <div class="docstring"><p>Cache component(s) the converter takes advantage of.</p>
+
+<p><em>Note:</em>
+Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these cache components
+aren't necessary but simply avoid the converter from falling back to
+REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.CacheComponents</strong>: The cache components the converter takes advantage of.</li>
+</ul>
+
+<p>This will be <code>hikari.CacheComponents.NONE</code> if the converter doesn't
+make cache calls.</p>
+</div>
+
 
                             </div>
                             <div id="VoiceStateConverter.intents" class="classattr">
@@ -3072,7 +4009,24 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">intents</span><span class="annotation">: hikari.intents.Intents</span>
     </div>
 
-    
+            <div class="docstring"><p>Gateway intents this converter takes advantage of.</p>
+
+<p><em>Note:</em>
+This field is supplementary to <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code> and
+is used to detect when the relevant component might not actually be
+being kept up to date or filled by gateway events.</p>
+
+<p>Unless <code><a href="#BaseConverter.requires_cache">BaseConverter.requires_cache</a></code> is <code>True</code>, these intents being
+disabled won't stop this converter from working as it'll still fall
+back to REST requests.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Intents</strong>: Bitwise flag of the intents this converter takes advantage of.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="VoiceStateConverter.requires_cache" class="classattr">
@@ -3081,7 +4035,19 @@ For example, a generic mapping type might be defined as::</p>
         <span class="name">requires_cache</span><span class="annotation">: bool</span>
     </div>
 
-    
+            <div class="docstring"><p>Whether this converter relies on the relevant cache stores to work.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether the converter relies on the relevant cache stores to work.</li>
+</ul>
+
+<p>If this is <code>True</code> then this converter will not function properly
+in an environment <code><a href="#BaseConverter.intents">BaseConverter.intents</a></code> or <code><a href="#BaseConverter.cache_components">BaseConverter.cache_components</a></code>
+isn't satisfied and will never fallback to REST requests.</p>
+</div>
+
 
                             </div>
                             <div id="VoiceStateConverter.convert" class="classattr">
@@ -3113,7 +4079,27 @@ For example, a generic mapping type might be defined as::</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Convert an argument.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>ArgumentT</strong>: The argument to convert.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>_ValueT</strong>: The resultant value.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the argument couldn't be converted.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div class="inherited">
@@ -3233,6 +4219,31 @@ If an invalid style is provided.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;No valid mention or ID found&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Parse a snowflake from a string or int value.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value: typing.Union[str, int]</span>
+<span class="sd">            The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        message: str</span>
+<span class="sd">            The error message to raise if the value cannot be parsed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Snowflake</span>
+<span class="sd">            The parsed snowflake.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the value cannot be parsed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
@@ -3258,7 +4269,38 @@ If an invalid style is provided.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Parse a snowflake from a string or int value.</p>
+
+<p><em>Note:</em>
+This only allows the relevant entity's mention format if applicable.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>value</strong> (typing.Union[str, int]):
+The value to parse (this argument can only be passed positionally).</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>message</strong> (str):
+The error message to raise if the value cannot be parsed.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Snowflake</strong>: The parsed snowflake.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the value cannot be parsed.</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="parse_channel_id">
@@ -3277,6 +4319,31 @@ If an invalid style is provided.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;No valid mention or ID found&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Parse a snowflake from a string or int value.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value: typing.Union[str, int]</span>
+<span class="sd">            The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        message: str</span>
+<span class="sd">            The error message to raise if the value cannot be parsed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Snowflake</span>
+<span class="sd">            The parsed snowflake.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the value cannot be parsed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
@@ -3302,7 +4369,38 @@ If an invalid style is provided.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Parse a snowflake from a string or int value.</p>
+
+<p><em>Note:</em>
+This only allows the relevant entity's mention format if applicable.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>value</strong> (typing.Union[str, int]):
+The value to parse (this argument can only be passed positionally).</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>message</strong> (str):
+The error message to raise if the value cannot be parsed.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Snowflake</strong>: The parsed snowflake.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the value cannot be parsed.</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="parse_emoji_id">
@@ -3321,6 +4419,31 @@ If an invalid style is provided.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;No valid mention or ID found&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Parse a snowflake from a string or int value.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value: typing.Union[str, int]</span>
+<span class="sd">            The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        message: str</span>
+<span class="sd">            The error message to raise if the value cannot be parsed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Snowflake</span>
+<span class="sd">            The parsed snowflake.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the value cannot be parsed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
@@ -3346,7 +4469,38 @@ If an invalid style is provided.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Parse a snowflake from a string or int value.</p>
+
+<p><em>Note:</em>
+This only allows the relevant entity's mention format if applicable.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>value</strong> (typing.Union[str, int]):
+The value to parse (this argument can only be passed positionally).</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>message</strong> (str):
+The error message to raise if the value cannot be parsed.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Snowflake</strong>: The parsed snowflake.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the value cannot be parsed.</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="parse_role_id">
@@ -3365,6 +4519,31 @@ If an invalid style is provided.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;No valid mention or ID found&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Parse a snowflake from a string or int value.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value: typing.Union[str, int]</span>
+<span class="sd">            The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        message: str</span>
+<span class="sd">            The error message to raise if the value cannot be parsed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Snowflake</span>
+<span class="sd">            The parsed snowflake.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the value cannot be parsed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
@@ -3390,7 +4569,38 @@ If an invalid style is provided.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Parse a snowflake from a string or int value.</p>
+
+<p><em>Note:</em>
+This only allows the relevant entity's mention format if applicable.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>value</strong> (typing.Union[str, int]):
+The value to parse (this argument can only be passed positionally).</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>message</strong> (str):
+The error message to raise if the value cannot be parsed.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Snowflake</strong>: The parsed snowflake.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the value cannot be parsed.</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="parse_user_id">
@@ -3409,6 +4619,31 @@ If an invalid style is provided.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;No valid mention or ID found&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Parse a snowflake from a string or int value.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value: typing.Union[str, int]</span>
+<span class="sd">            The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        message: str</span>
+<span class="sd">            The error message to raise if the value cannot be parsed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Snowflake</span>
+<span class="sd">            The parsed snowflake.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the value cannot be parsed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
@@ -3434,7 +4669,38 @@ If an invalid style is provided.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Parse a snowflake from a string or int value.</p>
+
+<p><em>Note:</em>
+This only allows the relevant entity's mention format if applicable.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>value</strong> (typing.Union[str, int]):
+The value to parse (this argument can only be passed positionally).</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>message</strong> (str):
+The error message to raise if the value cannot be parsed.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Snowflake</strong>: The parsed snowflake.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the value cannot be parsed.</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="search_snowflakes">
@@ -3443,13 +4709,29 @@ If an invalid style is provided.</li>
         
             <span class="def">def</span>
             <span class="name">search_snowflakes</span><span class="signature">(
-    value: Union[str, int, float]
+    value: Union[str, int, float],
+    /
 ) -&gt; collections.abc.Iterator[hikari.snowflakes.Snowflake]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Iterate over the snowflakes in a string.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value: typing.Union[str, int]</span>
+<span class="sd">            The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[hikari.Snowflake]</span>
+<span class="sd">            An iterator over the IDs found in the string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
                 <span class="k">yield</span> <span class="n">result</span>
@@ -3475,7 +4757,25 @@ If an invalid style is provided.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Iterate over the snowflakes in a string.</p>
+
+<p><em>Note:</em>
+This only allows the relevant entity's mention format if applicable.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>value</strong> (typing.Union[str, int]):
+The value to parse (this argument can only be passed positionally).</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[hikari.Snowflake]</strong>: An iterator over the IDs found in the string.</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="search_channel_ids">
@@ -3484,13 +4784,29 @@ If an invalid style is provided.</li>
         
             <span class="def">def</span>
             <span class="name">search_channel_ids</span><span class="signature">(
-    value: Union[str, int, float]
+    value: Union[str, int, float],
+    /
 ) -&gt; collections.abc.Iterator[hikari.snowflakes.Snowflake]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Iterate over the snowflakes in a string.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value: typing.Union[str, int]</span>
+<span class="sd">            The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[hikari.Snowflake]</span>
+<span class="sd">            An iterator over the IDs found in the string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
                 <span class="k">yield</span> <span class="n">result</span>
@@ -3516,7 +4832,25 @@ If an invalid style is provided.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Iterate over the snowflakes in a string.</p>
+
+<p><em>Note:</em>
+This only allows the relevant entity's mention format if applicable.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>value</strong> (typing.Union[str, int]):
+The value to parse (this argument can only be passed positionally).</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[hikari.Snowflake]</strong>: An iterator over the IDs found in the string.</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="search_emoji_ids">
@@ -3525,13 +4859,29 @@ If an invalid style is provided.</li>
         
             <span class="def">def</span>
             <span class="name">search_emoji_ids</span><span class="signature">(
-    value: Union[str, int, float]
+    value: Union[str, int, float],
+    /
 ) -&gt; collections.abc.Iterator[hikari.snowflakes.Snowflake]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Iterate over the snowflakes in a string.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value: typing.Union[str, int]</span>
+<span class="sd">            The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[hikari.Snowflake]</span>
+<span class="sd">            An iterator over the IDs found in the string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
                 <span class="k">yield</span> <span class="n">result</span>
@@ -3557,7 +4907,25 @@ If an invalid style is provided.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Iterate over the snowflakes in a string.</p>
+
+<p><em>Note:</em>
+This only allows the relevant entity's mention format if applicable.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>value</strong> (typing.Union[str, int]):
+The value to parse (this argument can only be passed positionally).</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[hikari.Snowflake]</strong>: An iterator over the IDs found in the string.</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="search_role_ids">
@@ -3566,13 +4934,29 @@ If an invalid style is provided.</li>
         
             <span class="def">def</span>
             <span class="name">search_role_ids</span><span class="signature">(
-    value: Union[str, int, float]
+    value: Union[str, int, float],
+    /
 ) -&gt; collections.abc.Iterator[hikari.snowflakes.Snowflake]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Iterate over the snowflakes in a string.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value: typing.Union[str, int]</span>
+<span class="sd">            The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[hikari.Snowflake]</span>
+<span class="sd">            An iterator over the IDs found in the string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
                 <span class="k">yield</span> <span class="n">result</span>
@@ -3598,7 +4982,25 @@ If an invalid style is provided.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Iterate over the snowflakes in a string.</p>
+
+<p><em>Note:</em>
+This only allows the relevant entity's mention format if applicable.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>value</strong> (typing.Union[str, int]):
+The value to parse (this argument can only be passed positionally).</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[hikari.Snowflake]</strong>: An iterator over the IDs found in the string.</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="search_user_ids">
@@ -3607,13 +5009,29 @@ If an invalid style is provided.</li>
         
             <span class="def">def</span>
             <span class="name">search_user_ids</span><span class="signature">(
-    value: Union[str, int, float]
+    value: Union[str, int, float],
+    /
 ) -&gt; collections.abc.Iterator[hikari.snowflakes.Snowflake]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Iterate over the snowflakes in a string.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value: typing.Union[str, int]</span>
+<span class="sd">            The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[hikari.Snowflake]</span>
+<span class="sd">            An iterator over the IDs found in the string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
                 <span class="k">yield</span> <span class="n">result</span>
@@ -3639,7 +5057,25 @@ If an invalid style is provided.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Iterate over the snowflakes in a string.</p>
+
+<p><em>Note:</em>
+This only allows the relevant entity's mention format if applicable.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>value</strong> (typing.Union[str, int]):
+The value to parse (this argument can only be passed positionally).</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[hikari.Snowflake]</strong>: An iterator over the IDs found in the string.</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="to_bool">

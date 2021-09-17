@@ -265,7 +265,9 @@
                     <h1 class="modulename">
 <a href="./../tanjun.html">tanjun</a><wbr>.context    </h1>
 
-                
+                        <div class="docstring"><p>Standard command execution context implementations.</p>
+</div>
+
                         <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
@@ -299,6 +301,7 @@
 <span class="c1"># CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,</span>
 <span class="c1"># OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
 <span class="c1"># OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="sd">&quot;&quot;&quot;Standard command execution context implementations.&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MessageContext&quot;</span><span class="p">,</span> <span class="s2">&quot;ResponseTypeT&quot;</span><span class="p">,</span> <span class="s2">&quot;SlashContext&quot;</span><span class="p">,</span> <span class="s2">&quot;SlashOption&quot;</span><span class="p">]</span>
@@ -985,6 +988,7 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">:</span>
                 <span class="k">return</span>
 
+            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">)</span>
                 <span class="k">return</span>
@@ -2990,6 +2994,7 @@ nature, and will trigger this exception if they occur.</li>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">:</span>
                 <span class="k">return</span>
 
+            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">)</span>
                 <span class="k">return</span>
@@ -3839,6 +3844,7 @@ to create the initial response rather than
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">:</span>
                 <span class="k">return</span>
 
+            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">)</span>
                 <span class="k">return</span>

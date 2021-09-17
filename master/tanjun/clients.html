@@ -304,7 +304,9 @@
                     <h1 class="modulename">
 <a href="./../tanjun.html">tanjun</a><wbr>.clients    </h1>
 
-                
+                        <div class="docstring"><p>Standard Tanjun client.</p>
+</div>
+
                         <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
@@ -338,6 +340,7 @@
 <span class="c1"># CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,</span>
 <span class="c1"># OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
 <span class="c1"># OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="sd">&quot;&quot;&quot;Standard Tanjun client.&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
@@ -799,8 +802,9 @@
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        * This implicitly defaults the client to human only mode and also</span>
-<span class="sd">          sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * This implicitly defaults the client to human only mode.</span>
+<span class="sd">        * This sets type dependency injectors for the hikari traits present in</span>
+<span class="sd">          `bot` (including `hikari.traits.GatewayBotaWARE`).</span>
 <span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
 <span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
 <span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
@@ -863,7 +867,8 @@
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        * This implicitly sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * This sets type dependency injectors for the hikari traits present in</span>
+<span class="sd">          `bot` (including `hikari.traits.RESTBotAware`).</span>
 <span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
 <span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
 <span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
@@ -1432,22 +1437,22 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">COMPONENT_REMOVED</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span>
             <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">descriptor</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
-        <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">descriptor</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">descriptor</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">descriptor</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">descriptor</span><span class="p">}</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">suppress_exceptions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">suppress_exceptions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event_name</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="n">calls</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">_wrap_client_callback</span><span class="p">(</span>
                     <span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">suppress_exceptions</span>
@@ -1456,27 +1461,27 @@
             <span class="p">)</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">calls</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event_name</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">result</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]:</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">callback</span>
 
         <span class="k">return</span> <span class="n">decorator</span>
@@ -1697,8 +1702,19 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        *modules</span>
-<span class="sd">            String path(s) of the modules to load from.</span>
+<span class="sd">        *modules : typing.Union[str, pathlib.Path]</span>
+<span class="sd">            Path(s) of the modules to load from.</span>
+
+<span class="sd">            When `str` this will be treated as a normal import path which is</span>
+<span class="sd">            either relative to the current location (e.g. `&quot;.foo.bar&quot;`) or</span>
+<span class="sd">            absolute (`&quot;foo.bar.baz&quot;`). It&#39;s worth noting that absolute module</span>
+<span class="sd">            paths may be imported from the current location if the top level</span>
+<span class="sd">            module is a valid module file or module directory in the current</span>
+<span class="sd">            working directory.</span>
+
+<span class="sd">            When `pathlib.Path` the module will be imported directly from</span>
+<span class="sd">            the given path. In this mode any relative imports in the target</span>
+<span class="sd">            module will fail to resolve.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1854,7 +1870,7 @@
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
         <span class="n">future</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_response_future</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+            <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
                     <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
                         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
@@ -2143,8 +2159,9 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        * This implicitly defaults the client to human only mode and also</span>
-<span class="sd">          sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * This implicitly defaults the client to human only mode.</span>
+<span class="sd">        * This sets type dependency injectors for the hikari traits present in</span>
+<span class="sd">          `bot` (including `hikari.traits.GatewayBotaWARE`).</span>
 <span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
 <span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
 <span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
@@ -2207,7 +2224,8 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        * This implicitly sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * This sets type dependency injectors for the hikari traits present in</span>
+<span class="sd">          `bot` (including `hikari.traits.RESTBotAware`).</span>
 <span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
 <span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
 <span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
@@ -2776,22 +2794,22 @@ to the provided client using it's abstract methods.</li>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">COMPONENT_REMOVED</span><span class="p">,</span> <span class="n">component</span><span class="p">)</span>
             <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">descriptor</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
-        <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">descriptor</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">descriptor</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">descriptor</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">descriptor</span><span class="p">}</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">suppress_exceptions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">suppress_exceptions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event_name</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="n">calls</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">_wrap_client_callback</span><span class="p">(</span>
                     <span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">suppress_exceptions</span>
@@ -2800,27 +2818,27 @@ to the provided client using it's abstract methods.</li>
             <span class="p">)</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">calls</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event_name</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">result</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]:</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">callback</span>
 
         <span class="k">return</span> <span class="n">decorator</span>
@@ -3041,8 +3059,19 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        *modules</span>
-<span class="sd">            String path(s) of the modules to load from.</span>
+<span class="sd">        *modules : typing.Union[str, pathlib.Path]</span>
+<span class="sd">            Path(s) of the modules to load from.</span>
+
+<span class="sd">            When `str` this will be treated as a normal import path which is</span>
+<span class="sd">            either relative to the current location (e.g. `&quot;.foo.bar&quot;`) or</span>
+<span class="sd">            absolute (`&quot;foo.bar.baz&quot;`). It&#39;s worth noting that absolute module</span>
+<span class="sd">            paths may be imported from the current location if the top level</span>
+<span class="sd">            module is a valid module file or module directory in the current</span>
+<span class="sd">            working directory.</span>
+
+<span class="sd">            When `pathlib.Path` the module will be imported directly from</span>
+<span class="sd">            the given path. In this mode any relative imports in the target</span>
+<span class="sd">            module will fail to resolve.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -3198,7 +3227,7 @@ to the provided client using it's abstract methods.</li>
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
         <span class="n">future</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_response_future</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+            <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
                     <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
                         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
@@ -3444,8 +3473,9 @@ when set on a specific guild.</p></li>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        * This implicitly defaults the client to human only mode and also</span>
-<span class="sd">          sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * This implicitly defaults the client to human only mode.</span>
+<span class="sd">        * This sets type dependency injectors for the hikari traits present in</span>
+<span class="sd">          `bot` (including `hikari.traits.GatewayBotaWARE`).</span>
 <span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
 <span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
 <span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
@@ -3505,8 +3535,9 @@ when set on a specific guild.</p></li>
 <h6 id="notes">Notes</h6>
 
 <ul>
-<li>This implicitly defaults the client to human only mode and also
-sets hikari trait injectors based on <code>bot</code>.</li>
+<li>This implicitly defaults the client to human only mode.</li>
+<li>This sets type dependency injectors for the hikari traits present in
+<code>bot</code> (including <code>hikari.traits.GatewayBotaWARE</code>).</li>
 <li>The endpoint used by <code><a href="#Client.set_global_commands">set_global_commands</a></code> has a strict ratelimit
 which, as of writing, only allows for 2 request per minute (with that
 ratelimit either being per-guild if targeting a specific guild
@@ -3579,7 +3610,8 @@ when set on a specific guild.</p></li>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        * This implicitly sets hikari trait injectors based on `bot`.</span>
+<span class="sd">        * This sets type dependency injectors for the hikari traits present in</span>
+<span class="sd">          `bot` (including `hikari.traits.RESTBotAware`).</span>
 <span class="sd">        * The endpoint used by `set_global_commands` has a strict ratelimit</span>
 <span class="sd">          which, as of writing, only allows for 2 request per minute (with that</span>
 <span class="sd">          ratelimit either being per-guild if targeting a specific guild</span>
@@ -3614,7 +3646,8 @@ when set on a specific guild.</p></li>
 <h6 id="notes">Notes</h6>
 
 <ul>
-<li>This implicitly sets hikari trait injectors based on <code>bot</code>.</li>
+<li>This sets type dependency injectors for the hikari traits present in
+<code>bot</code> (including <code>hikari.traits.RESTBotAware</code>).</li>
 <li>The endpoint used by <code><a href="#Client.set_global_commands">set_global_commands</a></code> has a strict ratelimit
 which, as of writing, only allows for 2 request per minute (with that
 ratelimit either being per-guild if targeting a specific guild
@@ -4850,7 +4883,22 @@ Object or ID of the guild to set the global commands to.</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Add a component to this client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>component</strong> (Component):
+The component to move to this client.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The client instance to allow chained calls.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.remove_component" class="classattr">
@@ -4876,7 +4924,19 @@ Object or ID of the guild to set the global commands to.</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Remove a component from this client.</p>
+
+<p>This will unsubscribe any client callbacks, commands and listeners
+registered in the provided component.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>component</strong> (Component):
+The component to remove from this client.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.add_client_callback" class="classattr">
@@ -4886,7 +4946,7 @@ Object or ID of the guild to set the global commands to.</p>
             <span class="def">def</span>
             <span class="name">add_client_callback</span><span class="signature">(
     self: ~_ClientT,
-    event_name: str,
+    name: str,
     callback: collections.abc.Callable,
     /
 ) -&gt; ~_ClientT</span>:
@@ -4894,21 +4954,44 @@ Object or ID of the guild to set the global commands to.</p>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">descriptor</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
-        <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">descriptor</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">descriptor</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">descriptor</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">descriptor</span><span class="p">}</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Add a client callback.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>_name</strong> (str):
+The name this callback is being registered to.</p>
+
+<p>This is case-insensitive.</p></li>
+<li><p><strong>callback</strong> (MetaEventSigT):
+The callback to register.</p>
+
+<p>This may be sync or async and must return None. The positional and
+keyword arguments a callback should expect depend on implementation
+detail around the <code>name</code> being subscribed to.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The client instance to enable chained calls.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.dispatch_client_callback" class="classattr">
@@ -4918,7 +5001,7 @@ Object or ID of the guild to set the global commands to.</p>
             <span class="def">async def</span>
             <span class="name">dispatch_client_callback</span><span class="signature">(
     self,
-    event_name: str,
+    name: str,
     /,
     *args: Any,
     suppress_exceptions: bool = True,
@@ -4929,10 +5012,10 @@ Object or ID of the guild to set the global commands to.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">suppress_exceptions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">suppress_exceptions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event_name</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="n">calls</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">_wrap_client_callback</span><span class="p">(</span>
                     <span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">suppress_exceptions</span>
@@ -4954,17 +5037,17 @@ Object or ID of the guild to set the global commands to.</p>
             <span class="def">def</span>
             <span class="name">get_client_callbacks</span><span class="signature">(
     self,
-    event_name: str,
+    name: str,
     /
 ) -&gt; collections.abc.Collection[collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_client_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event_name</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">result</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">()</span>
@@ -4972,7 +5055,24 @@ Object or ID of the guild to set the global commands to.</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Get a collection of the callbacks registered for a specific name.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>name</strong> (str):
+The name to get the callbacks registered for.</p>
+
+<p>This is case-insensitive.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Collection[MetaEventSig]</strong>: Collection of the callbacks for the provided name.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.remove_client_callback" class="classattr">
@@ -4980,22 +5080,35 @@ Object or ID of the guild to set the global commands to.</p>
 
         
             <span class="def">def</span>
-            <span class="name">remove_client_callback</span><span class="signature">(self, event_name: str, callback: collections.abc.Callable, /) -&gt; None</span>:
+            <span class="name">remove_client_callback</span><span class="signature">(self, name: str, callback: collections.abc.Callable, /) -&gt; None</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]:</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Remove a client callback.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>name</strong> (str):
+The name this callback is being registered to.</p>
+
+<p>This is case-insensitive.</p></li>
+<li><strong>callback</strong> (MetaEventSigT):
+The callback to remove from the client's callbacks.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.with_client_callback" class="classattr">
@@ -5005,7 +5118,7 @@ Object or ID of the guild to set the global commands to.</p>
             <span class="def">def</span>
             <span class="name">with_client_callback</span><span class="signature">(
     self,
-    event_name: str,
+    name: str,
     /
 ) -&gt; collections.abc.Callable[[~MetaEventSigT], ~MetaEventSigT]</span>:
     </div>
@@ -5013,11 +5126,11 @@ Object or ID of the guild to set the global commands to.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_client_callback</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">],</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MetaEventSigT</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">callback</span>
 
         <span class="k">return</span> <span class="n">decorator</span>
@@ -5025,7 +5138,37 @@ Object or ID of the guild to set the global commands to.</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Add a client callback through a decorator call.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_rest_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
+
+<span class="nd">@client</span><span class="o">.</span><span class="n">with_client_callback</span><span class="p">(</span><span class="s2">&quot;closed&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">on_close</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>name</strong> (str):
+The name this callback is being registered to.</p>
+
+<p>This is case-insensitive.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Callable[[MetaEventSigT], MetaEventSigT]</strong>: Decorator callback used to register the client callback.</li>
+</ul>
+
+<p>This may be sync or async and must return None. The positional and
+keyword arguments a callback should expect depend on implementation
+detail around the <code>name</code> being subscribed to.</p>
+</div>
+
 
                             </div>
                             <div id="Client.add_listener" class="classattr">
@@ -5064,7 +5207,28 @@ Object or ID of the guild to set the global commands to.</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Add a listener to the client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>event_type</strong> (type[hikari.Event]):
+The event type to add a listener for.</li>
+<li><p><strong>callback</strong> (ListenerCallbackSig):
+The callback to register as a listener.</p>
+
+<p>This callback must be a coroutine function which returns <code>None</code> and
+always takes at least one positional arg of type <code>hikari.events.Event</code>
+regardless of client implementation detail.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The client instance to enable chained calls.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.remove_listener" class="classattr">
@@ -5098,7 +5262,18 @@ Object or ID of the guild to set the global commands to.</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Remove a listener from the client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>event_type</strong> (type[hikari.Event]):
+The event type to remove a listener for.</li>
+<li><strong>callback</strong> (ListenerCallbackSig):
+The callback to remove.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.with_listener" class="classattr">
@@ -5127,7 +5302,35 @@ Object or ID of the guild to set the global commands to.</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Add an event listener to this client through a decorator call.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
+
+<span class="nd">@client</span><span class="o">.</span><span class="n">with_listener</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">MessageCreateEvent</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">on_message_create</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageCreateEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>event_type</strong> (type[hikari.Event]):
+The event type to listener for.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</strong>: Decorator callback used to register the event callback.</li>
+</ul>
+
+<p>The callback must be a coroutine function which returns <code>None</code> and
+always takes at least one positional arg of type <code>hikari.events.Event</code>
+regardless of client implementation detail.</p>
+</div>
+
 
                             </div>
                             <div id="Client.add_prefix" class="classattr">
@@ -5243,7 +5446,26 @@ Object or ID of the guild to set the global commands to.</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Check whether a message command name is present in the current client.</p>
+
+<p><em>Note:</em>
+Dependent on implementation this may partial check name against the
+message command's name based on command_name.startswith(name).</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>name</strong> (str):
+The name to match commands against.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[tuple[str, MessageCommand]]</strong>: Iterator of the matched command names to the matched message command objects.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.check_slash_name" class="classattr">
@@ -5266,7 +5488,25 @@ Object or ID of the guild to set the global commands to.</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Check whether a slash command name is present in the current client.</p>
+
+<p><em>Note:</em>
+This won't check the commands within command groups.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>name</strong> (str):
+Name to check against.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[BaseSlashCommand]</strong>: Iterator of the matched slash command objects.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.close" class="classattr">
@@ -5512,8 +5752,19 @@ Object or ID of the guild to set the global commands to.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        *modules</span>
-<span class="sd">            String path(s) of the modules to load from.</span>
+<span class="sd">        *modules : typing.Union[str, pathlib.Path]</span>
+<span class="sd">            Path(s) of the modules to load from.</span>
+
+<span class="sd">            When `str` this will be treated as a normal import path which is</span>
+<span class="sd">            either relative to the current location (e.g. `&quot;.foo.bar&quot;`) or</span>
+<span class="sd">            absolute (`&quot;foo.bar.baz&quot;`). It&#39;s worth noting that absolute module</span>
+<span class="sd">            paths may be imported from the current location if the top level</span>
+<span class="sd">            module is a valid module file or module directory in the current</span>
+<span class="sd">            working directory.</span>
+
+<span class="sd">            When `pathlib.Path` the module will be imported directly from</span>
+<span class="sd">            the given path. In this mode any relative imports in the target</span>
+<span class="sd">            module will fail to resolve.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -5566,7 +5817,19 @@ of type <code><a href="#Client">Client</a></code>.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>*modules</strong>: String path(s) of the modules to load from.</li>
+<li><p><strong>*modules</strong> (typing.Union[str, pathlib.Path]):
+Path(s) of the modules to load from.</p>
+
+<p>When <code>str</code> this will be treated as a normal import path which is
+either relative to the current location (e.g. <code>".foo.bar"</code>) or
+absolute (<code>"foo.bar.baz"</code>). It's worth noting that absolute module
+paths may be imported from the current location if the top level
+module is a valid module file or module directory in the current
+working directory.</p>
+
+<p>When <code>pathlib.Path</code> the module will be imported directly from
+the given path. In this mode any relative imports in the target
+module will fail to resolve.</p></li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -5762,7 +6025,7 @@ The event to execute commands based on.</li>
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
         <span class="n">future</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_response_future</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+            <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span>
                     <span class="k">if</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
                         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
