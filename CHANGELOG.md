@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.0.0a4]
+## [2.0.0a4] - 2021-09-17
 ### Added
 - `expire_after` argument to `tanjun.injecting.cached_callback`.
 - snowflake "search" functions and from_datetime to conversion.
