@@ -161,7 +161,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.0.0a3...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.0.0a4...HEAD
 [2.0.0a4]: https://github.com/FasterSpeeding/Tanjun/compare/v2.0.0a3...v2.0.0a4
 [2.0.0a3]: https://github.com/FasterSpeeding/Tanjun/compare/v2.0.0a2...v2.0.0a3
 [2.0.0a2]: https://github.com/FasterSpeeding/Tanjun/compare/v2.0.0a1...v2.0.0a2
