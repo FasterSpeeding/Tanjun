@@ -29,6 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""Functions and classes used to enable more Discord oriented argument converters."""
 from __future__ import annotations
 
 __all__: list[str] = [
@@ -84,12 +85,11 @@ from collections import abc as collections
 
 import hikari
 
+from . import abc as tanjun_abc
 from . import errors
 from . import injecting
 
 if typing.TYPE_CHECKING:
-
-    from . import abc as tanjun_abc
     from . import parsing
 
 ArgumentT = typing.Union[str, int, float]
@@ -97,31 +97,111 @@ _ValueT = typing.TypeVar("_ValueT")
 
 
 class BaseConverter(typing.Generic[_ValueT], abc.ABC):
+    """Base class for the standard converters.
+
+    This is detail of the standard implementation and isn't guaranteed to work
+    between implementations but will work for implementations which provide
+    the standard dependency injection or special cased support for these.
+
+    While it isn't necessary to subclass this to implement your own converters
+    since dependency injection can be used to access fields like the current Context,
+    this class introduces some niceties around stuff like state warnings.
+    """
+
     __slots__ = ()
 
-    async def __call__(self, argument: ArgumentT, ctx: tanjun_abc.Context) -> _ValueT:
+    async def __call__(
+        self, argument: ArgumentT, ctx: tanjun_abc.Context = injecting.injected(type=tanjun_abc.Context)
+    ) -> _ValueT:
         return await self.convert(ctx, argument)
 
     @property
     @abc.abstractmethod
     def cache_components(self) -> hikari.CacheComponents:
-        raise NotImplementedError
+        """Cache component(s) the converter takes advantage of.
+
+        .. note::
+            Unless `BaseConverter.requires_cache` is `True`, these cache components
+            aren't necessary but simply avoid the converter from falling back to
+            REST requests.
+
+        Returns
+        -------
+        hikari.CacheComponents
+            The cache components the converter takes advantage of.
+
+            This will be `hikari.CacheComponents.NONE` if the converter doesn't
+            make cache calls.
+        """
 
     @property
     @abc.abstractmethod
     def intents(self) -> hikari.Intents:
-        raise NotImplementedError
+        """Gateway intents this converter takes advantage of.
+
+        .. note::
+            This field is supplementary to `BaseConverter.cache_components` and
+            is used to detect when the relevant component might not actually be
+            being kept up to date or filled by gateway events.
+
+            Unless `BaseConverter.requires_cache` is `True`, these intents being
+            disabled won't stop this converter from working as it'll still fall
+            back to REST requests.
+
+        Returns
+        -------
+        hikari.Intents
+            Bitwise flag of the intents this converter takes advantage of.
+        """
 
     @property
     @abc.abstractmethod
     def requires_cache(self) -> bool:
-        raise NotImplementedError
+        """Whether this converter relies on the relevant cache stores to work.
+
+        Returns
+        -------
+        bool
+            Whether the converter relies on the relevant cache stores to work.
+
+            If this is `True` then this converter will not function properly
+            in an environment `BaseConverter.intents` or `BaseConverter.cache_components`
+            isn't satisfied and will never fallback to REST requests.
+        """
 
     @abc.abstractmethod
     async def convert(self, ctx: tanjun_abc.Context, argument: ArgumentT, /) -> _ValueT:
-        raise NotImplementedError
+        """Convert an argument.
+
+        Parameters
+        ----------
+        ArgumentT
+            The argument to convert.
+
+        Returns
+        -------
+        _ValueT
+            The resultant value.
+
+        Raises
+        ------
+        ValueError
+            If the argument couldn't be converted.
+        """
 
     def check_client(self, client: tanjun_abc.Client, parent_name: str, /) -> None:
+        """Check that this converter will work with the given client.
+
+        This never raises any errors but simply warns the user if the converter
+        is not compatible with the given client.
+
+        Parameters
+        ----------
+        client : tanjun.abc.Client
+            The client to check against.
+        parent_name : str
+            The name of the converter's parent, used for warning messages.
+        """
         if not client.cache:
             if self.requires_cache:
                 warnings.warn(
@@ -146,9 +226,17 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
 
 
 class InjectableConverter(injecting.BaseInjectableCallback[_ValueT]):
+    """A specialised injectable callback which accounts for special casing `BaseConverter`.
+
+    Parameters
+    ----------
+    converter : typing.Union[tanjun.injecting.CallbackSig[_ValueT], BaseConverter[_ValueT]]
+        The converter callback to use.
+    """
+
     __slots__ = ("_is_base_converter",)
 
-    def __init__(self, callback: injecting.CallbackSig[_ValueT], /) -> None:
+    def __init__(self, callback: typing.Union[injecting.CallbackSig[_ValueT], BaseConverter[_ValueT]], /) -> None:
         super().__init__(callback)
         self._is_base_converter = isinstance(callback, BaseConverter)
 
@@ -161,6 +249,8 @@ class InjectableConverter(injecting.BaseInjectableCallback[_ValueT]):
 
 
 class ChannelConverter(BaseConverter[hikari.PartialChannel]):
+    """Standard converter for channels mentions/IDs."""
+
     __slots__ = ()
 
     @property
@@ -188,6 +278,8 @@ class ChannelConverter(BaseConverter[hikari.PartialChannel]):
 
 
 class ColorConverter(BaseConverter[hikari.Color]):
+    """Standard converter for colour representations."""
+
     __slots__ = ()
 
     @property
@@ -214,6 +306,8 @@ class ColorConverter(BaseConverter[hikari.Color]):
 
 
 class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
+    """Standard converter for custom emojis."""
+
     __slots__ = ()
 
     @property
@@ -245,6 +339,8 @@ class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
 
 
 class GuildConverter(BaseConverter[hikari.Guild]):
+    """Stanard converter for guilds."""
+
     __slots__ = ()
 
     @property
@@ -275,6 +371,8 @@ class GuildConverter(BaseConverter[hikari.Guild]):
 
 
 class InviteConverter(BaseConverter[hikari.Invite]):
+    """Standard converter for invites."""
+
     __slots__ = ()
 
     @property
@@ -306,6 +404,12 @@ class InviteConverter(BaseConverter[hikari.Invite]):
 
 
 class InviteWithMetadataConverter(BaseConverter[hikari.InviteWithMetadata]):
+    """Standard converter for invites with metadata.
+
+    .. note::
+        Unlike `InviteConverter`, this converter is cache dependent.
+    """
+
     __slots__ = ()
 
     @property
@@ -332,6 +436,12 @@ class InviteWithMetadataConverter(BaseConverter[hikari.InviteWithMetadata]):
 
 
 class MemberConverter(BaseConverter[hikari.Member]):
+    """Standard converter for guild members.
+
+    This converter allows both mentions, raw IDs and partial usernames/nicknames
+    and only works within a guild context.
+    """
+
     __slots__ = ()
 
     @property
@@ -376,6 +486,11 @@ class MemberConverter(BaseConverter[hikari.Member]):
 
 
 class PresenceConverter(BaseConverter[hikari.MemberPresence]):
+    """Standard converter for presences.
+
+    This converter is cache dependent and only works in a guild context.
+    """
+
     __slots__ = ()
 
     @property
@@ -403,6 +518,8 @@ class PresenceConverter(BaseConverter[hikari.MemberPresence]):
 
 
 class RoleConverter(BaseConverter[hikari.Role]):
+    """Standard converter for guild roles."""
+
     __slots__ = ()
 
     @property
@@ -432,6 +549,8 @@ class RoleConverter(BaseConverter[hikari.Role]):
 
 
 class SnowflakeConverter(BaseConverter[hikari.Snowflake]):
+    """Standard converter for snowflakes."""
+
     __slots__ = ()
 
     @property
@@ -451,6 +570,8 @@ class SnowflakeConverter(BaseConverter[hikari.Snowflake]):
 
 
 class UserConverter(BaseConverter[hikari.User]):
+    """Standard converter for users."""
+
     __slots__ = ()
 
     @property
@@ -482,6 +603,12 @@ class UserConverter(BaseConverter[hikari.User]):
 
 
 class VoiceStateConverter(BaseConverter[hikari.VoiceState]):
+    """Standard converter for voice states.
+
+    .. note::
+        This converter is cache dependent and only works in a guild context.
+    """
+
     __slots__ = ()
 
     @property
@@ -513,8 +640,33 @@ class _IDMatcher(typing.Protocol):
         raise NotImplementedError
 
 
-def make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcher:
+def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcher:
     def parse(value: ArgumentT, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
+        """Parse a snowflake from a string or int value.
+
+        .. note::
+            This only allows the relevant entity's mention format if applicable.
+
+        Parameters
+        ----------
+        value: typing.Union[str, int]
+            The value to parse (this argument can only be passed positionally).
+
+        Other Parameters
+        ----------------
+        message: str
+            The error message to raise if the value cannot be parsed.
+
+        Returns
+        -------
+        hikari.Snowflake
+            The parsed snowflake.
+
+        Raises
+        ------
+        ValueError
+            If the value cannot be parsed.
+        """
         result: typing.Optional[hikari.Snowflake] = None
         if isinstance(value, str):
             if value.isdigit():
@@ -543,12 +695,27 @@ def make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcher:
 _IDSearcher = collections.Callable[[ArgumentT], collections.Iterator[hikari.Snowflake]]
 
 
-def _range_check(snowflake: hikari.Snowflake) -> bool:
+def _range_check(snowflake: hikari.Snowflake, /) -> bool:
     return snowflake.min() <= snowflake <= snowflake.max()
 
 
-def make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcher:
-    def parse(value: ArgumentT) -> collections.Iterator[hikari.Snowflake]:
+def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcher:
+    def parse(value: ArgumentT, /) -> collections.Iterator[hikari.Snowflake]:
+        """Iterate over the snowflakes in a string.
+
+        .. note::
+            This only allows the relevant entity's mention format if applicable.
+
+        Parameters
+        ----------
+        value: typing.Union[str, int]
+            The value to parse (this argument can only be passed positionally).
+
+        Returns
+        -------
+        collections.abc.Iterator[hikari.Snowflake]
+            An iterator over the IDs found in the string.
+        """
         if isinstance(value, str):
             if value.isdigit() and _range_check(result := hikari.Snowflake(value)):
                 yield result
@@ -575,7 +742,7 @@ def make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcher:
 
 
 _SNOWFLAKE_REGEX = re.compile(r"<[@&?!#a]{0,3}(?::\w+:)?(\d+)>")
-parse_snowflake: _IDMatcher = make_snowflake_parser(_SNOWFLAKE_REGEX)
+parse_snowflake: _IDMatcher = _make_snowflake_parser(_SNOWFLAKE_REGEX)
 """Parse a snowflake from a string or int value.
 
 Parameters
@@ -599,7 +766,7 @@ ValueError
     If the value cannot be parsed.
 """
 
-search_snowflakes = make_snowflake_searcher(_SNOWFLAKE_REGEX)
+search_snowflakes = _make_snowflake_searcher(_SNOWFLAKE_REGEX)
 """Iterate over the snowflakes in a string.
 
 Parameters
@@ -614,7 +781,7 @@ collections.abc.Iterator[hikari.Snowflake]
 """
 
 _CHANNEL_ID_REGEX = re.compile(r"<#(\d+)>")
-parse_channel_id: _IDMatcher = make_snowflake_parser(_CHANNEL_ID_REGEX)
+parse_channel_id: _IDMatcher = _make_snowflake_parser(_CHANNEL_ID_REGEX)
 """Parse a channel ID from a string or int value.
 
 Parameters
@@ -638,7 +805,7 @@ ValueError
     If the value cannot be parsed.
 """
 
-search_channel_ids = make_snowflake_searcher(_CHANNEL_ID_REGEX)
+search_channel_ids = _make_snowflake_searcher(_CHANNEL_ID_REGEX)
 """Iterate over the channel IDs in a string.
 
 Parameters
@@ -653,7 +820,7 @@ collections.abc.Iterator[hikari.Snowflake]
 """
 
 _EMOJI_ID_REGEX = re.compile(r"<a?:\w+:(\d+)>")
-parse_emoji_id: _IDMatcher = make_snowflake_parser(_EMOJI_ID_REGEX)
+parse_emoji_id: _IDMatcher = _make_snowflake_parser(_EMOJI_ID_REGEX)
 """Parse an Emoji ID from a string or int value.
 
 Parameters
@@ -677,7 +844,7 @@ ValueError
     If the value cannot be parsed.
 """
 
-search_emoji_ids = make_snowflake_searcher(_EMOJI_ID_REGEX)
+search_emoji_ids = _make_snowflake_searcher(_EMOJI_ID_REGEX)
 """Iterate over the emoji IDs in a string.
 
 Parameters
@@ -692,7 +859,7 @@ collections.abc.Iterator[hikari.Snowflake]
 """
 
 _ROLE_ID_REGEX = re.compile(r"<@&(\d+)>")
-parse_role_id: _IDMatcher = make_snowflake_parser(_ROLE_ID_REGEX)
+parse_role_id: _IDMatcher = _make_snowflake_parser(_ROLE_ID_REGEX)
 """Parse a role ID from a string or int value.
 
 Parameters
@@ -716,7 +883,7 @@ ValueError
     If the value cannot be parsed.
 """
 
-search_role_ids = make_snowflake_searcher(_ROLE_ID_REGEX)
+search_role_ids = _make_snowflake_searcher(_ROLE_ID_REGEX)
 """Iterate over the role IDs in a string.
 
 Parameters
@@ -731,7 +898,7 @@ collections.abc.Iterator[hikari.Snowflake]
 """
 
 _USER_ID_REGEX = re.compile(r"<@!?(\d+)>")
-parse_user_id: _IDMatcher = make_snowflake_parser(_USER_ID_REGEX)
+parse_user_id: _IDMatcher = _make_snowflake_parser(_USER_ID_REGEX)
 """Parse a user ID from a string or int value.
 
 Parameters
@@ -755,7 +922,7 @@ ValueError
     If the value cannot be parsed.
 """
 
-search_user_ids = make_snowflake_searcher(_USER_ID_REGEX)
+search_user_ids = _make_snowflake_searcher(_USER_ID_REGEX)
 """Iterate over the user IDs in a string.
 
 Parameters
@@ -772,6 +939,23 @@ collections.abc.Iterator[hikari.Snowflake]
 
 def _build_url_parser(callback: collections.Callable[[str], _ValueT], /) -> collections.Callable[[str], _ValueT]:
     def parse(value: str, /) -> _ValueT:
+        """Convert an argument to a `urlib.parse` type.
+
+        Parameters
+        ----------
+        value: str
+            The value to parse (this argument can only be passed positionally).
+
+        Returns
+        -------
+        _ValueT
+            The parsed URL.
+
+        Raises
+        ------
+        ValueError
+            If the argument couldn't be parsed.
+        """
         if value.startswith("<") and value.endswith(">"):
             value = value[1:-1]
 
@@ -781,9 +965,62 @@ def _build_url_parser(callback: collections.Callable[[str], _ValueT], /) -> coll
 
 
 defragment_url = _build_url_parser(urllib.parse.urldefrag)
-parse_url = _build_url_parser(urllib.parse.urlparse)
-split_url = _build_url_parser(urllib.parse.urlsplit)
+"""Convert an argument to a defragmented URL.
 
+Parameters
+----------
+value: str
+    The value to parse (this argument can only be passed positionally).
+
+Returns
+-------
+urlib.parse.DefragResult
+    The parsed URL.
+
+Raises
+------
+ValueError
+    If the argument couldn't be parsed.
+"""
+
+parse_url = _build_url_parser(urllib.parse.urlparse)
+"""Convert an argument to a parsed URL.
+
+Parameters
+----------
+value: str
+    The value to parse (this argument can only be passed positionally).
+
+Returns
+-------
+urlib.parse.ParseResult
+    The parsed URL.
+
+Raises
+------
+ValueError
+    If the argument couldn't be parsed.
+"""
+
+
+split_url = _build_url_parser(urllib.parse.urlsplit)
+"""Convert an argument to a split URL.
+
+Parameters
+----------
+value: str
+    The value to parse (this argument can only be passed positionally).
+
+Returns
+-------
+urlib.parse.SplitResult
+    The split URL.
+
+Raises
+------
+ValueError
+    If the argument couldn't be parsed.
+"""
 
 _DATETIME_REGEX = re.compile(r"<-?t:(\d+)(?::\w)?>")
 

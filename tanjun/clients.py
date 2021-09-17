@@ -29,6 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""Standard Tanjun client."""
 from __future__ import annotations
 
 __all__: list[str] = [
@@ -490,8 +491,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Notes
         -----
-        * This implicitly defaults the client to human only mode and also
-          sets hikari trait injectors based on `bot`.
+        * This implicitly defaults the client to human only mode.
+        * This sets type dependency injectors for the hikari traits present in
+          `bot` (including `hikari.traits.GatewayBotaWARE`).
         * The endpoint used by `set_global_commands` has a strict ratelimit
           which, as of writing, only allows for 2 request per minute (with that
           ratelimit either being per-guild if targeting a specific guild
@@ -554,7 +556,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Notes
         -----
-        * This implicitly sets hikari trait injectors based on `bot`.
+        * This sets type dependency injectors for the hikari traits present in
+          `bot` (including `hikari.traits.RESTBotAware`).
         * The endpoint used by `set_global_commands` has a strict ratelimit
           which, as of writing, only allows for 2 request per minute (with that
           ratelimit either being per-guild if targeting a specific guild
@@ -1123,22 +1126,22 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 self.dispatch_client_callback(ClientCallbackNames.COMPONENT_REMOVED, component)
             )
 
-    def add_client_callback(self: _ClientT, event_name: str, callback: tanjun_abc.MetaEventSig, /) -> _ClientT:
+    def add_client_callback(self: _ClientT, name: str, callback: tanjun_abc.MetaEventSig, /) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
         descriptor = injecting.CallbackDescriptor(callback)
-        event_name = event_name.lower()
+        name = name.casefold()
         try:
-            self._client_callbacks[event_name].add(descriptor)
+            self._client_callbacks[name].add(descriptor)
         except KeyError:
-            self._client_callbacks[event_name] = {descriptor}
+            self._client_callbacks[name] = {descriptor}
 
         return self
 
     async def dispatch_client_callback(
-        self, event_name: str, /, *args: typing.Any, suppress_exceptions: bool = True, **kwargs: typing.Any
+        self, name: str, /, *args: typing.Any, suppress_exceptions: bool = True, **kwargs: typing.Any
     ) -> None:
-        event_name = event_name.lower()
-        if callbacks := self._client_callbacks.get(event_name):
+        name = name.casefold()
+        if callbacks := self._client_callbacks.get(name):
             calls = (
                 _wrap_client_callback(
                     callback, injecting.BasicInjectionContext(self), args, kwargs, suppress_exceptions
@@ -1147,27 +1150,27 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             )
             await asyncio.gather(*calls)
 
-    def get_client_callbacks(self, event_name: str, /) -> collections.Collection[tanjun_abc.MetaEventSig]:
+    def get_client_callbacks(self, name: str, /) -> collections.Collection[tanjun_abc.MetaEventSig]:
         # <<inherited docstring from tanjun.abc.Client>>.
-        event_name = event_name.lower()
-        if result := self._client_callbacks.get(event_name):
+        name = name.casefold()
+        if result := self._client_callbacks.get(name):
             return tuple(callback.callback for callback in result)
 
         return ()
 
-    def remove_client_callback(self, event_name: str, callback: tanjun_abc.MetaEventSig, /) -> None:
+    def remove_client_callback(self, name: str, callback: tanjun_abc.MetaEventSig, /) -> None:
         # <<inherited docstring from tanjun.abc.Client>>.
-        event_name = event_name.lower()
-        self._client_callbacks[event_name].remove(callback)  # type: ignore
-        if not self._client_callbacks[event_name]:
-            del self._client_callbacks[event_name]
+        name = name.casefold()
+        self._client_callbacks[name].remove(callback)  # type: ignore
+        if not self._client_callbacks[name]:
+            del self._client_callbacks[name]
 
     def with_client_callback(
-        self, event_name: str, /
+        self, name: str, /
     ) -> collections.Callable[[tanjun_abc.MetaEventSigT], tanjun_abc.MetaEventSigT]:
         # <<inherited docstring from tanjun.abc.Client>>.
         def decorator(callback: tanjun_abc.MetaEventSigT, /) -> tanjun_abc.MetaEventSigT:
-            self.add_client_callback(event_name, callback)
+            self.add_client_callback(name, callback)
             return callback
 
         return decorator
@@ -1388,8 +1391,19 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Parameters
         ----------
-        *modules
-            String path(s) of the modules to load from.
+        *modules : typing.Union[str, pathlib.Path]
+            Path(s) of the modules to load from.
+
+            When `str` this will be treated as a normal import path which is
+            either relative to the current location (e.g. `".foo.bar"`) or
+            absolute (`"foo.bar.baz"`). It's worth noting that absolute module
+            paths may be imported from the current location if the top level
+            module is a valid module file or module directory in the current
+            working directory.
+
+            When `pathlib.Path` the module will be imported directly from
+            the given path. In this mode any relative imports in the target
+            module will fail to resolve.
 
         Returns
         -------
@@ -1545,7 +1559,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         hooks = self._get_slash_hooks()
         future = ctx.get_response_future()
         try:
-            if self.check(ctx):
+            if await self.check(ctx):
                 for component in self._components:
                     if await component.execute_interaction(ctx, hooks=hooks):
                         return await future

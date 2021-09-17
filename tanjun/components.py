@@ -29,6 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""Standard implementation of Tanjun's "components" used to manage separate features within a client."""
 from __future__ import annotations
 
 __all__: list[str] = ["CommandT", "Component", "LoadableProtocol", "WithCommandReturnSig"]
@@ -44,10 +45,9 @@ from collections import abc as collections
 
 from hikari.events import base_events
 
-import tanjun
-
 from . import abc
 from . import checks as checks_
+from . import errors
 from . import utilities
 
 if typing.TYPE_CHECKING:
@@ -523,13 +523,21 @@ class Component(abc.Component):
     async def _execute_interaction(
         self,
         ctx: abc.SlashContext,
-        command: typing.Optional[tanjun.abc.BaseSlashCommand],
+        command: typing.Optional[abc.BaseSlashCommand],
         /,
         *,
         hooks: typing.Optional[collections.MutableSet[abc.SlashHooks]] = None,
     ) -> typing.Optional[collections.Awaitable[None]]:
-        if not command or not await self._check_context(ctx) or not await command.check_context(ctx):
-            return None
+        try:
+            if not command or not await self._check_context(ctx) or not await command.check_context(ctx):
+                return None
+
+        except errors.HaltExecution:
+            return asyncio.get_running_loop().create_task(ctx.mark_not_found())
+
+        except errors.CommandError as exc:
+            await ctx.respond(exc.message)
+            return asyncio.get_running_loop().create_future().set_result(None)
 
         if self._slash_hooks:
             if hooks is None:

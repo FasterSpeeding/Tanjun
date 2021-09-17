@@ -29,6 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""Standard implementation of Tanjun's command objects."""
 from __future__ import annotations
 
 __all__: list[str] = [
@@ -57,7 +58,6 @@ __all__: list[str] = [
 ]
 
 import copy
-import logging
 import re
 import types
 import typing
@@ -96,10 +96,6 @@ ConverterSig = collections.Callable[..., abc.MaybeAwaitableT[typing.Any]]
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 _EMPTY_LIST: typing.Final[list[typing.Any]] = []
-_EMPTY_RESOLVED: typing.Final[hikari.ResolvedOptionData] = hikari.ResolvedOptionData(
-    users=_EMPTY_DICT, members=_EMPTY_DICT, roles=_EMPTY_DICT, channels=_EMPTY_DICT
-)
-_LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.commands")
 
 
 class _LoadableInjector(checks_.InjectableCheck):
@@ -699,7 +695,7 @@ class _TrackedOption:
             except ValueError as exc:
                 exceptions.append(exc)
 
-        raise errors.ConversionError(self.name, f"Couldn't convert {self.type} '{self.name}'", errors=exceptions)
+        raise errors.ConversionError(f"Couldn't convert {self.type} '{self.name}'", self.name, errors=exceptions)
 
 
 _CommandBuilderT = typing.TypeVar("_CommandBuilderT", bound="_CommandBuilder")
@@ -1612,9 +1608,6 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         )
 
     async def _process_args(self, ctx: abc.SlashContext, /) -> collections.Mapping[str, typing.Any]:
-        if not self._tracked_options:
-            return _EMPTY_DICT
-
         keyword_args: dict[str, typing.Union[int, float, str, hikari.User, hikari.Role, hikari.InteractionChannel]] = {}
         for tracked_option in self._tracked_options.values():
             if not (option := ctx.options.get(tracked_option.name)):
@@ -1631,7 +1624,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
                 member: typing.Optional[hikari.InteractionMember] = None
                 if tracked_option.is_only_member and not (member := option.resolve_to_member(default=None)):
                     raise errors.ConversionError(
-                        tracked_option.name, f"Couldn't find member for provided user: {option.value}"
+                        f"Couldn't find member for provided user: {option.value}", tracked_option.name
                     )
 
                 keyword_args[option.name] = member or option.resolve_to_user()
@@ -1650,7 +1643,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
                     member: typing.Optional[hikari.InteractionMember] = None
                     if tracked_option.is_only_member and not (member := option.resolve_to_member()):
                         raise errors.ConversionError(
-                            tracked_option.name, f"Couldn't find member for provided user: {option.value}"
+                            f"Couldn't find member for provided user: {option.value}", tracked_option.name
                         )
 
                     keyword_args[option.name] = member or option.resolve_to_mentionable()

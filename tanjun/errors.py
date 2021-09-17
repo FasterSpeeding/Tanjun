@@ -82,9 +82,6 @@ class MissingDependencyError(TanjunError):
     def __init__(self, message: str) -> None:
         self.message = message
 
-    def __repr__(self) -> str:
-        return f"{type(self).__name__} <{self.message}>"
-
 
 class CommandError(TanjunError):
     """Error raised to end command execution.
@@ -120,9 +117,6 @@ class CommandError(TanjunError):
             raise ValueError("Response message must have at least 1 character.")
 
         self.message = message
-
-    def __repr__(self) -> str:
-        return f"{type(self).__name__} <{self.message}>"
 
     def __str__(self) -> str:
         return self.message or ""
@@ -200,7 +194,7 @@ class ConversionError(ParserError):
     parameter: str
     """Name of the parameter this error was raised for."""
 
-    def __init__(self, parameter: str, message: str, /, errors: collections.Iterable[ValueError] = ()) -> None:
+    def __init__(self, message: str, parameter: str, /, errors: collections.Iterable[ValueError] = ()) -> None:
         super().__init__(message, parameter)
         self.errors = tuple(errors)
 

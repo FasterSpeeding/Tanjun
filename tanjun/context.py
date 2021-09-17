@@ -29,6 +29,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""Standard command execution context implementations."""
 from __future__ import annotations
 
 __all__: list[str] = ["MessageContext", "ResponseTypeT", "SlashContext", "SlashOption"]
@@ -715,6 +716,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             if self._has_responded or not self._not_found_message:
                 return
 
+            self._has_responded = True
             if self._has_been_deferred:
                 await self._interaction.edit_initial_response(content=self._not_found_message)
                 return

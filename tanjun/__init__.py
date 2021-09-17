@@ -47,6 +47,7 @@ bot = hikari.GatewayBot("BOT_TOKEN")
 client = tanjun.Client.from_gateway_bot(bot, set_global_commands=True, mention_prefix=True)
 
 component = tanjun.Component()
+client.add_component(component)
 
 # Declare a message command with some basic parser logic.
 @component.with_command
