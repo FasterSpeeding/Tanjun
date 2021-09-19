@@ -225,9 +225,15 @@ class TestClient:
         assert tanjun.Client(mock.Mock()).prefix_getter is None
 
     def test_prefixes_property(self) -> None:
-        client = tanjun.Client(mock.Mock()).add_prefix("a").add_prefix("b")
+        client = (
+            tanjun.Client(mock.Mock())
+            .add_prefix("a")
+            .add_prefix("b")
+            .add_prefix("a")
+            .add_prefix(("b", "e", "t", "t", "e", "r"))
+        )
 
-        assert client.prefixes == {"a", "b"}
+        assert client.prefixes == ["a", "b", "e", "t", "r"]
 
     def test_rest_property(self) -> None:
         mock_rest = mock.Mock()

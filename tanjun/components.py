@@ -152,7 +152,7 @@ class Component(abc.Component):
         strict: bool = False,
     ) -> None:
         self._checks: list[checks_.InjectableCheck] = (
-            [checks_.InjectableCheck(check) for check in set(checks)] if checks else []
+            [checks_.InjectableCheck(check) for check in dict.fromkeys(checks)] if checks else []
         )
         self._client: typing.Optional[abc.Client] = None
         self._client_callbacks: dict[str, list[abc.MetaEventSig]] = {}
@@ -248,10 +248,9 @@ class Component(abc.Component):
         return self
 
     def add_check(self: _ComponentT, check: abc.CheckSig, /) -> _ComponentT:
-        if check in self._checks:
-            return self
+        if check not in self._checks:
+            self._checks.append(checks_.InjectableCheck(check))
 
-        self._checks.append(checks_.InjectableCheck(check))
         return self
 
     def remove_check(self, check: abc.CheckSig, /) -> None:

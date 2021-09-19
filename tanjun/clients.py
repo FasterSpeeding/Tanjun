@@ -418,8 +418,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._auto_defer_after: typing.Optional[float] = 2.0
         self._cache = cache
         self._cached_application_id: typing.Optional[hikari.Snowflake] = None
-        self._checks: set[checks.InjectableCheck] = set()
-        self._client_callbacks: dict[str, set[injecting.CallbackDescriptor[None]]] = {}
+        self._checks: list[checks.InjectableCheck] = []
+        self._client_callbacks: dict[str, list[injecting.CallbackDescriptor[None]]] = {}
         self._components: list[tanjun_abc.Component] = []
         self._make_message_context: _MessageContextMakerProto = context.MessageContext
         self._make_slash_context: _SlashContextMakerProto = context.SlashContext
@@ -436,7 +436,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         )
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._prefix_getter: typing.Optional[_InjectablePrefixGetter] = None
-        self._prefixes: set[str] = set()
+        self._prefixes: list[str] = []
         self._rest = rest
         self._server = server
         self._shards = shards
@@ -627,13 +627,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Returns
         -------
-        collections.abc.Set[tanjun.abc.CheckSig]
+        collections.abc.Collection[tanjun.abc.CheckSig]
             Colleciton of the `tanjun.abc.Context` based checks registered for
             this client.
 
             These may be taking advantage of the standard dependency injection.
         """
-        return {check.callback for check in self._checks}
+        return tuple(check.callback for check in self._checks)
 
     @property
     def components(self) -> collections.Collection[tanjun_abc.Component]:
@@ -723,7 +723,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Returns
         -------
-        collections.abc.Set[str]
+        collections.abc.Collection[str]
             The standard prefixes set for this client.
         """
         return self._prefixes.copy()
@@ -1108,7 +1108,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         Self
             The client instance to enable chained calls.
         """
-        self._checks.add(checks.InjectableCheck(check))
+        if check not in self._checks:  # type: ignore[arg-type]
+            self._checks.append(checks.InjectableCheck(check))
+
         return self
 
     def remove_check(self, check: tanjun_abc.CheckSig, /) -> None:
@@ -1175,9 +1177,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         descriptor = injecting.CallbackDescriptor(callback)
         name = name.casefold()
         try:
-            self._client_callbacks[name].add(descriptor)
+            if descriptor in self._client_callbacks[name]:
+                return self
+
+            self._client_callbacks[name].append(descriptor)
         except KeyError:
-            self._client_callbacks[name] = {descriptor}
+            self._client_callbacks[name] = [descriptor]
 
         return self
 
@@ -1291,10 +1296,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             The client instance to enable chained calls.
         """
         if isinstance(prefixes, str):
-            self._prefixes.add(prefixes)
+            if prefixes not in self._prefixes:
+                self._prefixes.append(prefixes)
 
         else:
-            self._prefixes.update(prefixes)
+            self._prefixes.extend(prefix for prefix in prefixes if prefix not in self._prefixes)
 
         return self
 
@@ -1480,8 +1486,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 else:
                     user = await self._rest.fetch_my_user()
 
-            self._prefixes.add(f"<@{user.id}>")
-            self._prefixes.add(f"<@!{user.id}>")
+            for prefix in f"<@{user.id}>", f"<@!{user.id}>":
+                if prefix not in self._prefixes:
+                    self._prefixes.append(prefix)
+
             self._grab_mention_prefix = False
 
         if register_listeners and self._events:

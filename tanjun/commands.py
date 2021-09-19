@@ -120,8 +120,8 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
         hooks: typing.Optional[abc.Hooks[abc.ContextT]] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
     ) -> None:
-        self._checks: set[checks_.InjectableCheck] = (
-            {checks_.InjectableCheck(check) for check in checks} if checks else set()
+        self._checks: list[checks_.InjectableCheck] = (
+            [checks_.InjectableCheck(check) for check in dict.fromkeys(checks)] if checks else []
         )
         self._component: typing.Optional[abc.Component] = None
         self._hooks = hooks
@@ -130,7 +130,7 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
     @property
     def checks(self) -> collections.Collection[abc.CheckSig]:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        return {check.callback for check in self._checks}
+        return tuple(check.callback for check in self._checks)
 
     @property
     def component(self) -> typing.Optional[abc.Component]:
@@ -155,7 +155,7 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
     def copy(self: _PartialCommandT, *, _new: bool = True) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         if not _new:
-            self._checks = {check.copy() for check in self._checks}
+            self._checks = [check.copy() for check in self._checks]
             self._hooks = self._hooks.copy() if self._hooks else None
             self._metadata = self._metadata.copy()
             return self
@@ -169,7 +169,9 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
 
     def add_check(self: _PartialCommandT, check: abc.CheckSig, /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        self._checks.add(checks_.InjectableCheck(check))
+        if check not in self._checks:  # type: ignore
+            self._checks.append(checks_.InjectableCheck(check))
+
         return self
 
     def remove_check(self, check: abc.CheckSig, /) -> None:
@@ -177,7 +179,9 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
         self._checks.remove(check)  # type: ignore[arg-type]
 
     def with_check(self, check: abc.CheckSigT, /) -> abc.CheckSigT:
-        self._checks.add(_LoadableInjector(check))
+        if check not in self._checks:  # type: ignore:
+            self._checks.append(_LoadableInjector(check))
+
         return check
 
     def bind_client(self: _PartialCommandT, client: abc.Client, /) -> _PartialCommandT:
@@ -938,6 +942,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         if self._parent and isinstance(command, abc.SlashCommandGroup):
             raise ValueError("Cannot add a slash command group to a nested slash command group")
 
+        command.set_parent(self)
         self._commands[command.name] = command
         return self
 
@@ -1778,7 +1783,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
     ) -> None:
         super().__init__(checks=checks, hooks=hooks, metadata=metadata)
         self._callback = injecting.CallbackDescriptor(callback)
-        self._names = {name, *names}
+        self._names = list(dict.fromkeys((name, *names)))
         self._parent: typing.Optional[abc.MessageCommandGroup] = None
         self._parser = parser
 
@@ -1940,7 +1945,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
         parser: typing.Optional[parsing.AbstractParser] = None,
     ) -> None:
         super().__init__(callback, name, *names, checks=checks, hooks=hooks, metadata=metadata, parser=parser)
-        self._commands: set[abc.MessageCommand] = set()
+        self._commands: list[abc.MessageCommand] = []
         self._is_strict = strict
         self._names_to_commands: dict[str, abc.MessageCommand] = {}
 
@@ -1962,7 +1967,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if not _new:
             commands = {command: command.copy(parent=self) for command in self._commands}
-            self._commands = set(commands.values())
+            self._commands = list(commands.values())
             self._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
             return super().copy(parent=parent, _new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars
 
@@ -1987,6 +1992,9 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
             If one of the command's names is already registered in a strict
             command group.
         """
+        if command in self._commands:
+            return self
+
         if self._is_strict:
             if any(" " in name for name in command.names):
                 raise ValueError("Sub-command names may not contain spaces in a strict message command group")
@@ -2000,7 +2008,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
             self._names_to_commands.update((name, command) for name in command.names)
 
         command.set_parent(self)
-        self._commands.add(command)
+        self._commands.append(command)
         return self
 
     def remove_command(self, command: abc.MessageCommand, /) -> None:
