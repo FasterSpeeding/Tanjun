@@ -70,17 +70,23 @@ class LoadableProtocol(typing.Protocol):
 
 
 def _with_command(
-    add_command: collections.Callable[[CommandT], typing.Any],
-    command: typing.Optional[CommandT],
+    add_command: collections.Callable[[CommandT], Component],
+    maybe_command: typing.Optional[CommandT],
     /,
     *,
     copy: bool = False,
 ) -> WithCommandReturnSig[CommandT]:
-    if command:
-        add_command(command.copy() if copy else command)
+    if maybe_command:
+        maybe_command = maybe_command.copy() if copy else maybe_command
+        add_command(maybe_command)
+        return maybe_command
+
+    def decorator(command: CommandT, /) -> CommandT:
+        command = command.copy() if copy else command
+        add_command(command)
         return command
 
-    return lambda command_: add_command(command_.copy() if copy else command_)
+    return decorator
 
 
 class Component(abc.Component):
@@ -145,15 +151,15 @@ class Component(abc.Component):
         name: typing.Optional[str] = None,
         strict: bool = False,
     ) -> None:
-        self._checks: set[checks_.InjectableCheck] = (
-            {checks_.InjectableCheck(check) for check in checks} if checks else set()
+        self._checks: list[checks_.InjectableCheck] = (
+            [checks_.InjectableCheck(check) for check in set(checks)] if checks else []
         )
         self._client: typing.Optional[abc.Client] = None
-        self._client_callbacks: dict[str, set[abc.MetaEventSig]] = {}
+        self._client_callbacks: dict[str, list[abc.MetaEventSig]] = {}
         self._hooks = hooks
         self._is_strict = strict
-        self._listeners: dict[type[base_events.Event], set[abc.ListenerCallbackSig]] = {}
-        self._message_commands: set[abc.MessageCommand] = set()
+        self._listeners: dict[type[base_events.Event], list[abc.ListenerCallbackSig]] = {}
+        self._message_commands: list[abc.MessageCommand] = []
         self._message_hooks = message_hooks
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._name = name or base64.b64encode(random.randbytes(32)).decode()
@@ -169,7 +175,7 @@ class Component(abc.Component):
 
     @property
     def checks(self) -> collections.Collection[abc.CheckSig]:
-        return {check.callback for check in self._checks}
+        return tuple(check.callback for check in self._checks)
 
     @property
     def client(self) -> typing.Optional[abc.Client]:
@@ -215,14 +221,14 @@ class Component(abc.Component):
 
     def copy(self: _ComponentT, *, _new: bool = True) -> _ComponentT:
         if not _new:
-            self._checks = {check.copy() for check in self._checks}
+            self._checks = [check.copy() for check in self._checks]
             self._slash_commands = {name: command.copy() for name, command in self._slash_commands.items()}
             self._hooks = self._hooks.copy() if self._hooks else None
             self._listeners = {
-                event: {copy.copy(listener) for listener in listeners} for event, listeners in self._listeners.items()
+                event: [copy.copy(listener) for listener in listeners] for event, listeners in self._listeners.items()
             }
             commands = {command: command.copy() for command in self._message_commands}
-            self._message_commands = set(commands.values())
+            self._message_commands = list(commands.values())
             self._metadata = self._metadata.copy()
             self._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
             return self
@@ -242,7 +248,10 @@ class Component(abc.Component):
         return self
 
     def add_check(self: _ComponentT, check: abc.CheckSig, /) -> _ComponentT:
-        self._checks.add(checks_.InjectableCheck(check))
+        if check in self._checks:
+            return self
+
+        self._checks.append(checks_.InjectableCheck(check))
         return self
 
     def remove_check(self, check: abc.CheckSig, /) -> None:
@@ -255,9 +264,12 @@ class Component(abc.Component):
     def add_client_callback(self: _ComponentT, event_name: str, callback: abc.MetaEventSig, /) -> _ComponentT:
         event_name = event_name.lower()
         try:
-            self._client_callbacks[event_name].add(callback)
+            if callback in self._client_callbacks[event_name]:
+                return self
+
+            self._client_callbacks[event_name].append(callback)
         except KeyError:
-            self._client_callbacks[event_name] = {callback}
+            self._client_callbacks[event_name] = [callback]
 
         if self._client:
             self._client.add_client_callback(event_name, callback)
@@ -324,11 +336,22 @@ class Component(abc.Component):
         return _with_command(self.add_command, command, copy=copy)
 
     def add_slash_command(self: _ComponentT, command: abc.BaseSlashCommand, /) -> _ComponentT:
+        if self._slash_commands.get(command.name) == command:
+            return self
+
+        command.bind_component(self)
+
+        if self._client:
+            command.bind_client(self._client)
+
         self._slash_commands[command.name.casefold()] = command
         return self
 
     def remove_slash_command(self, command: abc.BaseSlashCommand, /) -> None:
-        del self._slash_commands[command.name.casefold()]
+        try:
+            del self._slash_commands[command.name.casefold()]
+        except KeyError:
+            raise ValueError(f"Command {command.name} not found") from None
 
     @typing.overload
     def with_slash_command(self, command: abc.BaseSlashCommandT, /) -> abc.BaseSlashCommandT:
@@ -364,6 +387,9 @@ class Component(abc.Component):
             If one of the command's name is already registered in a strict
             component.
         """
+        if command in self._message_commands:
+            return self
+
         if self._is_strict:
             if any(" " in name for name in command.names):
                 raise ValueError("Command name cannot contain spaces for this component implementation")
@@ -376,7 +402,11 @@ class Component(abc.Component):
 
             self._names_to_commands.update((name, command) for name in command.names)
 
-        self._message_commands.add(command)
+        self._message_commands.append(command)
+
+        if self._client:
+            command.bind_client(self._client)
+
         command.bind_component(self)
         return self
 
@@ -407,10 +437,13 @@ class Component(abc.Component):
         self: _ComponentT, event: type[base_events.Event], listener: abc.ListenerCallbackSig, /
     ) -> _ComponentT:
         try:
-            self._listeners[event].add(listener)
+            if listener in self._listeners[event]:
+                return self
+
+            self._listeners[event].append(listener)
 
         except KeyError:
-            self._listeners[event] = {listener}
+            self._listeners[event] = [listener]
 
         if self._client:
             self._client.add_listener(event, listener)
@@ -435,13 +468,16 @@ class Component(abc.Component):
 
         return decorator
 
-    def bind_client(self, client: abc.Client, /) -> None:
+    def bind_client(self: _ComponentT, client: abc.Client, /) -> _ComponentT:
         if self._client:
             raise RuntimeError("Client already set")
 
         self._client = client
-        for command in self._message_commands:
-            command.bind_client(client)
+        for message_command in self._message_commands:
+            message_command.bind_client(client)
+
+        for slash_command in self._slash_commands.values():
+            slash_command.bind_client(client)
 
         for event, listeners in self._listeners.items():
             for listener in listeners:
@@ -450,6 +486,8 @@ class Component(abc.Component):
         for event_name, callbacks in self._client_callbacks.items():
             for callback in callbacks:
                 self._client.add_client_callback(event_name, callback)
+
+        return self
 
     def unbind_client(self, client: abc.Client, /) -> None:
         if not self._client or self._client != client:
@@ -468,6 +506,8 @@ class Component(abc.Component):
                     self._client.remove_client_callback(event_name, callback)
                 except (LookupError, ValueError):
                     pass
+
+        self._client = None
 
     async def _check_context(self, ctx: abc.Context, /) -> bool:
         return await utilities.gather_checks(ctx, self._checks)
@@ -506,7 +546,7 @@ class Component(abc.Component):
             name = content.split(" ", 1)[0]
             if command := self._names_to_commands.get(name):
                 yield name, command
-                return
+            return
 
         for command in self._message_commands:
             if (name := utilities.match_prefix_names(content, command.names)) is not None:

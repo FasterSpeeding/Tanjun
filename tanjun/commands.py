@@ -180,13 +180,14 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
         self._checks.add(_LoadableInjector(check))
         return check
 
-    def bind_client(self, client: abc.Client, /) -> None:
+    def bind_client(self: _PartialCommandT, client: abc.Client, /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        pass
+        return self
 
-    def bind_component(self, component: abc.Component, /) -> None:
+    def bind_component(self: _PartialCommandT, component: abc.Component, /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._component = component
+        return self
 
     def load_into_component(self: _PartialCommandT, component: abc.Component, /) -> typing.Optional[_PartialCommandT]:
         for check in self._checks:
@@ -1061,11 +1062,13 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             or super().needs_injector
         )
 
-    def bind_client(self, client: abc.Client, /) -> None:
+    def bind_client(self: _SlashCommandT, client: abc.Client, /) -> _SlashCommandT:
         self._client = client
         super().bind_client(client)
         for option in self._tracked_options.values():
             option.check_client(client)
+
+        return self
 
     def build(self) -> special_endpoints_api.CommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
@@ -1805,17 +1808,21 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
     def parser(self) -> typing.Optional[parsing.AbstractParser]:
         return self._parser
 
-    def bind_client(self, client: abc.Client, /) -> None:
+    def bind_client(self: _MessageCommandT, client: abc.Client, /) -> _MessageCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         super().bind_client(client)
         if self._parser:
             self._parser.bind_client(client)
 
-    def bind_component(self, component: abc.Component, /) -> None:
+        return self
+
+    def bind_component(self: _MessageCommandT, component: abc.Component, /) -> _MessageCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         super().bind_component(component)
         if self._parser:
             self._parser.bind_component(component)
+
+        return self
 
     def copy(
         self: _MessageCommandT, *, _new: bool = True, parent: typing.Optional[abc.MessageCommandGroup] = None
@@ -2010,17 +2017,21 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
         self.add_command(command)
         return command
 
-    def bind_client(self, client: abc.Client, /) -> None:
+    def bind_client(self: _MessageCommandGroupT, client: abc.Client, /) -> _MessageCommandGroupT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         super().bind_client(client)
         for command in self._commands:
             command.bind_client(client)
 
-    def bind_component(self, component: abc.Component, /) -> None:
+        return self
+
+    def bind_component(self: _MessageCommandGroupT, component: abc.Component, /) -> _MessageCommandGroupT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         super().bind_component(component)
         for command in self._commands:
             command.bind_component(component)
+
+        return self
 
     def find_command(self, content: str, /) -> collections.Iterable[tuple[str, abc.MessageCommand]]:
         if self._is_strict:
