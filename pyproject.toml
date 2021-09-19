@@ -31,7 +31,7 @@ classifiers = [
 dependencies = ["hikari~=2.0.0.dev101"]
 
 [project.optional-dependencies]
-docs = ["pdoc==7.4.0"]
+docs = ["pdoc~=8.0.0"]
 flake8 = [
     "flake8==3.9.2",
 
@@ -61,7 +61,7 @@ flake8 = [
     # This seems to lead to more false-posities then it's wroth.
     # "flake8-use-fstring==1.1"         # format string checking
 ]
-lint = ["codespell==2.1.0"]
+lint = ["codespell~=2.1.0"]
 publish = ["flit~=3.3"]
 reformat = ["black~=21.7b0", "isort==5.9.3"]
 tests = ["pytest==6.2.5", "pytest-asyncio==0.15.1", "pytest-cov==2.12.1"]
