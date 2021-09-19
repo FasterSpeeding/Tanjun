@@ -260,17 +260,12 @@ async def _wrap_client_callback(
     ctx: injecting.AbstractInjectionContext,
     args: tuple[str, ...],
     kwargs: dict[str, typing.Any],
-    suppress_exceptions: bool,
 ) -> None:
     try:
         await callback.resolve(ctx, *args, **kwargs)
 
     except Exception as exc:
-        if suppress_exceptions:
-            _LOGGER.error("Client callback raised exception", exc_info=exc)
-
-        else:
-            raise
+        _LOGGER.error("Client callback raised exception", exc_info=exc)
 
 
 class _InjectablePrefixGetter(injecting.BaseInjectableCallback[collections.Iterable[str]]):
@@ -1085,13 +1080,50 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return await self.declare_slash_commands(commands, application=application, guild=guild)
 
     def add_check(self: _ClientT, check: tanjun_abc.CheckSig, /) -> _ClientT:
+        """Add a generic check to this client.
+
+        This will be applied to both message and slash command execution.
+
+        Parameters
+        ----------
+        check : tanjun_abc.CheckSig
+            The check to add. This may be either synchronous or asynchronous
+            and must take one positional argument of type `tanjun.abc.Context`
+            with dependency injection being supported for its keyword arguments.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
+        """
         self._checks.add(checks.InjectableCheck(check))
         return self
 
     def remove_check(self, check: tanjun_abc.CheckSig, /) -> None:
+        """Remove a check from the client.
+
+        Parameters
+        ----------
+        check : tanjun_abc.CheckSig
+            The check to remove.
+        """
         self._checks.remove(check)  # type: ignore[arg-type]
 
     def with_check(self, check: tanjun_abc.CheckSigT, /) -> tanjun_abc.CheckSigT:
+        """Add a check to this client through a decorator call.
+
+        Parameters
+        ----------
+        check : tanjun_abc.CheckSig
+            The check to add. This may be either synchronous or asynchronous
+            and must take one positional argument of type `tanjun.abc.Context`
+            with dependency injection being supported for its keyword arguments.
+
+        Returns
+        -------
+        tanjun_abc.CheckSig
+            The added check.
+        """
         self.add_check(check)
         return check
 
@@ -1137,15 +1169,25 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return self
 
-    async def dispatch_client_callback(
-        self, name: str, /, *args: typing.Any, suppress_exceptions: bool = True, **kwargs: typing.Any
-    ) -> None:
+    async def dispatch_client_callback(self, name: str, /, *args: typing.Any, **kwargs: typing.Any) -> None:
+        """Dispatch a client callback.
+
+        Parameters
+        ----------
+        name : str
+            The name of the callback to dispatch.
+
+        Other Parameters
+        ----------------
+        *args : typing.Any
+            Positional arguments to pass to the callback(s).
+        **kwargs : typing.Any
+            Keyword arguments to pass to the callback(s).
+        """
         name = name.casefold()
         if callbacks := self._client_callbacks.get(name):
             calls = (
-                _wrap_client_callback(
-                    callback, injecting.BasicInjectionContext(self), args, kwargs, suppress_exceptions
-                )
+                _wrap_client_callback(callback, injecting.BasicInjectionContext(self), args, kwargs)
                 for callback in callbacks
             )
             await asyncio.gather(*calls)
@@ -1178,6 +1220,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     def add_listener(
         self: _ClientT, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /
     ) -> _ClientT:
+        # <<inherited docstring from tanjun.abc.Client>>.
         injected = _InjectableListener(self, callback)
         try:
             if callback in self._listeners[event_type]:
@@ -1194,6 +1237,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self
 
     def remove_listener(self, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /) -> None:
+        # <<inherited docstring from tanjun.abc.Client>>.
         try:
             registered_callback = self._listeners[event_type].pop(self._listeners[event_type].index(callback))
 
@@ -1209,6 +1253,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     def with_listener(
         self, event_type: type[hikari.Event], /
     ) -> collections.Callable[[tanjun_abc.ListenerCallbackSigT], tanjun_abc.ListenerCallbackSigT]:
+        # <<inherited docstring from tanjun.abc.Client>>.
         def decorator(callback: tanjun_abc.ListenerCallbackSigT, /) -> tanjun_abc.ListenerCallbackSigT:
             self.add_listener(event_type, callback)
             return callback
@@ -1216,6 +1261,23 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return decorator
 
     def add_prefix(self: _ClientT, prefixes: typing.Union[collections.Iterable[str], str], /) -> _ClientT:
+        """Add a prefix used to filter message command calls.
+
+        This will be matched against the first character(s) in a message's
+        content to determine whether the message command search stage of
+        execution should be initiated.
+
+        Parameters
+        ----------
+        prefixes : typing.Union[collections.Iterable[str], str]
+            Either a single string or an iterable of strings to be used as
+            prefixes.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
+        """
         if isinstance(prefixes, str):
             self._prefixes.add(prefixes)
 
@@ -1225,13 +1287,70 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self
 
     def remove_prefix(self, prefix: str, /) -> None:
+        """Remove a message content prefix from the client.
+
+        Parameters
+        ----------
+        prefix : str
+            The prefix to remove.
+
+        Raises
+        ------
+        LookupError
+            If the prefix is not registered with the client.
+        """
         self._prefixes.remove(prefix)
 
     def set_prefix_getter(self: _ClientT, getter: typing.Optional[PrefixGetterSig], /) -> _ClientT:
+        """Set the callback used to retrieve message prefixes set for the relevant guild.
+
+        Parameters
+        ----------
+        getter : typing.Optional[PrefixGetterSig]
+            The callback which'll be  to retrieve prefixes for the guild a
+            message event is from. If `None` is passed here then the callback
+            will be unset.
+
+            This should be an async callback which one argument of type
+            `tanjun.abc.MessageContext` and returns an iterable of string prefixes.
+            Dependency injection is supported for this callback's keyword arguments.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
+        """
         self._prefix_getter = _InjectablePrefixGetter(getter) if getter else None
         return self
 
     def with_prefix_getter(self, getter: PrefixGetterSigT, /) -> PrefixGetterSigT:
+        """Set the prefix getter callback for this client through decorator call.
+
+        Examples
+        --------
+        ```py
+        client = tanjun.Client.from_rest_bot(bot)
+
+        @client.with_prefix_getter
+        async def prefix_getter(ctx: tanjun.abc.MessageContext) -> typing.Iterable[str]:
+            raise NotImplementedError
+        ```
+
+        Parameters
+        ----------
+        getter : PrefixGetterSig
+            The callback which'll be  to retrieve prefixes for the guild a
+            message event is from.
+
+            This should be an async callback which one argument of type
+            `tanjun.abc.MessageContext` and returns an iterable of string prefixes.
+            Dependency injection is supported for this callback's keyword arguments.
+
+        Returns
+        -------
+        PrefixGetterSigT
+            The registered callback.
+        """
         self.set_prefix_getter(getter)
         return getter
 
@@ -1240,6 +1359,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return itertools.chain.from_iterable(component.check_message_name(name) for component in self._components)
 
     def check_slash_name(self, name: str, /) -> collections.Iterator[tanjun_abc.BaseSlashCommand]:
+        # <<inherited docstring from tanjun.abc.Client>>.
         return itertools.chain.from_iterable(component.check_slash_name(name) for component in self._components)
 
     async def _check_prefix(self, ctx: tanjun_abc.MessageContext, /) -> typing.Optional[str]:
@@ -1267,6 +1387,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             pass
 
     async def close(self, *, deregister_listeners: bool = True) -> None:
+        """Close the client.
+
+        Raises
+        ------
+        RuntimeError
+            If the client isn't running.
+        """
         if not self._is_alive:
             raise RuntimeError("Client isn't active")
 
@@ -1299,6 +1426,17 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._is_closing = False
 
     async def open(self, *, register_listeners: bool = True) -> None:
+        """Start the client.
+
+        If `mention_prefix` was passed to `Client.__init__` or
+        `Client.from_gateway_bot` then this function may make a fetch request
+        to Discord if it cannot get the current user from the cache.
+
+        Raises
+        ------
+        RuntimeError
+            If the client is already active.
+        """
         if self._is_alive:
             raise RuntimeError("Client is already alive")
 
@@ -1350,6 +1488,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         asyncio.get_running_loop().create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED))
 
     async def fetch_rest_application_id(self) -> hikari.Snowflake:
+        """Fetch the application ID of the application this client is linked to.
+
+        Returns
+        -------
+        hikari.Snowflake
+            The application ID of the application this client is linked to.
+        """
         if self._cached_application_id:
             return self._cached_application_id
 
@@ -1363,14 +1508,67 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self._cached_application_id
 
     def set_hooks(self: _ClientT, hooks: typing.Optional[tanjun_abc.AnyHooks], /) -> _ClientT:
+        """Set the general command execution hooks for this client.
+
+        The callbacks within this hook will be added to every slash and message
+        command execution started by this client.
+
+        Parameters
+        ----------
+        hooks : typing.Optional[tanjun_abc.AnyHooks]
+            The general command execution hooks to set for this client.
+
+            Passing `None` will remove all hooks.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
+        """
         self._hooks = hooks
         return self
 
     def set_slash_hooks(self: _ClientT, hooks: typing.Optional[tanjun_abc.SlashHooks], /) -> _ClientT:
+        """Set the slash command execution hooks for this client.
+
+        The callbacks within this hook will be added to every slash command
+        execution started by this client.
+
+        Parameters
+        ----------
+        hooks : typing.Optional[tanjun_abc.SlashHooks]
+            The slash context specific command execution hooks to set for this
+            client.
+
+            Passing `None` will remove the hooks.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
+        """
         self._slash_hooks = hooks
         return self
 
     def set_message_hooks(self: _ClientT, hooks: typing.Optional[tanjun_abc.MessageHooks], /) -> _ClientT:
+        """Set the message command execution hooks for this client.
+
+        The callbacks within this hook will be added to every message command
+        execution started by this client.
+
+        Parameters
+        ----------
+        hooks : typing.Optional[tanjun_abc.MessageHooks]
+            The message context specific command execution hooks to set for this
+            client.
+
+            Passing `None` will remove all hooks.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
+        """
         self._message_hooks = hooks
         return self
 
