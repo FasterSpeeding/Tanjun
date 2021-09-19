@@ -6327,17 +6327,12 @@ a DM context (e.g. can't have any moderation permissions)</li>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">,</span>
     <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
     <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span>
-    <span class="n">suppress_exceptions</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">await</span> <span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">suppress_exceptions</span><span class="p">:</span>
-            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Client callback raised exception&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="n">exc</span><span class="p">)</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span>
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Client callback raised exception&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="n">exc</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">_InjectablePrefixGetter</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BaseInjectableCallback</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]):</span>
@@ -7152,13 +7147,50 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a generic check to this client.</span>
+
+<span class="sd">        This will be applied to both message and slash command execution.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">            The check to add. This may be either synchronous or asynchronous</span>
+<span class="sd">            and must take one positional argument of type `tanjun.abc.Context`</span>
+<span class="sd">            with dependency injection being supported for its keyword arguments.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Remove a check from the client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">            The check to remove.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
 
     <span class="k">def</span> <span class="nf">with_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a check to this client through a decorator call.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">            The check to add. This may be either synchronous or asynchronous</span>
+<span class="sd">            and must take one positional argument of type `tanjun.abc.Context`</span>
+<span class="sd">            with dependency injection being supported for its keyword arguments.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tanjun_abc.CheckSig</span>
+<span class="sd">            The added check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">check</span>
 
@@ -7204,15 +7236,25 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">suppress_exceptions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Dispatch a client callback.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name of the callback to dispatch.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        *args : typing.Any</span>
+<span class="sd">            Positional arguments to pass to the callback(s).</span>
+<span class="sd">        **kwargs : typing.Any</span>
+<span class="sd">            Keyword arguments to pass to the callback(s).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="n">calls</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">_wrap_client_callback</span><span class="p">(</span>
-                    <span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">suppress_exceptions</span>
-                <span class="p">)</span>
+                <span class="n">_wrap_client_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span>
             <span class="p">)</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">calls</span><span class="p">)</span>
@@ -7245,6 +7287,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
     <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">injected</span> <span class="o">=</span> <span class="n">_InjectableListener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
@@ -7261,6 +7304,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">registered_callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
 
@@ -7276,6 +7320,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
     <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">callback</span>
@@ -7283,6 +7328,23 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="k">return</span> <span class="n">decorator</span>
 
     <span class="k">def</span> <span class="nf">add_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">prefixes</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a prefix used to filter message command calls.</span>
+
+<span class="sd">        This will be matched against the first character(s) in a message&#39;s</span>
+<span class="sd">        content to determine whether the message command search stage of</span>
+<span class="sd">        execution should be initiated.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prefixes : typing.Union[collections.Iterable[str], str]</span>
+<span class="sd">            Either a single string or an iterable of strings to be used as</span>
+<span class="sd">            prefixes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prefixes</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">prefixes</span><span class="p">)</span>
 
@@ -7292,13 +7354,70 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Remove a message content prefix from the client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prefix : str</span>
+<span class="sd">            The prefix to remove.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        LookupError</span>
+<span class="sd">            If the prefix is not registered with the client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">set_prefix_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">PrefixGetterSig</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the callback used to retrieve message prefixes set for the relevant guild.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        getter : typing.Optional[PrefixGetterSig]</span>
+<span class="sd">            The callback which&#39;ll be  to retrieve prefixes for the guild a</span>
+<span class="sd">            message event is from. If `None` is passed here then the callback</span>
+<span class="sd">            will be unset.</span>
+
+<span class="sd">            This should be an async callback which one argument of type</span>
+<span class="sd">            `tanjun.abc.MessageContext` and returns an iterable of string prefixes.</span>
+<span class="sd">            Dependency injection is supported for this callback&#39;s keyword arguments.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span> <span class="o">=</span> <span class="n">_InjectablePrefixGetter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span> <span class="k">if</span> <span class="n">getter</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">with_prefix_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">getter</span><span class="p">:</span> <span class="n">PrefixGetterSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrefixGetterSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the prefix getter callback for this client through decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        client = tanjun.Client.from_rest_bot(bot)</span>
+
+<span class="sd">        @client.with_prefix_getter</span>
+<span class="sd">        async def prefix_getter(ctx: tanjun.abc.MessageContext) -&gt; typing.Iterable[str]:</span>
+<span class="sd">            raise NotImplementedError</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        getter : PrefixGetterSig</span>
+<span class="sd">            The callback which&#39;ll be  to retrieve prefixes for the guild a</span>
+<span class="sd">            message event is from.</span>
+
+<span class="sd">            This should be an async callback which one argument of type</span>
+<span class="sd">            `tanjun.abc.MessageContext` and returns an iterable of string prefixes.</span>
+<span class="sd">            Dependency injection is supported for this callback&#39;s keyword arguments.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PrefixGetterSigT</span>
+<span class="sd">            The registered callback.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_prefix_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">getter</span>
 
@@ -7307,6 +7426,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">check_message_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">check_slash_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">check_slash_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_check_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -7334,6 +7454,13 @@ a DM context (e.g. can't have any moderation permissions)</li>
             <span class="k">pass</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">deregister_listeners</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Close the client.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the client isn&#39;t running.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Client isn&#39;t active&quot;</span><span class="p">)</span>
 
@@ -7366,6 +7493,17 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">register_listeners</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Start the client.</span>
+
+<span class="sd">        If `mention_prefix` was passed to `Client.__init__` or</span>
+<span class="sd">        `Client.from_gateway_bot` then this function may make a fetch request</span>
+<span class="sd">        to Discord if it cannot get the current user from the cache.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the client is already active.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Client is already alive&quot;</span><span class="p">)</span>
 
@@ -7417,6 +7555,13 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTED</span><span class="p">))</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_rest_application_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Fetch the application ID of the application this client is linked to.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Snowflake</span>
+<span class="sd">            The application ID of the application this client is linked to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span>
 
@@ -7430,14 +7575,67 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span>
 
     <span class="k">def</span> <span class="nf">set_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the general command execution hooks for this client.</span>
+
+<span class="sd">        The callbacks within this hook will be added to every slash and message</span>
+<span class="sd">        command execution started by this client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        hooks : typing.Optional[tanjun_abc.AnyHooks]</span>
+<span class="sd">            The general command execution hooks to set for this client.</span>
+
+<span class="sd">            Passing `None` will remove all hooks.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_slash_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the slash command execution hooks for this client.</span>
+
+<span class="sd">        The callbacks within this hook will be added to every slash command</span>
+<span class="sd">        execution started by this client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        hooks : typing.Optional[tanjun_abc.SlashHooks]</span>
+<span class="sd">            The slash context specific command execution hooks to set for this</span>
+<span class="sd">            client.</span>
+
+<span class="sd">            Passing `None` will remove the hooks.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_message_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the message command execution hooks for this client.</span>
+
+<span class="sd">        The callbacks within this hook will be added to every message command</span>
+<span class="sd">        execution started by this client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        hooks : typing.Optional[tanjun_abc.MessageHooks]</span>
+<span class="sd">            The message context specific command execution hooks to set for this</span>
+<span class="sd">            client.</span>
+
+<span class="sd">            Passing `None` will remove all hooks.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -8513,13 +8711,50 @@ to the provided client using it's abstract methods.</li>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a generic check to this client.</span>
+
+<span class="sd">        This will be applied to both message and slash command execution.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">            The check to add. This may be either synchronous or asynchronous</span>
+<span class="sd">            and must take one positional argument of type `tanjun.abc.Context`</span>
+<span class="sd">            with dependency injection being supported for its keyword arguments.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Remove a check from the client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">            The check to remove.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
 
     <span class="k">def</span> <span class="nf">with_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a check to this client through a decorator call.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">            The check to add. This may be either synchronous or asynchronous</span>
+<span class="sd">            and must take one positional argument of type `tanjun.abc.Context`</span>
+<span class="sd">            with dependency injection being supported for its keyword arguments.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tanjun_abc.CheckSig</span>
+<span class="sd">            The added check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">check</span>
 
@@ -8565,15 +8800,25 @@ to the provided client using it's abstract methods.</li>
 
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">suppress_exceptions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Dispatch a client callback.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name of the callback to dispatch.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        *args : typing.Any</span>
+<span class="sd">            Positional arguments to pass to the callback(s).</span>
+<span class="sd">        **kwargs : typing.Any</span>
+<span class="sd">            Keyword arguments to pass to the callback(s).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="n">calls</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">_wrap_client_callback</span><span class="p">(</span>
-                    <span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">suppress_exceptions</span>
-                <span class="p">)</span>
+                <span class="n">_wrap_client_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span>
             <span class="p">)</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">calls</span><span class="p">)</span>
@@ -8606,6 +8851,7 @@ to the provided client using it's abstract methods.</li>
     <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">injected</span> <span class="o">=</span> <span class="n">_InjectableListener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
@@ -8622,6 +8868,7 @@ to the provided client using it's abstract methods.</li>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">registered_callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
 
@@ -8637,6 +8884,7 @@ to the provided client using it's abstract methods.</li>
     <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">callback</span>
@@ -8644,6 +8892,23 @@ to the provided client using it's abstract methods.</li>
         <span class="k">return</span> <span class="n">decorator</span>
 
     <span class="k">def</span> <span class="nf">add_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">prefixes</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a prefix used to filter message command calls.</span>
+
+<span class="sd">        This will be matched against the first character(s) in a message&#39;s</span>
+<span class="sd">        content to determine whether the message command search stage of</span>
+<span class="sd">        execution should be initiated.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prefixes : typing.Union[collections.Iterable[str], str]</span>
+<span class="sd">            Either a single string or an iterable of strings to be used as</span>
+<span class="sd">            prefixes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prefixes</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">prefixes</span><span class="p">)</span>
 
@@ -8653,13 +8918,70 @@ to the provided client using it's abstract methods.</li>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Remove a message content prefix from the client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prefix : str</span>
+<span class="sd">            The prefix to remove.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        LookupError</span>
+<span class="sd">            If the prefix is not registered with the client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">set_prefix_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">PrefixGetterSig</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the callback used to retrieve message prefixes set for the relevant guild.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        getter : typing.Optional[PrefixGetterSig]</span>
+<span class="sd">            The callback which&#39;ll be  to retrieve prefixes for the guild a</span>
+<span class="sd">            message event is from. If `None` is passed here then the callback</span>
+<span class="sd">            will be unset.</span>
+
+<span class="sd">            This should be an async callback which one argument of type</span>
+<span class="sd">            `tanjun.abc.MessageContext` and returns an iterable of string prefixes.</span>
+<span class="sd">            Dependency injection is supported for this callback&#39;s keyword arguments.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span> <span class="o">=</span> <span class="n">_InjectablePrefixGetter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span> <span class="k">if</span> <span class="n">getter</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">with_prefix_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">getter</span><span class="p">:</span> <span class="n">PrefixGetterSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrefixGetterSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the prefix getter callback for this client through decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        client = tanjun.Client.from_rest_bot(bot)</span>
+
+<span class="sd">        @client.with_prefix_getter</span>
+<span class="sd">        async def prefix_getter(ctx: tanjun.abc.MessageContext) -&gt; typing.Iterable[str]:</span>
+<span class="sd">            raise NotImplementedError</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        getter : PrefixGetterSig</span>
+<span class="sd">            The callback which&#39;ll be  to retrieve prefixes for the guild a</span>
+<span class="sd">            message event is from.</span>
+
+<span class="sd">            This should be an async callback which one argument of type</span>
+<span class="sd">            `tanjun.abc.MessageContext` and returns an iterable of string prefixes.</span>
+<span class="sd">            Dependency injection is supported for this callback&#39;s keyword arguments.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PrefixGetterSigT</span>
+<span class="sd">            The registered callback.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_prefix_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">getter</span>
 
@@ -8668,6 +8990,7 @@ to the provided client using it's abstract methods.</li>
         <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">check_message_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">check_slash_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">check_slash_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_check_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -8695,6 +9018,13 @@ to the provided client using it's abstract methods.</li>
             <span class="k">pass</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">deregister_listeners</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Close the client.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the client isn&#39;t running.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Client isn&#39;t active&quot;</span><span class="p">)</span>
 
@@ -8727,6 +9057,17 @@ to the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">register_listeners</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Start the client.</span>
+
+<span class="sd">        If `mention_prefix` was passed to `Client.__init__` or</span>
+<span class="sd">        `Client.from_gateway_bot` then this function may make a fetch request</span>
+<span class="sd">        to Discord if it cannot get the current user from the cache.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the client is already active.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Client is already alive&quot;</span><span class="p">)</span>
 
@@ -8778,6 +9119,13 @@ to the provided client using it's abstract methods.</li>
         <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTED</span><span class="p">))</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_rest_application_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Fetch the application ID of the application this client is linked to.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Snowflake</span>
+<span class="sd">            The application ID of the application this client is linked to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span>
 
@@ -8791,14 +9139,67 @@ to the provided client using it's abstract methods.</li>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span>
 
     <span class="k">def</span> <span class="nf">set_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the general command execution hooks for this client.</span>
+
+<span class="sd">        The callbacks within this hook will be added to every slash and message</span>
+<span class="sd">        command execution started by this client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        hooks : typing.Optional[tanjun_abc.AnyHooks]</span>
+<span class="sd">            The general command execution hooks to set for this client.</span>
+
+<span class="sd">            Passing `None` will remove all hooks.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_slash_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the slash command execution hooks for this client.</span>
+
+<span class="sd">        The callbacks within this hook will be added to every slash command</span>
+<span class="sd">        execution started by this client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        hooks : typing.Optional[tanjun_abc.SlashHooks]</span>
+<span class="sd">            The slash context specific command execution hooks to set for this</span>
+<span class="sd">            client.</span>
+
+<span class="sd">            Passing `None` will remove the hooks.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_message_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the message command execution hooks for this client.</span>
+
+<span class="sd">        The callbacks within this hook will be added to every message command</span>
+<span class="sd">        execution started by this client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        hooks : typing.Optional[tanjun_abc.MessageHooks]</span>
+<span class="sd">            The message context specific command execution hooks to set for this</span>
+<span class="sd">            client.</span>
+
+<span class="sd">            Passing `None` will remove all hooks.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -10539,13 +10940,48 @@ Object or ID of the guild to set the global commands to.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a generic check to this client.</span>
+
+<span class="sd">        This will be applied to both message and slash command execution.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">            The check to add. This may be either synchronous or asynchronous</span>
+<span class="sd">            and must take one positional argument of type `tanjun.abc.Context`</span>
+<span class="sd">            with dependency injection being supported for its keyword arguments.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Add a generic check to this client.</p>
+
+<p>This will be applied to both message and slash command execution.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>check</strong> (tanjun_abc.CheckSig):
+The check to add. This may be either synchronous or asynchronous
+and must take one positional argument of type <code><a href="tanjun/abc.html#Context">tanjun.abc.Context</a></code>
+with dependency injection being supported for its keyword arguments.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The client instance to enable chained calls.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.remove_check" class="classattr">
@@ -10559,12 +10995,28 @@ Object or ID of the guild to set the global commands to.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Remove a check from the client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">            The check to remove.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Remove a check from the client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>check</strong> (tanjun_abc.CheckSig):
+The check to remove.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.with_check" class="classattr">
@@ -10578,13 +11030,44 @@ Object or ID of the guild to set the global commands to.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a check to this client through a decorator call.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        check : tanjun_abc.CheckSig</span>
+<span class="sd">            The check to add. This may be either synchronous or asynchronous</span>
+<span class="sd">            and must take one positional argument of type `tanjun.abc.Context`</span>
+<span class="sd">            with dependency injection being supported for its keyword arguments.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tanjun_abc.CheckSig</span>
+<span class="sd">            The added check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">check</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Add a check to this client through a decorator call.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>check</strong> (tanjun_abc.CheckSig):
+The check to add. This may be either synchronous or asynchronous
+and must take one positional argument of type <code><a href="tanjun/abc.html#Context">tanjun.abc.Context</a></code>
+with dependency injection being supported for its keyword arguments.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>tanjun_abc.CheckSig</strong>: The added check.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.check" class="classattr">
@@ -10759,27 +11242,30 @@ detail around the <code>name</code> being subscribed to.</p></li>
 
         
             <span class="def">async def</span>
-            <span class="name">dispatch_client_callback</span><span class="signature">(
-    self,
-    name: str,
-    /,
-    *args: Any,
-    suppress_exceptions: bool = True,
-    **kwargs: Any
-) -&gt; None</span>:
+            <span class="name">dispatch_client_callback</span><span class="signature">(self, name: str, /, *args: Any, **kwargs: Any) -&gt; None</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">suppress_exceptions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">dispatch_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Dispatch a client callback.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name of the callback to dispatch.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        *args : typing.Any</span>
+<span class="sd">            Positional arguments to pass to the callback(s).</span>
+<span class="sd">        **kwargs : typing.Any</span>
+<span class="sd">            Keyword arguments to pass to the callback(s).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
             <span class="n">calls</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">_wrap_client_callback</span><span class="p">(</span>
-                    <span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">suppress_exceptions</span>
-                <span class="p">)</span>
+                <span class="n">_wrap_client_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span>
             <span class="p">)</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">calls</span><span class="p">)</span>
@@ -10787,7 +11273,25 @@ detail around the <code>name</code> being subscribed to.</p></li>
 
         </details>
 
-    
+            <div class="docstring"><p>Dispatch a client callback.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>name</strong> (str):
+The name of the callback to dispatch.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>*args</strong> (typing.Any):
+Positional arguments to pass to the callback(s).</li>
+<li><strong>**kwargs</strong> (typing.Any):
+Keyword arguments to pass to the callback(s).</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.get_client_callbacks" class="classattr">
@@ -10949,6 +11453,7 @@ detail around the <code>name</code> being subscribed to.</p>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_listener</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">injected</span> <span class="o">=</span> <span class="n">_InjectableListener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
@@ -11007,6 +11512,7 @@ regardless of client implementation detail.</p></li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">registered_callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
 
@@ -11053,6 +11559,7 @@ The callback to remove.</li>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_listener</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">],</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSigT</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">callback</span>
@@ -11108,6 +11615,23 @@ regardless of client implementation detail.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">prefixes</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a prefix used to filter message command calls.</span>
+
+<span class="sd">        This will be matched against the first character(s) in a message&#39;s</span>
+<span class="sd">        content to determine whether the message command search stage of</span>
+<span class="sd">        execution should be initiated.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prefixes : typing.Union[collections.Iterable[str], str]</span>
+<span class="sd">            Either a single string or an iterable of strings to be used as</span>
+<span class="sd">            prefixes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prefixes</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">prefixes</span><span class="p">)</span>
 
@@ -11119,7 +11643,27 @@ regardless of client implementation detail.</p>
 
         </details>
 
-    
+            <div class="docstring"><p>Add a prefix used to filter message command calls.</p>
+
+<p>This will be matched against the first character(s) in a message's
+content to determine whether the message command search stage of
+execution should be initiated.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>prefixes</strong> (typing.Union[collections.Iterable[str], str]):
+Either a single string or an iterable of strings to be used as
+prefixes.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The client instance to enable chained calls.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.remove_prefix" class="classattr">
@@ -11133,12 +11677,39 @@ regardless of client implementation detail.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Remove a message content prefix from the client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prefix : str</span>
+<span class="sd">            The prefix to remove.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        LookupError</span>
+<span class="sd">            If the prefix is not registered with the client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Remove a message content prefix from the client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>prefix</strong> (str):
+The prefix to remove.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>LookupError</strong>: If the prefix is not registered with the client.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.set_prefix_getter" class="classattr">
@@ -11156,13 +11727,52 @@ regardless of client implementation detail.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_prefix_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">PrefixGetterSig</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the callback used to retrieve message prefixes set for the relevant guild.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        getter : typing.Optional[PrefixGetterSig]</span>
+<span class="sd">            The callback which&#39;ll be  to retrieve prefixes for the guild a</span>
+<span class="sd">            message event is from. If `None` is passed here then the callback</span>
+<span class="sd">            will be unset.</span>
+
+<span class="sd">            This should be an async callback which one argument of type</span>
+<span class="sd">            `tanjun.abc.MessageContext` and returns an iterable of string prefixes.</span>
+<span class="sd">            Dependency injection is supported for this callback&#39;s keyword arguments.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span> <span class="o">=</span> <span class="n">_InjectablePrefixGetter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span> <span class="k">if</span> <span class="n">getter</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the callback used to retrieve message prefixes set for the relevant guild.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>getter</strong> (typing.Optional[PrefixGetterSig]):
+The callback which'll be  to retrieve prefixes for the guild a
+message event is from. If <code>None</code> is passed here then the callback
+will be unset.</p>
+
+<p>This should be an async callback which one argument of type
+<code><a href="tanjun/abc.html#MessageContext">tanjun.abc.MessageContext</a></code> and returns an iterable of string prefixes.
+Dependency injection is supported for this callback's keyword arguments.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The client instance to enable chained calls.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.with_prefix_getter" class="classattr">
@@ -11176,13 +11786,69 @@ regardless of client implementation detail.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_prefix_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">getter</span><span class="p">:</span> <span class="n">PrefixGetterSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrefixGetterSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the prefix getter callback for this client through decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        client = tanjun.Client.from_rest_bot(bot)</span>
+
+<span class="sd">        @client.with_prefix_getter</span>
+<span class="sd">        async def prefix_getter(ctx: tanjun.abc.MessageContext) -&gt; typing.Iterable[str]:</span>
+<span class="sd">            raise NotImplementedError</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        getter : PrefixGetterSig</span>
+<span class="sd">            The callback which&#39;ll be  to retrieve prefixes for the guild a</span>
+<span class="sd">            message event is from.</span>
+
+<span class="sd">            This should be an async callback which one argument of type</span>
+<span class="sd">            `tanjun.abc.MessageContext` and returns an iterable of string prefixes.</span>
+<span class="sd">            Dependency injection is supported for this callback&#39;s keyword arguments.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PrefixGetterSigT</span>
+<span class="sd">            The registered callback.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_prefix_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">getter</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the prefix getter callback for this client through decorator call.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_rest_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
+
+<span class="nd">@client</span><span class="o">.</span><span class="n">with_prefix_getter</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">prefix_getter</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>getter</strong> (PrefixGetterSig):
+The callback which'll be  to retrieve prefixes for the guild a
+message event is from.</p>
+
+<p>This should be an async callback which one argument of type
+<code><a href="tanjun/abc.html#MessageContext">tanjun.abc.MessageContext</a></code> and returns an iterable of string prefixes.
+Dependency injection is supported for this callback's keyword arguments.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>PrefixGetterSigT</strong>: The registered callback.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.check_message_name" class="classattr">
@@ -11243,6 +11909,7 @@ The name to match commands against.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">check_slash_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">check_slash_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span>
 </pre></div>
 
@@ -11280,6 +11947,13 @@ Name to check against.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">deregister_listeners</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Close the client.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the client isn&#39;t running.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Client isn&#39;t active&quot;</span><span class="p">)</span>
 
@@ -11314,7 +11988,15 @@ Name to check against.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Close the client.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>RuntimeError</strong>: If the client isn't running.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.open" class="classattr">
@@ -11328,6 +12010,17 @@ Name to check against.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">register_listeners</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Start the client.</span>
+
+<span class="sd">        If `mention_prefix` was passed to `Client.__init__` or</span>
+<span class="sd">        `Client.from_gateway_bot` then this function may make a fetch request</span>
+<span class="sd">        to Discord if it cannot get the current user from the cache.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the client is already active.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Client is already alive&quot;</span><span class="p">)</span>
 
@@ -11381,7 +12074,19 @@ Name to check against.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Start the client.</p>
+
+<p>If <code>mention_prefix</code> was passed to <code><a href="#Client.__init__">Client.__init__</a></code> or
+<code><a href="#Client.from_gateway_bot">Client.from_gateway_bot</a></code> then this function may make a fetch request
+to Discord if it cannot get the current user from the cache.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>RuntimeError</strong>: If the client is already active.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.fetch_rest_application_id" class="classattr">
@@ -11395,6 +12100,13 @@ Name to check against.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_rest_application_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Fetch the application ID of the application this client is linked to.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Snowflake</span>
+<span class="sd">            The application ID of the application this client is linked to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span>
 
@@ -11410,7 +12122,15 @@ Name to check against.</li>
 
         </details>
 
-    
+            <div class="docstring"><p>Fetch the application ID of the application this client is linked to.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Snowflake</strong>: The application ID of the application this client is linked to.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.set_hooks" class="classattr">
@@ -11428,13 +12148,50 @@ Name to check against.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the general command execution hooks for this client.</span>
+
+<span class="sd">        The callbacks within this hook will be added to every slash and message</span>
+<span class="sd">        command execution started by this client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        hooks : typing.Optional[tanjun_abc.AnyHooks]</span>
+<span class="sd">            The general command execution hooks to set for this client.</span>
+
+<span class="sd">            Passing `None` will remove all hooks.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the general command execution hooks for this client.</p>
+
+<p>The callbacks within this hook will be added to every slash and message
+command execution started by this client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>hooks</strong> (typing.Optional[tanjun_abc.AnyHooks]):
+The general command execution hooks to set for this client.</p>
+
+<p>Passing <code>None</code> will remove all hooks.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The client instance to enable chained calls.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.set_slash_hooks" class="classattr">
@@ -11452,13 +12209,52 @@ Name to check against.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_slash_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the slash command execution hooks for this client.</span>
+
+<span class="sd">        The callbacks within this hook will be added to every slash command</span>
+<span class="sd">        execution started by this client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        hooks : typing.Optional[tanjun_abc.SlashHooks]</span>
+<span class="sd">            The slash context specific command execution hooks to set for this</span>
+<span class="sd">            client.</span>
+
+<span class="sd">            Passing `None` will remove the hooks.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the slash command execution hooks for this client.</p>
+
+<p>The callbacks within this hook will be added to every slash command
+execution started by this client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>hooks</strong> (typing.Optional[tanjun_abc.SlashHooks]):
+The slash context specific command execution hooks to set for this
+client.</p>
+
+<p>Passing <code>None</code> will remove the hooks.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The client instance to enable chained calls.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.set_message_hooks" class="classattr">
@@ -11476,13 +12272,52 @@ Name to check against.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_message_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the message command execution hooks for this client.</span>
+
+<span class="sd">        The callbacks within this hook will be added to every message command</span>
+<span class="sd">        execution started by this client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        hooks : typing.Optional[tanjun_abc.MessageHooks]</span>
+<span class="sd">            The message context specific command execution hooks to set for this</span>
+<span class="sd">            client.</span>
+
+<span class="sd">            Passing `None` will remove all hooks.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the message command execution hooks for this client.</p>
+
+<p>The callbacks within this hook will be added to every message command
+execution started by this client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>hooks</strong> (typing.Optional[tanjun_abc.MessageHooks]):
+The message context specific command execution hooks to set for this
+client.</p>
+
+<p>Passing <code>None</code> will remove all hooks.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The client instance to enable chained calls.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Client.load_modules" class="classattr">
