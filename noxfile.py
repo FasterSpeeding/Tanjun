@@ -41,13 +41,8 @@ GENERAL_TARGETS = ["./examples", "./noxfile.py", "./tanjun", "./tests"]
 PYTHON_VERSIONS = ["3.9", "3.10"]  # TODO: @nox.session(python=["3.6", "3.7", "3.8"])?
 
 
-def install_requirements(
-    session: nox.Session, *other_requirements: str, include_standard_requirements: bool = True
-) -> None:
+def install_requirements(session: nox.Session, *other_requirements: str) -> None:
     session.install("--upgrade", "wheel")
-    if include_standard_requirements:
-        pass
-
     session.install("--upgrade", *other_requirements)
 
 
@@ -142,7 +137,7 @@ def lint(session: nox.Session) -> None:
 
 @nox.session(reuse_venv=True, name="spell-check")
 def spell_check(session: nox.Session) -> None:
-    install_requirements(session, ".[lint]", include_standard_requirements=False)
+    install_requirements(session, ".[lint]")  # include_standard_requirements=False
     session.run(
         "codespell",
         *GENERAL_TARGETS,
@@ -198,7 +193,7 @@ def test_publish(session: nox.Session) -> None:
 
 @nox.session(reuse_venv=True)
 def reformat(session: nox.Session) -> None:
-    install_requirements(session, ".[reformat]", include_standard_requirements=False)
+    install_requirements(session, ".[reformat]")  # include_standard_requirements=False
     session.run("black", *GENERAL_TARGETS)
     session.run("isort", *GENERAL_TARGETS)
 

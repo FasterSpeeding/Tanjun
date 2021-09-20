@@ -309,12 +309,10 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
-        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        component: hikari.UndefinedNoneOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedNoneOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
+        embed: hikari.UndefinedNoneOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
@@ -333,8 +331,8 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
             content=content,
             attachment=attachment,
             attachments=attachments,
-            # component=component,
-            # components=components,
+            component=component,
+            components=components,
             embed=embed,
             embeds=embeds,
             replace_attachments=replace_attachments,
@@ -349,12 +347,10 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
-        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        component: hikari.UndefinedNoneOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedNoneOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
+        embed: hikari.UndefinedNoneOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
@@ -373,8 +369,8 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
             content=content,
             attachment=attachment,
             attachments=attachments,
-            # component=component,
-            # components=components,
+            component=component,
+            components=components,
             embed=embed,
             embeds=embeds,
             replace_attachments=replace_attachments,
@@ -402,10 +398,8 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         ensure_result: bool = True,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -425,8 +419,8 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
                 content=content,
                 attachment=attachment,
                 attachments=attachments,
-                # component=component,
-                # components=components,
+                component=component,
+                components=components,
                 embed=embed,
                 embeds=embeds,
                 tts=tts,
@@ -794,10 +788,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -810,21 +802,14 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
     ) -> hikari.Message:
-        # TODO: remove once fixed in Hikari
-        if embed is not hikari.UNDEFINED:
-            if embeds is not hikari.UNDEFINED:
-                raise ValueError("Only one of `embed` or `embeds` may be passed")
-
-            embeds = (embed,)
-
         async with self._response_lock:
             message = await self._interaction.execute(
                 content=content,
                 attachment=attachment,
                 attachments=attachments,
-                # component=component,
-                # components=components,
-                # embed=embed,
+                component=component,
+                components=components,
+                embed=embed,
                 embeds=embeds,
                 flags=self._get_flags(flags),
                 tts=tts,
@@ -839,10 +824,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -869,8 +852,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             await self._interaction.create_initial_response(
                 response_type=hikari.ResponseType.MESSAGE_CREATE,
                 content=content,
-                # component=component,
-                # components=components,
+                component=component,
+                components=components,
                 embed=embed,
                 embeds=embeds,
                 flags=flags,
@@ -881,15 +864,15 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             )
 
         else:
-            # if component and components:
-            #     raise ValueError("Only one of component or components may be passed")
+            if component and components:
+                raise ValueError("Only one of component or components may be passed")
 
             if embed and embeds:
                 raise ValueError("Only one of embed or embeds may be passed")
 
-            # if component:
-            #     assert not isinstance(component, hikari.UndefinedType)
-            #     components = (component,)
+            if component:
+                assert not isinstance(component, hikari.UndefinedType)
+                components = (component,)
 
             if embed:
                 assert not isinstance(embed, hikari.UndefinedType)
@@ -900,8 +883,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             result = hikari.impl.InteractionMessageBuilder(
                 type=hikari.ResponseType.MESSAGE_CREATE,  # type: ignore
                 content=content,  # type: ignore
-                # components=components,  # type: ignore
-                # embeds=embeds,  # type: ignore
+                components=components,  # type: ignore
+                embeds=embeds,  # type: ignore
                 flags=flags,  # type: ignore
                 is_tts=tts,  # type: ignore
                 mentions_everyone=mentions_everyone,  # type: ignore
@@ -918,10 +901,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -937,8 +918,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         async with self._response_lock:
             await self._create_initial_response(
                 content=content,
-                # component=component,
-                # components=components,
+                component=component,
+                components=components,
                 embed=embed,
                 embeds=embeds,
                 mentions_everyone=mentions_everyone,
@@ -967,12 +948,10 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
-        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        component: hikari.UndefinedNoneOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedNoneOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
+        embed: hikari.UndefinedNoneOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
@@ -986,8 +965,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             content=content,
             attachment=attachment,
             attachments=attachments,
-            # component=component,
-            # components=components,
+            component=component,
+            components=components,
             embed=embed,
             embeds=embeds,
             replace_attachments=replace_attachments,
@@ -1004,12 +983,10 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
-        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        component: hikari.UndefinedNoneOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedNoneOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
+        embed: hikari.UndefinedNoneOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
@@ -1025,8 +1002,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
                 content=content,
                 attachment=attachment,
                 attachments=attachments,
-                # component=component,
-                # components=components,
+                component=component,
+                components=components,
                 embed=embed,
                 embeds=embeds,
                 replace_attachments=replace_attachments,
@@ -1040,8 +1017,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
                 content=content,
                 attachment=attachment,
                 attachments=attachments,
-                # component=component,
-                # components=components,
+                component=component,
+                components=components,
                 embed=embed,
                 embeds=embeds,
                 replace_attachments=replace_attachments,
@@ -1070,10 +1047,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[False] = False,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -1092,10 +1067,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[True],
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -1113,10 +1086,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = False,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -1129,17 +1100,11 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
     ) -> typing.Optional[hikari.Message]:
         async with self._response_lock:
             if self._has_responded:
-                # TODO: remove once fixed in Hikari
-                if embed is not hikari.UNDEFINED:
-                    if embeds is not hikari.UNDEFINED:
-                        raise ValueError("Only one of `embed` or `embeds` may be passed")
-
-                    embeds = (embed,)
-
                 message = await self._interaction.execute(
                     content,
-                    # component=component,
-                    # components=components,
+                    component=component,
+                    components=components,
+                    embed=embed,
                     embeds=embeds,
                     mentions_everyone=mentions_everyone,
                     user_mentions=user_mentions,
@@ -1152,8 +1117,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             if self._has_been_deferred:
                 return await self.edit_initial_response(
                     content=content,
-                    # component=component,
-                    # components=components,
+                    component=component,
+                    components=components,
                     embed=embed,
                     embeds=embeds,
                     mentions_everyone=mentions_everyone,
@@ -1163,8 +1128,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
 
             await self._create_initial_response(
                 content=content,
-                # component=component,
-                # components=components,
+                component=component,
+                components=components,
                 embed=embed,
                 embeds=embeds,
                 mentions_everyone=mentions_everyone,

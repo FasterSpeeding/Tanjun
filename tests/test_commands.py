@@ -667,19 +667,19 @@ class TestSlashCommandGroup:
             .add_option(
                 hikari.CommandOption(
                     type=hikari.OptionType.SUB_COMMAND,
-                    name=mock_command.name,
-                    description=mock_command.build.return_value.description,
-                    is_required=False,
-                    options=mock_command.build.return_value.options,
+                    name=mock_command.name,  # type: ignore
+                    description=mock_command.build.return_value.description,  # type: ignore
+                    is_required=False,  # type: ignore
+                    options=mock_command.build.return_value.options,  # type: ignore
                 )
             )
             .add_option(
                 hikari.CommandOption(
                     type=hikari.OptionType.SUB_COMMAND_GROUP,
-                    name=mock_command_group.name,
-                    description=mock_command_group.build.return_value.description,
-                    is_required=False,
-                    options=mock_command_group.build.return_value.options,
+                    name=mock_command_group.name,  # type: ignore
+                    description=mock_command_group.build.return_value.description,  # type: ignore
+                    is_required=False,  # type: ignore
+                    options=mock_command_group.build.return_value.options,  # type: ignore
                 )
             )
         )

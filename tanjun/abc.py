@@ -459,12 +459,10 @@ class Context(abc.ABC):
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
-        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        component: hikari.UndefinedNoneOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedNoneOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
+        embed: hikari.UndefinedNoneOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
@@ -500,6 +498,15 @@ class Context(abc.ABC):
             A singular attachment to edit the response with.
         attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]
             A sequence of attachments to edit the response with.
+        component : hikari.undefined.UndefinedNoneOr[hikari.api.special_endpoints.ComponentBuilder]
+            If provided, builder object of the component to set for this message.
+            This component will replace any previously set components and passing
+            `builtins.None` will remove all components.
+        components : hikari.undefined.UndefinedNoneOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]
+            If provided, a sequence of the component builder objects set for
+            this message. These components will replace any previously set
+            components and passing `builtins.None` or an empty sequence will
+            remove all components.
         embed : hikari.UndefinedOr[hikari.Embed]
             An embed to replace the response with.
         embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
@@ -598,12 +605,10 @@ class Context(abc.ABC):
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
-        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        component: hikari.UndefinedNoneOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedNoneOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
+        embed: hikari.UndefinedNoneOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.UndefinedOr[
@@ -639,6 +644,15 @@ class Context(abc.ABC):
             A singular attachment to edit the response with.
         attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]
             A sequence of attachments to edit the response with.
+        component : hikari.undefined.UndefinedNoneOr[hikari.api.special_endpoints.ComponentBuilder]
+            If provided, builder object of the component to set for this message.
+            This component will replace any previously set components and passing
+            `builtins.None` will remove all components.
+        components : hikari.undefined.UndefinedNoneOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]
+            If provided, a sequence of the component builder objects set for
+            this message. These components will replace any previously set
+            components and passing `builtins.None` or an empty sequence will
+            remove all components.
         embed : hikari.UndefinedOr[hikari.Embed]
             An embed to replace the response with.
         embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
@@ -757,10 +771,8 @@ class Context(abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[False] = False,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -780,10 +792,8 @@ class Context(abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[True],
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -802,10 +812,8 @@ class Context(abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = False,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -840,6 +848,11 @@ class Context(abc.ABC):
         ----------------
         ensure_result : bool
             If provided and set to `True`, It may perform an extra API call
+        component : hikari.undefined.UndefinedOr[hikari.api.special_endpoints.ComponentBuilder]
+            If provided, builder object of the component to include in this message.
+        components : hikari.undefined.UndefinedOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]
+            If provided, a sequence of the component builder objects to include
+            in this message.
         embed : hikari.UndefinedOr[hikari.Embed]
             An embed to respond with.
         embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
@@ -998,10 +1011,8 @@ class MessageContext(Context, abc.ABC):
         ensure_result: bool = True,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -1050,6 +1061,11 @@ class MessageContext(Context, abc.ABC):
             A singular attachment to respond with.
         attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]
             A sequence of attachments to respond with.
+        component : hikari.undefined.UndefinedOr[hikari.api.special_endpoints.ComponentBuilder]
+            If provided, builder object of the component to include in this message.
+        components : hikari.undefined.UndefinedOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]
+            If provided, a sequence of the component builder objects to include
+            in this message.
         embed : hikari.UndefinedOr[hikari.Embed]
             An embed to respond with.
         embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
@@ -1443,10 +1459,8 @@ class SlashContext(Context, abc.ABC):
         *,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -1466,10 +1480,8 @@ class SlashContext(Context, abc.ABC):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -1491,10 +1503,8 @@ class SlashContext(Context, abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[False] = False,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -1514,10 +1524,8 @@ class SlashContext(Context, abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[True],
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -1536,10 +1544,8 @@ class SlashContext(Context, abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = False,
-        # component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        # components: hikari.UndefinedOr[
-        #     collections.Sequence[hikari.api.ComponentBuilder]
-        # ] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
