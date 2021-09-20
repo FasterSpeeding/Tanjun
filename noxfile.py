@@ -39,15 +39,11 @@ import nox
 nox.options.sessions = ["reformat", "lint", "spell-check", "type-check", "test"]  # type: ignore
 GENERAL_TARGETS = ["./examples", "./noxfile.py", "./tanjun", "./tests"]
 PYTHON_VERSIONS = ["3.9", "3.10"]  # TODO: @nox.session(python=["3.6", "3.7", "3.8"])?
-REQUIREMENTS = [
-    # Temporarily assume hikari's master for this
-    "git+https://github.com/hikari-py/hikari.git",
-]
 
 
 def install_requirements(session: nox.Session, *other_requirements: str) -> None:
     session.install("--upgrade", "wheel")
-    session.install("--upgrade", *REQUIREMENTS, *other_requirements)
+    session.install("--upgrade", *other_requirements)
 
 
 def _try_find_option(session: nox.Session, name: str, *other_names: str, when_empty: str | None = None) -> str | None:
