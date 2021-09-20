@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Component arguments to the relevante context create message methods.
+
+### Changed
+- Bumped minimum Hikari version to 2.0.0.dev102.
+
 ### Removed
 - suppress_exceptions from Client.dispatch_client_callback cause it was half-arsed and didn't make sense.
 
