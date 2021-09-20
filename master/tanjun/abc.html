@@ -1058,12 +1058,10 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">attachment</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">attachments</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
-        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">replace_attachments</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
@@ -1099,6 +1097,15 @@
 <span class="sd">            A singular attachment to edit the response with.</span>
 <span class="sd">        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]</span>
 <span class="sd">            A sequence of attachments to edit the response with.</span>
+<span class="sd">        component : hikari.undefined.UndefinedNoneOr[hikari.api.special_endpoints.ComponentBuilder]</span>
+<span class="sd">            If provided, builder object of the component to set for this message.</span>
+<span class="sd">            This component will replace any previously set components and passing</span>
+<span class="sd">            `builtins.None` will remove all components.</span>
+<span class="sd">        components : hikari.undefined.UndefinedNoneOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]</span>
+<span class="sd">            If provided, a sequence of the component builder objects set for</span>
+<span class="sd">            this message. These components will replace any previously set</span>
+<span class="sd">            components and passing `builtins.None` or an empty sequence will</span>
+<span class="sd">            remove all components.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            An embed to replace the response with.</span>
 <span class="sd">        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]</span>
@@ -1197,12 +1204,10 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">attachment</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">attachments</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
-        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">replace_attachments</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
@@ -1238,6 +1243,15 @@
 <span class="sd">            A singular attachment to edit the response with.</span>
 <span class="sd">        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]</span>
 <span class="sd">            A sequence of attachments to edit the response with.</span>
+<span class="sd">        component : hikari.undefined.UndefinedNoneOr[hikari.api.special_endpoints.ComponentBuilder]</span>
+<span class="sd">            If provided, builder object of the component to set for this message.</span>
+<span class="sd">            This component will replace any previously set components and passing</span>
+<span class="sd">            `builtins.None` will remove all components.</span>
+<span class="sd">        components : hikari.undefined.UndefinedNoneOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]</span>
+<span class="sd">            If provided, a sequence of the component builder objects set for</span>
+<span class="sd">            this message. These components will replace any previously set</span>
+<span class="sd">            components and passing `builtins.None` or an empty sequence will</span>
+<span class="sd">            remove all components.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            An embed to replace the response with.</span>
 <span class="sd">        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]</span>
@@ -1356,10 +1370,8 @@
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">ensure_result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -1379,10 +1391,8 @@
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">ensure_result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">],</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -1401,10 +1411,8 @@
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">ensure_result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -1439,6 +1447,11 @@
 <span class="sd">        ----------------</span>
 <span class="sd">        ensure_result : bool</span>
 <span class="sd">            If provided and set to `True`, It may perform an extra API call</span>
+<span class="sd">        component : hikari.undefined.UndefinedOr[hikari.api.special_endpoints.ComponentBuilder]</span>
+<span class="sd">            If provided, builder object of the component to include in this message.</span>
+<span class="sd">        components : hikari.undefined.UndefinedOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]</span>
+<span class="sd">            If provided, a sequence of the component builder objects to include</span>
+<span class="sd">            in this message.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            An embed to respond with.</span>
 <span class="sd">        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]</span>
@@ -1597,10 +1610,8 @@
         <span class="n">ensure_result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">attachment</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">attachments</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -1649,6 +1660,11 @@
 <span class="sd">            A singular attachment to respond with.</span>
 <span class="sd">        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]</span>
 <span class="sd">            A sequence of attachments to respond with.</span>
+<span class="sd">        component : hikari.undefined.UndefinedOr[hikari.api.special_endpoints.ComponentBuilder]</span>
+<span class="sd">            If provided, builder object of the component to include in this message.</span>
+<span class="sd">        components : hikari.undefined.UndefinedOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]</span>
+<span class="sd">            If provided, a sequence of the component builder objects to include</span>
+<span class="sd">            in this message.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            An embed to respond with.</span>
 <span class="sd">        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]</span>
@@ -2042,10 +2058,8 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">attachment</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">attachments</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -2065,10 +2079,8 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -2090,10 +2102,8 @@
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">ensure_result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -2113,10 +2123,8 @@
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">ensure_result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">],</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -2135,10 +2143,8 @@
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">ensure_result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -3745,12 +3751,10 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">attachment</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">attachments</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
-        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">replace_attachments</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
@@ -3786,6 +3790,15 @@
 <span class="sd">            A singular attachment to edit the response with.</span>
 <span class="sd">        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]</span>
 <span class="sd">            A sequence of attachments to edit the response with.</span>
+<span class="sd">        component : hikari.undefined.UndefinedNoneOr[hikari.api.special_endpoints.ComponentBuilder]</span>
+<span class="sd">            If provided, builder object of the component to set for this message.</span>
+<span class="sd">            This component will replace any previously set components and passing</span>
+<span class="sd">            `builtins.None` will remove all components.</span>
+<span class="sd">        components : hikari.undefined.UndefinedNoneOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]</span>
+<span class="sd">            If provided, a sequence of the component builder objects set for</span>
+<span class="sd">            this message. These components will replace any previously set</span>
+<span class="sd">            components and passing `builtins.None` or an empty sequence will</span>
+<span class="sd">            remove all components.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            An embed to replace the response with.</span>
 <span class="sd">        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]</span>
@@ -3884,12 +3897,10 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">attachment</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">attachments</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
-        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">replace_attachments</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
@@ -3925,6 +3936,15 @@
 <span class="sd">            A singular attachment to edit the response with.</span>
 <span class="sd">        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]</span>
 <span class="sd">            A sequence of attachments to edit the response with.</span>
+<span class="sd">        component : hikari.undefined.UndefinedNoneOr[hikari.api.special_endpoints.ComponentBuilder]</span>
+<span class="sd">            If provided, builder object of the component to set for this message.</span>
+<span class="sd">            This component will replace any previously set components and passing</span>
+<span class="sd">            `builtins.None` will remove all components.</span>
+<span class="sd">        components : hikari.undefined.UndefinedNoneOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]</span>
+<span class="sd">            If provided, a sequence of the component builder objects set for</span>
+<span class="sd">            this message. These components will replace any previously set</span>
+<span class="sd">            components and passing `builtins.None` or an empty sequence will</span>
+<span class="sd">            remove all components.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            An embed to replace the response with.</span>
 <span class="sd">        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]</span>
@@ -4043,10 +4063,8 @@
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">ensure_result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -4066,10 +4084,8 @@
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">ensure_result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">],</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -4088,10 +4104,8 @@
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">ensure_result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -4126,6 +4140,11 @@
 <span class="sd">        ----------------</span>
 <span class="sd">        ensure_result : bool</span>
 <span class="sd">            If provided and set to `True`, It may perform an extra API call</span>
+<span class="sd">        component : hikari.undefined.UndefinedOr[hikari.api.special_endpoints.ComponentBuilder]</span>
+<span class="sd">            If provided, builder object of the component to include in this message.</span>
+<span class="sd">        components : hikari.undefined.UndefinedOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]</span>
+<span class="sd">            If provided, a sequence of the component builder objects to include</span>
+<span class="sd">            in this message.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            An embed to respond with.</span>
 <span class="sd">        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]</span>
@@ -4848,8 +4867,10 @@ This method requires <code>hikari.config.CacheComponents.GUILDS</code> cache com
     *,
     attachment: &#39;hikari.UndefinedOr[hikari.Resourceish]&#39; = UNDEFINED,
     attachments: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]&#39; = UNDEFINED,
-    embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType] = UNDEFINED,
-    embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
+    component: Union[hikari.api.special_endpoints.ComponentBuilder, hikari.undefined.UndefinedType, NoneType] = UNDEFINED,
+    components: Union[collections.abc.Sequence[hikari.api.special_endpoints.ComponentBuilder], hikari.undefined.UndefinedType, NoneType] = UNDEFINED,
+    embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType, NoneType] = UNDEFINED,
+    embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType, NoneType] = UNDEFINED,
     replace_attachments: bool = False,
     mentions_everyone: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     user_mentions: Union[Sequence[Union[hikari.users.PartialUser, hikari.snowflakes.Snowflake, int]], bool, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -4866,12 +4887,10 @@ This method requires <code>hikari.config.CacheComponents.GUILDS</code> cache com
         <span class="o">*</span><span class="p">,</span>
         <span class="n">attachment</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">attachments</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
-        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">replace_attachments</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
@@ -4907,6 +4926,15 @@ This method requires <code>hikari.config.CacheComponents.GUILDS</code> cache com
 <span class="sd">            A singular attachment to edit the response with.</span>
 <span class="sd">        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]</span>
 <span class="sd">            A sequence of attachments to edit the response with.</span>
+<span class="sd">        component : hikari.undefined.UndefinedNoneOr[hikari.api.special_endpoints.ComponentBuilder]</span>
+<span class="sd">            If provided, builder object of the component to set for this message.</span>
+<span class="sd">            This component will replace any previously set components and passing</span>
+<span class="sd">            `builtins.None` will remove all components.</span>
+<span class="sd">        components : hikari.undefined.UndefinedNoneOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]</span>
+<span class="sd">            If provided, a sequence of the component builder objects set for</span>
+<span class="sd">            this message. These components will replace any previously set</span>
+<span class="sd">            components and passing `builtins.None` or an empty sequence will</span>
+<span class="sd">            remove all components.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            An embed to replace the response with.</span>
 <span class="sd">        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]</span>
@@ -5030,6 +5058,15 @@ no <code>attachments</code> kwargs are provided.</p></li>
 A singular attachment to edit the response with.</li>
 <li><strong>attachments</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]):
 A sequence of attachments to edit the response with.</li>
+<li><strong>component</strong> (hikari.undefined.UndefinedNoneOr[hikari.api.special_endpoints.ComponentBuilder]):
+If provided, builder object of the component to set for this message.
+This component will replace any previously set components and passing
+<code>builtins.None</code> will remove all components.</li>
+<li><strong>components</strong> (hikari.undefined.UndefinedNoneOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]):
+If provided, a sequence of the component builder objects set for
+this message. These components will replace any previously set
+components and passing <code>builtins.None</code> or an empty sequence will
+remove all components.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 An embed to replace the response with.</li>
 <li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
@@ -5133,8 +5170,10 @@ nature, and will trigger this exception if they occur.</li>
     *,
     attachment: &#39;hikari.UndefinedOr[hikari.Resourceish]&#39; = UNDEFINED,
     attachments: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]&#39; = UNDEFINED,
-    embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType] = UNDEFINED,
-    embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
+    component: Union[hikari.api.special_endpoints.ComponentBuilder, hikari.undefined.UndefinedType, NoneType] = UNDEFINED,
+    components: Union[collections.abc.Sequence[hikari.api.special_endpoints.ComponentBuilder], hikari.undefined.UndefinedType, NoneType] = UNDEFINED,
+    embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType, NoneType] = UNDEFINED,
+    embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType, NoneType] = UNDEFINED,
     replace_attachments: bool = False,
     mentions_everyone: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
     user_mentions: Union[Sequence[Union[hikari.users.PartialUser, hikari.snowflakes.Snowflake, int]], bool, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -5151,12 +5190,10 @@ nature, and will trigger this exception if they occur.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">attachment</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">attachments</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
-        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedNoneOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">replace_attachments</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
@@ -5192,6 +5229,15 @@ nature, and will trigger this exception if they occur.</li>
 <span class="sd">            A singular attachment to edit the response with.</span>
 <span class="sd">        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]</span>
 <span class="sd">            A sequence of attachments to edit the response with.</span>
+<span class="sd">        component : hikari.undefined.UndefinedNoneOr[hikari.api.special_endpoints.ComponentBuilder]</span>
+<span class="sd">            If provided, builder object of the component to set for this message.</span>
+<span class="sd">            This component will replace any previously set components and passing</span>
+<span class="sd">            `builtins.None` will remove all components.</span>
+<span class="sd">        components : hikari.undefined.UndefinedNoneOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]</span>
+<span class="sd">            If provided, a sequence of the component builder objects set for</span>
+<span class="sd">            this message. These components will replace any previously set</span>
+<span class="sd">            components and passing `builtins.None` or an empty sequence will</span>
+<span class="sd">            remove all components.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            An embed to replace the response with.</span>
 <span class="sd">        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]</span>
@@ -5315,6 +5361,15 @@ no <code>attachments</code> kwargs are provided.</p></li>
 A singular attachment to edit the response with.</li>
 <li><strong>attachments</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]):
 A sequence of attachments to edit the response with.</li>
+<li><strong>component</strong> (hikari.undefined.UndefinedNoneOr[hikari.api.special_endpoints.ComponentBuilder]):
+If provided, builder object of the component to set for this message.
+This component will replace any previously set components and passing
+<code>builtins.None</code> will remove all components.</li>
+<li><strong>components</strong> (hikari.undefined.UndefinedNoneOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]):
+If provided, a sequence of the component builder objects set for
+this message. These components will replace any previously set
+components and passing <code>builtins.None</code> or an empty sequence will
+remove all components.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 An embed to replace the response with.</li>
 <li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
@@ -5487,6 +5542,8 @@ nature, and will trigger this exception if they occur.</li>
     content: Union[Any, hikari.undefined.UndefinedType] = UNDEFINED,
     *,
     ensure_result: bool = False,
+    component: Union[hikari.api.special_endpoints.ComponentBuilder, hikari.undefined.UndefinedType] = UNDEFINED,
+    components: Union[collections.abc.Sequence[hikari.api.special_endpoints.ComponentBuilder], hikari.undefined.UndefinedType] = UNDEFINED,
     embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType] = UNDEFINED,
     embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
     mentions_everyone: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -5503,10 +5560,8 @@ nature, and will trigger this exception if they occur.</li>
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">ensure_result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -5541,6 +5596,11 @@ nature, and will trigger this exception if they occur.</li>
 <span class="sd">        ----------------</span>
 <span class="sd">        ensure_result : bool</span>
 <span class="sd">            If provided and set to `True`, It may perform an extra API call</span>
+<span class="sd">        component : hikari.undefined.UndefinedOr[hikari.api.special_endpoints.ComponentBuilder]</span>
+<span class="sd">            If provided, builder object of the component to include in this message.</span>
+<span class="sd">        components : hikari.undefined.UndefinedOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]</span>
+<span class="sd">            If provided, a sequence of the component builder objects to include</span>
+<span class="sd">            in this message.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            An embed to respond with.</span>
 <span class="sd">        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]</span>
@@ -5633,6 +5693,11 @@ no <code>attachments</code> kwargs are provided.</p></li>
 <ul>
 <li><strong>ensure_result</strong> (bool):
 If provided and set to <code>True</code>, It may perform an extra API call</li>
+<li><strong>component</strong> (hikari.undefined.UndefinedOr[hikari.api.special_endpoints.ComponentBuilder]):
+If provided, builder object of the component to include in this message.</li>
+<li><strong>components</strong> (hikari.undefined.UndefinedOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]):
+If provided, a sequence of the component builder objects to include
+in this message.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 An embed to respond with.</li>
 <li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
@@ -7107,10 +7172,8 @@ The command to add.</li>
         <span class="n">ensure_result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">attachment</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">attachments</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -7159,6 +7222,11 @@ The command to add.</li>
 <span class="sd">            A singular attachment to respond with.</span>
 <span class="sd">        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]</span>
 <span class="sd">            A sequence of attachments to respond with.</span>
+<span class="sd">        component : hikari.undefined.UndefinedOr[hikari.api.special_endpoints.ComponentBuilder]</span>
+<span class="sd">            If provided, builder object of the component to include in this message.</span>
+<span class="sd">        components : hikari.undefined.UndefinedOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]</span>
+<span class="sd">            If provided, a sequence of the component builder objects to include</span>
+<span class="sd">            in this message.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            An embed to respond with.</span>
 <span class="sd">        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]</span>
@@ -7439,6 +7507,8 @@ Otherwise, returns <code>None</code>.</li>
     ensure_result: bool = True,
     attachment: &#39;hikari.UndefinedOr[hikari.Resourceish]&#39; = UNDEFINED,
     attachments: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]&#39; = UNDEFINED,
+    component: Union[hikari.api.special_endpoints.ComponentBuilder, hikari.undefined.UndefinedType] = UNDEFINED,
+    components: Union[collections.abc.Sequence[hikari.api.special_endpoints.ComponentBuilder], hikari.undefined.UndefinedType] = UNDEFINED,
     embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType] = UNDEFINED,
     embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
     tts: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -7461,10 +7531,8 @@ Otherwise, returns <code>None</code>.</li>
         <span class="n">ensure_result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">attachment</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">attachments</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">tts</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -7513,6 +7581,11 @@ Otherwise, returns <code>None</code>.</li>
 <span class="sd">            A singular attachment to respond with.</span>
 <span class="sd">        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]</span>
 <span class="sd">            A sequence of attachments to respond with.</span>
+<span class="sd">        component : hikari.undefined.UndefinedOr[hikari.api.special_endpoints.ComponentBuilder]</span>
+<span class="sd">            If provided, builder object of the component to include in this message.</span>
+<span class="sd">        components : hikari.undefined.UndefinedOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]</span>
+<span class="sd">            If provided, a sequence of the component builder objects to include</span>
+<span class="sd">            in this message.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            An embed to respond with.</span>
 <span class="sd">        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]</span>
@@ -7642,6 +7715,11 @@ The nonce that validates that the message was sent.</li>
 A singular attachment to respond with.</li>
 <li><strong>attachments</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]):
 A sequence of attachments to respond with.</li>
+<li><strong>component</strong> (hikari.undefined.UndefinedOr[hikari.api.special_endpoints.ComponentBuilder]):
+If provided, builder object of the component to include in this message.</li>
+<li><strong>components</strong> (hikari.undefined.UndefinedOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]):
+If provided, a sequence of the component builder objects to include
+in this message.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 An embed to respond with.</li>
 <li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
@@ -8648,10 +8726,8 @@ The command to add.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">attachment</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">attachments</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -8671,10 +8747,8 @@ The command to add.</li>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -8696,10 +8770,8 @@ The command to add.</li>
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">ensure_result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -8719,10 +8791,8 @@ The command to add.</li>
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">ensure_result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">],</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -8741,10 +8811,8 @@ The command to add.</li>
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">ensure_result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -9042,6 +9110,8 @@ response message being sent.</p>
     *,
     attachment: &#39;hikari.UndefinedOr[hikari.Resourceish]&#39; = UNDEFINED,
     attachments: &#39;hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]&#39; = UNDEFINED,
+    component: Union[hikari.api.special_endpoints.ComponentBuilder, hikari.undefined.UndefinedType] = UNDEFINED,
+    components: Union[collections.abc.Sequence[hikari.api.special_endpoints.ComponentBuilder], hikari.undefined.UndefinedType] = UNDEFINED,
     embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType] = UNDEFINED,
     embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
     mentions_everyone: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -9061,10 +9131,8 @@ response message being sent.</p>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">attachment</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">attachments</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Resourceish</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -9095,6 +9163,8 @@ response message being sent.</p>
     self,
     content: Union[Any, hikari.undefined.UndefinedType] = UNDEFINED,
     *,
+    component: Union[hikari.api.special_endpoints.ComponentBuilder, hikari.undefined.UndefinedType] = UNDEFINED,
+    components: Union[collections.abc.Sequence[hikari.api.special_endpoints.ComponentBuilder], hikari.undefined.UndefinedType] = UNDEFINED,
     embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType] = UNDEFINED,
     embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
     mentions_everyone: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -9112,10 +9182,8 @@ response message being sent.</p>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -9147,6 +9215,8 @@ response message being sent.</p>
     content: Union[Any, hikari.undefined.UndefinedType] = UNDEFINED,
     *,
     ensure_result: bool = False,
+    component: Union[hikari.api.special_endpoints.ComponentBuilder, hikari.undefined.UndefinedType] = UNDEFINED,
+    components: Union[collections.abc.Sequence[hikari.api.special_endpoints.ComponentBuilder], hikari.undefined.UndefinedType] = UNDEFINED,
     embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType] = UNDEFINED,
     embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
     mentions_everyone: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
@@ -9163,10 +9233,8 @@ response message being sent.</p>
         <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">ensure_result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="c1"># component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,</span>
-        <span class="c1"># components: hikari.UndefinedOr[</span>
-        <span class="c1">#     collections.Sequence[hikari.api.ComponentBuilder]</span>
-        <span class="c1"># ] = hikari.UNDEFINED,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
@@ -9209,6 +9277,11 @@ no <code>attachments</code> kwargs are provided.</p></li>
 <ul>
 <li><strong>ensure_result</strong> (bool):
 If provided and set to <code>True</code>, It may perform an extra API call</li>
+<li><strong>component</strong> (hikari.undefined.UndefinedOr[hikari.api.special_endpoints.ComponentBuilder]):
+If provided, builder object of the component to include in this message.</li>
+<li><strong>components</strong> (hikari.undefined.UndefinedOr[typing.Sequence[hikari.api.special_endpoints.ComponentBuilder]]):
+If provided, a sequence of the component builder objects to include
+in this message.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 An embed to respond with.</li>
 <li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
