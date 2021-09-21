@@ -244,7 +244,7 @@ def check_dependencies(session: nox.Session) -> None:
         with file:
             file.write(code)
 
-        session.run("python", file.name, "--ignore", "hikari", "hikari-yuyo")
+        session.run("python", file.name, "--ignore", "pdoc")
 
     finally:
         pathlib.Path(file.name).unlink(missing_ok=False)
