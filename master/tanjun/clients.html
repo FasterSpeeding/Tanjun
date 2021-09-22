@@ -4133,7 +4133,7 @@ when set on a specific guild.</p></li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Optional[hikari.api.cache.Cache]</strong>: Hikari cache instance this command client was initialised
+<li><strong>typing.Optional[hikari.api.Cache]</strong>: Hikari cache instance this command client was initialised
 with if provided, else <code>None</code>.</li>
 </ul>
 </div>
@@ -4190,7 +4190,7 @@ this client.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Optional[hikari.event_manager.EventManager]</strong>: The Hikari event manager this client was initialised with
+<li><strong>typing.Optional[hikari.api.EventManager]</strong>: The Hikari event manager this client was initialised with
 if provided, else <code>None</code>.</li>
 </ul>
 </div>
@@ -4353,7 +4353,7 @@ else <code>None</code>.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>hikari.api.rest.RESTClient</strong>: The Hikari REST client this client was initialised with.</li>
+<li><strong>hikari.api.RESTClient</strong>: The Hikari REST client this client was initialised with.</li>
 </ul>
 </div>
 
@@ -4372,7 +4372,7 @@ else <code>None</code>.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Optional[hikari.api.interaction_server.InteractionServer]</strong>: The Hikari interaction server this client was initialised
+<li><strong>typing.Optional[hikari.api.InteractionServer]</strong>: The Hikari interaction server this client was initialised
 with if provided, else <code>None</code>.</li>
 </ul>
 </div>
@@ -5744,7 +5744,7 @@ The event type to add a listener for.</li>
 The callback to register as a listener.</p>
 
 <p>This callback must be a coroutine function which returns <code>None</code> and
-always takes at least one positional arg of type <code>hikari.events.Event</code>
+always takes at least one positional arg of type <code>hikari.Event</code>
 regardless of client implementation detail.</p></li>
 </ul>
 
@@ -5855,7 +5855,7 @@ The event type to listener for.</li>
 </ul>
 
 <p>The callback must be a coroutine function which returns <code>None</code> and
-always takes at least one positional arg of type <code>hikari.events.Event</code>
+always takes at least one positional arg of type <code>hikari.Event</code>
 regardless of client implementation detail.</p>
 </div>
 
