@@ -62,6 +62,7 @@ from . import abc as tanjun_abc
 from . import checks
 from . import context
 from . import errors
+from . import hooks
 from . import injecting
 from . import utilities
 
@@ -294,6 +295,14 @@ class _InjectableListener(injecting.BaseInjectableCallback[None]):
         await self.descriptor.resolve(ctx, event)
 
 
+async def on_parser_error(ctx: tanjun_abc.MessageContext, error: errors.ParserError) -> None:
+    """Handle message parser errors.
+
+    This is the default message parser error hook included by `Client`.
+    """
+    await ctx.respond(error.message)
+
+
 class Client(injecting.InjectorClient, tanjun_abc.Client):
     """Tanjun's standard `tanjun.abc.Client` implementation.
 
@@ -306,13 +315,15 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     * For a quicker way to initiate this client around a standard bot aware
       client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.
     * The endpoint used by `set_global_commands` has a strict ratelimit which,
-      as of writing, only allows for 2 request per minute (with that ratelimit
+      as of writing, only allows for 2 requests per minute (with that ratelimit
       either being per-guild if targeting a specific guild otherwise globally).
     * `event_manager` is necessary for message command dispatch and will also
       be necessary for interaction command dispatch if `server` isn't
       provided.
     * `server` is used for interaction command dispatch if interaction
       events aren't being received from the event manager.
+    * By default this client includes a parser error handling hook which will
+      by overwritten if you call `Client.set_message_hooks`.
 
     Parameters
     ----------
@@ -421,7 +432,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._is_alive = False
         self._is_closing = False
         self._listeners: dict[type[hikari.Event], list[_InjectableListener]] = {}
-        self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
+        self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = hooks.MessageHooks().set_on_parser_error(
+            on_parser_error
+        )
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._prefix_getter: typing.Optional[_InjectablePrefixGetter] = None
         self._prefixes: set[str] = set()
@@ -490,7 +503,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         * This sets type dependency injectors for the hikari traits present in
           `bot` (including `hikari.traits.GatewayBotaWARE`).
         * The endpoint used by `set_global_commands` has a strict ratelimit
-          which, as of writing, only allows for 2 request per minute (with that
+          which, as of writing, only allows for 2 requests per minute (with that
           ratelimit either being per-guild if targeting a specific guild
           otherwise globally).
 
@@ -554,7 +567,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         * This sets type dependency injectors for the hikari traits present in
           `bot` (including `hikari.traits.RESTBotAware`).
         * The endpoint used by `set_global_commands` has a strict ratelimit
-          which, as of writing, only allows for 2 request per minute (with that
+          which, as of writing, only allows for 2 requests per minute (with that
           ratelimit either being per-guild if targeting a specific guild
           otherwise globally).
 
@@ -815,7 +828,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         .. note::
             The endpoint this uses has a strict ratelimit which, as of writing,
-            only allows for 2 request per minute (with that ratelimit either
+            only allows for 2 requests per minute (with that ratelimit either
             being per-guild if targeting a specific guild otherwise globally).
 
         Parameters
@@ -1014,7 +1027,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         .. note::
             The endpoint this uses has a strict ratelimit which, as of writing,
-            only allows for 2 request per minute (with that ratelimit either
+            only allows for 2 requests per minute (with that ratelimit either
             being per-guild if targeting a specific guild otherwise globally).
 
         Other Parameters
@@ -1049,7 +1062,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         Notes
         -----
         * The endpoint this uses has a strict ratelimit which, as of writing,
-          only allows for 2 request per minute (with that ratelimit either
+          only allows for 2 requests per minute (with that ratelimit either
           being per-guild if targeting a specific guild otherwise globally).
         * Setting a specific `guild` can be useful for testing/debug purposes
           as slash commands may take up to an hour to propagate globally but

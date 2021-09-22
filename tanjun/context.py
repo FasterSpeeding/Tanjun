@@ -1012,7 +1012,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
                 role_mentions=role_mentions,
             )
 
-        if self._has_responded:
+        if self._has_responded or self._has_been_deferred:
             return await self.edit_initial_response(
                 content=content,
                 attachment=attachment,
