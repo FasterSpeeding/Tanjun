@@ -1284,7 +1284,7 @@
                 <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
             <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
                 <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
                 <span class="n">attachment</span><span class="o">=</span><span class="n">attachment</span><span class="p">,</span>
@@ -3278,7 +3278,7 @@ nature, and will trigger this exception if they occur.</li>
                 <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
             <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
                 <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
                 <span class="n">attachment</span><span class="o">=</span><span class="n">attachment</span><span class="p">,</span>
@@ -4426,7 +4426,7 @@ nature, and will trigger this exception if they occur.</li>
                 <span class="n">role_mentions</span><span class="o">=</span><span class="n">role_mentions</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
             <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
                 <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
                 <span class="n">attachment</span><span class="o">=</span><span class="n">attachment</span><span class="p">,</span>
