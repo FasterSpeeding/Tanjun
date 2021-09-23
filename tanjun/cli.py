@@ -45,59 +45,62 @@ import hikari
 from . import __version__
 from . import clients
 
-module_regex: typing.Final[re.Pattern[str]] = re.compile(r"[\.a-zA-Z_]+")
+_module_regex: typing.Final[re.Pattern[str]] = re.compile(r"[\.a-zA-Z_]+")
 
 
 def _parse_path(value: str) -> typing.Union[str, pathlib.Path]:
-    if module_regex.fullmatch(value):
+    if _module_regex.fullmatch(value):
         return value
 
     return pathlib.Path(value)
 
 
+_parser = argparse.ArgumentParser("Tanjun", description="Tanjun command-line interface entry point.")
+_parser.add_argument("-v", "--version", action="version", version=f"Tanjun: {__version__}; hikari {hikari.__version__}")
+_parser.add_argument(
+    "-l",
+    "--log-level",
+    choices=["debug", "info", "warning", "error", "critical"],
+    default="info",
+    help="Logging level.",
+)
+_parser.add_argument("-c", "--config", help="Path to configuration file.", default=None, type=pathlib.Path)
+_parser.add_argument(
+    "-m",
+    "--modules",
+    nargs="*",
+    help="Modules to load components and dependencies from.",
+    type=_parse_path,
+    default=(),
+)
+
+_sub_parsers = _parser.add_subparsers(help="Startup a standard implementation Hikari bot with tanjun", dest="type")
+
+# Gateway bot specific options
+_gateway_parser = _sub_parsers.add_parser("gateway", description="Start a Hikari gateway bot.")
+_gateway_parser.add_argument(
+    "--intents",
+    help="Intents to declare for a gateway bot.",
+    default=hikari.Intents.ALL_UNPRIVILEGED,
+    type=lambda v: hikari.Intents(int(v)),
+)
+_gateway_parser.add_argument(
+    "--cache-components",
+    help="The cache components to enable for a gateway bot.",
+    default=hikari.CacheComponents.ALL,
+    type=lambda v: hikari.CacheComponents(int(v)),
+)
+
+# Rest bot specific options
+_sub_parsers.add_parser("rest", description="Start a Hikari REST bot.")
+
+# This has to be after the sub-options to make it the 2nd positional argument.
+_parser.add_argument("token", help="Token to use for authentication.")
+
+
 def main():
-    parser = argparse.ArgumentParser("Tanjun", description="Tanjun command-line interface entry point.")
-
-    parser.add_argument(
-        "-v", "--version", action="version", version=f"Tanjun: {__version__}; hikari {hikari.__version__}"
-    )
-    parser.add_argument(
-        "-l",
-        "--log-level",
-        choices=["debug", "info", "warning", "error", "critical"],
-        default="info",
-        help="Logging level.",
-    )
-    parser.add_argument("-c", "--config", help="Path to configuration file.", default=None, type=pathlib.Path)
-    parser.add_argument(
-        "-m",
-        "--modules",
-        nargs="*",
-        help="Modules to load components and dependencies from.",
-        type=_parse_path,
-        default=(),
-    )
-
-    sub_parsers = parser.add_subparsers(help="Startup a standard implementation Hikari bot with tanjun", dest="type")
-
-    gateway_parser = sub_parsers.add_parser("gateway", description="Start a Hikari gateway bot.")
-    gateway_parser.add_argument(
-        "--intents",
-        help="Intents to declare for a gateway bot.",
-        default=hikari.Intents.ALL_UNPRIVILEGED,
-        type=hikari.Intents,
-    )
-    gateway_parser.add_argument(
-        "--cache-components",
-        help="The cache components to enable for a gateway bot.",
-        default=hikari.CacheComponents.ALL,
-    )
-
-    sub_parsers.add_parser("rest", description="Start a Hikari REST bot.")
-
-    parser.add_argument("token", help="Token to use for authentication.")
-
-    args = parser.parse_args()
+    """Standard CLI entry-point for Tanjun bots."""
+    args = _parser.parse_args()
 
     if args.type == "gateway":
         bot = hikari.impl.GatewayBot(
