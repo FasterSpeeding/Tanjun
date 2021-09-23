@@ -239,7 +239,7 @@ def test_coverage(session: nox.Session) -> None:
 
 @nox.session(name="type-check", reuse_venv=True)
 def type_check(session: nox.Session) -> None:
-    install_requirements(session, ".[tests, type_checking]", "-r", "nox-requirements.txt")
+    install_requirements(session, ".[tests, type_checking, toml, yaml]", "-r", "nox-requirements.txt")
 
     if _try_find_option(session, "--force-env", when_empty="True"):
         session.env["PYRIGHT_PYTHON_GLOBAL_NODE"] = "off"

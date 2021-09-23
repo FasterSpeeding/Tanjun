@@ -50,6 +50,7 @@ import importlib.abc as importlib_abc
 import importlib.util as importlib_util
 import inspect
 import itertools
+import json
 import logging
 import typing
 import warnings
@@ -68,6 +69,7 @@ from . import injecting
 from . import utilities
 
 if typing.TYPE_CHECKING:
+    import io
     import pathlib
     import types
 
@@ -313,6 +315,39 @@ _ACCEPTS_EVENT_TYPE_MAPPING: dict[MessageAcceptsEnum, typing.Optional[type[hikar
     MessageAcceptsEnum.DM_ONLY: hikari.DMMessageCreateEvent,
     MessageAcceptsEnum.GUILD_ONLY: hikari.GuildMessageCreateEvent,
     MessageAcceptsEnum.NONE: None,
+}
+
+
+def _parse_toml(data: io.TextIOWrapper) -> collections.Mapping[str, typing.Any]:
+    try:
+        import toml
+
+    except ImportError:
+        raise RuntimeError(
+            "Cannot parse a TOML config without toml present, " "please re-install as `pip install hikari-tanjun[toml]`"
+        ) from None
+
+    return toml.load(data)
+
+
+def _parse_yaml(data: io.TextIOWrapper) -> collections.Mapping[str, typing.Any]:
+    try:
+        import yaml
+
+    except ImportError:
+        raise RuntimeError(
+            "Cannot parse a yaml config withouy PyYAML present, "
+            "please re-install as `pip install hikari-tanjun[yaml]`"
+        ) from None
+
+    return yaml.safe_load(data)
+
+
+_CONFIG_PARSERS: dict[str, collections.Callable[[io.TextIOWrapper], collections.Mapping[str, typing.Any]]] = {
+    "json": json.load,
+    "toml": _parse_toml,
+    "yaml": _parse_yaml,
+    "yml": _parse_yaml,
 }
 
 
@@ -1760,6 +1795,44 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             The client instance to enable chained calls.
         """
         self._message_hooks = hooks
+        return self
+
+    def load_metadata_from(
+        self: _ClientT, path: pathlib.Path, /, *, file_type: typing.Union[None, str] = None
+    ) -> _ClientT:
+        """Fill the metadata based on a specific config file.
+
+        Parameters
+        ----------
+        path : pathlib.Path
+            The path to the config file to load the metadata from.
+
+        Other Parameters
+        ----------------
+        file_type : typing.Union[None, str]
+            The type of the config file to load the metadata from.
+
+            If `None`, the file extension will be used to determine the type.
+            Otherwise this may be either `"json"`, `"toml"`, `"yaml"` or `"yml".
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
+        """
+        if file_type is None:
+            file_type = path.suffix[1:].lower()
+
+        else:
+            file_type = file_type.lower()
+
+        if loader := _CONFIG_PARSERS.get(file_type):
+            with path.open("r") as file:
+                self._metadata.update(loader(file))
+
+        else:
+            raise RuntimeError(f"Unexpected file type found {file_type}")
+
         return self
 
     @staticmethod
