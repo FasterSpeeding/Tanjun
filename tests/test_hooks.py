@@ -31,6 +31,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # pyright: reportUnknownMemberType=none
+# pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 
 from unittest import mock

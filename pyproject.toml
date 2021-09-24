@@ -105,22 +105,24 @@ force_single_line = true
 include = ["examples", "tanjun", "noxfile.py", "tests"]
 
 pythonVersion = "3.9"
+typeCheckingMode = "strict"
 reportCallInDefaultInitializer = "none"
 reportImplicitStringConcatenation = "none"
 reportMissingImports = "error"
 reportMissingModuleSource = "error"
 reportMissingTypeStubs = "error"
 reportUnusedCallResult = "none"
+reportUnknownParameterType = "error"
 
-reportUninitializedInstanceVariable = "warning" # Seems to lead to false-posities when inheriance and
+reportUninitializedInstanceVariable = "warning" # Seems to lead to false-positives when inheriance and
                                                 # _ properties are involved
 reportIncompatibleMethodOverride = "warning"    # This relies on ordering for key-word only arguments 
                                                 # which is more annoying than it's worth
 reportUnknownMemberType = "warning"             # This messes with instance checking generic objects
 reportUnknownArgumentType = "warning"           # Pretty much the same as reportUnknownMemberType
 reportImportCycles = "warning"                  # This isn't necessarily an issue if it's type checking only.
+reportUnknownVariableType = "warning"           # Lotta false-positives, might fix/change later.
 
 [tool.pytest.ini_options]
-# import-mode = "???"
 testpaths = ["tests"]
 required_plugins = ["pytest-asyncio"]

@@ -48,19 +48,21 @@ import tanjun
 class TestBaseConverter:
     @pytest.mark.asyncio()
     async def test___call__(self):
-        class StubConverter(tanjun.conversion.BaseConverter):
+        convert_ = mock.AsyncMock()
+
+        class StubConverter(tanjun.conversion.BaseConverter[typing.Any]):
             cache_components = mock.Mock()
             intents = mock.Mock()
             requires_cache = mock.Mock()
-            convert = mock.AsyncMock()
+            convert = convert_
 
         mock_ctx = mock.Mock()
         converter = StubConverter()
 
         result = await converter("foo", mock_ctx)
 
-        assert result is converter.convert.return_value
-        converter.convert.assert_called_once_with(mock_ctx, "foo")
+        assert result is convert_.return_value
+        convert_.assert_called_once_with(mock_ctx, "foo")
 
     @pytest.mark.skip(reason="Not finalised yet")
     def test_check_client(self):
@@ -83,7 +85,9 @@ class TestBaseConverter:
             (tanjun.to_voice_state, hikari.CacheComponents.VOICE_STATES),
         ],
     )
-    def test_cache_components_property(self, obj: tanjun.conversion.BaseConverter, expected: hikari.CacheComponents):
+    def test_cache_components_property(
+        self, obj: tanjun.conversion.BaseConverter[typing.Any], expected: hikari.CacheComponents
+    ):
         assert obj.cache_components == expected
 
     @pytest.mark.parametrize(
@@ -103,7 +107,7 @@ class TestBaseConverter:
             (tanjun.to_voice_state, hikari.Intents.GUILDS | hikari.Intents.GUILD_VOICE_STATES),
         ],
     )
-    def test_intents_property(self, obj: tanjun.conversion.BaseConverter, expected: hikari.Intents):
+    def test_intents_property(self, obj: tanjun.conversion.BaseConverter[typing.Any], expected: hikari.Intents):
         assert obj.intents == expected
 
     @pytest.mark.parametrize(
@@ -123,18 +127,20 @@ class TestBaseConverter:
             (tanjun.to_voice_state, True),
         ],
     )
-    def test_requires_cache_property(self, obj: tanjun.conversion.BaseConverter, expected: bool):
+    def test_requires_cache_property(self, obj: tanjun.conversion.BaseConverter[typing.Any], expected: bool):
         assert obj.requires_cache is expected
 
 
 class TestInjectableConverter:
     @pytest.mark.asyncio()
     async def test___call___when_converter(self):
-        class StubConverter(tanjun.conversion.BaseConverter):
+        convert_ = mock.AsyncMock()
+
+        class StubConverter(tanjun.conversion.BaseConverter[typing.Any]):
             cache_components = mock.Mock()
             intents = mock.Mock()
             requires_cache = mock.Mock()
-            convert = mock.AsyncMock()
+            convert = convert_
 
         mock_ctx = mock.Mock()
         callback = StubConverter()
@@ -142,8 +148,8 @@ class TestInjectableConverter:
 
         result = await converter(mock_ctx, "123")
 
-        assert result is callback.convert.return_value
-        callback.convert.assert_awaited_once_with(mock_ctx, "123")
+        assert result is convert_.return_value
+        convert_.assert_awaited_once_with(mock_ctx, "123")
 
     @pytest.mark.asyncio()
     async def test___call__(self):

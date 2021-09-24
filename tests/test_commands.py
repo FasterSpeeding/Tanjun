@@ -32,11 +32,11 @@
 
 # pyright: reportIncompatibleMethodOverride=none
 # pyright: reportUnknownMemberType=none
+# pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 
 import types
 import typing
-from collections import abc as collections
 from unittest import mock
 
 import hikari
@@ -47,21 +47,15 @@ import tanjun
 _T = typing.TypeVar("_T")
 
 
-def stub_class(
-    cls: type[_T], *, clear_init: bool = False, slots: bool = True, impl_abstract: bool = True, **namespace: typing.Any
-) -> type[_T]:
-    if namespace:
-        namespace["__slots__"] = ()
+def stub_class(cls: type[_T], /, **namespace: typing.Any) -> type[_T]:
+    namespace["__slots__"] = ()
 
-    if clear_init:
-        namespace["__init__"] = lambda self: None
+    for name in getattr(cls, "__abstractmethods__", None) or ():
+        if name not in namespace:
+            namespace[name] = mock.MagicMock()
 
-    if impl_abstract:
-        for name in getattr(cls, "__abstractmethods__", None) or ():
-            if name not in namespace:
-                namespace[name] = mock.MagicMock()
-
-    new_cls = types.new_class(cls.__name__, (cls,), exec_body=lambda body: body.update(namespace))
+    name = origin.__name__ if (origin := getattr(cls, "__origin__", None)) else cls.__name__
+    new_cls = types.new_class(name, (cls,), exec_body=lambda body: body.update(namespace))
     return typing.cast(type[_T], new_cls)
 
 
@@ -801,15 +795,15 @@ class TestSlashCommandGroup:
 
 class TestSlashCommand:
     @pytest.fixture()
-    def command(self) -> tanjun.SlashCommand:
+    def command(self) -> tanjun.SlashCommand[typing.Any]:
         return tanjun.SlashCommand(mock.AsyncMock(), "yee", "nsoosos")
 
     @pytest.mark.asyncio()
     async def test___call__(self):
-        mock_callback = typing.cast(collections.Callable[..., collections.Awaitable[typing.Any]], mock.AsyncMock())
+        mock_callback = mock.AsyncMock()
         command = tanjun.SlashCommand(mock_callback, "yee", "nsoosos")
 
-        await command(1, 3, a=4, b=5)
+        await command(1, 3, a=4, b=5)  # type: ignore
 
         mock_callback.assert_awaited_once_with(1, 3, a=4, b=5)
 
@@ -819,7 +813,7 @@ class TestSlashCommand:
 
         assert command.callback is mock_callback
 
-    def test_add_str_option(self, command: tanjun.SlashCommand):
+    def test_add_str_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
         command.add_str_option(
             "boom", "No u", choices=["aye", ("Bye man", "bye")], converters=[mock_converter], default="ayya"
@@ -844,7 +838,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_str_option_with_defaults(self, command: tanjun.SlashCommand):
+    def test_add_str_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_str_option("boom", "No u")
 
         option = command.build().options[0]
@@ -863,7 +857,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_str_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+    def test_add_str_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_str_option("hi", "Nou", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -872,7 +866,7 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.STRING
         assert option.name not in command._tracked_options
 
-    def test_add_int_option(self, command: tanjun.SlashCommand):
+    def test_add_int_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
         command.add_int_option("see", "seesee", choices=[("no", 4)], converters=[mock_converter], default="nya")
 
@@ -892,7 +886,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_int_option_with_defaults(self, command: tanjun.SlashCommand):
+    def test_add_int_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_int_option("e", "a")
 
         option = command.build().options[0]
@@ -911,7 +905,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_int_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+    def test_add_int_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_int_option("hiu", "Nouu", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -920,7 +914,7 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.INTEGER
         assert option.name not in command._tracked_options
 
-    def test_add_float_option(self, command: tanjun.SlashCommand):
+    def test_add_float_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
         command.add_float_option(
             "sesese", "asasasa", choices=[("no", 4.4)], converters=[mock_converter], default="eaf", always_float=False
@@ -942,7 +936,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_float_option_with_defaults(self, command: tanjun.SlashCommand):
+    def test_add_float_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_float_option("easy", "aaa")
 
         option = command.build().options[0]
@@ -961,7 +955,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is True
         assert tracked.is_only_member is False
 
-    def test_add_float_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+    def test_add_float_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_float_option("123", "321", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -970,7 +964,7 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.FLOAT
         assert option.name not in command._tracked_options
 
-    def test_add_bool_option(self, command: tanjun.SlashCommand):
+    def test_add_bool_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_bool_option("eaassa", "saas", default="feel")
 
         option = command.build().options[0]
@@ -989,7 +983,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_bool_option_with_defaults(self, command: tanjun.SlashCommand):
+    def test_add_bool_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_bool_option("essssss", "aaaaaaa")
 
         option = command.build().options[0]
@@ -1008,7 +1002,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_bool_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+    def test_add_bool_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_bool_option("222", "333", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -1017,7 +1011,7 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.BOOLEAN
         assert option.name not in command._tracked_options
 
-    def test_add_user_option(self, command: tanjun.SlashCommand):
+    def test_add_user_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_user_option("yser", "nanm", default="nou")
 
         option = command.build().options[0]
@@ -1036,7 +1030,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_user_option_with_defaults(self, command: tanjun.SlashCommand):
+    def test_add_user_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_user_option("fafafa", "sfsfsf")
 
         option = command.build().options[0]
@@ -1055,7 +1049,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_user_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+    def test_add_user_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_user_option("eee", "333", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -1064,7 +1058,7 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.USER
         assert option.name not in command._tracked_options
 
-    def test_add_member_option(self, command: tanjun.SlashCommand):
+    def test_add_member_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_member_option("ddddd", "sssss", default="dsasds")
 
         option = command.build().options[0]
@@ -1083,7 +1077,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is True
 
-    def test_add_member_option_with_defaults(self, command: tanjun.SlashCommand):
+    def test_add_member_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_member_option("asasas", "fdssdddsds")
 
         option = command.build().options[0]
@@ -1102,7 +1096,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is True
 
-    def test_add_member_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+    def test_add_member_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_member_option("sss", "ddd", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -1111,7 +1105,7 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.USER
         assert option.name not in command._tracked_options
 
-    def test_add_channel_option(self, command: tanjun.SlashCommand):
+    def test_add_channel_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_channel_option("c", "d", default="eee")
 
         option = command.build().options[0]
@@ -1130,7 +1124,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_channel_option_with_defaults(self, command: tanjun.SlashCommand):
+    def test_add_channel_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_channel_option("channel", "chaaa")
 
         option = command.build().options[0]
@@ -1149,7 +1143,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_channel_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+    def test_add_channel_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_channel_option("dsds", "www", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -1158,7 +1152,7 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.CHANNEL
         assert option.name not in command._tracked_options
 
-    def test_add_role_option(self, command: tanjun.SlashCommand):
+    def test_add_role_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_role_option("jhjh", "h", default="shera")
 
         option = command.build().options[0]
@@ -1177,7 +1171,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_role_option_with_defaults(self, command: tanjun.SlashCommand):
+    def test_add_role_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_role_option("hhhhh", "h")
 
         option = command.build().options[0]
@@ -1196,7 +1190,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_role_option_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+    def test_add_role_option_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_role_option("22222", "ddddd", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -1205,7 +1199,7 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.ROLE
         assert option.name not in command._tracked_options
 
-    def test_add_mentionable_option(self, command: tanjun.SlashCommand):
+    def test_add_mentionable_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_mentionable_option("owo", "iwi", default="ywy")
 
         option = command.build().options[0]
@@ -1224,7 +1218,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_mentionable_option_with_defaults(self, command: tanjun.SlashCommand):
+    def test_add_mentionable_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_mentionable_option("shera-ra", "hhh")
 
         option = command.build().options[0]
@@ -1243,7 +1237,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_mentionable_option_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand):
+    def test_add_mentionable_option_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_mentionable_option("333ww", "dsdsds", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -1480,13 +1474,14 @@ class TestMessageCommandGroup:
         assert command_group._names_to_commands == {"dada": mock_other_command}
 
     def test_with_command(self):
-        command = stub_class(tanjun.MessageCommandGroup, add_command=mock.Mock())(mock.Mock(), "a", "b")
+        add_command = mock.Mock()
+        command = stub_class(tanjun.MessageCommandGroup[typing.Any], add_command=add_command)(mock.Mock(), "a", "b")
         mock_command = mock.Mock()
 
         result = command.with_command(mock_command)
 
         assert result is mock_command
-        command.add_command.assert_called_once_with(mock_command)
+        add_command.assert_called_once_with(mock_command)
 
     def test_bind_client(self):
         mock_command_1 = mock.Mock()
@@ -1591,7 +1586,7 @@ class TestMessageCommandGroup:
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
         mock_attached_hooks = mock.Mock()
         command = stub_class(
-            tanjun.MessageCommandGroup,
+            tanjun.MessageCommandGroup[typing.Any],
             find_command=mock.Mock(
                 return_value=iter(
                     [("onii-chan>////<", mock_command_1), ("baka", mock_command_2), ("nope", mock_command_3)]
@@ -1621,7 +1616,7 @@ class TestMessageCommandGroup:
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
         mock_attached_hooks = mock.Mock()
         command = stub_class(
-            tanjun.MessageCommandGroup,
+            tanjun.MessageCommandGroup[typing.Any],
             find_command=mock.Mock(
                 return_value=iter(
                     [("onii-chan>////<", mock_command_1), ("baka", mock_command_2), ("nope", mock_command_3)]
@@ -1650,7 +1645,7 @@ class TestMessageCommandGroup:
         mock_command_3.check_context.return_value = True
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
         command = stub_class(
-            tanjun.MessageCommandGroup,
+            tanjun.MessageCommandGroup[typing.Any],
             find_command=mock.Mock(
                 return_value=iter(
                     [("onii-chan>////<", mock_command_1), ("baka", mock_command_2), ("nope", mock_command_3)]
@@ -1679,7 +1674,7 @@ class TestMessageCommandGroup:
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
         mock_attached_hooks = mock.Mock()
         command = stub_class(
-            tanjun.MessageCommandGroup,
+            tanjun.MessageCommandGroup[typing.Any],
             find_command=mock.Mock(return_value=iter([("onii-chan>////<", mock_command_1), ("baka", mock_command_2)])),
         )(mock.AsyncMock(), "a", "b").set_hooks(mock_attached_hooks)
 
@@ -1704,7 +1699,7 @@ class TestMessageCommandGroup:
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
         mock_attached_hooks = mock.Mock()
         command = stub_class(
-            tanjun.MessageCommandGroup,
+            tanjun.MessageCommandGroup[typing.Any],
             find_command=mock.Mock(return_value=iter([("onii-chan>////<", mock_command_1), ("baka", mock_command_2)])),
         )(mock.AsyncMock(), "a", "b").set_hooks(mock_attached_hooks)
 
@@ -1728,7 +1723,7 @@ class TestMessageCommandGroup:
         mock_command_2.check_context.return_value = False
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
         command = stub_class(
-            tanjun.MessageCommandGroup,
+            tanjun.MessageCommandGroup[typing.Any],
             find_command=mock.Mock(return_value=iter([("onii-chan>////<", mock_command_1), ("baka", mock_command_2)])),
         )(mock.AsyncMock(), "a", "b")
 

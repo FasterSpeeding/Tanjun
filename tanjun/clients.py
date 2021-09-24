@@ -71,7 +71,6 @@ if typing.TYPE_CHECKING:
     import types
 
     _ClientT = typing.TypeVar("_ClientT", bound="Client")
-    _T = typing.TypeVar("_T")
 
     class _MessageContextMakerProto(typing.Protocol):
         def __call__(

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Automatic deferral is now also cancelled in SlashContext.create_initial_response.
 - SlashContext.edit_last_response can now be used to edit a deferred response.
+- Small typing fixes made while setting pyright to strict.
 
 ### Removed
 - suppress_exceptions from Client.dispatch_client_callback cause it was half-arsed and didn't make sense.
