@@ -38,7 +38,6 @@ import asyncio
 import base64
 import copy
 import inspect
-import logging
 import random
 import typing
 from collections import abc as collections
@@ -56,7 +55,6 @@ if typing.TYPE_CHECKING:
 
 
 CommandT = typing.TypeVar("CommandT", bound="abc.ExecutableCommand[typing.Any]")
-_LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.components")
 WithCommandReturnSig = typing.Union[CommandT, collections.Callable[[CommandT], CommandT]]
 
 

@@ -30,7 +30,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# pyright: reportUnknownMemberType=none
+# pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 
 import typing
@@ -245,7 +245,7 @@ async def test_fetch_everyone_permissions_channel_object_provided():
 class TestCastedView:
     def test___getitem___for_non_existant_entry(self):
         mock_cast = mock.Mock()
-        view = utilities.CastedView({}, mock_cast)
+        view = utilities.CastedView[typing.Any, typing.Any]({}, mock_cast)
 
         with pytest.raises(KeyError):
             view["foo"]
@@ -255,7 +255,7 @@ class TestCastedView:
     def test___getitem___for_buffered_entry(self):
         mock_cast = mock.Mock()
         mock_value = mock.MagicMock()
-        view = utilities.CastedView({"a": "b"}, mock_cast)
+        view = utilities.CastedView[typing.Any, str]({"a": "b"}, mock_cast)
         view._buffer["a"] = mock_value
 
         result = view["a"]
@@ -266,7 +266,7 @@ class TestCastedView:
     def test___getitem___for_not_buffered_entry(self):
         mock_cast = mock.Mock()
         mock_value = mock.MagicMock()
-        view = utilities.CastedView({"a": mock_value}, mock_cast)
+        view = utilities.CastedView[typing.Any, typing.Any]({"a": mock_value}, mock_cast)
 
         result = view["a"]
 
@@ -275,11 +275,11 @@ class TestCastedView:
         mock_cast.assert_called_once_with(mock_value)
 
     def test___iter__(self):
-        mock_iter = iter((1, 2, 3))
-        mock_dict = mock.Mock(__iter__=mock.Mock(return_value=mock_iter))
+        mock_iter = mock.Mock(return_value=iter((1, 2, 3)))
+        mock_dict = mock.Mock(__iter__=mock_iter)
         view = utilities.CastedView[int, int](mock_dict, mock.Mock())
 
-        assert iter(view) is mock_dict.__iter__.return_value
+        assert iter(view) is mock_iter.return_value
 
     def test___len___(self):
         mock_dict = mock.Mock(__len__=mock.Mock(return_value=43123))

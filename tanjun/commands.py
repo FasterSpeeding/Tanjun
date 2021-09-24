@@ -196,22 +196,6 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
         return None
 
 
-_MEMBER_OPTION_TYPES: typing.Final[frozenset[hikari.OptionType]] = frozenset(
-    (hikari.OptionType.USER, hikari.OptionType.MENTIONABLE)
-)
-_OBJECT_OPTION_TYPES: typing.Final[frozenset[hikari.OptionType]] = frozenset(
-    (
-        hikari.OptionType.USER,
-        hikari.OptionType.CHANNEL,
-        hikari.OptionType.MENTIONABLE,
-    )
-)
-_SUB_COMMAND_OPTIONS_TYPES: typing.Final[frozenset[hikari.OptionType]] = frozenset(
-    (
-        hikari.OptionType.SUB_COMMAND,
-        hikari.OptionType.SUB_COMMAND_GROUP,
-    )
-)
 _SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[a-z0-9_-]{1,32}$")
 
 
