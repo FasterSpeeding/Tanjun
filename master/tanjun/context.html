@@ -1119,6 +1119,7 @@
                 <span class="s2">&quot;edit_initial_response must be used to set the initial response after a context has been deferred&quot;</span>
             <span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span>
@@ -1385,7 +1386,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_last_response_id</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">id</span>
                 <span class="k">return</span> <span class="n">message</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
                 <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
                     <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
@@ -3122,6 +3122,7 @@ nature, and will trigger this exception if they occur.</li>
                 <span class="s2">&quot;edit_initial_response must be used to set the initial response after a context has been deferred&quot;</span>
             <span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span>
@@ -3388,7 +3389,6 @@ nature, and will trigger this exception if they occur.</li>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_last_response_id</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">id</span>
                 <span class="k">return</span> <span class="n">message</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
                 <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
                     <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
@@ -4878,7 +4878,6 @@ nature, and will trigger this exception if they occur.</li>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_last_response_id</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">id</span>
                 <span class="k">return</span> <span class="n">message</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
                 <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span>
                     <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
