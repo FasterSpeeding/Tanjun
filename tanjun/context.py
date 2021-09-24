@@ -847,6 +847,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
                 "edit_initial_response must be used to set the initial response after a context has been deferred"
             )
 
+        self.cancel_defer()
         self._has_responded = True
         if not self._response_future:
             await self._interaction.create_initial_response(
@@ -1113,7 +1114,6 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
                 self._last_response_id = message.id
                 return message
 
-            self.cancel_defer()
             if self._has_been_deferred:
                 return await self.edit_initial_response(
                     content=content,
