@@ -99,7 +99,7 @@ _parser.add_argument("token", help="Token to use for authentication.")
 
 
 def main():
-    """Standard CLI entry-point for Tanjun bots."""
+    """CLI entry-point for Tanjun's standard client."""
     args = _parser.parse_args()
 
     if args.type == "gateway":
