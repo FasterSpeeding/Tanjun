@@ -58,7 +58,7 @@ jobs:
         run: |
           cd ./master_branch
           mkdir docs
-          python -m nox -s generate-docs -- -o ./docs
+          python -m nox -s generate-docs -- -o ./docs -j
           echo "::set-output name=GIT_HASH::$(git rev-parse HEAD)"
           cd ..
           rm -r ./docs_branch/release

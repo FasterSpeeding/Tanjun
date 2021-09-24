@@ -36,7 +36,7 @@ jobs:
         run: |
           cd ./master_branch
           mkdir docs
-          python -m nox -s generate-docs -- -o ./docs
+          python -m nox -s generate-docs -- -o ./docs -j
           cd ..
           rm -r ./docs_branch/master
           mv ./master_branch/docs ./docs_branch/master
