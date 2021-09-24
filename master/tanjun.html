@@ -6335,7 +6335,6 @@ a DM context (e.g. can't have any moderation permissions)</li>
     <span class="kn">import</span> <span class="nn">types</span>
 
     <span class="n">_ClientT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_ClientT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;Client&quot;</span><span class="p">)</span>
-    <span class="n">_T</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_T&quot;</span><span class="p">)</span>
 
     <span class="k">class</span> <span class="nc">_MessageContextMakerProto</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Protocol</span><span class="p">):</span>
         <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
@@ -13556,22 +13555,6 @@ message create events.</p>
         <span class="k">return</span> <span class="kc">None</span>
 
 
-<span class="n">_MEMBER_OPTION_TYPES</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="nb">frozenset</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
-    <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">MENTIONABLE</span><span class="p">)</span>
-<span class="p">)</span>
-<span class="n">_OBJECT_OPTION_TYPES</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="nb">frozenset</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
-    <span class="p">(</span>
-        <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span>
-        <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">CHANNEL</span><span class="p">,</span>
-        <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">MENTIONABLE</span><span class="p">,</span>
-    <span class="p">)</span>
-<span class="p">)</span>
-<span class="n">_SUB_COMMAND_OPTIONS_TYPES</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="nb">frozenset</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
-    <span class="p">(</span>
-        <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">SUB_COMMAND</span><span class="p">,</span>
-        <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">SUB_COMMAND_GROUP</span><span class="p">,</span>
-    <span class="p">)</span>
-<span class="p">)</span>
 <span class="n">_SCOMMAND_NAME_REG</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^[a-z0-9_-]{1,32}$&quot;</span><span class="p">)</span>
 
 
@@ -20550,7 +20533,6 @@ This may target roles, guild members or users and results in
 <span class="kn">import</span> <span class="nn">base64</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">typing</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">collections</span>
@@ -20568,7 +20550,6 @@ This may target roles, guild members or users and results in
 
 
 <span class="n">CommandT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;CommandT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;abc.ExecutableCommand[typing.Any]&quot;</span><span class="p">)</span>
-<span class="n">_LOGGER</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;hikari.tanjun.components&quot;</span><span class="p">)</span>
 <span class="n">WithCommandReturnSig</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">CommandT</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]]</span>
 
 

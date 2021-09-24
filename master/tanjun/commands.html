@@ -567,22 +567,6 @@
         <span class="k">return</span> <span class="kc">None</span>
 
 
-<span class="n">_MEMBER_OPTION_TYPES</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="nb">frozenset</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
-    <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">MENTIONABLE</span><span class="p">)</span>
-<span class="p">)</span>
-<span class="n">_OBJECT_OPTION_TYPES</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="nb">frozenset</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
-    <span class="p">(</span>
-        <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span>
-        <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">CHANNEL</span><span class="p">,</span>
-        <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">MENTIONABLE</span><span class="p">,</span>
-    <span class="p">)</span>
-<span class="p">)</span>
-<span class="n">_SUB_COMMAND_OPTIONS_TYPES</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="nb">frozenset</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
-    <span class="p">(</span>
-        <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">SUB_COMMAND</span><span class="p">,</span>
-        <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">SUB_COMMAND_GROUP</span><span class="p">,</span>
-    <span class="p">)</span>
-<span class="p">)</span>
 <span class="n">_SCOMMAND_NAME_REG</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^[a-z0-9_-]{1,32}$&quot;</span><span class="p">)</span>
 
 
