@@ -128,6 +128,32 @@ def generate_docs(session: nox.Session) -> None:
     session.run("pdoc", "--docformat", "numpy", "-o", output_directory, "./tanjun")
     session.log("Docs generated: %s", pathlib.Path("./docs/index.html").absolute())
 
+    if not _try_find_option(session, "-j", "--json", when_empty="true"):
+        return
+
+    import httpx
+
+    # Note: this can be linked to a specific hash by adding it between raw and {file.name} as another route segment.
+    with httpx.Client() as client:
+        # Note: this can be linked to a specific hash by adding it between raw and {file.name} as another route segment.
+        code = client.get(
+            "https://gist.githubusercontent.com/FasterSpeeding/19a6d3f44cdd0a1f3b2437a8c5eef07a/raw/json_index_docs.py"
+        ).read()
+
+    # This is saved to a temporary file to avoid the source showing up in any of the output.
+
+    # A try, finally is used to delete the file rather than relying on delete=True behaviour
+    # as on Windows the file cannot be accessed by other processes if delete is True.
+    file = tempfile.NamedTemporaryFile(delete=False)
+    try:
+        with file:
+            file.write(code)
+
+        session.run("python", file.name, "tanjun", "-o", str(pathlib.Path(output_directory) / "search.json"))
+
+    finally:
+        pathlib.Path(file.name).unlink(missing_ok=False)
+
 
 @nox.session(reuse_venv=True)
 def lint(session: nox.Session) -> None:
