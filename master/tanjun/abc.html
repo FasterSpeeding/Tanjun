@@ -402,9 +402,6 @@
                         <li>
                                 <a class="function" href="#SlashContext.create_initial_response">create_initial_response</a>
                         </li>
-                        <li>
-                                <a class="function" href="#SlashContext.respond">respond</a>
-                        </li>
                 </ul>
 
             </li>
@@ -928,7 +925,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">TextableChannel</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Fetch the channel the context was invoked in.</span>
 
 <span class="sd">        .. note::</span>
@@ -937,8 +934,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        hikari.PartialChannel</span>
-<span class="sd">            The dm or guild channel the context was invoked in.</span>
+<span class="sd">        hikari.TextableChannel</span>
+<span class="sd">            The textable DM or guild channel the context was invoked in.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -1004,7 +1001,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">TextableGuildChannel</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Retrieve the channel the context was invoked in from the cache.</span>
 
 <span class="sd">        .. note::</span>
@@ -1012,9 +1009,10 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.PartialChannel]</span>
-<span class="sd">            An optional dm or guild channel the context was invoked in.</span>
-<span class="sd">            `None` will be returned if the channel was not found.</span>
+<span class="sd">        typing.Optional[hikari.TextableGuildChannel]</span>
+<span class="sd">            An optional guild channel the context was invoked in.</span>
+<span class="sd">            `None` will be returned if the channel was not found or if it</span>
+<span class="sd">            is DM channel.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -2285,69 +2283,6 @@
 <span class="sd">            If an internal error occurs on Discord while handling the request.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">respond</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">ensure_result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
-            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialUser</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">role_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
-            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialRole</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">]:</span>
-        <span class="o">...</span>
-
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">respond</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">ensure_result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">],</span>
-        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
-            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialUser</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">role_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
-            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialRole</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
-        <span class="o">...</span>
-
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">respond</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">ensure_result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
-            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialUser</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">role_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
-            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialRole</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">]:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from Context&gt;&gt;.</span>
-        <span class="o">...</span>
-
 
 <span class="k">class</span> <span class="nc">Hooks</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">ContextT_contra</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
@@ -2914,7 +2849,7 @@
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a mapping of tuples of event types to the listeners registered for them in this component.</span>
+        <span class="sd">&quot;&quot;&quot;Get a mapping of event types to the listeners registered for them in this component.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -3812,7 +3747,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">TextableChannel</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Fetch the channel the context was invoked in.</span>
 
 <span class="sd">        .. note::</span>
@@ -3821,8 +3756,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        hikari.PartialChannel</span>
-<span class="sd">            The dm or guild channel the context was invoked in.</span>
+<span class="sd">        hikari.TextableChannel</span>
+<span class="sd">            The textable DM or guild channel the context was invoked in.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -3888,7 +3823,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">TextableGuildChannel</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Retrieve the channel the context was invoked in from the cache.</span>
 
 <span class="sd">        .. note::</span>
@@ -3896,9 +3831,10 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.PartialChannel]</span>
-<span class="sd">            An optional dm or guild channel the context was invoked in.</span>
-<span class="sd">            `None` will be returned if the channel was not found.</span>
+<span class="sd">        typing.Optional[hikari.TextableGuildChannel]</span>
+<span class="sd">            An optional guild channel the context was invoked in.</span>
+<span class="sd">            `None` will be returned if the channel was not found or if it</span>
+<span class="sd">            is DM channel.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -4732,13 +4668,13 @@ if provided, else <code>None</code>.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">async def</span>
-            <span class="name">fetch_channel</span><span class="signature">(self) -&gt; hikari.channels.PartialChannel</span>:
+            <span class="name">fetch_channel</span><span class="signature">(self) -&gt; hikari.channels.TextableChannel</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">TextableChannel</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Fetch the channel the context was invoked in.</span>
 
 <span class="sd">        .. note::</span>
@@ -4747,8 +4683,8 @@ if provided, else <code>None</code>.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        hikari.PartialChannel</span>
-<span class="sd">            The dm or guild channel the context was invoked in.</span>
+<span class="sd">        hikari.TextableChannel</span>
+<span class="sd">            The textable DM or guild channel the context was invoked in.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -4788,7 +4724,7 @@ if you have <code>hikari.config.CacheComponents.GUILD_CHANNELS</code> cache comp
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>hikari.PartialChannel</strong>: The dm or guild channel the context was invoked in.</li>
+<li><strong>hikari.TextableChannel</strong>: The textable DM or guild channel the context was invoked in.</li>
 </ul>
 
 <h6 id="raises">Raises</h6>
@@ -4905,13 +4841,13 @@ nature, and will trigger this exception if they occur.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">get_channel</span><span class="signature">(self) -&gt; Optional[hikari.channels.PartialChannel]</span>:
+            <span class="name">get_channel</span><span class="signature">(self) -&gt; Optional[hikari.channels.TextableGuildChannel]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">TextableGuildChannel</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Retrieve the channel the context was invoked in from the cache.</span>
 
 <span class="sd">        .. note::</span>
@@ -4919,9 +4855,10 @@ nature, and will trigger this exception if they occur.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.PartialChannel]</span>
-<span class="sd">            An optional dm or guild channel the context was invoked in.</span>
-<span class="sd">            `None` will be returned if the channel was not found.</span>
+<span class="sd">        typing.Optional[hikari.TextableGuildChannel]</span>
+<span class="sd">            An optional guild channel the context was invoked in.</span>
+<span class="sd">            `None` will be returned if the channel was not found or if it</span>
+<span class="sd">            is DM channel.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
@@ -4935,8 +4872,9 @@ This method requires the <code>hikari.config.CacheComponents.GUILD_CHANNELS</cod
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Optional[hikari.PartialChannel]</strong>: An optional dm or guild channel the context was invoked in.
-<code>None</code> will be returned if the channel was not found.</li>
+<li><strong>typing.Optional[hikari.TextableGuildChannel]</strong>: An optional guild channel the context was invoked in.
+<code>None</code> will be returned if the channel was not found or if it
+is DM channel.</li>
 </ul>
 </div>
 
@@ -9167,69 +9105,6 @@ The command to add.</li>
 <span class="sd">        hikari.InternalServerError</span>
 <span class="sd">            If an internal error occurs on Discord while handling the request.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">respond</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">ensure_result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
-            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialUser</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">role_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
-            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialRole</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">]:</span>
-        <span class="o">...</span>
-
-    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">respond</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">ensure_result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">],</span>
-        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
-            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialUser</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">role_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
-            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialRole</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
-        <span class="o">...</span>
-
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">respond</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">ensure_result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
-            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialUser</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">role_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
-            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialRole</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">]:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from Context&gt;&gt;.</span>
-        <span class="o">...</span>
 </pre></div>
 
         </details>
@@ -9966,151 +9841,6 @@ nature, and will trigger this exception if they occur.</li>
 
 
                             </div>
-                            <div id="SlashContext.respond" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#SlashContext.respond">#&nbsp;&nbsp</a>
-
-                <div class="decorator">@abc.abstractmethod</div>
-
-            <span class="def">async def</span>
-            <span class="name">respond</span><span class="signature">(
-    self,
-    content: Union[Any, hikari.undefined.UndefinedType] = UNDEFINED,
-    *,
-    ensure_result: bool = False,
-    component: Union[hikari.api.special_endpoints.ComponentBuilder, hikari.undefined.UndefinedType] = UNDEFINED,
-    components: Union[collections.abc.Sequence[hikari.api.special_endpoints.ComponentBuilder], hikari.undefined.UndefinedType] = UNDEFINED,
-    embed: Union[hikari.embeds.Embed, hikari.undefined.UndefinedType] = UNDEFINED,
-    embeds: Union[collections.abc.Sequence[hikari.embeds.Embed], hikari.undefined.UndefinedType] = UNDEFINED,
-    mentions_everyone: Union[bool, hikari.undefined.UndefinedType] = UNDEFINED,
-    user_mentions: Union[Sequence[Union[hikari.users.PartialUser, hikari.snowflakes.Snowflake, int]], bool, hikari.undefined.UndefinedType] = UNDEFINED,
-    role_mentions: Union[Sequence[Union[hikari.guilds.PartialRole, hikari.snowflakes.Snowflake, int]], bool, hikari.undefined.UndefinedType] = UNDEFINED
-) -&gt; Optional[hikari.messages.Message]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">respond</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">content</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">ensure_result</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">component</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">components</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">ComponentBuilder</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embed</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">embeds</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">mentions_everyone</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">user_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
-            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialUser</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">role_mentions</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span>
-            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialRole</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">]:</span>
-        <span class="c1"># &lt;&lt;inherited docstring from Context&gt;&gt;.</span>
-        <span class="o">...</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Respond to this context.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><p><strong>content</strong> (hikari.UndefinedOr[typing.Any]):
-The content to respond with.</p>
-
-<p>If provided, the message contents. If
-<code>hikari.UNDEFINED</code>, then nothing will be sent
-in the content. Any other value here will be cast to a
-<code>str</code>.</p>
-
-<p>If this is a <code>hikari.Embed</code> and no <code>embed</code> nor <code>embeds</code> kwarg
-is provided, then this will instead update the embed. This allows
-for simpler syntax when sending an embed alone.</p>
-
-<p>Likewise, if this is a <code>hikari.Resource</code>, then the
-content is instead treated as an attachment if no <code>attachment</code> and
-no <code>attachments</code> kwargs are provided.</p></li>
-</ul>
-
-<h6 id="other-parameters">Other Parameters</h6>
-
-<ul>
-<li><p><strong>ensure_result</strong> (bool):
-If provided and set to <code>True</code> then this will always return <code>hikari.Message</code>,
-otherwise this will return <code>Optional[hikari.Message]</code>.</p>
-
-<p>It's worth noting that, under certain scenarios within the slash
-command flow, this may lead to an extre request being made.</p></li>
-<li><strong>component</strong> (hikari.UndefinedOr[hikari.api.ComponentBuilder]):
-If provided, builder object of the component to include in this response.</li>
-<li><strong>components</strong> (hikari.UndefinedOr[typing.Sequence[hikari.api.ComponentBuilder]]):
-If provided, a sequence of the component builder objects to include
-in this response.</li>
-<li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
-An embed to respond with.</li>
-<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
-A sequence of embeds to respond with.</li>
-<li><strong>mentions_everyone</strong> (hikari.UndefinedOr[bool]):
-If provided, whether the message should parse @everyone/@here
-mentions.</li>
-<li><p><strong>user_mentions</strong> (hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]]):
-If provided, and <code>True</code>, all mentions will be parsed.
-If provided, and <code>False</code>, no mentions will be parsed.</p>
-
-<p>Alternatively this may be a collection of
-<code>hikari.Snowflake</code>, or <code>hikari.PartialUser</code>
-derivatives to enforce mentioning specific users.</p></li>
-<li><p><strong>role_mentions</strong> (hikari.UndefinedOr[typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]]):
-If provided, and <code>True</code>, all mentions will be parsed.
-If provided, and <code>False</code>, no mentions will be parsed.</p>
-
-<p>Alternatively this may be a collection of
-<code>hikari.Snowflake</code>, or
-<code>hikari.PartialRole</code> derivatives to enforce mentioning
-specific roles.</p></li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.Message]</strong>: The message that has been created if it was immedieatly available or
-<code>ensure_result</code> was set to <code>True</code>, else <code>None</code>.</li>
-</ul>
-
-<h6 id="raises">Raises</h6>
-
-<ul>
-<li><strong>ValueError</strong>: If more than 100 unique objects/entities are passed for
-<code>role_mentions</code> or <code>user_mentions</code>.</li>
-<li><strong>TypeError</strong>: If both <code>attachment</code> and <code>attachments</code> are specified.</li>
-<li><strong>hikari.BadRequestError</strong>: This may be raised in several discrete situations, such as messages
-being empty with no attachments or embeds; messages with more than
-2000 characters in them, embeds that exceed one of the many embed
-limits; too many attachments; attachments that are too large;
-invalid image URLs in embeds; if <code>reply</code> is not found or not in the
-same channel as <code>channel</code>; too many components.</li>
-<li><strong>hikari.UnauthorizedError</strong>: If you are unauthorized to make the request (invalid/missing token).</li>
-<li><strong>hikari.ForbiddenError</strong>: If you are missing the <code>SEND_MESSAGES</code> in the channel or the
-person you are trying to message has the DM's disabled.</li>
-<li><strong>hikari.NotFoundError</strong>: If the channel is not found.</li>
-<li><strong>hikari.RateLimitTooLongError</strong>: Raised in the event that a rate limit occurs that is
-longer than <code>max_rate_limit</code> when making a request.</li>
-<li><strong>hikari.RateLimitedError</strong>: Usually, Hikari will handle and retry on hitting
-rate-limits automatically. This includes most bucket-specific
-rate-limits and global rate-limits. In some rare edge cases,
-however, Discord implements other undocumented rules for
-rate-limiting, such as limits per attribute. These cannot be
-detected or handled normally by Hikari due to their undocumented
-nature, and will trigger this exception if they occur.</li>
-<li><strong>hikari.InternalServerError</strong>: If an internal error occurs on Discord while handling the request.</li>
-</ul>
-</div>
-
-
-                            </div>
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
@@ -10140,6 +9870,7 @@ nature, and will trigger this exception if they occur.</li>
                 <dd id="SlashContext.edit_last_response" class="function"><a href="#Context.edit_last_response">edit_last_response</a></dd>
                 <dd id="SlashContext.fetch_initial_response" class="function"><a href="#Context.fetch_initial_response">fetch_initial_response</a></dd>
                 <dd id="SlashContext.fetch_last_response" class="function"><a href="#Context.fetch_last_response">fetch_last_response</a></dd>
+                <dd id="SlashContext.respond" class="function"><a href="#Context.respond">respond</a></dd>
 
             </div>
                                 </dl>
@@ -10801,7 +10532,7 @@ user.</p>
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a mapping of tuples of event types to the listeners registered for them in this component.</span>
+        <span class="sd">&quot;&quot;&quot;Get a mapping of event types to the listeners registered for them in this component.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -11199,7 +10930,7 @@ The name of this component.</li>
         <span class="name">listeners</span><span class="annotation">: collections.abc.Mapping[type[hikari.events.base_events.Event], collections.abc.Collection[collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, None]]]]</span>
     </div>
 
-            <div class="docstring"><p>Get a mapping of tuples of event types to the listeners registered for them in this component.</p>
+            <div class="docstring"><p>Get a mapping of event types to the listeners registered for them in this component.</p>
 
 <h6 id="returns">Returns</h6>
 

@@ -190,8 +190,8 @@
 
 <span class="sd">This will be called whenever a `tanjun.errors.ParserError` is raised during the</span>
 <span class="sd">command argument parsing stage, will have to take two positional arguments - of</span>
-<span class="sd">type `tanjun.abc.Context` and `tanjun.errors.ParserError` - and may either be</span>
-<span class="sd">a synchronous or asynchronous callback which returns `None`</span>
+<span class="sd">type `tanjun.abc.Context` and `tanjun.errors.ParserError` - and may be either</span>
+<span class="sd">synchronous or asynchronous callback which returns `None`</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">ErrorHookSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT</span><span class="p">,</span> <span class="ne">BaseException</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]]</span>
@@ -200,8 +200,11 @@
 <span class="sd">This will be called whenever a `BaseException` is raised during the</span>
 <span class="sd">execution stage whenever the command callback raises any exception except</span>
 <span class="sd">`tanjun.errors.CommandError`,  will have to take two positional arguments - of</span>
-<span class="sd">type `tanjun.abc.Context` and `BaseException` - and may either be a</span>
-<span class="sd">synchronous or asynchronous callback which returns `None`</span>
+<span class="sd">type `tanjun.abc.Context` and `BaseException` - and may be either a</span>
+<span class="sd">synchronous or asynchronous callback which returns `bool` or `None`.</span>
+
+<span class="sd">`True` is returned to indicate that the exception should be suppressed and</span>
+<span class="sd">`False` is returned to indicate that the exception should be re-raised.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">HookSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
@@ -209,13 +212,16 @@
 
 <span class="sd">This may be called during different stages of command execution (decided by</span>
 <span class="sd">which hook this is registered as), will have to take one positional argument of</span>
-<span class="sd">type `tanjun.abc.Context` and may be a synchronous or asynchronous callback</span>
+<span class="sd">type `tanjun.abc.Context` and may be synchronous or asynchronous callback</span>
 <span class="sd">which returns `None`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">Hooks</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Standard implementation of `tanjun.abc.Hooks` used for command execution.</span>
+
+<span class="sd">    `tanjun.abc.ContextT_contra` will either be `tanjun.abc.Context`,</span>
+<span class="sd">    `tanjun.abc.MessageContext` or `tanjun.abc.SlashContext`.</span>
 
 <span class="sd">    .. note::</span>
 <span class="sd">        This implementation adds a concept of parser errors which won&#39;t be</span>
@@ -273,45 +279,292 @@
         <span class="sd">&quot;&quot;&quot;Copy this hook object.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">set_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_error</span> <span class="o">=</span> <span class="n">hook</span>
+    <span class="k">def</span> <span class="nf">set_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the error callback for this hook object.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This will not be called for `tanjun.errors.ParserError`s as these</span>
+<span class="sd">            are generally speaking expected. To handle those see</span>
+<span class="sd">            `Hooks.set_on_parser_error`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[ErrorHookSig[tanjun.abc.ContextT_contra]]</span>
+<span class="sd">            The callback to set for this hook, if `None` then any previously set</span>
+<span class="sd">            callback will be removed.</span>
+
+<span class="sd">            This callback should be a callback which takes two positional</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `BaseException`) and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">            If this returns `True` then that indicates that this error should</span>
+<span class="sd">            be suppressed, with `False` indicating that it should be re-raise</span>
+<span class="sd">            and `None` indicating no decision has been made. This will be</span>
+<span class="sd">            accounted for along with the decisions the other error hooks make</span>
+<span class="sd">            by majority rule.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_error</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">with_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_error</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">hook</span>
+    <span class="k">def</span> <span class="nf">with_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Set the error callback for this hook object through a decorator call.</span>
 
-    <span class="k">def</span> <span class="nf">set_on_parser_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_parser_error</span> <span class="o">=</span> <span class="n">hook</span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This will not be called for `tanjun.errors.ParserError`s as these</span>
+<span class="sd">            are generally speaking expected. To handle those see</span>
+<span class="sd">            `Hooks.with_on_parser_error`.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_error</span>
+<span class="sd">        async def on_error(ctx: tanjun.abc.Context, error: BaseException) -&gt; bool:</span>
+<span class="sd">            if isinstance(error, SomeExpectedType):</span>
+<span class="sd">                await ctx.respond(&quot;You dun goofed&quot;)</span>
+<span class="sd">                return True  # Indicating that it should be suppressed.</span>
+
+<span class="sd">            await ctx.respond(f&quot;An error occurred: {error}&quot;)</span>
+<span class="sd">            return False  # Indicating that it should be re-raised</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : ErrorHookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The callback to set for this hook.</span>
+
+<span class="sd">            This callback should be a callback which takes two positional</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `BaseException`) and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">            If this returns `True` then that indicates that this error should</span>
+<span class="sd">            be suppressed, with `False` indicating that it should be re-raise</span>
+<span class="sd">            and `None` indicating no decision has been made. This will be</span>
+<span class="sd">            accounted for along with the decisions the other error hooks make</span>
+<span class="sd">            by majority rule.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ErrorHookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The hook callback which was set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_error</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
+
+    <span class="k">def</span> <span class="nf">set_on_parser_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the parser error callback for this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[ParserHookSig[tanjun.abc.ContextT_contra]]</span>
+<span class="sd">            The callback to set for this hook, if `None` then any previously set</span>
+<span class="sd">            callback will be removed.</span>
+
+<span class="sd">            This callback should be a callback which takes two positional</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `tanjun.errors.ParserError`),</span>
+<span class="sd">            return `None` and may be either synchronous or asynchronous.</span>
+
+<span class="sd">            It&#39;s worth noting that this unlike general error handlers, this will</span>
+<span class="sd">            always suppress the error.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parser_error</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">with_on_parser_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_parser_error</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">hook</span>
+    <span class="k">def</span> <span class="nf">with_on_parser_error</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Set the parser error callback for this hook object through a decorator call.</span>
 
-    <span class="k">def</span> <span class="nf">set_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_post_execution</span> <span class="o">=</span> <span class="n">hook</span>
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_parser_error</span>
+<span class="sd">        async def on_parser_error(ctx: tanjun.abc.Context, error: tanjun.errors.ParserError) -&gt; None:</span>
+<span class="sd">            await ctx.respond(f&quot;You gave invalid input: {error}&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : ParserHookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The parser error callback to set for this hook.</span>
+
+<span class="sd">            This callback should be a callback which takes two positional</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `tanjun.errors.ParserError`),</span>
+<span class="sd">            return `None` and may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ParserHookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The callback which was set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_parser_error</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
+
+    <span class="k">def</span> <span class="nf">set_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the post-execution callback for this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[HookSig[tanjun.abc.ContextT_contra]]</span>
+<span class="sd">            The callback to set for this hook, if `None` then any previously set</span>
+<span class="sd">            callback will be removed.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_post_execution</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">with_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_post_execution</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">hook</span>
+    <span class="k">def</span> <span class="nf">with_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Set the post-execution callback for this hook object through a decorator call.</span>
 
-    <span class="k">def</span> <span class="nf">set_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pre_execution</span> <span class="o">=</span> <span class="n">hook</span>
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_post_execution</span>
+<span class="sd">        async def post_execution(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The post-execution callback to set for this hook.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The post-execution callback which was set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_post_execution</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
+
+    <span class="k">def</span> <span class="nf">set_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the pre-execution callback for this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[HookSig[tanjun.abc.ContextT_contra]]</span>
+<span class="sd">            The callback to set for this hook, if `None` then any previously set</span>
+<span class="sd">            callback will be removed.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pre_execution</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">with_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_pre_execution</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">hook</span>
+    <span class="k">def</span> <span class="nf">with_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Set the pre-execution callback for this hook object through a decorator call.</span>
 
-    <span class="k">def</span> <span class="nf">set_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_success</span> <span class="o">=</span> <span class="n">hook</span>
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_pre_execution</span>
+<span class="sd">        async def pre_execution(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The pre-execution callback to set for this hook.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The pre-execution callback which was set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_pre_execution</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
+
+    <span class="k">def</span> <span class="nf">set_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the success callback for this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[HookSig[tanjun.abc.ContextT_contra]]</span>
+<span class="sd">            The callback to set for this hook, if `None` then any previously set</span>
+<span class="sd">            callback will be removed.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_success</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">with_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_success</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">hook</span>
+    <span class="k">def</span> <span class="nf">with_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Set the success callback for this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_success</span>
+<span class="sd">        async def on_success(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The success callback to set for this hook.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The success callback which was set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_success</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">trigger_error</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -449,6 +702,9 @@ This is shorthand for Hooks[<a href="abc.html#Context">tanjun.abc.Context</a>].<
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Hooks</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Standard implementation of `tanjun.abc.Hooks` used for command execution.</span>
 
+<span class="sd">    `tanjun.abc.ContextT_contra` will either be `tanjun.abc.Context`,</span>
+<span class="sd">    `tanjun.abc.MessageContext` or `tanjun.abc.SlashContext`.</span>
+
 <span class="sd">    .. note::</span>
 <span class="sd">        This implementation adds a concept of parser errors which won&#39;t be</span>
 <span class="sd">        dispatched to general &quot;error&quot; hooks and do not share the error</span>
@@ -505,45 +761,292 @@ This is shorthand for Hooks[<a href="abc.html#Context">tanjun.abc.Context</a>].<
         <span class="sd">&quot;&quot;&quot;Copy this hook object.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">set_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_error</span> <span class="o">=</span> <span class="n">hook</span>
+    <span class="k">def</span> <span class="nf">set_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the error callback for this hook object.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This will not be called for `tanjun.errors.ParserError`s as these</span>
+<span class="sd">            are generally speaking expected. To handle those see</span>
+<span class="sd">            `Hooks.set_on_parser_error`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[ErrorHookSig[tanjun.abc.ContextT_contra]]</span>
+<span class="sd">            The callback to set for this hook, if `None` then any previously set</span>
+<span class="sd">            callback will be removed.</span>
+
+<span class="sd">            This callback should be a callback which takes two positional</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `BaseException`) and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">            If this returns `True` then that indicates that this error should</span>
+<span class="sd">            be suppressed, with `False` indicating that it should be re-raise</span>
+<span class="sd">            and `None` indicating no decision has been made. This will be</span>
+<span class="sd">            accounted for along with the decisions the other error hooks make</span>
+<span class="sd">            by majority rule.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_error</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">with_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_error</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">hook</span>
+    <span class="k">def</span> <span class="nf">with_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Set the error callback for this hook object through a decorator call.</span>
 
-    <span class="k">def</span> <span class="nf">set_on_parser_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_parser_error</span> <span class="o">=</span> <span class="n">hook</span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This will not be called for `tanjun.errors.ParserError`s as these</span>
+<span class="sd">            are generally speaking expected. To handle those see</span>
+<span class="sd">            `Hooks.with_on_parser_error`.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_error</span>
+<span class="sd">        async def on_error(ctx: tanjun.abc.Context, error: BaseException) -&gt; bool:</span>
+<span class="sd">            if isinstance(error, SomeExpectedType):</span>
+<span class="sd">                await ctx.respond(&quot;You dun goofed&quot;)</span>
+<span class="sd">                return True  # Indicating that it should be suppressed.</span>
+
+<span class="sd">            await ctx.respond(f&quot;An error occurred: {error}&quot;)</span>
+<span class="sd">            return False  # Indicating that it should be re-raised</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : ErrorHookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The callback to set for this hook.</span>
+
+<span class="sd">            This callback should be a callback which takes two positional</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `BaseException`) and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">            If this returns `True` then that indicates that this error should</span>
+<span class="sd">            be suppressed, with `False` indicating that it should be re-raise</span>
+<span class="sd">            and `None` indicating no decision has been made. This will be</span>
+<span class="sd">            accounted for along with the decisions the other error hooks make</span>
+<span class="sd">            by majority rule.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ErrorHookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The hook callback which was set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_error</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
+
+    <span class="k">def</span> <span class="nf">set_on_parser_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the parser error callback for this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[ParserHookSig[tanjun.abc.ContextT_contra]]</span>
+<span class="sd">            The callback to set for this hook, if `None` then any previously set</span>
+<span class="sd">            callback will be removed.</span>
+
+<span class="sd">            This callback should be a callback which takes two positional</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `tanjun.errors.ParserError`),</span>
+<span class="sd">            return `None` and may be either synchronous or asynchronous.</span>
+
+<span class="sd">            It&#39;s worth noting that this unlike general error handlers, this will</span>
+<span class="sd">            always suppress the error.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parser_error</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">with_on_parser_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_parser_error</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">hook</span>
+    <span class="k">def</span> <span class="nf">with_on_parser_error</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Set the parser error callback for this hook object through a decorator call.</span>
 
-    <span class="k">def</span> <span class="nf">set_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_post_execution</span> <span class="o">=</span> <span class="n">hook</span>
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_parser_error</span>
+<span class="sd">        async def on_parser_error(ctx: tanjun.abc.Context, error: tanjun.errors.ParserError) -&gt; None:</span>
+<span class="sd">            await ctx.respond(f&quot;You gave invalid input: {error}&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : ParserHookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The parser error callback to set for this hook.</span>
+
+<span class="sd">            This callback should be a callback which takes two positional</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `tanjun.errors.ParserError`),</span>
+<span class="sd">            return `None` and may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ParserHookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The callback which was set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_parser_error</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
+
+    <span class="k">def</span> <span class="nf">set_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the post-execution callback for this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[HookSig[tanjun.abc.ContextT_contra]]</span>
+<span class="sd">            The callback to set for this hook, if `None` then any previously set</span>
+<span class="sd">            callback will be removed.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_post_execution</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">with_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_post_execution</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">hook</span>
+    <span class="k">def</span> <span class="nf">with_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Set the post-execution callback for this hook object through a decorator call.</span>
 
-    <span class="k">def</span> <span class="nf">set_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pre_execution</span> <span class="o">=</span> <span class="n">hook</span>
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_post_execution</span>
+<span class="sd">        async def post_execution(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The post-execution callback to set for this hook.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The post-execution callback which was set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_post_execution</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
+
+    <span class="k">def</span> <span class="nf">set_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the pre-execution callback for this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[HookSig[tanjun.abc.ContextT_contra]]</span>
+<span class="sd">            The callback to set for this hook, if `None` then any previously set</span>
+<span class="sd">            callback will be removed.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pre_execution</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">with_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_pre_execution</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">hook</span>
+    <span class="k">def</span> <span class="nf">with_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Set the pre-execution callback for this hook object through a decorator call.</span>
 
-    <span class="k">def</span> <span class="nf">set_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_success</span> <span class="o">=</span> <span class="n">hook</span>
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_pre_execution</span>
+<span class="sd">        async def pre_execution(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The pre-execution callback to set for this hook.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The pre-execution callback which was set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_pre_execution</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
+
+    <span class="k">def</span> <span class="nf">set_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the success callback for this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[HookSig[tanjun.abc.ContextT_contra]]</span>
+<span class="sd">            The callback to set for this hook, if `None` then any previously set</span>
+<span class="sd">            callback will be removed.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_success</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">with_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_success</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">hook</span>
+    <span class="k">def</span> <span class="nf">with_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Set the success callback for this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_success</span>
+<span class="sd">        async def on_success(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The success callback to set for this hook.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The success callback which was set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_success</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">trigger_error</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -618,6 +1121,9 @@ This is shorthand for Hooks[<a href="abc.html#Context">tanjun.abc.Context</a>].<
         </details>
 
             <div class="docstring"><p>Standard implementation of <code><a href="abc.html#Hooks">tanjun.abc.Hooks</a></code> used for command execution.</p>
+
+<p><code><a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a></code> will either be <code><a href="abc.html#Context">tanjun.abc.Context</a></code>,
+<code><a href="abc.html#MessageContext">tanjun.abc.MessageContext</a></code> or <code><a href="abc.html#SlashContext">tanjun.abc.SlashContext</a></code>.</p>
 
 <p><em>Note:</em>
 This implementation adds a concept of parser errors which won't be
@@ -752,21 +1258,80 @@ The command to add the hooks to.</li>
             <span class="def">def</span>
             <span class="name">set_on_error</span><span class="signature">(
     self: ~_HooksT,
-    hook: Optional[collections.abc.Callable[[-ContextT_contra, BaseException], Union[bool, NoneType, collections.abc.Awaitable[Optional[bool]]]]],
+    callback: Optional[collections.abc.Callable[[-ContextT_contra, BaseException], Union[bool, NoneType, collections.abc.Awaitable[Optional[bool]]]]],
     /
 ) -&gt; ~_HooksT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_error</span> <span class="o">=</span> <span class="n">hook</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the error callback for this hook object.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This will not be called for `tanjun.errors.ParserError`s as these</span>
+<span class="sd">            are generally speaking expected. To handle those see</span>
+<span class="sd">            `Hooks.set_on_parser_error`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[ErrorHookSig[tanjun.abc.ContextT_contra]]</span>
+<span class="sd">            The callback to set for this hook, if `None` then any previously set</span>
+<span class="sd">            callback will be removed.</span>
+
+<span class="sd">            This callback should be a callback which takes two positional</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `BaseException`) and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">            If this returns `True` then that indicates that this error should</span>
+<span class="sd">            be suppressed, with `False` indicating that it should be re-raise</span>
+<span class="sd">            and `None` indicating no decision has been made. This will be</span>
+<span class="sd">            accounted for along with the decisions the other error hooks make</span>
+<span class="sd">            by majority rule.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_error</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the error callback for this hook object.</p>
+
+<p><em>Note:</em>
+This will not be called for <code><a href="errors.html#ParserError">tanjun.errors.ParserError</a></code>s as these
+are generally speaking expected. To handle those see
+<code><a href="#Hooks.set_on_parser_error">Hooks.set_on_parser_error</a></code>.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (typing.Optional[ErrorHookSig[<a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a>]]):
+The callback to set for this hook, if <code>None</code> then any previously set
+callback will be removed.</p>
+
+<p>This callback should be a callback which takes two positional
+arguments (of type <code><a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a></code> and <code>BaseException</code>) and
+may be either synchronous or asynchronous.</p>
+
+<p>If this returns <code>True</code> then that indicates that this error should
+be suppressed, with <code>False</code> indicating that it should be re-raise
+and <code>None</code> indicating no decision has been made. This will be
+accounted for along with the decisions the other error hooks make
+by majority rule.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The hook object to enable method chaining.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Hooks.with_on_error" class="classattr">
@@ -776,21 +1341,107 @@ The command to add the hooks to.</li>
             <span class="def">def</span>
             <span class="name">with_on_error</span><span class="signature">(
     self,
-    hook: collections.abc.Callable,
+    callback: collections.abc.Callable,
     /
 ) -&gt; collections.abc.Callable[[-ContextT_contra, BaseException], typing.Union[bool, NoneType, collections.abc.Awaitable[typing.Optional[bool]]]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_error</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">hook</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ErrorHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Set the error callback for this hook object through a decorator call.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This will not be called for `tanjun.errors.ParserError`s as these</span>
+<span class="sd">            are generally speaking expected. To handle those see</span>
+<span class="sd">            `Hooks.with_on_parser_error`.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_error</span>
+<span class="sd">        async def on_error(ctx: tanjun.abc.Context, error: BaseException) -&gt; bool:</span>
+<span class="sd">            if isinstance(error, SomeExpectedType):</span>
+<span class="sd">                await ctx.respond(&quot;You dun goofed&quot;)</span>
+<span class="sd">                return True  # Indicating that it should be suppressed.</span>
+
+<span class="sd">            await ctx.respond(f&quot;An error occurred: {error}&quot;)</span>
+<span class="sd">            return False  # Indicating that it should be re-raised</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : ErrorHookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The callback to set for this hook.</span>
+
+<span class="sd">            This callback should be a callback which takes two positional</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `BaseException`) and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">            If this returns `True` then that indicates that this error should</span>
+<span class="sd">            be suppressed, with `False` indicating that it should be re-raise</span>
+<span class="sd">            and `None` indicating no decision has been made. This will be</span>
+<span class="sd">            accounted for along with the decisions the other error hooks make</span>
+<span class="sd">            by majority rule.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ErrorHookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The hook callback which was set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_error</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the error callback for this hook object through a decorator call.</p>
+
+<p><em>Note:</em>
+This will not be called for <code><a href="errors.html#ParserError">tanjun.errors.ParserError</a></code>s as these
+are generally speaking expected. To handle those see
+<code><a href="#Hooks.with_on_parser_error">Hooks.with_on_parser_error</a></code>.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="n">hooks</span> <span class="o">=</span> <span class="n">AnyHooks</span><span class="p">()</span>
+
+<span class="nd">@hooks</span><span class="o">.</span><span class="n">with_on_error</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">on_error</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">SomeExpectedType</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="s2">&quot;You dun goofed&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># Indicating that it should be suppressed.</span>
+
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error occurred: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Indicating that it should be re-raised</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (ErrorHookSig[<a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a>]):
+The callback to set for this hook.</p>
+
+<p>This callback should be a callback which takes two positional
+arguments (of type <code><a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a></code> and <code>BaseException</code>) and
+may be either synchronous or asynchronous.</p>
+
+<p>If this returns <code>True</code> then that indicates that this error should
+be suppressed, with <code>False</code> indicating that it should be re-raise
+and <code>None</code> indicating no decision has been made. This will be
+accounted for along with the decisions the other error hooks make
+by majority rule.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>ErrorHookSig[<a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a>]</strong>: The hook callback which was set.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Hooks.set_on_parser_error" class="classattr">
@@ -800,21 +1451,64 @@ The command to add the hooks to.</li>
             <span class="def">def</span>
             <span class="name">set_on_parser_error</span><span class="signature">(
     self: ~_HooksT,
-    hook: Optional[collections.abc.Callable[[-ContextT_contra, <a href="errors.html#ParserError">tanjun.errors.ParserError</a>], Optional[collections.abc.Awaitable[NoneType]]]],
+    callback: Optional[collections.abc.Callable[[-ContextT_contra, <a href="errors.html#ParserError">tanjun.errors.ParserError</a>], Optional[collections.abc.Awaitable[NoneType]]]],
     /
 ) -&gt; ~_HooksT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_on_parser_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_parser_error</span> <span class="o">=</span> <span class="n">hook</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_on_parser_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the parser error callback for this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[ParserHookSig[tanjun.abc.ContextT_contra]]</span>
+<span class="sd">            The callback to set for this hook, if `None` then any previously set</span>
+<span class="sd">            callback will be removed.</span>
+
+<span class="sd">            This callback should be a callback which takes two positional</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `tanjun.errors.ParserError`),</span>
+<span class="sd">            return `None` and may be either synchronous or asynchronous.</span>
+
+<span class="sd">            It&#39;s worth noting that this unlike general error handlers, this will</span>
+<span class="sd">            always suppress the error.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parser_error</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the parser error callback for this hook object.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (typing.Optional[ParserHookSig[<a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a>]]):
+The callback to set for this hook, if <code>None</code> then any previously set
+callback will be removed.</p>
+
+<p>This callback should be a callback which takes two positional
+arguments (of type <code><a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a></code> and <code><a href="errors.html#ParserError">tanjun.errors.ParserError</a></code>),
+return <code>None</code> and may be either synchronous or asynchronous.</p>
+
+<p>It's worth noting that this unlike general error handlers, this will
+always suppress the error.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The hook object to enable method chaining.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Hooks.with_on_parser_error" class="classattr">
@@ -824,21 +1518,77 @@ The command to add the hooks to.</li>
             <span class="def">def</span>
             <span class="name">with_on_parser_error</span><span class="signature">(
     self,
-    hook: collections.abc.Callable,
+    callback: collections.abc.Callable,
     /
 ) -&gt; collections.abc.Callable[[-ContextT_contra, <a href="errors.html#ParserError">tanjun.errors.ParserError</a>], typing.Optional[collections.abc.Awaitable[NoneType]]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_on_parser_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_parser_error</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">hook</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_on_parser_error</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParserHookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Set the parser error callback for this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_parser_error</span>
+<span class="sd">        async def on_parser_error(ctx: tanjun.abc.Context, error: tanjun.errors.ParserError) -&gt; None:</span>
+<span class="sd">            await ctx.respond(f&quot;You gave invalid input: {error}&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : ParserHookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The parser error callback to set for this hook.</span>
+
+<span class="sd">            This callback should be a callback which takes two positional</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `tanjun.errors.ParserError`),</span>
+<span class="sd">            return `None` and may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ParserHookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The callback which was set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_parser_error</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the parser error callback for this hook object through a decorator call.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="n">hooks</span> <span class="o">=</span> <span class="n">AnyHooks</span><span class="p">()</span>
+
+<span class="nd">@hooks</span><span class="o">.</span><span class="n">with_on_parser_error</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">on_parser_error</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ParserError</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;You gave invalid input: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (ParserHookSig[<a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a>]):
+The parser error callback to set for this hook.</p>
+
+<p>This callback should be a callback which takes two positional
+arguments (of type <code><a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a></code> and <code><a href="errors.html#ParserError">tanjun.errors.ParserError</a></code>),
+return <code>None</code> and may be either synchronous or asynchronous.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>ParserHookSig[<a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a>]</strong>: The callback which was set.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Hooks.set_post_execution" class="classattr">
@@ -848,21 +1598,58 @@ The command to add the hooks to.</li>
             <span class="def">def</span>
             <span class="name">set_post_execution</span><span class="signature">(
     self: ~_HooksT,
-    hook: Optional[collections.abc.Callable[[-ContextT_contra], Optional[collections.abc.Awaitable[NoneType]]]],
+    callback: Optional[collections.abc.Callable[[-ContextT_contra], Optional[collections.abc.Awaitable[NoneType]]]],
     /
 ) -&gt; ~_HooksT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_post_execution</span> <span class="o">=</span> <span class="n">hook</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the post-execution callback for this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[HookSig[tanjun.abc.ContextT_contra]]</span>
+<span class="sd">            The callback to set for this hook, if `None` then any previously set</span>
+<span class="sd">            callback will be removed.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_post_execution</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the post-execution callback for this hook object.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (typing.Optional[HookSig[<a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a>]]):
+The callback to set for this hook, if <code>None</code> then any previously set
+callback will be removed.</p>
+
+<p>This callback should be a callback which takes one positional
+argument (of type <code><a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a></code>), return <code>None</code> and
+may be either synchronous or asynchronous.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The hook object to enable method chaining.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Hooks.with_post_execution" class="classattr">
@@ -872,21 +1659,75 @@ The command to add the hooks to.</li>
             <span class="def">def</span>
             <span class="name">with_post_execution</span><span class="signature">(
     self,
-    hook: collections.abc.Callable,
+    callback: collections.abc.Callable,
     /
 ) -&gt; collections.abc.Callable[[-ContextT_contra], typing.Optional[collections.abc.Awaitable[NoneType]]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_post_execution</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">hook</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Set the post-execution callback for this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_post_execution</span>
+<span class="sd">        async def post_execution(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The post-execution callback to set for this hook.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The post-execution callback which was set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_post_execution</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the post-execution callback for this hook object through a decorator call.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="n">hooks</span> <span class="o">=</span> <span class="n">AnyHooks</span><span class="p">()</span>
+
+<span class="nd">@hooks</span><span class="o">.</span><span class="n">with_post_execution</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">post_execution</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="s2">&quot;You did something&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (HookSig[<a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a>]):
+The post-execution callback to set for this hook.</p>
+
+<p>This callback should be a callback which takes one positional
+argument (of type <code><a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a></code>), return <code>None</code> and
+may be either synchronous or asynchronous.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>HookSig[<a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a>]</strong>: The post-execution callback which was set.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Hooks.set_pre_execution" class="classattr">
@@ -896,21 +1737,58 @@ The command to add the hooks to.</li>
             <span class="def">def</span>
             <span class="name">set_pre_execution</span><span class="signature">(
     self: ~_HooksT,
-    hook: Optional[collections.abc.Callable[[-ContextT_contra], Optional[collections.abc.Awaitable[NoneType]]]],
+    callback: Optional[collections.abc.Callable[[-ContextT_contra], Optional[collections.abc.Awaitable[NoneType]]]],
     /
 ) -&gt; ~_HooksT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pre_execution</span> <span class="o">=</span> <span class="n">hook</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the pre-execution callback for this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[HookSig[tanjun.abc.ContextT_contra]]</span>
+<span class="sd">            The callback to set for this hook, if `None` then any previously set</span>
+<span class="sd">            callback will be removed.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pre_execution</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the pre-execution callback for this hook object.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (typing.Optional[HookSig[<a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a>]]):
+The callback to set for this hook, if <code>None</code> then any previously set
+callback will be removed.</p>
+
+<p>This callback should be a callback which takes one positional
+argument (of type <code><a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a></code>), return <code>None</code> and
+may be either synchronous or asynchronous.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The hook object to enable method chaining.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Hooks.with_pre_execution" class="classattr">
@@ -920,21 +1798,75 @@ The command to add the hooks to.</li>
             <span class="def">def</span>
             <span class="name">with_pre_execution</span><span class="signature">(
     self,
-    hook: collections.abc.Callable,
+    callback: collections.abc.Callable,
     /
 ) -&gt; collections.abc.Callable[[-ContextT_contra], typing.Optional[collections.abc.Awaitable[NoneType]]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_pre_execution</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">hook</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Set the pre-execution callback for this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_pre_execution</span>
+<span class="sd">        async def pre_execution(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The pre-execution callback to set for this hook.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The pre-execution callback which was set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_pre_execution</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the pre-execution callback for this hook object through a decorator call.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="n">hooks</span> <span class="o">=</span> <span class="n">AnyHooks</span><span class="p">()</span>
+
+<span class="nd">@hooks</span><span class="o">.</span><span class="n">with_pre_execution</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">pre_execution</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="s2">&quot;You did something&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (HookSig[<a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a>]):
+The pre-execution callback to set for this hook.</p>
+
+<p>This callback should be a callback which takes one positional
+argument (of type <code><a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a></code>), return <code>None</code> and
+may be either synchronous or asynchronous.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>HookSig[<a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a>]</strong>: The pre-execution callback which was set.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Hooks.set_on_success" class="classattr">
@@ -944,21 +1876,58 @@ The command to add the hooks to.</li>
             <span class="def">def</span>
             <span class="name">set_on_success</span><span class="signature">(
     self: ~_HooksT,
-    hook: Optional[collections.abc.Callable[[-ContextT_contra], Optional[collections.abc.Awaitable[NoneType]]]],
+    callback: Optional[collections.abc.Callable[[-ContextT_contra], Optional[collections.abc.Awaitable[NoneType]]]],
     /
 ) -&gt; ~_HooksT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_success</span> <span class="o">=</span> <span class="n">hook</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_HooksT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_HooksT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set the success callback for this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : typing.Optional[HookSig[tanjun.abc.ContextT_contra]]</span>
+<span class="sd">            The callback to set for this hook, if `None` then any previously set</span>
+<span class="sd">            callback will be removed.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_success</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the success callback for this hook object.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (typing.Optional[HookSig[<a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a>]]):
+The callback to set for this hook, if <code>None</code> then any previously set
+callback will be removed.</p>
+
+<p>This callback should be a callback which takes one positional
+argument (of type <code><a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a></code>), return <code>None</code> and
+may be either synchronous or asynchronous.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The hook object to enable method chaining.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Hooks.with_on_success" class="classattr">
@@ -968,21 +1937,75 @@ The command to add the hooks to.</li>
             <span class="def">def</span>
             <span class="name">with_on_success</span><span class="signature">(
     self,
-    hook: collections.abc.Callable,
+    callback: collections.abc.Callable,
     /
 ) -&gt; collections.abc.Callable[[-ContextT_contra], typing.Optional[collections.abc.Awaitable[NoneType]]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hook</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_success</span><span class="p">(</span><span class="n">hook</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">hook</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSig</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Set the success callback for this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_success</span>
+<span class="sd">        async def on_success(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The success callback to set for this hook.</span>
+
+<span class="sd">            This callback should be a callback which takes one positional</span>
+<span class="sd">            argument (of type `tanjun.abc.ContextT_contra`), return `None` and</span>
+<span class="sd">            may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSig[tanjun.abc.ContextT_contra]</span>
+<span class="sd">            The success callback which was set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_on_success</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
 </pre></div>
 
         </details>
 
-    
+            <div class="docstring"><p>Set the success callback for this hook object through a decorator call.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="n">hooks</span> <span class="o">=</span> <span class="n">AnyHooks</span><span class="p">()</span>
+
+<span class="nd">@hooks</span><span class="o">.</span><span class="n">with_on_success</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">on_success</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="s2">&quot;You did something&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (HookSig[<a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a>]):
+The success callback to set for this hook.</p>
+
+<p>This callback should be a callback which takes one positional
+argument (of type <code><a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a></code>), return <code>None</code> and
+may be either synchronous or asynchronous.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>HookSig[<a href="abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a>]</strong>: The success callback which was set.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Hooks.trigger_error" class="classattr">
