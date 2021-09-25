@@ -32,18 +32,16 @@
 
 # pyright: reportIncompatibleMethodOverride=none
 # pyright: reportUnknownMemberType=none
+# pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 
 import types
-import typing
 from unittest import mock
 
 import hikari
 import pytest
 
 import tanjun
-
-_T = typing.TypeVar("_T")
 
 
 class TestComponent:
@@ -236,50 +234,65 @@ class TestComponent:
         assert component.get_client_callbacks("slay") == ()
 
     def test_with_client_callback(self):
+        add_client_callback = mock.Mock()
         component: tanjun.Component = types.new_class(
-            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_client_callback": mock.Mock()})
-        )()
+            "StubComponent",
+            (tanjun.Component,),
+            exec_body=lambda ns: ns.update({"add_client_callback": add_client_callback}),
+        )(load_from_attributes=False)
         mock_callback = mock.Mock()
 
         result = component.with_client_callback("aye")(mock_callback)
 
         assert result is mock_callback
-        component.add_client_callback.assert_called_once_with("aye", mock_callback)
+        add_client_callback.assert_called_once_with("aye", mock_callback)
 
     def test_add_command_for_message_command(self):
         mock_command = mock.Mock(tanjun.abc.MessageCommand)
+        add_slash_command = mock.Mock()
+        add_message_command = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent",
             (tanjun.Component,),
-            exec_body=lambda ns: ns.update({"add_message_command": mock.Mock(), "add_slash_command": mock.Mock()}),
-        )()
+            exec_body=lambda ns: ns.update(
+                {"add_message_command": add_message_command, "add_slash_command": add_slash_command}
+            ),
+        )(load_from_attributes=False)
 
         result = component.add_command(mock_command)
 
         assert result is component
-        component.add_message_command.assert_called_once_with(mock_command)
-        component.add_slash_command.assert_not_called()
+        add_message_command.assert_called_once_with(mock_command)
+        add_slash_command.assert_not_called()
 
     def test_add_command_for_slash_command(self):
         mock_command = mock.Mock(tanjun.abc.SlashCommand)
+        add_slash_command = mock.Mock()
+        add_message_command = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent",
             (tanjun.Component,),
-            exec_body=lambda ns: ns.update({"add_message_command": mock.Mock(), "add_slash_command": mock.Mock()}),
-        )()
+            exec_body=lambda ns: ns.update(
+                {"add_message_command": add_message_command, "add_slash_command": add_slash_command}
+            ),
+        )(load_from_attributes=False)
 
         result = component.add_command(mock_command)
 
         assert result is component
-        component.add_slash_command.assert_called_once_with(mock_command)
-        component.add_message_command.assert_not_called()
+        add_slash_command.assert_called_once_with(mock_command)
+        add_message_command.assert_not_called()
 
     def test_add_command_for_unknown_type(self):
         mock_command = mock.Mock()
+        add_slash_command = mock.Mock()
+        add_message_command = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent",
             (tanjun.Component,),
-            exec_body=lambda ns: ns.update({"add_message_command": mock.Mock(), "add_slash_command": mock.Mock()}),
+            exec_body=lambda ns: ns.update(
+                {"add_message_command": add_message_command, "add_slash_command": add_slash_command}
+            ),
         )()
 
         with pytest.raises(
@@ -288,46 +301,52 @@ class TestComponent:
         ):
             component.add_command(mock_command)
 
-        component.add_slash_command.assert_not_called()
-        component.add_message_command.assert_not_called()
+        add_slash_command.assert_not_called()
+        add_message_command.assert_not_called()
 
     def test_remove_command_for_message_command(self):
         mock_command = mock.Mock(tanjun.abc.MessageCommand)
+        remove_message_command = mock.Mock()
+        remove_slash_command = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent",
             (tanjun.Component,),
             exec_body=lambda ns: ns.update(
-                {"remove_message_command": mock.Mock(), "remove_slash_command": mock.Mock()}
+                {"remove_message_command": remove_message_command, "remove_slash_command": remove_slash_command}
             ),
-        )()
+        )(load_from_attributes=False)
 
         component.remove_command(mock_command)
 
-        component.remove_message_command.assert_called_once_with(mock_command)
-        component.remove_slash_command.assert_not_called()
+        remove_message_command.assert_called_once_with(mock_command)
+        remove_slash_command.assert_not_called()
 
     def test_remove_command_for_slash_command(self):
         mock_command = mock.Mock(tanjun.abc.SlashCommand)
+        remove_slash_command = mock.Mock()
+        remove_message_command = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent",
             (tanjun.Component,),
             exec_body=lambda ns: ns.update(
-                {"remove_message_command": mock.Mock(), "remove_slash_command": mock.Mock()}
+                {"remove_message_command": remove_message_command, "remove_slash_command": remove_slash_command}
             ),
-        )()
+        )(load_from_attributes=False)
 
         component.remove_command(mock_command)
 
-        component.remove_slash_command.assert_called_once_with(mock_command)
-        component.remove_message_command.assert_not_called()
+        remove_slash_command.assert_called_once_with(mock_command)
+        remove_message_command.assert_not_called()
 
     def test_remove_command_for_unknown_type(self):
         mock_command = mock.Mock()
+        remove_slash_command = mock.Mock()
+        remove_message_command = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent",
             (tanjun.Component,),
             exec_body=lambda ns: ns.update(
-                {"remove_message_command": mock.Mock(), "remove_slash_command": mock.Mock()}
+                {"remove_message_command": remove_message_command, "remove_slash_command": remove_slash_command}
             ),
         )()
 
@@ -337,31 +356,33 @@ class TestComponent:
         ):
             component.remove_command(mock_command)
 
-        component.remove_slash_command.assert_not_called()
-        component.remove_message_command.assert_not_called()
+        remove_slash_command.assert_not_called()
+        remove_message_command.assert_not_called()
 
     def test_with_command(self):
+        add_command = mock.Mock()
         component: tanjun.Component = types.new_class(
-            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_command": mock.Mock()})
-        )()
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_command": add_command})
+        )(load_from_attributes=False)
         mock_command = mock.Mock()
 
         result = component.with_command(mock_command)
 
         assert result is mock_command
-        component.add_command.assert_called_once_with(mock_command)
+        add_command.assert_called_once_with(mock_command)
         mock_command.copy.assert_not_called()
 
     def test_with_command_when_copy(self):
+        add_command = mock.Mock()
         component: tanjun.Component = types.new_class(
-            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_command": mock.Mock()})
-        )()
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_command": add_command})
+        )(load_from_attributes=False)
         mock_command = mock.Mock()
 
         result = component.with_command(copy=True)(mock_command)
 
         assert result is mock_command.copy.return_value
-        component.add_command.assert_called_once_with(mock_command.copy.return_value)
+        add_command.assert_called_once_with(mock_command.copy.return_value)
         mock_command.copy.assert_called_once_with()
 
     def test_add_slash_command(self):
@@ -420,26 +441,32 @@ class TestComponent:
 
     def test_with_slash_command(self):
         mock_command = mock.Mock()
+        add_slash_command = mock.Mock()
         component: tanjun.Component = types.new_class(
-            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_slash_command": mock.Mock()})
-        )()
+            "StubComponent",
+            (tanjun.Component,),
+            exec_body=lambda ns: ns.update({"add_slash_command": add_slash_command}),
+        )(load_from_attributes=False)
 
         result = component.with_slash_command(mock_command)
 
         assert result is mock_command
-        component.add_slash_command.assert_called_once_with(mock_command)
+        add_slash_command.assert_called_once_with(mock_command)
         mock_command.copy.assert_not_called()
 
     def test_with_slash_command_when_copy(self):
         mock_command = mock.Mock()
+        add_slash_command = mock.Mock()
         component: tanjun.Component = types.new_class(
-            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_slash_command": mock.Mock()})
-        )()
+            "StubComponent",
+            (tanjun.Component,),
+            exec_body=lambda ns: ns.update({"add_slash_command": add_slash_command}),
+        )(load_from_attributes=False)
 
         result = component.with_slash_command(copy=True)(mock_command)
 
         assert result is mock_command.copy.return_value
-        component.add_slash_command.assert_called_once_with(mock_command.copy.return_value)
+        add_slash_command.assert_called_once_with(mock_command.copy.return_value)
         mock_command.copy.assert_called_once_with()
 
     def test_add_message_command(self):
@@ -546,25 +573,31 @@ class TestComponent:
 
     def test_with_message_command(self):
         mock_command = mock.Mock()
+        add_message_command = mock.Mock()
         component: tanjun.Component = types.new_class(
-            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_message_command": mock.Mock()})
-        )()
+            "StubComponent",
+            (tanjun.Component,),
+            exec_body=lambda ns: ns.update({"add_message_command": add_message_command}),
+        )(load_from_attributes=False)
 
         result = component.with_message_command(mock_command)
 
         assert result is mock_command
-        component.add_message_command.assert_called_once_with(mock_command)
+        add_message_command.assert_called_once_with(mock_command)
 
     def test_with_message_command_when_copy(self):
         mock_command = mock.Mock()
+        add_message_command = mock.Mock()
         component: tanjun.Component = types.new_class(
-            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_message_command": mock.Mock()})
-        )()
+            "StubComponent",
+            (tanjun.Component,),
+            exec_body=lambda ns: ns.update({"add_message_command": add_message_command}),
+        )(load_from_attributes=False)
 
         result = component.with_message_command(copy=True)(mock_command)
 
         assert result is mock_command.copy.return_value
-        component.add_message_command.assert_called_once_with(mock_command.copy.return_value)
+        add_message_command.assert_called_once_with(mock_command.copy.return_value)
         mock_command.copy.assert_called_once_with()
 
     def test_add_listener(self):
@@ -665,15 +698,16 @@ class TestComponent:
         mock_client.remove_listener.assert_not_called()
 
     def test_with_listener(self):
+        add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
-            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": mock.Mock()})
-        )()
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
+        )(load_from_attributes=False)
         mock_listener = mock.Mock()
 
         result = component.with_listener(hikari.Event)(mock_listener)
 
         assert result is mock_listener
-        component.add_listener.assert_called_once_with(hikari.Event, mock_listener)
+        add_listener.assert_called_once_with(hikari.Event, mock_listener)
 
     def test_bind_client(self):
         mock_client = mock.Mock()

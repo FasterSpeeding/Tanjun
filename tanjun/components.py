@@ -150,6 +150,7 @@ class Component(abc.Component):
         message_hooks: typing.Optional[abc.MessageHooks] = None,
         name: typing.Optional[str] = None,
         strict: bool = False,
+        load_from_attributes: bool = True,
     ) -> None:
         self._checks: list[checks_.InjectableCheck] = (
             [checks_.InjectableCheck(check) for check in dict.fromkeys(checks)] if checks else []
@@ -167,7 +168,7 @@ class Component(abc.Component):
         self._slash_commands: dict[str, abc.BaseSlashCommand] = {}
         self._slash_hooks = slash_hooks
 
-        if type(self) is not Component:  # No need to run this on the base class.
+        if load_from_attributes and type(self) is not Component:  # No need to run this on the base class.
             self._load_from_properties()
 
     def __repr__(self) -> str:
