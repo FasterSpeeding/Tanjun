@@ -273,17 +273,23 @@
 
 
 <span class="k">def</span> <span class="nf">_with_command</span><span class="p">(</span>
-    <span class="n">add_command</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span>
-    <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CommandT</span><span class="p">],</span>
+    <span class="n">add_command</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">Component</span><span class="p">],</span>
+    <span class="n">maybe_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CommandT</span><span class="p">],</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WithCommandReturnSig</span><span class="p">[</span><span class="n">CommandT</span><span class="p">]:</span>
-    <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
-        <span class="n">add_command</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">copy</span> <span class="k">else</span> <span class="n">command</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">maybe_command</span><span class="p">:</span>
+        <span class="n">maybe_command</span> <span class="o">=</span> <span class="n">maybe_command</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">copy</span> <span class="k">else</span> <span class="n">maybe_command</span>
+        <span class="n">add_command</span><span class="p">(</span><span class="n">maybe_command</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">maybe_command</span>
+
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandT</span><span class="p">:</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">copy</span> <span class="k">else</span> <span class="n">command</span>
+        <span class="n">add_command</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">command</span>
 
-    <span class="k">return</span> <span class="k">lambda</span> <span class="n">command_</span><span class="p">:</span> <span class="n">add_command</span><span class="p">(</span><span class="n">command_</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">copy</span> <span class="k">else</span> <span class="n">command_</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">decorator</span>
 
 
 <span class="k">class</span> <span class="nc">Component</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">):</span>
@@ -347,16 +353,17 @@
         <span class="n">message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">load_from_attributes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">{</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks</span><span class="p">}</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">checks</span><span class="p">)]</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">message_hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randbytes</span><span class="p">(</span><span class="mi">32</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
@@ -364,7 +371,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">slash_hooks</span>
 
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Component</span><span class="p">:</span>  <span class="c1"># No need to run this on the base class.</span>
+        <span class="k">if</span> <span class="n">load_from_attributes</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Component</span><span class="p">:</span>  <span class="c1"># No need to run this on the base class.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_properties</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -372,7 +379,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">check</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">}</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">check</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]:</span>
@@ -418,14 +425,14 @@
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span> <span class="o">=</span> <span class="p">{</span><span class="n">check</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span> <span class="o">=</span> <span class="p">[</span><span class="n">check</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">event</span><span class="p">:</span> <span class="p">{</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span> <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">}</span> <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="n">event</span><span class="p">:</span> <span class="p">[</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span> <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">]</span> <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">}</span>
             <span class="n">commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">command</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">commands</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">commands</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">commands</span><span class="p">[</span><span class="n">command</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
             <span class="k">return</span> <span class="bp">self</span>
@@ -445,7 +452,9 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -458,9 +467,12 @@
     <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="bp">self</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">callback</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">callback</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
@@ -527,11 +539,22 @@
         <span class="k">return</span> <span class="n">_with_command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_command</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_slash_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="n">command</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="n">command</span><span class="o">.</span><span class="n">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="n">command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()]</span> <span class="o">=</span> <span class="n">command</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_slash_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Command </span><span class="si">{</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
 
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
     <span class="k">def</span> <span class="nf">with_slash_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommandT</span><span class="p">:</span>
@@ -567,6 +590,9 @@
 <span class="sd">            If one of the command&#39;s name is already registered in a strict</span>
 <span class="sd">            component.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="ow">in</span> <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Command name cannot contain spaces for this component implementation&quot;</span><span class="p">)</span>
@@ -579,7 +605,11 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="n">command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
+
         <span class="n">command</span><span class="o">.</span><span class="n">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -610,10 +640,13 @@
         <span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">listener</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">listener</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="bp">self</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">listener</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">listener</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
@@ -638,13 +671,16 @@
 
         <span class="k">return</span> <span class="n">decorator</span>
 
-    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Client already set&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
-        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
-            <span class="n">command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">message_command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
+            <span class="n">message_command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">slash_command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">slash_command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
@@ -653,6 +689,8 @@
         <span class="k">for</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">callbacks</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">unbind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">!=</span> <span class="n">client</span><span class="p">:</span>
@@ -671,6 +709,8 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">remove_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
                 <span class="k">except</span> <span class="p">(</span><span class="ne">LookupError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
                     <span class="k">pass</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_check_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">utilities</span><span class="o">.</span><span class="n">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
@@ -709,7 +749,7 @@
             <span class="n">name</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
-                <span class="k">return</span>
+            <span class="k">return</span>
 
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -891,16 +931,17 @@
         <span class="n">message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">load_from_attributes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">{</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks</span><span class="p">}</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">checks</span><span class="p">)]</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">message_hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randbytes</span><span class="p">(</span><span class="mi">32</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
@@ -908,7 +949,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">slash_hooks</span>
 
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Component</span><span class="p">:</span>  <span class="c1"># No need to run this on the base class.</span>
+        <span class="k">if</span> <span class="n">load_from_attributes</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Component</span><span class="p">:</span>  <span class="c1"># No need to run this on the base class.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_properties</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -916,7 +957,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">check</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">}</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">check</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]:</span>
@@ -962,14 +1003,14 @@
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span> <span class="o">=</span> <span class="p">{</span><span class="n">check</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span> <span class="o">=</span> <span class="p">[</span><span class="n">check</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">event</span><span class="p">:</span> <span class="p">{</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span> <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">}</span> <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="n">event</span><span class="p">:</span> <span class="p">[</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span> <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">]</span> <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">}</span>
             <span class="n">commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">command</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">commands</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">commands</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">commands</span><span class="p">[</span><span class="n">command</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
             <span class="k">return</span> <span class="bp">self</span>
@@ -989,7 +1030,9 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1002,9 +1045,12 @@
     <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="bp">self</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">callback</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">callback</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
@@ -1071,11 +1117,22 @@
         <span class="k">return</span> <span class="n">_with_command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add_command</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_slash_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="n">command</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="n">command</span><span class="o">.</span><span class="n">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="n">command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()]</span> <span class="o">=</span> <span class="n">command</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_slash_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Command </span><span class="si">{</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
 
     <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
     <span class="k">def</span> <span class="nf">with_slash_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommandT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommandT</span><span class="p">:</span>
@@ -1111,6 +1168,9 @@
 <span class="sd">            If one of the command&#39;s name is already registered in a strict</span>
 <span class="sd">            component.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="ow">in</span> <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Command name cannot contain spaces for this component implementation&quot;</span><span class="p">)</span>
@@ -1123,7 +1183,11 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="n">command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
+
         <span class="n">command</span><span class="o">.</span><span class="n">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -1154,10 +1218,13 @@
         <span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">listener</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">listener</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="bp">self</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">listener</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">listener</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
@@ -1182,13 +1249,16 @@
 
         <span class="k">return</span> <span class="n">decorator</span>
 
-    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Client already set&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
-        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
-            <span class="n">command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">message_command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
+            <span class="n">message_command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">slash_command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">slash_command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
@@ -1197,6 +1267,8 @@
         <span class="k">for</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">callbacks</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">unbind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">!=</span> <span class="n">client</span><span class="p">:</span>
@@ -1215,6 +1287,8 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">remove_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
                 <span class="k">except</span> <span class="p">(</span><span class="ne">LookupError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
                     <span class="k">pass</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_check_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">utilities</span><span class="o">.</span><span class="n">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
@@ -1253,7 +1327,7 @@
             <span class="n">name</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
-                <span class="k">return</span>
+            <span class="k">return</span>
 
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1402,7 +1476,8 @@ spaces and will have to be unique to one command within the component.</p></li>
     slash_hooks: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#SlashContext">tanjun.abc.SlashContext</a>]] = None,
     message_hooks: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#MessageContext">tanjun.abc.MessageContext</a>]] = None,
     name: Optional[str] = None,
-    strict: bool = False
+    strict: bool = False,
+    load_from_attributes: bool = True
 )</span>
     </div>
 
@@ -1417,16 +1492,17 @@ spaces and will have to be unique to one command within the component.</p></li>
         <span class="n">message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">load_from_attributes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">{</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">checks</span><span class="p">}</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">checks</span><span class="p">)]</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">message_hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randbytes</span><span class="p">(</span><span class="mi">32</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
@@ -1434,7 +1510,7 @@ spaces and will have to be unique to one command within the component.</p></li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">slash_hooks</span>
 
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Component</span><span class="p">:</span>  <span class="c1"># No need to run this on the base class.</span>
+        <span class="k">if</span> <span class="n">load_from_attributes</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Component</span><span class="p">:</span>  <span class="c1"># No need to run this on the base class.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_properties</span><span class="p">()</span>
 </pre></div>
 
@@ -1610,14 +1686,14 @@ the component.</p>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span> <span class="o">=</span> <span class="p">{</span><span class="n">check</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span> <span class="o">=</span> <span class="p">[</span><span class="n">check</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">event</span><span class="p">:</span> <span class="p">{</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span> <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">}</span> <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="n">event</span><span class="p">:</span> <span class="p">[</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span> <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">]</span> <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">}</span>
             <span class="n">commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">command</span><span class="p">:</span> <span class="n">command</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">commands</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">commands</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">commands</span><span class="p">[</span><span class="n">command</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
             <span class="k">return</span> <span class="bp">self</span>
@@ -1716,7 +1792,9 @@ the component.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
@@ -1782,9 +1860,12 @@ the component.</p>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_client_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="bp">self</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">callback</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">callback</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
@@ -1977,6 +2058,14 @@ the component.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_slash_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="n">command</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="n">command</span><span class="o">.</span><span class="n">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="n">command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()]</span> <span class="o">=</span> <span class="n">command</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
@@ -2012,7 +2101,10 @@ The command to add.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_slash_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Command </span><span class="si">{</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
 </pre></div>
 
         </details>
@@ -2024,6 +2116,12 @@ The command to add.</li>
 <ul>
 <li><strong>command</strong> (BaseSlashCommand):
 The command to remove.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the provided command isn't found.</li>
 </ul>
 </div>
 
@@ -2111,6 +2209,9 @@ Whether to copy the command before adding it.</li>
 <span class="sd">            If one of the command&#39;s name is already registered in a strict</span>
 <span class="sd">            component.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="ow">in</span> <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Command name cannot contain spaces for this component implementation&quot;</span><span class="p">)</span>
@@ -2123,7 +2224,11 @@ Whether to copy the command before adding it.</li>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="n">command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
+
         <span class="n">command</span><span class="o">.</span><span class="n">bind_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
@@ -2183,6 +2288,12 @@ component.</li>
 <ul>
 <li><strong>command</strong> (MessageCommand):
 The command to remove.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the provided command isn't found.</li>
 </ul>
 </div>
 
@@ -2256,10 +2367,13 @@ Whether to copy the command before adding it.</li>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">listener</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">listener</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="bp">self</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">listener</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">listener</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">listener</span><span class="p">)</span>
@@ -2324,7 +2438,7 @@ The listener to remove.</li>
 <h6 id="raises">Raises</h6>
 
 <ul>
-<li><strong>LookupError</strong>: If the listener is not registered for the provided event.</li>
+<li><strong>ValueError</strong>: If the listener is not registered for the provided event.</li>
 </ul>
 </div>
 
@@ -2378,18 +2492,21 @@ The event to listen for.</li>
 
         
             <span class="def">def</span>
-            <span class="name">bind_client</span><span class="signature">(self, client: <a href="abc.html#Client">tanjun.abc.Client</a>, /) -&gt; None</span>:
+            <span class="name">bind_client</span><span class="signature">(self: ~_ComponentT, client: <a href="abc.html#Client">tanjun.abc.Client</a>, /) -&gt; ~_ComponentT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Client already set&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
-        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
-            <span class="n">command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">message_command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
+            <span class="n">message_command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">slash_command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">slash_command</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">listeners</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">listener</span> <span class="ow">in</span> <span class="n">listeners</span><span class="p">:</span>
@@ -2398,6 +2515,8 @@ The event to listen for.</li>
         <span class="k">for</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">callbacks</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">callbacks</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
@@ -2432,6 +2551,8 @@ The event to listen for.</li>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">remove_client_callback</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
                 <span class="k">except</span> <span class="p">(</span><span class="ne">LookupError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
                     <span class="k">pass</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 
         </details>
@@ -2458,7 +2579,7 @@ The event to listen for.</li>
             <span class="n">name</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span>
-                <span class="k">return</span>
+            <span class="k">return</span>
 
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">:=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">match_prefix_names</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">command</span><span class="o">.</span><span class="n">names</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

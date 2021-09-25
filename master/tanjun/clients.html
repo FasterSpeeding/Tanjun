@@ -729,8 +729,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">cache</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
@@ -747,7 +747,7 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_InjectablePrefixGetter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span> <span class="o">=</span> <span class="n">rest</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">server</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_shards</span> <span class="o">=</span> <span class="n">shards</span>
@@ -938,13 +938,13 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Set[tanjun.abc.CheckSig]</span>
+<span class="sd">        collections.abc.Collection[tanjun.abc.CheckSig]</span>
 <span class="sd">            Colleciton of the `tanjun.abc.Context` based checks registered for</span>
 <span class="sd">            this client.</span>
 
 <span class="sd">            These may be taking advantage of the standard dependency injection.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">check</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">}</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">check</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]:</span>
@@ -1034,7 +1034,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Set[str]</span>
+<span class="sd">        collections.abc.Collection[str]</span>
 <span class="sd">            The standard prefixes set for this client.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -1327,7 +1327,7 @@
 
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_commands</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_commands</span><span class="p">(</span>  <span class="c1"># TODO: better name?</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1419,7 +1419,9 @@
 <span class="sd">        Self</span>
 <span class="sd">            The client instance to enable chained calls.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>  <span class="c1"># type: ignore[arg-type]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1429,6 +1431,11 @@
 <span class="sd">        ----------</span>
 <span class="sd">        check : tanjun_abc.CheckSig</span>
 <span class="sd">            The check to remove.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the check was not previously added.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
 
@@ -1486,9 +1493,12 @@
         <span class="n">descriptor</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">descriptor</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">descriptor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="bp">self</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">descriptor</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">descriptor</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">descriptor</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -1506,6 +1516,11 @@
 <span class="sd">            Positional arguments to pass to the callback(s).</span>
 <span class="sd">        **kwargs : typing.Any</span>
 <span class="sd">            Keyword arguments to pass to the callback(s).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If no callbacks are registered for the given name.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
@@ -1561,11 +1576,7 @@
 
     <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">registered_callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
-
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span><span class="s2">&quot;Event listener not found.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+        <span class="n">registered_callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span>
@@ -1602,10 +1613,11 @@
 <span class="sd">            The client instance to enable chained calls.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prefixes</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">prefixes</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">prefixes</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prefixes</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">prefixes</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">prefix</span> <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">prefixes</span> <span class="k">if</span> <span class="n">prefix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -1619,7 +1631,7 @@
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
-<span class="sd">        LookupError</span>
+<span class="sd">        ValueError</span>
 <span class="sd">            If the prefix is not registered with the client.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
@@ -1791,8 +1803,10 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;@</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;@!</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="sa">f</span><span class="s2">&quot;&lt;@</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;&lt;@!</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">prefix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="n">register_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
@@ -2293,8 +2307,8 @@ to the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">cache</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
@@ -2311,7 +2325,7 @@ to the provided client using it's abstract methods.</li>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_InjectablePrefixGetter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span> <span class="o">=</span> <span class="n">rest</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">server</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_shards</span> <span class="o">=</span> <span class="n">shards</span>
@@ -2502,13 +2516,13 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Set[tanjun.abc.CheckSig]</span>
+<span class="sd">        collections.abc.Collection[tanjun.abc.CheckSig]</span>
 <span class="sd">            Colleciton of the `tanjun.abc.Context` based checks registered for</span>
 <span class="sd">            this client.</span>
 
 <span class="sd">            These may be taking advantage of the standard dependency injection.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">check</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">}</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">check</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]:</span>
@@ -2598,7 +2612,7 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.abc.Set[str]</span>
+<span class="sd">        collections.abc.Collection[str]</span>
 <span class="sd">            The standard prefixes set for this client.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -2891,7 +2905,7 @@ to the provided client using it's abstract methods.</li>
 
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_commands</span><span class="p">(</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_commands</span><span class="p">(</span>  <span class="c1"># TODO: better name?</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2983,7 +2997,9 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">        Self</span>
 <span class="sd">            The client instance to enable chained calls.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>  <span class="c1"># type: ignore[arg-type]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -2993,6 +3009,11 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">        ----------</span>
 <span class="sd">        check : tanjun_abc.CheckSig</span>
 <span class="sd">            The check to remove.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the check was not previously added.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
 
@@ -3050,9 +3071,12 @@ to the provided client using it's abstract methods.</li>
         <span class="n">descriptor</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">descriptor</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">descriptor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="bp">self</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">descriptor</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">descriptor</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">descriptor</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -3070,6 +3094,11 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">            Positional arguments to pass to the callback(s).</span>
 <span class="sd">        **kwargs : typing.Any</span>
 <span class="sd">            Keyword arguments to pass to the callback(s).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If no callbacks are registered for the given name.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
@@ -3125,11 +3154,7 @@ to the provided client using it's abstract methods.</li>
 
     <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">registered_callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
-
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span><span class="s2">&quot;Event listener not found.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+        <span class="n">registered_callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span>
@@ -3166,10 +3191,11 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">            The client instance to enable chained calls.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prefixes</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">prefixes</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">prefixes</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prefixes</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">prefixes</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">prefix</span> <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">prefixes</span> <span class="k">if</span> <span class="n">prefix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -3183,7 +3209,7 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
-<span class="sd">        LookupError</span>
+<span class="sd">        ValueError</span>
 <span class="sd">            If the prefix is not registered with the client.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
@@ -3355,8 +3381,10 @@ to the provided client using it's abstract methods.</li>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;@</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;@!</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="sa">f</span><span class="s2">&quot;&lt;@</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;&lt;@!</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">prefix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="n">register_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
@@ -3789,8 +3817,8 @@ when set on a specific guild.</p></li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">cache</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
@@ -3807,7 +3835,7 @@ when set on a specific guild.</p></li>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_InjectablePrefixGetter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span> <span class="o">=</span> <span class="n">rest</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">server</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_shards</span> <span class="o">=</span> <span class="n">shards</span>
@@ -4150,7 +4178,7 @@ with if provided, else <code>None</code>.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Set[<a href="abc.html#CheckSig">tanjun.abc.CheckSig</a>]</strong>: Colleciton of the <code><a href="abc.html#Context">tanjun.abc.Context</a></code> based checks registered for
+<li><strong>collections.abc.Collection[<a href="abc.html#CheckSig">tanjun.abc.CheckSig</a>]</strong>: Colleciton of the <code><a href="abc.html#Context">tanjun.abc.Context</a></code> based checks registered for
 this client.</li>
 </ul>
 
@@ -4335,7 +4363,7 @@ else <code>None</code>.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Set[str]</strong>: The standard prefixes set for this client.</li>
+<li><strong>collections.abc.Collection[str]</strong>: The standard prefixes set for this client.</li>
 </ul>
 </div>
 
@@ -5029,7 +5057,7 @@ based on webhook and bot messages.</p></li>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_commands</span><span class="p">(</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_commands</span><span class="p">(</span>  <span class="c1"># TODO: better name?</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -5216,7 +5244,9 @@ Object or ID of the guild to set the global commands to.</p>
 <span class="sd">        Self</span>
 <span class="sd">            The client instance to enable chained calls.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>  <span class="c1"># type: ignore[arg-type]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
+
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
@@ -5261,6 +5291,11 @@ with dependency injection being supported for its keyword arguments.</li>
 <span class="sd">        ----------</span>
 <span class="sd">        check : tanjun_abc.CheckSig</span>
 <span class="sd">            The check to remove.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the check was not previously added.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
 </pre></div>
@@ -5274,6 +5309,12 @@ with dependency injection being supported for its keyword arguments.</li>
 <ul>
 <li><strong>check</strong> (tanjun_abc.CheckSig):
 The check to remove.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the check was not previously added.</li>
 </ul>
 </div>
 
@@ -5438,6 +5479,12 @@ registered in the provided component.</p>
 <li><strong>component</strong> (Component):
 The component to remove from this client.</li>
 </ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the provided component isn't found.</li>
+</ul>
 </div>
 
 
@@ -5462,9 +5509,12 @@ The component to remove from this client.</li>
         <span class="n">descriptor</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">descriptor</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">descriptor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="bp">self</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">descriptor</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">descriptor</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">descriptor</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
@@ -5521,6 +5571,11 @@ detail around the <code>name</code> being subscribed to.</p></li>
 <span class="sd">            Positional arguments to pass to the callback(s).</span>
 <span class="sd">        **kwargs : typing.Any</span>
 <span class="sd">            Keyword arguments to pass to the callback(s).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If no callbacks are registered for the given name.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">callbacks</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
@@ -5549,6 +5604,12 @@ The name of the callback to dispatch.</li>
 Positional arguments to pass to the callback(s).</li>
 <li><strong>**kwargs</strong> (typing.Any):
 Keyword arguments to pass to the callback(s).</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>KeyError</strong>: If no callbacks are registered for the given name.</li>
 </ul>
 </div>
 
@@ -5630,6 +5691,13 @@ The name this callback is being registered to.</p>
 <p>This is case-insensitive.</p></li>
 <li><strong>callback</strong> (MetaEventSigT):
 The callback to remove from the client's callbacks.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>KeyError</strong>: If the provided name isn't found.</li>
+<li><strong>ValueError</strong>: If the provided callback isn't found.</li>
 </ul>
 </div>
 
@@ -5773,11 +5841,7 @@ regardless of client implementation detail.</p></li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">registered_callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
-
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span><span class="s2">&quot;Event listener not found.&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+        <span class="n">registered_callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span>
@@ -5797,6 +5861,13 @@ regardless of client implementation detail.</p></li>
 The event type to remove a listener for.</li>
 <li><strong>callback</strong> (ListenerCallbackSig):
 The callback to remove.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>KeyError</strong>: If the provided event type isn't found.</li>
+<li><strong>ValueError</strong>: If the provided callback isn't found.</li>
 </ul>
 </div>
 
@@ -5893,10 +5964,11 @@ regardless of client implementation detail.</p>
 <span class="sd">            The client instance to enable chained calls.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prefixes</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">prefixes</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">prefixes</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prefixes</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">prefixes</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">prefix</span> <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="n">prefixes</span> <span class="k">if</span> <span class="n">prefix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
@@ -5946,7 +6018,7 @@ prefixes.</li>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
-<span class="sd">        LookupError</span>
+<span class="sd">        ValueError</span>
 <span class="sd">            If the prefix is not registered with the client.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
@@ -5966,7 +6038,7 @@ The prefix to remove.</li>
 <h6 id="raises">Raises</h6>
 
 <ul>
-<li><strong>LookupError</strong>: If the prefix is not registered with the client.</li>
+<li><strong>ValueError</strong>: If the prefix is not registered with the client.</li>
 </ul>
 </div>
 
@@ -6312,8 +6384,10 @@ Name to check against.</li>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;@</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;@!</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="sa">f</span><span class="s2">&quot;&lt;@</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;&lt;@!</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">prefix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="n">register_listeners</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="p">:</span>
