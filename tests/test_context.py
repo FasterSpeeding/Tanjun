@@ -140,7 +140,10 @@ class TestBaseContext:
 
     def test_get_channel(self, context: tanjun.context.BaseContext, mock_client: mock.Mock):
         assert mock_client.cache is not None
+        mock_client.cache.get_guild_channel.return_value = mock.Mock(hikari.TextableGuildChannel)
+
         assert context.get_channel() is mock_client.cache.get_guild_channel.return_value
+
         mock_client.cache.get_guild_channel.assert_called_once_with(context.channel_id)
 
     def test_get_channel_when_cacheless(self, mock_component: tanjun.abc.Component):
@@ -173,6 +176,8 @@ class TestBaseContext:
 
     @pytest.mark.asyncio()
     async def test_fetch_channel(self, context: tanjun.context.BaseContext, mock_client: mock.Mock):
+        mock_client.rest.fetch_channel.return_value = mock.Mock(hikari.TextableChannel)
+
         result = await context.fetch_channel()
 
         assert result is mock_client.rest.fetch_channel.return_value
