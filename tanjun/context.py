@@ -130,9 +130,11 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
         self._component = component
         return self
 
-    def get_channel(self) -> typing.Optional[hikari.PartialChannel]:
+    def get_channel(self) -> typing.Optional[hikari.TextableGuildChannel]:
         if self._client.cache:
-            return self._client.cache.get_guild_channel(self.channel_id)
+            channel = self._client.cache.get_guild_channel(self.channel_id)
+            assert isinstance(channel, hikari.TextableGuildChannel)
+            return channel
 
         return None
 
@@ -142,8 +144,10 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
 
         return None
 
-    async def fetch_channel(self) -> hikari.PartialChannel:
-        return await self._client.rest.fetch_channel(self.channel_id)
+    async def fetch_channel(self) -> hikari.TextableChannel:
+        channel = await self._client.rest.fetch_channel(self.channel_id)
+        assert isinstance(channel, hikari.TextableChannel)
+        return channel
 
     async def fetch_guild(self) -> typing.Optional[hikari.Guild]:  # TODO: or raise?
         if self.guild_id is not None:

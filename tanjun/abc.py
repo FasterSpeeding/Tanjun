@@ -329,7 +329,7 @@ class Context(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def fetch_channel(self) -> hikari.PartialChannel:
+    async def fetch_channel(self) -> hikari.TextableChannel:
         """Fetch the channel the context was invoked in.
 
         .. note::
@@ -338,8 +338,8 @@ class Context(abc.ABC):
 
         Returns
         -------
-        hikari.PartialChannel
-            The dm or guild channel the context was invoked in.
+        hikari.TextableChannel
+            The textable DM or guild channel the context was invoked in.
 
         Raises
         ------
@@ -405,7 +405,7 @@ class Context(abc.ABC):
         """
 
     @abc.abstractmethod
-    def get_channel(self) -> typing.Optional[hikari.PartialChannel]:
+    def get_channel(self) -> typing.Optional[hikari.TextableGuildChannel]:
         """Retrieve the channel the context was invoked in from the cache.
 
         .. note::
@@ -413,9 +413,10 @@ class Context(abc.ABC):
 
         Returns
         -------
-        typing.Optional[hikari.PartialChannel]
-            An optional dm or guild channel the context was invoked in.
-            `None` will be returned if the channel was not found.
+        typing.Optional[hikari.TextableGuildChannel]
+            An optional guild channel the context was invoked in.
+            `None` will be returned if the channel was not found or if it
+            is DM channel.
         """
 
     @abc.abstractmethod
@@ -1685,69 +1686,6 @@ class SlashContext(Context, abc.ABC):
         hikari.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
-
-    @typing.overload
-    @abc.abstractmethod
-    async def respond(
-        self,
-        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
-        *,
-        ensure_result: typing.Literal[False] = False,
-        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
-        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
-        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
-        ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
-        ] = hikari.UNDEFINED,
-    ) -> typing.Optional[hikari.Message]:
-        ...
-
-    @typing.overload
-    @abc.abstractmethod
-    async def respond(
-        self,
-        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
-        *,
-        ensure_result: typing.Literal[True],
-        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
-        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
-        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
-        ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
-        ] = hikari.UNDEFINED,
-    ) -> hikari.Message:
-        ...
-
-    @abc.abstractmethod
-    async def respond(
-        self,
-        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
-        *,
-        ensure_result: bool = False,
-        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
-        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
-        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
-        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
-        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
-        ] = hikari.UNDEFINED,
-        role_mentions: hikari.UndefinedOr[
-            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
-        ] = hikari.UNDEFINED,
-    ) -> typing.Optional[hikari.Message]:
-        # <<inherited docstring from Context>>.
-        ...
 
 
 class Hooks(abc.ABC, typing.Generic[ContextT_contra]):

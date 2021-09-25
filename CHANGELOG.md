@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Bumped minimum Hikari version to 2.0.0.dev102.
+- Context.fetch_channel and Context.get_channel now return TextableChannel and TextableGuildChannel
+  respectively.
 
 ### Fixed
 - Automatic deferral is now also cancelled in SlashContext.create_initial_response.
