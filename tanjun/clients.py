@@ -1016,7 +1016,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return self
 
-    async def clear_commands(
+    async def clear_commands(  # TODO: better name?
         self,
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
@@ -1120,6 +1120,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         ----------
         check : tanjun_abc.CheckSig
             The check to remove.
+
+        Raises
+        ------
+        ValueError
+            If the check was not previously added.
         """
         self._checks.remove(check)  # type: ignore[arg-type]
 
@@ -1200,6 +1205,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             Positional arguments to pass to the callback(s).
         **kwargs : typing.Any
             Keyword arguments to pass to the callback(s).
+
+        Raises
+        ------
+        KeyError
+            If no callbacks are registered for the given name.
         """
         name = name.casefold()
         if callbacks := self._client_callbacks.get(name):
@@ -1255,11 +1265,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     def remove_listener(self, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /) -> None:
         # <<inherited docstring from tanjun.abc.Client>>.
-        try:
-            registered_callback = self._listeners[event_type].pop(self._listeners[event_type].index(callback))
-
-        except ValueError:
-            raise LookupError("Event listener not found.") from None
+        registered_callback = self._listeners[event_type].pop(self._listeners[event_type].index(callback))
 
         if not self._listeners[event_type]:
             del self._listeners[event_type]
@@ -1314,7 +1320,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Raises
         ------
-        LookupError
+        ValueError
             If the prefix is not registered with the client.
         """
         self._prefixes.remove(prefix)

@@ -112,6 +112,10 @@ class TestClient:
         ...
 
     @pytest.mark.skip(reason="TODO")
+    def test___repr__(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
     def test_from_gateway_bot(self):
         ...
 
@@ -153,10 +157,6 @@ class TestClient:
         open_.assert_called_once_with()
         close_.assert_called_once_with()
 
-    @pytest.mark.skip(reason="not implemented")
-    def test___repr__(self) -> None:
-        raise NotImplementedError
-
     def test_message_accepts_property(self) -> None:
         client = tanjun.Client(mock.Mock(), events=mock.Mock()).set_message_accepts(tanjun.MessageAcceptsEnum.DM_ONLY)
 
@@ -172,14 +172,6 @@ class TestClient:
         client = tanjun.Client(mock.Mock(), cache=mock_cache)
 
         assert client.cache is mock_cache
-
-    @pytest.mark.skip(reason="not implemented")
-    def test_checks_property(self) -> None:
-        raise NotImplementedError
-
-    @pytest.mark.skip(reason="not implemented")
-    def test_components_property(self) -> None:
-        raise NotImplementedError
 
     def test_events_property(self) -> None:
         mock_events = mock.Mock()
@@ -223,17 +215,6 @@ class TestClient:
 
     def test_prefix_getter_property_when_no_getter(self) -> None:
         assert tanjun.Client(mock.Mock()).prefix_getter is None
-
-    def test_prefixes_property(self) -> None:
-        client = (
-            tanjun.Client(mock.Mock())
-            .add_prefix("a")
-            .add_prefix("b")
-            .add_prefix("a")
-            .add_prefix(("b", "e", "t", "t", "e", "r"))
-        )
-
-        assert client.prefixes == ["a", "b", "e", "t", "r"]
 
     def test_rest_property(self) -> None:
         mock_rest = mock.Mock()
@@ -389,6 +370,449 @@ class TestClient:
         rest.edit_application_command.assert_not_called()
         mock_command.build.assert_called_once_with()
         mock_command.set_tracked_command.assert_not_called()
+
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio()
+    async def test_declare_slash_commands(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_set_hikari_trait_injectors(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    async def test_clear_commands(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    async def test_set_global_commands(self):
+        ...
+
+    def test_add_check(self):
+        mock_check = mock.Mock()
+        client = tanjun.Client(mock.Mock())
+
+        result = client.add_check(mock_check)
+
+        assert result is client
+        assert mock_check in client.checks
+
+    def test_add_check_when_already_present(self):
+        mock_check = mock.Mock()
+        client = tanjun.Client(mock.Mock()).add_check(mock_check)
+
+        result = client.add_check(mock_check)
+
+        assert result is client
+        assert list(client.checks).count(mock_check) == 1
+
+    def test_remove_check(self):
+        mock_check = mock.Mock()
+        client = tanjun.Client(mock.Mock()).add_check(mock_check)
+
+        client.remove_check(mock_check)
+
+        assert mock_check not in client.checks
+
+    def test_remove_check_when_not_present(self):
+        mock_check = mock.Mock()
+        client = tanjun.Client(mock.Mock())
+
+        with pytest.raises(ValueError, match=".+"):
+            client.remove_check(mock_check)
+
+        assert mock_check not in client.checks
+
+    def test_with_check(self):
+        mock_check = mock.Mock()
+        client = tanjun.Client(mock.Mock())
+
+        result = client.with_check(mock_check)
+
+        assert result is mock_check
+        assert result in client.checks
+
+    def test_with_check_when_already_present(self):
+        mock_check = mock.Mock()
+        client = tanjun.Client(mock.Mock()).add_check(mock_check)
+
+        result = client.with_check(mock_check)
+
+        assert result is mock_check
+        assert list(client.checks).count(mock_check) == 1
+
+    @pytest.mark.asyncio()
+    async def test_check(self):
+        mock_check_1 = mock.Mock(return_value=True)
+        mock_check_2 = mock.AsyncMock(return_value=True)
+        mock_check_3 = mock.AsyncMock(return_value=True)
+        mock_context = mock.Mock()
+        client = tanjun.Client(mock.Mock()).add_check(mock_check_1).add_check(mock_check_2).add_check(mock_check_3)
+
+        assert await client.check(mock_context) is True
+
+        mock_check_1.assert_called_once_with(mock_context)
+        mock_check_2.assert_awaited_once_with(mock_context)
+        mock_check_3.assert_awaited_once_with(mock_context)
+
+    @pytest.mark.asyncio()
+    async def test_check_when_one_returns_false(self):
+        mock_check_1 = mock.Mock(return_value=True)
+        mock_check_2 = mock.AsyncMock(return_value=False)
+        mock_check_3 = mock.AsyncMock(return_value=True)
+        mock_context = mock.Mock()
+        client = tanjun.Client(mock.Mock()).add_check(mock_check_1).add_check(mock_check_2).add_check(mock_check_3)
+
+        assert await client.check(mock_context) is False
+
+        mock_check_1.assert_called_once_with(mock_context)
+        mock_check_2.assert_awaited_once_with(mock_context)
+        mock_check_3.assert_awaited_once_with(mock_context)
+
+    @pytest.mark.asyncio()
+    async def test_check_when_one_raises(self):
+        mock_check_1 = mock.Mock(return_value=True)
+        mocK_exception = Exception("test")
+        mock_check_2 = mock.AsyncMock(side_effect=mocK_exception)
+        mock_check_3 = mock.AsyncMock(return_value=True)
+        mock_context = mock.Mock()
+        client = tanjun.Client(mock.Mock()).add_check(mock_check_1).add_check(mock_check_2).add_check(mock_check_3)
+
+        with pytest.raises(Exception, match="test") as exc:
+            await client.check(mock_context)
+
+        assert exc.value is mocK_exception
+
+        mock_check_1.assert_called_once_with(mock_context)
+        mock_check_2.assert_awaited_once_with(mock_context)
+        mock_check_3.assert_awaited_once_with(mock_context)
+
+    @pytest.mark.asyncio()
+    async def test_check_when_one_raises_failed_check(self):
+        mock_check_1 = mock.Mock(return_value=True)
+        mock_check_2 = mock.AsyncMock(side_effect=tanjun.FailedCheck())
+        mock_check_3 = mock.AsyncMock(return_value=True)
+        mock_context = mock.Mock()
+        client = tanjun.Client(mock.Mock()).add_check(mock_check_1).add_check(mock_check_2).add_check(mock_check_3)
+
+        assert await client.check(mock_context) is False
+
+        mock_check_1.assert_called_once_with(mock_context)
+        mock_check_2.assert_awaited_once_with(mock_context)
+        mock_check_3.assert_awaited_once_with(mock_context)
+
+    @pytest.mark.skip(reason="TODO")
+    def test_add_component(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_add_component_when_already_present(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_add_component_when_add_injector(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_add_component_when_is_alive(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_remove_component(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_remove_component_when_not_present(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_remove_component_when_is_alive(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_add_client_callback(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_add_client_callback_when_already_present(self):
+        ...
+
+    @pytest.mark.asyncio()
+    async def test_dispatch_client_callback(self):
+        ...
+
+    @pytest.mark.asyncio()
+    async def test_dispatch_client_callback_when_name_not_found(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_get_client_callbacks(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_get_client_callbacks_when_name_not_found(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_remove_client_callback(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_remove_client_callback_when_name_not_found(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_remove_client_callback_when_callback_not_found(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_remove_client_callback_when_last_callback(self):
+        ...
+
+    def test_with_client_callback(self):
+        add_client_callback_ = mock.Mock()
+
+        class StubClient(tanjun.Client):
+            add_client_callback = add_client_callback_
+
+        client = StubClient(mock.Mock())
+        mock_callback = mock.Mock()
+
+        result = client.with_client_callback("aye")(mock_callback)
+
+        assert result is mock_callback
+        add_client_callback_.assert_called_once_with("aye", mock_callback)
+
+    @pytest.mark.skip(reason="TODO")
+    def test_add_listener(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_add_listener_when_already_present(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_add_listener_when_alive(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_add_listener_when_alive_and_events(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_add_listener_when_events(self):
+        ...
+
+    def test_remove_listener(self):
+        mock_callback = mock.Mock()
+        client = (
+            tanjun.Client(mock.Mock())
+            .add_listener(hikari.GuildTypingEvent, mock_callback)
+            .add_listener(hikari.GuildTypingEvent, mock.Mock())
+        )
+
+        client.remove_listener(hikari.GuildTypingEvent, mock_callback)
+
+        assert mock_callback not in client.listeners[hikari.GuildTypingEvent]
+
+    def test_remove_listener_when_event_type_not_present(self):
+        client = tanjun.Client(mock.Mock())
+
+        with pytest.raises(KeyError):
+            client.remove_listener(hikari.GuildTypingEvent, mock.Mock())
+
+    def test_remove_listener_when_callback_not_present(self):
+        mock_other_callback = mock.Mock()
+        client = tanjun.Client(mock.Mock()).add_listener(hikari.GuildTypingEvent, mock_other_callback)
+
+        with pytest.raises(ValueError, match=".+"):
+            client.remove_listener(hikari.GuildTypingEvent, mock.Mock())
+
+        assert client.listeners[hikari.GuildTypingEvent] == [mock_other_callback]
+
+    def test_remove_listener_when_last_listener(self):
+        mock_callback = mock.Mock()
+        client = tanjun.Client(mock.Mock()).add_listener(hikari.RoleEvent, mock_callback)
+
+        client.remove_listener(hikari.RoleEvent, mock_callback)
+
+        assert hikari.RoleEvent not in client.listeners
+
+    @pytest.mark.skip(reason="TODO")
+    def test_remove_listener_when_alive(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_remove_listener_when_alive_and_events(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_remove_listener_when_events(self):
+        ...
+
+    def test_with_listener(self):
+        add_listener_ = mock.Mock()
+
+        class StubClient(tanjun.Client):
+            add_listener = add_listener_
+
+        client = StubClient(mock.Mock())
+        mock_callback = mock.Mock()
+
+        result = client.with_listener(hikari.GuildAvailableEvent)(mock_callback)
+
+        assert result is mock_callback
+        add_listener_.assert_called_once_with(hikari.GuildAvailableEvent, mock_callback)
+
+    def test_add_prefix(self):
+        client = tanjun.Client(mock.Mock())
+
+        result = client.add_prefix("aye")
+
+        assert result is client
+        assert "aye" in client.prefixes
+
+    def test_add_prefix_when_already_present(self):
+        client = tanjun.Client(mock.Mock()).add_prefix("lmao")
+
+        result = client.add_prefix("lmao")
+
+        assert result is client
+        list(client.prefixes).count("lmao") == 1
+
+    def test_add_prefix_when_iterable(self):
+        client = tanjun.Client(mock.Mock())
+
+        result = client.add_prefix(["Grand", "dad", "FNAF"])
+
+        assert result is client
+        assert list(client.prefixes).count("Grand") == 1
+        assert list(client.prefixes).count("dad") == 1
+        assert list(client.prefixes).count("FNAF") == 1
+
+    def test_add_prefix_when_iterable_and_already_present(self):
+        client = tanjun.Client(mock.Mock()).add_prefix(["naye", "laala", "OBAMA"])
+
+        result = client.add_prefix(["naye", "OBAMA", "bourg"])
+
+        assert result is client
+        assert list(client.prefixes).count("naye") == 1
+        assert list(client.prefixes).count("laala") == 1
+        assert list(client.prefixes).count("OBAMA") == 1
+        assert list(client.prefixes).count("bourg") == 1
+
+    def test_remove_prefix(self):
+        client = tanjun.Client(mock.Mock()).add_prefix("lmao")
+
+        client.remove_prefix("lmao")
+
+        assert "lmao" not in client.prefixes
+
+    def test_remove_prefix_when_not_present(self):
+        client = tanjun.Client(mock.Mock())
+
+        with pytest.raises(ValueError, match=".+"):
+            client.remove_prefix("lmao")
+
+    def test_set_prefix_getter(self):
+        mock_getter = mock.Mock()
+        client = tanjun.Client(mock.Mock())
+
+        result = client.set_prefix_getter(mock_getter)
+
+        assert result is client
+        assert client.prefix_getter is mock_getter
+
+    def test_set_prefix_getter_when_none(self):
+        client = tanjun.Client(mock.Mock()).set_prefix_getter(mock.Mock())
+
+        result = client.set_prefix_getter(None)
+
+        assert result is client
+        assert client.prefix_getter is None
+
+    def test_with_prefix_getter(self):
+        mock_getter = mock.Mock()
+        client = tanjun.Client(mock.Mock())
+
+        result = client.with_prefix_getter(mock_getter)
+
+        assert result is mock_getter
+        assert client.prefix_getter is mock_getter
+
+    @pytest.mark.skip(reason="TODO")
+    def test_check_message_name(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_check_slash_name(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio()
+    async def test_close(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio()
+    async def test_open(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio()
+    async def test_fetch_rest_application_id(self):
+        ...
+
+    def test_set_hooks(self):
+        mock_hooks = mock.Mock()
+        client = tanjun.Client(mock.Mock())
+
+        result = client.set_hooks(mock_hooks)
+
+        assert result is client
+        assert client.hooks is mock_hooks
+
+    def test_set_hooks_when_none(self):
+        client = tanjun.Client(mock.Mock()).set_hooks(mock.Mock())
+
+        result = client.set_hooks(None)
+
+        assert result is client
+        assert client.hooks is None
+
+    def test_set_slash_hooks(self):
+        mock_hooks = mock.Mock()
+        client = tanjun.Client(mock.Mock())
+
+        result = client.set_slash_hooks(mock_hooks)
+
+        assert result is client
+        assert client.slash_hooks is mock_hooks
+
+    def test_set_slash_hooks_when_none(self):
+        client = tanjun.Client(mock.Mock()).set_slash_hooks(mock.Mock())
+
+        result = client.set_slash_hooks(None)
+
+        assert result is client
+        assert client.slash_hooks is None
+
+    def test_set_message_hooks(self):
+        mock_hooks = mock.Mock()
+        client = tanjun.Client(mock.Mock())
+
+        result = client.set_message_hooks(mock_hooks)
+
+        assert result is client
+        assert client.message_hooks is mock_hooks
+
+    def test_set_message_hooks_when_none(self):
+        client = tanjun.Client(mock.Mock()).set_message_hooks(mock.Mock())
+
+        result = client.set_message_hooks(None)
+
+        assert result is client
+        assert client.message_hooks is None
 
     def test_load_modules_with_system_path(self):
         add_component_ = mock.Mock()
