@@ -2315,7 +2315,7 @@ class Component(abc.ABC):
     @property
     @abc.abstractmethod
     def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[ListenerCallbackSig]]:
-        """Get a mapping of tuples of event types to the listeners registered for them in this component.
+        """Get a mapping of event types to the listeners registered for them in this component.
 
         Returns
         -------
