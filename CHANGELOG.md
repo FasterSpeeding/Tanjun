@@ -21,8 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Actually call Command.bind_client and bind_component in the component add command methods and
   specifically SlashCommand.bind_client in Component.bind_client.
 - Return the command object from Component.with_command methods.
-
-### Fixed
 - Automatic deferral is now also cancelled in SlashContext.create_initial_response.
 - SlashContext.edit_last_response can now be used to edit a deferred response.
 - Small typing fixes made while setting pyright to strict.
