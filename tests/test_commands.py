@@ -100,15 +100,15 @@ class TestPartialCommand:
         assert command.metadata is command._metadata
 
     def test_needs_injector_when_any_true(self, command: tanjun.commands.PartialCommand[typing.Any]):
-        command._checks = {mock.Mock(needs_injector=False), mock.Mock(needs_injector=True)}
+        command._checks = [mock.Mock(needs_injector=False), mock.Mock(needs_injector=True)]
         assert command.needs_injector is True
 
     def test_needs_injector_when_all_true(self, command: tanjun.commands.PartialCommand[typing.Any]):
-        command._checks = {mock.Mock(needs_injector=True), mock.Mock(needs_injector=True)}
+        command._checks = [mock.Mock(needs_injector=True), mock.Mock(needs_injector=True)]
         assert command.needs_injector is True
 
     def test_needs_injector_when_all_false(self, command: tanjun.commands.PartialCommand[typing.Any]):
-        command._checks = {mock.Mock(needs_injector=False), mock.Mock(needs_injector=False)}
+        command._checks = [mock.Mock(needs_injector=False), mock.Mock(needs_injector=False)]
         assert command.needs_injector is False
 
     def test_needs_injector_when_empty(self, command: tanjun.commands.PartialCommand[typing.Any]):
@@ -116,7 +116,7 @@ class TestPartialCommand:
 
     def test_copy(self, command: tanjun.commands.PartialCommand[typing.Any]):
         mock_check = mock.Mock()
-        command._checks = {mock_check}
+        command._checks = [mock_check]
         command._hooks = mock.Mock()
         mock_metadata = mock.Mock()
         command._metadata = mock_metadata
@@ -124,7 +124,7 @@ class TestPartialCommand:
         new_command = command.copy()
 
         assert new_command is not command
-        new_command._checks is {mock_check.copy.return_value}
+        new_command._checks == [mock_check.copy.return_value]
         assert new_command._hooks is command._hooks.copy.return_value
         assert new_command._metadata is mock_metadata.copy.return_value
 
@@ -143,17 +143,24 @@ class TestPartialCommand:
         check = next(iter(command._checks))
         assert isinstance(check, tanjun.checks.InjectableCheck)
         assert check.callback is mock_check
-        assert command.checks == {mock_check}
+        assert command.checks == (mock_check,)
+
+    def test_add_check_when_already_present(self, command: tanjun.commands.PartialCommand[typing.Any]):
+        mock_check = mock.Mock()
+
+        assert command.add_check(mock_check).add_check(mock_check) is command
+
+        assert list(command.checks).count(mock_check) == 1
 
     def test_remove_check(self, command: tanjun.commands.PartialCommand[typing.Any]):
         def mock_check() -> bool:
             raise NotImplementedError
 
-        command._checks = {tanjun.checks.InjectableCheck(mock_check)}
+        command._checks = [tanjun.checks.InjectableCheck(mock_check)]
 
         command.remove_check(mock_check)
 
-        assert command.checks == set()
+        assert command.checks == ()
 
     def test_with_check(self, command: tanjun.commands.PartialCommand[typing.Any]):
         def mock_check() -> bool:
@@ -165,7 +172,16 @@ class TestPartialCommand:
         check = next(iter(command._checks))
         assert isinstance(check, tanjun.commands._LoadableInjector)
         assert check.callback is mock_check
-        assert command.checks == {mock_check}
+        assert command.checks == (mock_check,)
+
+    def test_with_check_when_already_present(self, command: tanjun.commands.PartialCommand[typing.Any]):
+        def mock_check() -> bool:
+            raise NotImplementedError
+
+        command.add_check(mock_check).with_check(mock_check)
+        assert command.with_check(mock_check) is mock_check
+
+        assert list(command.checks).count(mock_check) == 1
 
     def test_bind_client(self, command: tanjun.commands.PartialCommand[typing.Any]):
         command.bind_client(mock.Mock())
@@ -182,7 +198,7 @@ class TestPartialCommand:
         mock_check_2 = mock.Mock()
         mock_check_3 = mock.MagicMock(tanjun.commands._LoadableInjector)
         mock_component = mock.Mock()
-        command._checks = {mock_check_1, mock_check_2, mock_check_3}
+        command._checks = [mock_check_1, mock_check_2, mock_check_3]
 
         result = command.load_into_component(mock_component)
 
@@ -689,9 +705,15 @@ class TestSlashCommandGroup:
     def test_copy(self):
         ...
 
-    @pytest.mark.skip(reason="TODO")
     def test_add_command(self):
-        ...
+        command_group = tanjun.SlashCommandGroup("yeet", "need")
+        mock_command = mock.Mock()
+
+        result = command_group.add_command(mock_command)
+
+        assert result is command_group
+        mock_command.set_parent.assert_called_once_with(command_group)
+        assert mock_command in command_group.commands
 
     def test_add_command_when_nested(self):
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").set_parent(mock.Mock())
@@ -700,6 +722,7 @@ class TestSlashCommandGroup:
         result = command_group.add_command(mock_sub_command)
 
         assert result is command_group
+        mock_sub_command.set_parent.assert_called_once_with(command_group)
         assert mock_sub_command in command_group.commands
 
     def test_add_command_when_attempting_to_double_nest_groups(self):
@@ -727,7 +750,7 @@ class TestSlashCommandGroup:
 
     @pytest.mark.asyncio()
     async def test_execute(self):
-        mock_command = mock.AsyncMock()
+        mock_command = mock.AsyncMock(set_parent=mock.Mock())
         mock_command.name = "sex"
         mock_command.check_context.return_value = True
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").add_command(mock_command)
@@ -756,7 +779,7 @@ class TestSlashCommandGroup:
 
     @pytest.mark.asyncio()
     async def test_execute_when_checks_fail(self):
-        mock_command = mock.AsyncMock()
+        mock_command = mock.AsyncMock(set_parent=mock.Mock())
         mock_command.name = "sex"
         mock_command.check_context.return_value = False
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").add_command(mock_command)
@@ -774,7 +797,7 @@ class TestSlashCommandGroup:
 
     @pytest.mark.asyncio()
     async def test_execute_when_nested(self):
-        mock_command = mock.AsyncMock(check_context=mock.AsyncMock(return_value=True))
+        mock_command = mock.AsyncMock(check_context=mock.AsyncMock(return_value=True), set_parent=mock.Mock())
         mock_command.name = "hi"
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").add_command(mock_command)
         mock_context = mock.Mock()
@@ -1272,7 +1295,7 @@ def test_as_message_command():
     mock_callback = mock.Mock()
     command = tanjun.as_message_command("a", "b")(mock_callback)
 
-    assert command.names == {"a", "b"}
+    assert command.names == ["a", "b"]
     assert command.callback is mock_callback
 
 
@@ -1280,7 +1303,7 @@ def test_as_message_command_group():
     mock_callback = mock.Mock()
     command = tanjun.as_message_command_group("c", "b", strict=True)(mock_callback)
 
-    assert command.names == {"c", "b"}
+    assert command.names == ["c", "b"]
     assert command.is_strict is True
     assert command.callback is mock_callback
 
@@ -1298,7 +1321,7 @@ class TestMessageCommand:
     def test_names_property(self):
         command = tanjun.MessageCommand(mock.Mock(), "aaaaa", "bbbbb", "ccccc")
 
-        assert command.names == {"aaaaa", "bbbbb", "ccccc"}
+        assert command.names == ["aaaaa", "bbbbb", "ccccc"]
 
     @pytest.mark.skip(reason="TODO")
     def test_needs_injector_property(self):
@@ -1377,7 +1400,7 @@ class TestMessageCommand:
         with mock.patch.object(tanjun.utilities, "gather_checks", new=mock.AsyncMock()) as gather_checks:
             result = await command.check_context(mock_context)
 
-            gather_checks.assert_awaited_once_with(mock_context, set(mock_checks))
+            gather_checks.assert_awaited_once_with(mock_context, mock_checks)
 
         assert result is gather_checks.return_value
         mock_context.set_command.assert_has_calls([mock.call(command), mock.call(None)])
@@ -1418,6 +1441,15 @@ class TestMessageCommandGroup:
         assert result is command_group
         mock_command.set_parent.assert_called_once_with(command_group)
         assert mock_command in command_group.commands
+
+    def test_add_command_when_already_present(self):
+        mock_command = mock.Mock()
+        command_group = tanjun.MessageCommandGroup(mock.Mock(), "yee", "nsoosos")
+
+        result = command_group.add_command(mock_command).add_command(mock_command)
+
+        assert result is command_group
+        assert list(command_group.commands).count(mock_command) == 1
 
     def test_add_command_when_strict(self):
         mock_command = mock.Mock(names={"a", "b"})
