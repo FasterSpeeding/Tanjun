@@ -439,7 +439,7 @@ def with_multi_argument(
     *,
     default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
 ) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
-    """Add a greedy argument to a parsable command through a decorator call.
+    """Add a multi-argument to a parsable command through a decorator call.
 
     Notes
     -----
