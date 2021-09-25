@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.0.1a1]
+## [2.0.1a1] - 2021-09-25
 ### Added
 - Default client level message parser error handling hook.
 - Component arguments to the relevante context create message methods.
