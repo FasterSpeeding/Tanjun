@@ -57,7 +57,7 @@ class AbstractRepeater(abc.ABC):
         """
 
     @abc.abstractmethod
-    def start(self) -> asyncio.Task:
+    def start(self) -> asyncio.Task[None]:
         """
         Start the repeater.
 
@@ -73,7 +73,7 @@ class AbstractRepeater(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def callback(self) -> CallbackSigT:
+    def callback(self) -> CallbackSig:
         """Return the callback attached to the repeater.
 
         Returns
@@ -111,18 +111,18 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
             self._delay: datetime.timedelta = delay
         else:
             self._delay: datetime.timedelta = datetime.timedelta(seconds=delay)
-        self._max_runs: int = max_runs
+        self._max_runs: typing.Optional[int] = max_runs
         self._event_loop = event_loop or asyncio.get_event_loop()
-        self._callback: CallbackSigT = callback
-        self._pre_callback: typing.Optional[CallbackSigT] = None
-        self._post_callback: typing.Optional[CallbackSigT] = None
+        self._callback: CallbackSig = callback
+        self._pre_callback: typing.Optional[CallbackSig] = None
+        self._post_callback: typing.Optional[CallbackSig] = None
         self._iteration_count: int = 0
         self._ignored_exceptions: typing.List[type[Exception]] = []
         self._fatal_exceptions: typing.List[type[Exception]] = []
-        self._task: typing.Optional[asyncio.Task] = None
+        self._task: typing.Optional[asyncio.Task[None]] = None
 
-    async def __call__(self, *args, **kwargs):
-        return await self._callback(*args, **kwargs)
+    def __call__(self, *args: list[typing.Any], **kwargs: dict[typing.Any, typing.Any]):
+        return self._callback(*args, **kwargs)
 
     def set_pre_callback(self, callback: CallbackSigT) -> Repeater[CallbackSigT]:
         """
@@ -189,7 +189,7 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
         """
         return self._delay
 
-    def start(self) -> asyncio.Task:
+    def start(self) -> asyncio.Task[None]:
         if self._task is not None and not self._task.done():
             raise RuntimeError("Repeater already running")
         self._task = self._event_loop.create_task(self._loop())
@@ -203,17 +203,17 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
             self._event_loop.create_task(self._post_callback())
 
     @property
-    def callback(self) -> CallbackSigT:
+    def callback(self) -> CallbackSig:
         return self._callback
 
     @property
     def iteration_count(self) -> int:
         return self._iteration_count
 
-    def with_pre_callback(self, callback: CallbackSigT) -> CallbackSigT:
+    def with_pre_callback(self, callback: CallbackSig) -> CallbackSig:
         self._pre_callback = callback
         return callback
 
-    def with_post_callback(self, callback: CallbackSigT) -> CallbackSigT:
+    def with_post_callback(self, callback: CallbackSig) -> CallbackSig:
         self._post_callback = callback
         return callback

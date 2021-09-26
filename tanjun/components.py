@@ -317,7 +317,7 @@ class Component(tanjun_abc.Component):
             self._message_commands = list(commands.values())
             self._metadata = self._metadata.copy()
             self._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
-            self._repeaters = [copy.copy(repeater) for repeater in self._repeaters] if self._repeaters else None
+            self._repeaters = [copy.copy(repeater) for repeater in self._repeaters] if self._repeaters else []
             return self
 
         return copy.copy(self).copy(_new=False)
