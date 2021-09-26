@@ -668,7 +668,7 @@
 <span class="sd">        Whether or not to automatically set global slash commands when this</span>
 <span class="sd">        client is first started. Defaults to `False`.</span>
 
-<span class="sd">        If a snowflake ID is passed here then the global commands will be</span>
+<span class="sd">        If a guild object or ID is passed here then the global commands will be</span>
 <span class="sd">        set on this specific guild at startup rather than globally. This</span>
 <span class="sd">        can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">        up to an hour to propagate globally but will immediately propagate</span>
@@ -803,7 +803,7 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.GatewayBotAware` instance.</span>
 
@@ -839,11 +839,11 @@
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        set_global_commands : typing.Union[hikari.Snowflake, bool] bool</span>
+<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
-<span class="sd">            If a snowflake ID is passed here then the global commands will be</span>
+<span class="sd">            If a guild object or ID is passed here then the global commands will be</span>
 <span class="sd">            set on this specific guild at startup rather than globally. This</span>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
@@ -868,7 +868,7 @@
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">bot</span><span class="p">:</span> <span class="n">hikari_traits</span><span class="o">.</span><span class="n">RESTBotAware</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.RESTBotAware` instance.</span>
 
@@ -888,11 +888,11 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        set_global_commands : typing.Union[hikari.Snowflake, bool] bool</span>
+<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
-<span class="sd">            If a snowflake ID is passed here then the global commands will be</span>
+<span class="sd">            If a guild object or ID is passed here then the global commands will be</span>
 <span class="sd">            set on this specific guild at startup rather than globally. This</span>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
@@ -2246,7 +2246,7 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">        Whether or not to automatically set global slash commands when this</span>
 <span class="sd">        client is first started. Defaults to `False`.</span>
 
-<span class="sd">        If a snowflake ID is passed here then the global commands will be</span>
+<span class="sd">        If a guild object or ID is passed here then the global commands will be</span>
 <span class="sd">        set on this specific guild at startup rather than globally. This</span>
 <span class="sd">        can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">        up to an hour to propagate globally but will immediately propagate</span>
@@ -2381,7 +2381,7 @@ to the provided client using it's abstract methods.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.GatewayBotAware` instance.</span>
 
@@ -2417,11 +2417,11 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        set_global_commands : typing.Union[hikari.Snowflake, bool] bool</span>
+<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
-<span class="sd">            If a snowflake ID is passed here then the global commands will be</span>
+<span class="sd">            If a guild object or ID is passed here then the global commands will be</span>
 <span class="sd">            set on this specific guild at startup rather than globally. This</span>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
@@ -2446,7 +2446,7 @@ to the provided client using it's abstract methods.</li>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">bot</span><span class="p">:</span> <span class="n">hikari_traits</span><span class="o">.</span><span class="n">RESTBotAware</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.RESTBotAware` instance.</span>
 
@@ -2466,11 +2466,11 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        set_global_commands : typing.Union[hikari.Snowflake, bool] bool</span>
+<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
-<span class="sd">            If a snowflake ID is passed here then the global commands will be</span>
+<span class="sd">            If a guild object or ID is passed here then the global commands will be</span>
 <span class="sd">            set on this specific guild at startup rather than globally. This</span>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
@@ -3761,7 +3761,7 @@ message commands.</p></li>
 Whether or not to automatically set global slash commands when this
 client is first started. Defaults to <code>False</code>.</p>
 
-<p>If a snowflake ID is passed here then the global commands will be
+<p>If a guild object or ID is passed here then the global commands will be
 set on this specific guild at startup rather than globally. This
 can be useful for testing/debug purposes as slash commands may take
 up to an hour to propagate globally but will immediately propagate
@@ -3902,7 +3902,7 @@ when set on a specific guild.</p></li>
     *,
     event_managed: bool = True,
     mention_prefix: bool = False,
-    set_global_commands: Union[hikari.snowflakes.Snowflake, bool] = False
+    set_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False
 ) -&gt; <a href="#Client">tanjun.clients.Client</a></span>:
     </div>
 
@@ -3916,7 +3916,7 @@ when set on a specific guild.</p></li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.GatewayBotAware` instance.</span>
 
@@ -3952,11 +3952,11 @@ when set on a specific guild.</p></li>
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        set_global_commands : typing.Union[hikari.Snowflake, bool] bool</span>
+<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
-<span class="sd">            If a snowflake ID is passed here then the global commands will be</span>
+<span class="sd">            If a guild object or ID is passed here then the global commands will be</span>
 <span class="sd">            set on this specific guild at startup rather than globally. This</span>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
@@ -4018,11 +4018,11 @@ client is first started.</p>
 
 <p>Defaults to <code>False</code> and it should be noted that this only applies to
 message commands.</p></li>
-<li><p><strong>set_global_commands</strong> (typing.Union[hikari.Snowflake, bool] bool):
+<li><p><strong>set_global_commands</strong> (typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
 Whether or not to automatically set global slash commands when this
 client is first started. Defaults to <code>False</code>.</p>
 
-<p>If a snowflake ID is passed here then the global commands will be
+<p>If a guild object or ID is passed here then the global commands will be
 set on this specific guild at startup rather than globally. This
 can be useful for testing/debug purposes as slash commands may take
 up to an hour to propagate globally but will immediately propagate
@@ -4042,7 +4042,7 @@ when set on a specific guild.</p></li>
     cls,
     bot: hikari.traits.RESTBotAware,
     /,
-    set_global_commands: Union[hikari.snowflakes.Snowflake, bool] = False
+    set_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False
 ) -&gt; <a href="#Client">tanjun.clients.Client</a></span>:
     </div>
 
@@ -4053,7 +4053,7 @@ when set on a specific guild.</p></li>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">bot</span><span class="p">:</span> <span class="n">hikari_traits</span><span class="o">.</span><span class="n">RESTBotAware</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.RESTBotAware` instance.</span>
 
@@ -4073,11 +4073,11 @@ when set on a specific guild.</p></li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        set_global_commands : typing.Union[hikari.Snowflake, bool] bool</span>
+<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
-<span class="sd">            If a snowflake ID is passed here then the global commands will be</span>
+<span class="sd">            If a guild object or ID is passed here then the global commands will be</span>
 <span class="sd">            set on this specific guild at startup rather than globally. This</span>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
@@ -4113,11 +4113,11 @@ The bot client to build from.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>set_global_commands</strong> (typing.Union[hikari.Snowflake, bool] bool):
+<li><p><strong>set_global_commands</strong> (typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
 Whether or not to automatically set global slash commands when this
 client is first started. Defaults to <code>False</code>.</p>
 
-<p>If a snowflake ID is passed here then the global commands will be
+<p>If a guild object or ID is passed here then the global commands will be
 set on this specific guild at startup rather than globally. This
 can be useful for testing/debug purposes as slash commands may take
 up to an hour to propagate globally but will immediately propagate
