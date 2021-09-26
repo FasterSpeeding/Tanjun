@@ -32,7 +32,14 @@
 """A way to add repeating tasks to Tanjun bots."""
 from __future__ import annotations
 
-__all__: list[str] = ["AbstractRepeater", "CallbackSig", "CallbackSigT", "Repeater"]
+__all__: list[str] = [
+    "AbstractRepeater",
+    "CallbackSig",
+    "CallbackSigT",
+    "Repeater",
+    "with_ignored_exceptions",
+    "with_fatal_exceptions",
+]
 
 import abc
 import asyncio
@@ -277,3 +284,109 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
         """
         self._post_callback = callback
         return callback
+
+    def set_ignored_exceptions(self, *exceptions: type[Exception]) -> Repeater[CallbackSigT]:
+        """
+        Set the exceptions that a task will ignore.
+        If any of these exceptions are encountered, there will be nothing printed to console
+
+        Parameters
+        ----------
+        exceptions : typing.List[type[Exception]]
+            List of exception types
+
+        Returns
+        -------
+        Repeater[CallbackSigT]
+            Self
+        """
+        self._ignored_exceptions = list(exceptions)
+        return self
+
+    def set_fatal_exceptions(self, *exceptions: type[Exception]) -> Repeater[CallbackSigT]:
+        """
+        Set the exceptions that will stop a task.
+        If any of these exceptions are encountered, the task will stop.
+
+        Parameters
+        ----------
+        exceptions : typing.List[type[Exception]]
+            List of exception types
+
+        Returns
+        -------
+        Repeater[CallbackSigT]
+            Self
+        """
+        self._fatal_exceptions = list(exceptions)
+        return self
+
+
+def with_ignored_exceptions(
+    *exceptions: type[Exception],
+) -> typing.Callable[[Repeater[CallbackSigT]], Repeater[CallbackSigT]]:
+    """
+    Set the exceptions that a task will ignore.
+    If any of these exceptions are encountered, there will be nothing printed to console.
+
+    Parameters
+    ----------
+    exceptions : typing.List[type[Exception]]
+        List of exception types
+
+    Examples
+    --------
+    ```py
+    @yuyo.with_ignored_exceptions(ZeroDivisionError)
+    @yuyo.as_repeater(seconds=1)
+    async def repeater():
+        global run_count
+        run_count += 1
+        print(f"Run #{run_count}")
+    ```
+    """
+    for exception in exceptions:
+        exc = typing.cast("type[typing.Any]", exception)
+        if not issubclass(exc, Exception):
+            raise TypeError(f"Ignored exception must derive from Exception, is {exception.__name__}")  # typing: ignore
+
+    def decorator(repeater: Repeater[CallbackSigT]) -> Repeater[CallbackSigT]:
+        repeater.set_ignored_exceptions(*exceptions)
+        return repeater
+
+    return decorator
+
+
+def with_fatal_exceptions(
+    *exceptions: type[Exception],
+) -> typing.Callable[[Repeater[CallbackSigT]], Repeater[CallbackSigT]]:
+    """
+    Set the exceptions that will stop a task.
+    If any of these exceptions are encountered, the task will stop.
+
+    Parameters
+    ----------
+    exceptions : typing.List[type[Exception]]
+        List of exception types
+
+    Examples
+    --------
+    ```py
+    @yuyo.with_fatal_exceptions(ZeroDivisionError, RuntimeError)
+    @yuyo.as_repeater(seconds=1)
+    async def repeater():
+        global run_count
+        run_count += 1
+        print(f"Run #{run_count}")
+    ```
+    """
+    for exception in exceptions:
+        exc = typing.cast("type[typing.Any]", exception)
+        if not issubclass(exc, Exception):
+            raise TypeError(f"Fatal exception must derive from Exception, is {exception.__name__}")  # typing: ignore
+
+    def decorator(repeater: Repeater[CallbackSigT]) -> Repeater[CallbackSigT]:
+        repeater.set_fatal_exceptions(*exceptions)
+        return repeater
+
+    return decorator
