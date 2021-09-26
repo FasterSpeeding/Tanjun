@@ -357,7 +357,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         Whether or not to automatically set global slash commands when this
         client is first started. Defaults to `False`.
 
-        If a snowflake ID is passed here then the global commands will be
+        If a guild object or ID is passed here then the global commands will be
         set on this specific guild at startup rather than globally. This
         can be useful for testing/debug purposes as slash commands may take
         up to an hour to propagate globally but will immediately propagate
@@ -492,7 +492,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         *,
         event_managed: bool = True,
         mention_prefix: bool = False,
-        set_global_commands: typing.Union[hikari.Snowflake, bool] = False,
+        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
     ) -> Client:
         """Build a `Client` from a `hikari.traits.GatewayBotAware` instance.
 
@@ -528,11 +528,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             Defaults to `False` and it should be noted that this only applies to
             message commands.
-        set_global_commands : typing.Union[hikari.Snowflake, bool] bool
+        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
             Whether or not to automatically set global slash commands when this
             client is first started. Defaults to `False`.
 
-            If a snowflake ID is passed here then the global commands will be
+            If a guild object or ID is passed here then the global commands will be
             set on this specific guild at startup rather than globally. This
             can be useful for testing/debug purposes as slash commands may take
             up to an hour to propagate globally but will immediately propagate
@@ -557,7 +557,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         cls,
         bot: hikari_traits.RESTBotAware,
         /,
-        set_global_commands: typing.Union[hikari.Snowflake, bool] = False,
+        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
     ) -> Client:
         """Build a `Client` from a `hikari.traits.RESTBotAware` instance.
 
@@ -577,11 +577,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Other Parameters
         ----------------
-        set_global_commands : typing.Union[hikari.Snowflake, bool] bool
+        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
             Whether or not to automatically set global slash commands when this
             client is first started. Defaults to `False`.
 
-            If a snowflake ID is passed here then the global commands will be
+            If a guild object or ID is passed here then the global commands will be
             set on this specific guild at startup rather than globally. This
             can be useful for testing/debug purposes as slash commands may take
             up to an hour to propagate globally but will immediately propagate

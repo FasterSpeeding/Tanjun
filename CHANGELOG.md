@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1a1.post1] - 2021-09-26
+### Fixed
+- Trailing `:` on a type: ignore comment which broke MyPy compatibility.
+
 ## [2.0.1a1] - 2021-09-25
 ### Added
 - Default client level message parser error handling hook.
@@ -52,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   SlashContext.mark_not_found.
 - Client.on_interaction_create_request not awaiting the client level checks.
 
-## [2.0.0a3.post1] - 2021-09-10
+## [2.0.0a3.post1] - 2021-09-11
 ### Changed
 - Client.add_listener is now fluent.
 
