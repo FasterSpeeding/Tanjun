@@ -5,7 +5,7 @@ checks:
     enabled: false
   complex-logic:
     enabled: false
-   method-complexity:
+  method-complexity:
     enabled: false
   method-count:
     enabled: false
