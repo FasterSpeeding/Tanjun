@@ -1658,11 +1658,16 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if deregister_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, None)
 
+        for component in self._components:
+            for repeater in component.repeaters:
+                repeater.stop()
+                
         await asyncio.gather(*(component.close() for component in self._components.copy().values()))
 
         self._loop = None
         await self.dispatch_client_callback(ClientCallbackNames.CLOSED)
         self._is_closing = False
+
 
     async def open(self, *, register_listeners: bool = True) -> None:
         """Start the client.
