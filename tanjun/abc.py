@@ -75,12 +75,14 @@ from collections import abc as collections
 
 import hikari
 
+
 if typing.TYPE_CHECKING:
     import asyncio
     import datetime
     import pathlib
 
     from hikari import traits as hikari_traits
+    from tanjun import AbstractRepeater
 
 
 _T = typing.TypeVar("_T")
@@ -2389,8 +2391,20 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
+    @abc.abstractmethod
     def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
         """The asyncio loop this client is bound to if it has been opened."""
+
+    @property
+    @abc.abstractmethod
+    def repeaters(self) -> typing.List[AbstractRepeater]:
+        """Repeaters attached to this component
+
+        Returns
+        -------
+        repeaters : typing.List[tanjun.repeaters.AbstractRepeater]
+            The list of repeaters attached to this component.
+        """
 
     @property
     @abc.abstractmethod

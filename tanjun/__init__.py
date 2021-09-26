@@ -213,6 +213,9 @@ __all__: list[str] = [
     "with_parser",
     # utilities.py
     "utilities",
+    # repeaters.py
+    "AbstractRepeater",
+    "Repeater"
 ]
 
 import typing
@@ -231,6 +234,7 @@ from .errors import *
 from .hooks import *
 from .injecting import *
 from .parsing import *
+from .repeaters import *
 
 __author__: typing.Final[str] = "Faster Speeding"
 __ci__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun/actions"

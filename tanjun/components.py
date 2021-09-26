@@ -45,6 +45,7 @@ import abc
 import asyncio
 import base64
 import copy
+import datetime
 import inspect
 import itertools
 import logging
@@ -59,8 +60,12 @@ from . import checks as checks_
 from . import errors
 from . import injecting
 from . import utilities
+from .repeaters import Repeater
 
 if typing.TYPE_CHECKING:
+    from . import AbstractRepeater
+    from . import CallbackSigT
+
     _ComponentT = typing.TypeVar("_ComponentT", bound="Component")
 
 
@@ -192,6 +197,7 @@ class Component(tanjun_abc.Component):
         "_on_open",
         "_slash_commands",
         "_slash_hooks",
+        "_repeaters"
     )
 
     def __init__(
@@ -223,6 +229,7 @@ class Component(tanjun_abc.Component):
         self._on_open: list[injecting.CallbackDescriptor[None]] = []
         self._slash_commands: dict[str, tanjun_abc.BaseSlashCommand] = {}
         self._slash_hooks = slash_hooks
+        self._repeaters: list[AbstractRepeater] = []
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.checks=}, {self.hooks=}, {self.slash_hooks=}, {self.message_hooks=})"
@@ -231,6 +238,9 @@ class Component(tanjun_abc.Component):
     def checks(self) -> collections.Collection[tanjun_abc.CheckSig]:
         """Collection of the checks being run against every command execution in this component."""
         return tuple(check.callback for check in self._checks)
+
+    def repeaters(self) -> typing.List[AbstractRepeater]:
+        return self._repeaters
 
     @property
     def client(self) -> typing.Optional[tanjun_abc.Client]:
@@ -307,6 +317,7 @@ class Component(tanjun_abc.Component):
             self._message_commands = list(commands.values())
             self._metadata = self._metadata.copy()
             self._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
+            self._repeaters = [copy.copy(repeater) for repeater in self._repeaters] if self._repeaters else None
             return self
 
         return copy.copy(self).copy(_new=False)
@@ -971,7 +982,7 @@ class Component(tanjun_abc.Component):
         # <<inherited docstring from tanjun.abc.Component>>.
         async for name, command in self._check_message_context(ctx):
             ctx.set_triggering_name(name)
-            ctx.set_content(ctx.content[len(name) :].lstrip())
+            ctx.set_content(ctx.content[len(name):].lstrip())
             ctx.set_component(self)
             # Only add our hooks if we're sure we'll be executing the command here.
 
@@ -997,6 +1008,22 @@ class Component(tanjun_abc.Component):
         for _, member in inspect.getmembers(self):
             if isinstance(member, AbstractComponentLoader):
                 member.load_into_component(self)
+
+    def with_repeater(self,
+                      delay: typing.Union[datetime.timedelta, int, float],
+                      *,
+                      max_runs: typing.Optional[int] = None,
+                      event_loop: typing.Optional[asyncio.AbstractEventLoop] = None
+                      ) -> collections.Callable[[CallbackSigT], abc.AbstractRepeater]:
+        def decorator(callback: CallbackSigT) -> abc.AbstractRepeater:
+            repeater = Repeater(callback, delay=delay, max_runs=max_runs, event_loop=event_loop)
+            self.add_repeater(repeater)
+            return repeater
+
+        return decorator
+
+    def add_repeater(self, repeater: AbstractRepeater):
+        self._repeaters.append(repeater)
 
     async def close(self) -> None:
         # <<inherited docstring from tanjun.abc.Component>>.
