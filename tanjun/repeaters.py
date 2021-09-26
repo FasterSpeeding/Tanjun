@@ -211,9 +211,69 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
         return self._iteration_count
 
     def with_pre_callback(self, callback: CallbackSig) -> CallbackSig:
+        """Set the callback executed before the repeater is finished.
+
+        Parameters
+        ----------
+        callback : typing.Callable[..., typing.Awaitable[typing.Any]]
+            The callback to set.
+
+        Returns
+        -------
+        typing.Callable[..., typing.Awaitable[typing.Any]]
+            The callback.
+
+        Examples
+        --------
+        ```py
+        @component.with_repeater(
+            delay=1,
+            max_runs=20
+        )
+        async def repeater():
+            global counter
+            counter += 1
+            print(f"Run #{counter}")
+
+
+        @repeater.with_pre_callback
+        async def pre():
+            print("pre callback")
+        ```
+        """
         self._pre_callback = callback
         return callback
 
     def with_post_callback(self, callback: CallbackSig) -> CallbackSig:
+        """Set the callback executed after the repeater is finished.
+
+        Parameters
+        ----------
+        callback : typing.Callable[..., typing.Awaitable[typing.Any]]
+            The callback to set.
+
+        Returns
+        -------
+        typing.Callable[..., typing.Awaitable[typing.Any]]
+            The callback.
+
+        Examples
+        --------
+        ```py
+        @component.with_repeater(
+            delay=1,
+            max_runs=20
+        )
+        async def repeater():
+            global counter
+            counter += 1
+            print(f"Run #{counter}")
+
+
+        @repeater.with_post_callback
+        async def post():
+            print("pre callback")
+        ```
+        """
         self._post_callback = callback
         return callback
