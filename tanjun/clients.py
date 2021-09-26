@@ -1668,7 +1668,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         await self.dispatch_client_callback(ClientCallbackNames.CLOSED)
         self._is_closing = False
 
-
     async def open(self, *, register_listeners: bool = True) -> None:
         """Start the client.
 
