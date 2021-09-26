@@ -1719,7 +1719,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             for repeater in component.repeaters:
                 repeater.start()
 
-
         self._loop.create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED))
 
     async def fetch_rest_application_id(self) -> hikari.Snowflake:

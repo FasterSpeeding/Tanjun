@@ -197,7 +197,7 @@ class Component(tanjun_abc.Component):
         "_on_open",
         "_slash_commands",
         "_slash_hooks",
-        "_repeaters"
+        "_repeaters",
     )
 
     def __init__(
@@ -982,7 +982,7 @@ class Component(tanjun_abc.Component):
         # <<inherited docstring from tanjun.abc.Component>>.
         async for name, command in self._check_message_context(ctx):
             ctx.set_triggering_name(name)
-            ctx.set_content(ctx.content[len(name):].lstrip())
+            ctx.set_content(ctx.content[len(name) :].lstrip())
             ctx.set_component(self)
             # Only add our hooks if we're sure we'll be executing the command here.
 
@@ -1009,12 +1009,13 @@ class Component(tanjun_abc.Component):
             if isinstance(member, AbstractComponentLoader):
                 member.load_into_component(self)
 
-    def with_repeater(self,
-                      delay: typing.Union[datetime.timedelta, int, float],
-                      *,
-                      max_runs: typing.Optional[int] = None,
-                      event_loop: typing.Optional[asyncio.AbstractEventLoop] = None
-                      ) -> collections.Callable[[CallbackSigT], abc.AbstractRepeater]:
+    def with_repeater(
+        self,
+        delay: typing.Union[datetime.timedelta, int, float],
+        *,
+        max_runs: typing.Optional[int] = None,
+        event_loop: typing.Optional[asyncio.AbstractEventLoop] = None,
+    ) -> collections.Callable[[CallbackSigT], abc.AbstractRepeater]:
         def decorator(callback: CallbackSigT) -> abc.AbstractRepeater:
             repeater = Repeater(callback, delay=delay, max_runs=max_runs, event_loop=event_loop)
             self.add_repeater(repeater)

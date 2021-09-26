@@ -75,13 +75,13 @@ from collections import abc as collections
 
 import hikari
 
-
 if typing.TYPE_CHECKING:
     import asyncio
     import datetime
     import pathlib
 
     from hikari import traits as hikari_traits
+
     from tanjun import AbstractRepeater
 
 
@@ -2398,7 +2398,7 @@ class Component(abc.ABC):
     @property
     @abc.abstractmethod
     def repeaters(self) -> typing.List[AbstractRepeater]:
-        """Repeaters attached to this component
+        """Repeaters attached to this component.
 
         Returns
         -------

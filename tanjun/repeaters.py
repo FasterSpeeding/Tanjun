@@ -29,15 +29,10 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Repeaters"""
+"""A way to add repeating tasks to Tanjun bots."""
 from __future__ import annotations
 
-__all__: list[str] = [
-    "AbstractRepeater",
-    "CallbackSig",
-    "CallbackSigT",
-    "Repeater"
-]
+__all__: list[str] = ["AbstractRepeater", "CallbackSig", "CallbackSigT", "Repeater"]
 
 import abc
 import asyncio
@@ -52,49 +47,44 @@ class AbstractRepeater(abc.ABC):
     @property
     @abc.abstractmethod
     def iteration_count(self) -> int:
-        """
-        The number of times this repeater has run.
+        """Return the number of times this repeater has run.
 
         Returns
         -------
         int
-            The number of times this repeater has run. Increments after the callback is called,
-            regardless if it was successful or not.
+            The number of times this repeater has run. Increments after
+            the callback is called, regardless if it was successful or not.
         """
 
     @abc.abstractmethod
     def start(self) -> asyncio.Task:
         """
-        Starts the repeater.
+        Start the repeater.
 
         Returns
         -------
         asyncio.Task
-            The task running the actual repeating loop
+            The task running the actual repeating loop.
         """
 
     @abc.abstractmethod
     def stop(self) -> None:
-        """
-        Stops the repeater.
-        """
+        """Stop the repeater."""
 
     @property
     @abc.abstractmethod
     def callback(self) -> CallbackSigT:
-        """
-        Returns the callback attached to the repeater
+        """Return the callback attached to the repeater.
 
         Returns
         -------
         typing.Callable[..., typing.Awaitable[typing.Any]]
-            The callback
+            The callback attached to this repeater
         """
 
 
 class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
-    """
-    A repeater whose callback is called with a specified delay
+    """A repeater whose callback is called with a specified delay.
 
     Parameters
     ----------
@@ -190,8 +180,7 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
 
     @property
     def delay(self) -> datetime.timedelta:
-        """
-        Returns the delay between callback calls.
+        """Return the delay between callback calls.
 
         Returns
         -------
@@ -228,4 +217,3 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
     def with_post_callback(self, callback: CallbackSigT) -> CallbackSigT:
         self._post_callback = callback
         return callback
-
