@@ -179,7 +179,7 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
         self._checks.remove(check)  # type: ignore[arg-type]
 
     def with_check(self, check: abc.CheckSigT, /) -> abc.CheckSigT:
-        if check not in self._checks:  # type: ignore:
+        if check not in self._checks:  # type: ignore
             self._checks.append(_LoadableInjector(check))
 
         return check

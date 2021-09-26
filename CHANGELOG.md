@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.1a1] - 2021-09-25
 ### Added
 - Default client level message parser error handling hook.
-- Component arguments to the relevante context create message methods.
+- Component arguments to the relevant context create message methods.
 
 ### Changed
 - Bumped minimum Hikari version to 2.0.0.dev102.
@@ -50,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Component level check errors not being caught when executing interactions.
 - The internal state for whether a SlashContext has had it's initial response made or not not being set by
   SlashContext.mark_not_found.
-- Client.on_interaction_create_request not awaiteing the client level checks.
+- Client.on_interaction_create_request not awaiting the client level checks.
 
 ## [2.0.0a3.post1] - 2021-09-10
 ### Changed

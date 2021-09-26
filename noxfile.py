@@ -134,11 +134,9 @@ def generate_docs(session: nox.Session) -> None:
     import httpx
 
     # Note: this can be linked to a specific hash by adding it between raw and {file.name} as another route segment.
-    with httpx.Client() as client:
-        # Note: this can be linked to a specific hash by adding it between raw and {file.name} as another route segment.
-        code = client.get(
-            "https://gist.githubusercontent.com/FasterSpeeding/19a6d3f44cdd0a1f3b2437a8c5eef07a/raw/json_index_docs.py"
-        ).read()
+    code = httpx.get(
+        "https://gist.githubusercontent.com/FasterSpeeding/19a6d3f44cdd0a1f3b2437a8c5eef07a/raw/json_index_docs.py"
+    ).read()
 
     # This is saved to a temporary file to avoid the source showing up in any of the output.
 
