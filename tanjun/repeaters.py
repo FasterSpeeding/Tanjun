@@ -288,6 +288,7 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
     def set_ignored_exceptions(self, *exceptions: type[Exception]) -> Repeater[CallbackSigT]:
         """
         Set the exceptions that a task will ignore.
+
         If any of these exceptions are encountered, there will be nothing printed to console
 
         Parameters
@@ -306,6 +307,7 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
     def set_fatal_exceptions(self, *exceptions: type[Exception]) -> Repeater[CallbackSigT]:
         """
         Set the exceptions that will stop a task.
+
         If any of these exceptions are encountered, the task will stop.
 
         Parameters
@@ -327,7 +329,10 @@ def with_ignored_exceptions(
 ) -> typing.Callable[[Repeater[CallbackSigT]], Repeater[CallbackSigT]]:
     """
     Set the exceptions that a task will ignore.
+
     If any of these exceptions are encountered, there will be nothing printed to console.
+
+    .. note:: Even if an exception is ignored, it will stop that iteration of the repeater.
 
     Parameters
     ----------
@@ -362,6 +367,7 @@ def with_fatal_exceptions(
 ) -> typing.Callable[[Repeater[CallbackSigT]], Repeater[CallbackSigT]]:
     """
     Set the exceptions that will stop a task.
+
     If any of these exceptions are encountered, the task will stop.
 
     Parameters

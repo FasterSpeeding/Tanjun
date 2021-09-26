@@ -216,6 +216,7 @@ __all__: list[str] = [
     # repeaters.py
     "AbstractRepeater",
     "Repeater",
+    "repeaters",
 ]
 
 import typing
