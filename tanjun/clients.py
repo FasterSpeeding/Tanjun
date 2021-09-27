@@ -228,6 +228,26 @@ class ClientCallbackNames(str, enum.Enum):
     The first positional argument is the `tanjun.abc.Component` being removed.
     """
 
+    COMPONENT_CLOSED = "component_closed"
+    """Called when a component is closed.
+
+    .. warning::
+        Unlike other client callbacks, this one is dispatched by the component
+        to its inner-listeners.
+
+    No positional arguments are provided for this event.
+    """
+
+    COMPONENT_STARTED = "component_started"
+    """Called when a component is started.
+
+    .. warning::
+        Unlike other client callbacks, this one is dispatched by the component
+        to its inner-listeners.
+
+    No positional arguments are provided for this event.
+    """
+
     MESSAGE_COMMAND_NOT_FOUND = "message_command_not_found"
     """Called when a message command is not found.
 
@@ -451,9 +471,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         "_hooks",
         "_interaction_not_found",
         "_slash_hooks",
-        "_is_alive",
         "_is_closing",
         "_listeners",
+        "_loop",
         "_message_hooks",
         "_metadata",
         "_modules",
@@ -506,9 +526,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._hooks: typing.Optional[tanjun_abc.AnyHooks] = hooks.AnyHooks().set_on_parser_error(on_parser_error)
         self._interaction_not_found: typing.Optional[str] = "Command not found"
         self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
-        self._is_alive = False
         self._is_closing = False
         self._listeners: dict[type[hikari.Event], list[injecting.SelfInjectingCallback[None]]] = {}
+        self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
         self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._modules: dict[str, types.ModuleType] = {}
@@ -816,7 +836,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     @property
     def is_alive(self) -> bool:
         # <<inherited docstring from tanjun.abc.Client>>.
-        return self._is_alive
+        return self._loop is not None
 
     @property
     def message_hooks(self) -> typing.Optional[tanjun_abc.MessageHooks]:
@@ -1271,10 +1291,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if add_injector:
             self.set_type_dependency(type(component), lambda: component)
 
-        if self._is_alive:
-            asyncio.get_running_loop().create_task(
-                self.dispatch_client_callback(ClientCallbackNames.COMPONENT_ADDED, component)
-            )
+        if self._loop:
+            self._loop.create_task(self.dispatch_client_callback(ClientCallbackNames.COMPONENT_ADDED, component))
 
         return self
 
@@ -1291,8 +1309,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         del self._components[component.name]
         stored_component.unbind_client(self)
 
-        if self._is_alive:
-            asyncio.get_running_loop().create_task(
+        if self._loop:
+            self._loop.create_task(
                 self.dispatch_client_callback(ClientCallbackNames.COMPONENT_REMOVED, stored_component)
             )
 
@@ -1385,7 +1403,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         except KeyError:
             self._listeners[event_type] = [injected]
 
-        if self._is_alive and self._events:
+        if self._loop and self._events:
             self._events.subscribe(event_type, injected.__call__)
 
         return self
@@ -1400,7 +1418,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if not self._listeners[event_type]:
             del self._listeners[event_type]
 
-        if self._is_alive and self._events:
+        if self._loop and self._events:
             self._events.unsubscribe(event_type, registered_callback.__call__)
 
         return self
@@ -1577,7 +1595,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         RuntimeError
             If the client isn't running.
         """
-        if not self._is_alive:
+        if not self._loop:
             raise RuntimeError("Client isn't active")
 
         if self._is_closing:
@@ -1604,7 +1622,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if deregister_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, None)
 
-        self._is_alive = False
+        self._is_alive = None
         await self.dispatch_client_callback(ClientCallbackNames.CLOSED)
         self._is_closing = False
 
@@ -1620,10 +1638,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         RuntimeError
             If the client is already active.
         """
-        if self._is_alive:
+        if self._loop:
             raise RuntimeError("Client is already alive")
 
-        self._is_alive = True
+        self._loop = asyncio.get_running_loop()
         self._is_closing = False
         await self.dispatch_client_callback(ClientCallbackNames.STARTING)
 
@@ -1652,7 +1670,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if register_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, self.on_interaction_create_request)
 
-        asyncio.get_running_loop().create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED))
+        self._loop.create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED))
 
     async def fetch_rest_application_id(self) -> hikari.Snowflake:
         """Fetch the application ID of the application this client is linked to.

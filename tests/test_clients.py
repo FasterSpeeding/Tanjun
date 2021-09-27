@@ -155,7 +155,7 @@ class TestClient:
     def test_is_alive_property(self) -> None:
         client = tanjun.Client(mock.Mock())
 
-        assert client.is_alive is client._is_alive
+        assert client.is_alive is False  # TODO: also test when "alive"
 
     def test_message_hooks_property(self) -> None:
         mock_hooks = mock.Mock()
