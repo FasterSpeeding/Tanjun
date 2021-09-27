@@ -69,7 +69,7 @@ tests = ["pytest==6.2.5", "pytest-asyncio==0.15.1", "pytest-cov==2.12.1"]
 [project.urls]
     homepage = "https://github.com/FasterSpeeding/Tanjun"
     repository = "https://github.com/FasterSpeeding/Tanjun"
-    documentation = "https://fasterspeeding.github.io/Tanjun/"
+    documentation = "https://tanjun.cursed.solutions/"
     changelog = "https://github.com/FasterSpeeding/tanjun/blob/master/CHANGELOG.md"
 
 [tool.flit.module]
