@@ -531,7 +531,7 @@ def with_user_slash_option(
 
 
 def with_member_slash_option(
-    name: str, description: str, /, *, default: typing.Any = _UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
+    name: str, description: str, /, *, default: typing.Any = _UNDEFINED_DEFAULT
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a member option to a slash command.
 
@@ -554,7 +554,7 @@ def with_member_slash_option(
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    return lambda c: c.add_member_option(name, description, default=default, pass_as_kwarg=pass_as_kwarg)
+    return lambda c: c.add_member_option(name, description, default=default)
 
 
 def with_channel_slash_option(
@@ -1425,7 +1425,6 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         /,
         *,
         default: typing.Any = _UNDEFINED_DEFAULT,
-        pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
         """Add a member option to a slash command.
 
@@ -1434,9 +1433,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
         .. warning::
             Unlike the other options, this is an artificial option which adds
-            a restraint to the USER option type and therefore doesn't guarantee
-            that a member will be present if `pass_as_kwarg` is `False`
-            (although there will always be a user object provided).
+            a restraint to the USER option type and therefore cannot have
+            `pass_as_kwarg` set to `False` as this artificial constaint isn't
+            present when its not being passed as a keyword argument.
 
         Parameters
         ----------
@@ -1445,35 +1444,19 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         description : str
             The option's description.
             This should be inclusively between 1-100 characters in length.
-        pass_as_kwarg : bool
-            Whether or not to pass this option as a keyword argument to the
-            command callback.
-
-            Defaults to `True` and if `False` is passed here then `default`
-            will only decide whether the option is required without the actual
-            value being used.
 
         Other Parameters
         ----------------
         default : typing.Any
             The option's default value.
             If this is left as undefined then this option will be required.
-        pass_as_kwarg : bool
-            Whether or not to pass this option as a keyword argument to the
-            command callback.
-
-            Defaults to `True`. If `False` is passed here then `default` will
-            only decide whether the option is required without the actual value
-            being used.
 
         Returns
         -------
         Self
             The command object for chaining.
         """
-        return self._add_option(
-            name, description, hikari.OptionType.USER, default=default, only_member=True, pass_as_kwarg=pass_as_kwarg
-        )
+        return self._add_option(name, description, hikari.OptionType.USER, default=default, only_member=True)
 
     def add_channel_option(
         self: _SlashCommandT,

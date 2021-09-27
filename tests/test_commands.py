@@ -419,10 +419,10 @@ def test_with_user_slash_option_with_defaults():
 def test_with_member_slash_option():
     mock_command = mock.MagicMock()
 
-    result = tanjun.with_member_slash_option("no", "hihihi?", default=123321, pass_as_kwarg=False)(mock_command)
+    result = tanjun.with_member_slash_option("no", "hihihi?", default=123321)(mock_command)
 
     assert result is mock_command.add_member_option.return_value
-    mock_command.add_member_option.assert_called_once_with("no", "hihihi?", default=123321, pass_as_kwarg=False)
+    mock_command.add_member_option.assert_called_once_with("no", "hihihi?", default=123321)
 
 
 def test_with_member_slash_option_with_defaults():
@@ -431,9 +431,7 @@ def test_with_member_slash_option_with_defaults():
     result = tanjun.with_member_slash_option("no", "hihihi?")(mock_command)
 
     assert result is mock_command.add_member_option.return_value
-    mock_command.add_member_option.assert_called_once_with(
-        "no", "hihihi?", default=tanjun.commands._UNDEFINED_DEFAULT, pass_as_kwarg=True
-    )
+    mock_command.add_member_option.assert_called_once_with("no", "hihihi?", default=tanjun.commands._UNDEFINED_DEFAULT)
 
 
 def test_with_role_slash_option():
@@ -1186,15 +1184,6 @@ class TestSlashCommand:
         assert tracked.converters == []
         assert tracked.is_always_float is False
         assert tracked.is_only_member is True
-
-    def test_add_member_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
-        command.add_member_option("sss", "ddd", pass_as_kwarg=False)
-
-        option = command.build().options[0]
-        assert option.name == "sss"
-        assert option.description == "ddd"
-        assert option.type is hikari.OptionType.USER
-        assert option.name not in command._tracked_options
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
     def test_test_add_member_option_with_invalid_name(self, name: str):
