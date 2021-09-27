@@ -35,6 +35,7 @@
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 
+import re
 import types
 import typing
 from unittest import mock
@@ -577,7 +578,19 @@ class Test_CommandBuilder:
     ...
 
 
+_INVALID_NAMES = ["a" * 33, "", "'#'#42123", "Dicksy", "MORGAN", "StAnLey"]
+
+
 class TestBaseSlashCommand:
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test__init__with_invalid_name(self, name: str):
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            stub_class(tanjun.BaseSlashCommand)(name, "desccc")
+
     def test_defaults_to_ephemeral_property(self):
         command = stub_class(tanjun.BaseSlashCommand)("hi", "no")
 
@@ -889,6 +902,17 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.STRING
         assert option.name not in command._tracked_options
 
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_str_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_str_option(name, "aye")
+
     def test_add_int_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
         command.add_int_option("see", "seesee", choices=[("no", 4)], converters=[mock_converter], default="nya")
@@ -936,6 +960,17 @@ class TestSlashCommand:
         assert option.description == "Nouu"
         assert option.type is hikari.OptionType.INTEGER
         assert option.name not in command._tracked_options
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_int_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_int_option(name, "aye")
 
     def test_add_float_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
@@ -987,6 +1022,17 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.FLOAT
         assert option.name not in command._tracked_options
 
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_float_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_float_option(name, "aye")
+
     def test_add_bool_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_bool_option("eaassa", "saas", default="feel")
 
@@ -1033,6 +1079,17 @@ class TestSlashCommand:
         assert option.description == "333"
         assert option.type is hikari.OptionType.BOOLEAN
         assert option.name not in command._tracked_options
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_bool_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_bool_option(name, "aye")
 
     def test_add_user_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_user_option("yser", "nanm", default="nou")
@@ -1081,6 +1138,17 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.USER
         assert option.name not in command._tracked_options
 
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_user_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_user_option(name, "aye")
+
     def test_add_member_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_member_option("ddddd", "sssss", default="dsasds")
 
@@ -1127,6 +1195,17 @@ class TestSlashCommand:
         assert option.description == "ddd"
         assert option.type is hikari.OptionType.USER
         assert option.name not in command._tracked_options
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_member_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_member_option(name, "aye")
 
     def test_add_channel_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_channel_option("c", "d", default="eee")
@@ -1175,6 +1254,17 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.CHANNEL
         assert option.name not in command._tracked_options
 
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_channel_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_channel_option(name, "aye")
+
     def test_add_role_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_role_option("jhjh", "h", default="shera")
 
@@ -1222,6 +1312,17 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.ROLE
         assert option.name not in command._tracked_options
 
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_role_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_role_option(name, "aye")
+
     def test_add_mentionable_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_mentionable_option("owo", "iwi", default="ywy")
 
@@ -1268,6 +1369,17 @@ class TestSlashCommand:
         assert option.description == "dsdsds"
         assert option.type is hikari.OptionType.MENTIONABLE
         assert option.name not in command._tracked_options
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_mentionable_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_mentionable_option(name, "aye")
 
     @pytest.mark.skip(reason="TODO")
     def test_needs_injector_property(self):

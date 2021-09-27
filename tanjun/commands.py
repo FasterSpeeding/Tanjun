@@ -754,7 +754,9 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
     ) -> None:
         super().__init__(checks=checks, hooks=hooks, metadata=metadata)
         if not _SCOMMAND_NAME_REG.fullmatch(name):
-            raise ValueError("Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`")
+            raise ValueError(
+                f"Invalid command name provided, {name!r} doesn't match the required regex `^[a-z0-9_-]{1,32}$`"
+            )
 
         self._command_id = hikari.Snowflake(command_id) if command_id else None
         self._defaults_to_ephemeral = default_to_ephemeral
@@ -1043,8 +1045,6 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         self._callback = injecting.CallbackDescriptor(callback)
         self._client: typing.Optional[abc.Client] = None
         self._tracked_options: dict[str, _TrackedOption] = {}
-        if not _SCOMMAND_NAME_REG.fullmatch(name):
-            raise ValueError("Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`")
 
     if typing.TYPE_CHECKING:
         __call__: CommandCallbackSigT
@@ -1093,7 +1093,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         only_member: bool = False,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
-        # TODO: validate name
+        if not _SCOMMAND_NAME_REG.fullmatch(name):
+            raise ValueError(
+                f"Invalid command option name provided, {name!r} doesn't match the required regex `^[a-z0-9_-]{1,32}$`"
+            )
+
         type_ = hikari.OptionType(type_)
         if isinstance(converters, collections.Iterable):
             converters = list(map(_convert_to_injectable, converters))
