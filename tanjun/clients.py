@@ -302,6 +302,24 @@ async def on_parser_error(ctx: tanjun_abc.MessageContext, error: errors.ParserEr
     await ctx.respond(error.message)
 
 
+def _cmp_command(builder: hikari.api.CommandBuilder, command: hikari.Command) -> bool:
+    if builder.id is not hikari.UNDEFINED and builder.id != command.id:
+        return False
+
+    if builder.name != command.name or builder.description != command.description:
+        return False
+
+    default_perm = builder.default_permission if builder.default_permission is not hikari.UNDEFINED else True
+    if default_perm is not command.default_permission:
+        return False
+
+    try:
+        return all(builder_option == option for builder_option, option in zip(builder.options, command.options or ()))
+
+    except ValueError:
+        return False
+
+
 class Client(injecting.InjectorClient, tanjun_abc.Client):
     """Tanjun's standard `tanjun.abc.Client` implementation.
 
@@ -457,7 +475,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                         if isinstance(set_global_commands, bool)
                         else hikari.Snowflake(set_global_commands)
                     )
-                    await self.set_global_commands(guild=guild)
+                    await self.set_global_commands(guild=guild, force=False)
                 finally:
                     self.remove_client_callback(ClientCallbackNames.STARTING, _set_global_commands_next_start)
 
@@ -822,6 +840,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+        force: bool = False,
     ) -> collections.Sequence[hikari.Command]:
         """Declare a collection of slash commands for a bot.
 
@@ -846,6 +865,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             Object or ID of the guild to register the commands with.
 
             If left as `None` then the commands will be registered globally.
+        force : bool
+            Force this to declare the commands regardless of whether or not
+            they match the current state of the declared commands.
+
+            Defaults to `False`. This helps avoid issues around the 2 request
+            per minute (per-guild or globally) ratelimit and the hiddern limit of
+            of only 200 application command creates per day (per guild or globally).
 
         Returns
         -------
@@ -853,17 +879,15 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             API representations of the commands which were registered.
         """
         names_to_commands: dict[str, tanjun_abc.BaseSlashCommand] = {}
-        found_top_names: set[str] = set()
         conflicts: set[str] = set()
-        builders: list[hikari.api.CommandBuilder] = []
+        builders: dict[str, hikari.api.CommandBuilder] = {}
 
         for command in commands:
             names_to_commands[command.name] = command
-            if command.name in found_top_names:
+            if command.name in builders:
                 conflicts.add(command.name)
 
-            found_top_names.add(command.name)
-            builders.append(command.build())
+            builders[command.name] = command.build()
 
         if conflicts:
             raise RuntimeError(
@@ -874,11 +898,23 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if not application:
             application = self._cached_application_id or await self.fetch_rest_application_id()
 
-        responses = await self._rest.set_application_commands(application, builders, guild=guild)
-        for response in responses:
-            command = names_to_commands[response.name]
-            if not guild:
-                command.set_tracked_command(response)  # TODO: is this fine?
+        name = "global" if guild is hikari.UNDEFINED else f"guild {int(guild)}"
+
+        if not force:
+            registered_commands = await self._rest.fetch_application_commands(application, guild=guild)
+            if all(
+                _cmp_command(builder, command) if (builder := builders.get(command.name)) else False
+                for command in registered_commands
+            ):
+                _LOGGER.info("Skipping bulk declare for %s slash commands due to them already being set", name)
+                return registered_commands
+
+        _LOGGER.info("Bulk declaring %s %s slash commands", len(builders), name)
+        responses = await self._rest.set_application_commands(application, list(builders.values()), guild=guild)
+
+        if not guild:
+            for response in responses:
+                names_to_commands[response.name].set_tracked_command(response)  # TODO: is this fine?
 
         return responses
 
@@ -1051,6 +1087,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+        force: bool = False,
     ) -> collections.Sequence[hikari.Command]:
         """Set the global application commands for a bot based on the loaded components.
 
@@ -1078,6 +1115,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             Object or ID of the guild to set the global commands to.
 
             If left as `None` global commands will be set.
+        force : bool
+            Force this to declare the commands regardless of whether or not
+            they match the current state of the declared commands.
+
+            Defaults to `False`. This helps avoid issues around the 2 request
+            per minute (per-guild or globally) ratelimit and the hiddern limit of
+            of only 200 application command creates per day (per guild or globally).
 
         Returns
         -------
@@ -1089,7 +1133,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             for command in itertools.chain.from_iterable(component.slash_commands for component in self._components)
             if command.is_global
         )
-        return await self.declare_slash_commands(commands, application=application, guild=guild)
+        return await self.declare_slash_commands(commands, application=application, guild=guild, force=force)
 
     def add_check(self: _ClientT, check: tanjun_abc.CheckSig, /) -> _ClientT:
         """Add a generic check to this client.
