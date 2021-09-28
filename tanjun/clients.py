@@ -809,6 +809,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         hikari.Command
             API representation of the command that was registered.
         """
+
         builder = command.build()
         if command_id:
             response = await self._rest.edit_application_command(
@@ -877,6 +878,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         -------
         collections.abc.Sequence[hikari.Command]
             API representations of the commands which were registered.
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+            * If conflicting command names are found (multiple commanbds have the same top-level name).
+            * If more than 100 top-level commands are passed.
         """
         names_to_commands: dict[str, tanjun_abc.BaseSlashCommand] = {}
         conflicts: set[str] = set()
@@ -890,10 +898,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             builders[command.name] = command.build()
 
         if conflicts:
-            raise RuntimeError(
+            raise ValueError(
                 "Couldn't declare commands due to conflicts. The following command names have more than one command "
                 "registered for them " + ", ".join(conflicts)
             )
+
+        if len(builders) > 100:
+            raise ValueError("You can only declare up to 100 top level commands in a guild or globally")
 
         if not application:
             application = self._cached_application_id or await self.fetch_rest_application_id()

@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Adding an option to SlashCommand will now raise if the name is invalid (doesn't match the names regex).
+- Validation to slash command classes.
 
 ### Changed
 - Breaking: Client.set_type_dependency now takes a literal value rather than a callback.

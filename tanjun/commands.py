@@ -76,7 +76,6 @@ from . import injecting
 from . import utilities
 
 if typing.TYPE_CHECKING:
-
     from hikari.api import special_endpoints as special_endpoints_api
 
     from . import parsing
@@ -274,6 +273,13 @@ def slash_command_group(
     -------
     SlashCommandGroup
         The command group.
+
+    Raises
+    ------
+    ValueError
+        Raises a value error for any of the following reasons:
+        * If the command name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+        * If the description is over 100 characters long.
     """
     return SlashCommandGroup(
         name,
@@ -355,6 +361,13 @@ def as_slash_command(
     -------
     collections.abc.Callable[[CommandCallbackSigT], SlashCommand[CommandCallbackSigT]]
         The decorator callback used to build the command to a `SlashCommand`.
+
+    Raises
+    ------
+    ValueError
+        Raises a value error for any of the following reasons:
+        * If the command name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+        * If the description is over 100 characters long.
     """
     return lambda c: SlashCommand(
         c,
@@ -758,6 +771,9 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
                 f"Invalid command name provided, {name!r} doesn't match the required regex `^[a-z0-9_-]{1,32}$`"
             )
 
+        if len(description) > 100:
+            raise ValueError("The command description cannot be over 100 characters in length")
+
         self._command_id = hikari.Snowflake(command_id) if command_id else None
         self._defaults_to_ephemeral = default_to_ephemeral
         self._description = description
@@ -944,6 +960,12 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         if self._parent and isinstance(command, abc.SlashCommandGroup):
             raise ValueError("Cannot add a slash command group to a nested slash command group")
 
+        if len(self._commands) == 25:
+            raise ValueError("Cannot add more than 25 commands to a slash command group")
+
+        if command.name in self._commands:
+            raise ValueError(f"Command with name {command.name} already exists in this group")
+
         command.set_parent(self)
         self._commands[command.name] = command
         return self
@@ -1098,6 +1120,12 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
                 f"Invalid command option name provided, {name!r} doesn't match the required regex `^[a-z0-9_-]{1,32}$`"
             )
 
+        if len(description) > 100:
+            raise ValueError("The option description cannot be over 100 characters in length")
+
+        if len(self._builder.options) == 25:
+            raise ValueError("Slash commands cannot have more than 25 options")
+
         type_ = hikari.OptionType(type_)
         if isinstance(converters, collections.Iterable):
             converters = list(map(_convert_to_injectable, converters))
@@ -1111,6 +1139,10 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
                     converter.callback.check_client(self._client, f"{self._name}'s slash option '{name}'")
 
         choices_ = [hikari.CommandChoice(name=name, value=value) for name, value in choices] if choices else None
+
+        if choices_ and len(choices_) > 25:
+            raise ValueError("Slash command options cannot have more than 25 choices")
+
         required = default is _UNDEFINED_DEFAULT
         self._builder.add_option(
             hikari.CommandOption(type=type_, name=name, description=description, is_required=required, choices=choices_)
@@ -1183,6 +1215,15 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         -------
         Self
             The command object for chaining.
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option description is over 100 characters in length.
+            * If the option has more than 25 choices.
+            * If the command already has 25 options.
         """
         choices_: typing.Optional[collections.Iterator[tuple[str, str]]] = None
         if choices is not None:
@@ -1250,6 +1291,15 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         -------
         Self
             The command object for chaining.
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option description is over 100 characters in length.
+            * If the option has more than 25 choices.
+            * If the command already has 25 options.
         """
         return self._add_option(
             name,
@@ -1321,6 +1371,15 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         -------
         Self
             The command object for chaining.
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option description is over 100 characters in length.
+            * If the option has more than 25 choices.
+            * If the command already has 25 options.
         """
         return self._add_option(
             name,
@@ -1369,6 +1428,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         -------
         Self
             The command object for chaining.
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option description is over 100 characters in length.
+            * If the command already has 25 options.
         """
         return self._add_option(
             name, description, hikari.OptionType.BOOLEAN, default=default, pass_as_kwarg=pass_as_kwarg
@@ -1415,6 +1482,15 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         -------
         Self
             The command object for chaining.
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option description is over 100 characters in length.
+            * If the option has more than 25 choices.
+            * If the command already has 25 options.
         """
         return self._add_option(name, description, hikari.OptionType.USER, default=default, pass_as_kwarg=pass_as_kwarg)
 
@@ -1455,6 +1531,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         -------
         Self
             The command object for chaining.
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option description is over 100 characters in length.
+            * If the command already has 25 options.
         """
         return self._add_option(name, description, hikari.OptionType.USER, default=default, only_member=True)
 
@@ -1497,6 +1581,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         -------
         Self
             The command object for chaining.
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option description is over 100 characters in length.
+            * If the command already has 25 options.
         """
         return self._add_option(
             name, description, hikari.OptionType.CHANNEL, default=default, pass_as_kwarg=pass_as_kwarg
@@ -1538,6 +1630,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         -------
         Self
             The command object for chaining.
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option description is over 100 characters in length.
+            * If the command already has 25 options.
         """
         return self._add_option(name, description, hikari.OptionType.ROLE, default=default, pass_as_kwarg=pass_as_kwarg)
 
@@ -1581,6 +1681,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         -------
         Self
             The command object for chaining.
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+            * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
+            * If the option description is over 100 characters in length.
+            * If the command already has 25 options.
         """
         return self._add_option(
             name, description, hikari.OptionType.MENTIONABLE, default=default, pass_as_kwarg=pass_as_kwarg
