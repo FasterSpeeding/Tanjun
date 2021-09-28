@@ -809,7 +809,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         hikari.Command
             API representation of the command that was registered.
         """
-
         builder = command.build()
         if command_id:
             response = await self._rest.edit_application_command(
