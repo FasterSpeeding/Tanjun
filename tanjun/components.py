@@ -960,7 +960,7 @@ class Component(tanjun_abc.Component):
             return asyncio.get_running_loop().create_task(ctx.mark_not_found())
 
         except errors.CommandError as exc:
-            await ctx.respond(exc.message)
+            await ctx.respond(content=exc.message, embeds=ctx.embeds)
             asyncio.get_running_loop().create_future().set_result(None)
             return None
 

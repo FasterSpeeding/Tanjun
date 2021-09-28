@@ -257,6 +257,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Adding an option to SlashCommand will now raise if the name is invalid (doesn't match the names regex).
 - Validation to slash command classes.
 - Special case type injector handling for the client itself.
+- CommandError and the standard checks now support embed error responses.
 
 ### Changed
 - Breaking: `Client.set_type_dependency` now takes a literal value rather than a callback.
@@ -266,6 +267,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Client level special cased type injectors are now handled as normal type injectors which are just implicitly
   set from the start.
 - `Client.load_modules` now respects `__all__` if present.
+- Renamed `CommandError.message` to `CommandError.content`.
+- Client.load_modules now respects `__all__` if present.
 
 ### Fixed
 - Small change to help MyPy better understand protocol behaviour.

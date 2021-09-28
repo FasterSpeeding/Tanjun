@@ -2054,7 +2054,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand[abc.CommandCallbackSigT]):
             await self._callback.resolve_with_command_context(ctx, ctx, **kwargs)
 
         except errors.CommandError as exc:
-            await ctx.respond(exc.message)
+            await ctx.respond(content=exc.content, embeds=exc.embeds)
 
         except errors.HaltExecution:
             # Unlike a message command, this won't necessarily reach the client level try except

@@ -47,10 +47,12 @@ __all__: list[str] = [
 ]
 
 import typing
+import hikari
 
 if typing.TYPE_CHECKING:
     import pathlib
     from collections import abc as collections
+
 
 
 class TanjunError(Exception):
@@ -93,37 +95,64 @@ class CommandError(TanjunError):
 
     __slots__ = ("message",)
 
-    # None or empty string == no response
-    message: str
-    """The response error message.
+    content: hikari.UndefinedOr[str]
+    """The response error message's content.
 
     Tanjun will try to send the string message as a response.
     """
 
-    def __init__(self, message: str, /) -> None:
+    embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
+    """Sequence of up to (and including) 10 embeds to send as a response."""
+
+    def __init__(self, content: hikari.UndefinedOr[str] = hikari.UNDEFINED, *, embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED, embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED) -> None:
         """Initialise a command error.
 
-        Parameters
-        ----------
-        message : str
+        Other Parameters
+        ----------------
+        message : hikari.UndefinedOr[str]
             String message which will be sent as a response to the message
+            that triggered the current command.
+        embed : hikari.UndefinedOr[hikari.Embed]
+            Embed which will be sent as a response to the message that
+            triggered the current command.
+        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
+            List of up to 10 embeds which will be sent as a response to the message
             that triggered the current command.
 
         Raises
         ------
         ValueError
-            Raised when the message is over 2000 characters long or empty.
+            Raises value error for any of the following reasons:
+            * When the message content is specified as 2000 characters long or empty.
+                * When more than 10 embeds are passed.
+            * When both embed and embeds are passed.
+            * When no message or embed is passed.
         """
-        if len(message) > 2000:
-            raise ValueError("Error message cannot be over 2_000 characters long.")
+        if content is not hikari.UNDEFINED:
+            if len(content) > 2000:
+                raise ValueError("Error message cannot be over 2_000 characters long.")
 
-        elif not message:
-            raise ValueError("Response message must have at least 1 character.")
+            elif not content:
+                raise ValueError("Response message must have at least 1 character.")
 
-        self.message = message
+        if embeds is not hikari.UNDEFINED:
+            if embed is not hikari.UNDEFINED:
+                raise ValueError("Cannot provide both embed and embeds.")
+
+            if len(embeds) > 10:
+                raise ValueError("Cannot have more than 10 embeds.")
+
+        elif embed is not hikari.UNDEFINED:
+            embeds = [embed]
+
+        elif content is not hikari.UNDEFINED:
+            raise ValueError("Must provide either a message, embed or embeds.")
+
+        self.content = content
+        self.embeds = embeds
 
     def __str__(self) -> str:
-        return self.message or ""
+        return self.content if self.content is not hikari.UNDEFINED and self.content else ""
 
 
 # TODO: use this

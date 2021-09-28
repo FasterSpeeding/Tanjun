@@ -2000,7 +2000,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             pass
 
         except errors.CommandError as exc:
-            await ctx.respond(exc.message)
+            await ctx.respond(content=exc.content, embeds=exc.embeds)
             return
 
         await self.dispatch_client_callback(ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx)
@@ -2064,7 +2064,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             pass
 
         except errors.CommandError as exc:
-            await ctx.respond(exc.message)
+            await ctx.respond(content=exc.content, embeds=exc.embeds)
             return
 
         await ctx.mark_not_found()
@@ -2111,7 +2111,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             # ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create
             # another response before it's returned the initial response.
             asyncio.get_running_loop().create_task(
-                ctx.respond(exc.message), name=f"{interaction.id} command error responder"
+                ctx.respond(content=exc.content, embeds=exc.embeds), name=f"{interaction.id} command error responder"
             )
             return await future
 
