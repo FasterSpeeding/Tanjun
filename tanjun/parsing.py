@@ -133,7 +133,7 @@ class AbstractParser(abc.ABC):
     def parameters(self) -> collections.Sequence[Parameter]:
         raise NotImplementedError
 
-    @abc.abstractmethod
+    @abc.abstractmethod  # TODO: these lol
     def add_parameter(self, parameter: typing.Union[Argument, Option], /) -> None:
         raise NotImplementedError
 

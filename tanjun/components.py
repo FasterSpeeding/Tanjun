@@ -280,8 +280,9 @@ class Component(abc.Component):
 
         return self
 
-    def remove_check(self, check: abc.CheckSig, /) -> None:
+    def remove_check(self: _ComponentT, check: abc.CheckSig, /) -> _ComponentT:
         self._checks.remove(check)  # type: ignore[arg-type]
+        return self
 
     def with_check(self, check: abc.CheckSigT, /) -> abc.CheckSigT:
         self.add_check(check)
@@ -336,7 +337,7 @@ class Component(abc.Component):
 
         return self
 
-    def remove_command(self, command: abc.ExecutableCommand[typing.Any], /) -> None:
+    def remove_command(self: _ComponentT, command: abc.ExecutableCommand[typing.Any], /) -> _ComponentT:
         if isinstance(command, abc.MessageCommand):
             self.remove_message_command(command)
 
@@ -347,6 +348,8 @@ class Component(abc.Component):
             raise ValueError(
                 f"Unexpected object passed, expected a MessageCommand or BaseSlashCommand but got {type(command)}"
             )
+
+        return self
 
     @typing.overload
     def with_command(self, command: CommandT, /) -> CommandT:
@@ -373,11 +376,13 @@ class Component(abc.Component):
         self._slash_commands[command.name.casefold()] = command
         return self
 
-    def remove_slash_command(self, command: abc.BaseSlashCommand, /) -> None:
+    def remove_slash_command(self: _ComponentT, command: abc.BaseSlashCommand, /) -> _ComponentT:
         try:
             del self._slash_commands[command.name.casefold()]
         except KeyError:
             raise ValueError(f"Command {command.name} not found") from None
+
+        return self
 
     @typing.overload
     def with_slash_command(self, command: abc.BaseSlashCommandT, /) -> abc.BaseSlashCommandT:
@@ -436,13 +441,15 @@ class Component(abc.Component):
         command.bind_component(self)
         return self
 
-    def remove_message_command(self, command: abc.MessageCommand, /) -> None:
+    def remove_message_command(self: _ComponentT, command: abc.MessageCommand, /) -> _ComponentT:
         self._message_commands.remove(command)
 
         if self._is_strict:
             for name in command.names:
                 if self._names_to_commands.get(name) == command:
                     del self._names_to_commands[name]
+
+        return self
 
     @typing.overload
     def with_message_command(self, command: abc.MessageCommandT, /) -> abc.MessageCommandT:
@@ -476,13 +483,17 @@ class Component(abc.Component):
 
         return self
 
-    def remove_listener(self, event: type[base_events.Event], listener: abc.ListenerCallbackSig, /) -> None:
+    def remove_listener(
+        self: _ComponentT, event: type[base_events.Event], listener: abc.ListenerCallbackSig, /
+    ) -> _ComponentT:
         self._listeners[event].remove(listener)
         if not self._listeners[event]:
             del self._listeners[event]
 
         if self._client:
             self._client.remove_listener(event, listener)
+
+        return self
 
     # TODO: make event optional?
     def with_listener(
