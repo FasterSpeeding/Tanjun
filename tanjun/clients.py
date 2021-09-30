@@ -866,8 +866,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             Force this to declare the commands regardless of whether or not
             they match the current state of the declared commands.
 
-            Defaults to `False`. This helps avoid issues around the 2 request
-            per minute (per-guild or globally) ratelimit and the hiddern limit of
+            Defaults to `False`. This default behaviour helps avoid issues around the
+            2 request per minute (per-guild or globally) ratelimit and the hiddern limit
             of only 200 application command creates per day (per guild or globally).
 
         Returns
@@ -1115,8 +1115,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             Force this to declare the commands regardless of whether or not
             they match the current state of the declared commands.
 
-            Defaults to `False`. This helps avoid issues around the 2 request
-            per minute (per-guild or globally) ratelimit and the hiddern limit of
+            Defaults to `False`. This default behaviour helps avoid issues around the
+            2 request per minute (per-guild or globally) ratelimit and the hiddern limit
             of only 200 application command creates per day (per guild or globally).
 
         Returns
