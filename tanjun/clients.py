@@ -302,8 +302,8 @@ async def on_parser_error(ctx: tanjun_abc.MessageContext, error: errors.ParserEr
     await ctx.respond(error.message)
 
 
-def _cmp_command(builder: hikari.api.CommandBuilder, command: hikari.Command) -> bool:
-    if builder.id is not hikari.UNDEFINED and builder.id != command.id:
+def _cmp_command(builder: typing.Optional[hikari.api.CommandBuilder], command: hikari.Command) -> bool:
+    if not builder or builder.id is not hikari.UNDEFINED and builder.id != command.id:
         return False
 
     if builder.name != command.name or builder.description != command.description:
@@ -899,9 +899,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         if not force:
             registered_commands = await self._rest.fetch_application_commands(application, guild=guild)
-            if all(
-                _cmp_command(builder, command) if (builder := builders.get(command.name)) else False
-                for command in registered_commands
+            if len(registered_commands) == len(builders) and all(
+                _cmp_command(builders.get(command.name), command) for command in registered_commands
             ):
                 _LOGGER.info("Skipping bulk declare for %s slash commands due to them already being set", name)
                 return registered_commands
