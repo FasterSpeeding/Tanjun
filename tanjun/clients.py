@@ -1690,6 +1690,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         for module_path in modules:
             if isinstance(module_path, str):
                 module = importlib.import_module(module_path)
+                module_repr = module_path
 
             else:
                 spec = importlib_util.spec_from_file_location(
@@ -1702,15 +1703,29 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
                 module = importlib_util.module_from_spec(spec)
                 spec.loader.exec_module(module)
+                module_repr = module.__name__
+
+            exported = getattr(module, "__all__", None)
+            if exported is not None and isinstance(exported, collections.Iterable):
+                _LOGGER.info("Loading from %s (based on its declared __all__)", module_repr)
+                members = (getattr(module, name, None) for name in exported if isinstance(name, str))
+
+            else:
+                _LOGGER.info("Loading from %s (all public members)", module_repr)
+                members = (
+                    member
+                    for name, member in inspect.getmembers(module_repr)
+                    if not name.startswith("_") or name.startswith("_") and name[2:] == "__"
+                )
 
             found = False
-            for _, member in inspect.getmembers(module):
+            for member in members:
                 if isinstance(member, _LoadableDescriptor):
                     member(self)
                     found = True
 
             if not found:
-                _LOGGER.warning("Didn't find any loadable descriptors in %s", module_path)
+                _LOGGER.warning("Didn't find any loadable descriptors in %s", module_repr)
 
         return self
 
@@ -1853,12 +1868,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             )
             return await future
 
-        async def callback(_: asyncio.Future[None]) -> None:
+        async def callback() -> None:
+            await self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
             await ctx.mark_not_found()
             ctx.cancel_defer()
 
-        asyncio.get_running_loop().create_task(
-            self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx),
-            name=f"{interaction.id} not found",
-        ).add_done_callback(callback)
+        asyncio.get_running_loop().create_task(callback(), name=f"{interaction.id} not found")
         return await future
