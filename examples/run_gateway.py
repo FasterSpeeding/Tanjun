@@ -32,6 +32,7 @@ def run() -> None:
     # Note that starting a Tanjun client before the relevant bot instance
     # may lead to erroneous behaviour as it won't be able to make requests.
     bot = hikari.GatewayBot(loaded_config.bot_token)
+    database = impls.DatabaseImpl()
     (
         tanjun.Client.from_gateway_bot(bot)
         .load_modules("examples.complex_component")
@@ -41,8 +42,10 @@ def run() -> None:
         .load_modules("examples.slash_component")
         .add_prefix(loaded_config.prefix)
         .set_prefix_getter(get_prefix)
-        .set_type_dependency(config.ExampleConfig, lambda: loaded_config)
-        .set_type_dependency(protos.DatabaseProto, tanjun.cache_callback(impls.DatabaseImpl.connect))
+        .set_type_dependency(config.ExampleConfig, loaded_config)
+        .set_type_dependency(protos.DatabaseProto, database)
+        # Here we use client callbacks to manage the database, STOPPING can also be used to stop it.
+        .add_client_callback(tanjun.ClientCallbackNames.STARTING, database.connect)
     )
     bot.run()
 

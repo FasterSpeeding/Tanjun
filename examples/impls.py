@@ -13,12 +13,13 @@ async def connect_to_database(*args: typing.Any, **kwargs: typing.Any) -> typing
 
 
 class DatabaseImpl:
-    def __init__(self, connection: typing.Any) -> None:
-        self._conn = connection
+    def __init__(self) -> None:
+        self._conn: typing.Optional[typing.Any] = None
 
-    @classmethod
-    async def connect(cls, config: examples.config.ExampleConfig = tanjun.injected(type=examples.config.ExampleConfig)):
-        return cls(await connect_to_database(password=config.database_password, url=config.database_url))
+    async def connect(
+        self, config: examples.config.ExampleConfig = tanjun.injected(type=examples.config.ExampleConfig)
+    ):
+        self._conn = await connect_to_database(password=config.database_password, url=config.database_url)
 
     async def get_guild_info(self, guild_id: int) -> typing.Optional[protos.GuildConfig]:
         raise NotImplementedError

@@ -481,23 +481,26 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 _set_global_commands_next_start,
             )
 
-        self.set_type_special_case(hikari.api.RESTClient, rest)
-        self.set_type_special_case(type(rest), rest)
+        self.set_type_dependency(tanjun_abc.Client, self)
+        self.set_type_dependency(Client, self)
+        self.set_type_dependency(type(self), self)
+        self.set_type_dependency(hikari.api.RESTClient, rest)
+        self.set_type_dependency(type(rest), rest)
         if cache:
-            self.set_type_special_case(hikari.api.Cache, cache)
-            self.set_type_special_case(type(cache), cache)
+            self.set_type_dependency(hikari.api.Cache, cache)
+            self.set_type_dependency(type(cache), cache)
 
         if events:
-            self.set_type_special_case(hikari.api.EventManager, events)
-            self.set_type_special_case(type(events), events)
+            self.set_type_dependency(hikari.api.EventManager, events)
+            self.set_type_dependency(type(events), events)
 
         if server:
-            self.set_type_special_case(hikari.api.InteractionServer, server)
-            self.set_type_special_case(type(server), server)
+            self.set_type_dependency(hikari.api.InteractionServer, server)
+            self.set_type_dependency(type(server), server)
 
         if shards:
-            self.set_type_special_case(hikari_traits.ShardAware, shards)
-            self.set_type_special_case(type(shards), shards)
+            self.set_type_dependency(hikari_traits.ShardAware, shards)
+            self.set_type_dependency(type(shards), shards)
 
     @classmethod
     def from_gateway_bot(
@@ -942,7 +945,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         """
         for _, member in inspect.getmembers(hikari_traits):
             if inspect.isclass(member) and isinstance(bot, member):
-                self.set_type_special_case(member, bot)
+                self.set_type_dependency(member, bot)
 
         return self
 

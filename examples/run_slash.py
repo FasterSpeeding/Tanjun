@@ -16,13 +16,16 @@ async def run() -> None:
     # While a BOT token is assumed in this example, a client credentials OAuth2
     # token can also be used with Tanjun but this may limit functionality.
     bot = hikari.RESTBot(loaded_config.bot_token, hikari.TokenType.BOT)
+    database = impls.DatabaseImpl()
     client = (
         tanjun.Client.from_rest_bot(bot)
         # Unlike a gateway bot bound client, only slash commands will be automatically
         # executed by a client that's bound to a rest bot.
         .load_modules("examples.slash_component")
-        .set_type_dependency(config.ExampleConfig, lambda: loaded_config)
-        .set_type_dependency(protos.DatabaseProto, tanjun.cache_callback(impls.DatabaseImpl.connect))
+        .set_type_dependency(config.ExampleConfig, loaded_config)
+        .set_type_dependency(protos.DatabaseProto, database)
+        # Here we use client callbacks to manage the database, STOPPING can also be used to stop it.
+        .add_client_callback(tanjun.ClientCallbackNames.STARTING, database.connect)
     )
     # Unlike with a gateway bot, for RESTBots hikari has no lifetime event
     # dispatch which can be used to implicitly startup and close the Tanjun
