@@ -38,7 +38,6 @@ import inspect
 import time
 import types
 import typing
-import warnings
 from unittest import mock
 
 import pytest
@@ -548,19 +547,6 @@ def test_injected_with_type():
 
 
 class TestInjectorClient:
-    def test_add_type_dependency(self):
-        mock_type: type[typing.Any] = mock.Mock()
-        mock_callback = mock.Mock()
-        set_type_dependency = mock.Mock()
-        client = stub_class(tanjun.injecting.InjectorClient, set_type_dependency=set_type_dependency)()
-
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
-            result = client.add_type_dependency(mock_type, mock_callback)
-
-        assert result is set_type_dependency.return_value
-        set_type_dependency.assert_called_once_with(mock_type, mock_callback)
-
     def test_get_type_dependency(self):
         mock_value = mock.Mock()
         mock_type: type[typing.Any] = mock.Mock()
@@ -579,19 +565,6 @@ class TestInjectorClient:
         client.remove_type_dependency(mock_type)
 
         assert client.get_type_dependency(mock_type) is tanjun.UNDEFINED
-
-    def test_add_callback_override(self):
-        mock_callback = mock.Mock()
-        mock_override = mock.Mock()
-        set_callback_override = mock.Mock()
-        client = stub_class(tanjun.injecting.InjectorClient, set_callback_override=set_callback_override)()
-
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
-            result = client.add_callback_override(mock_callback, mock_override)
-
-        assert result is set_callback_override.return_value
-        set_callback_override.assert_called_once_with(mock_callback, mock_override)
 
     def test_get_callback_override(self):
         mock_callback = mock.Mock()
