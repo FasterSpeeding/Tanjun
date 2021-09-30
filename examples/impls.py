@@ -13,7 +13,7 @@ async def connect_to_database(*args: typing.Any, **kwargs: typing.Any) -> typing
 
 
 class DatabaseImpl:
-    def __init__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
+    def __init__(self) -> None:
         self._conn: typing.Optional[typing.Any] = None
 
     async def connect(
