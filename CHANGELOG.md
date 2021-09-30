@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Client.declare_slash_commands and CLient.set_global_commands now check if the target resource's commands
+  match the commands to be declared before actually declaring them unless `force` is set to `True`. This
+  helps avoid issues with ratelimiting.
 
 ## [2.0.1a1.post1] - 2021-09-26
 ### Fixed
