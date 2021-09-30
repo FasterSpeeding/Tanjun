@@ -613,6 +613,21 @@
     <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">_cmp_command</span><span class="p">(</span><span class="n">builder</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">],</span> <span class="n">command</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">builder</span> <span class="ow">or</span> <span class="n">builder</span><span class="o">.</span><span class="n">id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="ow">and</span> <span class="n">builder</span><span class="o">.</span><span class="n">id</span> <span class="o">!=</span> <span class="n">command</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="n">builder</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">command</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="n">builder</span><span class="o">.</span><span class="n">description</span> <span class="o">!=</span> <span class="n">command</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">default_perm</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">default_permission</span> <span class="k">if</span> <span class="n">builder</span><span class="o">.</span><span class="n">default_permission</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="k">else</span> <span class="kc">True</span>
+    <span class="n">command_options</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">options</span> <span class="ow">or</span> <span class="p">()</span>
+    <span class="k">if</span> <span class="n">default_perm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">command</span><span class="o">.</span><span class="n">default_permission</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">builder</span><span class="o">.</span><span class="n">options</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">command_options</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">builder_option</span> <span class="o">==</span> <span class="n">option</span> <span class="k">for</span> <span class="n">builder_option</span><span class="p">,</span> <span class="n">option</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">builder</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="n">command_options</span><span class="p">))</span>
+
+
 <span class="k">class</span> <span class="nc">Client</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Tanjun&#39;s standard `tanjun.abc.Client` implementation.</span>
 
@@ -768,7 +783,7 @@
                         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
                         <span class="k">else</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">)</span>
                     <span class="p">)</span>
-                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_global_commands</span><span class="p">(</span><span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_global_commands</span><span class="p">(</span><span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
                 <span class="k">finally</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">remove_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="n">_set_global_commands_next_start</span><span class="p">)</span>
 
@@ -1133,6 +1148,7 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Declare a collection of slash commands for a bot.</span>
 
@@ -1157,6 +1173,13 @@
 <span class="sd">            Object or ID of the guild to register the commands with.</span>
 
 <span class="sd">            If left as `None` then the commands will be registered globally.</span>
+<span class="sd">        force : bool</span>
+<span class="sd">            Force this to declare the commands regardless of whether or not</span>
+<span class="sd">            they match the current state of the declared commands.</span>
+
+<span class="sd">            Defaults to `False`. This default behaviour helps avoid issues with the</span>
+<span class="sd">            2 request per minute (per-guild or globally) ratelimit and the other limit</span>
+<span class="sd">            of only 200 application command creates per day (per guild or globally).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1164,17 +1187,15 @@
 <span class="sd">            API representations of the commands which were registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">found_top_names</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="n">conflicts</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="n">builders</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">builders</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">commands</span><span class="p">:</span>
             <span class="n">names_to_commands</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span>
-            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">found_top_names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">builders</span><span class="p">:</span>
                 <span class="n">conflicts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-            <span class="n">found_top_names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-            <span class="n">builders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">())</span>
+            <span class="n">builders</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">conflicts</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
@@ -1185,11 +1206,22 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">application</span><span class="p">:</span>
             <span class="n">application</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">()</span>
 
-        <span class="n">responses</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">set_application_commands</span><span class="p">(</span><span class="n">application</span><span class="p">,</span> <span class="n">builders</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
-            <span class="n">command</span> <span class="o">=</span> <span class="n">names_to_commands</span><span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">guild</span><span class="p">:</span>
-                <span class="n">command</span><span class="o">.</span><span class="n">set_tracked_command</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>  <span class="c1"># TODO: is this fine?</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;global&quot;</span> <span class="k">if</span> <span class="n">guild</span> <span class="ow">is</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;guild </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">guild</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
+            <span class="n">registered_commands</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_application_commands</span><span class="p">(</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">registered_commands</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">builders</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="n">_cmp_command</span><span class="p">(</span><span class="n">builders</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">command</span><span class="p">)</span> <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">registered_commands</span>
+            <span class="p">):</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping bulk declare for </span><span class="si">%s</span><span class="s2"> slash commands due to them already being set&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">registered_commands</span>
+
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Bulk declaring </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> slash commands&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">builders</span><span class="p">),</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">responses</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">set_application_commands</span><span class="p">(</span><span class="n">application</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">builders</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">guild</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
+                <span class="n">names_to_commands</span><span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">set_tracked_command</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>  <span class="c1"># TODO: is this fine?</span>
 
         <span class="k">return</span> <span class="n">responses</span>
 
@@ -1362,6 +1394,7 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Set the global application commands for a bot based on the loaded components.</span>
 
@@ -1389,6 +1422,13 @@
 <span class="sd">            Object or ID of the guild to set the global commands to.</span>
 
 <span class="sd">            If left as `None` global commands will be set.</span>
+<span class="sd">        force : bool</span>
+<span class="sd">            Force this to declare the commands regardless of whether or not</span>
+<span class="sd">            they match the current state of the declared commands.</span>
+
+<span class="sd">            Defaults to `False`. This default behaviour helps avoid issues with the</span>
+<span class="sd">            2 request per minute (per-guild or globally) ratelimit and the other limit</span>
+<span class="sd">            of only 200 application command creates per day (per guild or globally).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1400,7 +1440,7 @@
             <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">slash_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">is_global</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a generic check to this client.</span>
@@ -2346,7 +2386,7 @@ to the provided client using it's abstract methods.</li>
                         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
                         <span class="k">else</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">)</span>
                     <span class="p">)</span>
-                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_global_commands</span><span class="p">(</span><span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_global_commands</span><span class="p">(</span><span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
                 <span class="k">finally</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">remove_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="n">_set_global_commands_next_start</span><span class="p">)</span>
 
@@ -2711,6 +2751,7 @@ to the provided client using it's abstract methods.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Declare a collection of slash commands for a bot.</span>
 
@@ -2735,6 +2776,13 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">            Object or ID of the guild to register the commands with.</span>
 
 <span class="sd">            If left as `None` then the commands will be registered globally.</span>
+<span class="sd">        force : bool</span>
+<span class="sd">            Force this to declare the commands regardless of whether or not</span>
+<span class="sd">            they match the current state of the declared commands.</span>
+
+<span class="sd">            Defaults to `False`. This default behaviour helps avoid issues with the</span>
+<span class="sd">            2 request per minute (per-guild or globally) ratelimit and the other limit</span>
+<span class="sd">            of only 200 application command creates per day (per guild or globally).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -2742,17 +2790,15 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">            API representations of the commands which were registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">found_top_names</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="n">conflicts</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="n">builders</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">builders</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">commands</span><span class="p">:</span>
             <span class="n">names_to_commands</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span>
-            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">found_top_names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">builders</span><span class="p">:</span>
                 <span class="n">conflicts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-            <span class="n">found_top_names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-            <span class="n">builders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">())</span>
+            <span class="n">builders</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">conflicts</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
@@ -2763,11 +2809,22 @@ to the provided client using it's abstract methods.</li>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">application</span><span class="p">:</span>
             <span class="n">application</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">()</span>
 
-        <span class="n">responses</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">set_application_commands</span><span class="p">(</span><span class="n">application</span><span class="p">,</span> <span class="n">builders</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
-            <span class="n">command</span> <span class="o">=</span> <span class="n">names_to_commands</span><span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">guild</span><span class="p">:</span>
-                <span class="n">command</span><span class="o">.</span><span class="n">set_tracked_command</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>  <span class="c1"># TODO: is this fine?</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;global&quot;</span> <span class="k">if</span> <span class="n">guild</span> <span class="ow">is</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;guild </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">guild</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
+            <span class="n">registered_commands</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_application_commands</span><span class="p">(</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">registered_commands</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">builders</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="n">_cmp_command</span><span class="p">(</span><span class="n">builders</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">command</span><span class="p">)</span> <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">registered_commands</span>
+            <span class="p">):</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping bulk declare for </span><span class="si">%s</span><span class="s2"> slash commands due to them already being set&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">registered_commands</span>
+
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Bulk declaring </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> slash commands&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">builders</span><span class="p">),</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">responses</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">set_application_commands</span><span class="p">(</span><span class="n">application</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">builders</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">guild</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
+                <span class="n">names_to_commands</span><span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">set_tracked_command</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>  <span class="c1"># TODO: is this fine?</span>
 
         <span class="k">return</span> <span class="n">responses</span>
 
@@ -2940,6 +2997,7 @@ to the provided client using it's abstract methods.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Set the global application commands for a bot based on the loaded components.</span>
 
@@ -2967,6 +3025,13 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">            Object or ID of the guild to set the global commands to.</span>
 
 <span class="sd">            If left as `None` global commands will be set.</span>
+<span class="sd">        force : bool</span>
+<span class="sd">            Force this to declare the commands regardless of whether or not</span>
+<span class="sd">            they match the current state of the declared commands.</span>
+
+<span class="sd">            Defaults to `False`. This default behaviour helps avoid issues with the</span>
+<span class="sd">            2 request per minute (per-guild or globally) ratelimit and the other limit</span>
+<span class="sd">            of only 200 application command creates per day (per guild or globally).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -2978,7 +3043,7 @@ to the provided client using it's abstract methods.</li>
             <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">slash_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">is_global</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a generic check to this client.</span>
@@ -3856,7 +3921,7 @@ when set on a specific guild.</p></li>
                         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
                         <span class="k">else</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">set_global_commands</span><span class="p">)</span>
                     <span class="p">)</span>
-                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_global_commands</span><span class="p">(</span><span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_global_commands</span><span class="p">(</span><span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
                 <span class="k">finally</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">remove_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">,</span> <span class="n">_set_global_commands_next_start</span><span class="p">)</span>
 
@@ -4565,7 +4630,8 @@ command's name).</li>
     /,
     *,
     application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
-    guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED
+    guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED,
+    force: bool = False
 ) -&gt; collections.abc.Sequence[hikari.commands.Command]</span>:
     </div>
 
@@ -4578,6 +4644,7 @@ command's name).</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Declare a collection of slash commands for a bot.</span>
 
@@ -4602,6 +4669,13 @@ command's name).</li>
 <span class="sd">            Object or ID of the guild to register the commands with.</span>
 
 <span class="sd">            If left as `None` then the commands will be registered globally.</span>
+<span class="sd">        force : bool</span>
+<span class="sd">            Force this to declare the commands regardless of whether or not</span>
+<span class="sd">            they match the current state of the declared commands.</span>
+
+<span class="sd">            Defaults to `False`. This default behaviour helps avoid issues with the</span>
+<span class="sd">            2 request per minute (per-guild or globally) ratelimit and the other limit</span>
+<span class="sd">            of only 200 application command creates per day (per guild or globally).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -4609,17 +4683,15 @@ command's name).</li>
 <span class="sd">            API representations of the commands which were registered.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">found_top_names</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="n">conflicts</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="n">builders</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">builders</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">commands</span><span class="p">:</span>
             <span class="n">names_to_commands</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span>
-            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">found_top_names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">builders</span><span class="p">:</span>
                 <span class="n">conflicts</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-            <span class="n">found_top_names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-            <span class="n">builders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">())</span>
+            <span class="n">builders</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">conflicts</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
@@ -4630,11 +4702,22 @@ command's name).</li>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">application</span><span class="p">:</span>
             <span class="n">application</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">()</span>
 
-        <span class="n">responses</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">set_application_commands</span><span class="p">(</span><span class="n">application</span><span class="p">,</span> <span class="n">builders</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
-            <span class="n">command</span> <span class="o">=</span> <span class="n">names_to_commands</span><span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">guild</span><span class="p">:</span>
-                <span class="n">command</span><span class="o">.</span><span class="n">set_tracked_command</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>  <span class="c1"># TODO: is this fine?</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;global&quot;</span> <span class="k">if</span> <span class="n">guild</span> <span class="ow">is</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;guild </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">guild</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
+            <span class="n">registered_commands</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_application_commands</span><span class="p">(</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">registered_commands</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">builders</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="n">_cmp_command</span><span class="p">(</span><span class="n">builders</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">command</span><span class="p">)</span> <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">registered_commands</span>
+            <span class="p">):</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping bulk declare for </span><span class="si">%s</span><span class="s2"> slash commands due to them already being set&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">registered_commands</span>
+
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Bulk declaring </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> slash commands&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">builders</span><span class="p">),</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">responses</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">set_application_commands</span><span class="p">(</span><span class="n">application</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">builders</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">guild</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
+                <span class="n">names_to_commands</span><span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">set_tracked_command</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>  <span class="c1"># TODO: is this fine?</span>
 
         <span class="k">return</span> <span class="n">responses</span>
 </pre></div>
@@ -4667,6 +4750,13 @@ being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
 Object or ID of the guild to register the commands with.</p>
 
 <p>If left as <code>None</code> then the commands will be registered globally.</p></li>
+<li><p><strong>force</strong> (bool):
+Force this to declare the commands regardless of whether or not
+they match the current state of the declared commands.</p>
+
+<p>Defaults to <code>False</code>. This default behaviour helps avoid issues with the
+2 request per minute (per-guild or globally) ratelimit and the other limit
+of only 200 application command creates per day (per guild or globally).</p></li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -5123,7 +5213,8 @@ Object or ID of the guild to clear commands for.</p>
     self,
     *,
     application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
-    guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED
+    guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED,
+    force: bool = False
 ) -&gt; collections.abc.Sequence[hikari.commands.Command]</span>:
     </div>
 
@@ -5134,6 +5225,7 @@ Object or ID of the guild to clear commands for.</p>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Set the global application commands for a bot based on the loaded components.</span>
 
@@ -5161,6 +5253,13 @@ Object or ID of the guild to clear commands for.</p>
 <span class="sd">            Object or ID of the guild to set the global commands to.</span>
 
 <span class="sd">            If left as `None` global commands will be set.</span>
+<span class="sd">        force : bool</span>
+<span class="sd">            Force this to declare the commands regardless of whether or not</span>
+<span class="sd">            they match the current state of the declared commands.</span>
+
+<span class="sd">            Defaults to `False`. This default behaviour helps avoid issues with the</span>
+<span class="sd">            2 request per minute (per-guild or globally) ratelimit and the other limit</span>
+<span class="sd">            of only 200 application command creates per day (per guild or globally).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -5172,7 +5271,7 @@ Object or ID of the guild to clear commands for.</p>
             <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">slash_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">is_global</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -5206,6 +5305,13 @@ being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
 Object or ID of the guild to set the global commands to.</p>
 
 <p>If left as <code>None</code> global commands will be set.</p></li>
+<li><p><strong>force</strong> (bool):
+Force this to declare the commands regardless of whether or not
+they match the current state of the declared commands.</p>
+
+<p>Defaults to <code>False</code>. This default behaviour helps avoid issues with the
+2 request per minute (per-guild or globally) ratelimit and the other limit
+of only 200 application command creates per day (per guild or globally).</p></li>
 </ul>
 
 <h6 id="returns">Returns</h6>
