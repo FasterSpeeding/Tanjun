@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   helps avoid issues with ratelimiting.
 
 ### Removed:
-- Removed Client.add_type_dependency and Client.add_callback_override
+-  Client.add_type_dependency and Client.add_callback_override
 - Special case type dependency methods have been removed/hidden.
 
 ## [2.0.1a1.post1] - 2021-09-26
