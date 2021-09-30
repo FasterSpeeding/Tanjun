@@ -10790,7 +10790,7 @@ The time in seconds to defer interaction command responses after.</li>
 
             <div class="docstring"><p>Set type based dependency injection based on the hikari traits found in <code>bot</code>.</p>
 
-<p>This is a short hand for calling <code><a href="#Client.add_type_dependency">Client.add_type_dependency</a></code> for all
+<p>This is a short hand for calling <code>Client.add_type_dependency</code> for all
 the hikari trait types <code>bot</code> is valid for with bot.</p>
 
 <h6 id="parameters">Parameters</h6>
@@ -13058,11 +13058,9 @@ The interaction to execute a command based on.</li>
                                 <h5>Inherited Members</h5>
                                 <dl>
                                     <div><dt><a href="tanjun/injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a></dt>
-                                <dd id="Client.add_type_dependency" class="function"><a href="tanjun/injecting.html#InjectorClient.add_type_dependency">add_type_dependency</a></dd>
-                <dd id="Client.set_type_dependency" class="function"><a href="tanjun/injecting.html#InjectorClient.set_type_dependency">set_type_dependency</a></dd>
+                                <dd id="Client.set_type_dependency" class="function"><a href="tanjun/injecting.html#InjectorClient.set_type_dependency">set_type_dependency</a></dd>
                 <dd id="Client.get_type_dependency" class="function"><a href="tanjun/injecting.html#InjectorClient.get_type_dependency">get_type_dependency</a></dd>
                 <dd id="Client.remove_type_dependency" class="function"><a href="tanjun/injecting.html#InjectorClient.remove_type_dependency">remove_type_dependency</a></dd>
-                <dd id="Client.add_callback_override" class="function"><a href="tanjun/injecting.html#InjectorClient.add_callback_override">add_callback_override</a></dd>
                 <dd id="Client.set_callback_override" class="function"><a href="tanjun/injecting.html#InjectorClient.set_callback_override">set_callback_override</a></dd>
                 <dd id="Client.get_callback_override" class="function"><a href="tanjun/injecting.html#InjectorClient.get_callback_override">get_callback_override</a></dd>
                 <dd id="Client.remove_callback_override" class="function"><a href="tanjun/injecting.html#InjectorClient.remove_callback_override">remove_callback_override</a></dd>
@@ -33239,7 +33237,6 @@ may be either synchronous or asynchronous.</p></li>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">typing</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">tanjun_abc</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
@@ -33664,22 +33661,6 @@ may be either synchronous or asynchronous.</p></li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback_overrides</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="nf">add_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InjectorClientT</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InjectorClientT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Alias for `InjectorClient.set_type_dependency`.</span>
-
-<span class="sd">        .. deprecated:: v2.0.0a2</span>
-<span class="sd">            Use `InjectorClient.set_type_dependency`.</span>
-
-<span class="sd">            This will be removed 1 month after the release of v2.0.0a2.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;`InjectorClient.add_type_dependency` is deprecated and marked for removal a&quot;</span>
-            <span class="s2">&quot; month after the release of v2.0.0a2. Use `InjectorClient.set_type_dependency`.&quot;</span><span class="p">,</span>
-            <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>  <span class="c1"># type: ignore  # pyright bug</span>
-
     <span class="k">def</span> <span class="nf">set_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InjectorClientT</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InjectorClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set a callback to be called to resolve a injected type.</span>
 
@@ -33724,24 +33705,6 @@ may be either synchronous or asynchronous.</p></li>
 
     <span class="k">def</span> <span class="nf">remove_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">add_callback_override</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_InjectorClientT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="n">override</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InjectorClientT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Alias for `InjectorClient.set_callback_override`.</span>
-
-<span class="sd">        .. deprecated:: v2.0.0a2</span>
-<span class="sd">            Use `InjectorClient.set_callback_override`.</span>
-
-<span class="sd">            This will be removed 1 month after the release of v2.0.0a2.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;`InjectorClient.add_callback_override` is deprecated and marked for removal a&quot;</span>
-            <span class="s2">&quot; month after the release of v2.0.0a2. Use `InjectorClient.set_callback_override`.&quot;</span><span class="p">,</span>
-            <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_callback_override</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">override</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">set_callback_override</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_InjectorClientT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="n">override</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span>
