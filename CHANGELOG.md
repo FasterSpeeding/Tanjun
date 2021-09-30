@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   helps avoid issues with ratelimiting.
 
 ## [2.0.1a1.post1] - 2021-09-26
-
 ### Fixed
 - Trailing `:` on a type: ignore comment which broke MyPy compatibility.
 
