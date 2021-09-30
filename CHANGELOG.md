@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- Breaking: Client.set_type_dependency now takes a literal value rather than a callback
+- Breaking: Client.set_type_dependency now takes a literal value rather than a callback.
 - Client.declare_slash_commands and Client.set_global_commands now check if the target resource's commands
   match the commands to be declared before actually declaring them unless `force` is set to `True`. This
   helps avoid issues with ratelimiting.
