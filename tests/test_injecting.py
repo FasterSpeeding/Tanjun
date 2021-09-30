@@ -38,7 +38,6 @@ import inspect
 import time
 import types
 import typing
-import warnings
 from unittest import mock
 
 import pytest

@@ -55,7 +55,6 @@ import copy
 import inspect
 import time
 import typing
-import warnings
 
 from . import abc as tanjun_abc
 from . import errors
