@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Breaking
+- Client.set_type_dependency now takes a literal value rather than a callback and the special case type
+  dependency methods have been removed/hidden.
+
 ### Changed
 - Client.declare_slash_commands and CLient.set_global_commands now check if the target resource's commands
   match the commands to be declared before actually declaring them unless `force` is set to `True`. This
