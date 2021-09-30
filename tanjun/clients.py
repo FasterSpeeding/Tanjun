@@ -310,14 +310,11 @@ def _cmp_command(builder: hikari.api.CommandBuilder, command: hikari.Command) ->
         return False
 
     default_perm = builder.default_permission if builder.default_permission is not hikari.UNDEFINED else True
-    if default_perm is not command.default_permission:
+    command_options = command.options or ()
+    if default_perm is not command.default_permission or len(builder.options) != len(command_options):
         return False
 
-    try:
-        return all(builder_option == option for builder_option, option in zip(builder.options, command.options or ()))
-
-    except ValueError:
-        return False
+    return all(builder_option == option for builder_option, option in zip(builder.options, command_options))
 
 
 class Client(injecting.InjectorClient, tanjun_abc.Client):
