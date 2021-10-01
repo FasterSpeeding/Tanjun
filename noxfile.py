@@ -169,8 +169,10 @@ def spell_check(session: nox.Session) -> None:
         ".gitignore",
         "LICENSE",
         "pyproject.toml",
-        "README.md",
         "CHANGELOG.md",
+        "CODE_OF_CONDUCT.md",
+        "CONTRIBUTING.md",
+        "README.md",
         "./github",
     )
 
