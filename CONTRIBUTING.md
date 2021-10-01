@@ -22,7 +22,8 @@ by default when `nox -s` is called alone. To call specific tasks you just call `
 of tasks can be called at once by specifying their name after `-s`.
 
 It's worth noting that the reformat nox task will reformat additions to the project in-order to make them match
-the expected style and is one of the default tasks.
+the expected style and is one of the default tasks and that nox will generate virtual environments for each task
+instead of polution the environment it was installed into.
 
 ### Documentation style
 
