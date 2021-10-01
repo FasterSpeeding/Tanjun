@@ -967,10 +967,7 @@ class TestSlashCommand:
     def test_test_add_str_option_with_too_many_choices(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
 
-        with pytest.raises(
-            ValueError,
-            match="Slash command options cannot have more than 25 choices"
-        ):
+        with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
             command.add_str_option("namae", "aye", choices=[(mock.Mock(), mock.Mock())] * 26)
 
     def test_add_int_option(self, command: tanjun.SlashCommand[typing.Any]):
@@ -1055,11 +1052,9 @@ class TestSlashCommand:
     def test_test_add_int_option_with_too_many_choices(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
 
-        with pytest.raises(
-            ValueError,
-            match="Slash command options cannot have more than 25 choices"
-        ):
+        with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
             command.add_int_option("namae", "aye", choices=[(mock.Mock(), mock.Mock())] * 26)
+
     def test_add_float_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
         command.add_float_option(
@@ -1144,11 +1139,9 @@ class TestSlashCommand:
     def test_test_add_float_option_with_too_many_choices(self):
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
 
-        with pytest.raises(
-            ValueError,
-            match="Slash command options cannot have more than 25 choices"
-        ):
+        with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
             command.add_float_option("namae", "aye", choices=[(mock.Mock(), mock.Mock())] * 26)
+
     def test_add_bool_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_bool_option("eaassa", "saas", default="feel")
 
