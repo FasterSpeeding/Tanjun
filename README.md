@@ -11,7 +11,15 @@ python -m pip install -U hikari-tanjun
 ```
 
 
-# Quick Usage.
+# Quick Usage
 
 For usage see the the [documentation](https://tanjun.cursed.solutions/)
 and the [examples](https://github.com/FasterSpeeding/Tanjun/tree/master/examples).
+
+# Contributing
+
+Before contributing you should read through the
+[contributing guidelines](https://github.com/FasterSpeeding/Tanjun/blob/master/CONTRIBUTING.md) and
+the [code of conduct](https://github.com/FasterSpeeding/Tanjun/blob/master/CONTRIBUTING.md)
+
+
