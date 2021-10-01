@@ -964,7 +964,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
             raise ValueError("Cannot add more than 25 commands to a slash command group")
 
         if command.name in self._commands:
-            raise ValueError(f"Command with name {command.name} already exists in this group")
+            raise ValueError(f"Command with name {command.name!r} already exists in this group")
 
         command.set_parent(self)
         self._commands[command.name] = command
