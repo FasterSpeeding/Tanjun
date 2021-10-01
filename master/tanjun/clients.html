@@ -1188,6 +1188,13 @@
 <span class="sd">        -------</span>
 <span class="sd">        collections.abc.Sequence[hikari.Command]</span>
 <span class="sd">            API representations of the commands which were registered.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If conflicting command names are found (multiple commanbds have the same top-level name).</span>
+<span class="sd">            * If more than 100 top-level commands are passed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">conflicts</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -1201,10 +1208,13 @@
             <span class="n">builders</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">conflicts</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Couldn&#39;t declare commands due to conflicts. The following command names have more than one command &quot;</span>
                 <span class="s2">&quot;registered for them &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">conflicts</span><span class="p">)</span>
             <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">builders</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You can only declare up to 100 top level commands in a guild or globally&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">application</span><span class="p">:</span>
             <span class="n">application</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">()</span>
@@ -2794,6 +2804,13 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">        -------</span>
 <span class="sd">        collections.abc.Sequence[hikari.Command]</span>
 <span class="sd">            API representations of the commands which were registered.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If conflicting command names are found (multiple commanbds have the same top-level name).</span>
+<span class="sd">            * If more than 100 top-level commands are passed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">conflicts</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -2807,10 +2824,13 @@ to the provided client using it's abstract methods.</li>
             <span class="n">builders</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">conflicts</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Couldn&#39;t declare commands due to conflicts. The following command names have more than one command &quot;</span>
                 <span class="s2">&quot;registered for them &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">conflicts</span><span class="p">)</span>
             <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">builders</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You can only declare up to 100 top level commands in a guild or globally&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">application</span><span class="p">:</span>
             <span class="n">application</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">()</span>
@@ -4690,6 +4710,13 @@ command's name).</li>
 <span class="sd">        -------</span>
 <span class="sd">        collections.abc.Sequence[hikari.Command]</span>
 <span class="sd">            API representations of the commands which were registered.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If conflicting command names are found (multiple commanbds have the same top-level name).</span>
+<span class="sd">            * If more than 100 top-level commands are passed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">conflicts</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -4703,10 +4730,13 @@ command's name).</li>
             <span class="n">builders</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">conflicts</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Couldn&#39;t declare commands due to conflicts. The following command names have more than one command &quot;</span>
                 <span class="s2">&quot;registered for them &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">conflicts</span><span class="p">)</span>
             <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">builders</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You can only declare up to 100 top level commands in a guild or globally&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">application</span><span class="p">:</span>
             <span class="n">application</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">()</span>
@@ -4772,6 +4802,16 @@ of only 200 application command creates per day (per guild or globally).</p></li
 
 <ul>
 <li><strong>collections.abc.Sequence[hikari.Command]</strong>: API representations of the commands which were registered.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: Raises a value error for any of the following reasons:
+<ul>
+<li>If conflicting command names are found (multiple commanbds have the same top-level name).</li>
+<li>If more than 100 top-level commands are passed.</li>
+</ul></li>
 </ul>
 </div>
 

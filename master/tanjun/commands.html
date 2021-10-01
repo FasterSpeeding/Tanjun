@@ -447,7 +447,6 @@
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utilities</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
-
     <span class="kn">from</span> <span class="nn">hikari.api</span> <span class="kn">import</span> <span class="n">special_endpoints</span> <span class="k">as</span> <span class="n">special_endpoints_api</span>
 
     <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">parsing</span>
@@ -645,6 +644,13 @@
 <span class="sd">    -------</span>
 <span class="sd">    SlashCommandGroup</span>
 <span class="sd">        The command group.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        Raises a value error for any of the following reasons:</span>
+<span class="sd">        * If the command name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">        * If the description is over 100 characters long.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">SlashCommandGroup</span><span class="p">(</span>
         <span class="n">name</span><span class="p">,</span>
@@ -726,6 +732,13 @@
 <span class="sd">    -------</span>
 <span class="sd">    collections.abc.Callable[[CommandCallbackSigT], SlashCommand[CommandCallbackSigT]]</span>
 <span class="sd">        The decorator callback used to build the command to a `SlashCommand`.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        Raises a value error for any of the following reasons:</span>
+<span class="sd">        * If the command name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">        * If the description is over 100 characters long.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">SlashCommand</span><span class="p">(</span>
         <span class="n">c</span><span class="p">,</span>
@@ -902,7 +915,7 @@
 
 
 <span class="k">def</span> <span class="nf">with_member_slash_option</span><span class="p">(</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SlashCommandT</span><span class="p">],</span> <span class="n">_SlashCommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a member option to a slash command.</span>
 
@@ -925,7 +938,7 @@
 <span class="sd">    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]</span>
 <span class="sd">        Decorator callback which adds the option to the command.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_member_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_member_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">with_channel_slash_option</span><span class="p">(</span>
@@ -1125,7 +1138,12 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_SCOMMAND_NAME_REG</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid command name provided, </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> doesn&#39;t match the required regex `^[a-z0-9_-]</span><span class="si">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">32</span><span class="si">}</span><span class="s2">$`&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">description</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The command description cannot be over 100 characters in length&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command_id</span><span class="p">)</span> <span class="k">if</span> <span class="n">command_id</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">default_to_ephemeral</span>
@@ -1313,6 +1331,12 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommandGroup</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot add a slash command group to a nested slash command group&quot;</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">)</span> <span class="o">==</span> <span class="mi">25</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot add more than 25 commands to a slash command group&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Command with name </span><span class="si">{</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> already exists in this group&quot;</span><span class="p">)</span>
+
         <span class="n">command</span><span class="o">.</span><span class="n">set_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -1414,8 +1438,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_TrackedOption</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">_SCOMMAND_NAME_REG</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
         <span class="fm">__call__</span><span class="p">:</span> <span class="n">CommandCallbackSigT</span>
@@ -1464,7 +1486,17 @@
         <span class="n">only_member</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandT</span><span class="p">:</span>
-        <span class="c1"># TODO: validate name</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_SCOMMAND_NAME_REG</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid command option name provided, </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> doesn&#39;t match the required regex `^[a-z0-9_-]</span><span class="si">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">32</span><span class="si">}</span><span class="s2">$`&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">description</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The option description cannot be over 100 characters in length&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">options</span><span class="p">)</span> <span class="o">==</span> <span class="mi">25</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Slash commands cannot have more than 25 options&quot;</span><span class="p">)</span>
+
         <span class="n">type_</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converters</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
             <span class="n">converters</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">_convert_to_injectable</span><span class="p">,</span> <span class="n">converters</span><span class="p">))</span>
@@ -1478,6 +1510,10 @@
                     <span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">&#39;s slash option &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
         <span class="n">choices_</span> <span class="o">=</span> <span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandChoice</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">]</span> <span class="k">if</span> <span class="n">choices</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">choices_</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">choices_</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">25</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Slash command options cannot have more than 25 choices&quot;</span><span class="p">)</span>
+
         <span class="n">required</span> <span class="o">=</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_UNDEFINED_DEFAULT</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
             <span class="n">hikari</span><span class="o">.</span><span class="n">CommandOption</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">type_</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">is_required</span><span class="o">=</span><span class="n">required</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">choices_</span><span class="p">)</span>
@@ -1550,6 +1586,15 @@
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the option has more than 25 choices.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">choices_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">choices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1617,6 +1662,15 @@
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the option has more than 25 choices.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -1688,6 +1742,15 @@
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the option has more than 25 choices.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -1736,6 +1799,14 @@
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">BOOLEAN</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span>
@@ -1782,6 +1853,15 @@
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the option has more than 25 choices.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">)</span>
 
@@ -1792,7 +1872,6 @@
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
-        <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a member option to a slash command.</span>
 
@@ -1801,9 +1880,9 @@
 
 <span class="sd">        .. warning::</span>
 <span class="sd">            Unlike the other options, this is an artificial option which adds</span>
-<span class="sd">            a restraint to the USER option type and therefore doesn&#39;t guarantee</span>
-<span class="sd">            that a member will be present if `pass_as_kwarg` is `False`</span>
-<span class="sd">            (although there will always be a user object provided).</span>
+<span class="sd">            a restraint to the USER option type and therefore cannot have</span>
+<span class="sd">            `pass_as_kwarg` set to `False` as this artificial constaint isn&#39;t</span>
+<span class="sd">            present when its not being passed as a keyword argument.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1812,35 +1891,27 @@
 <span class="sd">        description : str</span>
 <span class="sd">            The option&#39;s description.</span>
 <span class="sd">            This should be inclusively between 1-100 characters in length.</span>
-<span class="sd">        pass_as_kwarg : bool</span>
-<span class="sd">            Whether or not to pass this option as a keyword argument to the</span>
-<span class="sd">            command callback.</span>
-
-<span class="sd">            Defaults to `True` and if `False` is passed here then `default`</span>
-<span class="sd">            will only decide whether the option is required without the actual</span>
-<span class="sd">            value being used.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
-<span class="sd">        pass_as_kwarg : bool</span>
-<span class="sd">            Whether or not to pass this option as a keyword argument to the</span>
-<span class="sd">            command callback.</span>
-
-<span class="sd">            Defaults to `True`. If `False` is passed here then `default` will</span>
-<span class="sd">            only decide whether the option is required without the actual value</span>
-<span class="sd">            being used.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">only_member</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span>
-        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">only_member</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_channel_option</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandT</span><span class="p">,</span>
@@ -1881,6 +1952,14 @@
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">CHANNEL</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span>
@@ -1922,6 +2001,14 @@
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">ROLE</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">)</span>
 
@@ -1965,6 +2052,14 @@
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">MENTIONABLE</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span>
@@ -2727,6 +2822,13 @@ enforces that command names are unique to a single command within the group.</p>
 <span class="sd">    -------</span>
 <span class="sd">    collections.abc.Callable[[CommandCallbackSigT], SlashCommand[CommandCallbackSigT]]</span>
 <span class="sd">        The decorator callback used to build the command to a `SlashCommand`.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        Raises a value error for any of the following reasons:</span>
+<span class="sd">        * If the command name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">        * If the description is over 100 characters long.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">SlashCommand</span><span class="p">(</span>
         <span class="n">c</span><span class="p">,</span>
@@ -2804,6 +2906,16 @@ ones.</p></li>
 
 <ul>
 <li><strong>collections.abc.Callable[[CommandCallbackSigT], SlashCommand[CommandCallbackSigT]]</strong>: The decorator callback used to build the command to a <code><a href="#SlashCommand">SlashCommand</a></code>.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: Raises a value error for any of the following reasons:
+<ul>
+<li>If the command name doesn't match the regex <code>^[a-z0-9_-]{1,32}$</code>.</li>
+<li>If the description is over 100 characters long.</li>
+</ul></li>
 </ul>
 </div>
 
@@ -2898,6 +3010,13 @@ ones.</p></li>
 <span class="sd">    -------</span>
 <span class="sd">    SlashCommandGroup</span>
 <span class="sd">        The command group.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        Raises a value error for any of the following reasons:</span>
+<span class="sd">        * If the command name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">        * If the description is over 100 characters long.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">SlashCommandGroup</span><span class="p">(</span>
         <span class="n">name</span><span class="p">,</span>
@@ -2977,6 +3096,16 @@ Whether this command is a global command. Defaults to <code>True</code>.</li>
 
 <ul>
 <li><strong>SlashCommandGroup</strong>: The command group.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: Raises a value error for any of the following reasons:
+<ul>
+<li>If the command name doesn't match the regex <code>^[a-z0-9_-]{1,32}$</code>.</li>
+<li>If the description is over 100 characters long.</li>
+</ul></li>
 </ul>
 </div>
 
@@ -4585,7 +4714,7 @@ The check to remove.</li>
 <h6 id="raises">Raises</h6>
 
 <ul>
-<li><strong>ValueError if the provided check isn't found.</strong></li>
+<li><strong>ValueError</strong>: If the provided check isn't found.</li>
 </ul>
 </div>
 
@@ -4729,7 +4858,12 @@ The check to remove.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_SCOMMAND_NAME_REG</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid command name provided, </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> doesn&#39;t match the required regex `^[a-z0-9_-]</span><span class="si">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">32</span><span class="si">}</span><span class="s2">$`&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">description</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The command description cannot be over 100 characters in length&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command_id</span><span class="p">)</span> <span class="k">if</span> <span class="n">command_id</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">default_to_ephemeral</span>
@@ -5216,8 +5350,6 @@ This will be overridden by any response calls which specify flags.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_TrackedOption</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">_SCOMMAND_NAME_REG</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
         <span class="fm">__call__</span><span class="p">:</span> <span class="n">CommandCallbackSigT</span>
@@ -5266,7 +5398,17 @@ This will be overridden by any response calls which specify flags.</li>
         <span class="n">only_member</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandT</span><span class="p">:</span>
-        <span class="c1"># TODO: validate name</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_SCOMMAND_NAME_REG</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid command option name provided, </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> doesn&#39;t match the required regex `^[a-z0-9_-]</span><span class="si">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">32</span><span class="si">}</span><span class="s2">$`&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">description</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The option description cannot be over 100 characters in length&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">options</span><span class="p">)</span> <span class="o">==</span> <span class="mi">25</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Slash commands cannot have more than 25 options&quot;</span><span class="p">)</span>
+
         <span class="n">type_</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="p">(</span><span class="n">type_</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converters</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
             <span class="n">converters</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">_convert_to_injectable</span><span class="p">,</span> <span class="n">converters</span><span class="p">))</span>
@@ -5280,6 +5422,10 @@ This will be overridden by any response calls which specify flags.</li>
                     <span class="n">converter</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="si">}</span><span class="s2">&#39;s slash option &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
         <span class="n">choices_</span> <span class="o">=</span> <span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">CommandChoice</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">]</span> <span class="k">if</span> <span class="n">choices</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">choices_</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">choices_</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">25</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Slash command options cannot have more than 25 choices&quot;</span><span class="p">)</span>
+
         <span class="n">required</span> <span class="o">=</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_UNDEFINED_DEFAULT</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
             <span class="n">hikari</span><span class="o">.</span><span class="n">CommandOption</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">type_</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">is_required</span><span class="o">=</span><span class="n">required</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">choices_</span><span class="p">)</span>
@@ -5352,6 +5498,15 @@ This will be overridden by any response calls which specify flags.</li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the option has more than 25 choices.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">choices_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">choices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -5419,6 +5574,15 @@ This will be overridden by any response calls which specify flags.</li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the option has more than 25 choices.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -5490,6 +5654,15 @@ This will be overridden by any response calls which specify flags.</li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the option has more than 25 choices.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -5538,6 +5711,14 @@ This will be overridden by any response calls which specify flags.</li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">BOOLEAN</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span>
@@ -5584,6 +5765,15 @@ This will be overridden by any response calls which specify flags.</li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the option has more than 25 choices.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">)</span>
 
@@ -5594,7 +5784,6 @@ This will be overridden by any response calls which specify flags.</li>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
-        <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a member option to a slash command.</span>
 
@@ -5603,9 +5792,9 @@ This will be overridden by any response calls which specify flags.</li>
 
 <span class="sd">        .. warning::</span>
 <span class="sd">            Unlike the other options, this is an artificial option which adds</span>
-<span class="sd">            a restraint to the USER option type and therefore doesn&#39;t guarantee</span>
-<span class="sd">            that a member will be present if `pass_as_kwarg` is `False`</span>
-<span class="sd">            (although there will always be a user object provided).</span>
+<span class="sd">            a restraint to the USER option type and therefore cannot have</span>
+<span class="sd">            `pass_as_kwarg` set to `False` as this artificial constaint isn&#39;t</span>
+<span class="sd">            present when its not being passed as a keyword argument.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -5614,35 +5803,27 @@ This will be overridden by any response calls which specify flags.</li>
 <span class="sd">        description : str</span>
 <span class="sd">            The option&#39;s description.</span>
 <span class="sd">            This should be inclusively between 1-100 characters in length.</span>
-<span class="sd">        pass_as_kwarg : bool</span>
-<span class="sd">            Whether or not to pass this option as a keyword argument to the</span>
-<span class="sd">            command callback.</span>
-
-<span class="sd">            Defaults to `True` and if `False` is passed here then `default`</span>
-<span class="sd">            will only decide whether the option is required without the actual</span>
-<span class="sd">            value being used.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
-<span class="sd">        pass_as_kwarg : bool</span>
-<span class="sd">            Whether or not to pass this option as a keyword argument to the</span>
-<span class="sd">            command callback.</span>
-
-<span class="sd">            Defaults to `True`. If `False` is passed here then `default` will</span>
-<span class="sd">            only decide whether the option is required without the actual value</span>
-<span class="sd">            being used.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">only_member</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span>
-        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">only_member</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_channel_option</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_SlashCommandT</span><span class="p">,</span>
@@ -5683,6 +5864,14 @@ This will be overridden by any response calls which specify flags.</li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">CHANNEL</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span>
@@ -5724,6 +5913,14 @@ This will be overridden by any response calls which specify flags.</li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">ROLE</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">)</span>
 
@@ -5767,6 +5964,14 @@ This will be overridden by any response calls which specify flags.</li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">MENTIONABLE</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span>
@@ -5952,8 +6157,6 @@ This will be overridden by any response calls which specify flags.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_TrackedOption</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">_SCOMMAND_NAME_REG</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid command name provided, must match the regex `^[a-z0-9_-]{1,32}$`&quot;</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -6121,6 +6324,15 @@ globally or for a specific guild.</li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the option has more than 25 choices.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">choices_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">choices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -6189,6 +6401,18 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
 
 <ul>
 <li><strong>Self</strong>: The command object for chaining.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: Raises a value error for any of the following reasons:
+<ul>
+<li>If the option name doesn't match the regex <code>^[a-z0-9_-]{1,32}$</code>.</li>
+<li>If the option description is over 100 characters in length.</li>
+<li>If the option has more than 25 choices.</li>
+<li>If the command already has 25 options.</li>
+</ul></li>
 </ul>
 </div>
 
@@ -6266,6 +6490,15 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the option has more than 25 choices.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -6325,6 +6558,18 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
 
 <ul>
 <li><strong>Self</strong>: The command object for chaining.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: Raises a value error for any of the following reasons:
+<ul>
+<li>If the option name doesn't match the regex <code>^[a-z0-9_-]{1,32}$</code>.</li>
+<li>If the option description is over 100 characters in length.</li>
+<li>If the option has more than 25 choices.</li>
+<li>If the command already has 25 options.</li>
+</ul></li>
 </ul>
 </div>
 
@@ -6411,6 +6656,15 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the option has more than 25 choices.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -6479,6 +6733,18 @@ ignored.</p></li>
 <ul>
 <li><strong>Self</strong>: The command object for chaining.</li>
 </ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: Raises a value error for any of the following reasons:
+<ul>
+<li>If the option name doesn't match the regex <code>^[a-z0-9_-]{1,32}$</code>.</li>
+<li>If the option description is over 100 characters in length.</li>
+<li>If the option has more than 25 choices.</li>
+<li>If the command already has 25 options.</li>
+</ul></li>
+</ul>
 </div>
 
 
@@ -6537,6 +6803,14 @@ ignored.</p></li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">BOOLEAN</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span>
@@ -6576,6 +6850,17 @@ being used.</p></li>
 
 <ul>
 <li><strong>Self</strong>: The command object for chaining.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: Raises a value error for any of the following reasons:
+<ul>
+<li>If the option name doesn't match the regex <code>^[a-z0-9_-]{1,32}$</code>.</li>
+<li>If the option description is over 100 characters in length.</li>
+<li>If the command already has 25 options.</li>
+</ul></li>
 </ul>
 </div>
 
@@ -6640,6 +6925,15 @@ being used.</p></li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the option has more than 25 choices.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">)</span>
 </pre></div>
@@ -6683,6 +6977,18 @@ being used.</p></li>
 <ul>
 <li><strong>Self</strong>: The command object for chaining.</li>
 </ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: Raises a value error for any of the following reasons:
+<ul>
+<li>If the option name doesn't match the regex <code>^[a-z0-9_-]{1,32}$</code>.</li>
+<li>If the option description is over 100 characters in length.</li>
+<li>If the option has more than 25 choices.</li>
+<li>If the command already has 25 options.</li>
+</ul></li>
+</ul>
 </div>
 
 
@@ -6698,8 +7004,7 @@ being used.</p></li>
     description: str,
     /,
     *,
-    default: Any = &lt;object object&gt;,
-    pass_as_kwarg: bool = True
+    default: Any = &lt;object object&gt;
 ) -&gt; ~_SlashCommandT</span>:
     </div>
 
@@ -6712,7 +7017,6 @@ being used.</p></li>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
-        <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a member option to a slash command.</span>
 
@@ -6721,9 +7025,9 @@ being used.</p></li>
 
 <span class="sd">        .. warning::</span>
 <span class="sd">            Unlike the other options, this is an artificial option which adds</span>
-<span class="sd">            a restraint to the USER option type and therefore doesn&#39;t guarantee</span>
-<span class="sd">            that a member will be present if `pass_as_kwarg` is `False`</span>
-<span class="sd">            (although there will always be a user object provided).</span>
+<span class="sd">            a restraint to the USER option type and therefore cannot have</span>
+<span class="sd">            `pass_as_kwarg` set to `False` as this artificial constaint isn&#39;t</span>
+<span class="sd">            present when its not being passed as a keyword argument.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -6732,35 +7036,27 @@ being used.</p></li>
 <span class="sd">        description : str</span>
 <span class="sd">            The option&#39;s description.</span>
 <span class="sd">            This should be inclusively between 1-100 characters in length.</span>
-<span class="sd">        pass_as_kwarg : bool</span>
-<span class="sd">            Whether or not to pass this option as a keyword argument to the</span>
-<span class="sd">            command callback.</span>
-
-<span class="sd">            Defaults to `True` and if `False` is passed here then `default`</span>
-<span class="sd">            will only decide whether the option is required without the actual</span>
-<span class="sd">            value being used.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
-<span class="sd">        pass_as_kwarg : bool</span>
-<span class="sd">            Whether or not to pass this option as a keyword argument to the</span>
-<span class="sd">            command callback.</span>
-
-<span class="sd">            Defaults to `True`. If `False` is passed here then `default` will</span>
-<span class="sd">            only decide whether the option is required without the actual value</span>
-<span class="sd">            being used.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">only_member</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span>
-        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">USER</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">only_member</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -6772,9 +7068,9 @@ This will always result in <code>hikari.InteractionMember</code>.</p>
 
 <p><em>Warning:</em>
 Unlike the other options, this is an artificial option which adds
-a restraint to the USER option type and therefore doesn't guarantee
-that a member will be present if <code>pass_as_kwarg</code> is <code>False</code>
-(although there will always be a user object provided).</p>
+a restraint to the USER option type and therefore cannot have
+<code>pass_as_kwarg</code> set to <code>False</code> as this artificial constaint isn't
+present when its not being passed as a keyword argument.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -6784,13 +7080,6 @@ The option's name. This should match the regex <code>^[a-z0-9_-]{1,32}$</code>.<
 <li><strong>description</strong> (str):
 The option's description.
 This should be inclusively between 1-100 characters in length.</li>
-<li><p><strong>pass_as_kwarg</strong> (bool):
-Whether or not to pass this option as a keyword argument to the
-command callback.</p>
-
-<p>Defaults to <code>True</code> and if <code>False</code> is passed here then <code>default</code>
-will only decide whether the option is required without the actual
-value being used.</p></li>
 </ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
@@ -6799,19 +7088,23 @@ value being used.</p></li>
 <li><strong>default</strong> (typing.Any):
 The option's default value.
 If this is left as undefined then this option will be required.</li>
-<li><p><strong>pass_as_kwarg</strong> (bool):
-Whether or not to pass this option as a keyword argument to the
-command callback.</p>
-
-<p>Defaults to <code>True</code>. If <code>False</code> is passed here then <code>default</code> will
-only decide whether the option is required without the actual value
-being used.</p></li>
 </ul>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
 <li><strong>Self</strong>: The command object for chaining.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: Raises a value error for any of the following reasons:
+<ul>
+<li>If the option name doesn't match the regex <code>^[a-z0-9_-]{1,32}$</code>.</li>
+<li>If the option description is over 100 characters in length.</li>
+<li>If the command already has 25 options.</li>
+</ul></li>
 </ul>
 </div>
 
@@ -6874,6 +7167,14 @@ being used.</p></li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">CHANNEL</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span>
@@ -6916,6 +7217,17 @@ being used.</p></li>
 
 <ul>
 <li><strong>Self</strong>: The command object for chaining.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: Raises a value error for any of the following reasons:
+<ul>
+<li>If the option name doesn't match the regex <code>^[a-z0-9_-]{1,32}$</code>.</li>
+<li>If the option description is over 100 characters in length.</li>
+<li>If the command already has 25 options.</li>
+</ul></li>
 </ul>
 </div>
 
@@ -6975,6 +7287,14 @@ being used.</p></li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">ROLE</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">)</span>
 </pre></div>
@@ -7012,6 +7332,17 @@ being used.</p></li>
 
 <ul>
 <li><strong>Self</strong>: The command object for chaining.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: Raises a value error for any of the following reasons:
+<ul>
+<li>If the option name doesn't match the regex <code>^[a-z0-9_-]{1,32}$</code>.</li>
+<li>If the option description is over 100 characters in length.</li>
+<li>If the command already has 25 options.</li>
+</ul></li>
 </ul>
 </div>
 
@@ -7075,6 +7406,14 @@ being used.</p></li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The command object for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
+<span class="sd">            * If the option description is over 100 characters in length.</span>
+<span class="sd">            * If the command already has 25 options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">MENTIONABLE</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span>
@@ -7118,6 +7457,17 @@ being used.</p></li>
 
 <ul>
 <li><strong>Self</strong>: The command object for chaining.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: Raises a value error for any of the following reasons:
+<ul>
+<li>If the option name doesn't match the regex <code>^[a-z0-9_-]{1,32}$</code>.</li>
+<li>If the option description is over 100 characters in length.</li>
+<li>If the command already has 25 options.</li>
+</ul></li>
 </ul>
 </div>
 
@@ -7387,6 +7737,12 @@ being used.</p></li>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommandGroup</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot add a slash command group to a nested slash command group&quot;</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">)</span> <span class="o">==</span> <span class="mi">25</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot add more than 25 commands to a slash command group&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Command with name </span><span class="si">{</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> already exists in this group&quot;</span><span class="p">)</span>
+
         <span class="n">command</span><span class="o">.</span><span class="n">set_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -7650,6 +8006,12 @@ globally or for a specific guild.</li>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">SlashCommandGroup</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot add a slash command group to a nested slash command group&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">)</span> <span class="o">==</span> <span class="mi">25</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot add more than 25 commands to a slash command group&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Command with name </span><span class="si">{</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> already exists in this group&quot;</span><span class="p">)</span>
 
         <span class="n">command</span><span class="o">.</span><span class="n">set_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span>
@@ -8315,15 +8677,14 @@ command was executed in a DM channel.</p>
     description: str,
     /,
     *,
-    default: Any = &lt;object object&gt;,
-    pass_as_kwarg: bool = True
+    default: Any = &lt;object object&gt;
 ) -&gt; collections.abc.Callable[[~_SlashCommandT], ~_SlashCommandT]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_member_slash_option</span><span class="p">(</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SlashCommandT</span><span class="p">],</span> <span class="n">_SlashCommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a member option to a slash command.</span>
 
@@ -8346,7 +8707,7 @@ command was executed in a DM channel.</p>
 <span class="sd">    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]</span>
 <span class="sd">        Decorator callback which adds the option to the command.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_member_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_member_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span>
 </pre></div>
 
         </details>
