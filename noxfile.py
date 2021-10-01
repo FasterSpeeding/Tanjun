@@ -94,18 +94,16 @@ def cleanup(session: nox.Session) -> None:
     import shutil
 
     # Remove directories
-    from nox.logger import logger
-
     for raw_path in ["./dist", "./docs", "./.nox", "./.pytest_cache", "./hikari_tanjun.egg-info", "./coverage_html"]:
         path = pathlib.Path(raw_path)
         try:
             shutil.rmtree(str(path.absolute()))
 
         except Exception as exc:
-            logger.error(f"[ FAIL ] Failed to remove '{raw_path}': {exc!s}")  # type: ignore
+            session.warn(f"[ FAIL ] Failed to remove '{raw_path}': {exc!s}")  # type: ignore
 
         else:
-            logger.info(f"[  OK  ] Removed '{raw_path}'")  # type: ignore
+            session.log(f"[  OK  ] Removed '{raw_path}'")  # type: ignore
 
     # Remove individual files
     for raw_path in ["./.coverage", "./coverage_html.xml"]:
@@ -114,10 +112,10 @@ def cleanup(session: nox.Session) -> None:
             path.unlink()
 
         except Exception as exc:
-            logger.error(f"[ FAIL ] Failed to remove '{raw_path}': {exc!s}")  # type: ignore
+            session.warn(f"[ FAIL ] Failed to remove '{raw_path}': {exc!s}")  # type: ignore
 
         else:
-            logger.info(f"[  OK  ] Removed '{raw_path}'")  # type: ignore
+            session.log(f"[  OK  ] Removed '{raw_path}'")  # type: ignore
 
 
 @nox.session(name="generate-docs", reuse_venv=True)
