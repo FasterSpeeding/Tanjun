@@ -1,5 +1,11 @@
 # Tanjun contributing guidelines
 
+First let me thank you in advanced for any contributions you may make to Tanjun; contributions are always welcome
+and any amount of time spent on this project is greatly appreciated.
+
+But before you get started contributing, it's recommended that you read through the following guide in-order to
+ensure that any pull-requests you open can be at their best from the start.
+
 ### Pipelines
 
 The most important thing to consider while contributing towards Tanjun is the checks the library's run against.
@@ -25,7 +31,7 @@ and should also use styles which are specific to [pdoc](https://pdoc.dev/docs/pd
 
 A few examples of pdoc style would be:
 
-* Links: Unlike sphinx, regardless of whether you're linking to a module, class, function or varible the link will
+* Links: Unlike sphinx, regardless of whether you're linking to a module, class, function or variable the link will
   always be in the style of `` `link.to.thing` `` with no type information included and relative links being supported
   for types in the current module (e.g. `` `Class.attribute` ``.
 * Documenting fluent methods: The return type for fluent methods should be given as `Self` with the description for it
