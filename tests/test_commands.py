@@ -35,6 +35,7 @@
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 
+import re
 import types
 import typing
 from unittest import mock
@@ -418,10 +419,10 @@ def test_with_user_slash_option_with_defaults():
 def test_with_member_slash_option():
     mock_command = mock.MagicMock()
 
-    result = tanjun.with_member_slash_option("no", "hihihi?", default=123321, pass_as_kwarg=False)(mock_command)
+    result = tanjun.with_member_slash_option("no", "hihihi?", default=123321)(mock_command)
 
     assert result is mock_command.add_member_option.return_value
-    mock_command.add_member_option.assert_called_once_with("no", "hihihi?", default=123321, pass_as_kwarg=False)
+    mock_command.add_member_option.assert_called_once_with("no", "hihihi?", default=123321)
 
 
 def test_with_member_slash_option_with_defaults():
@@ -430,9 +431,7 @@ def test_with_member_slash_option_with_defaults():
     result = tanjun.with_member_slash_option("no", "hihihi?")(mock_command)
 
     assert result is mock_command.add_member_option.return_value
-    mock_command.add_member_option.assert_called_once_with(
-        "no", "hihihi?", default=tanjun.commands._UNDEFINED_DEFAULT, pass_as_kwarg=True
-    )
+    mock_command.add_member_option.assert_called_once_with("no", "hihihi?", default=tanjun.commands._UNDEFINED_DEFAULT)
 
 
 def test_with_role_slash_option():
@@ -577,7 +576,26 @@ class Test_CommandBuilder:
     ...
 
 
+_INVALID_NAMES = ["a" * 33, "", "'#'#42123", "Dicksy", "MORGAN", "StAnLey"]
+
+
 class TestBaseSlashCommand:
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test__init__with_invalid_name(self, name: str):
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            stub_class(tanjun.BaseSlashCommand)(name, "desccc")
+
+    def test__init__when_description_too_long(self):
+        with pytest.raises(
+            ValueError,
+            match="The command description cannot be over 100 characters in length",
+        ):
+            stub_class(tanjun.BaseSlashCommand)("gary", "x" * 101)
+
     def test_defaults_to_ephemeral_property(self):
         command = stub_class(tanjun.BaseSlashCommand)("hi", "no")
 
@@ -714,6 +732,32 @@ class TestSlashCommandGroup:
         assert result is command_group
         mock_command.set_parent.assert_called_once_with(command_group)
         assert mock_command in command_group.commands
+
+    def test_add_command_when_too_many_commands(self):
+        command_group = tanjun.SlashCommandGroup("yeet", "need")
+        mock_command = mock.Mock()
+
+        for _ in range(25):
+            command_group.add_command(mock.Mock())
+
+        with pytest.raises(ValueError, match="Cannot add more than 25 commands to a slash command group"):
+            command_group.add_command(mock_command)
+
+        mock_command.set_parent.assert_not_called()
+        assert mock_command not in command_group.commands
+
+    def test_add_command_when_too_many_commands_when_name_already_present(self):
+        mock_command = mock.Mock()
+        mock_command.name = "yeet"
+        command_group = tanjun.SlashCommandGroup("yeet", "need").add_command(mock_command)
+        mock_command = mock.Mock()
+        mock_command.name = "yeet"
+
+        with pytest.raises(ValueError, match="Command with name 'yeet' already exists in this group"):
+            command_group.add_command(mock_command)
+
+        mock_command.set_parent.assert_not_called()
+        assert mock_command not in command_group.commands
 
     def test_add_command_when_nested(self):
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").set_parent(mock.Mock())
@@ -889,6 +933,43 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.STRING
         assert option.name not in command._tracked_options
 
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_str_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_str_option(name, "aye")
+
+    def test_test_add_str_option_when_description_too_long(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="The option description cannot be over 100 characters in length",
+        ):
+            command.add_str_option("boi", "a" * 101)
+
+    def test_test_add_str_option_when_too_many_options(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+        for index in range(25):
+            command.add_str_option(str(index), str(index))
+
+        with pytest.raises(
+            ValueError,
+            match="Slash commands cannot have more than 25 options",
+        ):
+            command.add_str_option("namae", "aye")
+
+    def test_test_add_str_option_with_too_many_choices(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
+            command.add_str_option("namae", "aye", choices=[(mock.Mock(), mock.Mock())] * 26)
+
     def test_add_int_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
         command.add_int_option("see", "seesee", choices=[("no", 4)], converters=[mock_converter], default="nya")
@@ -936,6 +1017,43 @@ class TestSlashCommand:
         assert option.description == "Nouu"
         assert option.type is hikari.OptionType.INTEGER
         assert option.name not in command._tracked_options
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_int_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_int_option(name, "aye")
+
+    def test_test_add_int_option_when_description_too_long(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="The option description cannot be over 100 characters in length",
+        ):
+            command.add_int_option("boi", "a" * 101)
+
+    def test_test_add_int_option_when_too_many_options(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+        for index in range(25):
+            command.add_str_option(str(index), str(index))
+
+        with pytest.raises(
+            ValueError,
+            match="Slash commands cannot have more than 25 options",
+        ):
+            command.add_int_option("namae", "aye")
+
+    def test_test_add_int_option_with_too_many_choices(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
+            command.add_int_option("namae", "aye", choices=[(mock.Mock(), mock.Mock())] * 26)
 
     def test_add_float_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
@@ -987,6 +1105,43 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.FLOAT
         assert option.name not in command._tracked_options
 
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_float_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_float_option(name, "aye")
+
+    def test_test_add_float_option_when_description_too_long(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="The option description cannot be over 100 characters in length",
+        ):
+            command.add_float_option("boi", "a" * 101)
+
+    def test_test_add_float_option_when_too_many_options(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+        for index in range(25):
+            command.add_str_option(str(index), str(index))
+
+        with pytest.raises(
+            ValueError,
+            match="Slash commands cannot have more than 25 options",
+        ):
+            command.add_float_option("namae", "aye")
+
+    def test_test_add_float_option_with_too_many_choices(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
+            command.add_float_option("namae", "aye", choices=[(mock.Mock(), mock.Mock())] * 26)
+
     def test_add_bool_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_bool_option("eaassa", "saas", default="feel")
 
@@ -1033,6 +1188,37 @@ class TestSlashCommand:
         assert option.description == "333"
         assert option.type is hikari.OptionType.BOOLEAN
         assert option.name not in command._tracked_options
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_bool_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_bool_option(name, "aye")
+
+    def test_test_add_bool_option_when_description_too_long(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="The option description cannot be over 100 characters in length",
+        ):
+            command.add_bool_option("boi", "a" * 101)
+
+    def test_test_add_bool_option_when_too_many_options(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+        for index in range(25):
+            command.add_str_option(str(index), str(index))
+
+        with pytest.raises(
+            ValueError,
+            match="Slash commands cannot have more than 25 options",
+        ):
+            command.add_bool_option("namae", "aye")
 
     def test_add_user_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_user_option("yser", "nanm", default="nou")
@@ -1081,6 +1267,37 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.USER
         assert option.name not in command._tracked_options
 
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_user_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_user_option(name, "aye")
+
+    def test_test_add_user_option_when_description_too_long(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="The option description cannot be over 100 characters in length",
+        ):
+            command.add_user_option("boi", "a" * 101)
+
+    def test_test_add_user_option_when_too_many_options(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+        for index in range(25):
+            command.add_str_option(str(index), str(index))
+
+        with pytest.raises(
+            ValueError,
+            match="Slash commands cannot have more than 25 options",
+        ):
+            command.add_user_option("namae", "aye")
+
     def test_add_member_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_member_option("ddddd", "sssss", default="dsasds")
 
@@ -1119,14 +1336,36 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is True
 
-    def test_add_member_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
-        command.add_member_option("sss", "ddd", pass_as_kwarg=False)
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_member_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
 
-        option = command.build().options[0]
-        assert option.name == "sss"
-        assert option.description == "ddd"
-        assert option.type is hikari.OptionType.USER
-        assert option.name not in command._tracked_options
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_member_option(name, "aye")
+
+    def test_test_add_member_option_when_description_too_long(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="The option description cannot be over 100 characters in length",
+        ):
+            command.add_member_option("boi", "a" * 101)
+
+    def test_test_add_member_option_when_too_many_options(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+        for index in range(25):
+            command.add_str_option(str(index), str(index))
+
+        with pytest.raises(
+            ValueError,
+            match="Slash commands cannot have more than 25 options",
+        ):
+            command.add_member_option("namae", "aye")
 
     def test_add_channel_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_channel_option("c", "d", default="eee")
@@ -1175,6 +1414,37 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.CHANNEL
         assert option.name not in command._tracked_options
 
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_channel_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_channel_option(name, "aye")
+
+    def test_test_add_channel_option_when_description_too_long(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="The option description cannot be over 100 characters in length",
+        ):
+            command.add_channel_option("boi", "a" * 101)
+
+    def test_test_add_channel_option_when_too_many_options(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+        for index in range(25):
+            command.add_str_option(str(index), str(index))
+
+        with pytest.raises(
+            ValueError,
+            match="Slash commands cannot have more than 25 options",
+        ):
+            command.add_channel_option("namae", "aye")
+
     def test_add_role_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_role_option("jhjh", "h", default="shera")
 
@@ -1222,6 +1492,37 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.ROLE
         assert option.name not in command._tracked_options
 
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_role_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_role_option(name, "aye")
+
+    def test_test_add_role_option_when_description_too_long(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="The option description cannot be over 100 characters in length",
+        ):
+            command.add_role_option("boi", "a" * 101)
+
+    def test_test_add_role_option_when_too_many_options(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+        for index in range(25):
+            command.add_str_option(str(index), str(index))
+
+        with pytest.raises(
+            ValueError,
+            match="Slash commands cannot have more than 25 options",
+        ):
+            command.add_role_option("namae", "aye")
+
     def test_add_mentionable_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_mentionable_option("owo", "iwi", default="ywy")
 
@@ -1268,6 +1569,37 @@ class TestSlashCommand:
         assert option.description == "dsdsds"
         assert option.type is hikari.OptionType.MENTIONABLE
         assert option.name not in command._tracked_options
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_test_add_mentionable_option_with_invalid_name(self, name: str):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid command option name provided, {name!r} doesn't match the required regex "
+            + re.escape("`^[a-z0-9_-](1, 32)$`"),
+        ):
+            command.add_mentionable_option(name, "aye")
+
+    def test_test_add_mentionable_option_when_description_too_long(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="The option description cannot be over 100 characters in length",
+        ):
+            command.add_mentionable_option("boi", "a" * 101)
+
+    def test_test_add_mentionable_option_when_too_many_options(self):
+        command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
+        for index in range(25):
+            command.add_str_option(str(index), str(index))
+
+        with pytest.raises(
+            ValueError,
+            match="Slash commands cannot have more than 25 options",
+        ):
+            command.add_mentionable_option("namae", "aye")
 
     @pytest.mark.skip(reason="TODO")
     def test_needs_injector_property(self):

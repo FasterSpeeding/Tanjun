@@ -1858,7 +1858,8 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
 
         Raises
         ------
-        ValueError if the provided check isn't found.
+        ValueError
+            If the provided check isn't found.
         """
 
     @abc.abstractmethod
@@ -2049,7 +2050,8 @@ class SlashCommandGroup(BaseSlashCommand, abc.ABC):
 
         Raises
         ------
-        ValueError if the provided command isn't found.
+        ValueError
+            If the provided command isn't found.
         """
 
     @abc.abstractmethod

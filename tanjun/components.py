@@ -60,12 +60,38 @@ WithCommandReturnSig = typing.Union[CommandT, collections.Callable[[CommandT], C
 
 @typing.runtime_checkable
 class LoadableProtocol(typing.Protocol):
-    __slots__ = ()
+    """Protocol of an object which can be loaded into a component from an instance variable."""
+
+    # This fucks with MyPy even though at runtime python just straight out ignores slots when considering protocol
+    if not typing.TYPE_CHECKING:  # compatibility.
+        __slots__ = ()
 
     def copy(self: _T) -> _T:
+        """Copy the object.
+
+        This will be called before load_into_component.
+
+        Returns
+        -------
+        Self
+            The copied object.
+        """
         raise NotImplementedError
 
     def load_into_component(self, component: abc.Component, /) -> typing.Optional[typing.Any]:
+        """Load the object into the component.
+
+        Parameters
+        ----------
+        component : tanjun.abc.Component
+            The component this object should be loaded into.
+
+        Returns
+        -------
+        typing.Optional[typing.Any]
+            An object to replace the attribute this object was found at.
+            If `None` is returned, the attribute will be left as-is.
+        """
         raise NotImplementedError
 
 

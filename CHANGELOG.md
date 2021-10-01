@@ -5,15 +5,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Adding an option to SlashCommand will now raise if the name is invalid (doesn't match the names regex).
+- Validation to slash command classes.
+
 ### Changed
 - Breaking: Client.set_type_dependency now takes a literal value rather than a callback.
 - Client.declare_slash_commands and Client.set_global_commands now check if the target resource's commands
   match the commands to be declared before actually declaring them unless `force` is set to `True`. This
   helps avoid issues with ratelimiting.
 
+### Fixed
+- Small change to help MyPy better understand protocol behaviour.
+
 ### Removed:
--  Client.add_type_dependency and Client.add_callback_override
+- Client.add_type_dependency and Client.add_callback_override
 - Special case type dependency methods have been removed/hidden.
+- `pass_as_kwarg` option from slash command artificial member options as the always member constraint cannot
+  be present without pass_as_kwarg behaviour.
 
 ## [2.0.1a1.post1] - 2021-09-26
 ### Fixed
