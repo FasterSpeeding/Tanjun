@@ -18,7 +18,7 @@ and the [examples](https://github.com/FasterSpeeding/Tanjun/tree/master/examples
 # Support
 
 Hikari's support guild has a dedicated Tanjun help channel which can accessed using this
-[invite](https://discord.gg/Jx4cNGG) link.
+[invite](https://discord.gg/Jx4cNGG).
 
 # Contributing
 
