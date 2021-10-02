@@ -140,4 +140,4 @@ jobs:
           python -m pip install -r nox-requirements.txt
 
       - name: Run type checker
-        run: python -m nox -s type-check
+        run: python -m nox -s type-check -- --force-env
