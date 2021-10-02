@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Small change to help MyPy better understand protocol behaviour.
 
-### Removed:
+### Removed
 - Client.add_type_dependency and Client.add_callback_override
 - Special case type dependency methods have been removed/hidden.
 - `pass_as_kwarg` option from slash command artificial member options as the always member constraint cannot
