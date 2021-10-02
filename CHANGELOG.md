@@ -17,9 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   helps avoid issues with ratelimiting.
 - Client level special cased type injectors are now handled as normal type injectors which are just implicitly
   set from the start.
+- Client.load_modules now respects `__all__` if present.
 
 ### Fixed
 - Small change to help MyPy better understand protocol behaviour.
+- SlashContext.mark_not_found and cancel_defer are actually called if the command was not found in the REST flow.
 
 ### Removed
 - Client.add_type_dependency and Client.add_callback_override
