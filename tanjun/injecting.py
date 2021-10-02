@@ -477,7 +477,7 @@ class InjectorClient:
 
     def __init__(self) -> None:
         self._callback_overrides: dict[CallbackSig[typing.Any], CallbackDescriptor[typing.Any]] = {}
-        self._type_dependencies: dict[type[typing.Any], typing.Any] = {}
+        self._type_dependencies: dict[type[typing.Any], typing.Any] = {InjectorClient: self}
 
     def set_type_dependency(self: _InjectorClientT, type_: type[_T], value: _T, /) -> _InjectorClientT:
         """Set a callback to be called to resolve a injected type.
