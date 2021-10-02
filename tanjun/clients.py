@@ -1654,6 +1654,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     def load_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
         """Load entities into this client from modules based on loadable descriptors.
 
+        .. note::
+            If an `__all__` is present in the target module then it will be
+            used to find loaders.
+
         Examples
         --------
         For this to work the module has to have at least one `as_loader`
@@ -1714,8 +1718,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 _LOGGER.info("Loading from %s (all public members)", module_repr)
                 members = (
                     member
-                    for name, member in inspect.getmembers(module_repr)
-                    if not name.startswith("_") or name.startswith("_") and name[2:] == "__"
+                    for name, member in inspect.getmembers(module)
+                    if not name.startswith("_") or name.startswith("__") and name.endswith("__")
                 )
 
             found = False

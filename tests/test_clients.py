@@ -836,8 +836,73 @@ class TestClient:
                         """
                         import tanjun
 
+                        @tanjun.as_loader
+                        def __dunder_loader__(client: tanjun.abc.Client) -> None:
+                            assert isinstance(client, tanjun.Client)
+                            client.add_component(5533)
+                            client.add_client_callback(554444)
+
                         foo = 5686544536876
                         bar = object()
+
+                        @tanjun.as_loader
+                        def load_module(client: tanjun.abc.Client) -> None:
+                            assert isinstance(client, tanjun.Client)
+                            client.add_component(123)
+                            client.add_client_callback(4312)
+
+                        class FullMetal:
+                            ...
+
+                        @tanjun.as_loader
+                        def _load_module(client: tanjun.abc.Client) -> None:
+                            assert False
+                            client.add_component(5432)
+                            client.add_client_callback(6543456)
+                    """
+                    )
+                )
+                file.flush()
+
+            client.load_modules(path)
+
+            add_component_.assert_has_calls([mock.call(5533), mock.call(123)])
+            add_client_callback_.assert_has_calls([mock.call(554444), mock.call(4312)])
+
+        finally:
+            path.unlink(missing_ok=False)
+
+    def test_load_modules_with_system_path_respects_all(self):
+        add_component_ = mock.Mock()
+        add_client_callback_ = mock.Mock()
+
+        class MockClient(tanjun.Client):
+            add_component = add_component_
+
+            add_client_callback = add_client_callback_
+
+        client = MockClient(mock.AsyncMock())
+
+        # A try, finally is used to delete the file rather than relying on delete=True behaviour
+        # as on Windows the file cannot be accessed by other processes if delete is True.
+        file = tempfile.NamedTemporaryFile("w+", suffix=".py", delete=False)
+        path = pathlib.Path(file.name)
+        try:
+            with file:
+                file.write(
+                    textwrap.dedent(
+                        """
+                        __all__ = ["FullMetal", "load_module", "_priv_load", "bar", "foo","easy", "tanjun"]
+                        import tanjun
+
+                        foo = 5686544536876
+                        bar = object()
+
+                        @tanjun.as_loader
+                        def _priv_load(client: tanjun.abc.Client) -> None:
+                            assert isinstance(client, tanjun.Client)
+                            client.add_component(777)
+                            client.add_client_callback(778)
 
                         class FullMetal:
                             ...
@@ -847,6 +912,18 @@ class TestClient:
                             assert isinstance(client, tanjun.Client)
                             client.add_component(123)
                             client.add_client_callback(4312)
+
+                        @tanjun.as_loader
+                        def easy(client: tanjun.abc.Client) -> None:
+                            assert isinstance(client, tanjun.Client)
+                            client.add_component(5432)
+                            client.add_client_callback(6543456)
+
+                        @tanjun.as_loader
+                        def not_in_all(client: tanjun.abc.Client) -> None:
+                            assert False
+                            client.add_component("easy")
+                            client.add_client_callback("not_in_all", "foo")
                     """
                     )
                 )
@@ -854,8 +931,8 @@ class TestClient:
 
             client.load_modules(path)
 
-            add_component_.assert_called_once_with(123)
-            add_client_callback_.assert_called_once_with(4312)
+            add_component_.assert_has_calls([mock.call(123), mock.call(777), mock.call(5432)])
+            add_client_callback_.assert_has_calls([mock.call(4312), mock.call(778), mock.call(6543456)])
 
         finally:
             path.unlink(missing_ok=False)
@@ -873,8 +950,17 @@ class TestClient:
 
     def test_load_modules_with_python_module_path(self):
         client = tanjun.Client(mock.AsyncMock())
+        priv_loader = mock.Mock(tanjun.clients._LoadableDescriptor)
 
-        mock_module = mock.Mock(object=123, foo="ok", loader=mock.Mock(tanjun.clients._LoadableDescriptor), no=object())
+        mock_module = mock.Mock(
+            object=123,
+            foo="ok",
+            loader=mock.Mock(tanjun.clients._LoadableDescriptor),
+            no=object(),
+            other_loader=mock.Mock(tanjun.clients._LoadableDescriptor),
+            _priv_loader=priv_loader,
+            __all__=None,
+        )
 
         with mock.patch.object(importlib, "import_module", return_value=mock_module) as import_module:
             client.load_modules("okokok.no.u")
@@ -882,6 +968,33 @@ class TestClient:
             import_module.assert_called_once_with("okokok.no.u")
 
         mock_module.loader.assert_called_once_with(client)
+        mock_module.other_loader.assert_called_once_with(client)
+        priv_loader.assert_not_called()
+
+    def test_load_modules_with_python_module_path_respects_all(self):
+        client = tanjun.Client(mock.AsyncMock())
+        priv_loader = mock.Mock(tanjun.clients._LoadableDescriptor)
+
+        mock_module = mock.Mock(
+            object=123,
+            foo="ok",
+            loader=mock.Mock(tanjun.clients._LoadableDescriptor),
+            no=object(),
+            other_loader=mock.Mock(tanjun.clients._LoadableDescriptor),
+            _priv_loader=priv_loader,
+            another_loader=mock.Mock(tanjun.clients._LoadableDescriptor),
+            __all__=["loader", "_priv_loader", "another_loader"],
+        )
+
+        with mock.patch.object(importlib, "import_module", return_value=mock_module) as import_module:
+            client.load_modules("okokok.no.u")
+
+            import_module.assert_called_once_with("okokok.no.u")
+
+        mock_module.loader.assert_called_once_with(client)
+        mock_module.other_loader.assert_not_called()
+        priv_loader.assert_called_once_with(client)
+        mock_module.another_loader.assert_called_once_with(client)
 
     # Message create event
 
