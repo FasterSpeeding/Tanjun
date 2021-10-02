@@ -24,4 +24,4 @@ Hikari's support guild has a dedicated Tanjun help channel which can accessed us
 
 Before contributing you should read through the
 [contributing guidelines](https://github.com/FasterSpeeding/Tanjun/blob/master/CONTRIBUTING.md) and
-the [code of conduct](https://github.com/FasterSpeeding/Tanjun/blob/master/CONTRIBUTING.md)
+the [code of conduct](https://github.com/FasterSpeeding/Tanjun/blob/master/CODE_OF_CONDUCT.md)
