@@ -123,7 +123,7 @@ def generate_docs(session: nox.Session) -> None:
     install_requirements(session, ".[docs]")
     session.log("Building docs into ./docs")
     output_directory = _try_find_option(session, "-o", "--output") or "./docs"
-    session.run("pdoc", "--docformat", "numpy", "-o", output_directory, "./tanjun")
+    session.run("pdoc", "--docformat", "numpy", "-o", output_directory, "./tanjun", "-t", "./templates")
     session.log("Docs generated: %s", pathlib.Path("./docs/index.html").absolute())
 
     if not _try_find_option(session, "-j", "--json", when_empty="true"):
