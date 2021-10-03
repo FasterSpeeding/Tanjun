@@ -1,0 +1,24 @@
+{% extends "default/module.html.jinja2" %}
+<style>
+    <link rel="stylesheet" href="https://code.cdn.mozilla.net/fonts/fira.css">
+    {% block style_theme %}
+        :root {
+            --pdoc-background: #272935;
+        }
+        .pdoc {
+            --text: white;
+            --muted: #9d9d9d;
+            --link: #bd93f9;
+            --link-hover: white;
+            --active: #555;
+            --code: #232627;
+            --accent: #232627;
+            --accent2: #FFF;
+            --nav-hover: rgba(0, 0, 0, 0.1);
+            --name: #50fa7b;
+            --def: rgb(244, 90, 177);
+            --annotation: white;
+        }
+        
+    {% endblock %}
+</style>
