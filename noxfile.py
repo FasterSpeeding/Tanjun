@@ -100,10 +100,10 @@ def cleanup(session: nox.Session) -> None:
             shutil.rmtree(str(path.absolute()))
 
         except Exception as exc:
-            session.warn(f"[ FAIL ] Failed to remove '{raw_path}': {exc!s}")  # type: ignore
+            session.warn(f"[ FAIL ] Failed to remove '{raw_path}': {exc!s}")
 
         else:
-            session.log(f"[  OK  ] Removed '{raw_path}'")  # type: ignore
+            session.log(f"[  OK  ] Removed '{raw_path}'")
 
     # Remove individual files
     for raw_path in ["./.coverage", "./coverage_html.xml"]:
@@ -112,10 +112,10 @@ def cleanup(session: nox.Session) -> None:
             path.unlink()
 
         except Exception as exc:
-            session.warn(f"[ FAIL ] Failed to remove '{raw_path}': {exc!s}")  # type: ignore
+            session.warn(f"[ FAIL ] Failed to remove '{raw_path}': {exc!s}")
 
         else:
-            session.log(f"[  OK  ] Removed '{raw_path}'")  # type: ignore
+            session.log(f"[  OK  ] Removed '{raw_path}'")
 
 
 @nox.session(name="generate-docs", reuse_venv=True)
@@ -239,8 +239,13 @@ def test_coverage(session: nox.Session) -> None:
 
 @nox.session(name="type-check", reuse_venv=True)
 def type_check(session: nox.Session) -> None:
-    install_requirements(session, ".[tests]", "-r", "nox-requirements.txt")
-    session.run("pyright", external=True)
+    install_requirements(session, ".[tests, type_checking]", "-r", "nox-requirements.txt")
+
+    if _try_find_option(session, "--force-env", when_empty="True"):
+        session.env["PYRIGHT_PYTHON_GLOBAL_NODE"] = "off"
+
+    session.run("python", "-m", "pyright", "--version")
+    session.run("python", "-m", "pyright")
 
 
 @nox.session(name="check-dependencies")
