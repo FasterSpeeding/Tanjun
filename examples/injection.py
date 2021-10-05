@@ -16,7 +16,7 @@ import typing
 import tanjun
 from examples import protos
 
-component = tanjun.Component(name="complex")
+component = tanjun.Component()
 
 
 @component.with_command
