@@ -317,6 +317,26 @@ def _cmp_command(builder: typing.Optional[hikari.api.CommandBuilder], command: h
     return all(builder_option == option for builder_option, option in zip(builder.options, command_options))
 
 
+class _StartDeclarer:
+    __slots__ = ("client", "command_ids", "guild_id")
+
+    def __init__(
+        self,
+        client: Client,
+        command_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]],
+        guild_id: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]],
+    ) -> None:
+        self.client = client
+        self.command_ids = command_ids
+        self.guild_id = guild_id
+
+    async def __call__(self) -> None:
+        try:
+            await self.client.declare_global_commands(self.command_ids, guild=self.guild_id, force=False)
+        finally:
+            self.client.remove_client_callback(ClientCallbackNames.STARTING, self)
+
+
 class Client(injecting.InjectorClient, tanjun_abc.Client):
     """Tanjun's standard `tanjun.abc.Client` implementation.
 
@@ -328,7 +348,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     -----
     * For a quicker way to initiate this client around a standard bot aware
       client, see `Client.from_gateway_bot` and `Client.from_rest_bot`.
-    * The endpoint used by `set_global_commands` has a strict ratelimit which,
+    * The endpoint used by `declare_global_commands` has a strict ratelimit which,
       as of writing, only allows for 2 requests per minute (with that ratelimit
       either being per-guild if targeting a specific guild otherwise globally).
     * `event_manager` is necessary for message command dispatch and will also
@@ -368,7 +388,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Defaults to `False` and it should be noted that this only applies to
         message commands.
-    set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
+    declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]
         Whether or not to automatically set global slash commands when this
         client is first started. Defaults to `False`.
 
@@ -377,12 +397,26 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         can be useful for testing/debug purposes as slash commands may take
         up to an hour to propagate globally but will immediately propagate
         when set on a specific guild.
+    set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
+        Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
+    command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]
+        If provided, a mapping of top level command names to IDs of the commands to update.
+
+        This field is complementary to `declare_global_commands` and, while it
+        isn't necessarily required, this will in some situations help avoid
+        permissions which were previously set for a command from being lost
+        after a rename.
+
+        This currently isn't supported when multiple guild IDs are passed for
+        `declare_global_commands`.
 
     Raises
     ------
     ValueError
-        If `event_managed` is `True` when `event_manager` is `None`.
-    """
+        Raises for the following reasons:
+        * If `event_managed` is `True` when `event_manager` is `None`.
+        * If `command_ids` is passed when multiple guild ids are provided for `declare_global_commands`.
+    """  # noqa: E501 - line too long
 
     __slots__ = (
         "_accepts",
@@ -422,6 +456,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         event_managed: bool = False,
         mention_prefix: bool = False,
         set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
+        declare_global_commands: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialGuild],
+            hikari.SnowflakeishOr[hikari.PartialGuild],
+            bool,
+        ] = False,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
     ) -> None:
         # InjectorClient.__init__
         super().__init__()
@@ -463,22 +503,24 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             events.subscribe(hikari.StartingEvent, self._on_starting_event)
             events.subscribe(hikari.StoppingEvent, self._on_stopping_event)
 
-        if set_global_commands:
+        declare_global_commands = declare_global_commands or set_global_commands
+        command_ids = command_ids or {}
+        if isinstance(declare_global_commands, collections.Sequence):
+            if command_ids and len(command_ids) > 1:
+                raise ValueError("Cannot declare global guilds in multiple-guilds and pass command IDs")
 
-            async def _set_global_commands_next_start() -> None:
-                try:
-                    guild = (
-                        hikari.UNDEFINED
-                        if isinstance(set_global_commands, bool)
-                        else hikari.Snowflake(set_global_commands)
-                    )
-                    await self.set_global_commands(guild=guild, force=False)
-                finally:
-                    self.remove_client_callback(ClientCallbackNames.STARTING, _set_global_commands_next_start)
+            for guild in declare_global_commands:
+                self.add_client_callback(ClientCallbackNames.STARTING, _StartDeclarer(self, command_ids, guild))
 
+        elif isinstance(declare_global_commands, bool):
+            if declare_global_commands:
+                self.add_client_callback(
+                    ClientCallbackNames.STARTING, _StartDeclarer(self, command_ids, hikari.UNDEFINED)
+                )
+
+        else:
             self.add_client_callback(
-                ClientCallbackNames.STARTING,
-                _set_global_commands_next_start,
+                ClientCallbackNames.STARTING, _StartDeclarer(self, command_ids, declare_global_commands)
             )
 
         self.set_type_dependency(tanjun_abc.Client, self)
@@ -510,7 +552,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         *,
         event_managed: bool = True,
         mention_prefix: bool = False,
-        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
+        declare_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
     ) -> Client:
         """Build a `Client` from a `hikari.traits.GatewayBotAware` instance.
 
@@ -519,7 +561,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         * This implicitly defaults the client to human only mode.
         * This sets type dependency injectors for the hikari traits present in
           `bot` (including `hikari.traits.GatewayBotaWARE`).
-        * The endpoint used by `set_global_commands` has a strict ratelimit
+        * The endpoint used by `declare_global_commands` has a strict ratelimit
           which, as of writing, only allows for 2 requests per minute (with that
           ratelimit either being per-guild if targeting a specific guild
           otherwise globally).
@@ -546,7 +588,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             Defaults to `False` and it should be noted that this only applies to
             message commands.
-        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
+        declare_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
             Whether or not to automatically set global slash commands when this
             client is first started. Defaults to `False`.
 
@@ -564,7 +606,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 shards=bot,
                 event_managed=event_managed,
                 mention_prefix=mention_prefix,
-                set_global_commands=set_global_commands,
+                declare_global_commands=declare_global_commands,
             )
             .set_human_only()
             .set_hikari_trait_injectors(bot)
@@ -575,7 +617,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         cls,
         bot: hikari_traits.RESTBotAware,
         /,
-        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
+        declare_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
     ) -> Client:
         """Build a `Client` from a `hikari.traits.RESTBotAware` instance.
 
@@ -583,7 +625,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         -----
         * This sets type dependency injectors for the hikari traits present in
           `bot` (including `hikari.traits.RESTBotAware`).
-        * The endpoint used by `set_global_commands` has a strict ratelimit
+        * The endpoint used by `declare_global_commands` has a strict ratelimit
           which, as of writing, only allows for 2 requests per minute (with that
           ratelimit either being per-guild if targeting a specific guild
           otherwise globally).
@@ -595,7 +637,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Other Parameters
         ----------------
-        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
+        declare_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
             Whether or not to automatically set global slash commands when this
             client is first started. Defaults to `False`.
 
@@ -606,7 +648,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             when set on a specific guild.
         """
         return cls(
-            rest=bot.rest, server=bot.interaction_server, set_global_commands=set_global_commands
+            rest=bot.rest, server=bot.interaction_server, declare_global_commands=declare_global_commands
         ).set_hikari_trait_injectors(bot)
 
     async def __aenter__(self) -> Client:
@@ -831,12 +873,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         if not guild:
             command.set_tracked_command(response)  # TODO: is this fine?
+
         return response
 
     async def declare_slash_commands(
         self,
         commands: collections.Iterable[tanjun_abc.BaseSlashCommand],
         /,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
@@ -856,6 +900,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Other Parameters
         ----------------
+        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]
+            If provided, a mapping of top level command names to IDs of the existing commands to update.
+
+            While optional, this can be helpful when updating commands as
+            providing the current IDs will prevent changes such as renames from
+            leading to other state set for commands (e.g. permissions) from
+            being lost.
         application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
             The application to register the commands with.
 
@@ -885,6 +936,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             * If conflicting command names are found (multiple commanbds have the same top-level name).
             * If more than 100 top-level commands are passed.
         """
+        command_ids = command_ids or {}
         names_to_commands: dict[str, tanjun_abc.BaseSlashCommand] = {}
         conflicts: set[str] = set()
         builders: dict[str, hikari.api.CommandBuilder] = {}
@@ -894,7 +946,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             if command.name in builders:
                 conflicts.add(command.name)
 
-            builders[command.name] = command.build()
+            builder = command.build()
+            if command_id := command_ids.get(command.name):
+                builder.set_id(hikari.Snowflake(command_id))
+
+            builders[command.name]
 
         if conflicts:
             raise ValueError(
@@ -921,10 +977,21 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         _LOGGER.info("Bulk declaring %s %s slash commands", len(builders), name)
         responses = await self._rest.set_application_commands(application, list(builders.values()), guild=guild)
 
-        if not guild:
-            for response in responses:
+        for response in responses:
+            if not guild:
                 names_to_commands[response.name].set_tracked_command(response)  # TODO: is this fine?
 
+            if (expected_id := command_ids.get(response.name)) and hikari.Snowflake(expected_id) != response.id:
+                _LOGGER.warning(
+                    "ID mismatch found for %s command %s, expected %s but got %s. "
+                    "This suggests that any previous permissions set for this command will have been lost.",
+                    name,
+                    expected_id,
+                    response.id,
+                )
+
+        _LOGGER.info("Successfully declared %s (top-level) %s commands", len(responses), name)
+        _LOGGER.debug("declared %s command ids: %s", [response.id for response in responses])
         return responses
 
     def set_auto_defer_after(self: _ClientT, time: typing.Optional[float], /) -> _ClientT:
@@ -1098,6 +1165,21 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
         force: bool = False,
     ) -> collections.Sequence[hikari.Command]:
+        """Alias of `Client.declare_global_commands`.
+
+        .. deprecated:: v2.1.1a1
+            Use `Client.declare_global_commands` instead.
+        """
+        return await self.declare_global_commands(application=application, guild=guild, force=force)
+
+    async def declare_global_commands(
+        self,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+        force: bool = False,
+    ) -> collections.Sequence[hikari.Command]:
         """Set the global application commands for a bot based on the loaded components.
 
         .. warning::
@@ -1115,6 +1197,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Other Parameters
         ----------------
+        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]
+            If provided, a mapping of top level command names to IDs of the existing commands to update.
         application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
             Object or ID of the application to set the global commands for.
 
@@ -1142,7 +1226,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             for command in itertools.chain.from_iterable(component.slash_commands for component in self._components)
             if command.is_global
         )
-        return await self.declare_slash_commands(commands, application=application, guild=guild, force=force)
+        return await self.declare_slash_commands(
+            commands, command_ids, application=application, guild=guild, force=force
+        )
 
     def add_check(self: _ClientT, check: tanjun_abc.CheckSig, /) -> _ClientT:
         """Add a generic check to this client.

@@ -1976,13 +1976,13 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_tracked_command(self: _T, command: hikari.SnowflakeishOr[hikari.Command], /) -> _T:
+    def set_tracked_command(self: _T, command: hikari.Command, /) -> _T:
         """Set the global command this tracks.
 
         Parameters
         ----------
-        command : hikari.SnowflakeishOr[hikari.Command]
-            Object or ID of the command this tracks.
+        command : hikari.Command
+            Object of the global command this tracks.
 
         Returns
         -------
