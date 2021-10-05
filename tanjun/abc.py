@@ -2777,7 +2777,8 @@ class Client(abc.ABC):
             The client instance to allow chained calls.
         """
 
-    def remove_component_by_name(self, name: str, /) -> None:
+    @abc.abstractmethod
+    def remove_component_by_name(self: _T, name: str, /) -> _T:
         """Remove a component from this client by name.
 
         This will unsubscribe any client callbacks, commands and listeners

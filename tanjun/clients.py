@@ -1385,14 +1385,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self
 
     # TODO: do we want to assert that component names are unique
-    def remove_component_by_name(self, name: str, /) -> None:
+    def remove_component_by_name(self: _ClientT, name: str, /) -> _ClientT:
         for component in self._components:
             if component.name == name:
                 self.remove_component(component)
-                return
+                return self
 
-        else:
-            raise ValueError(f"No component named '{name}' was found.")
+        raise ValueError(f"No component named '{name}' was found.")
 
     def add_client_callback(self: _ClientT, name: str, callback: tanjun_abc.MetaEventSig, /) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
@@ -1904,6 +1903,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                     raise ValueError(f"module {module_path} already loaded")
 
                 module = importlib.import_module(module_path)
+                self._modules[module_path] = module
 
             else:
                 module_path_abs = module_path.absolute()
@@ -1948,6 +1948,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         if not module:
             raise ValueError(f"Module {module_path} not loaded")
+
+        self._unload_module(module, str(module_path))
 
     def reload_module(self, module_path: typing.Union[str, pathlib.Path], /) -> None:
         if isinstance(module_path, str):
