@@ -478,7 +478,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         "_message_hooks",
         "_metadata",
         "_modules",
-        "_module_paths",
+        "_path_modules",
         "_prefix_getter",
         "_prefixes",
         "_rest",
@@ -1907,7 +1907,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             else:
                 module_path_abs = module_path.absolute()
-                if module_path_abs in self._module_paths:
+                if module_path_abs in self._path_modules:
                     raise ValueError(f"Module at {module_path} already loaded")
 
                 module_name = module_path.name.rsplit(".", 1)[0]
