@@ -16,7 +16,7 @@ import typing
 import tanjun
 from examples import protos
 
-component = tanjun.Component()
+component = tanjun.Component(name="complex")
 
 
 @component.with_command
@@ -101,5 +101,14 @@ async def get_info(
 # components into a bot from a link (assuming the environment has all the
 # right configurations setup.)
 @tanjun.as_loader
-def load_examples(client: tanjun.abc.Client) -> None:
+def load_examples(client: tanjun.Client) -> None:
     client.add_component(component.copy())
+
+
+# Here we define an unloader which can be used to easily unload and reload
+#  this example components in a bot from a link.
+@tanjun.as_unloader
+def unload_examples(client: tanjun.Client) -> None:
+    # Since there's no guarantee the stored component will still be the
+    # same as component, we remove it by name.
+    client.remove_component_by_name(component.name)

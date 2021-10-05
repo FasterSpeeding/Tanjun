@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `custom_ids` argument to both `Client.declare_global_commands`, `Client.__init__` and
   `Client.declare_slash_commands` to allow specifying the IDs of commands which are being updated.
 - Let a Sequence of guild ids/objects be passed for `Client.__init__`'s declare_global_commands parameter
+- Client.remove_component_by_name
+- Client.unload_module and Client.reload_module to unload and reload from modules which also declare
+  a unloader.
+- tanjun.as_unloader decorator to enable declaring unloaders for modules.
+- custom_ids argument to both Client.declare_global_commands, Client.__init__ and
+  Client.declare_slash_commands to allow specifying the IDs of commands which are being updated.
+- Let a Sequence of guild ids/objects be passed for Client.__init__'s declare_global_commands parameter
   (although custom_ids isn't supported in this instance).
 
 ### Changed

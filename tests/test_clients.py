@@ -953,14 +953,14 @@ class TestClient:
 
     def test_load_modules_with_python_module_path(self):
         client = tanjun.Client(mock.AsyncMock())
-        priv_loader = mock.Mock(tanjun.clients._LoadableDescriptor)
+        priv_loader = mock.Mock(tanjun.clients._LoaderDescriptor)
 
         mock_module = mock.Mock(
             object=123,
             foo="ok",
-            loader=mock.Mock(tanjun.clients._LoadableDescriptor),
+            loader=mock.Mock(tanjun.clients._LoaderDescriptor),
             no=object(),
-            other_loader=mock.Mock(tanjun.clients._LoadableDescriptor),
+            other_loader=mock.Mock(tanjun.clients._LoaderDescriptor),
             _priv_loader=priv_loader,
             __all__=None,
         )
@@ -976,16 +976,16 @@ class TestClient:
 
     def test_load_modules_with_python_module_path_respects_all(self):
         client = tanjun.Client(mock.AsyncMock())
-        priv_loader = mock.Mock(tanjun.clients._LoadableDescriptor)
+        priv_loader = mock.Mock(tanjun.clients._LoaderDescriptor)
 
         mock_module = mock.Mock(
             object=123,
             foo="ok",
-            loader=mock.Mock(tanjun.clients._LoadableDescriptor),
+            loader=mock.Mock(tanjun.clients._LoaderDescriptor),
             no=object(),
-            other_loader=mock.Mock(tanjun.clients._LoadableDescriptor),
+            other_loader=mock.Mock(tanjun.clients._LoaderDescriptor),
             _priv_loader=priv_loader,
-            another_loader=mock.Mock(tanjun.clients._LoadableDescriptor),
+            another_loader=mock.Mock(tanjun.clients._LoaderDescriptor),
             __all__=["loader", "_priv_loader", "another_loader"],
         )
 

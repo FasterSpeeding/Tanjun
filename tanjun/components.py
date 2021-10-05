@@ -115,6 +115,7 @@ def _with_command(
     return decorator
 
 
+# TODO: do we want to setup a custom equality and hash here to make it easier to unload components?
 class Component(abc.Component):
     """Standard implementation of `tanjun.abc.Component`.
 

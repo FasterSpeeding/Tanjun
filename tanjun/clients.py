@@ -34,6 +34,7 @@ from __future__ import annotations
 
 __all__: list[str] = [
     "as_loader",
+    "as_unloader",
     "Client",
     "ClientCallbackNames",
     "LoadableSig",
@@ -126,7 +127,16 @@ PrefixGetterSigT = typing.TypeVar("PrefixGetterSigT", bound="PrefixGetterSig")
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.clients")
 
 
-class _LoadableDescriptor:  # Slots mess with functools.update_wrapper
+class _LoaderDescriptor:  # Slots mess with functools.update_wrapper
+    def __init__(self, callback: LoadableSig, /) -> None:
+        self._callback = callback
+        functools.update_wrapper(self, callback)
+
+    def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
+        self._callback(*args, **kwargs)
+
+
+class _UnloaderDescriptor:  # Slots mess with functools.update_wrapper
     def __init__(self, callback: LoadableSig, /) -> None:
         self._callback = callback
         functools.update_wrapper(self, callback)
@@ -136,13 +146,16 @@ class _LoadableDescriptor:  # Slots mess with functools.update_wrapper
 
 
 def as_loader(callback: LoadableSig, /) -> LoadableSig:
-    """Mark a callback as being used to load Tanjun utilities from a module.
+    """Mark a callback as being used to load Tanjun components from a module.
+
+    .. note::
+        This is only necessary if you wish to use `tanjun.Client.load_modules`.
 
     Parameters
     ----------
     callback : LoadableSig
-        The callback used to load Tanjun utilities from a module. This
-        should take one argument of type `tanjun.abc.Client`, return nothing
+        The callback used to load Tanjun components from a module. This
+        should take one argument of type `tanjun.Client`, return nothing
         and will be expected to initiate and add utilities such as components
         to the provided client using it's abstract methods.
 
@@ -151,7 +164,31 @@ def as_loader(callback: LoadableSig, /) -> LoadableSig:
     LoadableSig
         The decorated load callback.
     """
-    return _LoadableDescriptor(callback)
+    return _LoaderDescriptor(callback)
+
+
+def as_unloader(callback: LoadableSig, /) -> LoadableSig:
+    """Mark a callback as being used to unload a module's utilities from a client.
+
+    ... note::
+        This is the inverse of `as_loader` and is only necessary if you wish
+        to use the `tanjun.Client.unload_module` or
+        `tanjun.Client.reload_module`.
+
+    Parameters
+    ----------
+    callback : LoadableSig
+        The callback used to unload Tanjun utilities from a module. This
+        should take one argument of type `tanjun.Client`, return nothing
+        and will be expected to remove utilities such as components
+        from the provided client using it's abstract methods.
+
+    Returns
+    -------
+    UnloadableSig
+        The decorated unload callback.
+    """
+    return _UnloaderDescriptor(callback)
 
 
 class ClientCallbackNames(str, enum.Enum):
@@ -440,6 +477,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         "_listeners",
         "_message_hooks",
         "_metadata",
+        "_modules",
+        "_module_paths",
         "_prefix_getter",
         "_prefixes",
         "_rest",
@@ -491,6 +530,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._listeners: dict[type[hikari.Event], list[_InjectableListener]] = {}
         self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
+        self._modules: dict[str, types.ModuleType] = {}
+        self._path_modules: dict[pathlib.Path, types.ModuleType] = {}
         self._prefix_getter: typing.Optional[_InjectablePrefixGetter] = None
         self._prefixes: list[str] = []
         self._rest = rest
@@ -1343,6 +1384,16 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return self
 
+    # TODO: do we want to assert that component names are unique
+    def remove_component_by_name(self, name: str, /) -> None:
+        for component in self._components:
+            if component.name == name:
+                self.remove_component(component)
+                return
+
+        else:
+            raise ValueError(f"No component named '{name}' was found.")
+
     def add_client_callback(self: _ClientT, name: str, callback: tanjun_abc.MetaEventSig, /) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
         descriptor = injecting.CallbackDescriptor(callback)
@@ -1776,6 +1827,31 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._message_hooks = hooks
         return self
 
+    @staticmethod
+    def _iter_module_members(module: types.ModuleType, module_repr: str, /) -> typing.Iterator[typing.Any]:
+        exported = getattr(module, "__all__", None)
+        if exported is not None and isinstance(exported, collections.Iterable):
+            _LOGGER.debug("Scanning %s module based on its declared __all__)", module_repr)
+            return (getattr(module, name, None) for name in exported if isinstance(name, str))
+
+        _LOGGER.debug("Scanning all public members on %s", module_repr)
+        return (
+            member
+            for name, member in inspect.getmembers(module)
+            if not name.startswith("_") or name.startswith("__") and name.endswith("__")
+        )
+
+    def _load_module(self, module: types.ModuleType, module_repr: str) -> None:
+        _LOGGER.info("Loading from %s", module_repr)
+        found = False
+        for member in self._iter_module_members(module, module_repr):
+            if isinstance(member, _LoaderDescriptor):
+                member(self)
+                found = True
+
+        if not found:
+            _LOGGER.warning("Didn't find any loadable descriptors in %s", module_repr)
+
     def load_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
         """Load entities into this client from modules based on loadable descriptors.
 
@@ -1801,7 +1877,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             Path(s) of the modules to load from.
 
             When `str` this will be treated as a normal import path which is
-            either relative to the current location (e.g. `".foo.bar"`) or
             absolute (`"foo.bar.baz"`). It's worth noting that absolute module
             paths may be imported from the current location if the top level
             module is a valid module file or module directory in the current
@@ -1815,48 +1890,85 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         -------
         Self
             This client instance to enable chained calls.
+
+        Raises
+        ------
+        ValueError
+            If the module is already loaded.
+        ModuleNotFoundError
+            If the module is not found.
         """
         for module_path in modules:
             if isinstance(module_path, str):
+                if module_path in self._modules:
+                    raise ValueError(f"module {module_path} already loaded")
+
                 module = importlib.import_module(module_path)
-                module_repr = module_path
 
             else:
-                spec = importlib_util.spec_from_file_location(
-                    module_path.name.rsplit(".", 1)[0], module_path.absolute()
-                )
+                module_path_abs = module_path.absolute()
+                if module_path_abs in self._module_paths:
+                    raise ValueError(f"Module at {module_path} already loaded")
+
+                module_name = module_path.name.rsplit(".", 1)[0]
+                spec = importlib_util.spec_from_file_location(module_name, module_path_abs)
 
                 # https://github.com/python/typeshed/issues/2793
                 if not spec or not isinstance(spec.loader, importlib_abc.Loader):
-                    raise RuntimeError(f"Unknown or invalid module provided {module_path}")
+                    raise ModuleNotFoundError(
+                        f"Module not found at {module_path}", name=module_name, path=str(module_path)
+                    )
 
                 module = importlib_util.module_from_spec(spec)
                 spec.loader.exec_module(module)
-                module_repr = module.__name__
+                self._path_modules[module_path_abs] = module
 
-            exported = getattr(module, "__all__", None)
-            if exported is not None and isinstance(exported, collections.Iterable):
-                _LOGGER.info("Loading from %s (based on its declared __all__)", module_repr)
-                members = (getattr(module, name, None) for name in exported if isinstance(name, str))
-
-            else:
-                _LOGGER.info("Loading from %s (all public members)", module_repr)
-                members = (
-                    member
-                    for name, member in inspect.getmembers(module)
-                    if not name.startswith("_") or name.startswith("__") and name.endswith("__")
-                )
-
-            found = False
-            for member in members:
-                if isinstance(member, _LoadableDescriptor):
-                    member(self)
-                    found = True
-
-            if not found:
-                _LOGGER.warning("Didn't find any loadable descriptors in %s", module_repr)
+            self._load_module(module, str(module_path))
 
         return self
+
+    def _unload_module(self, module: types.ModuleType, module_repr: str) -> None:
+        _LOGGER.info("Unloading from %s", module_repr)
+        found = False
+        for member in self._iter_module_members(module, module_repr):
+            if isinstance(member, _UnloaderDescriptor):
+                member(self)
+                found = True
+
+        if not found:
+            raise ValueError("Didn't find any unloaders in %s", module_repr)
+
+    def unload_module(self, module_path: typing.Union[str, pathlib.Path], /) -> None:
+        if isinstance(module_path, str):
+            module = self._modules.pop(module_path, None)
+
+        else:
+            module_path = module_path.absolute()
+            module = self._path_modules.pop(module_path, None)
+
+        if not module:
+            raise ValueError(f"Module {module_path} not loaded")
+
+    def reload_module(self, module_path: typing.Union[str, pathlib.Path], /) -> None:
+        if isinstance(module_path, str):
+            module = self._modules.pop(module_path, None)
+
+        else:
+            module_path = module_path.absolute()
+            module = self._path_modules.pop(module_path, None)
+
+        if not module:
+            raise ValueError(f"Module {module_path} not loaded")
+
+        module_repr = str(module_path)
+        self._unload_module(module, module_repr)
+        module = importlib.reload(module)
+        self._load_module(module, module_repr)
+
+        if isinstance(module_path, str):
+            self._modules[module_path] = module
+        else:
+            self._path_modules[module_path] = module
 
     async def on_message_create_event(self, event: hikari.MessageCreateEvent, /) -> None:
         """Execute a message command based on a gateway event.

@@ -122,6 +122,7 @@ __all__: list[str] = [
     # clients.py
     "clients",
     "as_loader",
+    "as_unloader",
     "Client",
     "ClientCallbackNames",
     "MessageAcceptsEnum",
