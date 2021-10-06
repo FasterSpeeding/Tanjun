@@ -27,7 +27,12 @@ async def run() -> None:
     bot = hikari.RESTBot(loaded_config.bot_token, hikari.TokenType.BOT)
     database = impls.DatabaseImpl()
     client = (
-        tanjun.Client.from_rest_bot(bot)
+        # Passing True for declare_global_commands here instructs the client to
+        # declare the slash commands within it which are marked as "global" during
+        # the first startup.
+        # A guild ID may also be passed here to instruct it to just declare the
+        # global commands for that guild, this can be helpful for debug purposes.
+        tanjun.Client.from_rest_bot(bot, declare_global_commands=True)
         # Unlike a gateway bot bound client, only slash commands will be automatically
         # executed by a client that's bound to a rest bot.
         .load_modules("examples.slash_component")

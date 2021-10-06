@@ -864,6 +864,14 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         command : hikari.Command
             object of the global command this should be tracking.
         """
+        if not isinstance(command, hikari.Command):
+            warnings.warn(
+                "Passing a command ID instead of instance here is deprecated. "
+                "Please pass the command IDs to Client.declare_global_commands or Client.declare_commands instead.",
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+
         self._command_id = hikari.Snowflake(command)
         return self
 

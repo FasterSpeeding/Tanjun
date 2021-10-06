@@ -52,6 +52,7 @@ import inspect
 import itertools
 import logging
 import typing
+import warnings
 from collections import abc as collections
 
 import hikari
@@ -502,6 +503,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             events.subscribe(hikari.StartingEvent, self._on_starting_event)
             events.subscribe(hikari.StoppingEvent, self._on_stopping_event)
+
+        if set_global_commands:
+            warnings.warn(
+                "The `set_global_commands` argument is deprecated and will be removed in v2.1.1a1. "
+                "Use `declare_global_commands` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
         declare_global_commands = declare_global_commands or set_global_commands
         command_ids = command_ids or {}
