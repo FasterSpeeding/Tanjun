@@ -8,7 +8,7 @@
 # This software is distributed without any warranty.
 #
 # You should have received a copy of the CC0 Public Domain Dedication along with this software.
-# If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+# If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
 """Example component which takes advantage of more complex systems within Tanjun such as dependency injection."""
 import tanjun
 from examples import protos
