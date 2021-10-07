@@ -432,6 +432,7 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">types</span>
 <span class="kn">import</span> <span class="nn">typing</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">collections</span>
 
 <span class="kn">import</span> <span class="nn">hikari</span>
@@ -660,6 +661,7 @@
         <span class="n">default_permission</span><span class="o">=</span><span class="n">default_permission</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
         <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
+        <span class="n">_stack</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
 
 
@@ -750,6 +752,7 @@
         <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
         <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
         <span class="n">sort_options</span><span class="o">=</span><span class="n">sort_options</span><span class="p">,</span>
+        <span class="n">_stack</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
 
 
@@ -1163,6 +1166,7 @@
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">_stack</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_SCOMMAND_NAME_REG</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
@@ -1172,6 +1176,14 @@
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">description</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The command description cannot be over 100 characters in length&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">command_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Passing command_id to the command initialiser is deprecated as of v2.1.1a1. &quot;</span>
+                <span class="s2">&quot;Please pass the command IDs to Client.declare_global_commands or Client.declare_commands&quot;</span><span class="p">,</span>
+                <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="n">_stack</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command_id</span><span class="p">)</span> <span class="k">if</span> <span class="n">command_id</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">default_to_ephemeral</span>
@@ -1210,21 +1222,28 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span>
 
     <span class="k">def</span> <span class="nf">set_tracked_command</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">command_id</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">],</span> <span class="o">/</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Set the ID of the global command this should be tracking.</span>
+        <span class="sd">&quot;&quot;&quot;Set the the global command this should be tracking.</span>
 
-<span class="sd">        .. warning::</span>
-<span class="sd">            This is useful when bulk updating the commands as if the ID isn&#39;t</span>
-<span class="sd">            specified then any previously set permissions may be lost (i.e. if the</span>
-<span class="sd">            command&#39;s name is changed).</span>
+<span class="sd">        .. deprecated:: v2.1.1a1</span>
+<span class="sd">            Passing a command ID instead of instance here is deprecated.</span>
+<span class="sd">            Please pass the command IDs to Client.declare_global_commands or Client.declare_commands instead.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        command_id : hikari.snowflakes.SnowflakeishOr[hikari.Command]</span>
-<span class="sd">            object or ID of the global command this should be tracking.</span>
+<span class="sd">        command : hikari.Command</span>
+<span class="sd">            object of the global command this should be tracking.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Passing a command ID instead of instance here is deprecated. &quot;</span>
+                <span class="s2">&quot;Please pass the command IDs to Client.declare_global_commands or Client.declare_commands instead.&quot;</span><span class="p">,</span>
+                <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
@@ -1286,6 +1305,7 @@
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">_stack</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -1296,6 +1316,7 @@
             <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
             <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+            <span class="n">_stack</span><span class="o">=</span><span class="n">_stack</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_permission</span> <span class="o">=</span> <span class="n">default_permission</span>
@@ -1453,6 +1474,7 @@
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">sort_options</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">_stack</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -1463,6 +1485,7 @@
             <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
             <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+            <span class="n">_stack</span><span class="o">=</span><span class="n">_stack</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="n">default_permission</span><span class="p">)</span>
@@ -2901,6 +2924,7 @@ enforces that command names are unique to a single command within the group.</p>
         <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
         <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
         <span class="n">sort_options</span><span class="o">=</span><span class="n">sort_options</span><span class="p">,</span>
+        <span class="n">_stack</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
 </pre></div>
 
@@ -3087,6 +3111,7 @@ ones.</p></li>
         <span class="n">default_permission</span><span class="o">=</span><span class="n">default_permission</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
         <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
+        <span class="n">_stack</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
 </pre></div>
 
@@ -4941,6 +4966,7 @@ The check to remove.</li>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">_stack</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_SCOMMAND_NAME_REG</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
@@ -4950,6 +4976,14 @@ The check to remove.</li>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">description</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The command description cannot be over 100 characters in length&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">command_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Passing command_id to the command initialiser is deprecated as of v2.1.1a1. &quot;</span>
+                <span class="s2">&quot;Please pass the command IDs to Client.declare_global_commands or Client.declare_commands&quot;</span><span class="p">,</span>
+                <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="n">_stack</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command_id</span><span class="p">)</span> <span class="k">if</span> <span class="n">command_id</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">default_to_ephemeral</span>
@@ -4988,21 +5022,28 @@ The check to remove.</li>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span>
 
     <span class="k">def</span> <span class="nf">set_tracked_command</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">command_id</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">],</span> <span class="o">/</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Set the ID of the global command this should be tracking.</span>
+        <span class="sd">&quot;&quot;&quot;Set the the global command this should be tracking.</span>
 
-<span class="sd">        .. warning::</span>
-<span class="sd">            This is useful when bulk updating the commands as if the ID isn&#39;t</span>
-<span class="sd">            specified then any previously set permissions may be lost (i.e. if the</span>
-<span class="sd">            command&#39;s name is changed).</span>
+<span class="sd">        .. deprecated:: v2.1.1a1</span>
+<span class="sd">            Passing a command ID instead of instance here is deprecated.</span>
+<span class="sd">            Please pass the command IDs to Client.declare_global_commands or Client.declare_commands instead.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        command_id : hikari.snowflakes.SnowflakeishOr[hikari.Command]</span>
-<span class="sd">            object or ID of the global command this should be tracking.</span>
+<span class="sd">        command : hikari.Command</span>
+<span class="sd">            object of the global command this should be tracking.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Passing a command ID instead of instance here is deprecated. &quot;</span>
+                <span class="s2">&quot;Please pass the command IDs to Client.declare_global_commands or Client.declare_commands instead.&quot;</span><span class="p">,</span>
+                <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
@@ -5166,7 +5207,7 @@ is inherited regardless of what it's set as on the child command.</p>
             <span class="def">def</span>
             <span class="name">set_tracked_command</span><span class="signature">(
     self: ~_BaseSlashCommandT,
-    command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int],
+    command: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int],
     /
 ) -&gt; ~_BaseSlashCommandT</span>:
     </div>
@@ -5174,38 +5215,44 @@ is inherited regardless of what it's set as on the child command.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_tracked_command</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">command_id</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">],</span> <span class="o">/</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">],</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Set the ID of the global command this should be tracking.</span>
+        <span class="sd">&quot;&quot;&quot;Set the the global command this should be tracking.</span>
 
-<span class="sd">        .. warning::</span>
-<span class="sd">            This is useful when bulk updating the commands as if the ID isn&#39;t</span>
-<span class="sd">            specified then any previously set permissions may be lost (i.e. if the</span>
-<span class="sd">            command&#39;s name is changed).</span>
+<span class="sd">        .. deprecated:: v2.1.1a1</span>
+<span class="sd">            Passing a command ID instead of instance here is deprecated.</span>
+<span class="sd">            Please pass the command IDs to Client.declare_global_commands or Client.declare_commands instead.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        command_id : hikari.snowflakes.SnowflakeishOr[hikari.Command]</span>
-<span class="sd">            object or ID of the global command this should be tracking.</span>
+<span class="sd">        command : hikari.Command</span>
+<span class="sd">            object of the global command this should be tracking.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Passing a command ID instead of instance here is deprecated. &quot;</span>
+                <span class="s2">&quot;Please pass the command IDs to Client.declare_global_commands or Client.declare_commands instead.&quot;</span><span class="p">,</span>
+                <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Set the ID of the global command this should be tracking.</p>
+            <div class="docstring"><p>Set the the global command this should be tracking.</p>
 
-<p><em>Warning:</em>
-This is useful when bulk updating the commands as if the ID isn't
-specified then any previously set permissions may be lost (i.e. if the
-command's name is changed).</p>
+<p><em>Deprecated since version v2.1.1a1:</em>
+Passing a command ID instead of instance here is deprecated.
+Please pass the command IDs to Client.declare_global_commands or Client.declare_commands instead.</p>
 
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>command_id</strong> (hikari.snowflakes.SnowflakeishOr[hikari.Command]):
-object or ID of the global command this should be tracking.</li>
+<li><strong>command</strong> (hikari.Command):
+object of the global command this should be tracking.</li>
 </ul>
 </div>
 
@@ -5417,6 +5464,7 @@ This will be overridden by any response calls which specify flags.</li>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">sort_options</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">_stack</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -5427,6 +5475,7 @@ This will be overridden by any response calls which specify flags.</li>
             <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
             <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+            <span class="n">_stack</span><span class="o">=</span><span class="n">_stack</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="n">default_permission</span><span class="p">)</span>
@@ -6230,7 +6279,8 @@ This will be overridden by any response calls which specify flags.</li>
     is_global: bool = True,
     hooks: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#SlashContext">tanjun.abc.SlashContext</a>]] = None,
     metadata: Optional[collections.abc.MutableMapping[Any, Any]] = None,
-    sort_options: bool = True
+    sort_options: bool = True,
+    _stack: int = 0
 )</span>
     </div>
 
@@ -6251,6 +6301,7 @@ This will be overridden by any response calls which specify flags.</li>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">sort_options</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">_stack</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -6261,6 +6312,7 @@ This will be overridden by any response calls which specify flags.</li>
             <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
             <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+            <span class="n">_stack</span><span class="o">=</span><span class="n">_stack</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="n">default_permission</span><span class="p">)</span>
@@ -7798,6 +7850,7 @@ being used.</p></li>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">_stack</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -7808,6 +7861,7 @@ being used.</p></li>
             <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
             <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+            <span class="n">_stack</span><span class="o">=</span><span class="n">_stack</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_permission</span> <span class="o">=</span> <span class="n">default_permission</span>
@@ -7968,7 +8022,8 @@ being used.</p></li>
     is_global: bool = True,
     checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
     hooks: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#SlashContext">tanjun.abc.SlashContext</a>]] = None,
-    metadata: Optional[collections.abc.MutableMapping[Any, Any]] = None
+    metadata: Optional[collections.abc.MutableMapping[Any, Any]] = None,
+    _stack: int = 0
 )</span>
     </div>
 
@@ -7987,6 +8042,7 @@ being used.</p></li>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">_stack</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -7997,6 +8053,7 @@ being used.</p></li>
             <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
             <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+            <span class="n">_stack</span><span class="o">=</span><span class="n">_stack</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_permission</span> <span class="o">=</span> <span class="n">default_permission</span>

@@ -2572,13 +2572,13 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">set_tracked_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_tracked_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the global command this tracks.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        command : hikari.SnowflakeishOr[hikari.Command]</span>
-<span class="sd">            Object or ID of the command this tracks.</span>
+<span class="sd">        command : hikari.Command</span>
+<span class="sd">            Object of the global command this tracks.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -8270,13 +8270,13 @@ nature, and will trigger this exception if they occur.</li>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">set_tracked_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_tracked_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the global command this tracks.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        command : hikari.SnowflakeishOr[hikari.Command]</span>
-<span class="sd">            Object or ID of the command this tracks.</span>
+<span class="sd">        command : hikari.Command</span>
+<span class="sd">            Object of the global command this tracks.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -8486,23 +8486,19 @@ globally or for a specific guild.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">set_tracked_command</span><span class="signature">(
-    self: ~_T,
-    command: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int],
-    /
-) -&gt; ~_T</span>:
+            <span class="name">set_tracked_command</span><span class="signature">(self: ~_T, command: hikari.commands.Command, /) -&gt; ~_T</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">set_tracked_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_tracked_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the global command this tracks.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        command : hikari.SnowflakeishOr[hikari.Command]</span>
-<span class="sd">            Object or ID of the command this tracks.</span>
+<span class="sd">        command : hikari.Command</span>
+<span class="sd">            Object of the global command this tracks.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -8518,8 +8514,8 @@ globally or for a specific guild.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>command</strong> (hikari.SnowflakeishOr[hikari.Command]):
-Object or ID of the command this tracks.</li>
+<li><strong>command</strong> (hikari.Command):
+Object of the global command this tracks.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
