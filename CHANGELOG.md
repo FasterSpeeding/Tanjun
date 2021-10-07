@@ -6,13 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- ShlexParser.add_option and add_argument methods which mirror the behaviour of `with_option` and `with_argument`
+- `ShlexParser.add_option` and `add_argument` methods which mirror the behaviour of `with_option` and `with_argument`
 - Fluent interface coverage has been increased to now include remove methods and parsing interfaces.
-- ShlexParser.add_option and add_argument methods which mirror the behaviour of `with_option` and `with_argument`.
 - Support for specifying which channel types you want with slash channel type options.
-- custom_ids argument to both Client.declare_global_commands, Client.__init__ and
-  Client.declare_slash_commands to allow specifying the IDs of commands which are being updated.
-- Let a Sequence of guild ids/objects be passed for Client.__init__'s declare_global_commands parameter
+- `custom_ids` argument to both `Client.declare_global_commands`, `Client.__init__` and
+  `Client.declare_slash_commands` to allow specifying the IDs of commands which are being updated.
+- Let a Sequence of guild ids/objects be passed for `Client.__init__`'s declare_global_commands parameter
   (although custom_ids isn't supported in this instance).
 
 ### Changed
@@ -20,12 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 - Calling set_tracked_command with a command ID.
-- Passing command_id to SlashCommand.__init__, SlashCommandGroup.__init__, as_slash_command and
-  as_slash_command_group.
-- Renamed set_global_commands (both the Client method and init parameter) to declare_global_commands.
+- Passing command_id to `SlashCommand.__init__`, `SlashCommandGroup.__init__`, `as_slash_command` and
+  `as_slash_command_group`.
+- Renamed `set_global_commands` (both the Client method and init parameter) to declare_global_commands.
 
 ### Removed
-- add_converter and remove_converter from Parameter.
+- `add_converter` and `remove_converter` from Parameter.
 
 ## [2.1.0a1] - 2021-10-02
 ### Added
@@ -34,20 +33,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Special case type injector handling for the client itself.
 
 ### Changed
-- Breaking: Client.set_type_dependency now takes a literal value rather than a callback.
-- Client.declare_slash_commands and Client.set_global_commands now check if the target resource's commands
+- Breaking: `Client.set_type_dependency` now takes a literal value rather than a callback.
+- `Client.declare_slash_commands` and `Client.set_global_commands` now check if the target resource's commands
   match the commands to be declared before actually declaring them unless `force` is set to `True`. This
   helps avoid issues with ratelimiting.
 - Client level special cased type injectors are now handled as normal type injectors which are just implicitly
   set from the start.
-- Client.load_modules now respects `__all__` if present.
+- `Client.load_modules` now respects `__all__` if present.
 
 ### Fixed
 - Small change to help MyPy better understand protocol behaviour.
-- SlashContext.mark_not_found and cancel_defer are actually called if the command was not found in the REST flow.
+- `SlashContext.mark_not_found` and `cancel_defer` are actually called if the command was not found in the REST flow.
 
 ### Removed
-- Client.add_type_dependency and Client.add_callback_override
+- `Client.add_type_dependency` and `Client.add_callback_override`
 - Special case type dependency methods have been removed/hidden.
 - `pass_as_kwarg` option from slash command artificial member options as the always member constraint cannot
   be present without pass_as_kwarg behaviour.
@@ -64,26 +63,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Bumped minimum Hikari version to 2.0.0.dev102.
 - Consistently raise ValueError instead of LookupErrors in places where a value is being removed.
-- Context.fetch_channel and Context.get_channel now return TextableChannel and TextableGuildChannel
+- `Context.fetch_channel` and `Context.get_channel` now return TextableChannel and TextableGuildChannel
   respectively.
 
 ### Fixed
-- Actually call Command.bind_client and bind_component in the component add command methods and
-  specifically SlashCommand.bind_client in Component.bind_client.
-- Return the command object from Component.with_command methods.
-- Automatic deferral is now also cancelled in SlashContext.create_initial_response.
-- SlashContext.edit_last_response can now be used to edit a deferred response.
+- Actually call `Command.bind_client` and bind_component in the component add command methods and
+  specifically `SlashCommand.bind_client` in `Component.bind_client`.
+- Return the command object from `Component.with_command methods`.
+- Automatic deferral is now also cancelled in `SlashContext.create_initial_response`.
+- `SlashContext.edit_last_response` can now be used to edit a deferred response.
 - Small typing fixes made while setting pyright to strict.
 
 ### Removed
-- suppress_exceptions from Client.dispatch_client_callback cause it was poorly implemented and didn't make sense.
+- suppress_exceptions from `Client.dispatch_client_callback` cause it was poorly implemented and didn't make sense.
 
 ## [2.0.0a4] - 2021-09-17
 ### Added
 - `expire_after` argument to `tanjun.injecting.cached_callback`.
 - snowflake "search" functions and from_datetime to conversion.
 - the snowflake "parse" methods are now exported by conversion.
-- BaseConverter.requires_cache and cache_components properties + check_client method to allow for
+- `BaseConverter.requires_cache` and `cache_components` properties + check_client method to allow for
   warning if a converter might not run as expected under the provided client (e.g. intent or state issues).
 
 ### Changed
