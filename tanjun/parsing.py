@@ -855,13 +855,10 @@ class ShlexParser(AbstractParser):
         greedy: bool = False,
         multi: bool = False,
     ) -> _ShlexParserT:
-        """Add an argument type parameter to a parsable command through a decorator call.
+        """Add an argument type parameter to the parser..
 
         .. note::
-            Order matters for positional arguments and since decorator execution
-            starts at the decorator closest to the command and goes upwards this
-            will decide where a positional argument is located in a command's
-            signature.
+            Order matters for positional arguments.
 
         Parameters
         ----------
@@ -886,20 +883,8 @@ class ShlexParser(AbstractParser):
 
         Returns
         -------
-        collections.abc.Callable[[ParseableProtoT], ParseableProtoT]:
-            Decorator function for the parsable command this argument is being added to.
-
-        Examples
-        --------
-        ```python
-        import tanjun
-
-        @tanjun.parsing.with_argument("command", converters=int, default=42)
-        @tanjun.parsing.with_parser
-        @tanjun.component.as_message_command("command")
-        async def command(self, ctx: tanjun.abc.Context, /, argument: int):
-            ...
-        ```
+        SelfT
+            This parser to enable chained calls.
         """
         self.add_parameter(Argument(key, converters=converters, default=default, multi=multi, greedy=greedy))
         return self
