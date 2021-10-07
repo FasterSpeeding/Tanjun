@@ -173,9 +173,10 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
 
         return self
 
-    def remove_check(self, check: abc.CheckSig, /) -> None:
+    def remove_check(self: _PartialCommandT, check: abc.CheckSig, /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._checks.remove(check)  # type: ignore[arg-type]
+        return self
 
     def with_check(self, check: abc.CheckSigT, /) -> abc.CheckSigT:
         if check not in self._checks:  # type: ignore
@@ -970,15 +971,21 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         self._commands[command.name] = command
         return self
 
-    def remove_command(self, command: abc.BaseSlashCommand, /) -> None:
+    def remove_command(self: _SlashCommandGroupT, command: abc.BaseSlashCommand, /) -> _SlashCommandGroupT:
         """Remove a command from this group.
 
         Parameters
         ----------
         command : tanjun.abc.BaseSlashCommand
             Command to remove from this group.
+
+        Returns
+        -------
+        Self
+            Object of this group to enable chained calls.
         """
         del self._commands[command.name]
+        return self
 
     def with_command(self, command: abc.BaseSlashCommandT, /) -> abc.BaseSlashCommandT:
         """Add a slash command to this group through a decorator call.
@@ -2106,7 +2113,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
         self._commands.append(command)
         return self
 
-    def remove_command(self, command: abc.MessageCommand, /) -> None:
+    def remove_command(self: _MessageCommandGroupT, command: abc.MessageCommand, /) -> _MessageCommandGroupT:
         # <<inherited docstring from tanjun.abc.MessageCommandGroup>>.
         self._commands.remove(command)
         if self._is_strict:
@@ -2115,6 +2122,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
                     del self._names_to_commands[name]
 
         command.set_parent(None)
+        return self
 
     def with_command(self, command: AnyMessageCommandT, /) -> AnyMessageCommandT:
         self.add_command(command)

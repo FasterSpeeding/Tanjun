@@ -410,8 +410,9 @@ class TestClient:
         mock_check = mock.Mock()
         client = tanjun.Client(mock.Mock()).add_check(mock_check)
 
-        client.remove_check(mock_check)
+        result = client.remove_check(mock_check)
 
+        assert result is client
         assert mock_check not in client.checks
 
     def test_remove_check_when_not_present(self):
@@ -611,8 +612,9 @@ class TestClient:
             .add_listener(hikari.GuildTypingEvent, mock.Mock())
         )
 
-        client.remove_listener(hikari.GuildTypingEvent, mock_callback)
+        result = client.remove_listener(hikari.GuildTypingEvent, mock_callback)
 
+        assert result is client
         assert mock_callback not in client.listeners[hikari.GuildTypingEvent]
 
     def test_remove_listener_when_event_type_not_present(self):
@@ -704,8 +706,9 @@ class TestClient:
     def test_remove_prefix(self):
         client = tanjun.Client(mock.Mock()).add_prefix("lmao")
 
-        client.remove_prefix("lmao")
+        result = client.remove_prefix("lmao")
 
+        assert result is client
         assert "lmao" not in client.prefixes
 
     def test_remove_prefix_when_not_present(self):

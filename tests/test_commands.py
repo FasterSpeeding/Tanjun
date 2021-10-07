@@ -159,8 +159,9 @@ class TestPartialCommand:
 
         command._checks = [tanjun.checks.InjectableCheck(mock_check)]
 
-        command.remove_check(mock_check)
+        result = command.remove_check(mock_check)
 
+        assert result is command
         assert command.checks == ()
 
     def test_with_check(self, command: tanjun.commands.PartialCommand[typing.Any]):
@@ -779,8 +780,9 @@ class TestSlashCommandGroup:
         mock_sub_command = mock.Mock(tanjun.abc.SlashCommand)
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").set_parent(mock.Mock()).add_command(mock_sub_command)
 
-        command_group.remove_command(mock_sub_command)
+        result = command_group.remove_command(mock_sub_command)
 
+        assert result is command_group
         assert mock_sub_command not in command_group.commands
 
     def test_with_command(self):
@@ -1819,8 +1821,9 @@ class TestMessageCommandGroup:
         mock_command = mock.Mock()
         command_group = tanjun.MessageCommandGroup(mock.Mock(), "a", "b").add_command(mock_command)
 
-        command_group.remove_command(mock_command)
+        result = command_group.remove_command(mock_command)
 
+        assert result is command_group
         assert mock_command not in command_group.commands
 
     def test_remove_command_when_strict(self):
@@ -1832,8 +1835,9 @@ class TestMessageCommandGroup:
             .add_command(mock_other_command)
         )
 
-        command_group.remove_command(mock_command)
+        result = command_group.remove_command(mock_command)
 
+        assert result is command_group
         assert mock_command not in command_group.commands
         assert command_group._names_to_commands == {"dada": mock_other_command}
 

@@ -1848,7 +1848,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
         """
 
     @abc.abstractmethod
-    def remove_check(self, check: CheckSig, /) -> None:
+    def remove_check(self: _T, check: CheckSig, /) -> _T:
         """Remove a check from the command.
 
         Parameters
@@ -1860,6 +1860,11 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
         ------
         ValueError
             If the provided check isn't found.
+
+        Returns
+        -------
+        Self
+            This command to enable chained calls
         """
 
     @abc.abstractmethod
@@ -2040,7 +2045,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_command(self, command: BaseSlashCommand, /) -> None:
+    def remove_command(self: _T, command: BaseSlashCommand, /) -> _T:
         """Remove a command from this group.
 
         Parameters
@@ -2052,6 +2057,11 @@ class SlashCommandGroup(BaseSlashCommand, abc.ABC):
         ------
         ValueError
             If the provided command isn't found.
+
+        Returns
+        -------
+        Self
+            The command group instance to enable chained calls.
         """
 
     @abc.abstractmethod
@@ -2178,7 +2188,7 @@ class MessageCommandGroup(MessageCommand, abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_command(self, command: MessageCommand, /) -> None:
+    def remove_command(self: _T, command: MessageCommand, /) -> _T:
         """Remove a command from this group.
 
         Parameters
@@ -2190,6 +2200,11 @@ class MessageCommandGroup(MessageCommand, abc.ABC):
         ------
         ValueError
             If the provided command isn't found.
+
+        Returns
+        -------
+        Self
+            The group instance to enable chained calls.
         """
 
     @abc.abstractmethod
@@ -2306,7 +2321,7 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_slash_command(self, command: BaseSlashCommand, /) -> None:
+    def remove_slash_command(self: _T, command: BaseSlashCommand, /) -> _T:
         """Remove a slash command from this component.
 
         Parameters
@@ -2318,6 +2333,11 @@ class Component(abc.ABC):
         ------
         ValueError
             If the provided command isn't found.
+
+        Returns
+        -------
+        Self
+            The component to enable chained calls.
         """
 
     @typing.overload
@@ -2368,7 +2388,7 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_message_command(self, command: MessageCommand, /) -> None:
+    def remove_message_command(self: _T, command: MessageCommand, /) -> _T:
         """Remove a message command from this component.
 
         Parameters
@@ -2380,6 +2400,11 @@ class Component(abc.ABC):
         ------
         ValueError
             If the provided command isn't found.
+
+        Returns
+        -------
+        Self
+            The component to enable chained calls.
         """
 
     @typing.overload
@@ -2432,7 +2457,7 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_listener(self, event: type[hikari.Event], listener: ListenerCallbackSig, /) -> None:
+    def remove_listener(self: _T, event: type[hikari.Event], listener: ListenerCallbackSig, /) -> _T:
         """Remove a listener from this component.
 
         Parameters
@@ -2446,6 +2471,11 @@ class Component(abc.ABC):
         ------
         ValueError
             If the listener is not registered for the provided event.
+
+        Returns
+        -------
+        Self
+            The component to enable chained calls.
         """
 
     # TODO: make event optional?
@@ -2471,7 +2501,7 @@ class Component(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def unbind_client(self, client: Client, /) -> None:
+    def unbind_client(self: _T, client: Client, /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -2725,7 +2755,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_component(self, component: Component, /) -> None:
+    def remove_component(self: _T, component: Component, /) -> _T:
         """Remove a component from this client.
 
         This will unsubscribe any client callbacks, commands and listeners
@@ -2740,6 +2770,11 @@ class Client(abc.ABC):
         ------
         ValueError
             If the provided component isn't found.
+
+        Returns
+        -------
+        Self
+            The client instance to allow chained calls.
         """
 
     @abc.abstractmethod
@@ -2783,7 +2818,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_client_callback(self, name: str, callback: MetaEventSig, /) -> None:
+    def remove_client_callback(self: _T, name: str, callback: MetaEventSig, /) -> _T:
         """Remove a client callback.
 
         Parameters
@@ -2801,6 +2836,11 @@ class Client(abc.ABC):
             If the provided name isn't found.
         ValueError
             If the provided callback isn't found.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
         """
 
     @abc.abstractmethod
@@ -2856,7 +2896,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_listener(self, event_type: type[hikari.Event], callback: ListenerCallbackSig, /) -> None:
+    def remove_listener(self: _T, event_type: type[hikari.Event], callback: ListenerCallbackSig, /) -> _T:
         """Remove a listener from the client.
 
         Parameters
@@ -2872,6 +2912,11 @@ class Client(abc.ABC):
             If the provided event type isn't found.
         ValueError
             If the provided callback isn't found.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
         """
 
     @abc.abstractmethod

@@ -1166,7 +1166,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return self
 
-    def remove_check(self, check: tanjun_abc.CheckSig, /) -> None:
+    def remove_check(self: _ClientT, check: tanjun_abc.CheckSig, /) -> _ClientT:
         """Remove a check from the client.
 
         Parameters
@@ -1180,6 +1180,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             If the check was not previously added.
         """
         self._checks.remove(check)  # type: ignore[arg-type]
+        return self
 
     def with_check(self, check: tanjun_abc.CheckSigT, /) -> tanjun_abc.CheckSigT:
         """Add a check to this client through a decorator call.
@@ -1220,7 +1221,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return self
 
-    def remove_component(self, component: tanjun_abc.Component, /) -> None:
+    def remove_component(self: _ClientT, component: tanjun_abc.Component, /) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
         self._components.remove(component)
         component.unbind_client(self)
@@ -1229,6 +1230,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             asyncio.get_running_loop().create_task(
                 self.dispatch_client_callback(ClientCallbackNames.COMPONENT_REMOVED, component)
             )
+
+        return self
 
     def add_client_callback(self: _ClientT, name: str, callback: tanjun_abc.MetaEventSig, /) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
@@ -1280,12 +1283,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return ()
 
-    def remove_client_callback(self, name: str, callback: tanjun_abc.MetaEventSig, /) -> None:
+    def remove_client_callback(self: _ClientT, name: str, callback: tanjun_abc.MetaEventSig, /) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
         name = name.casefold()
         self._client_callbacks[name].remove(callback)  # type: ignore
         if not self._client_callbacks[name]:
             del self._client_callbacks[name]
+
+        return self
 
     def with_client_callback(
         self, name: str, /
@@ -1316,7 +1321,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return self
 
-    def remove_listener(self, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /) -> None:
+    def remove_listener(
+        self: _ClientT, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /
+    ) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
         registered_callback = self._listeners[event_type].pop(self._listeners[event_type].index(callback))
 
@@ -1325,6 +1332,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         if self._is_alive and self._events:
             self._events.unsubscribe(event_type, registered_callback.__call__)
+
+        return self
 
     def with_listener(
         self, event_type: type[hikari.Event], /
@@ -1363,7 +1372,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return self
 
-    def remove_prefix(self, prefix: str, /) -> None:
+    def remove_prefix(self: _ClientT, prefix: str, /) -> _ClientT:
         """Remove a message content prefix from the client.
 
         Parameters
@@ -1375,8 +1384,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         ------
         ValueError
             If the prefix is not registered with the client.
+
+        Returns
+        -------
+        Self
+            The client instance to enable chained calls.
         """
         self._prefixes.remove(prefix)
+        return self
 
     def set_prefix_getter(self: _ClientT, getter: typing.Optional[PrefixGetterSig], /) -> _ClientT:
         """Set the callback used to retrieve message prefixes set for the relevant guild.

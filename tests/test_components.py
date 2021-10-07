@@ -135,8 +135,9 @@ class TestComponent:
     def test_remove_check(self):
         component = tanjun.Component().add_check(mock.Mock())
 
-        component.remove_check(next(iter(component.checks)))
+        result = component.remove_check(next(iter(component.checks)))
 
+        assert result is component
         assert not component.checks
 
     def test_remove_check_when_not_present(self):
@@ -316,8 +317,9 @@ class TestComponent:
             ),
         )(load_from_attributes=False)
 
-        component.remove_command(mock_command)
+        result = component.remove_command(mock_command)
 
+        assert result is component
         remove_message_command.assert_called_once_with(mock_command)
         remove_slash_command.assert_not_called()
 
@@ -428,8 +430,9 @@ class TestComponent:
         mock_command.name = "42231"
         component = tanjun.Component().add_slash_command(mock_command)
 
-        component.remove_slash_command(mock_command)
+        result = component.remove_slash_command(mock_command)
 
+        assert result is component
         assert not component.slash_commands
 
     def test_remove_slash_command_when_not_found(self):
@@ -548,8 +551,9 @@ class TestComponent:
         mock_command.name = "a"
         component = tanjun.Component().add_message_command(mock_command)
 
-        component.remove_message_command(mock_command)
+        result = component.remove_message_command(mock_command)
 
+        assert result is component
         assert not component.message_commands
 
     def test_remove_message_command_when_not_found(self):
@@ -651,8 +655,9 @@ class TestComponent:
             .add_listener(hikari.MessageDeleteEvent, mock_callback)
         )
 
-        component.remove_listener(hikari.MessageDeleteEvent, mock_callback)
+        result = component.remove_listener(hikari.MessageDeleteEvent, mock_callback)
 
+        assert result is component
         assert mock_callback not in component.listeners[hikari.MessageDeleteEvent]
 
     def test_remove_listener_when_last_listener_for_event_type(self):

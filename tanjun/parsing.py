@@ -133,24 +133,24 @@ class AbstractParser(abc.ABC):
     def parameters(self) -> collections.Sequence[Parameter]:
         raise NotImplementedError
 
-    @abc.abstractmethod
-    def add_parameter(self, parameter: typing.Union[Argument, Option], /) -> None:
+    @abc.abstractmethod  # TODO: these lol
+    def add_parameter(self: _T, parameter: typing.Union[Argument, Option], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def remove_parameter(self, parameter: typing.Union[Argument, Option], /) -> None:
+    def remove_parameter(self: _T, parameter: typing.Union[Argument, Option], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_parameters(self, parameters: collections.Iterable[typing.Union[Argument, Option]], /) -> None:
+    def set_parameters(self: _T, parameters: collections.Iterable[typing.Union[Argument, Option]], /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def bind_client(self, client: tanjun_abc.Client, /) -> None:
+    def bind_client(self: _T, client: tanjun_abc.Client, /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def bind_component(self, component: tanjun_abc.Component, /) -> None:
+    def bind_component(self: _T, component: tanjun_abc.Component, /) -> _T:
         raise NotImplementedError
 
     @abc.abstractmethod
