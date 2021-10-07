@@ -212,12 +212,11 @@ class TestPartialCommand:
 
 def test_slash_command_group():
     command = tanjun.slash_command_group(
-        "a_name", "very", default_permission=False, command_id=123, default_to_ephemeral=True, is_global=False
+        "a_name", "very", default_permission=False, default_to_ephemeral=True, is_global=False
     )
 
     assert command.name == "a_name"
     assert command.description == "very"
-    assert command.tracked_command_id == 123
     assert command.build().default_permission is False
     assert command.is_global is False
     assert command.defaults_to_ephemeral is True
@@ -240,7 +239,6 @@ def test_as_slash_command():
     command = tanjun.as_slash_command(
         "a_very",
         "cool name",
-        command_id=123321,
         default_permission=False,
         default_to_ephemeral=True,
         is_global=False,
@@ -249,7 +247,6 @@ def test_as_slash_command():
 
     assert command.name == "a_very"
     assert command.description == "cool name"
-    assert command.tracked_command_id == 123321
     assert command.build().default_permission is hikari.UNDEFINED
     assert command.defaults_to_ephemeral is True
     assert command.is_global is False
@@ -649,8 +646,9 @@ class TestBaseSlashCommand:
 
     def test_tracked_command_id_property(self):
         command = stub_class(tanjun.BaseSlashCommand)("yee", "nsoosos")
+        mock_command = mock.Mock(hikari.Command, __int__=mock.Mock(return_value=5312123))
 
-        assert command.set_tracked_command(5312123).tracked_command_id == 5312123
+        assert command.set_tracked_command(mock_command).tracked_command_id == 5312123
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
@@ -706,7 +704,7 @@ class TestSlashCommandGroup:
         mock_command = mock.Mock(tanjun.abc.SlashCommand)
         mock_command_group = mock.Mock(tanjun.abc.SlashCommandGroup)
         command_group = (
-            tanjun.SlashCommandGroup("yee", "nsoosos", command_id=123, default_permission=True)
+            tanjun.SlashCommandGroup("yee", "nsoosos", default_permission=True)
             .add_command(mock_command)
             .add_command(mock_command_group)
         )
@@ -716,7 +714,6 @@ class TestSlashCommandGroup:
         assert result == (
             tanjun.commands._CommandBuilder("yee", "nsoosos", False)
             .set_default_permission(True)
-            .set_id(123)
             .add_option(
                 hikari.CommandOption(
                     type=hikari.OptionType.SUB_COMMAND,
@@ -737,12 +734,16 @@ class TestSlashCommandGroup:
             )
         )
 
-    def test_build_without_id(self):
-        command_group = tanjun.SlashCommandGroup("yee", "nsoosos")
+    def test_build_when_tracked_command_set(self):
+        command_group = tanjun.SlashCommandGroup("yee", "nsoosos").set_tracked_command(
+            mock.Mock(hikari.Command, __int__=mock.Mock(return_value=123))
+        )
 
         result = command_group.build()
 
-        assert result == (tanjun.commands._CommandBuilder("yee", "nsoosos", False).set_default_permission(True))
+        assert result == (
+            tanjun.commands._CommandBuilder("yee", "nsoosos", False).set_id(123).set_default_permission(True)
+        )
 
     @pytest.mark.skip(reason="TODO")
     def test_copy(self):

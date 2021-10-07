@@ -18,14 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Bumped minimum hikari version to 2.0.0.dev103.
 
-### Removed
-- add_converter and remove_converter from Parameter.
-
 ### Deprecated
 - Calling set_tracked_command with a command ID.
 - Passing command_id to SlashCommand.__init__, SlashCommandGroup.__init__, as_slash_command and
   as_slash_command_group.
 - Renamed set_global_commands (both the Client method and init parameter) to declare_global_commands.
+
+### Removed
+- add_converter and remove_converter from Parameter.
 
 ## [2.1.0a1] - 2021-10-02
 ### Added

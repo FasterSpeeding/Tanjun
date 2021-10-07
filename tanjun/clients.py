@@ -417,6 +417,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         Raises for the following reasons:
         * If `event_managed` is `True` when `event_manager` is `None`.
         * If `command_ids` is passed when multiple guild ids are provided for `declare_global_commands`.
+        * If `command_ids` is passed when `declare_global_commands` is `False`.
     """  # noqa: E501 - line too long
 
     __slots__ = (
@@ -526,6 +527,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 self.add_client_callback(
                     ClientCallbackNames.STARTING, _StartDeclarer(self, command_ids, hikari.UNDEFINED)
                 )
+
+            elif command_ids:
+                raise ValueError("Cannot pass command IDs when not declaring global commands")
 
         else:
             self.add_client_callback(
