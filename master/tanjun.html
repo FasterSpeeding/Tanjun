@@ -14275,7 +14275,7 @@ message create events.</p>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    ```py</span>
-<span class="sd">    @with_channel_slash_option(&quot;user&quot;, &quot;user to target.&quot;)</span>
+<span class="sd">    @with_user_slash_option(&quot;user&quot;, &quot;user to target.&quot;)</span>
 <span class="sd">    @as_slash_command(&quot;command&quot;, &quot;A command&quot;)</span>
 <span class="sd">    async def command(self, ctx: tanjun.abc.SlashContext, user: Union[InteractionMember, User]) -&gt; None:</span>
 <span class="sd">        ...</span>
@@ -14302,7 +14302,7 @@ message create events.</p>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    ```py</span>
-<span class="sd">    @with_channel_slash_option(&quot;member&quot;, &quot;member to target.&quot;)</span>
+<span class="sd">    @with_member_slash_option(&quot;member&quot;, &quot;member to target.&quot;)</span>
 <span class="sd">    @as_slash_command(&quot;command&quot;, &quot;A command&quot;)</span>
 <span class="sd">    async def command(self, ctx: tanjun.abc.SlashContext, member: hikari.InteractionMember) -&gt; None:</span>
 <span class="sd">        ...</span>
@@ -14316,8 +14316,35 @@ message create events.</p>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_member_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span>
 
 
+<span class="n">_channel_types</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">ChannelType</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">GuildTextChannel</span><span class="p">:</span> <span class="p">{</span><span class="n">hikari</span><span class="o">.</span><span class="n">ChannelType</span><span class="o">.</span><span class="n">GUILD_TEXT</span><span class="p">},</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">DMChannel</span><span class="p">:</span> <span class="p">{</span><span class="n">hikari</span><span class="o">.</span><span class="n">ChannelType</span><span class="o">.</span><span class="n">DM</span><span class="p">},</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">GuildVoiceChannel</span><span class="p">:</span> <span class="p">{</span><span class="n">hikari</span><span class="o">.</span><span class="n">ChannelType</span><span class="o">.</span><span class="n">GUILD_VOICE</span><span class="p">},</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">GroupDMChannel</span><span class="p">:</span> <span class="p">{</span><span class="n">hikari</span><span class="o">.</span><span class="n">ChannelType</span><span class="o">.</span><span class="n">GROUP_DM</span><span class="p">},</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">GuildCategory</span><span class="p">:</span> <span class="p">{</span><span class="n">hikari</span><span class="o">.</span><span class="n">ChannelType</span><span class="o">.</span><span class="n">GUILD_CATEGORY</span><span class="p">},</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">GuildNewsChannel</span><span class="p">:</span> <span class="p">{</span><span class="n">hikari</span><span class="o">.</span><span class="n">ChannelType</span><span class="o">.</span><span class="n">GUILD_NEWS</span><span class="p">},</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">GuildStoreChannel</span><span class="p">:</span> <span class="p">{</span><span class="n">hikari</span><span class="o">.</span><span class="n">ChannelType</span><span class="o">.</span><span class="n">GUILD_STORE</span><span class="p">},</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">GuildStageChannel</span><span class="p">:</span> <span class="p">{</span><span class="n">hikari</span><span class="o">.</span><span class="n">ChannelType</span><span class="o">.</span><span class="n">GUILD_STAGE</span><span class="p">},</span>
+<span class="p">}</span>
+
+
+<span class="k">for</span> <span class="n">_channel_cls</span><span class="p">,</span> <span class="n">_types</span> <span class="ow">in</span> <span class="n">_channel_types</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">_mro_type</span> <span class="ow">in</span> <span class="n">_channel_cls</span><span class="o">.</span><span class="n">mro</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_mro_type</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">_mro_type</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">_channel_types</span><span class="p">[</span><span class="n">_mro_type</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_types</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">_channel_types</span><span class="p">[</span><span class="n">_mro_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">_types</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+
 <span class="k">def</span> <span class="nf">with_channel_slash_option</span><span class="p">(</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">types</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+    <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SlashCommandT</span><span class="p">],</span> <span class="n">_SlashCommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a channel option to a slash command.</span>
 
@@ -14340,7 +14367,7 @@ message create events.</p>
 <span class="sd">    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]</span>
 <span class="sd">        Decorator callback which adds the option to the command.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_channel_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_channel_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">types</span><span class="o">=</span><span class="n">types</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">with_role_slash_option</span><span class="p">(</span>
@@ -14861,6 +14888,7 @@ message create events.</p>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">always_float</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">channel_types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">choices</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
@@ -14897,7 +14925,14 @@ message create events.</p>
 
         <span class="n">required</span> <span class="o">=</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_UNDEFINED_DEFAULT</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-            <span class="n">hikari</span><span class="o">.</span><span class="n">CommandOption</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">type_</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">is_required</span><span class="o">=</span><span class="n">required</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">choices_</span><span class="p">)</span>
+            <span class="n">hikari</span><span class="o">.</span><span class="n">CommandOption</span><span class="p">(</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">type_</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+                <span class="n">is_required</span><span class="o">=</span><span class="n">required</span><span class="p">,</span>
+                <span class="n">choices</span><span class="o">=</span><span class="n">choices_</span><span class="p">,</span>
+                <span class="n">channel_types</span><span class="o">=</span><span class="n">channel_types</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">pass_as_kwarg</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_TrackedOption</span><span class="p">(</span>
@@ -15301,6 +15336,7 @@ message create events.</p>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a channel option to a slash command.</span>
@@ -15341,9 +15377,27 @@ message create events.</p>
 <span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
 <span class="sd">            * If the option description is over 100 characters in length.</span>
 <span class="sd">            * If the command already has 25 options.</span>
+<span class="sd">            * If an invalid type is passed in `types`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">itertools</span>
+
+        <span class="k">if</span> <span class="n">types</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">channel_types</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">_channel_types</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">,</span> <span class="n">types</span><span class="p">))))</span>
+
+            <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown channel type </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">channel_types</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">CHANNEL</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">description</span><span class="p">,</span>
+            <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">CHANNEL</span><span class="p">,</span>
+            <span class="n">channel_types</span><span class="o">=</span><span class="n">channel_types</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+            <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_role_option</span><span class="p">(</span>
@@ -17836,6 +17890,7 @@ The command to add.</li>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">always_float</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">channel_types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">choices</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
@@ -17872,7 +17927,14 @@ The command to add.</li>
 
         <span class="n">required</span> <span class="o">=</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_UNDEFINED_DEFAULT</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-            <span class="n">hikari</span><span class="o">.</span><span class="n">CommandOption</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">type_</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">is_required</span><span class="o">=</span><span class="n">required</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">choices_</span><span class="p">)</span>
+            <span class="n">hikari</span><span class="o">.</span><span class="n">CommandOption</span><span class="p">(</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">type_</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+                <span class="n">is_required</span><span class="o">=</span><span class="n">required</span><span class="p">,</span>
+                <span class="n">choices</span><span class="o">=</span><span class="n">choices_</span><span class="p">,</span>
+                <span class="n">channel_types</span><span class="o">=</span><span class="n">channel_types</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">pass_as_kwarg</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_TrackedOption</span><span class="p">(</span>
@@ -18276,6 +18338,7 @@ The command to add.</li>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a channel option to a slash command.</span>
@@ -18316,9 +18379,27 @@ The command to add.</li>
 <span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
 <span class="sd">            * If the option description is over 100 characters in length.</span>
 <span class="sd">            * If the command already has 25 options.</span>
+<span class="sd">            * If an invalid type is passed in `types`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">itertools</span>
+
+        <span class="k">if</span> <span class="n">types</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">channel_types</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">_channel_types</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">,</span> <span class="n">types</span><span class="p">))))</span>
+
+            <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown channel type </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">channel_types</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">CHANNEL</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">description</span><span class="p">,</span>
+            <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">CHANNEL</span><span class="p">,</span>
+            <span class="n">channel_types</span><span class="o">=</span><span class="n">channel_types</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+            <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_role_option</span><span class="p">(</span>
@@ -19566,6 +19647,7 @@ If this is left as undefined then this option will be required.</li>
     /,
     *,
     default: Any = &lt;object object&gt;,
+    types: Optional[collections.abc.Collection[type[hikari.channels.PartialChannel]]] = None,
     pass_as_kwarg: bool = True
 ) -&gt; ~_SlashCommandT</span>:
     </div>
@@ -19579,6 +19661,7 @@ If this is left as undefined then this option will be required.</li>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">types</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashCommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a channel option to a slash command.</span>
@@ -19619,9 +19702,27 @@ If this is left as undefined then this option will be required.</li>
 <span class="sd">            * If the option name doesn&#39;t match the regex `^[a-z0-9_-]{1,32}$`.</span>
 <span class="sd">            * If the option description is over 100 characters in length.</span>
 <span class="sd">            * If the command already has 25 options.</span>
+<span class="sd">            * If an invalid type is passed in `types`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">itertools</span>
+
+        <span class="k">if</span> <span class="n">types</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">channel_types</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">_channel_types</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">,</span> <span class="n">types</span><span class="p">))))</span>
+
+            <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown channel type </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">channel_types</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_option</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">CHANNEL</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">description</span><span class="p">,</span>
+            <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">CHANNEL</span><span class="p">,</span>
+            <span class="n">channel_types</span><span class="o">=</span><span class="n">channel_types</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span>
+            <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">,</span>
         <span class="p">)</span>
 </pre></div>
 
@@ -19671,6 +19772,7 @@ being used.</p></li>
 <li>If the option name doesn't match the regex <code>^[a-z0-9_-]{1,32}$</code>.</li>
 <li>If the option description is over 100 characters in length.</li>
 <li>If the command already has 25 options.</li>
+<li>If an invalid type is passed in <code>types</code>.</li>
 </ul></li>
 </ul>
 </div>
@@ -21091,7 +21193,7 @@ Command to add to this group.</li>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    ```py</span>
-<span class="sd">    @with_channel_slash_option(&quot;user&quot;, &quot;user to target.&quot;)</span>
+<span class="sd">    @with_user_slash_option(&quot;user&quot;, &quot;user to target.&quot;)</span>
 <span class="sd">    @as_slash_command(&quot;command&quot;, &quot;A command&quot;)</span>
 <span class="sd">    async def command(self, ctx: tanjun.abc.SlashContext, user: Union[InteractionMember, User]) -&gt; None:</span>
 <span class="sd">        ...</span>
@@ -21118,7 +21220,7 @@ command was executed in a DM channel.</p>
 
 <h6 id="examples">Examples</h6>
 
-<div class="codehilite"><pre><span></span><code><span class="nd">@with_channel_slash_option</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;user to target.&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="nd">@with_user_slash_option</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;user to target.&quot;</span><span class="p">)</span>
 <span class="nd">@as_slash_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="s2">&quot;A command&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">User</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
@@ -21162,7 +21264,7 @@ command was executed in a DM channel.</p>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    ```py</span>
-<span class="sd">    @with_channel_slash_option(&quot;member&quot;, &quot;member to target.&quot;)</span>
+<span class="sd">    @with_member_slash_option(&quot;member&quot;, &quot;member to target.&quot;)</span>
 <span class="sd">    @as_slash_command(&quot;command&quot;, &quot;A command&quot;)</span>
 <span class="sd">    async def command(self, ctx: tanjun.abc.SlashContext, member: hikari.InteractionMember) -&gt; None:</span>
 <span class="sd">        ...</span>
@@ -21187,7 +21289,7 @@ This will always result in <code>hikari.InteractionMember</code>.</p>
 
 <h6 id="examples">Examples</h6>
 
-<div class="codehilite"><pre><span></span><code><span class="nd">@with_channel_slash_option</span><span class="p">(</span><span class="s2">&quot;member&quot;</span><span class="p">,</span> <span class="s2">&quot;member to target.&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="nd">@with_member_slash_option</span><span class="p">(</span><span class="s2">&quot;member&quot;</span><span class="p">,</span> <span class="s2">&quot;member to target.&quot;</span><span class="p">)</span>
 <span class="nd">@as_slash_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="s2">&quot;A command&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="n">member</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
@@ -21212,6 +21314,7 @@ This will always result in <code>hikari.InteractionMember</code>.</p>
     description: str,
     /,
     *,
+    types: &#39;collections.Collection[type[hikari.PartialChannel]] | None&#39; = None,
     default: Any = &lt;object object&gt;,
     pass_as_kwarg: bool = True
 ) -&gt; collections.abc.Callable[[~_SlashCommandT], ~_SlashCommandT]</span>:
@@ -21220,7 +21323,13 @@ This will always result in <code>hikari.InteractionMember</code>.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_channel_slash_option</span><span class="p">(</span>
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">types</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span> <span class="o">=</span> <span class="n">_UNDEFINED_DEFAULT</span><span class="p">,</span>
+    <span class="n">pass_as_kwarg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SlashCommandT</span><span class="p">],</span> <span class="n">_SlashCommandT</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Add a channel option to a slash command.</span>
 
@@ -21243,7 +21352,7 @@ This will always result in <code>hikari.InteractionMember</code>.</p>
 <span class="sd">    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]</span>
 <span class="sd">        Decorator callback which adds the option to the command.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_channel_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">add_channel_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">types</span><span class="o">=</span><span class="n">types</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="n">pass_as_kwarg</span><span class="p">)</span>
 </pre></div>
 
         </details>
