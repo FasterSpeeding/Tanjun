@@ -889,8 +889,7 @@ class ShlexParser(AbstractParser):
         SelfT
             This parser to enable chained calls.
         """
-        self.add_parameter(Argument(key, converters=converters, default=default, multi=multi, greedy=greedy))
-        return self
+        return self.add_parameter(Argument(key, converters=converters, default=default, multi=multi, greedy=greedy))
 
     # TODO: add default getter
     def add_option(
@@ -942,10 +941,9 @@ class ShlexParser(AbstractParser):
         SelfT
             This parser to enable chained calls.
         """
-        self.add_parameter(
+        return self.add_parameter(
             Option(key, name, *names, converters=converters, default=default, empty_value=empty_value, multi=multi)
         )
-        return self
 
     def set_parameters(
         self: _ShlexParserT, parameters: collections.Iterable[typing.Union[Argument, Option]], /
