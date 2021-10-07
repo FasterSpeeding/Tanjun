@@ -539,6 +539,9 @@ def with_option(
         The value to use if this option is provided without a value. If left as
         `UNDEFINED_DEFAULT` then this option will error if it's
         provided without a value.
+    multi : bool
+        If this option can be provided multiple times.
+        Defaults to `False`.
 
     Returns
     -------
