@@ -44,7 +44,7 @@ bot = hikari.GatewayBot("BOT_TOKEN")
 # will be managed based on gateway startup and stopping events.
 # mention_prefix=True instructs the client to also set mention prefixes on the
 # first startup.
-client = tanjun.Client.from_gateway_bot(bot, set_global_commands=True, mention_prefix=True)
+client = tanjun.Client.from_gateway_bot(bot, declare_global_commands=True, mention_prefix=True)
 
 component = tanjun.Component()
 client.add_component(component)
@@ -72,10 +72,10 @@ enable slash (interaction) command execution:
 ```py
 bot = hikari.RESTBot("BOT_TOKEN", "Bot")
 
-# set_global_commands=True instructs the client to set the global commands
+# declare_global_commands=True instructs the client to set the global commands
 # for the relevant bot on first startup (this will replace any previously
 # declared commands).
-client = tanjun.Client.from_rest_bot(bot, set_global_commands=True)
+client = tanjun.Client.from_rest_bot(bot, declare_global_commands=True)
 
 # This will load components from modules based on loader functions.
 # For more information on this see `tanjun.as_loader`.

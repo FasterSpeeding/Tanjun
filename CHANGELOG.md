@@ -6,12 +6,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- ShlexParser.add_option and add_argument methods which mirror the behaviour of `with_option` and `with_argument`
 - Fluent interface coverage has been increased to now include remove methods and parsing interfaces.
 - ShlexParser.add_option and add_argument methods which mirror the behaviour of `with_option` and `with_argument`.
 - Support for specifying which channel types you want with slash channel type options.
+- custom_ids argument to both Client.declare_global_commands, Client.__init__ and
+  Client.declare_slash_commands to allow specifying the IDs of commands which are being updated.
+- Let a Sequence of guild ids/objects be passed for Client.__init__'s declare_global_commands parameter
+  (although custom_ids isn't supported in this instance).
 
 ### Changed
 - Bumped minimum hikari version to 2.0.0.dev103.
+
+### Deprecated
+- Calling set_tracked_command with a command ID.
+- Passing command_id to SlashCommand.__init__, SlashCommandGroup.__init__, as_slash_command and
+  as_slash_command_group.
+- Renamed set_global_commands (both the Client method and init parameter) to declare_global_commands.
 
 ### Removed
 - add_converter and remove_converter from Parameter.
