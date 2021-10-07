@@ -345,6 +345,11 @@ def with_argument(
     default : typing.Any
         The default value of this argument, if left as
         `UNDEFINED_DEFAULT` then this will have no default.
+    greedy : bool
+        Whether or not this argument should be greedy (meaning that it
+        takes in the remaining argument values).
+    multi : bool
+        Whether this argument can be passed multiple times.
 
     Returns
     -------
@@ -356,7 +361,7 @@ def with_argument(
     ```python
     import tanjun
 
-    @tanjun.parsing.with_argument("command", converters=(int,), default=42)
+    @tanjun.parsing.with_argument("command", converters=int, default=42)
     @tanjun.parsing.with_parser
     @tanjun.component.as_message_command("command")
     async def command(self, ctx: tanjun.abc.Context, /, argument: int):
@@ -424,7 +429,7 @@ def with_greedy_argument(
     ```python
     import tanjun
 
-    @tanjun.parsing.with_greedy_argument("command", converters=(StringView,))
+    @tanjun.parsing.with_greedy_argument("command", converters=StringView)
     @tanjun.parsing.with_parser
     @tanjun.component.as_message_command("command")
     async def command(self, ctx: tanjun.abc.Context, /, argument: StringView):
@@ -484,7 +489,7 @@ def with_multi_argument(
     ```python
     import tanjun
 
-    @tanjun.parsing.with_multi_argument("command", converters=(int,))
+    @tanjun.parsing.with_multi_argument("command", converters=int)
     @tanjun.parsing.with_parser
     @tanjun.component.as_message_command("command")
     async def command(self, ctx: tanjun.abc.Context, /, argument: collections.abc.Sequence[int]):
@@ -534,6 +539,9 @@ def with_option(
         The value to use if this option is provided without a value. If left as
         `UNDEFINED_DEFAULT` then this option will error if it's
         provided without a value.
+    multi : bool
+        If this option can be provided multiple times.
+        Defaults to `False`.
 
     Returns
     -------
@@ -545,7 +553,7 @@ def with_option(
     ```python
     import tanjun
 
-    @tanjun.parsing.with_option("command", converters=(int,), default=42)
+    @tanjun.parsing.with_option("command", converters=int, default=42)
     @tanjun.parsing.with_parser
     @tanjun.component.as_message_command("command")
     async def command(self, ctx: tanjun.abc.Context, /, argument: int):
@@ -619,7 +627,7 @@ def with_multi_option(
     ```python
     import tanjun
 
-    @tanjun.parsing.with_multi_option("command", converters=(int,), default=())
+    @tanjun.parsing.with_multi_option("command", converters=int, default=())
     @tanjun.parsing.with_parser
     @tanjun.component.as_message_command("command")
     async def command(self, ctx: tanjun.abc.Context, /, argument: collections.abc.Sequence[int]):
@@ -655,10 +663,10 @@ class Parameter:
 
         if isinstance(converters, collections.Iterable):
             for converter in converters:
-                self.add_converter(converter)
+                self._add_converter(converter)
 
         else:
-            self.add_converter(converters)
+            self._add_converter(converters)
 
     def __repr__(self) -> str:
         return f"{type(self).__name__} <{self._key}>"
@@ -676,7 +684,7 @@ class Parameter:
         # TODO: cache this value?
         return any(converter.needs_injector for converter in self._converters)
 
-    def add_converter(self, converter: ConverterSig, /) -> None:
+    def _add_converter(self, converter: ConverterSig, /) -> None:
         if isinstance(converter, conversion.BaseConverter):
             if self._client:
                 converter.check_client(self._client, f"{self._key} parameter")
@@ -687,12 +695,6 @@ class Parameter:
             converter = conversion.InjectableConverter(converter)
 
         self._converters.append(converter)
-
-    def remove_converter(self, converter: ConverterSig, /) -> None:
-        if self._converters is None:
-            raise ValueError("No converters set")
-
-        self._converters.remove(converter)  # type: ignore # reportGeneralTypeIssues
 
     def bind_client(self, client: tanjun_abc.Client, /) -> None:
         self._client = client
@@ -812,7 +814,7 @@ class ShlexParser(AbstractParser):
 
         return copy.copy(self).copy(_new=False)
 
-    def add_parameter(self, parameter: typing.Union[Argument, Option], /) -> None:
+    def add_parameter(self: _ShlexParserT, parameter: typing.Union[Argument, Option], /) -> _ShlexParserT:
         # <<inherited docstring from AbstractParser>>.
         if self._client:
             parameter.bind_client(self._client)
@@ -834,7 +836,9 @@ class ShlexParser(AbstractParser):
 
                 found_final_argument = argument.is_multi or argument.is_greedy
 
-    def remove_parameter(self, parameter: typing.Union[Argument, Option], /) -> None:
+        return self
+
+    def remove_parameter(self: _ShlexParserT, parameter: typing.Union[Argument, Option], /) -> _ShlexParserT:
         # <<inherited docstring AbstractParser>>.
         if isinstance(parameter, Option):
             self._options.remove(parameter)
@@ -842,13 +846,116 @@ class ShlexParser(AbstractParser):
         else:
             self._arguments.remove(parameter)
 
-    def set_parameters(self, parameters: collections.Iterable[typing.Union[Argument, Option]], /) -> None:
+        return self
+
+    def add_argument(
+        self: _ShlexParserT,
+        key: str,
+        /,
+        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
+        *,
+        default: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
+        greedy: bool = False,
+        multi: bool = False,
+    ) -> _ShlexParserT:
+        """Add an argument type parameter to the parser..
+
+        .. note::
+            Order matters for positional arguments.
+
+        Parameters
+        ----------
+        key : str
+            The string identifier of this argument (may be used to pass the result
+            of this argument to the command's callback during execution).
+        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
+            The converter(s) this argument should use to handle values passed to it
+            during parsing.
+
+            If no converters are provided then the raw string value will be passed.
+
+            Only the first converter to pass will be used.
+        default : typing.Any
+            The default value of this argument, if left as
+            `UNDEFINED_DEFAULT` then this will have no default.
+        greedy : bool
+            Whether or not this argument should be greedy (meaning that it
+            takes in the remaining argument values).
+        multi : bool
+            Whether this argument can be passed multiple times.
+
+        Returns
+        -------
+        SelfT
+            This parser to enable chained calls.
+        """
+        return self.add_parameter(Argument(key, converters=converters, default=default, multi=multi, greedy=greedy))
+
+    # TODO: add default getter
+    def add_option(
+        self: _ShlexParserT,
+        key: str,
+        name: str,
+        /,
+        *names: str,
+        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
+        default: typing.Any,
+        empty_value: typing.Union[typing.Any, UndefinedDefaultT] = UNDEFINED_DEFAULT,
+        multi: bool = False,
+    ) -> _ShlexParserT:
+        """Add an option type parameter to this parser.
+
+        Parameters
+        ----------
+        key : str
+            The string identifier of this option which will be used to pass the
+            result of this argument to the command's callback during execution as
+            a keyword argument.
+        name : str
+            The name of this option used for identifying it in the parsed content.
+        default : typing.Any
+            The default value of this argument, unlike arguments this is required
+            for options.
+
+        Other Parameters
+        ----------------
+        *names : str
+            Other names of this option used for identifying it in the parsed content.
+        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]
+            The converter(s) this argument should use to handle values passed to it
+            during parsing.
+
+            If no converters are provided then the raw string value will be passed.
+
+            Only the first converter to pass will be used.
+        empty_value : typing.Any
+            The value to use if this option is provided without a value. If left as
+            `UNDEFINED_DEFAULT` then this option will error if it's
+            provided without a value.
+        multi : bool
+            If this option can be provided multiple times.
+            Defaults to `False`.
+
+        Returns
+        -------
+        SelfT
+            This parser to enable chained calls.
+        """
+        return self.add_parameter(
+            Option(key, name, *names, converters=converters, default=default, empty_value=empty_value, multi=multi)
+        )
+
+    def set_parameters(
+        self: _ShlexParserT, parameters: collections.Iterable[typing.Union[Argument, Option]], /
+    ) -> _ShlexParserT:
         # <<inherited docstring from AbstractParser>>.
         self._arguments = []
         self._options = []
 
         for parameter in parameters:
             self.add_parameter(parameter)
+
+        return self
 
     def bind_client(self, client: tanjun_abc.Client, /) -> None:
         # <<inherited docstring from AbstractParser>>.
