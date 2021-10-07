@@ -435,6 +435,30 @@ def test_with_member_slash_option_with_defaults():
     mock_command.add_member_option.assert_called_once_with("no", "hihihi?", default=tanjun.commands._UNDEFINED_DEFAULT)
 
 
+def test_with_channel_slash_option():
+    mock_command = mock.MagicMock()
+
+    result = tanjun.with_channel_slash_option(
+        "channel", "channel?", types=(hikari.GuildCategory, hikari.TextableChannel), default=333, pass_as_kwarg=False
+    )(mock_command)
+
+    assert result is mock_command.add_channel_option.return_value
+    mock_command.add_channel_option.assert_called_once_with(
+        "channel", "channel?", types=(hikari.GuildCategory, hikari.TextableChannel), default=333, pass_as_kwarg=False
+    )
+
+
+def test_with_channel_slash_option_with_defaults():
+    mock_command = mock.MagicMock()
+
+    result = tanjun.with_channel_slash_option("channel", "channel?")(mock_command)
+
+    assert result is mock_command.add_channel_option.return_value
+    mock_command.add_channel_option.assert_called_once_with(
+        "channel", "channel?", types=None, default=tanjun.commands._UNDEFINED_DEFAULT, pass_as_kwarg=True
+    )
+
+
 def test_with_role_slash_option():
     mock_command = mock.MagicMock()
 
@@ -1398,6 +1422,7 @@ class TestSlashCommand:
         assert option.options is None
         assert option.type is hikari.OptionType.CHANNEL
         assert option.choices is None
+        assert option.channel_types is None
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1406,6 +1431,33 @@ class TestSlashCommand:
         assert tracked.converters == []
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
+
+    @pytest.mark.parametrize(
+        ("classes", "int_types"),
+        [
+            ([hikari.TextableGuildChannel], [hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS]),
+            (
+                [hikari.TextableGuildChannel, hikari.GuildNewsChannel],
+                [hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS],
+            ),
+            ([hikari.GuildVoiceChannel], [hikari.ChannelType.GUILD_VOICE]),
+            (
+                [hikari.GuildVoiceChannel, hikari.GuildStageChannel, hikari.GuildNewsChannel],
+                [hikari.ChannelType.GUILD_VOICE, hikari.ChannelType.GUILD_NEWS, hikari.ChannelType.GUILD_STAGE],
+            ),
+            ([], None),
+        ],
+    )
+    def test_add_channel_option_types_behaviour(
+        self,
+        command: tanjun.SlashCommand[typing.Any],
+        classes: list[type[hikari.PartialChannel]],
+        int_types: typing.Optional[list[int]],
+    ):
+        command.add_channel_option("channel", "chaaa", types=classes)
+
+        option = command.build().options[0]
+        assert option.channel_types == int_types
 
     def test_add_channel_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_channel_option("dsds", "www", pass_as_kwarg=False)

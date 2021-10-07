@@ -593,7 +593,13 @@ for _channel_cls, _types in _channel_types.copy().items():
 
 
 def with_channel_slash_option(
-    name: str, description: str, /, *, default: typing.Any = _UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
+    name: str,
+    description: str,
+    /,
+    *,
+    types: collections.Collection[type[hikari.PartialChannel]] | None = None,
+    default: typing.Any = _UNDEFINED_DEFAULT,
+    pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a channel option to a slash command.
 
@@ -616,7 +622,7 @@ def with_channel_slash_option(
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    return lambda c: c.add_channel_option(name, description, default=default, pass_as_kwarg=pass_as_kwarg)
+    return lambda c: c.add_channel_option(name, description, types=types, default=default, pass_as_kwarg=pass_as_kwarg)
 
 
 def with_role_slash_option(
