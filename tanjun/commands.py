@@ -530,7 +530,7 @@ def with_user_slash_option(
     Examples
     --------
     ```py
-    @with_channel_slash_option("user", "user to target.")
+    @with_user_slash_option("user", "user to target.")
     @as_slash_command("command", "A command")
     async def command(self, ctx: tanjun.abc.SlashContext, user: Union[InteractionMember, User]) -> None:
         ...
@@ -557,7 +557,7 @@ def with_member_slash_option(
     Examples
     --------
     ```py
-    @with_channel_slash_option("member", "member to target.")
+    @with_member_slash_option("member", "member to target.")
     @as_slash_command("command", "A command")
     async def command(self, ctx: tanjun.abc.SlashContext, member: hikari.InteractionMember) -> None:
         ...
@@ -571,8 +571,35 @@ def with_member_slash_option(
     return lambda c: c.add_member_option(name, description, default=default)
 
 
+_channel_types: dict[type[hikari.PartialChannel], set[hikari.ChannelType]] = {
+    hikari.GuildTextChannel: {hikari.ChannelType.GUILD_TEXT},
+    hikari.DMChannel: {hikari.ChannelType.DM},
+    hikari.GuildVoiceChannel: {hikari.ChannelType.GUILD_VOICE},
+    hikari.GroupDMChannel: {hikari.ChannelType.GROUP_DM},
+    hikari.GuildCategory: {hikari.ChannelType.GUILD_CATEGORY},
+    hikari.GuildNewsChannel: {hikari.ChannelType.GUILD_NEWS},
+    hikari.GuildStoreChannel: {hikari.ChannelType.GUILD_STORE},
+    hikari.GuildStageChannel: {hikari.ChannelType.GUILD_STAGE},
+}
+
+
+for _channel_cls, _types in _channel_types.copy().items():
+    for _mro_type in _channel_cls.mro():
+        if isinstance(_mro_type, type) and issubclass(_mro_type, hikari.PartialChannel):
+            try:
+                _channel_types[_mro_type].update(_types)
+            except KeyError:
+                _channel_types[_mro_type] = _types.copy()
+
+
 def with_channel_slash_option(
-    name: str, description: str, /, *, default: typing.Any = _UNDEFINED_DEFAULT, pass_as_kwarg: bool = True
+    name: str,
+    description: str,
+    /,
+    *,
+    types: collections.Collection[type[hikari.PartialChannel]] | None = None,
+    default: typing.Any = _UNDEFINED_DEFAULT,
+    pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a channel option to a slash command.
 
@@ -595,7 +622,7 @@ def with_channel_slash_option(
     collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
         Decorator callback which adds the option to the command.
     """
-    return lambda c: c.add_channel_option(name, description, default=default, pass_as_kwarg=pass_as_kwarg)
+    return lambda c: c.add_channel_option(name, description, types=types, default=default, pass_as_kwarg=pass_as_kwarg)
 
 
 def with_role_slash_option(
@@ -1116,6 +1143,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         /,
         *,
         always_float: bool = False,
+        channel_types: typing.Optional[collections.Sequence[int]] = None,
         choices: typing.Optional[collections.Iterable[tuple[str, typing.Union[str, int, float]]]] = None,
         converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
         default: typing.Any = _UNDEFINED_DEFAULT,
@@ -1152,7 +1180,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
         required = default is _UNDEFINED_DEFAULT
         self._builder.add_option(
-            hikari.CommandOption(type=type_, name=name, description=description, is_required=required, choices=choices_)
+            hikari.CommandOption(
+                type=type_,
+                name=name,
+                description=description,
+                is_required=required,
+                choices=choices_,
+                channel_types=channel_types,
+            )
         )
         if pass_as_kwarg:
             self._tracked_options[name] = _TrackedOption(
@@ -1556,6 +1591,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         /,
         *,
         default: typing.Any = _UNDEFINED_DEFAULT,
+        types: typing.Optional[collections.Collection[type[hikari.PartialChannel]]] = None,
         pass_as_kwarg: bool = True,
     ) -> _SlashCommandT:
         """Add a channel option to a slash command.
@@ -1596,9 +1632,27 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
+            * If an invalid type is passed in `types`.
         """
+        import itertools
+
+        if types:
+            try:
+                channel_types = list(set(itertools.chain.from_iterable(map(_channel_types.__getitem__, types))))
+
+            except KeyError as exc:
+                raise ValueError(f"Unknown channel type {exc.args[0]}") from exc
+
+        else:
+            channel_types = None
+
         return self._add_option(
-            name, description, hikari.OptionType.CHANNEL, default=default, pass_as_kwarg=pass_as_kwarg
+            name,
+            description,
+            hikari.OptionType.CHANNEL,
+            channel_types=channel_types,
+            default=default,
+            pass_as_kwarg=pass_as_kwarg,
         )
 
     def add_role_option(
