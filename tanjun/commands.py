@@ -1632,6 +1632,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             * If the option name doesn't match the regex `^[a-z0-9_-]{1,32}$`.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
+            * If an invalid type is passed in `types`.
         """
         import itertools
 

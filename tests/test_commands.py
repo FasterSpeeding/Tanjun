@@ -1459,6 +1459,10 @@ class TestSlashCommand:
         option = command.build().options[0]
         assert option.channel_types == int_types
 
+    def test_add_channel_option_with_invalid_type(self, command: tanjun.SlashCommand[typing.Any]):
+        with pytest.raises(ValueError, match="Unknown channel type <class 'bool'>"):
+            command.add_channel_option("channel", "chaaa", types=(bool,))  # type: ignore
+
     def test_add_channel_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_channel_option("dsds", "www", pass_as_kwarg=False)
 
