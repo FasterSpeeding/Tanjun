@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Fluent interface coverage has been increased to now include remove methods and parsing interfaces.
 - ShlexParser.add_option and add_argument methods which mirror the behaviour of `with_option` and `with_argument`.
+- Support for specifying which channel types you want with slash channel type options.
+
+### Changed
+- Bumped minimum hikari version to 2.0.0.dev103.
 
 ### Removed
 - add_converter and remove_converter from Parameter.
