@@ -1235,6 +1235,12 @@
                                 <a class="function" href="#ShlexParser.remove_parameter">remove_parameter</a>
                         </li>
                         <li>
+                                <a class="function" href="#ShlexParser.add_argument">add_argument</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ShlexParser.add_option">add_option</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#ShlexParser.set_parameters">set_parameters</a>
                         </li>
                         <li>
@@ -35183,6 +35189,11 @@ For example, a generic mapping type might be defined as::</p>
 <span class="sd">    default : typing.Any</span>
 <span class="sd">        The default value of this argument, if left as</span>
 <span class="sd">        `UNDEFINED_DEFAULT` then this will have no default.</span>
+<span class="sd">    greedy : bool</span>
+<span class="sd">        Whether or not this argument should be greedy (meaning that it</span>
+<span class="sd">        takes in the remaining argument values).</span>
+<span class="sd">    multi : bool</span>
+<span class="sd">        Whether this argument can be passed multiple times.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -35194,7 +35205,7 @@ For example, a generic mapping type might be defined as::</p>
 <span class="sd">    ```python</span>
 <span class="sd">    import tanjun</span>
 
-<span class="sd">    @tanjun.parsing.with_argument(&quot;command&quot;, converters=(int,), default=42)</span>
+<span class="sd">    @tanjun.parsing.with_argument(&quot;command&quot;, converters=int, default=42)</span>
 <span class="sd">    @tanjun.parsing.with_parser</span>
 <span class="sd">    @tanjun.component.as_message_command(&quot;command&quot;)</span>
 <span class="sd">    async def command(self, ctx: tanjun.abc.Context, /, argument: int):</span>
@@ -35262,7 +35273,7 @@ For example, a generic mapping type might be defined as::</p>
 <span class="sd">    ```python</span>
 <span class="sd">    import tanjun</span>
 
-<span class="sd">    @tanjun.parsing.with_greedy_argument(&quot;command&quot;, converters=(StringView,))</span>
+<span class="sd">    @tanjun.parsing.with_greedy_argument(&quot;command&quot;, converters=StringView)</span>
 <span class="sd">    @tanjun.parsing.with_parser</span>
 <span class="sd">    @tanjun.component.as_message_command(&quot;command&quot;)</span>
 <span class="sd">    async def command(self, ctx: tanjun.abc.Context, /, argument: StringView):</span>
@@ -35322,7 +35333,7 @@ For example, a generic mapping type might be defined as::</p>
 <span class="sd">    ```python</span>
 <span class="sd">    import tanjun</span>
 
-<span class="sd">    @tanjun.parsing.with_multi_argument(&quot;command&quot;, converters=(int,))</span>
+<span class="sd">    @tanjun.parsing.with_multi_argument(&quot;command&quot;, converters=int)</span>
 <span class="sd">    @tanjun.parsing.with_parser</span>
 <span class="sd">    @tanjun.component.as_message_command(&quot;command&quot;)</span>
 <span class="sd">    async def command(self, ctx: tanjun.abc.Context, /, argument: collections.abc.Sequence[int]):</span>
@@ -35372,6 +35383,9 @@ For example, a generic mapping type might be defined as::</p>
 <span class="sd">        The value to use if this option is provided without a value. If left as</span>
 <span class="sd">        `UNDEFINED_DEFAULT` then this option will error if it&#39;s</span>
 <span class="sd">        provided without a value.</span>
+<span class="sd">    multi : bool</span>
+<span class="sd">        If this option can be provided multiple times.</span>
+<span class="sd">        Defaults to `False`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -35383,7 +35397,7 @@ For example, a generic mapping type might be defined as::</p>
 <span class="sd">    ```python</span>
 <span class="sd">    import tanjun</span>
 
-<span class="sd">    @tanjun.parsing.with_option(&quot;command&quot;, converters=(int,), default=42)</span>
+<span class="sd">    @tanjun.parsing.with_option(&quot;command&quot;, converters=int, default=42)</span>
 <span class="sd">    @tanjun.parsing.with_parser</span>
 <span class="sd">    @tanjun.component.as_message_command(&quot;command&quot;)</span>
 <span class="sd">    async def command(self, ctx: tanjun.abc.Context, /, argument: int):</span>
@@ -35457,7 +35471,7 @@ For example, a generic mapping type might be defined as::</p>
 <span class="sd">    ```python</span>
 <span class="sd">    import tanjun</span>
 
-<span class="sd">    @tanjun.parsing.with_multi_option(&quot;command&quot;, converters=(int,), default=())</span>
+<span class="sd">    @tanjun.parsing.with_multi_option(&quot;command&quot;, converters=int, default=())</span>
 <span class="sd">    @tanjun.parsing.with_parser</span>
 <span class="sd">    @tanjun.component.as_message_command(&quot;command&quot;)</span>
 <span class="sd">    async def command(self, ctx: tanjun.abc.Context, /, argument: collections.abc.Sequence[int]):</span>
@@ -35493,10 +35507,10 @@ For example, a generic mapping type might be defined as::</p>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converters</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="n">converters</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_converter</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add_converter</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_converter</span><span class="p">(</span><span class="n">converters</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_converter</span><span class="p">(</span><span class="n">converters</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> &lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_key</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
@@ -35514,7 +35528,7 @@ For example, a generic mapping type might be defined as::</p>
         <span class="c1"># TODO: cache this value?</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">converter</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">add_converter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">converter</span><span class="p">:</span> <span class="n">ConverterSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_add_converter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">converter</span><span class="p">:</span> <span class="n">ConverterSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">converter</span><span class="p">,</span> <span class="n">conversion</span><span class="o">.</span><span class="n">BaseConverter</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
                 <span class="n">converter</span><span class="o">.</span><span class="n">check_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_key</span><span class="si">}</span><span class="s2"> parameter&quot;</span><span class="p">)</span>
@@ -35525,12 +35539,6 @@ For example, a generic mapping type might be defined as::</p>
             <span class="n">converter</span> <span class="o">=</span> <span class="n">conversion</span><span class="o">.</span><span class="n">InjectableConverter</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">remove_converter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">converter</span><span class="p">:</span> <span class="n">ConverterSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No converters set&quot;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_converters</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>  <span class="c1"># type: ignore # reportGeneralTypeIssues</span>
 
     <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
@@ -35650,7 +35658,7 @@ For example, a generic mapping type might be defined as::</p>
 
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">add_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="n">parameter</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
@@ -35672,7 +35680,9 @@ For example, a generic mapping type might be defined as::</p>
 
                 <span class="n">found_final_argument</span> <span class="o">=</span> <span class="n">argument</span><span class="o">.</span><span class="n">is_multi</span> <span class="ow">or</span> <span class="n">argument</span><span class="o">.</span><span class="n">is_greedy</span>
 
-    <span class="k">def</span> <span class="nf">remove_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">remove_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring AbstractParser&gt;&gt;.</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">Option</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
@@ -35680,13 +35690,116 @@ For example, a generic mapping type might be defined as::</p>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">set_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">add_argument</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add an argument type parameter to the parser..</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Order matters for positional arguments.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this argument (may be used to pass the result</span>
+<span class="sd">            of this argument to the command&#39;s callback during execution).</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, if left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this will have no default.</span>
+<span class="sd">        greedy : bool</span>
+<span class="sd">            Whether or not this argument should be greedy (meaning that it</span>
+<span class="sd">            takes in the remaining argument values).</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            Whether this argument can be passed multiple times.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This parser to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_parameter</span><span class="p">(</span><span class="n">Argument</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="n">greedy</span><span class="p">))</span>
+
+    <span class="c1"># TODO: add default getter</span>
+    <span class="k">def</span> <span class="nf">add_option</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
+        <span class="n">empty_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add an option type parameter to this parser.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this option which will be used to pass the</span>
+<span class="sd">            result of this argument to the command&#39;s callback during execution as</span>
+<span class="sd">            a keyword argument.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name of this option used for identifying it in the parsed content.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, unlike arguments this is required</span>
+<span class="sd">            for options.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        *names : str</span>
+<span class="sd">            Other names of this option used for identifying it in the parsed content.</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        empty_value : typing.Any</span>
+<span class="sd">            The value to use if this option is provided without a value. If left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this option will error if it&#39;s</span>
+<span class="sd">            provided without a value.</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            If this option can be provided multiple times.</span>
+<span class="sd">            Defaults to `False`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This parser to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_parameter</span><span class="p">(</span>
+            <span class="n">Option</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">empty_value</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_parameters</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_parameter</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
@@ -35802,8 +35915,6 @@ For example, a generic mapping type might be defined as::</p>
                 <dd id="Argument.converters" class="variable"><a href="tanjun/parsing.html#Parameter.converters">converters</a></dd>
                 <dd id="Argument.key" class="variable"><a href="tanjun/parsing.html#Parameter.key">key</a></dd>
                 <dd id="Argument.needs_injector" class="variable"><a href="tanjun/parsing.html#Parameter.needs_injector">needs_injector</a></dd>
-                <dd id="Argument.add_converter" class="function"><a href="tanjun/parsing.html#Parameter.add_converter">add_converter</a></dd>
-                <dd id="Argument.remove_converter" class="function"><a href="tanjun/parsing.html#Parameter.remove_converter">remove_converter</a></dd>
                 <dd id="Argument.bind_client" class="function"><a href="tanjun/parsing.html#Parameter.bind_client">bind_client</a></dd>
                 <dd id="Argument.bind_component" class="function"><a href="tanjun/parsing.html#Parameter.bind_component">bind_component</a></dd>
                 <dd id="Argument.convert" class="function"><a href="tanjun/parsing.html#Parameter.convert">convert</a></dd>
@@ -35936,8 +36047,6 @@ For example, a generic mapping type might be defined as::</p>
                 <dd id="Option.converters" class="variable"><a href="tanjun/parsing.html#Parameter.converters">converters</a></dd>
                 <dd id="Option.key" class="variable"><a href="tanjun/parsing.html#Parameter.key">key</a></dd>
                 <dd id="Option.needs_injector" class="variable"><a href="tanjun/parsing.html#Parameter.needs_injector">needs_injector</a></dd>
-                <dd id="Option.add_converter" class="function"><a href="tanjun/parsing.html#Parameter.add_converter">add_converter</a></dd>
-                <dd id="Option.remove_converter" class="function"><a href="tanjun/parsing.html#Parameter.remove_converter">remove_converter</a></dd>
                 <dd id="Option.bind_client" class="function"><a href="tanjun/parsing.html#Parameter.bind_client">bind_client</a></dd>
                 <dd id="Option.bind_component" class="function"><a href="tanjun/parsing.html#Parameter.bind_component">bind_component</a></dd>
                 <dd id="Option.convert" class="function"><a href="tanjun/parsing.html#Parameter.convert">convert</a></dd>
@@ -35992,7 +36101,7 @@ For example, a generic mapping type might be defined as::</p>
 
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">add_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="n">parameter</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
@@ -36014,7 +36123,9 @@ For example, a generic mapping type might be defined as::</p>
 
                 <span class="n">found_final_argument</span> <span class="o">=</span> <span class="n">argument</span><span class="o">.</span><span class="n">is_multi</span> <span class="ow">or</span> <span class="n">argument</span><span class="o">.</span><span class="n">is_greedy</span>
 
-    <span class="k">def</span> <span class="nf">remove_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">remove_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring AbstractParser&gt;&gt;.</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">Option</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
@@ -36022,13 +36133,116 @@ For example, a generic mapping type might be defined as::</p>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">set_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">add_argument</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add an argument type parameter to the parser..</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Order matters for positional arguments.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this argument (may be used to pass the result</span>
+<span class="sd">            of this argument to the command&#39;s callback during execution).</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, if left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this will have no default.</span>
+<span class="sd">        greedy : bool</span>
+<span class="sd">            Whether or not this argument should be greedy (meaning that it</span>
+<span class="sd">            takes in the remaining argument values).</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            Whether this argument can be passed multiple times.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This parser to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_parameter</span><span class="p">(</span><span class="n">Argument</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="n">greedy</span><span class="p">))</span>
+
+    <span class="c1"># TODO: add default getter</span>
+    <span class="k">def</span> <span class="nf">add_option</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
+        <span class="n">empty_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add an option type parameter to this parser.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this option which will be used to pass the</span>
+<span class="sd">            result of this argument to the command&#39;s callback during execution as</span>
+<span class="sd">            a keyword argument.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name of this option used for identifying it in the parsed content.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, unlike arguments this is required</span>
+<span class="sd">            for options.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        *names : str</span>
+<span class="sd">            Other names of this option used for identifying it in the parsed content.</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        empty_value : typing.Any</span>
+<span class="sd">            The value to use if this option is provided without a value. If left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this option will error if it&#39;s</span>
+<span class="sd">            provided without a value.</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            If this option can be provided multiple times.</span>
+<span class="sd">            Defaults to `False`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This parser to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_parameter</span><span class="p">(</span>
+            <span class="n">Option</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">empty_value</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_parameters</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_parameter</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
@@ -36133,15 +36347,15 @@ For example, a generic mapping type might be defined as::</p>
         
             <span class="def">def</span>
             <span class="name">add_parameter</span><span class="signature">(
-    self,
+    self: ~_ShlexParserT,
     parameter: Union[<a href="tanjun/parsing.html#Argument">tanjun.parsing.Argument</a>, <a href="tanjun/parsing.html#Option">tanjun.parsing.Option</a>],
     /
-) -&gt; None</span>:
+) -&gt; ~_ShlexParserT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="n">parameter</span><span class="o">.</span><span class="n">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
@@ -36162,6 +36376,8 @@ For example, a generic mapping type might be defined as::</p>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Multi or greedy argument must be the last argument&quot;</span><span class="p">)</span>
 
                 <span class="n">found_final_argument</span> <span class="o">=</span> <span class="n">argument</span><span class="o">.</span><span class="n">is_multi</span> <span class="ow">or</span> <span class="n">argument</span><span class="o">.</span><span class="n">is_greedy</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
@@ -36175,21 +36391,23 @@ For example, a generic mapping type might be defined as::</p>
         
             <span class="def">def</span>
             <span class="name">remove_parameter</span><span class="signature">(
-    self,
+    self: ~_ShlexParserT,
     parameter: Union[<a href="tanjun/parsing.html#Argument">tanjun.parsing.Argument</a>, <a href="tanjun/parsing.html#Option">tanjun.parsing.Option</a>],
     /
-) -&gt; None</span>:
+) -&gt; ~_ShlexParserT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring AbstractParser&gt;&gt;.</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">Option</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
@@ -36197,23 +36415,255 @@ For example, a generic mapping type might be defined as::</p>
     
 
                             </div>
+                            <div id="ShlexParser.add_argument" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#ShlexParser.add_argument">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">add_argument</span><span class="signature">(
+    self: ~_ShlexParserT,
+    key: str,
+    /,
+    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    *,
+    default: Union[Any, <a href="tanjun/parsing.html#UndefinedDefaultT">tanjun.parsing.UndefinedDefaultT</a>] = UNDEFINED_DEFAULT,
+    greedy: bool = False,
+    multi: bool = False
+) -&gt; ~_ShlexParserT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_argument</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add an argument type parameter to the parser..</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Order matters for positional arguments.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this argument (may be used to pass the result</span>
+<span class="sd">            of this argument to the command&#39;s callback during execution).</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, if left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this will have no default.</span>
+<span class="sd">        greedy : bool</span>
+<span class="sd">            Whether or not this argument should be greedy (meaning that it</span>
+<span class="sd">            takes in the remaining argument values).</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            Whether this argument can be passed multiple times.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This parser to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_parameter</span><span class="p">(</span><span class="n">Argument</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="n">greedy</span><span class="p">))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add an argument type parameter to the parser..</p>
+
+<p><em>Note:</em>
+Order matters for positional arguments.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>key</strong> (str):
+The string identifier of this argument (may be used to pass the result
+of this argument to the command's callback during execution).</li>
+<li><p><strong>converters</strong> (typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]):
+The converter(s) this argument should use to handle values passed to it
+during parsing.</p>
+
+<p>If no converters are provided then the raw string value will be passed.</p>
+
+<p>Only the first converter to pass will be used.</p></li>
+<li><strong>default</strong> (typing.Any):
+The default value of this argument, if left as
+<code>UNDEFINED_DEFAULT</code> then this will have no default.</li>
+<li><strong>greedy</strong> (bool):
+Whether or not this argument should be greedy (meaning that it
+takes in the remaining argument values).</li>
+<li><strong>multi</strong> (bool):
+Whether this argument can be passed multiple times.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>SelfT</strong>: This parser to enable chained calls.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="ShlexParser.add_option" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#ShlexParser.add_option">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">add_option</span><span class="signature">(
+    self: ~_ShlexParserT,
+    key: str,
+    name: str,
+    /,
+    *names: str,
+    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
+    default: Any,
+    empty_value: Union[Any, <a href="tanjun/parsing.html#UndefinedDefaultT">tanjun.parsing.UndefinedDefaultT</a>] = UNDEFINED_DEFAULT,
+    multi: bool = False
+) -&gt; ~_ShlexParserT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_option</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
+        <span class="n">empty_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
+        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add an option type parameter to this parser.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            The string identifier of this option which will be used to pass the</span>
+<span class="sd">            result of this argument to the command&#39;s callback during execution as</span>
+<span class="sd">            a keyword argument.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name of this option used for identifying it in the parsed content.</span>
+<span class="sd">        default : typing.Any</span>
+<span class="sd">            The default value of this argument, unlike arguments this is required</span>
+<span class="sd">            for options.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        *names : str</span>
+<span class="sd">            Other names of this option used for identifying it in the parsed content.</span>
+<span class="sd">        converters : typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]</span>
+<span class="sd">            The converter(s) this argument should use to handle values passed to it</span>
+<span class="sd">            during parsing.</span>
+
+<span class="sd">            If no converters are provided then the raw string value will be passed.</span>
+
+<span class="sd">            Only the first converter to pass will be used.</span>
+<span class="sd">        empty_value : typing.Any</span>
+<span class="sd">            The value to use if this option is provided without a value. If left as</span>
+<span class="sd">            `UNDEFINED_DEFAULT` then this option will error if it&#39;s</span>
+<span class="sd">            provided without a value.</span>
+<span class="sd">        multi : bool</span>
+<span class="sd">            If this option can be provided multiple times.</span>
+<span class="sd">            Defaults to `False`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This parser to enable chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_parameter</span><span class="p">(</span>
+            <span class="n">Option</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">empty_value</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">)</span>
+        <span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add an option type parameter to this parser.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>key</strong> (str):
+The string identifier of this option which will be used to pass the
+result of this argument to the command's callback during execution as
+a keyword argument.</li>
+<li><strong>name</strong> (str):
+The name of this option used for identifying it in the parsed content.</li>
+<li><strong>default</strong> (typing.Any):
+The default value of this argument, unlike arguments this is required
+for options.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>*names</strong> (str):
+Other names of this option used for identifying it in the parsed content.</li>
+<li><p><strong>converters</strong> (typing.Union[ConverterSig, collections.abc.Iterable[ConverterSig]]):
+The converter(s) this argument should use to handle values passed to it
+during parsing.</p>
+
+<p>If no converters are provided then the raw string value will be passed.</p>
+
+<p>Only the first converter to pass will be used.</p></li>
+<li><strong>empty_value</strong> (typing.Any):
+The value to use if this option is provided without a value. If left as
+<code>UNDEFINED_DEFAULT</code> then this option will error if it's
+provided without a value.</li>
+<li><strong>multi</strong> (bool):
+If this option can be provided multiple times.
+Defaults to <code>False</code>.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>SelfT</strong>: This parser to enable chained calls.</li>
+</ul>
+</div>
+
+
+                            </div>
                             <div id="ShlexParser.set_parameters" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#ShlexParser.set_parameters">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">set_parameters</span><span class="signature">(self, parameters: collections.abc.Iterable, /) -&gt; None</span>:
+            <span class="name">set_parameters</span><span class="signature">(
+    self: ~_ShlexParserT,
+    parameters: collections.abc.Iterable,
+    /
+) -&gt; ~_ShlexParserT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_parameters</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ShlexParserT</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">Argument</span><span class="p">,</span> <span class="n">Option</span><span class="p">]],</span> <span class="o">/</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ShlexParserT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from AbstractParser&gt;&gt;.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arguments</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_parameter</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
@@ -36343,6 +36793,11 @@ For example, a generic mapping type might be defined as::</p>
 <span class="sd">    default : typing.Any</span>
 <span class="sd">        The default value of this argument, if left as</span>
 <span class="sd">        `UNDEFINED_DEFAULT` then this will have no default.</span>
+<span class="sd">    greedy : bool</span>
+<span class="sd">        Whether or not this argument should be greedy (meaning that it</span>
+<span class="sd">        takes in the remaining argument values).</span>
+<span class="sd">    multi : bool</span>
+<span class="sd">        Whether this argument can be passed multiple times.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -36354,7 +36809,7 @@ For example, a generic mapping type might be defined as::</p>
 <span class="sd">    ```python</span>
 <span class="sd">    import tanjun</span>
 
-<span class="sd">    @tanjun.parsing.with_argument(&quot;command&quot;, converters=(int,), default=42)</span>
+<span class="sd">    @tanjun.parsing.with_argument(&quot;command&quot;, converters=int, default=42)</span>
 <span class="sd">    @tanjun.parsing.with_parser</span>
 <span class="sd">    @tanjun.component.as_message_command(&quot;command&quot;)</span>
 <span class="sd">    async def command(self, ctx: tanjun.abc.Context, /, argument: int):</span>
@@ -36399,6 +36854,11 @@ during parsing.</p>
 <li><strong>default</strong> (typing.Any):
 The default value of this argument, if left as
 <code>UNDEFINED_DEFAULT</code> then this will have no default.</li>
+<li><strong>greedy</strong> (bool):
+Whether or not this argument should be greedy (meaning that it
+takes in the remaining argument values).</li>
+<li><strong>multi</strong> (bool):
+Whether this argument can be passed multiple times.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -36411,7 +36871,7 @@ The default value of this argument, if left as
 
 <div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
 
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_argument</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">,),</span> <span class="n">default</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_argument</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
@@ -36486,7 +36946,7 @@ The default value of this argument, if left as
 <span class="sd">    ```python</span>
 <span class="sd">    import tanjun</span>
 
-<span class="sd">    @tanjun.parsing.with_greedy_argument(&quot;command&quot;, converters=(StringView,))</span>
+<span class="sd">    @tanjun.parsing.with_greedy_argument(&quot;command&quot;, converters=StringView)</span>
 <span class="sd">    @tanjun.parsing.with_parser</span>
 <span class="sd">    @tanjun.component.as_message_command(&quot;command&quot;)</span>
 <span class="sd">    async def command(self, ctx: tanjun.abc.Context, /, argument: StringView):</span>
@@ -36546,7 +37006,7 @@ The default value of this argument, if left as
 
 <div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
 
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_greedy_argument</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(</span><span class="n">StringView</span><span class="p">,))</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_greedy_argument</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">StringView</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">StringView</span><span class="p">):</span>
@@ -36622,7 +37082,7 @@ The default value of this argument, if left as
 <span class="sd">    ```python</span>
 <span class="sd">    import tanjun</span>
 
-<span class="sd">    @tanjun.parsing.with_multi_argument(&quot;command&quot;, converters=(int,))</span>
+<span class="sd">    @tanjun.parsing.with_multi_argument(&quot;command&quot;, converters=int)</span>
 <span class="sd">    @tanjun.parsing.with_parser</span>
 <span class="sd">    @tanjun.component.as_message_command(&quot;command&quot;)</span>
 <span class="sd">    async def command(self, ctx: tanjun.abc.Context, /, argument: collections.abc.Sequence[int]):</span>
@@ -36683,7 +37143,7 @@ The default value of this argument, if left as
 
 <div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
 
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_multi_argument</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">,))</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_multi_argument</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
@@ -36751,6 +37211,9 @@ The default value of this argument, if left as
 <span class="sd">        The value to use if this option is provided without a value. If left as</span>
 <span class="sd">        `UNDEFINED_DEFAULT` then this option will error if it&#39;s</span>
 <span class="sd">        provided without a value.</span>
+<span class="sd">    multi : bool</span>
+<span class="sd">        If this option can be provided multiple times.</span>
+<span class="sd">        Defaults to `False`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -36762,7 +37225,7 @@ The default value of this argument, if left as
 <span class="sd">    ```python</span>
 <span class="sd">    import tanjun</span>
 
-<span class="sd">    @tanjun.parsing.with_option(&quot;command&quot;, converters=(int,), default=42)</span>
+<span class="sd">    @tanjun.parsing.with_option(&quot;command&quot;, converters=int, default=42)</span>
 <span class="sd">    @tanjun.parsing.with_parser</span>
 <span class="sd">    @tanjun.component.as_message_command(&quot;command&quot;)</span>
 <span class="sd">    async def command(self, ctx: tanjun.abc.Context, /, argument: int):</span>
@@ -36815,6 +37278,9 @@ during parsing.</p>
 The value to use if this option is provided without a value. If left as
 <code>UNDEFINED_DEFAULT</code> then this option will error if it's
 provided without a value.</li>
+<li><strong>multi</strong> (bool):
+If this option can be provided multiple times.
+Defaults to <code>False</code>.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -36827,7 +37293,7 @@ provided without a value.</li>
 
 <div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
 
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_option</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">,),</span> <span class="n">default</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_option</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
@@ -36910,7 +37376,7 @@ provided without a value.</li>
 <span class="sd">    ```python</span>
 <span class="sd">    import tanjun</span>
 
-<span class="sd">    @tanjun.parsing.with_multi_option(&quot;command&quot;, converters=(int,), default=())</span>
+<span class="sd">    @tanjun.parsing.with_multi_option(&quot;command&quot;, converters=int, default=())</span>
 <span class="sd">    @tanjun.parsing.with_parser</span>
 <span class="sd">    @tanjun.component.as_message_command(&quot;command&quot;)</span>
 <span class="sd">    async def command(self, ctx: tanjun.abc.Context, /, argument: collections.abc.Sequence[int]):</span>
@@ -36972,7 +37438,7 @@ provided without a value.</li>
 
 <div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
 
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_multi_option</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">,),</span> <span class="n">default</span><span class="o">=</span><span class="p">())</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_multi_option</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">())</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">parsing</span><span class="o">.</span><span class="n">with_parser</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
