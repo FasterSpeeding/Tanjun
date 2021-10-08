@@ -1149,6 +1149,7 @@
                 <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">embed</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">)</span>
                 <span class="n">embeds</span> <span class="o">=</span> <span class="p">(</span><span class="n">embed</span><span class="p">,)</span>
 
+            <span class="n">content</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="k">if</span> <span class="n">content</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="k">else</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span>
             <span class="c1"># Pyright doesn&#39;t properly support attrs and doesn&#39;t account for _ being removed from field</span>
             <span class="c1"># pre-fix in init.</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">impl</span><span class="o">.</span><span class="n">InteractionMessageBuilder</span><span class="p">(</span>
@@ -3144,6 +3145,7 @@ nature, and will trigger this exception if they occur.</li>
                 <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">embed</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">)</span>
                 <span class="n">embeds</span> <span class="o">=</span> <span class="p">(</span><span class="n">embed</span><span class="p">,)</span>
 
+            <span class="n">content</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="k">if</span> <span class="n">content</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="k">else</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span>
             <span class="c1"># Pyright doesn&#39;t properly support attrs and doesn&#39;t account for _ being removed from field</span>
             <span class="c1"># pre-fix in init.</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">impl</span><span class="o">.</span><span class="n">InteractionMessageBuilder</span><span class="p">(</span>
