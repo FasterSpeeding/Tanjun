@@ -3398,7 +3398,7 @@ enable slash (interaction) command execution:</p>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">ContextT_contra</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">exception</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">,</span>
+        <span class="n">exception</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="n">Hooks</span><span class="p">[</span><span class="n">ContextT_contra</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -32359,13 +32359,13 @@ message content.</p>
 <span class="sd">synchronous or asynchronous callback which returns `None`</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">ErrorHookSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT</span><span class="p">,</span> <span class="ne">BaseException</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]]</span>
+<span class="n">ErrorHookSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]]</span>
 <span class="sd">&quot;&quot;&quot;Type hint of the callback used as a unexpected command error hook.</span>
 
-<span class="sd">This will be called whenever a `BaseException` is raised during the</span>
+<span class="sd">This will be called whenever a `Exception` is raised during the</span>
 <span class="sd">execution stage whenever the command callback raises any exception except</span>
 <span class="sd">`tanjun.errors.CommandError`,  will have to take two positional arguments - of</span>
-<span class="sd">type `tanjun.abc.Context` and `BaseException` - and may be either a</span>
+<span class="sd">type `tanjun.abc.Context` and `Exception` - and may be either a</span>
 <span class="sd">synchronous or asynchronous callback which returns `bool` or `None`.</span>
 
 <span class="sd">`True` is returned to indicate that the exception should be suppressed and</span>
@@ -32459,7 +32459,7 @@ message content.</p>
 <span class="sd">            callback will be removed.</span>
 
 <span class="sd">            This callback should be a callback which takes two positional</span>
-<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `BaseException`) and</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `Exception`) and</span>
 <span class="sd">            may be either synchronous or asynchronous.</span>
 
 <span class="sd">            If this returns `True` then that indicates that this error should</span>
@@ -32490,7 +32490,7 @@ message content.</p>
 <span class="sd">        hooks = AnyHooks()</span>
 
 <span class="sd">        @hooks.with_on_error</span>
-<span class="sd">        async def on_error(ctx: tanjun.abc.Context, error: BaseException) -&gt; bool:</span>
+<span class="sd">        async def on_error(ctx: tanjun.abc.Context, error: Exception) -&gt; bool:</span>
 <span class="sd">            if isinstance(error, SomeExpectedType):</span>
 <span class="sd">                await ctx.respond(&quot;You dun goofed&quot;)</span>
 <span class="sd">                return True  # Indicating that it should be suppressed.</span>
@@ -32505,7 +32505,7 @@ message content.</p>
 <span class="sd">            The callback to set for this hook.</span>
 
 <span class="sd">            This callback should be a callback which takes two positional</span>
-<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `BaseException`) and</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `Exception`) and</span>
 <span class="sd">            may be either synchronous or asynchronous.</span>
 
 <span class="sd">            If this returns `True` then that indicates that this error should</span>
@@ -32735,7 +32735,7 @@ message content.</p>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">exception</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">,</span>
+        <span class="n">exception</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -32927,7 +32927,7 @@ message content.</p>
 <span class="sd">            callback will be removed.</span>
 
 <span class="sd">            This callback should be a callback which takes two positional</span>
-<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `BaseException`) and</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `Exception`) and</span>
 <span class="sd">            may be either synchronous or asynchronous.</span>
 
 <span class="sd">            If this returns `True` then that indicates that this error should</span>
@@ -32958,7 +32958,7 @@ message content.</p>
 <span class="sd">        hooks = AnyHooks()</span>
 
 <span class="sd">        @hooks.with_on_error</span>
-<span class="sd">        async def on_error(ctx: tanjun.abc.Context, error: BaseException) -&gt; bool:</span>
+<span class="sd">        async def on_error(ctx: tanjun.abc.Context, error: Exception) -&gt; bool:</span>
 <span class="sd">            if isinstance(error, SomeExpectedType):</span>
 <span class="sd">                await ctx.respond(&quot;You dun goofed&quot;)</span>
 <span class="sd">                return True  # Indicating that it should be suppressed.</span>
@@ -32973,7 +32973,7 @@ message content.</p>
 <span class="sd">            The callback to set for this hook.</span>
 
 <span class="sd">            This callback should be a callback which takes two positional</span>
-<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `BaseException`) and</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `Exception`) and</span>
 <span class="sd">            may be either synchronous or asynchronous.</span>
 
 <span class="sd">            If this returns `True` then that indicates that this error should</span>
@@ -33203,7 +33203,7 @@ message content.</p>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">exception</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">,</span>
+        <span class="n">exception</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -33409,7 +33409,7 @@ The command to add the hooks to.</li>
             <span class="def">def</span>
             <span class="name">set_on_error</span><span class="signature">(
     self: ~_HooksT,
-    callback: Optional[collections.abc.Callable[[-ContextT_contra, BaseException], Union[bool, NoneType, collections.abc.Awaitable[Optional[bool]]]]],
+    callback: Optional[collections.abc.Callable[[-ContextT_contra, Exception], Union[bool, NoneType, collections.abc.Awaitable[Optional[bool]]]]],
     /
 ) -&gt; ~_HooksT</span>:
     </div>
@@ -33431,7 +33431,7 @@ The command to add the hooks to.</li>
 <span class="sd">            callback will be removed.</span>
 
 <span class="sd">            This callback should be a callback which takes two positional</span>
-<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `BaseException`) and</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `Exception`) and</span>
 <span class="sd">            may be either synchronous or asynchronous.</span>
 
 <span class="sd">            If this returns `True` then that indicates that this error should</span>
@@ -33466,7 +33466,7 @@ The callback to set for this hook, if <code>None</code> then any previously set
 callback will be removed.</p>
 
 <p>This callback should be a callback which takes two positional
-arguments (of type <code><a href="tanjun/abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a></code> and <code>BaseException</code>) and
+arguments (of type <code><a href="tanjun/abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a></code> and <code>Exception</code>) and
 may be either synchronous or asynchronous.</p>
 
 <p>If this returns <code>True</code> then that indicates that this error should
@@ -33494,7 +33494,7 @@ by majority rule.</p></li>
     self,
     callback: collections.abc.Callable,
     /
-) -&gt; collections.abc.Callable[[-ContextT_contra, BaseException], typing.Union[bool, NoneType, collections.abc.Awaitable[typing.Optional[bool]]]]</span>:
+) -&gt; collections.abc.Callable[[-ContextT_contra, Exception], typing.Union[bool, NoneType, collections.abc.Awaitable[typing.Optional[bool]]]]</span>:
     </div>
 
                 <details>
@@ -33513,7 +33513,7 @@ by majority rule.</p></li>
 <span class="sd">        hooks = AnyHooks()</span>
 
 <span class="sd">        @hooks.with_on_error</span>
-<span class="sd">        async def on_error(ctx: tanjun.abc.Context, error: BaseException) -&gt; bool:</span>
+<span class="sd">        async def on_error(ctx: tanjun.abc.Context, error: Exception) -&gt; bool:</span>
 <span class="sd">            if isinstance(error, SomeExpectedType):</span>
 <span class="sd">                await ctx.respond(&quot;You dun goofed&quot;)</span>
 <span class="sd">                return True  # Indicating that it should be suppressed.</span>
@@ -33528,7 +33528,7 @@ by majority rule.</p></li>
 <span class="sd">            The callback to set for this hook.</span>
 
 <span class="sd">            This callback should be a callback which takes two positional</span>
-<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `BaseException`) and</span>
+<span class="sd">            arguments (of type `tanjun.abc.ContextT_contra` and `Exception`) and</span>
 <span class="sd">            may be either synchronous or asynchronous.</span>
 
 <span class="sd">            If this returns `True` then that indicates that this error should</span>
@@ -33560,7 +33560,7 @@ are generally speaking expected. To handle those see
 <div class="codehilite"><pre><span></span><code><span class="n">hooks</span> <span class="o">=</span> <span class="n">AnyHooks</span><span class="p">()</span>
 
 <span class="nd">@hooks</span><span class="o">.</span><span class="n">with_on_error</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">on_error</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">on_error</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">SomeExpectedType</span><span class="p">):</span>
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="s2">&quot;You dun goofed&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># Indicating that it should be suppressed.</span>
@@ -33576,7 +33576,7 @@ are generally speaking expected. To handle those see
 The callback to set for this hook.</p>
 
 <p>This callback should be a callback which takes two positional
-arguments (of type <code><a href="tanjun/abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a></code> and <code>BaseException</code>) and
+arguments (of type <code><a href="tanjun/abc.html#ContextT_contra">tanjun.abc.ContextT_contra</a></code> and <code>Exception</code>) and
 may be either synchronous or asynchronous.</p>
 
 <p>If this returns <code>True</code> then that indicates that this error should
@@ -34168,7 +34168,7 @@ may be either synchronous or asynchronous.</p></li>
     self,
     ctx: -ContextT_contra,
     /,
-    exception: BaseException,
+    exception: Exception,
     *,
     hooks: Optional[collections.abc.Set[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[-ContextT_contra]]] = None
 ) -&gt; int</span>:
@@ -34180,7 +34180,7 @@ may be either synchronous or asynchronous.</p></li>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">exception</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">,</span>
+        <span class="n">exception</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Set</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT_contra</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
