@@ -877,6 +877,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
                 assert not isinstance(embed, hikari.UndefinedType)
                 embeds = (embed,)
 
+            content = str(content) if content is not hikari.UNDEFINED else hikari.UNDEFINED
             # Pyright doesn't properly support attrs and doesn't account for _ being removed from field
             # pre-fix in init.
             result = hikari.impl.InteractionMessageBuilder(
