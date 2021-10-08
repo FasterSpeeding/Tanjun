@@ -57,13 +57,13 @@ type `tanjun.abc.Context` and `tanjun.errors.ParserError` - and may be either
 synchronous or asynchronous callback which returns `None`
 """
 
-ErrorHookSig = collections.Callable[[abc.ContextT, BaseException], abc.MaybeAwaitableT[typing.Optional[bool]]]
+ErrorHookSig = collections.Callable[[abc.ContextT, Exception], abc.MaybeAwaitableT[typing.Optional[bool]]]
 """Type hint of the callback used as a unexpected command error hook.
 
-This will be called whenever a `BaseException` is raised during the
+This will be called whenever a `Exception` is raised during the
 execution stage whenever the command callback raises any exception except
 `tanjun.errors.CommandError`,  will have to take two positional arguments - of
-type `tanjun.abc.Context` and `BaseException` - and may be either a
+type `tanjun.abc.Context` and `Exception` - and may be either a
 synchronous or asynchronous callback which returns `bool` or `None`.
 
 `True` is returned to indicate that the exception should be suppressed and
@@ -157,7 +157,7 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
             callback will be removed.
 
             This callback should be a callback which takes two positional
-            arguments (of type `tanjun.abc.ContextT_contra` and `BaseException`) and
+            arguments (of type `tanjun.abc.ContextT_contra` and `Exception`) and
             may be either synchronous or asynchronous.
 
             If this returns `True` then that indicates that this error should
@@ -188,7 +188,7 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
         hooks = AnyHooks()
 
         @hooks.with_on_error
-        async def on_error(ctx: tanjun.abc.Context, error: BaseException) -> bool:
+        async def on_error(ctx: tanjun.abc.Context, error: Exception) -> bool:
             if isinstance(error, SomeExpectedType):
                 await ctx.respond("You dun goofed")
                 return True  # Indicating that it should be suppressed.
@@ -203,7 +203,7 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
             The callback to set for this hook.
 
             This callback should be a callback which takes two positional
-            arguments (of type `tanjun.abc.ContextT_contra` and `BaseException`) and
+            arguments (of type `tanjun.abc.ContextT_contra` and `Exception`) and
             may be either synchronous or asynchronous.
 
             If this returns `True` then that indicates that this error should
@@ -433,7 +433,7 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
         self,
         ctx: abc.ContextT_contra,
         /,
-        exception: BaseException,
+        exception: Exception,
         *,
         hooks: typing.Optional[collections.Set[abc.Hooks[abc.ContextT_contra]]] = None,
     ) -> int:
