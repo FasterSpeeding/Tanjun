@@ -159,13 +159,13 @@ slash_command.set_hooks(hooks)  # or using a chainable method on the command.
 component = tanjun.Component().set_hooks(hooks)
 # Where hooks set with Component.set_hooks will be called for all commands
 # within the component but hooks set with `set_message_hooks` and `set_slash_hooks`
-# will only be stored for the message commands or slash commands within the component.
+# will only be run for the message commands or slash commands within the component.
 
 
 # and Clients:
 
-bot = hikari.RESTBot("TOKEN", "Bot")
-client = tanjun.Client.from_rest_bot(bot).set_hooks(hooks)
+bot = hikari.GatewayBot("TOKEN")
+client = tanjun.Client.from_gateway_bot(bot).set_hooks(hooks)
 # Where hooks set with Component.set_hooks will be called for all commands
 # within the client's components but hooks set with `set_message_hooks` and `set_slash_hooks`
-# will only be stored for the message commands or slash commands within the client's components.
+# will only be run for the message commands or slash commands within the client's components.
