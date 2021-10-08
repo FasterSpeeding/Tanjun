@@ -944,10 +944,10 @@
                     <a class="variable" href="#to_channel">to_channel</a>
             </li>
             <li>
-                    <a class="variable" href="#to_color">to_color</a>
+                    <a class="function" href="#to_color">to_color</a>
             </li>
             <li>
-                    <a class="variable" href="#to_colour">to_colour</a>
+                    <a class="function" href="#to_colour">to_colour</a>
             </li>
             <li>
                     <a class="function" href="#to_datetime">to_datetime</a>
@@ -974,7 +974,7 @@
                     <a class="variable" href="#to_role">to_role</a>
             </li>
             <li>
-                    <a class="variable" href="#to_snowflake">to_snowflake</a>
+                    <a class="function" href="#to_snowflake">to_snowflake</a>
             </li>
             <li>
                     <a class="variable" href="#to_user">to_user</a>
@@ -6595,7 +6595,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">descriptor</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
 
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">on_parser_error</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="n">errors</span><span class="o">.</span><span class="n">ParserError</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">on_parser_error</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="n">errors</span><span class="o">.</span><span class="n">ParserError</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Handle message parser errors.</span>
 
 <span class="sd">    This is the default message parser error hook included by `Client`.</span>
@@ -6658,7 +6658,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
 <span class="sd">    * `server` is used for interaction command dispatch if interaction</span>
 <span class="sd">      events aren&#39;t being received from the event manager.</span>
 <span class="sd">    * By default this client includes a parser error handling hook which will</span>
-<span class="sd">      by overwritten if you call `Client.set_message_hooks`.</span>
+<span class="sd">      by overwritten if you call `Client.set_hooks`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -6782,15 +6782,13 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span> <span class="o">=</span> <span class="n">mention_prefix</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">()</span><span class="o">.</span><span class="n">set_on_parser_error</span><span class="p">(</span><span class="n">on_parser_error</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command not found&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">_InjectableListener</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">()</span><span class="o">.</span><span class="n">set_on_parser_error</span><span class="p">(</span>
-            <span class="n">on_parser_error</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_InjectablePrefixGetter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -8388,7 +8386,7 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">    * `server` is used for interaction command dispatch if interaction</span>
 <span class="sd">      events aren&#39;t being received from the event manager.</span>
 <span class="sd">    * By default this client includes a parser error handling hook which will</span>
-<span class="sd">      by overwritten if you call `Client.set_message_hooks`.</span>
+<span class="sd">      by overwritten if you call `Client.set_hooks`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -8512,15 +8510,13 @@ to the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span> <span class="o">=</span> <span class="n">mention_prefix</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">()</span><span class="o">.</span><span class="n">set_on_parser_error</span><span class="p">(</span><span class="n">on_parser_error</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command not found&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">_InjectableListener</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">()</span><span class="o">.</span><span class="n">set_on_parser_error</span><span class="p">(</span>
-            <span class="n">on_parser_error</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_InjectablePrefixGetter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -10047,7 +10043,7 @@ provided.</li>
 <li><code><a href="#Client.server">server</a></code> is used for interaction command dispatch if interaction
 events aren't being received from the event manager.</li>
 <li>By default this client includes a parser error handling hook which will
-by overwritten if you call <code><a href="#Client.set_message_hooks">Client.set_message_hooks</a></code>.</li>
+by overwritten if you call <code><a href="#Client.set_hooks">Client.set_hooks</a></code>.</li>
 </ul>
 
 <h6 id="parameters">Parameters</h6>
@@ -10174,15 +10170,13 @@ after a rename.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span> <span class="o">=</span> <span class="n">mention_prefix</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">()</span><span class="o">.</span><span class="n">set_on_parser_error</span><span class="p">(</span><span class="n">on_parser_error</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Command not found&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">_InjectableListener</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">()</span><span class="o">.</span><span class="n">set_on_parser_error</span><span class="p">(</span>
-            <span class="n">on_parser_error</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_InjectablePrefixGetter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -29834,18 +29828,6 @@ user.</p>
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;ArgumentT&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;BaseConverter&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ChannelConverter&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ColorConverter&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;EmojiConverter&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;GuildConverter&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;InviteConverter&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;MemberConverter&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;PresenceConverter&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;RoleConverter&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;SnowflakeConverter&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;UserConverter&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;VoiceStateConverter&quot;</span><span class="p">,</span>
     <span class="s2">&quot;from_datetime&quot;</span><span class="p">,</span>
     <span class="s2">&quot;parse_snowflake&quot;</span><span class="p">,</span>
     <span class="s2">&quot;parse_channel_id&quot;</span><span class="p">,</span>
@@ -30075,34 +30057,6 @@ user.</p>
 
         <span class="k">except</span> <span class="n">hikari</span><span class="o">.</span><span class="n">NotFoundError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find channel&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
-
-
-<span class="k">class</span> <span class="nc">ColorConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="p">]):</span>
-    <span class="sd">&quot;&quot;&quot;Standard converter for colour representations.&quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="o">.</span><span class="n">NONE</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">NONE</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">values</span> <span class="o">=</span> <span class="n">argument</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
-
-            <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="o">*</span><span class="n">values</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">EmojiConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">KnownCustomEmoji</span><span class="p">]):</span>
@@ -30346,27 +30300,6 @@ user.</p>
                     <span class="k">return</span> <span class="n">role</span>
 
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Couldn&#39;t find role&quot;</span><span class="p">)</span>
-
-
-<span class="k">class</span> <span class="nc">SnowflakeConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]):</span>
-    <span class="sd">&quot;&quot;&quot;Standard converter for snowflakes.&quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cache_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CacheComponents</span><span class="o">.</span><span class="n">NONE</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">intents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Intents</span><span class="o">.</span><span class="n">NONE</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">parse_snowflake</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No valid ID found&quot;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">UserConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]):</span>
@@ -30930,6 +30863,18 @@ user.</p>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid bool value `</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">to_color</span><span class="p">(</span><span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.colors.Color` object.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">argument</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="o">*</span><span class="n">values</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
+
+
 <span class="n">_TYPE_OVERRIDES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="nb">bool</span><span class="p">:</span> <span class="n">to_bool</span><span class="p">,</span>
     <span class="nb">bytes</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">),</span>
@@ -30949,10 +30894,7 @@ user.</p>
 <span class="n">to_channel</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ChannelConverter</span><span class="p">]</span> <span class="o">=</span> <span class="n">ChannelConverter</span><span class="p">()</span>
 <span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.channels.PartialChannel` object.&quot;&quot;&quot;</span>
 
-<span class="n">to_color</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ColorConverter</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColorConverter</span><span class="p">()</span>
-<span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.colors.Color` object.&quot;&quot;&quot;</span>
-
-<span class="n">to_colour</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ColorConverter</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_color</span>
+<span class="n">to_colour</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ArgumentT</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="p">]]</span> <span class="o">=</span> <span class="n">to_color</span>
 <span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.colors.Color` object.&quot;&quot;&quot;</span>
 
 <span class="n">to_emoji</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">EmojiConverter</span><span class="p">]</span> <span class="o">=</span> <span class="n">EmojiConverter</span><span class="p">()</span>
@@ -30976,7 +30918,7 @@ user.</p>
 <span class="n">to_role</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">RoleConverter</span><span class="p">]</span> <span class="o">=</span> <span class="n">RoleConverter</span><span class="p">()</span>
 <span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.guilds.Role` object.&quot;&quot;&quot;</span>
 
-<span class="n">to_snowflake</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">SnowflakeConverter</span><span class="p">]</span> <span class="o">=</span> <span class="n">SnowflakeConverter</span><span class="p">()</span>
+<span class="n">to_snowflake</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ArgumentT</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]]</span> <span class="o">=</span> <span class="n">parse_snowflake</span>
 <span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.snowflakes.Snowflake`.</span>
 
 <span class="sd">.. note::</span>
@@ -31071,21 +31013,61 @@ The value to convert.</li>
 
                 </section>
                 <section id="to_color">
-                                <div class="attr variable"><a class="headerlink" href="#to_color">#&nbsp;&nbsp</a>
+                            <div class="attr function"><a class="headerlink" href="#to_color">#&nbsp;&nbsp</a>
 
-        <span class="name">to_color</span><span class="default_value"> = &lt;<a href="tanjun/conversion.html#ColorConverter">tanjun.conversion.ColorConverter</a> object&gt;</span>
+        
+            <span class="def">def</span>
+            <span class="name">to_color</span><span class="signature">(argument: Union[str, int, float], /) -&gt; hikari.colors.Color</span>:
     </div>
 
-    
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">to_color</span><span class="p">(</span><span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.colors.Color` object.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">argument</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="o">*</span><span class="n">values</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Convert user input to a <code>hikari.colors.Color</code> object.</p>
+</div>
+
 
                 </section>
                 <section id="to_colour">
-                                <div class="attr variable"><a class="headerlink" href="#to_colour">#&nbsp;&nbsp</a>
+                            <div class="attr function"><a class="headerlink" href="#to_colour">#&nbsp;&nbsp</a>
 
-        <span class="name">to_colour</span><span class="default_value"> = &lt;<a href="tanjun/conversion.html#ColorConverter">tanjun.conversion.ColorConverter</a> object&gt;</span>
+        
+            <span class="def">def</span>
+            <span class="name">to_colour</span><span class="signature">(argument: Union[str, int, float], /) -&gt; hikari.colors.Color</span>:
     </div>
 
-    
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">to_color</span><span class="p">(</span><span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.colors.Color` object.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">argument</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">argument</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="o">*</span><span class="n">values</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">argument</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Convert user input to a <code>hikari.colors.Color</code> object.</p>
+</div>
+
 
                 </section>
                 <section id="to_datetime">
@@ -31221,12 +31203,103 @@ The value to parse.</li>
 
                 </section>
                 <section id="to_snowflake">
-                                <div class="attr variable"><a class="headerlink" href="#to_snowflake">#&nbsp;&nbsp</a>
+                            <div class="attr function"><a class="headerlink" href="#to_snowflake">#&nbsp;&nbsp</a>
 
-        <span class="name">to_snowflake</span><span class="default_value"> = &lt;<a href="tanjun/conversion.html#SnowflakeConverter">tanjun.conversion.SnowflakeConverter</a> object&gt;</span>
+        
+            <span class="def">def</span>
+            <span class="name">to_snowflake</span><span class="signature">(
+    value: Union[str, int, float],
+    /,
+    *,
+    message: str = &#39;No valid mention or ID found&#39;
+) -&gt; hikari.snowflakes.Snowflake</span>:
     </div>
 
-    
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;No valid mention or ID found&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Parse a snowflake from a string or int value.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This only allows the relevant entity&#39;s mention format if applicable.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value: typing.Union[str, int]</span>
+<span class="sd">            The value to parse (this argument can only be passed positionally).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        message: str</span>
+<span class="sd">            The error message to raise if the value cannot be parsed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Snowflake</span>
+<span class="sd">            The parsed snowflake.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the value cannot be parsed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">capture</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">capture</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">capture</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+                <span class="k">pass</span>
+
+        <span class="c1"># We should also range check the provided ID.</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_range_check</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Parse a snowflake from a string or int value.</p>
+
+<p><em>Note:</em>
+This only allows the relevant entity's mention format if applicable.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>value</strong> (typing.Union[str, int]):
+The value to parse (this argument can only be passed positionally).</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>message</strong> (str):
+The error message to raise if the value cannot be parsed.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>hikari.Snowflake</strong>: The parsed snowflake.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the value cannot be parsed.</li>
+</ul>
+</div>
+
 
                 </section>
                 <section id="to_user">
