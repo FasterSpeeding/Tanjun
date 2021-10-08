@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Bumped minimum hikari version to 2.0.0.dev103.
+- The defaulr parser error handler is now set as Client.hooks (not Client.message_hooks) meaning that it
+  runs for all commands not just message commands.
 
 ### Deprecated
 - Calling set_tracked_command with a command ID.
