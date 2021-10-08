@@ -35,13 +35,13 @@ component = tanjun.Component()
 
 # Here we declare a command as defaulting to ephemeral, this means that all
 # calls made to SlashContext's message creating methods (e.g. respond,
-# create_initial_respones and create_followup) will be ephemeral unless `flags`
-# is specified (including calls made by command checks and the CommandError
-# handler).
+# create_initial_respones and create_followup) will be ephemeral (only visiable
+# to the user who called the command) unless `flags` is specified. This includes
+# calls made by command checks and by the CommandError handler.
 @component.with_slash_command
-@tanjun.as_slash_command("nsfw", "A NSFW command", default_to_ephemeral=True)
+@tanjun.as_slash_command("nsfw", "command description", default_to_ephemeral=True)
 async def nsfw_command(ctx: tanjun.abc.Context) -> None:
-    # Thx to default_to_ephemeral=True, this response will be ephemeral
+    # Thanks to default_to_ephemeral=True, this response will be ephemeral.
     await ctx.respond("nsfw stuff")
 
 
@@ -51,20 +51,31 @@ nested_group = top_group.with_command(tanjun.slash_command_group("interaction", 
 
 
 @nested_group.with_command
-@tanjun.with_str_slash_option("name", "Kimi no na wa")
-@tanjun.as_slash_command("hi", "hello")
-async def hi_command(ctx: tanjun.abc.Context, name: str) -> None:
-    await ctx.respond(f"Hi, {name}")
+# This adds a required member option to the command which'll be passed to the
+# "member" argument as type hikari.Member.
+@tanjun.with_member_slash_option("member", "Option description")
+# This adds an optional string option to the command which'll be passed
+# to the "name" argument as type str if it was provided else None.
+@tanjun.with_str_slash_option("name", "Option description", default=None)
+@tanjun.as_slash_command("hi", "command description")
+async def hi_command(ctx: tanjun.abc.Context, name: typing.Optional[str], member: hikari.Member) -> None:
+    if name:
+        await ctx.respond(f"Hi, {name} and {member.username}")
+
+    else:
+        await ctx.respond(f"Hi {member.username}")
 
 
 @top_group.with_command
-@tanjun.as_slash_command("japan", "nihon is my city")
-async def japan_command(ctx: tanjun.abc.Context) -> None:
-    await ctx.respond("Nihongo ga dekimasu ka?")
+# Here we add a required string option which'll be convertered to an emoji object.
+@tanjun.with_str_slash_option("emoji", "Option description", converters=tanjun.to_emoji)
+@tanjun.as_slash_command("japan", "command description")
+async def japan_command(ctx: tanjun.abc.Context, emoji: hikari.Emoji) -> None:
+    await ctx.respond(f"Nihongo ga dekimasu ka? {emoji}")
 
 
 @top_group.with_command
-@tanjun.as_slash_command("europe", "IDK how to describe Europe... big?")
+@tanjun.as_slash_command("europe", "command description")
 async def europe_command(ctx: tanjun.abc.Context) -> None:
     await ctx.respond("I don't know how to describe Europe... small?")
 
@@ -82,6 +93,13 @@ async def europe_command(ctx: tanjun.abc.Context) -> None:
 #    |__ hi (command)
 
 
+# For more information on slash command options and converters, see the
+# documentation for `tanjun.commands` and `tanjun.converters`.
+#
+# It's worth noting that converters are only supported for string, integer
+# and float options.
+
+
 @component.with_command
 @tanjun.as_slash_command("lower", "Lower level command which takes advantage of slash command specific detail")
 async def lower_command(ctx: tanjun.abc.SlashContext) -> None:
@@ -90,17 +108,16 @@ async def lower_command(ctx: tanjun.abc.SlashContext) -> None:
     #
     # As a note, you can only create the initial response for a slash command
     # context once and any further calls will result in an error being raised.
-    # To create follow up responses see `tanjun.abc.SlashContext.create_followup`.
+    # To create follow up responses see `SlashContext.create_followup`.
     #
     # As another note, an initial response for a slash context must be created
     # within 3 seconds of the interaction being received otherwise it will
     # either be automatically deferred or expire (if automatic deferral is
     # disabled). In the case that an interaction is deferred then
-    # `tanjun.abc.SlashContext.edit_initial_response` or
-    # `tanjun.abc.SlashContext.respond` should be used to edit an initial
-    # response in. `tanjun.abc.SlashContext.defer` may be used to
-    # defer an interaction in the case that automatic deferral is disabled or
-    # the response is always going to be deferred.
+    # `SlashContext.edit_initial_response` or `SlashContext.respond` should be
+    # used to edit an initial response in. `tanjun.abc.SlashContext.defer` may
+    # be used to defer an interaction in the case that automatic deferral is
+    # disabled or the response is always going to be deferred.
     await ctx.create_initial_response("I'm sorry, Dave", flags=hikari.MessageFlag.EPHEMERAL, tts=True)
 
     # Since `SlashContext.respond` can't have attachments as an argument,
@@ -122,6 +139,8 @@ async def lower_command(ctx: tanjun.abc.SlashContext) -> None:
 @component.with_command
 @tanjun.as_slash_command("defer", "Lower level command which explicitly defers")
 async def defer_command(ctx: tanjun.abc.SlashContext) -> None:
+    # Note that if we want the response that's later edited in to be ephemeral
+    # then we can pass `flags=hikari.MessageFlags.EPHEMERAL` to `SlashContext.defer`.
     await ctx.defer()
     await asyncio.sleep(5)  # Do some work which may take a while
     # Either edit_initial_response or respond may be used here.
