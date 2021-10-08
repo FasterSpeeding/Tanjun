@@ -34,18 +34,6 @@ from __future__ import annotations
 
 __all__: list[str] = [
     "ArgumentT",
-    "BaseConverter",
-    "ChannelConverter",
-    "ColorConverter",
-    "EmojiConverter",
-    "GuildConverter",
-    "InviteConverter",
-    "MemberConverter",
-    "PresenceConverter",
-    "RoleConverter",
-    "SnowflakeConverter",
-    "UserConverter",
-    "VoiceStateConverter",
     "from_datetime",
     "parse_snowflake",
     "parse_channel_id",
@@ -275,34 +263,6 @@ class ChannelConverter(BaseConverter[hikari.PartialChannel]):
 
         except hikari.NotFoundError:
             raise ValueError("Couldn't find channel") from None
-
-
-class ColorConverter(BaseConverter[hikari.Color]):
-    """Standard converter for colour representations."""
-
-    __slots__ = ()
-
-    @property
-    def cache_components(self) -> hikari.CacheComponents:
-        return hikari.CacheComponents.NONE
-
-    @property
-    def intents(self) -> hikari.Intents:
-        return hikari.Intents.NONE
-
-    @property
-    def requires_cache(self) -> bool:
-        return False
-
-    async def convert(self, _: tanjun_abc.Context, argument: ArgumentT, /) -> typing.Any:
-        if isinstance(argument, str):
-            values = argument.split(" ")
-            if all(value.isdigit() for value in values):
-                return hikari.Color.of(*map(int, values))
-
-            return hikari.Color.of(*values)
-
-        return hikari.Color.of(argument)
 
 
 class EmojiConverter(BaseConverter[hikari.KnownCustomEmoji]):
@@ -546,27 +506,6 @@ class RoleConverter(BaseConverter[hikari.Role]):
                     return role
 
         raise ValueError("Couldn't find role")
-
-
-class SnowflakeConverter(BaseConverter[hikari.Snowflake]):
-    """Standard converter for snowflakes."""
-
-    __slots__ = ()
-
-    @property
-    def cache_components(self) -> hikari.CacheComponents:
-        return hikari.CacheComponents.NONE
-
-    @property
-    def intents(self) -> hikari.Intents:
-        return hikari.Intents.NONE
-
-    @property
-    def requires_cache(self) -> bool:
-        return False
-
-    async def convert(self, _: tanjun_abc.Context, argument: ArgumentT, /) -> hikari.Snowflake:
-        return parse_snowflake(argument, message="No valid ID found")
 
 
 class UserConverter(BaseConverter[hikari.User]):
@@ -1130,6 +1069,18 @@ def to_bool(value: str, /) -> bool:
     raise ValueError(f"Invalid bool value `{value}`")
 
 
+def to_color(argument: ArgumentT, /) -> hikari.Color:
+    """Convert user input to a `hikari.colors.Color` object."""
+    if isinstance(argument, str):
+        values = argument.split(" ")
+        if all(value.isdigit() for value in values):
+            return hikari.Color.of(*map(int, values))
+
+        return hikari.Color.of(*values)
+
+    return hikari.Color.of(argument)
+
+
 _TYPE_OVERRIDES: dict[collections.Callable[..., typing.Any], collections.Callable[[str], typing.Any]] = {
     bool: to_bool,
     bytes: lambda d: bytes(d, "utf-8"),
@@ -1149,10 +1100,7 @@ def override_type(cls: parsing.ConverterSig, /) -> parsing.ConverterSig:
 to_channel: typing.Final[ChannelConverter] = ChannelConverter()
 """Convert user input to a `hikari.channels.PartialChannel` object."""
 
-to_color: typing.Final[ColorConverter] = ColorConverter()
-"""Convert user input to a `hikari.colors.Color` object."""
-
-to_colour: typing.Final[ColorConverter] = to_color
+to_colour: typing.Final[typing.Callable[[ArgumentT], hikari.Color]] = to_color
 """Convert user input to a `hikari.colors.Color` object."""
 
 to_emoji: typing.Final[EmojiConverter] = EmojiConverter()
@@ -1176,7 +1124,7 @@ to_presence: typing.Final[PresenceConverter] = PresenceConverter()
 to_role: typing.Final[RoleConverter] = RoleConverter()
 """Convert user input to a `hikari.guilds.Role` object."""
 
-to_snowflake: typing.Final[SnowflakeConverter] = SnowflakeConverter()
+to_snowflake: typing.Final[typing.Callable[[ArgumentT], hikari.Snowflake]] = parse_snowflake
 """Convert user input to a `hikari.snowflakes.Snowflake`.
 
 .. note::

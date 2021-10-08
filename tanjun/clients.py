@@ -295,7 +295,7 @@ class _InjectableListener(injecting.BaseInjectableCallback[None]):
         await self.descriptor.resolve(ctx, event)
 
 
-async def on_parser_error(ctx: tanjun_abc.MessageContext, error: errors.ParserError) -> None:
+async def on_parser_error(ctx: tanjun_abc.Context, error: errors.ParserError) -> None:
     """Handle message parser errors.
 
     This is the default message parser error hook included by `Client`.
@@ -358,7 +358,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     * `server` is used for interaction command dispatch if interaction
       events aren't being received from the event manager.
     * By default this client includes a parser error handling hook which will
-      by overwritten if you call `Client.set_message_hooks`.
+      by overwritten if you call `Client.set_hooks`.
 
     Parameters
     ----------
@@ -482,15 +482,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._make_slash_context: _SlashContextMakerProto = context.SlashContext
         self._events = events
         self._grab_mention_prefix = mention_prefix
-        self._hooks: typing.Optional[tanjun_abc.AnyHooks] = None
+        self._hooks: typing.Optional[tanjun_abc.AnyHooks] = hooks.AnyHooks().set_on_parser_error(on_parser_error)
         self._interaction_not_found: typing.Optional[str] = "Command not found"
         self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
         self._is_alive = False
         self._is_closing = False
         self._listeners: dict[type[hikari.Event], list[_InjectableListener]] = {}
-        self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = hooks.MessageHooks().set_on_parser_error(
-            on_parser_error
-        )
+        self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._prefix_getter: typing.Optional[_InjectablePrefixGetter] = None
         self._prefixes: list[str] = []

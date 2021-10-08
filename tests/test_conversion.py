@@ -72,7 +72,6 @@ class TestBaseConverter:
         ("obj", "expected"),
         [
             (tanjun.to_channel, hikari.CacheComponents.GUILD_CHANNELS),
-            (tanjun.to_color, hikari.CacheComponents.NONE),
             (tanjun.to_emoji, hikari.CacheComponents.EMOJIS),
             (tanjun.to_guild, hikari.CacheComponents.GUILDS),
             (tanjun.to_invite, hikari.CacheComponents.INVITES),
@@ -80,7 +79,6 @@ class TestBaseConverter:
             (tanjun.to_member, hikari.CacheComponents.MEMBERS),
             (tanjun.to_presence, hikari.CacheComponents.PRESENCES),
             (tanjun.to_role, hikari.CacheComponents.ROLES),
-            (tanjun.to_snowflake, hikari.CacheComponents.NONE),
             (tanjun.to_user, hikari.CacheComponents.NONE),
             (tanjun.to_voice_state, hikari.CacheComponents.VOICE_STATES),
         ],
@@ -94,7 +92,6 @@ class TestBaseConverter:
         ("obj", "expected"),
         [
             (tanjun.to_channel, hikari.Intents.GUILDS),
-            (tanjun.to_color, hikari.Intents.NONE),
             (tanjun.to_emoji, hikari.Intents.GUILDS | hikari.Intents.GUILD_EMOJIS),
             (tanjun.to_guild, hikari.Intents.GUILDS),
             (tanjun.to_invite, hikari.Intents.GUILD_INVITES),
@@ -102,7 +99,6 @@ class TestBaseConverter:
             (tanjun.to_member, hikari.Intents.GUILDS | hikari.Intents.GUILD_MEMBERS),
             (tanjun.to_presence, hikari.Intents.GUILDS | hikari.Intents.GUILD_PRESENCES),
             (tanjun.to_role, hikari.Intents.GUILDS),
-            (tanjun.to_snowflake, hikari.Intents.NONE),
             (tanjun.to_user, hikari.Intents.GUILDS | hikari.Intents.GUILD_MEMBERS),
             (tanjun.to_voice_state, hikari.Intents.GUILDS | hikari.Intents.GUILD_VOICE_STATES),
         ],
@@ -114,7 +110,6 @@ class TestBaseConverter:
         ("obj", "expected"),
         [
             (tanjun.to_channel, False),
-            (tanjun.to_color, False),
             (tanjun.to_emoji, False),
             (tanjun.to_guild, False),
             (tanjun.to_invite, False),
@@ -122,7 +117,6 @@ class TestBaseConverter:
             (tanjun.to_member, False),
             (tanjun.to_presence, True),
             (tanjun.to_role, False),
-            (tanjun.to_snowflake, False),
             (tanjun.to_user, False),
             (tanjun.to_voice_state, True),
         ],
@@ -212,32 +206,6 @@ class TestChannelConverter:
 
         mock_context.cache.get_guild_channel.assert_called_once_with(12222)
         mock_context.rest.fetch_channel.assert_awaited_once_with(12222)
-
-
-class TestColorConverter:
-    @pytest.mark.asyncio()
-    async def test_convert_when_str(self):
-        with mock.patch.object(hikari.Color, "of") as of:
-            result = await tanjun.to_color.convert(mock.Mock(), "54 23 12")
-
-            assert result is of.return_value
-            of.assert_called_once_with(54, 23, 12)
-
-    @pytest.mark.asyncio()
-    async def test_convert_when_str_of_3_digits(self):
-        with mock.patch.object(hikari.Color, "of") as of:
-            result = await tanjun.to_color.convert(mock.Mock(), "0x333")
-
-            assert result is of.return_value
-            of.assert_called_once_with("0x333")
-
-    @pytest.mark.asyncio()
-    async def test_convert(self):
-        with mock.patch.object(hikari.Color, "of") as of:
-            result = await tanjun.to_color.convert(mock.Mock(), 123)
-
-            assert result is of.return_value
-            of.assert_called_once_with(123)
 
 
 class TestEmojiConverter:
@@ -541,16 +509,6 @@ class TestPresenceConverter:
 
         with pytest.raises(ValueError, match="Couldn't find presence in current guild"):
             await tanjun.to_presence.convert(mock_context, "<@543123>")
-
-
-class TestSnowflakeConverter:
-    @pytest.mark.asyncio()
-    async def test_convert(self):
-        with mock.patch.object(tanjun.conversion, "parse_snowflake") as parse_snowflake:
-            result = await tanjun.to_snowflake.convert(mock.Mock(), "123")
-
-            assert result is parse_snowflake.return_value
-            parse_snowflake.assert_called_once_with("123", message="No valid ID found")
 
 
 class TestUserConverter:
@@ -967,6 +925,30 @@ def test_to_bool(value: str, expected: bool):
 def test_to_bool_with_invalid_input(value: str):
     with pytest.raises(ValueError, match=f"Invalid bool value `{value.lower()}`"):
         tanjun.to_bool(value)
+
+
+def test_to_color():
+    with mock.patch.object(hikari.Color, "of") as of:
+        result = tanjun.to_color(123)
+
+        assert result is of.return_value
+        of.assert_called_once_with(123)
+
+
+def test_to_color_when_str():
+    with mock.patch.object(hikari.Color, "of") as of:
+        result = tanjun.to_color("54 23 12")
+
+        assert result is of.return_value
+        of.assert_called_once_with(54, 23, 12)
+
+
+def test_to_color_when_str_of_3_digits():
+    with mock.patch.object(hikari.Color, "of") as of:
+        result = tanjun.to_color("0x333")
+
+        assert result is of.return_value
+        of.assert_called_once_with("0x333")
 
 
 @pytest.mark.skip(reason="TODO")
