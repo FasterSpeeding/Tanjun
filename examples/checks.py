@@ -19,6 +19,10 @@ from . import protos
 
 MASTER_GUILD = 696969
 
+# Before you go into writing custom checks, you should check out the standard
+# checks implemented in `tanjun.checks` to see if anything there meets your
+# use case(s).
+
 # In essence a check is just a callback which takes a Context and returns a bool.
 #
 # As shown below, these may either be synchronous or asynchronous and support
