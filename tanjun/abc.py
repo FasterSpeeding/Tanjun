@@ -1700,7 +1700,7 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
         self,
         ctx: ContextT_contra,
         /,
-        exception: BaseException,
+        exception: Exception,
         *,
         hooks: typing.Optional[collections.Set[Hooks[ContextT_contra]]] = None,
     ) -> int:
