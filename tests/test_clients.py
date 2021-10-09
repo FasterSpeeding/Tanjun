@@ -1685,7 +1685,7 @@ class TestClient:
     def test_reload_modules_when_python_module_path_and_not_loaded(self):
         client = tanjun.Client(mock.AsyncMock())
 
-        with pytest.raises(ValueError, match=f"Module aya.gay.no not loaded"):
+        with pytest.raises(ValueError, match="Module aya.gay.no not loaded"):
             client.reload_modules("aya.gay.no")
 
     def test_reload_modules_with_system_path(self):
