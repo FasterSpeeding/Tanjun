@@ -148,6 +148,9 @@
                     <a class="class" href="#PartialCommand">PartialCommand</a>
                             <ul class="memberlist">
                         <li>
+                                <a class="function" href="#PartialCommand.__init__">PartialCommand</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#PartialCommand.checks">checks</a>
                         </li>
                         <li>
@@ -1622,13 +1625,13 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, str], str]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            Where both option_name and option_value should be strings of up to 100</span>
 <span class="sd">            characters.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -1698,13 +1701,13 @@
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, int]]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, int]]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            where option_name should be a string of up to 100 characters and</span>
 <span class="sd">            option_value should be an integer.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -1777,13 +1780,13 @@
 
 <span class="sd">            This masks behaviour from Discord where we will either be provided a `float`</span>
 <span class="sd">            or `int` dependent on what the user provided and defaults to `True`.</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, float]]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            where option_name should be a string of up to 100 characters and</span>
 <span class="sd">            option_value should be a float.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -2384,7 +2387,7 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MessageCommandT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
@@ -2516,7 +2519,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandGroupT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandGroupT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MessageCommandGroupT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
@@ -3276,7 +3279,7 @@ Whether this command is a global command. Defaults to <code>True</code>.</li>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MessageCommandT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
@@ -3559,15 +3562,15 @@ matches the message.</p>
             <span class="name">copy</span><span class="signature">(
     self: ~_MessageCommandT,
     *,
-    _new: bool = True,
-    parent: Optional[<a href="abc.html#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>] = None
+    parent: Optional[<a href="abc.html#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>] = None,
+    _new: bool = True
 ) -&gt; ~_MessageCommandT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MessageCommandT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
@@ -3860,7 +3863,7 @@ The parent of this command.</li>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandGroupT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandGroupT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MessageCommandGroupT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
@@ -4078,15 +4081,15 @@ The commands in this group.</li>
             <span class="name">copy</span><span class="signature">(
     self: ~_MessageCommandGroupT,
     *,
-    _new: bool = True,
-    parent: Optional[<a href="abc.html#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>] = None
+    parent: Optional[<a href="abc.html#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>] = None,
+    _new: bool = True
 ) -&gt; ~_MessageCommandGroupT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandGroupT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandGroupT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MessageCommandGroupT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
@@ -4593,6 +4596,40 @@ The command to add.</li>
 </div>
 
 
+                            <div id="PartialCommand.__init__" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#PartialCommand.__init__">#&nbsp;&nbsp</a>
+
+        
+            <span class="name">PartialCommand</span><span class="signature">(
+    *,
+    checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
+    hooks: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[~ContextT]] = None,
+    metadata: Optional[collections.abc.MutableMapping[Any, Any]] = None
+)</span>
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Hooks</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ContextT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">checks</span><span class="p">)]</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span> <span class="k">if</span> <span class="n">metadata</span> <span class="k">else</span> <span class="p">{}</span>
+</pre></div>
+
+        </details>
+
+    
+
+                            </div>
                             <div id="PartialCommand.checks" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#PartialCommand.checks">#&nbsp;&nbsp</a>
 
@@ -4638,7 +4675,7 @@ The command to add.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>typing.Optional[Hooks[ContextT]]</strong>: The hooks that are triggered when the command is executed if set.</li>
+<li><strong>typing.Optional[Hooks[ContextT_co]]</strong>: The hooks that are triggered when the command is executed if set.</li>
 </ul>
 </div>
 
@@ -4734,7 +4771,7 @@ the command.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>hooks</strong> (typing.Optional[Hooks[ContextT]]):
+<li><strong>hooks</strong> (typing.Optional[Hooks[ContextT_co]]):
 The hooks that are triggered when the command is executed.</li>
 </ul>
 
@@ -4932,16 +4969,6 @@ The check to remove.</li>
 
     
 
-                            </div>
-                            <div class="inherited">
-                                <h5>Inherited Members</h5>
-                                <dl>
-                                    <div><dt><a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a></dt>
-                                <dd id="PartialCommand.check_context" class="function"><a href="abc.html#ExecutableCommand.check_context">check_context</a></dd>
-                <dd id="PartialCommand.execute" class="function"><a href="abc.html#ExecutableCommand.execute">execute</a></dd>
-
-            </div>
-                                </dl>
                             </div>
                 </section>
                 <section id="BaseSlashCommand">
@@ -5616,13 +5643,13 @@ This will be overridden by any response calls which specify flags.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, str], str]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            Where both option_name and option_value should be strings of up to 100</span>
 <span class="sd">            characters.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -5692,13 +5719,13 @@ This will be overridden by any response calls which specify flags.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, int]]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, int]]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            where option_name should be a string of up to 100 characters and</span>
 <span class="sd">            option_value should be an integer.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -5771,13 +5798,13 @@ This will be overridden by any response calls which specify flags.</li>
 
 <span class="sd">            This masks behaviour from Discord where we will either be provided a `float`</span>
 <span class="sd">            or `int` dependent on what the user provided and defaults to `True`.</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, float]]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            where option_name should be a string of up to 100 characters and</span>
 <span class="sd">            option_value should be a float.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -6468,13 +6495,13 @@ globally or for a specific guild.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, str], str]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            Where both option_name and option_value should be strings of up to 100</span>
 <span class="sd">            characters.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -6544,13 +6571,13 @@ This should be inclusively between 1-100 characters in length.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>choices</strong> (typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]]):
+<li><p><strong>choices</strong> (typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, str], str]]]):
 The option's choices.</p>
 
 <p>This may be either one or multiple <code>tuple[opton_name, option_value]</code>
 Where both option_name and option_value should be strings of up to 100
 characters.</p></li>
-<li><p><strong>converters</strong> (typing.Union[collections.Sequence[ConverterSig], ConverterSig]):
+<li><p><strong>converters</strong> (typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig]):
 The option's converters.</p>
 
 <p>This may be either one or multiple <code><a href="#ConverterSig">ConverterSig</a></code> callbacks used to
@@ -6634,13 +6661,13 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, int]]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, int]]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            where option_name should be a string of up to 100 characters and</span>
 <span class="sd">            option_value should be an integer.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -6701,13 +6728,13 @@ This should be inclusively between 1-100 characters in length.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>choices</strong> (typing.Optional[collections.Iterable[typing.Union[tuple[str, int]]]]):
+<li><p><strong>choices</strong> (typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, int]]]]):
 The option's choices.</p>
 
 <p>This may be either one or multiple <code>tuple[opton_name, option_value]</code>
 where option_name should be a string of up to 100 characters and
 option_value should be an integer.</p></li>
-<li><p><strong>converters</strong> (typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]):
+<li><p><strong>converters</strong> (typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]):
 The option's converters.</p>
 
 <p>This may be either one or multiple <code><a href="#ConverterSig">ConverterSig</a></code> callbacks used to
@@ -6799,13 +6826,13 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
 
 <span class="sd">            This masks behaviour from Discord where we will either be provided a `float`</span>
 <span class="sd">            or `int` dependent on what the user provided and defaults to `True`.</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, float]]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            where option_name should be a string of up to 100 characters and</span>
 <span class="sd">            option_value should be a float.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -6874,13 +6901,13 @@ float (this will happen before it's passed to converters).</p>
 
 <p>This masks behaviour from Discord where we will either be provided a <code>float</code>
 or <code>int</code> dependent on what the user provided and defaults to <code>True</code>.</p></li>
-<li><p><strong>choices</strong> (typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]):
+<li><p><strong>choices</strong> (typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, float]]]]):
 The option's choices.</p>
 
 <p>This may be either one or multiple <code>tuple[opton_name, option_value]</code>
 where option_name should be a string of up to 100 characters and
 option_value should be a float.</p></li>
-<li><p><strong>converters</strong> (typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]):
+<li><p><strong>converters</strong> (typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]):
 The option's converters.</p>
 
 <p>This may be either one or multiple <code><a href="#ConverterSig">ConverterSig</a></code> callbacks used to

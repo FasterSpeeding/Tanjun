@@ -332,7 +332,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    checks : typing.Optional[typing.Iterable[abc.CheckSig]]</span>
+<span class="sd">    checks : typing.Optional[collections.abc.Iterable[abc.CheckSig]]</span>
 <span class="sd">        Iterable of check callbacks to set for this component, if provided.</span>
 <span class="sd">    hooks : typing.Optional[tanjun.abc.AnyHooks]</span>
 <span class="sd">        The hooks this component should add to the execution of all its</span>
@@ -921,7 +921,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    checks : typing.Optional[typing.Iterable[abc.CheckSig]]</span>
+<span class="sd">    checks : typing.Optional[collections.abc.Iterable[abc.CheckSig]]</span>
 <span class="sd">        Iterable of check callbacks to set for this component, if provided.</span>
 <span class="sd">    hooks : typing.Optional[tanjun.abc.AnyHooks]</span>
 <span class="sd">        The hooks this component should add to the execution of all its</span>
@@ -1489,7 +1489,7 @@ supports dependency injection.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>checks</strong> (typing.Optional[typing.Iterable[abc.CheckSig]]):
+<li><strong>checks</strong> (typing.Optional[collections.abc.Iterable[abc.CheckSig]]):
 Iterable of check callbacks to set for this component, if provided.</li>
 <li><strong>hooks</strong> (typing.Optional[<a href="abc.html#AnyHooks">tanjun.abc.AnyHooks</a>]):
 The hooks this component should add to the execution of all its
@@ -2580,7 +2580,7 @@ The event to listen for.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</strong>: Decorator callback which takes listener to add.</li>
+<li><strong>collections.abc.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</strong>: Decorator callback which takes listener to add.</li>
 </ul>
 </div>
 

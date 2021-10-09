@@ -281,6 +281,15 @@
                                 <a class="function" href="#Client.with_prefix_getter">with_prefix_getter</a>
                         </li>
                         <li>
+                                <a class="function" href="#Client.iter_commands">iter_commands</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.iter_message_commands">iter_message_commands</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.iter_slash_commands">iter_slash_commands</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Client.check_message_name">check_message_name</a>
                         </li>
                         <li>
@@ -1793,6 +1802,7 @@ enable slash (interaction) command execution:</p>
 <span class="sd">&quot;&quot;&quot;Type hint for a value which may need to be awaited to be resolved.&quot;&quot;&quot;</span>
 
 <span class="n">ContextT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;ContextT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;Context&quot;</span><span class="p">)</span>
+<span class="n">ContextT_co</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;ContextT_co&quot;</span><span class="p">,</span> <span class="n">covariant</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;Context&quot;</span><span class="p">)</span>
 <span class="n">ContextT_contra</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;ContextT_contra&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;Context&quot;</span><span class="p">,</span> <span class="n">contravariant</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">MetaEventSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
 <span class="n">MetaEventSigT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;MetaEventSigT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;MetaEventSig&quot;</span><span class="p">)</span>
@@ -2211,20 +2221,20 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        ----------------</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
 <span class="sd">            A singular attachment to edit the initial response with.</span>
-<span class="sd">        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]</span>
+<span class="sd">        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]</span>
 <span class="sd">            A sequence of attachments to edit the initial response with.</span>
 <span class="sd">        component : hikari.UndefinedNoneOr[hikari.api.ComponentBuilder]</span>
 <span class="sd">            If provided, builder object of the component to set for this message.</span>
 <span class="sd">            This component will replace any previously set components and passing</span>
 <span class="sd">            `None` will remove all components.</span>
-<span class="sd">        components : hikari.UndefinedNoneOr[typing.Sequence[hikari.api.ComponentBuilder]]</span>
+<span class="sd">        components : hikari.UndefinedNoneOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]</span>
 <span class="sd">            If provided, a sequence of the component builder objects set for</span>
 <span class="sd">            this message. These components will replace any previously set</span>
 <span class="sd">            components and passing `None` or an empty sequence will</span>
 <span class="sd">            remove all components.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            An embed to replace the initial response with.</span>
-<span class="sd">        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]</span>
+<span class="sd">        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]</span>
 <span class="sd">            A sequence of embeds to replace the initial response with.</span>
 <span class="sd">        replace_attachments : bool</span>
 <span class="sd">            Whether to replace the attachments of the response or not. Default to `False`.</span>
@@ -2357,20 +2367,20 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        ----------------</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
 <span class="sd">            A singular attachment to edit the last response with.</span>
-<span class="sd">        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]</span>
+<span class="sd">        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]</span>
 <span class="sd">            A sequence of attachments to edit the last response with.</span>
 <span class="sd">        component : hikari.UndefinedNoneOr[hikari.api.ComponentBuilder]</span>
 <span class="sd">            If provided, builder object of the component to set for this message.</span>
 <span class="sd">            This component will replace any previously set components and passing</span>
 <span class="sd">            `None` will remove all components.</span>
-<span class="sd">        components : hikari.UndefinedNoneOr[typing.Sequence[hikari.api.ComponentBuilder]]</span>
+<span class="sd">        components : hikari.UndefinedNoneOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]</span>
 <span class="sd">            If provided, a sequence of the component builder objects set for</span>
 <span class="sd">            this message. These components will replace any previously set</span>
 <span class="sd">            components and passing `None` or an empty sequence will</span>
 <span class="sd">            remove all components.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            An embed to replace the last response with.</span>
-<span class="sd">        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]</span>
+<span class="sd">        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]</span>
 <span class="sd">            A sequence of embeds to replace the last response with.</span>
 <span class="sd">        replace_attachments : bool</span>
 <span class="sd">            Whether to replace the attachments of the response or not. Default to `False`.</span>
@@ -2571,12 +2581,12 @@ enable slash (interaction) command execution:</p>
 <span class="sd">            command flow, this may lead to an extre request being made.</span>
 <span class="sd">        component : hikari.UndefinedOr[hikari.api.ComponentBuilder]</span>
 <span class="sd">            If provided, builder object of the component to include in this response.</span>
-<span class="sd">        components : hikari.UndefinedOr[typing.Sequence[hikari.api.ComponentBuilder]]</span>
+<span class="sd">        components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]</span>
 <span class="sd">            If provided, a sequence of the component builder objects to include</span>
 <span class="sd">            in this response.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            An embed to respond with.</span>
-<span class="sd">        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]</span>
+<span class="sd">        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]</span>
 <span class="sd">            A sequence of embeds to respond with.</span>
 <span class="sd">        mentions_everyone : hikari.UndefinedOr[bool]</span>
 <span class="sd">            If provided, whether the message should parse @everyone/@here</span>
@@ -2785,16 +2795,16 @@ enable slash (interaction) command execution:</p>
 <span class="sd">            The nonce that validates that the message was sent.</span>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
 <span class="sd">            A singular attachment to respond with.</span>
-<span class="sd">        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]</span>
+<span class="sd">        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]</span>
 <span class="sd">            A sequence of attachments to respond with.</span>
 <span class="sd">        component : hikari.UndefinedOr[hikari.api.ComponentBuilder]</span>
 <span class="sd">            If provided, builder object of the component to include in this message.</span>
-<span class="sd">        components : hikari.UndefinedOr[typing.Sequence[hikari.api.ComponentBuilder]]</span>
+<span class="sd">        components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]</span>
 <span class="sd">            If provided, a sequence of the component builder objects to include</span>
 <span class="sd">            in this message.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            An embed to respond with.</span>
-<span class="sd">        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]</span>
+<span class="sd">        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]</span>
 <span class="sd">            A sequence of embeds to respond with.</span>
 <span class="sd">        mentions_everyone : hikari.UndefinedOr[bool]</span>
 <span class="sd">            If provided, whether the message should parse @everyone/@here</span>
@@ -3229,17 +3239,17 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        attachment : hikari.UndefinedOr[hikari.Resourceish]</span>
 <span class="sd">            If provided, the message attachment. This can be a resource,</span>
 <span class="sd">            or string of a path on your computer or a URL.</span>
-<span class="sd">        attachments : hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]]</span>
+<span class="sd">        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]</span>
 <span class="sd">            If provided, the message attachments. These can be resources, or</span>
 <span class="sd">            strings consisting of paths on your computer or URLs.</span>
 <span class="sd">        component : hikari.UndefinedOr[hikari.api.ComponentBuilder]</span>
 <span class="sd">            If provided, builder object of the component to include in this message.</span>
-<span class="sd">        components : hikari.UndefinedOr[typing.Sequence[hikari.api.ComponentBuilder]]</span>
+<span class="sd">        components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]</span>
 <span class="sd">            If provided, a sequence of the component builder objects to include</span>
 <span class="sd">            in this message.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            If provided, the message embed.</span>
-<span class="sd">        embeds : hikari.UndefinedOr[typing.Sequence[hikari.Embed]]</span>
+<span class="sd">        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]</span>
 <span class="sd">            If provided, the message embeds.</span>
 <span class="sd">        mentions_everyone : hikari.UndefinedOr[bool]</span>
 <span class="sd">            If provided, whether the message should parse @everyone/@here</span>
@@ -3332,12 +3342,12 @@ enable slash (interaction) command execution:</p>
 <span class="sd">            for simpler syntax when sending an embed alone.</span>
 <span class="sd">        component : hikari.UndefinedOr[hikari.api.ComponentBuilder]</span>
 <span class="sd">            If provided, builder object of the component to include in this message.</span>
-<span class="sd">        components : hikari.UndefinedOr[typing.Sequence[hikari.api.ComponentBuilder]]</span>
+<span class="sd">        components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]</span>
 <span class="sd">            If provided, a sequence of the component builder objects to include</span>
 <span class="sd">            in this message.</span>
 <span class="sd">        embed : hikari.UndefinedOr[hikari.Embed]</span>
 <span class="sd">            If provided, the message embed.</span>
-<span class="sd">        embeds : hikari.UndefinedOr[typing.Sequence[hikari.Embed]]</span>
+<span class="sd">        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]</span>
 <span class="sd">            If provided, the message embeds.</span>
 <span class="sd">        flags : typing.Union[int, hikari.MessageFlag, hikari.UndefinedType]</span>
 <span class="sd">            If provided, the message flags this response should have.</span>
@@ -3461,7 +3471,7 @@ enable slash (interaction) command execution:</p>
 <span class="sd">&quot;&quot;&quot;Execution hooks for slash commands.&quot;&quot;&quot;</span>
 
 
-<span class="k">class</span> <span class="nc">ExecutableCommand</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">ContextT</span><span class="p">]):</span>
+<span class="k">class</span> <span class="nc">ExecutableCommand</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">ContextT_co</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Base class for all commands that can be executed.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
@@ -3490,12 +3500,12 @@ enable slash (interaction) command execution:</p>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">Hooks</span><span class="p">[</span><span class="n">ContextT</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">Hooks</span><span class="p">[</span><span class="n">ContextT_co</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Hooks that are triggered when the command is executed.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        typing.Optional[Hooks[ContextT]]</span>
+<span class="sd">        typing.Optional[Hooks[ContextT_co]]</span>
 <span class="sd">            The hooks that are triggered when the command is executed if set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -3532,12 +3542,12 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">set_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">Hooks</span><span class="p">[</span><span class="n">ContextT</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">Hooks</span><span class="p">[</span><span class="n">ContextT_co</span><span class="p">]],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the hooks that are triggered when the command is executed.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hooks : typing.Optional[Hooks[ContextT]]</span>
+<span class="sd">        hooks : typing.Optional[Hooks[ContextT_co]]</span>
 <span class="sd">            The hooks that are triggered when the command is executed.</span>
 
 <span class="sd">        Returns</span>
@@ -3580,16 +3590,6 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        Self</span>
 <span class="sd">            This command to enable chained calls</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">ContextT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">ContextT</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">Hooks</span><span class="p">[</span><span class="n">ContextT</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 
 <span class="k">class</span> <span class="nc">BaseSlashCommand</span><span class="p">(</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
@@ -3673,6 +3673,10 @@ enable slash (interaction) command execution:</p>
 <span class="sd">            A builder object for this command. Use to declare this command on</span>
 <span class="sd">            globally or for a specific guild.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">SlashContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span>
@@ -3865,6 +3869,16 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        Self</span>
 <span class="sd">            The copy.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">check_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">Hooks</span><span class="p">[</span><span class="n">MessageContext</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 
 <span class="k">class</span> <span class="nc">MessageCommandGroup</span><span class="p">(</span><span class="n">MessageCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
@@ -4206,7 +4220,7 @@ enable slash (interaction) command execution:</p>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</span>
+<span class="sd">        collections.abc.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</span>
 <span class="sd">            Decorator callback which takes listener to add.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -4359,7 +4373,7 @@ enable slash (interaction) command execution:</p>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        collections.api.Collection[tanjun.traits.Component]</span>
+<span class="sd">        collections.abc.Collection[tanjun.traits.Component]</span>
 <span class="sd">            Collection of the components this command client is using.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -4694,6 +4708,41 @@ enable slash (interaction) command execution:</p>
 <span class="sd">            The callback must be a coroutine function which returns `None` and</span>
 <span class="sd">            always takes at least one positional arg of type `hikari.Event`</span>
 <span class="sd">            regardless of client implementation detail.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">iter_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">Context</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Iterate over all the commands (both message and slash) registered to this client.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[ExecutableCommand[Context]]</span>
+<span class="sd">            Iterator of all the commands registered to this client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">iter_message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Iterate over all the message commands registered to this client.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[MessageCommand]</span>
+<span class="sd">            Iterator of all the message commands registered to this client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">iter_slash_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">global_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Iterate over all the slash commands registered to this client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        global_only : bool</span>
+<span class="sd">            Whether to only iterate over global slash commands.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Iterator[BaseSlashCommand]</span>
+<span class="sd">            Iterator of all the slash commands registered to this client.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -7883,7 +7932,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        prefixes : typing.Union[collections.Iterable[str], str]</span>
+<span class="sd">        prefixes : typing.Union[collections.abc.Iterable[str], str]</span>
 <span class="sd">            Either a single string or an iterable of strings to be used as</span>
 <span class="sd">            prefixes.</span>
 
@@ -7953,7 +8002,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
 <span class="sd">        client = tanjun.Client.from_rest_bot(bot)</span>
 
 <span class="sd">        @client.with_prefix_getter</span>
-<span class="sd">        async def prefix_getter(ctx: tanjun.abc.MessageContext) -&gt; typing.Iterable[str]:</span>
+<span class="sd">        async def prefix_getter(ctx: tanjun.abc.MessageContext) -&gt; collections.abc.Iterable[str]:</span>
 <span class="sd">            raise NotImplementedError</span>
 <span class="sd">        ```</span>
 
@@ -7974,6 +8023,23 @@ a DM context (e.g. can't have any moderation permissions)</li>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_prefix_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">getter</span>
+
+    <span class="k">def</span> <span class="nf">iter_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">]]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="n">slash_commands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_slash_commands</span><span class="p">(</span><span class="n">global_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_message_commands</span><span class="p">()</span>
+        <span class="k">yield from</span> <span class="n">slash_commands</span>
+
+    <span class="k">def</span> <span class="nf">iter_message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">message_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">iter_slash_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">global_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">global_only</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">is_global</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_slash_commands</span><span class="p">(</span><span class="n">global_only</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">slash_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
@@ -8200,7 +8266,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_iter_module_members</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_iter_module_members</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
         <span class="n">exported</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">&quot;__all__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">exported</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exported</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
             <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Scanning </span><span class="si">%s</span><span class="s2"> module based on its declared __all__)&quot;</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">)</span>
@@ -9878,7 +9944,7 @@ from the provided client using it's abstract methods.</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        prefixes : typing.Union[collections.Iterable[str], str]</span>
+<span class="sd">        prefixes : typing.Union[collections.abc.Iterable[str], str]</span>
 <span class="sd">            Either a single string or an iterable of strings to be used as</span>
 <span class="sd">            prefixes.</span>
 
@@ -9948,7 +10014,7 @@ from the provided client using it's abstract methods.</li>
 <span class="sd">        client = tanjun.Client.from_rest_bot(bot)</span>
 
 <span class="sd">        @client.with_prefix_getter</span>
-<span class="sd">        async def prefix_getter(ctx: tanjun.abc.MessageContext) -&gt; typing.Iterable[str]:</span>
+<span class="sd">        async def prefix_getter(ctx: tanjun.abc.MessageContext) -&gt; collections.abc.Iterable[str]:</span>
 <span class="sd">            raise NotImplementedError</span>
 <span class="sd">        ```</span>
 
@@ -9969,6 +10035,23 @@ from the provided client using it's abstract methods.</li>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_prefix_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">getter</span>
+
+    <span class="k">def</span> <span class="nf">iter_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">]]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="n">slash_commands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_slash_commands</span><span class="p">(</span><span class="n">global_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_message_commands</span><span class="p">()</span>
+        <span class="k">yield from</span> <span class="n">slash_commands</span>
+
+    <span class="k">def</span> <span class="nf">iter_message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">message_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">iter_slash_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">global_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">global_only</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">is_global</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_slash_commands</span><span class="p">(</span><span class="n">global_only</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">slash_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
@@ -10195,7 +10278,7 @@ from the provided client using it's abstract methods.</li>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_iter_module_members</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_iter_module_members</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
         <span class="n">exported</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">&quot;__all__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">exported</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exported</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
             <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Scanning </span><span class="si">%s</span><span class="s2"> module based on its declared __all__)&quot;</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">)</span>
@@ -11128,7 +11211,7 @@ this client.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.api.Collection[<a href="#traits.Component">tanjun.traits.Component</a>]</strong>: Collection of the components this command client is using.</li>
+<li><strong>collections.abc.Collection[<a href="#traits.Component">tanjun.traits.Component</a>]</strong>: Collection of the components this command client is using.</li>
 </ul>
 </div>
 
@@ -13160,7 +13243,7 @@ regardless of client implementation detail.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        prefixes : typing.Union[collections.Iterable[str], str]</span>
+<span class="sd">        prefixes : typing.Union[collections.abc.Iterable[str], str]</span>
 <span class="sd">            Either a single string or an iterable of strings to be used as</span>
 <span class="sd">            prefixes.</span>
 
@@ -13190,7 +13273,7 @@ execution should be initiated.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>prefixes</strong> (typing.Union[collections.Iterable[str], str]):
+<li><strong>prefixes</strong> (typing.Union[collections.abc.Iterable[str], str]):
 Either a single string or an iterable of strings to be used as
 prefixes.</li>
 </ul>
@@ -13344,7 +13427,7 @@ Dependency injection is supported for this callback's keyword arguments.</p></li
 <span class="sd">        client = tanjun.Client.from_rest_bot(bot)</span>
 
 <span class="sd">        @client.with_prefix_getter</span>
-<span class="sd">        async def prefix_getter(ctx: tanjun.abc.MessageContext) -&gt; typing.Iterable[str]:</span>
+<span class="sd">        async def prefix_getter(ctx: tanjun.abc.MessageContext) -&gt; collections.abc.Iterable[str]:</span>
 <span class="sd">            raise NotImplementedError</span>
 <span class="sd">        ```</span>
 
@@ -13376,7 +13459,7 @@ Dependency injection is supported for this callback's keyword arguments.</p></li
 <div class="codehilite"><pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_rest_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
 
 <span class="nd">@client</span><span class="o">.</span><span class="n">with_prefix_getter</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">prefix_getter</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">prefix_getter</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
 
@@ -13396,6 +13479,108 @@ Dependency injection is supported for this callback's keyword arguments.</p></li
 
 <ul>
 <li><strong>PrefixGetterSigT</strong>: The registered callback.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.iter_commands" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.iter_commands">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">iter_commands</span><span class="signature">(
+    self
+) -&gt; collections.abc.Iterator[<a href="tanjun/abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>[<a href="tanjun/abc.html#Context">tanjun.abc.Context</a>]]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">iter_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">]]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="n">slash_commands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_slash_commands</span><span class="p">(</span><span class="n">global_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_message_commands</span><span class="p">()</span>
+        <span class="k">yield from</span> <span class="n">slash_commands</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Iterate over all the commands (both message and slash) registered to this client.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[ExecutableCommand[Context]]</strong>: Iterator of all the commands registered to this client.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.iter_message_commands" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.iter_message_commands">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">iter_message_commands</span><span class="signature">(self) -&gt; collections.abc.Iterator[<a href="tanjun/abc.html#MessageCommand">tanjun.abc.MessageCommand</a>]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">iter_message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">message_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Iterate over all the message commands registered to this client.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[MessageCommand]</strong>: Iterator of all the message commands registered to this client.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.iter_slash_commands" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.iter_slash_commands">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">iter_slash_commands</span><span class="signature">(
+    self,
+    *,
+    global_only: bool = False
+) -&gt; collections.abc.Iterator[<a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">iter_slash_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">global_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">global_only</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">is_global</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_slash_commands</span><span class="p">(</span><span class="n">global_only</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">slash_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Iterate over all the slash commands registered to this client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>global_only</strong> (bool):
+Whether to only iterate over global slash commands.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[BaseSlashCommand]</strong>: Iterator of all the slash commands registered to this client.</li>
 </ul>
 </div>
 
@@ -16197,13 +16382,13 @@ message create events.</p>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, str], str]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            Where both option_name and option_value should be strings of up to 100</span>
 <span class="sd">            characters.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -16273,13 +16458,13 @@ message create events.</p>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, int]]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, int]]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            where option_name should be a string of up to 100 characters and</span>
 <span class="sd">            option_value should be an integer.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -16352,13 +16537,13 @@ message create events.</p>
 
 <span class="sd">            This masks behaviour from Discord where we will either be provided a `float`</span>
 <span class="sd">            or `int` dependent on what the user provided and defaults to `True`.</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, float]]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            where option_name should be a string of up to 100 characters and</span>
 <span class="sd">            option_value should be a float.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -16959,7 +17144,7 @@ message create events.</p>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MessageCommandT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
@@ -17091,7 +17276,7 @@ message create events.</p>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandGroupT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandGroupT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MessageCommandGroupT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
@@ -17824,7 +18009,7 @@ Whether this command is a global command. Defaults to <code>True</code>.</li>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MessageCommandT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
@@ -18107,15 +18292,15 @@ matches the message.</p>
             <span class="name">copy</span><span class="signature">(
     self: ~_MessageCommandT,
     *,
-    _new: bool = True,
-    parent: Optional[<a href="tanjun/abc.html#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>] = None
+    parent: Optional[<a href="tanjun/abc.html#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>] = None,
+    _new: bool = True
 ) -&gt; ~_MessageCommandT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MessageCommandT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
@@ -18408,7 +18593,7 @@ The parent of this command.</li>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandGroupT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandGroupT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MessageCommandGroupT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
@@ -18626,15 +18811,15 @@ The commands in this group.</li>
             <span class="name">copy</span><span class="signature">(
     self: ~_MessageCommandGroupT,
     *,
-    _new: bool = True,
-    parent: Optional[<a href="tanjun/abc.html#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>] = None
+    parent: Optional[<a href="tanjun/abc.html#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>] = None,
+    _new: bool = True
 ) -&gt; ~_MessageCommandGroupT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandGroupT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_MessageCommandGroupT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MessageCommandGroupT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.MessageCommand&gt;&gt;.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
@@ -19207,13 +19392,13 @@ The command to add.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, str], str]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            Where both option_name and option_value should be strings of up to 100</span>
 <span class="sd">            characters.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -19283,13 +19468,13 @@ The command to add.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, int]]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, int]]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            where option_name should be a string of up to 100 characters and</span>
 <span class="sd">            option_value should be an integer.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -19362,13 +19547,13 @@ The command to add.</li>
 
 <span class="sd">            This masks behaviour from Discord where we will either be provided a `float`</span>
 <span class="sd">            or `int` dependent on what the user provided and defaults to `True`.</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, float]]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            where option_name should be a string of up to 100 characters and</span>
 <span class="sd">            option_value should be a float.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -20059,13 +20244,13 @@ globally or for a specific guild.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, str], str]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            Where both option_name and option_value should be strings of up to 100</span>
 <span class="sd">            characters.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -20135,13 +20320,13 @@ This should be inclusively between 1-100 characters in length.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>choices</strong> (typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]]):
+<li><p><strong>choices</strong> (typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, str], str]]]):
 The option's choices.</p>
 
 <p>This may be either one or multiple <code>tuple[opton_name, option_value]</code>
 Where both option_name and option_value should be strings of up to 100
 characters.</p></li>
-<li><p><strong>converters</strong> (typing.Union[collections.Sequence[ConverterSig], ConverterSig]):
+<li><p><strong>converters</strong> (typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig]):
 The option's converters.</p>
 
 <p>This may be either one or multiple <code>ConverterSig</code> callbacks used to
@@ -20225,13 +20410,13 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, int]]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, int]]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            where option_name should be a string of up to 100 characters and</span>
 <span class="sd">            option_value should be an integer.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -20292,13 +20477,13 @@ This should be inclusively between 1-100 characters in length.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>choices</strong> (typing.Optional[collections.Iterable[typing.Union[tuple[str, int]]]]):
+<li><p><strong>choices</strong> (typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, int]]]]):
 The option's choices.</p>
 
 <p>This may be either one or multiple <code>tuple[opton_name, option_value]</code>
 where option_name should be a string of up to 100 characters and
 option_value should be an integer.</p></li>
-<li><p><strong>converters</strong> (typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]):
+<li><p><strong>converters</strong> (typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]):
 The option's converters.</p>
 
 <p>This may be either one or multiple <code>ConverterSig</code> callbacks used to
@@ -20390,13 +20575,13 @@ being used and the <code>coverters</code> field will be ignored.</p></li>
 
 <span class="sd">            This masks behaviour from Discord where we will either be provided a `float`</span>
 <span class="sd">            or `int` dependent on what the user provided and defaults to `True`.</span>
-<span class="sd">        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]</span>
+<span class="sd">        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, float]]]]</span>
 <span class="sd">            The option&#39;s choices.</span>
 
 <span class="sd">            This may be either one or multiple `tuple[opton_name, option_value]`</span>
 <span class="sd">            where option_name should be a string of up to 100 characters and</span>
 <span class="sd">            option_value should be a float.</span>
-<span class="sd">        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]</span>
+<span class="sd">        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]</span>
 <span class="sd">            The option&#39;s converters.</span>
 
 <span class="sd">            This may be either one or multiple `ConverterSig` callbacks used to</span>
@@ -20465,13 +20650,13 @@ float (this will happen before it's passed to converters).</p>
 
 <p>This masks behaviour from Discord where we will either be provided a <code>float</code>
 or <code>int</code> dependent on what the user provided and defaults to <code>True</code>.</p></li>
-<li><p><strong>choices</strong> (typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]):
+<li><p><strong>choices</strong> (typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, float]]]]):
 The option's choices.</p>
 
 <p>This may be either one or multiple <code>tuple[opton_name, option_value]</code>
 where option_name should be a string of up to 100 characters and
 option_value should be a float.</p></li>
-<li><p><strong>converters</strong> (typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]):
+<li><p><strong>converters</strong> (typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]):
 The option's converters.</p>
 
 <p>This may be either one or multiple <code>ConverterSig</code> callbacks used to
@@ -22842,7 +23027,7 @@ This may target roles, guild members or users and results in
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    checks : typing.Optional[typing.Iterable[abc.CheckSig]]</span>
+<span class="sd">    checks : typing.Optional[collections.abc.Iterable[abc.CheckSig]]</span>
 <span class="sd">        Iterable of check callbacks to set for this component, if provided.</span>
 <span class="sd">    hooks : typing.Optional[tanjun.abc.AnyHooks]</span>
 <span class="sd">        The hooks this component should add to the execution of all its</span>
@@ -23426,7 +23611,7 @@ This may target roles, guild members or users and results in
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    checks : typing.Optional[typing.Iterable[abc.CheckSig]]</span>
+<span class="sd">    checks : typing.Optional[collections.abc.Iterable[abc.CheckSig]]</span>
 <span class="sd">        Iterable of check callbacks to set for this component, if provided.</span>
 <span class="sd">    hooks : typing.Optional[tanjun.abc.AnyHooks]</span>
 <span class="sd">        The hooks this component should add to the execution of all its</span>
@@ -23994,7 +24179,7 @@ supports dependency injection.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>checks</strong> (typing.Optional[typing.Iterable[abc.CheckSig]]):
+<li><strong>checks</strong> (typing.Optional[collections.abc.Iterable[abc.CheckSig]]):
 Iterable of check callbacks to set for this component, if provided.</li>
 <li><strong>hooks</strong> (typing.Optional[<a href="tanjun/abc.html#AnyHooks">tanjun.abc.AnyHooks</a>]):
 The hooks this component should add to the execution of all its
@@ -25085,7 +25270,7 @@ The event to listen for.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</strong>: Decorator callback which takes listener to add.</li>
+<li><strong>collections.abc.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</strong>: Decorator callback which takes listener to add.</li>
 </ul>
 </div>
 
@@ -27417,20 +27602,20 @@ no <code>attachments</code> kwargs are provided.</p></li>
 <ul>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 A singular attachment to edit the initial response with.</li>
-<li><strong>attachments</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]):
+<li><strong>attachments</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]):
 A sequence of attachments to edit the initial response with.</li>
 <li><strong>component</strong> (hikari.UndefinedNoneOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to set for this message.
 This component will replace any previously set components and passing
 <code>None</code> will remove all components.</li>
-<li><strong>components</strong> (hikari.UndefinedNoneOr[typing.Sequence[hikari.api.ComponentBuilder]]):
+<li><strong>components</strong> (hikari.UndefinedNoneOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
 If provided, a sequence of the component builder objects set for
 this message. These components will replace any previously set
 components and passing <code>None</code> or an empty sequence will
 remove all components.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 An embed to replace the initial response with.</li>
-<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]):
 A sequence of embeds to replace the initial response with.</li>
 <li><strong>replace_attachments</strong> (bool):
 Whether to replace the attachments of the response or not. Default to <code>False</code>.</li>
@@ -27611,20 +27796,20 @@ no <code>attachments</code> kwargs are provided.</p></li>
 <ul>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 A singular attachment to edit the last response with.</li>
-<li><strong>attachments</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]):
+<li><strong>attachments</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]):
 A sequence of attachments to edit the last response with.</li>
 <li><strong>component</strong> (hikari.UndefinedNoneOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to set for this message.
 This component will replace any previously set components and passing
 <code>None</code> will remove all components.</li>
-<li><strong>components</strong> (hikari.UndefinedNoneOr[typing.Sequence[hikari.api.ComponentBuilder]]):
+<li><strong>components</strong> (hikari.UndefinedNoneOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
 If provided, a sequence of the component builder objects set for
 this message. These components will replace any previously set
 components and passing <code>None</code> or an empty sequence will
 remove all components.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 An embed to replace the last response with.</li>
-<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]):
 A sequence of embeds to replace the last response with.</li>
 <li><strong>replace_attachments</strong> (bool):
 Whether to replace the attachments of the response or not. Default to <code>False</code>.</li>
@@ -27885,12 +28070,12 @@ otherwise this will return <code>Optional[hikari.Message]</code>.</p>
 command flow, this may lead to an extre request being made.</p></li>
 <li><strong>component</strong> (hikari.UndefinedOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to include in this response.</li>
-<li><strong>components</strong> (hikari.UndefinedOr[typing.Sequence[hikari.api.ComponentBuilder]]):
+<li><strong>components</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
 If provided, a sequence of the component builder objects to include
 in this response.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 An embed to respond with.</li>
-<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]):
 A sequence of embeds to respond with.</li>
 <li><strong>mentions_everyone</strong> (hikari.UndefinedOr[bool]):
 If provided, whether the message should parse @everyone/@here
@@ -29232,17 +29417,17 @@ If provided, whether the message will be sent as a TTS message.</li>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 If provided, the message attachment. This can be a resource,
 or string of a path on your computer or a URL.</li>
-<li><strong>attachments</strong> (hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]]):
+<li><strong>attachments</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]):
 If provided, the message attachments. These can be resources, or
 strings consisting of paths on your computer or URLs.</li>
 <li><strong>component</strong> (hikari.UndefinedOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to include in this message.</li>
-<li><strong>components</strong> (hikari.UndefinedOr[typing.Sequence[hikari.api.ComponentBuilder]]):
+<li><strong>components</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
 If provided, a sequence of the component builder objects to include
 in this message.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 If provided, the message embed.</li>
-<li><strong>embeds</strong> (hikari.UndefinedOr[typing.Sequence[hikari.Embed]]):
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]):
 If provided, the message embeds.</li>
 <li><strong>mentions_everyone</strong> (hikari.UndefinedOr[bool]):
 If provided, whether the message should parse @everyone/@here
@@ -29376,12 +29561,12 @@ is provided, then this will instead update the embed. This allows
 for simpler syntax when sending an embed alone.</p></li>
 <li><strong>component</strong> (hikari.UndefinedOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to include in this message.</li>
-<li><strong>components</strong> (hikari.UndefinedOr[typing.Sequence[hikari.api.ComponentBuilder]]):
+<li><strong>components</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
 If provided, a sequence of the component builder objects to include
 in this message.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 If provided, the message embed.</li>
-<li><strong>embeds</strong> (hikari.UndefinedOr[typing.Sequence[hikari.Embed]]):
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]):
 If provided, the message embeds.</li>
 <li><p><strong>flags</strong> (typing.Union[int, hikari.MessageFlag, hikari.UndefinedType]):
 If provided, the message flags this response should have.</p>
@@ -29592,20 +29777,20 @@ no <code>attachments</code> kwargs are provided.</p></li>
 <ul>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 A singular attachment to edit the initial response with.</li>
-<li><strong>attachments</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]):
+<li><strong>attachments</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]):
 A sequence of attachments to edit the initial response with.</li>
 <li><strong>component</strong> (hikari.UndefinedNoneOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to set for this message.
 This component will replace any previously set components and passing
 <code>None</code> will remove all components.</li>
-<li><strong>components</strong> (hikari.UndefinedNoneOr[typing.Sequence[hikari.api.ComponentBuilder]]):
+<li><strong>components</strong> (hikari.UndefinedNoneOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
 If provided, a sequence of the component builder objects set for
 this message. These components will replace any previously set
 components and passing <code>None</code> or an empty sequence will
 remove all components.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 An embed to replace the initial response with.</li>
-<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]):
 A sequence of embeds to replace the initial response with.</li>
 <li><strong>replace_attachments</strong> (bool):
 Whether to replace the attachments of the response or not. Default to <code>False</code>.</li>
@@ -29800,20 +29985,20 @@ no <code>attachments</code> kwargs are provided.</p></li>
 <ul>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 A singular attachment to edit the last response with.</li>
-<li><strong>attachments</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]):
+<li><strong>attachments</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]):
 A sequence of attachments to edit the last response with.</li>
 <li><strong>component</strong> (hikari.UndefinedNoneOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to set for this message.
 This component will replace any previously set components and passing
 <code>None</code> will remove all components.</li>
-<li><strong>components</strong> (hikari.UndefinedNoneOr[typing.Sequence[hikari.api.ComponentBuilder]]):
+<li><strong>components</strong> (hikari.UndefinedNoneOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
 If provided, a sequence of the component builder objects set for
 this message. These components will replace any previously set
 components and passing <code>None</code> or an empty sequence will
 remove all components.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 An embed to replace the last response with.</li>
-<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]):
 A sequence of embeds to replace the last response with.</li>
 <li><strong>replace_attachments</strong> (bool):
 Whether to replace the attachments of the response or not. Default to <code>False</code>.</li>
@@ -30080,12 +30265,12 @@ otherwise this will return <code>Optional[hikari.Message]</code>.</p>
 command flow, this may lead to an extre request being made.</p></li>
 <li><strong>component</strong> (hikari.UndefinedOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to include in this response.</li>
-<li><strong>components</strong> (hikari.UndefinedOr[typing.Sequence[hikari.api.ComponentBuilder]]):
+<li><strong>components</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
 If provided, a sequence of the component builder objects to include
 in this response.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 An embed to respond with.</li>
-<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]):
 A sequence of embeds to respond with.</li>
 <li><strong>mentions_everyone</strong> (hikari.UndefinedOr[bool]):
 If provided, whether the message should parse @everyone/@here
@@ -31818,7 +32003,7 @@ user.</p>
 <span class="n">to_channel</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ChannelConverter</span><span class="p">]</span> <span class="o">=</span> <span class="n">ChannelConverter</span><span class="p">()</span>
 <span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.channels.PartialChannel` object.&quot;&quot;&quot;</span>
 
-<span class="n">to_colour</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ArgumentT</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="p">]]</span> <span class="o">=</span> <span class="n">to_color</span>
+<span class="n">to_colour</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ArgumentT</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="p">]]</span> <span class="o">=</span> <span class="n">to_color</span>
 <span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.colors.Color` object.&quot;&quot;&quot;</span>
 
 <span class="n">to_emoji</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">EmojiConverter</span><span class="p">]</span> <span class="o">=</span> <span class="n">EmojiConverter</span><span class="p">()</span>
@@ -31842,7 +32027,7 @@ user.</p>
 <span class="n">to_role</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">RoleConverter</span><span class="p">]</span> <span class="o">=</span> <span class="n">RoleConverter</span><span class="p">()</span>
 <span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.guilds.Role` object.&quot;&quot;&quot;</span>
 
-<span class="n">to_snowflake</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ArgumentT</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]]</span> <span class="o">=</span> <span class="n">parse_snowflake</span>
+<span class="n">to_snowflake</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ArgumentT</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]]</span> <span class="o">=</span> <span class="n">parse_snowflake</span>
 <span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.snowflakes.Snowflake`.</span>
 
 <span class="sd">.. note::</span>
@@ -39390,7 +39575,7 @@ provided without a value.</li>
 <span class="k">class</span> <span class="nc">CastedView</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="n">_KeyT</span><span class="p">,</span> <span class="n">_ValueT</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_buffer&quot;</span><span class="p">,</span> <span class="s2">&quot;_cast&quot;</span><span class="p">,</span> <span class="s2">&quot;_raw_data&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">_KeyT</span><span class="p">,</span> <span class="n">_ValueT</span><span class="p">],</span> <span class="n">cast</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_ValueT</span><span class="p">],</span> <span class="n">_ValueT</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">_KeyT</span><span class="p">,</span> <span class="n">_ValueT</span><span class="p">],</span> <span class="n">cast</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_ValueT</span><span class="p">],</span> <span class="n">_ValueT</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">_KeyT</span><span class="p">,</span> <span class="n">_ValueT</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cast</span> <span class="o">=</span> <span class="n">cast</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_raw_data</span> <span class="o">=</span> <span class="n">raw_data</span>

@@ -2258,20 +2258,20 @@ no <code>attachments</code> kwargs are provided.</p></li>
 <ul>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 A singular attachment to edit the initial response with.</li>
-<li><strong>attachments</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]):
+<li><strong>attachments</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]):
 A sequence of attachments to edit the initial response with.</li>
 <li><strong>component</strong> (hikari.UndefinedNoneOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to set for this message.
 This component will replace any previously set components and passing
 <code>None</code> will remove all components.</li>
-<li><strong>components</strong> (hikari.UndefinedNoneOr[typing.Sequence[hikari.api.ComponentBuilder]]):
+<li><strong>components</strong> (hikari.UndefinedNoneOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
 If provided, a sequence of the component builder objects set for
 this message. These components will replace any previously set
 components and passing <code>None</code> or an empty sequence will
 remove all components.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 An embed to replace the initial response with.</li>
-<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]):
 A sequence of embeds to replace the initial response with.</li>
 <li><strong>replace_attachments</strong> (bool):
 Whether to replace the attachments of the response or not. Default to <code>False</code>.</li>
@@ -2452,20 +2452,20 @@ no <code>attachments</code> kwargs are provided.</p></li>
 <ul>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 A singular attachment to edit the last response with.</li>
-<li><strong>attachments</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]):
+<li><strong>attachments</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]):
 A sequence of attachments to edit the last response with.</li>
 <li><strong>component</strong> (hikari.UndefinedNoneOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to set for this message.
 This component will replace any previously set components and passing
 <code>None</code> will remove all components.</li>
-<li><strong>components</strong> (hikari.UndefinedNoneOr[typing.Sequence[hikari.api.ComponentBuilder]]):
+<li><strong>components</strong> (hikari.UndefinedNoneOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
 If provided, a sequence of the component builder objects set for
 this message. These components will replace any previously set
 components and passing <code>None</code> or an empty sequence will
 remove all components.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 An embed to replace the last response with.</li>
-<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]):
 A sequence of embeds to replace the last response with.</li>
 <li><strong>replace_attachments</strong> (bool):
 Whether to replace the attachments of the response or not. Default to <code>False</code>.</li>
@@ -2726,12 +2726,12 @@ otherwise this will return <code>Optional[hikari.Message]</code>.</p>
 command flow, this may lead to an extre request being made.</p></li>
 <li><strong>component</strong> (hikari.UndefinedOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to include in this response.</li>
-<li><strong>components</strong> (hikari.UndefinedOr[typing.Sequence[hikari.api.ComponentBuilder]]):
+<li><strong>components</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
 If provided, a sequence of the component builder objects to include
 in this response.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 An embed to respond with.</li>
-<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]):
 A sequence of embeds to respond with.</li>
 <li><strong>mentions_everyone</strong> (hikari.UndefinedOr[bool]):
 If provided, whether the message should parse @everyone/@here
@@ -4082,17 +4082,17 @@ If provided, whether the message will be sent as a TTS message.</li>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 If provided, the message attachment. This can be a resource,
 or string of a path on your computer or a URL.</li>
-<li><strong>attachments</strong> (hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]]):
+<li><strong>attachments</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]):
 If provided, the message attachments. These can be resources, or
 strings consisting of paths on your computer or URLs.</li>
 <li><strong>component</strong> (hikari.UndefinedOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to include in this message.</li>
-<li><strong>components</strong> (hikari.UndefinedOr[typing.Sequence[hikari.api.ComponentBuilder]]):
+<li><strong>components</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
 If provided, a sequence of the component builder objects to include
 in this message.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 If provided, the message embed.</li>
-<li><strong>embeds</strong> (hikari.UndefinedOr[typing.Sequence[hikari.Embed]]):
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]):
 If provided, the message embeds.</li>
 <li><strong>mentions_everyone</strong> (hikari.UndefinedOr[bool]):
 If provided, whether the message should parse @everyone/@here
@@ -4226,12 +4226,12 @@ is provided, then this will instead update the embed. This allows
 for simpler syntax when sending an embed alone.</p></li>
 <li><strong>component</strong> (hikari.UndefinedOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to include in this message.</li>
-<li><strong>components</strong> (hikari.UndefinedOr[typing.Sequence[hikari.api.ComponentBuilder]]):
+<li><strong>components</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
 If provided, a sequence of the component builder objects to include
 in this message.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 If provided, the message embed.</li>
-<li><strong>embeds</strong> (hikari.UndefinedOr[typing.Sequence[hikari.Embed]]):
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]):
 If provided, the message embeds.</li>
 <li><p><strong>flags</strong> (typing.Union[int, hikari.MessageFlag, hikari.UndefinedType]):
 If provided, the message flags this response should have.</p>
@@ -4442,20 +4442,20 @@ no <code>attachments</code> kwargs are provided.</p></li>
 <ul>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 A singular attachment to edit the initial response with.</li>
-<li><strong>attachments</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]):
+<li><strong>attachments</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]):
 A sequence of attachments to edit the initial response with.</li>
 <li><strong>component</strong> (hikari.UndefinedNoneOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to set for this message.
 This component will replace any previously set components and passing
 <code>None</code> will remove all components.</li>
-<li><strong>components</strong> (hikari.UndefinedNoneOr[typing.Sequence[hikari.api.ComponentBuilder]]):
+<li><strong>components</strong> (hikari.UndefinedNoneOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
 If provided, a sequence of the component builder objects set for
 this message. These components will replace any previously set
 components and passing <code>None</code> or an empty sequence will
 remove all components.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 An embed to replace the initial response with.</li>
-<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]):
 A sequence of embeds to replace the initial response with.</li>
 <li><strong>replace_attachments</strong> (bool):
 Whether to replace the attachments of the response or not. Default to <code>False</code>.</li>
@@ -4650,20 +4650,20 @@ no <code>attachments</code> kwargs are provided.</p></li>
 <ul>
 <li><strong>attachment</strong> (hikari.UndefinedOr[hikari.Resourceish]):
 A singular attachment to edit the last response with.</li>
-<li><strong>attachments</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]):
+<li><strong>attachments</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]):
 A sequence of attachments to edit the last response with.</li>
 <li><strong>component</strong> (hikari.UndefinedNoneOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to set for this message.
 This component will replace any previously set components and passing
 <code>None</code> will remove all components.</li>
-<li><strong>components</strong> (hikari.UndefinedNoneOr[typing.Sequence[hikari.api.ComponentBuilder]]):
+<li><strong>components</strong> (hikari.UndefinedNoneOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
 If provided, a sequence of the component builder objects set for
 this message. These components will replace any previously set
 components and passing <code>None</code> or an empty sequence will
 remove all components.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 An embed to replace the last response with.</li>
-<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]):
 A sequence of embeds to replace the last response with.</li>
 <li><strong>replace_attachments</strong> (bool):
 Whether to replace the attachments of the response or not. Default to <code>False</code>.</li>
@@ -4930,12 +4930,12 @@ otherwise this will return <code>Optional[hikari.Message]</code>.</p>
 command flow, this may lead to an extre request being made.</p></li>
 <li><strong>component</strong> (hikari.UndefinedOr[hikari.api.ComponentBuilder]):
 If provided, builder object of the component to include in this response.</li>
-<li><strong>components</strong> (hikari.UndefinedOr[typing.Sequence[hikari.api.ComponentBuilder]]):
+<li><strong>components</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]):
 If provided, a sequence of the component builder objects to include
 in this response.</li>
 <li><strong>embed</strong> (hikari.UndefinedOr[hikari.Embed]):
 An embed to respond with.</li>
-<li><strong>embeds</strong> (hikari.UndefinedOr[collections.Sequence[hikari.Embed]]):
+<li><strong>embeds</strong> (hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]):
 A sequence of embeds to respond with.</li>
 <li><strong>mentions_everyone</strong> (hikari.UndefinedOr[bool]):
 If provided, whether the message should parse @everyone/@here

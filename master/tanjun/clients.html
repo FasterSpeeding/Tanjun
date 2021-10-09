@@ -196,6 +196,15 @@
                                 <a class="function" href="#Client.with_prefix_getter">with_prefix_getter</a>
                         </li>
                         <li>
+                                <a class="function" href="#Client.iter_commands">iter_commands</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.iter_message_commands">iter_message_commands</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.iter_slash_commands">iter_slash_commands</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Client.check_message_name">check_message_name</a>
                         </li>
                         <li>
@@ -1864,7 +1873,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        prefixes : typing.Union[collections.Iterable[str], str]</span>
+<span class="sd">        prefixes : typing.Union[collections.abc.Iterable[str], str]</span>
 <span class="sd">            Either a single string or an iterable of strings to be used as</span>
 <span class="sd">            prefixes.</span>
 
@@ -1934,7 +1943,7 @@
 <span class="sd">        client = tanjun.Client.from_rest_bot(bot)</span>
 
 <span class="sd">        @client.with_prefix_getter</span>
-<span class="sd">        async def prefix_getter(ctx: tanjun.abc.MessageContext) -&gt; typing.Iterable[str]:</span>
+<span class="sd">        async def prefix_getter(ctx: tanjun.abc.MessageContext) -&gt; collections.abc.Iterable[str]:</span>
 <span class="sd">            raise NotImplementedError</span>
 <span class="sd">        ```</span>
 
@@ -1955,6 +1964,23 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_prefix_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">getter</span>
+
+    <span class="k">def</span> <span class="nf">iter_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">]]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="n">slash_commands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_slash_commands</span><span class="p">(</span><span class="n">global_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_message_commands</span><span class="p">()</span>
+        <span class="k">yield from</span> <span class="n">slash_commands</span>
+
+    <span class="k">def</span> <span class="nf">iter_message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">message_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">iter_slash_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">global_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">global_only</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">is_global</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_slash_commands</span><span class="p">(</span><span class="n">global_only</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">slash_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
@@ -2181,7 +2207,7 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_iter_module_members</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_iter_module_members</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
         <span class="n">exported</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">&quot;__all__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">exported</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exported</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
             <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Scanning </span><span class="si">%s</span><span class="s2"> module based on its declared __all__)&quot;</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">)</span>
@@ -3855,7 +3881,7 @@ from the provided client using it's abstract methods.</li>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        prefixes : typing.Union[collections.Iterable[str], str]</span>
+<span class="sd">        prefixes : typing.Union[collections.abc.Iterable[str], str]</span>
 <span class="sd">            Either a single string or an iterable of strings to be used as</span>
 <span class="sd">            prefixes.</span>
 
@@ -3925,7 +3951,7 @@ from the provided client using it's abstract methods.</li>
 <span class="sd">        client = tanjun.Client.from_rest_bot(bot)</span>
 
 <span class="sd">        @client.with_prefix_getter</span>
-<span class="sd">        async def prefix_getter(ctx: tanjun.abc.MessageContext) -&gt; typing.Iterable[str]:</span>
+<span class="sd">        async def prefix_getter(ctx: tanjun.abc.MessageContext) -&gt; collections.abc.Iterable[str]:</span>
 <span class="sd">            raise NotImplementedError</span>
 <span class="sd">        ```</span>
 
@@ -3946,6 +3972,23 @@ from the provided client using it's abstract methods.</li>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_prefix_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">getter</span>
+
+    <span class="k">def</span> <span class="nf">iter_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">]]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="n">slash_commands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_slash_commands</span><span class="p">(</span><span class="n">global_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_message_commands</span><span class="p">()</span>
+        <span class="k">yield from</span> <span class="n">slash_commands</span>
+
+    <span class="k">def</span> <span class="nf">iter_message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">message_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">iter_slash_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">global_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">global_only</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">is_global</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_slash_commands</span><span class="p">(</span><span class="n">global_only</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">slash_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">check_message_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
@@ -4172,7 +4215,7 @@ from the provided client using it's abstract methods.</li>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_iter_module_members</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_iter_module_members</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
         <span class="n">exported</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">&quot;__all__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">exported</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exported</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
             <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Scanning </span><span class="si">%s</span><span class="s2"> module based on its declared __all__)&quot;</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">)</span>
@@ -5105,7 +5148,7 @@ this client.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.api.Collection[<a href="../tanjun.html#traits.Component">tanjun.traits.Component</a>]</strong>: Collection of the components this command client is using.</li>
+<li><strong>collections.abc.Collection[<a href="../tanjun.html#traits.Component">tanjun.traits.Component</a>]</strong>: Collection of the components this command client is using.</li>
 </ul>
 </div>
 
@@ -7137,7 +7180,7 @@ regardless of client implementation detail.</p>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        prefixes : typing.Union[collections.Iterable[str], str]</span>
+<span class="sd">        prefixes : typing.Union[collections.abc.Iterable[str], str]</span>
 <span class="sd">            Either a single string or an iterable of strings to be used as</span>
 <span class="sd">            prefixes.</span>
 
@@ -7167,7 +7210,7 @@ execution should be initiated.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>prefixes</strong> (typing.Union[collections.Iterable[str], str]):
+<li><strong>prefixes</strong> (typing.Union[collections.abc.Iterable[str], str]):
 Either a single string or an iterable of strings to be used as
 prefixes.</li>
 </ul>
@@ -7321,7 +7364,7 @@ Dependency injection is supported for this callback's keyword arguments.</p></li
 <span class="sd">        client = tanjun.Client.from_rest_bot(bot)</span>
 
 <span class="sd">        @client.with_prefix_getter</span>
-<span class="sd">        async def prefix_getter(ctx: tanjun.abc.MessageContext) -&gt; typing.Iterable[str]:</span>
+<span class="sd">        async def prefix_getter(ctx: tanjun.abc.MessageContext) -&gt; collections.abc.Iterable[str]:</span>
 <span class="sd">            raise NotImplementedError</span>
 <span class="sd">        ```</span>
 
@@ -7353,7 +7396,7 @@ Dependency injection is supported for this callback's keyword arguments.</p></li
 <div class="codehilite"><pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_rest_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
 
 <span class="nd">@client</span><span class="o">.</span><span class="n">with_prefix_getter</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">prefix_getter</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">prefix_getter</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
 
@@ -7373,6 +7416,108 @@ Dependency injection is supported for this callback's keyword arguments.</p></li
 
 <ul>
 <li><strong>PrefixGetterSigT</strong>: The registered callback.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.iter_commands" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.iter_commands">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">iter_commands</span><span class="signature">(
+    self
+) -&gt; collections.abc.Iterator[<a href="abc.html#ExecutableCommand">tanjun.abc.ExecutableCommand</a>[<a href="abc.html#Context">tanjun.abc.Context</a>]]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">iter_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">]]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="n">slash_commands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_slash_commands</span><span class="p">(</span><span class="n">global_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_message_commands</span><span class="p">()</span>
+        <span class="k">yield from</span> <span class="n">slash_commands</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Iterate over all the commands (both message and slash) registered to this client.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[ExecutableCommand[Context]]</strong>: Iterator of all the commands registered to this client.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.iter_message_commands" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.iter_message_commands">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">iter_message_commands</span><span class="signature">(self) -&gt; collections.abc.Iterator[<a href="abc.html#MessageCommand">tanjun.abc.MessageCommand</a>]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">iter_message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">message_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Iterate over all the message commands registered to this client.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[MessageCommand]</strong>: Iterator of all the message commands registered to this client.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.iter_slash_commands" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.iter_slash_commands">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">iter_slash_commands</span><span class="signature">(
+    self,
+    *,
+    global_only: bool = False
+) -&gt; collections.abc.Iterator[<a href="abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">iter_slash_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">global_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">global_only</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">is_global</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_slash_commands</span><span class="p">(</span><span class="n">global_only</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">slash_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Iterate over all the slash commands registered to this client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>global_only</strong> (bool):
+Whether to only iterate over global slash commands.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Iterator[BaseSlashCommand]</strong>: Iterator of all the slash commands registered to this client.</li>
 </ul>
 </div>
 
