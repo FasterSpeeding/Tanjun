@@ -541,7 +541,13 @@
                                 <a class="function" href="#Client.add_component">add_component</a>
                         </li>
                         <li>
+                                <a class="function" href="#Client.get_component_by_name">get_component_by_name</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Client.remove_component">remove_component</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.remove_component_by_name">remove_component_by_name</a>
                         </li>
                         <li>
                                 <a class="function" href="#Client.add_client_callback">add_client_callback</a>
@@ -3350,6 +3356,20 @@
 <span class="sd">            The client instance to allow chained calls.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+    <span class="k">def</span> <span class="nf">get_component_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">Component</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get a component from this client by name.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Name to get a component by.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Optional[Component]</span>
+<span class="sd">            The component instance if found, else `None`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">remove_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Remove a component from this client.</span>
@@ -3371,6 +3391,24 @@
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The client instance to allow chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">remove_component_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Remove a component from this client by name.</span>
+
+<span class="sd">        This will unsubscribe any client callbacks, commands and listeners</span>
+<span class="sd">        registered in the provided component.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name: str</span>
+<span class="sd">            Name of the component to remove from this client.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If the provided component name isn&#39;t found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -12177,6 +12215,20 @@ execute with the current context.</li>
 <span class="sd">            The client instance to allow chained calls.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+    <span class="k">def</span> <span class="nf">get_component_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">Component</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get a component from this client by name.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Name to get a component by.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Optional[Component]</span>
+<span class="sd">            The component instance if found, else `None`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">remove_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Remove a component from this client.</span>
@@ -12198,6 +12250,24 @@ execute with the current context.</li>
 <span class="sd">        -------</span>
 <span class="sd">        Self</span>
 <span class="sd">            The client instance to allow chained calls.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">remove_component_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Remove a component from this client by name.</span>
+
+<span class="sd">        This will unsubscribe any client callbacks, commands and listeners</span>
+<span class="sd">        registered in the provided component.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name: str</span>
+<span class="sd">            Name of the component to remove from this client.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If the provided component name isn&#39;t found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -12634,6 +12704,51 @@ The component to move to this client.</li>
 
 
                             </div>
+                            <div id="Client.get_component_by_name" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.get_component_by_name">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">get_component_by_name</span><span class="signature">(self, name: str, /) -&gt; Optional[<a href="#Component">tanjun.abc.Component</a>]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">get_component_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">Component</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get a component from this client by name.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Name to get a component by.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Optional[Component]</span>
+<span class="sd">            The component instance if found, else `None`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Get a component from this client by name.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>name</strong> (str):
+Name to get a component by.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>typing.Optional[Component]</strong>: The component instance if found, else <code>None</code>.</li>
+</ul>
+</div>
+
+
+                            </div>
                             <div id="Client.remove_component" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Client.remove_component">#&nbsp;&nbsp</a>
 
@@ -12693,6 +12808,59 @@ The component to remove from this client.</li>
 
 <ul>
 <li><strong>Self</strong>: The client instance to allow chained calls.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.remove_component_by_name" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.remove_component_by_name">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">remove_component_by_name</span><span class="signature">(self: ~_T, name: str, /) -&gt; ~_T</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">remove_component_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Remove a component from this client by name.</span>
+
+<span class="sd">        This will unsubscribe any client callbacks, commands and listeners</span>
+<span class="sd">        registered in the provided component.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name: str</span>
+<span class="sd">            Name of the component to remove from this client.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If the provided component name isn&#39;t found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Remove a component from this client by name.</p>
+
+<p>This will unsubscribe any client callbacks, commands and listeners
+registered in the provided component.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>name</strong> (str):
+Name of the component to remove from this client.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>KeyError</strong>: If the provided component name isn't found.</li>
 </ul>
 </div>
 
