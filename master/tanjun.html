@@ -7274,7 +7274,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
             <span class="k">if</span> <span class="n">command_id</span> <span class="o">:=</span> <span class="n">command_ids</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
                 <span class="n">builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command_id</span><span class="p">))</span>
 
-            <span class="n">builders</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">builders</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">builder</span>
 
         <span class="k">if</span> <span class="n">conflicts</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -9015,7 +9015,7 @@ to the provided client using it's abstract methods.</li>
             <span class="k">if</span> <span class="n">command_id</span> <span class="o">:=</span> <span class="n">command_ids</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
                 <span class="n">builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command_id</span><span class="p">))</span>
 
-            <span class="n">builders</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">builders</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">builder</span>
 
         <span class="k">if</span> <span class="n">conflicts</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -11054,7 +11054,7 @@ command's name).</li>
             <span class="k">if</span> <span class="n">command_id</span> <span class="o">:=</span> <span class="n">command_ids</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
                 <span class="n">builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command_id</span><span class="p">))</span>
 
-            <span class="n">builders</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">builders</span><span class="p">[</span><span class="n">command</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">builder</span>
 
         <span class="k">if</span> <span class="n">conflicts</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
