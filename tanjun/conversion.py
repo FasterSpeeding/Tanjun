@@ -1100,7 +1100,7 @@ def override_type(cls: parsing.ConverterSig, /) -> parsing.ConverterSig:
 to_channel: typing.Final[ChannelConverter] = ChannelConverter()
 """Convert user input to a `hikari.channels.PartialChannel` object."""
 
-to_colour: typing.Final[typing.Callable[[ArgumentT], hikari.Color]] = to_color
+to_colour: typing.Final[collections.Callable[[ArgumentT], hikari.Color]] = to_color
 """Convert user input to a `hikari.colors.Color` object."""
 
 to_emoji: typing.Final[EmojiConverter] = EmojiConverter()
@@ -1124,7 +1124,7 @@ to_presence: typing.Final[PresenceConverter] = PresenceConverter()
 to_role: typing.Final[RoleConverter] = RoleConverter()
 """Convert user input to a `hikari.guilds.Role` object."""
 
-to_snowflake: typing.Final[typing.Callable[[ArgumentT], hikari.Snowflake]] = parse_snowflake
+to_snowflake: typing.Final[collections.Callable[[ArgumentT], hikari.Snowflake]] = parse_snowflake
 """Convert user input to a `hikari.snowflakes.Snowflake`.
 
 .. note::

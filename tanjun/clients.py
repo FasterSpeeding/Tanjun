@@ -1535,7 +1535,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Parameters
         ----------
-        prefixes : typing.Union[collections.Iterable[str], str]
+        prefixes : typing.Union[collections.abc.Iterable[str], str]
             Either a single string or an iterable of strings to be used as
             prefixes.
 
@@ -1605,7 +1605,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         client = tanjun.Client.from_rest_bot(bot)
 
         @client.with_prefix_getter
-        async def prefix_getter(ctx: tanjun.abc.MessageContext) -> typing.Iterable[str]:
+        async def prefix_getter(ctx: tanjun.abc.MessageContext) -> collections.abc.Iterable[str]:
             raise NotImplementedError
         ```
 
@@ -1626,6 +1626,23 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         """
         self.set_prefix_getter(getter)
         return getter
+
+    def iter_commands(self) -> collections.Iterator[tanjun_abc.ExecutableCommand[tanjun_abc.Context]]:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        slash_commands = self.iter_slash_commands(global_only=False)
+        yield from self.iter_message_commands()
+        yield from slash_commands
+
+    def iter_message_commands(self) -> collections.Iterator[tanjun_abc.MessageCommand]:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        return itertools.chain.from_iterable(component.message_commands for component in self.components)
+
+    def iter_slash_commands(self, *, global_only: bool = False) -> collections.Iterator[tanjun_abc.BaseSlashCommand]:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        if global_only:
+            return filter(lambda c: c.is_global, self.iter_slash_commands(global_only=False))
+
+        return itertools.chain.from_iterable(component.slash_commands for component in self.components)
 
     def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, tanjun_abc.MessageCommand]]:
         # <<inherited docstring from tanjun.abc.Client>>.
@@ -1852,7 +1869,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self
 
     @staticmethod
-    def _iter_module_members(module: types.ModuleType, module_repr: str, /) -> typing.Iterator[typing.Any]:
+    def _iter_module_members(module: types.ModuleType, module_repr: str, /) -> collections.Iterator[typing.Any]:
         exported = getattr(module, "__all__", None)
         if exported is not None and isinstance(exported, collections.Iterable):
             _LOGGER.debug("Scanning %s module based on its declared __all__)", module_repr)

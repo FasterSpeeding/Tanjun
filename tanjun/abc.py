@@ -79,6 +79,7 @@ MaybeAwaitableT = typing.Union[_T, collections.Awaitable[_T]]
 """Type hint for a value which may need to be awaited to be resolved."""
 
 ContextT = typing.TypeVar("ContextT", bound="Context")
+ContextT_co = typing.TypeVar("ContextT_co", covariant=True, bound="Context")
 ContextT_contra = typing.TypeVar("ContextT_contra", bound="Context", contravariant=True)
 MetaEventSig = collections.Callable[..., MaybeAwaitableT[None]]
 MetaEventSigT = typing.TypeVar("MetaEventSigT", bound="MetaEventSig")
@@ -497,20 +498,20 @@ class Context(abc.ABC):
         ----------------
         attachment : hikari.UndefinedOr[hikari.Resourceish]
             A singular attachment to edit the initial response with.
-        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]
+        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]
             A sequence of attachments to edit the initial response with.
         component : hikari.UndefinedNoneOr[hikari.api.ComponentBuilder]
             If provided, builder object of the component to set for this message.
             This component will replace any previously set components and passing
             `None` will remove all components.
-        components : hikari.UndefinedNoneOr[typing.Sequence[hikari.api.ComponentBuilder]]
+        components : hikari.UndefinedNoneOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]
             If provided, a sequence of the component builder objects set for
             this message. These components will replace any previously set
             components and passing `None` or an empty sequence will
             remove all components.
         embed : hikari.UndefinedOr[hikari.Embed]
             An embed to replace the initial response with.
-        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
+        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]
             A sequence of embeds to replace the initial response with.
         replace_attachments : bool
             Whether to replace the attachments of the response or not. Default to `False`.
@@ -643,20 +644,20 @@ class Context(abc.ABC):
         ----------------
         attachment : hikari.UndefinedOr[hikari.Resourceish]
             A singular attachment to edit the last response with.
-        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]
+        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]
             A sequence of attachments to edit the last response with.
         component : hikari.UndefinedNoneOr[hikari.api.ComponentBuilder]
             If provided, builder object of the component to set for this message.
             This component will replace any previously set components and passing
             `None` will remove all components.
-        components : hikari.UndefinedNoneOr[typing.Sequence[hikari.api.ComponentBuilder]]
+        components : hikari.UndefinedNoneOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]
             If provided, a sequence of the component builder objects set for
             this message. These components will replace any previously set
             components and passing `None` or an empty sequence will
             remove all components.
         embed : hikari.UndefinedOr[hikari.Embed]
             An embed to replace the last response with.
-        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
+        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]
             A sequence of embeds to replace the last response with.
         replace_attachments : bool
             Whether to replace the attachments of the response or not. Default to `False`.
@@ -857,12 +858,12 @@ class Context(abc.ABC):
             command flow, this may lead to an extre request being made.
         component : hikari.UndefinedOr[hikari.api.ComponentBuilder]
             If provided, builder object of the component to include in this response.
-        components : hikari.UndefinedOr[typing.Sequence[hikari.api.ComponentBuilder]]
+        components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]
             If provided, a sequence of the component builder objects to include
             in this response.
         embed : hikari.UndefinedOr[hikari.Embed]
             An embed to respond with.
-        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
+        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]
             A sequence of embeds to respond with.
         mentions_everyone : hikari.UndefinedOr[bool]
             If provided, whether the message should parse @everyone/@here
@@ -1071,16 +1072,16 @@ class MessageContext(Context, abc.ABC):
             The nonce that validates that the message was sent.
         attachment : hikari.UndefinedOr[hikari.Resourceish]
             A singular attachment to respond with.
-        attachments : hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]
+        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]
             A sequence of attachments to respond with.
         component : hikari.UndefinedOr[hikari.api.ComponentBuilder]
             If provided, builder object of the component to include in this message.
-        components : hikari.UndefinedOr[typing.Sequence[hikari.api.ComponentBuilder]]
+        components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]
             If provided, a sequence of the component builder objects to include
             in this message.
         embed : hikari.UndefinedOr[hikari.Embed]
             An embed to respond with.
-        embeds : hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
+        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]
             A sequence of embeds to respond with.
         mentions_everyone : hikari.UndefinedOr[bool]
             If provided, whether the message should parse @everyone/@here
@@ -1515,17 +1516,17 @@ class SlashContext(Context, abc.ABC):
         attachment : hikari.UndefinedOr[hikari.Resourceish]
             If provided, the message attachment. This can be a resource,
             or string of a path on your computer or a URL.
-        attachments : hikari.UndefinedOr[typing.Sequence[hikari.Resourceish]]
+        attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]
             If provided, the message attachments. These can be resources, or
             strings consisting of paths on your computer or URLs.
         component : hikari.UndefinedOr[hikari.api.ComponentBuilder]
             If provided, builder object of the component to include in this message.
-        components : hikari.UndefinedOr[typing.Sequence[hikari.api.ComponentBuilder]]
+        components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]
             If provided, a sequence of the component builder objects to include
             in this message.
         embed : hikari.UndefinedOr[hikari.Embed]
             If provided, the message embed.
-        embeds : hikari.UndefinedOr[typing.Sequence[hikari.Embed]]
+        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]
             If provided, the message embeds.
         mentions_everyone : hikari.UndefinedOr[bool]
             If provided, whether the message should parse @everyone/@here
@@ -1618,12 +1619,12 @@ class SlashContext(Context, abc.ABC):
             for simpler syntax when sending an embed alone.
         component : hikari.UndefinedOr[hikari.api.ComponentBuilder]
             If provided, builder object of the component to include in this message.
-        components : hikari.UndefinedOr[typing.Sequence[hikari.api.ComponentBuilder]]
+        components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]
             If provided, a sequence of the component builder objects to include
             in this message.
         embed : hikari.UndefinedOr[hikari.Embed]
             If provided, the message embed.
-        embeds : hikari.UndefinedOr[typing.Sequence[hikari.Embed]]
+        embeds : hikari.UndefinedOr[collections.abc.Sequence[hikari.Embed]]
             If provided, the message embeds.
         flags : typing.Union[int, hikari.MessageFlag, hikari.UndefinedType]
             If provided, the message flags this response should have.
@@ -1747,7 +1748,7 @@ SlashHooks = Hooks[SlashContext]
 """Execution hooks for slash commands."""
 
 
-class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
+class ExecutableCommand(abc.ABC, typing.Generic[ContextT_co]):
     """Base class for all commands that can be executed."""
 
     __slots__ = ()
@@ -1776,12 +1777,12 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
 
     @property
     @abc.abstractmethod
-    def hooks(self) -> typing.Optional[Hooks[ContextT]]:
+    def hooks(self) -> typing.Optional[Hooks[ContextT_co]]:
         """Hooks that are triggered when the command is executed.
 
         Returns
         -------
-        typing.Optional[Hooks[ContextT]]
+        typing.Optional[Hooks[ContextT_co]]
             The hooks that are triggered when the command is executed if set.
         """
 
@@ -1818,12 +1819,12 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
         """
 
     @abc.abstractmethod
-    def set_hooks(self: _T, _: typing.Optional[Hooks[ContextT]], /) -> _T:
+    def set_hooks(self: _T, _: typing.Optional[Hooks[ContextT_co]], /) -> _T:
         """Set the hooks that are triggered when the command is executed.
 
         Parameters
         ----------
-        hooks : typing.Optional[Hooks[ContextT]]
+        hooks : typing.Optional[Hooks[ContextT_co]]
             The hooks that are triggered when the command is executed.
 
         Returns
@@ -1866,16 +1867,6 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT]):
         Self
             This command to enable chained calls
         """
-
-    @abc.abstractmethod
-    async def check_context(self, ctx: ContextT, /) -> bool:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    async def execute(
-        self, ctx: ContextT, /, *, hooks: typing.Optional[collections.MutableSet[Hooks[ContextT]]] = None
-    ) -> None:
-        raise NotImplementedError
 
 
 class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
@@ -1959,6 +1950,10 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
             A builder object for this command. Use to declare this command on
             globally or for a specific guild.
         """
+
+    @abc.abstractmethod
+    async def check_context(self, ctx: SlashContext, /) -> bool:
+        raise NotImplementedError
 
     @abc.abstractmethod
     async def execute(
@@ -2151,6 +2146,16 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
         Self
             The copy.
         """
+
+    @abc.abstractmethod
+    async def check_context(self, ctx: MessageContext, /) -> bool:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def execute(
+        self, ctx: MessageContext, /, *, hooks: typing.Optional[collections.MutableSet[Hooks[MessageContext]]] = None
+    ) -> None:
+        raise NotImplementedError
 
 
 class MessageCommandGroup(MessageCommand, abc.ABC):
@@ -2492,7 +2497,7 @@ class Component(abc.ABC):
 
         Returns
         -------
-        collections.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]
+        collections.abc.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]
             Decorator callback which takes listener to add.
         """
 
@@ -2645,7 +2650,7 @@ class Client(abc.ABC):
 
         Returns
         -------
-        collections.api.Collection[tanjun.traits.Component]
+        collections.abc.Collection[tanjun.traits.Component]
             Collection of the components this command client is using.
         """
 
@@ -2980,6 +2985,41 @@ class Client(abc.ABC):
             The callback must be a coroutine function which returns `None` and
             always takes at least one positional arg of type `hikari.Event`
             regardless of client implementation detail.
+        """
+
+    @abc.abstractmethod
+    def iter_commands(self) -> collections.Iterator[ExecutableCommand[Context]]:
+        """Iterate over all the commands (both message and slash) registered to this client.
+
+        Returns
+        -------
+        collections.abc.Iterator[ExecutableCommand[Context]]
+            Iterator of all the commands registered to this client.
+        """
+
+    @abc.abstractmethod
+    def iter_message_commands(self) -> collections.Iterator[MessageCommand]:
+        """Iterate over all the message commands registered to this client.
+
+        Returns
+        -------
+        collections.abc.Iterator[MessageCommand]
+            Iterator of all the message commands registered to this client.
+        """
+
+    @abc.abstractmethod
+    def iter_slash_commands(self, *, global_only: bool = False) -> collections.Iterator[BaseSlashCommand]:
+        """Iterate over all the slash commands registered to this client.
+
+        Parameters
+        ----------
+        global_only : bool
+            Whether to only iterate over global slash commands.
+
+        Returns
+        -------
+        collections.abc.Iterator[BaseSlashCommand]
+            Iterator of all the slash commands registered to this client.
         """
 
     @abc.abstractmethod

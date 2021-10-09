@@ -1251,13 +1251,13 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
         Other Parameters
         ----------------
-        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]]
+        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, str], str]]]
             The option's choices.
 
             This may be either one or multiple `tuple[opton_name, option_value]`
             Where both option_name and option_value should be strings of up to 100
             characters.
-        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig]
+        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig]
             The option's converters.
 
             This may be either one or multiple `ConverterSig` callbacks used to
@@ -1327,13 +1327,13 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
         Other Parameters
         ----------------
-        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, int]]]]
+        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, int]]]]
             The option's choices.
 
             This may be either one or multiple `tuple[opton_name, option_value]`
             where option_name should be a string of up to 100 characters and
             option_value should be an integer.
-        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]
+        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]
             The option's converters.
 
             This may be either one or multiple `ConverterSig` callbacks used to
@@ -1406,13 +1406,13 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
             This masks behaviour from Discord where we will either be provided a `float`
             or `int` dependent on what the user provided and defaults to `True`.
-        choices : typing.Optional[collections.Iterable[typing.Union[tuple[str, float]]]]
+        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, float]]]]
             The option's choices.
 
             This may be either one or multiple `tuple[opton_name, option_value]`
             where option_name should be a string of up to 100 characters and
             option_value should be a float.
-        converters : typing.Union[collections.Sequence[ConverterSig], ConverterSig, None]
+        converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]
             The option's converters.
 
             This may be either one or multiple `ConverterSig` callbacks used to
@@ -2013,7 +2013,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
         return self
 
     def copy(
-        self: _MessageCommandT, *, _new: bool = True, parent: typing.Optional[abc.MessageCommandGroup] = None
+        self: _MessageCommandT, *, parent: typing.Optional[abc.MessageCommandGroup] = None, _new: bool = True
     ) -> _MessageCommandT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if not _new:
@@ -2145,7 +2145,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
         return self._is_strict
 
     def copy(
-        self: _MessageCommandGroupT, *, _new: bool = True, parent: typing.Optional[abc.MessageCommandGroup] = None
+        self: _MessageCommandGroupT, *, parent: typing.Optional[abc.MessageCommandGroup] = None, _new: bool = True
     ) -> _MessageCommandGroupT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if not _new:

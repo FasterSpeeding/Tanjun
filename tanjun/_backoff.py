@@ -36,9 +36,10 @@ This can be used to cover cases such as hitting rate-limits and failed requests.
 
 from __future__ import annotations
 
-__all__: typing.Sequence[str] = ["Backoff", "ErrorManager"]
+__all__: list[str] = ["Backoff", "ErrorManager"]
 
 import asyncio
+import collections.abc as collections
 import typing
 
 from hikari.impl import rate_limits
@@ -237,7 +238,7 @@ class ErrorManager:
 
     Other Parameters
     ----------------
-    *rules : typing.Tuple[typing.Iterable[typing.Type[BaseException]], typing.Callable[[typing.Any], typing.Optional[bool]]]
+    *rules : tuple[collections.abc.Iterable[type[BaseException]], collections.abc.Callable[[typing.Any], typing.Optional[bool]]]
         Rules to initiate this error context manager with.
 
         These are each a 2-length tuple where the tuple[0] is an
@@ -288,8 +289,8 @@ class ErrorManager:
 
     def __init__(
         self,
-        *rules: typing.Tuple[
-            typing.Iterable[typing.Type[BaseException]], typing.Callable[[typing.Any], typing.Optional[bool]]
+        *rules: tuple[
+            collections.Iterable[type[BaseException]], collections.Callable[[typing.Any], typing.Optional[bool]]
         ],
     ) -> None:
         self._rules = {(tuple(exceptions), callback) for exceptions, callback in rules}
@@ -299,7 +300,7 @@ class ErrorManager:
 
     def __exit__(
         self,
-        exception_type: typing.Optional[typing.Type[BaseException]],
+        exception_type: typing.Optional[type[BaseException]],
         exception: typing.Optional[BaseException],
         exception_traceback: typing.Optional[types.TracebackType],
     ) -> typing.Optional[bool]:
@@ -322,16 +323,16 @@ class ErrorManager:
 
     def with_rule(
         self: ErrorManagerT,
-        exceptions: typing.Iterable[typing.Type[BaseException]],
-        result: typing.Callable[[typing.Any], typing.Optional[bool]],
+        exceptions: collections.Iterable[type[BaseException]],
+        result: collections.Callable[[typing.Any], typing.Optional[bool]],
     ) -> ErrorManagerT:
         """Add a rule to this exception context manager.
 
         Parameters
         ----------
-        exceptions : typing.Iterable[typing.Type[builtins.BaseException]]
+        exceptions : collections.abc.Iterable[type[builtins.BaseException]]
             An iterable of types of the exceptions this rule should apply to.
-        result : typing.Callable[[typing.Any], typing.Optional[builtins.bool]]
+        result : collections.abc.Callable[[typing.Any], typing.Optional[builtins.bool]]
             The function called with the raised exception when it matches one
             of the passed `exceptions`.
             This may raise, return `builtins.True` to indicate that the current

@@ -469,7 +469,7 @@ async def fetch_everyone_permissions(
 class CastedView(collections.Mapping[_KeyT, _ValueT]):
     __slots__ = ("_buffer", "_cast", "_raw_data")
 
-    def __init__(self, raw_data: dict[_KeyT, _ValueT], cast: typing.Callable[[_ValueT], _ValueT]) -> None:
+    def __init__(self, raw_data: dict[_KeyT, _ValueT], cast: collections.Callable[[_ValueT], _ValueT]) -> None:
         self._buffer: dict[_KeyT, _ValueT] = {}
         self._cast = cast
         self._raw_data = raw_data

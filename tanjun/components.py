@@ -129,7 +129,7 @@ class Component(abc.Component):
 
     Parameters
     ----------
-    checks : typing.Optional[typing.Iterable[abc.CheckSig]]
+    checks : typing.Optional[collections.abc.Iterable[abc.CheckSig]]
         Iterable of check callbacks to set for this component, if provided.
     hooks : typing.Optional[tanjun.abc.AnyHooks]
         The hooks this component should add to the execution of all its
