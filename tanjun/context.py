@@ -537,7 +537,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
 class SlashOption(tanjun_abc.SlashOption):
     __slots__ = ("_interaction", "_option")
 
-    def __init__(self, interaction: hikari.CommandInteraction, option: hikari.CommandInteractionOption, /):
+    def __init__(self, interaction: hikari.CommandInteraction, option: hikari.CommandInteractionOption, /) -> None:
         if option.value is None:
             raise ValueError("Cannot build a slash option with a value-less API representation")
 

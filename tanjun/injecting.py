@@ -833,7 +833,7 @@ def injected(
     return inject(callback=callback, type=type)
 
 
-class InjectorClient:
+class InjectorClient(abc.ABC):
     """Dependency injection client used by Tanjun's standard implementation."""
 
     __slots__ = ("_callback_overrides", "_type_dependencies")
@@ -841,6 +841,29 @@ class InjectorClient:
     def __init__(self) -> None:
         self._callback_overrides: dict[CallbackSig[typing.Any], CallbackDescriptor[typing.Any]] = {}
         self._type_dependencies: dict[type[typing.Any], typing.Any] = {InjectorClient: self}
+
+
+    @property
+    @abc.abstractmethod
+    def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        raise NotImplementedError
+
+    def add_type_dependency(self: _InjectorClientT, type_: type[_T], callback: CallbackSig[_T], /) -> _InjectorClientT:
+        """Alias for `InjectorClient.set_type_dependency`.
+
+        .. deprecated:: v2.0.0a2
+            Use `InjectorClient.set_type_dependency`.
+
+            This will be removed 1 month after the release of v2.0.0a2.
+        """
+        warnings.warn(
+            "`InjectorClient.add_type_dependency` is deprecated and marked for removal a"
+            " month after the release of v2.0.0a2. Use `InjectorClient.set_type_dependency`.",
+            category=DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.set_type_dependency(type_, callback)  # type: ignore  # pyright bug
 
     def set_type_dependency(self: _InjectorClientT, type_: type[_T], value: _T, /) -> _InjectorClientT:
         """Set a callback to be called to resolve a injected type.
@@ -958,3 +981,6 @@ class InjectorClient:
         """
         del self._callback_overrides[callback]
         return self
+
+class SmartDependency(typing.Protocol):
+    ...
