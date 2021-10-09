@@ -37,7 +37,7 @@ component = tanjun.Component()
 
 # Here we declare a command as defaulting to ephemeral, this means that all
 # calls made to SlashContext's message creating methods (e.g. respond,
-# create_initial_respones and create_followup) will be ephemeral (only visiable
+# create_initial_respones and create_followup) will be ephemeral (only visible
 # to the user who called the command) unless `flags` is specified. This includes
 # calls made by command checks and by the CommandError handler.
 @component.with_slash_command
