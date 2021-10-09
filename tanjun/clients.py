@@ -1396,15 +1396,16 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     def remove_component(self: _ClientT, component: tanjun_abc.Component, /) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
-        if self._components.get(component.name) != component:
+        stored_component = self._components.get(component.name)
+        if not stored_component or stored_component != component:
             raise ValueError(f"The component {component!r} is not registered.")
 
         del self._components[component.name]
-        component.unbind_client(self)
+        stored_component.unbind_client(self)
 
         if self._is_alive:
             asyncio.get_running_loop().create_task(
-                self.dispatch_client_callback(ClientCallbackNames.COMPONENT_REMOVED, component)
+                self.dispatch_client_callback(ClientCallbackNames.COMPONENT_REMOVED, stored_component)
             )
 
         return self
