@@ -464,6 +464,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             bool,
         ] = False,
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
+        _stack_level: int = 0,
     ) -> None:
         # InjectorClient.__init__
         super().__init__()
@@ -508,7 +509,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 "The `set_global_commands` argument is deprecated and will be removed in v2.1.1a1. "
                 "Use `declare_global_commands` instead.",
                 DeprecationWarning,
-                stacklevel=2,
+                stacklevel=2 + _stack_level,
             )
 
         declare_global_commands = declare_global_commands or set_global_commands
@@ -564,6 +565,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         event_managed: bool = True,
         mention_prefix: bool = False,
         declare_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
+        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
     ) -> Client:
         """Build a `Client` from a `hikari.traits.GatewayBotAware` instance.
 
@@ -608,6 +610,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             can be useful for testing/debug purposes as slash commands may take
             up to an hour to propagate globally but will immediately propagate
             when set on a specific guild.
+        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
+            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
         """
         return (
             cls(
@@ -618,6 +622,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 event_managed=event_managed,
                 mention_prefix=mention_prefix,
                 declare_global_commands=declare_global_commands,
+                set_global_commands=set_global_commands,
+                _stack_level=1,
             )
             .set_human_only()
             .set_hikari_trait_injectors(bot)
@@ -629,6 +635,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         bot: hikari_traits.RESTBotAware,
         /,
         declare_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
+        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
     ) -> Client:
         """Build a `Client` from a `hikari.traits.RESTBotAware` instance.
 
@@ -657,9 +664,15 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             can be useful for testing/debug purposes as slash commands may take
             up to an hour to propagate globally but will immediately propagate
             when set on a specific guild.
+        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
+            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
         """
         return cls(
-            rest=bot.rest, server=bot.interaction_server, declare_global_commands=declare_global_commands
+            rest=bot.rest,
+            server=bot.interaction_server,
+            declare_global_commands=declare_global_commands,
+            set_global_commands=set_global_commands,
+            _stack_level=1,
         ).set_hikari_trait_injectors(bot)
 
     async def __aenter__(self) -> Client:
