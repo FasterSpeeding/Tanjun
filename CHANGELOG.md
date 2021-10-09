@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.1.1a1] - 2021-10-09
 ### Added
 - `ShlexParser.add_option` and `add_argument` methods which mirror the behaviour of `with_option` and `with_argument`
 - Fluent interface coverage has been increased to now include remove methods and parsing interfaces.
@@ -244,7 +246,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.0a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.1a1...HEAD
+[2.1.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.0a1...v2.1.1a1
 [2.1.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.0.1a1...v2.1.0a1
 [2.0.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.0.0a4...v2.0.1a1
 [2.0.0a4]: https://github.com/FasterSpeeding/Tanjun/compare/v2.0.0a3...v2.0.0a4
