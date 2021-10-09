@@ -2754,6 +2754,20 @@ class Client(abc.ABC):
             The client instance to allow chained calls.
         """
 
+    def get_component_by_name(self, name: str, /) -> typing.Optional[Component]:
+        """Get a component from this client by name.
+
+        Parameters
+        ----------
+        name : str
+            Name to get a component by.
+
+        Returns
+        -------
+        typing.Optiona[Component]
+            The component instance if found, else `None`.
+        """
+
     @abc.abstractmethod
     def remove_component(self: _T, component: Component, /) -> _T:
         """Remove a component from this client.
@@ -2791,7 +2805,7 @@ class Client(abc.ABC):
 
         Raises
         ------
-        ValueError
+        KeyError
             If the provided component name isn't found.
         """
 

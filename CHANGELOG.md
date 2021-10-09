@@ -11,12 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for specifying which channel types you want with slash channel type options.
 - `custom_ids` argument to both `Client.declare_global_commands`, `Client.__init__` and
   `Client.declare_slash_commands` to allow specifying the IDs of commands which are being updated.
-- `Client.remove_component_by_name`
-- `Client.unload_module` and `Client.reload_module` to unload and reload from modules which also declare
+- `Client.remove_component_by_name` and `get_component_by_name`.
+- `Client.unload_modules` and `Client.reload_modules` to unload and reload from modules which also declare
   a unloader.
 - `tanjun.as_unloader` decorator to enable declaring unloaders for modules.
 - Let a Sequence of guild ids/objects be passed for `Client.__init__`'s declare_global_commands parameter
   (although custom_ids isn't supported in this instance).
+- Client now enforces that all registered component names are unique within the client.
 
 ### Changed
 - Bumped minimum hikari version to 2.0.0.dev103.
@@ -24,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   runs for all commands not just message commands.
 - Replace `conversion.ColorConverter` and `conversion.SnowflakeConverter` with `to_snowflake` and `to_color`
   pure function implementations.
+- `Client.load_modules` now errors if no loader descriptor is found.
 
 ### Deprecated
 - Calling set_tracked_command with a command ID.

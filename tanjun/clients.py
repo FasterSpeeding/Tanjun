@@ -37,7 +37,7 @@ __all__: list[str] = [
     "as_unloader",
     "Client",
     "ClientCallbackNames",
-    "LoadableSig",
+    "LoaderSig",
     "MessageAcceptsEnum",
     "PrefixGetterSig",
     "PrefixGetterSigT",
@@ -104,7 +104,7 @@ if typing.TYPE_CHECKING:
             raise NotImplementedError
 
 
-LoadableSig = collections.Callable[["Client"], None]
+LoaderSig = collections.Callable[["Client"], None]
 """Type hint of the callback used to load resources into a Tanjun client.
 
 This should take one positional argument of type `Client` and return nothing.
@@ -128,7 +128,7 @@ _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.clients
 
 
 class _LoaderDescriptor:  # Slots mess with functools.update_wrapper
-    def __init__(self, callback: LoadableSig, /) -> None:
+    def __init__(self, callback: LoaderSig, /) -> None:
         self._callback = callback
         functools.update_wrapper(self, callback)
 
@@ -137,7 +137,7 @@ class _LoaderDescriptor:  # Slots mess with functools.update_wrapper
 
 
 class _UnloaderDescriptor:  # Slots mess with functools.update_wrapper
-    def __init__(self, callback: LoadableSig, /) -> None:
+    def __init__(self, callback: LoaderSig, /) -> None:
         self._callback = callback
         functools.update_wrapper(self, callback)
 
@@ -145,7 +145,7 @@ class _UnloaderDescriptor:  # Slots mess with functools.update_wrapper
         self._callback(*args, **kwargs)
 
 
-def as_loader(callback: LoadableSig, /) -> LoadableSig:
+def as_loader(callback: LoaderSig, /) -> LoaderSig:
     """Mark a callback as being used to load Tanjun components from a module.
 
     .. note::
@@ -153,7 +153,7 @@ def as_loader(callback: LoadableSig, /) -> LoadableSig:
 
     Parameters
     ----------
-    callback : LoadableSig
+    callback : LoaderSig
         The callback used to load Tanjun components from a module. This
         should take one argument of type `tanjun.Client`, return nothing
         and will be expected to initiate and add utilities such as components
@@ -161,13 +161,13 @@ def as_loader(callback: LoadableSig, /) -> LoadableSig:
 
     Returns
     -------
-    LoadableSig
+    LoaderSig
         The decorated load callback.
     """
     return _LoaderDescriptor(callback)
 
 
-def as_unloader(callback: LoadableSig, /) -> LoadableSig:
+def as_unloader(callback: LoaderSig, /) -> LoaderSig:
     """Mark a callback as being used to unload a module's utilities from a client.
 
     ... note::
@@ -177,7 +177,7 @@ def as_unloader(callback: LoadableSig, /) -> LoadableSig:
 
     Parameters
     ----------
-    callback : LoadableSig
+    callback : LoaderSig
         The callback used to unload Tanjun utilities from a module. This
         should take one argument of type `tanjun.Client`, return nothing
         and will be expected to remove utilities such as components
@@ -185,7 +185,7 @@ def as_unloader(callback: LoadableSig, /) -> LoadableSig:
 
     Returns
     -------
-    UnloadableSig
+    LoaderSig
         The decorated unload callback.
     """
     return _UnloaderDescriptor(callback)
@@ -517,7 +517,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._cached_application_id: typing.Optional[hikari.Snowflake] = None
         self._checks: list[checks.InjectableCheck] = []
         self._client_callbacks: dict[str, list[injecting.CallbackDescriptor[None]]] = {}
-        self._components: list[tanjun_abc.Component] = []
+        self._components: dict[str, tanjun_abc.Component] = {}
         self._make_message_context: _MessageContextMakerProto = context.MessageContext
         self._make_slash_context: _SlashContextMakerProto = context.SlashContext
         self._events = events
@@ -763,7 +763,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     @property
     def components(self) -> collections.Collection[tanjun_abc.Component]:
         # <<inherited docstring from tanjun.abc.Client>>.
-        return self._components.copy()
+        return self._components.copy().values()
 
     @property
     def events(self) -> typing.Optional[hikari.api.EventManager]:
@@ -1288,7 +1288,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         """
         commands = (
             command
-            for command in itertools.chain.from_iterable(component.slash_commands for component in self._components)
+            for command in itertools.chain.from_iterable(
+                component.slash_commands for component in self._components.values()
+            )
             if command.is_global
         )
         return await self.declare_slash_commands(
@@ -1355,12 +1357,28 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return await utilities.gather_checks(ctx, self._checks)
 
     def add_component(self: _ClientT, component: tanjun_abc.Component, /, *, add_injector: bool = False) -> _ClientT:
-        # <<inherited docstring from tanjun.abc.Client>>.
-        if component in self._components:
-            return self
+        """Add a component to this client.
+
+        Parameters
+        ----------
+        component: Component
+            The component to move to this client.
+
+        Returns
+        -------
+        Self
+            The client instance to allow chained calls.
+
+        Raises
+        ------
+        ValueError
+            If the component's name is already registered.
+        """
+        if component.name in self._components:
+            raise ValueError(f"A component named {component.name!r} is already registered.")
 
         component.bind_client(self)
-        self._components.append(component)
+        self._components[component.name] = component
 
         if add_injector:
             self.set_type_dependency(type(component), lambda: component)
@@ -1372,9 +1390,16 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return self
 
+    def get_component_by_name(self, name: str, /) -> typing.Optional[tanjun_abc.Component]:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        return self._components.get(name)
+
     def remove_component(self: _ClientT, component: tanjun_abc.Component, /) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
-        self._components.remove(component)
+        if self._components.get(component.name) != component:
+            raise ValueError(f"The component {component!r} is not registered.")
+
+        del self._components[component.name]
         component.unbind_client(self)
 
         if self._is_alive:
@@ -1384,14 +1409,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return self
 
-    # TODO: do we want to assert that component names are unique
     def remove_component_by_name(self: _ClientT, name: str, /) -> _ClientT:
-        for component in self._components:
-            if component.name == name:
-                self.remove_component(component)
-                return self
-
-        raise ValueError(f"No component named '{name}' was found.")
+        # <<inherited docstring from tanjun.abc.Client>>.
+        return self.remove_component(self._components.pop(name))
 
     def add_client_callback(self: _ClientT, name: str, callback: tanjun_abc.MetaEventSig, /) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
@@ -1608,11 +1628,15 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, tanjun_abc.MessageCommand]]:
         # <<inherited docstring from tanjun.abc.Client>>.
-        return itertools.chain.from_iterable(component.check_message_name(name) for component in self._components)
+        return itertools.chain.from_iterable(
+            component.check_message_name(name) for component in self._components.values()
+        )
 
     def check_slash_name(self, name: str, /) -> collections.Iterator[tanjun_abc.BaseSlashCommand]:
         # <<inherited docstring from tanjun.abc.Client>>.
-        return itertools.chain.from_iterable(component.check_slash_name(name) for component in self._components)
+        return itertools.chain.from_iterable(
+            component.check_slash_name(name) for component in self._components.values()
+        )
 
     async def _check_prefix(self, ctx: tanjun_abc.MessageContext, /) -> typing.Optional[str]:
         if self._prefix_getter:
@@ -1849,10 +1873,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 found = True
 
         if not found:
-            _LOGGER.warning("Didn't find any loadable descriptors in %s", module_repr)
+            raise RuntimeError(f"Didn't find any loader descriptors in {module_repr}")
 
     def load_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
-        """Load entities into this client from modules based on loadable descriptors.
+        """Load entities into this client from modules based on loader descriptors.
 
         .. note::
             If an `__all__` is present in the target module then it will be
@@ -1866,7 +1890,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         ```py
         @tanjun.as_loader
-        def load_component(client: tanjun.abc.Client) -> None:
+        def load_module(client: tanjun.Client) -> None:
             client.add_component(component.copy())
         ```
 
@@ -1894,6 +1918,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         ------
         ValueError
             If the module is already loaded.
+        RuntimeError
+            If no loader descriptors are found in the module.
         ModuleNotFoundError
             If the module is not found.
         """
@@ -1903,6 +1929,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                     raise ValueError(f"module {module_path} already loaded")
 
                 module = importlib.import_module(module_path)
+                self._load_module(module, str(module_path))
                 self._modules[module_path] = module
 
             else:
@@ -1921,9 +1948,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
                 module = importlib_util.module_from_spec(spec)
                 spec.loader.exec_module(module)
+                self._load_module(module, str(module_path))
                 self._path_modules[module_path_abs] = module
-
-            self._load_module(module, str(module_path))
 
         return self
 
@@ -1936,41 +1962,114 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 found = True
 
         if not found:
-            raise ValueError("Didn't find any unloaders in %s", module_repr)
+            raise RuntimeError("Didn't find any unloaders in %s", module_repr)
 
-    def unload_module(self, module_path: typing.Union[str, pathlib.Path], /) -> None:
-        if isinstance(module_path, str):
-            module = self._modules.pop(module_path, None)
+    def unload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> None:
+        """Unload entities from this client based on unloader descriptors in one or more modules.
 
-        else:
-            module_path = module_path.absolute()
-            module = self._path_modules.pop(module_path, None)
+        .. note::
+            If an `__all__` is present in the target module then it will be
+            used to find unloaders.
 
-        if not module:
-            raise ValueError(f"Module {module_path} not loaded")
+        Examples
+        --------
+        For this to work the module has to have at least one `as_unloader`
+        decorated top level function which takes one positional argument
+        of type `Client`.
 
-        self._unload_module(module, str(module_path))
+        ```py
+        @tanjun.as_unloader
+        def unload_component(client: tanjun.Client) -> None:
+            client.remove_component_by_name(component.name)
+        ```
 
-    def reload_module(self, module_path: typing.Union[str, pathlib.Path], /) -> None:
-        if isinstance(module_path, str):
-            module = self._modules.pop(module_path, None)
+        Parameters
+        ----------
+        *modules: typing.Union[str, pathlib.Path]
+            Path of one or more modules to unload.
 
-        else:
-            module_path = module_path.absolute()
-            module = self._path_modules.pop(module_path, None)
+            These should be the same path(s) which were passed to `load_module`.
 
-        if not module:
-            raise ValueError(f"Module {module_path} not loaded")
+        Returns
+        -------
+        Self
+            This client instance to enable chained calls.
 
-        module_repr = str(module_path)
-        self._unload_module(module, module_repr)
-        module = importlib.reload(module)
-        self._load_module(module, module_repr)
+        Raises
+        ------
+        ValueError
+            If the module hasn't been loaded.
+        RuntimeError
+            If no unloader descriptors are found in the module.
+        """
+        for module_path in modules:
+            if isinstance(module_path, str):
+                module = self._modules.pop(module_path, None)
+                if module:
+                    ...
 
-        if isinstance(module_path, str):
-            self._modules[module_path] = module
-        else:
-            self._path_modules[module_path] = module
+            else:
+                module_path = module_path.absolute()
+                module = self._path_modules.pop(module_path, None)
+
+            if not module:
+                raise ValueError(f"Module {module_path} not loaded")
+
+            self._unload_module(module, str(module_path))
+
+    def reload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> None:
+        """Reload entities in this client based on the descriptors in loaded module(s).
+
+        .. note::
+            If an `__all__` is present in the target module then it will be
+            used to find descriptors.
+
+        Examples
+        --------
+        For this to work the module has to have at least one `as_loader` and
+        one `as_unloader` decorated top level function which each take one
+        positional argument of type `Client`.
+
+        Parameters
+        ----------
+        *modules: typing.Union[str, pathlib.Path]
+            Paths of one or more module to unload.
+
+            These  should be the same paths which were passed to `load_module`.
+
+        Returns
+        -------
+        Self
+            This client instance to enable chained calls.
+
+        Raises
+        ------
+        ValueError
+            If the module hasn't been loaded.
+        RuntimeError
+            If no unloader descriptors are found in the module.
+        """
+        for module_path in modules:
+            if isinstance(module_path, str):
+                module = self._modules.pop(module_path, None)
+
+            else:
+                module_path = module_path.absolute()
+                module = self._path_modules.pop(module_path, None)
+
+            if not module:
+                raise ValueError(f"Module {module_path} not loaded")
+
+            module_repr = str(module_path)
+            _LOGGER.info("Reloading %s", module_repr)
+            self._unload_module(module, module_repr)
+            module = importlib.reload(module)
+            self._load_module(module, module_repr)
+
+            if isinstance(module_path, str):
+                self._modules[module_path] = module
+            else:
+                self._path_modules[module_path] = module
 
     async def on_message_create_event(self, event: hikari.MessageCreateEvent, /) -> None:
         """Execute a message command based on a gateway event.
@@ -2002,7 +2101,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         try:
             if await self.check(ctx):
-                for component in self._components:
+                for component in self._components.values():
                     if await component.execute_message(ctx, hooks=hooks):
                         return
 
@@ -2056,7 +2155,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         try:
             if await self.check(ctx):
-                for component in self._components:
+                for component in self._components.values():
                     if future := await component.execute_interaction(ctx, hooks=hooks):
                         await future
                         return
@@ -2095,7 +2194,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         future = ctx.get_response_future()
         try:
             if await self.check(ctx):
-                for component in self._components:
+                for component in self._components.values():
                     if await component.execute_interaction(ctx, hooks=hooks):
                         return await future
 

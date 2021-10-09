@@ -106,7 +106,7 @@ def load_examples(client: tanjun.Client) -> None:
 
 
 # Here we define an unloader which can be used to easily unload and reload
-#  this example components in a bot from a link.
+# this example components in a bot from a link.
 @tanjun.as_unloader
 def unload_examples(client: tanjun.Client) -> None:
     # Since there's no guarantee the stored component will still be the
