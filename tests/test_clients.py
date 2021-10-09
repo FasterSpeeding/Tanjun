@@ -780,6 +780,92 @@ class TestClient:
         assert result is mock_getter
         assert client.prefix_getter is mock_getter
 
+    def test_iter_commands(self):
+        mock_slash_1 = mock.Mock()
+        mock_slash_2 = mock.Mock()
+        mock_slash_3 = mock.Mock()
+
+        mock_message_1 = mock.Mock()
+        mock_message_2 = mock.Mock()
+        mock_message_3 = mock.Mock()
+        mock_message_4 = mock.Mock()
+        client = (
+            tanjun.Client(mock.Mock())
+            .add_component(mock.Mock(message_commands=[mock_message_1], slash_commands=[mock_slash_1]))
+            .add_component(mock.Mock(message_commands=[mock_message_2], slash_commands=[]))
+            .add_component(mock.Mock(message_commands=[mock_message_3], slash_commands=[mock_slash_2, mock_slash_3]))
+            .add_component(mock.Mock(message_commands=[], slash_commands=[]))
+            .add_component(mock.Mock(message_commands=[mock_message_4], slash_commands=[]))
+        )
+
+        commands = list(client.iter_commands())
+
+        assert commands == [
+            mock_message_1,
+            mock_message_2,
+            mock_message_3,
+            mock_message_4,
+            mock_slash_1,
+            mock_slash_2,
+            mock_slash_3,
+        ]
+
+    def test_iter_message_commands(self):
+        mock_command_1 = mock.Mock()
+        mock_command_2 = mock.Mock()
+        mock_command_3 = mock.Mock()
+        mock_command_4 = mock.Mock()
+        mock_command_5 = mock.Mock()
+        client = (
+            tanjun.Client(mock.Mock())
+            .add_component(mock.Mock(slash_commands=[]))
+            .add_component(mock.Mock(slash_commands=[mock_command_1, mock_command_2]))
+            .add_component(mock.Mock(slash_commands=[]))
+            .add_component(mock.Mock(slash_commands=[mock_command_3, mock_command_4]))
+            .add_component(mock.Mock(slash_commands=[mock_command_5]))
+        )
+
+        commands = list(client.iter_slash_commands())
+
+        assert commands == [mock_command_1, mock_command_2, mock_command_3, mock_command_4, mock_command_5]
+
+    def test_iter_slash_commands(self):
+        mock_command_1 = mock.Mock()
+        mock_command_2 = mock.Mock()
+        mock_command_3 = mock.Mock()
+        mock_command_4 = mock.Mock()
+        mock_command_5 = mock.Mock()
+        client = (
+            tanjun.Client(mock.Mock())
+            .add_component(mock.Mock(slash_commands=[mock_command_1, mock_command_2]))
+            .add_component(mock.Mock(slash_commands=[]))
+            .add_component(mock.Mock(slash_commands=[mock_command_3, mock_command_4]))
+            .add_component(mock.Mock(slash_commands=[]))
+            .add_component(mock.Mock(slash_commands=[mock_command_5]))
+        )
+
+        commands = list(client.iter_slash_commands())
+
+        assert commands == [mock_command_1, mock_command_2, mock_command_3, mock_command_4, mock_command_5]
+
+    def test_iter_slash_commands_when_global_only(self):
+        mock_command_1 = mock.Mock(is_global=True)
+        mock_command_2 = mock.Mock(is_global=True)
+        mock_command_3 = mock.Mock(is_global=True)
+        mock_command_4 = mock.Mock(is_global=True)
+        client = (
+            tanjun.Client(mock.Mock())
+            .add_component(mock.Mock(slash_commands=[mock_command_1, mock_command_2]))
+            .add_component(mock.Mock(slash_commands=[]))
+            .add_component(mock.Mock(slash_commands=[mock.Mock(is_global=False), mock.Mock(is_global=False)]))
+            .add_component(mock.Mock(slash_commands=[mock.Mock(is_global=False), mock_command_3]))
+            .add_component(mock.Mock(slash_commands=[mock_command_4]))
+        )
+
+        commands = list(client.iter_slash_commands(global_only=True))
+
+        assert commands == [mock_command_1, mock_command_2, mock_command_3, mock_command_4]
+
     @pytest.mark.skip(reason="TODO")
     def test_check_message_name(self):
         ...
