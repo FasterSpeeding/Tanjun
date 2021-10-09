@@ -1865,7 +1865,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         )
 
     def _load_module(self, module: types.ModuleType, module_repr: str) -> None:
-        _LOGGER.info("Loading from %s", module_repr)
         found = False
         for member in self._iter_module_members(module, module_repr):
             if isinstance(member, _LoaderDescriptor):
@@ -1875,7 +1874,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if not found:
             raise RuntimeError(f"Didn't find any loader descriptors in {module_repr}")
 
-    def load_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
+    def load_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path], _log: bool = True) -> _ClientT:
         """Load entities into this client from modules based on loader descriptors.
 
         .. note::
@@ -1928,6 +1927,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 if module_path in self._modules:
                     raise ValueError(f"module {module_path} already loaded")
 
+                if _log:
+                    _LOGGER.info("Loading from %s", module_path)
+
                 module = importlib.import_module(module_path)
                 self._load_module(module, str(module_path))
                 self._modules[module_path] = module
@@ -1946,6 +1948,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                         f"Module not found at {module_path}", name=module_name, path=str(module_path)
                     )
 
+                if _log:
+                    _LOGGER.info("Loading from %s", module_path)
+
                 module = importlib_util.module_from_spec(spec)
                 spec.loader.exec_module(module)
                 self._load_module(module, str(module_path))
@@ -1954,7 +1959,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self
 
     def _unload_module(self, module: types.ModuleType, module_repr: str) -> None:
-        _LOGGER.info("Unloading from %s", module_repr)
         found = False
         for member in self._iter_module_members(module, module_repr):
             if isinstance(member, _UnloaderDescriptor):
@@ -1962,9 +1966,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 found = True
 
         if not found:
-            raise RuntimeError("Didn't find any unloaders in %s", module_repr)
+            raise RuntimeError(f"Didn't find any unloaders in {module_repr}")
 
-    def unload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> None:
+    def unload_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path], _log: bool = True) -> _ClientT:
         """Unload entities from this client based on unloader descriptors in one or more modules.
 
         .. note::
@@ -2005,19 +2009,22 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         for module_path in modules:
             if isinstance(module_path, str):
                 module = self._modules.pop(module_path, None)
-                if module:
-                    ...
 
             else:
                 module_path = module_path.absolute()
                 module = self._path_modules.pop(module_path, None)
 
             if not module:
-                raise ValueError(f"Module {module_path} not loaded")
+                raise ValueError(f"Module {module_path!s} not loaded")
+
+            if _log:
+                _LOGGER.info("Unloading from %s", module_path)
 
             self._unload_module(module, str(module_path))
 
-    def reload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> None:
+        return self
+
+    def reload_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
         """Reload entities in this client based on the descriptors in loaded module(s).
 
         .. note::
@@ -2047,29 +2054,28 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         ValueError
             If the module hasn't been loaded.
         RuntimeError
-            If no unloader descriptors are found in the module.
+            If no unloader descriptors are found in the current state of the module.
+            If no loader descriptors are found in the new state of the module.
         """
         for module_path in modules:
             if isinstance(module_path, str):
                 module = self._modules.pop(module_path, None)
+                if not module:
+                    raise ValueError(f"Module {module_path} not loaded")
 
-            else:
-                module_path = module_path.absolute()
-                module = self._path_modules.pop(module_path, None)
-
-            if not module:
-                raise ValueError(f"Module {module_path} not loaded")
-
-            module_repr = str(module_path)
-            _LOGGER.info("Reloading %s", module_repr)
-            self._unload_module(module, module_repr)
-            module = importlib.reload(module)
-            self._load_module(module, module_repr)
-
-            if isinstance(module_path, str):
+                module_repr = str(module_path)
+                _LOGGER.info("Reloading %s", module_repr)
+                self._unload_module(module, module_repr)
+                module = importlib.reload(module)
+                self._load_module(module, module_repr)
                 self._modules[module_path] = module
+
             else:
-                self._path_modules[module_path] = module
+                _LOGGER.info("Reloading %s", module_path)
+                self.unload_modules(module_path, _log=False)
+                self.load_modules(module_path, _log=False)
+
+        return self
 
     async def on_message_create_event(self, event: hikari.MessageCreateEvent, /) -> None:
         """Execute a message command based on a gateway event.

@@ -904,8 +904,9 @@ class TestClient:
                 )
                 file.flush()
 
-            client.load_modules(path)
+            result = client.load_modules(path)
 
+            assert result is client
             add_component_.assert_has_calls([mock.call(5533), mock.call(123)])
             add_client_callback_.assert_has_calls([mock.call(554444), mock.call(4312)])
 
@@ -1135,10 +1136,11 @@ class TestClient:
         )
 
         with mock.patch.object(importlib, "import_module", return_value=mock_module) as import_module:
-            client.load_modules("okokok.no.u")
+            result = client.load_modules("okokok.no.u")
 
             import_module.assert_called_once_with("okokok.no.u")
 
+        assert result is client
         mock_module.loader.assert_called_once_with(client)
         mock_module.other_loader.assert_called_once_with(client)
         priv_loader.assert_not_called()
@@ -1197,8 +1199,9 @@ class TestClient:
                 )
                 file.flush()
 
-            client.load_modules(path).unload_modules(path)
+            result = client.load_modules(path).unload_modules(path)
 
+            assert result is client
             remove_component_by_name_.assert_has_calls([mock.call("naye"), mock.call("garbage")])
             remove_client_callback_.assert_has_calls([mock.call(55555), mock.call(123321123)])
 
@@ -1387,10 +1390,11 @@ class TestClient:
         )
 
         with mock.patch.object(importlib, "import_module", return_value=mock_module) as import_module:
-            client.load_modules("okokok.no").unload_modules("okokok.no")
+            result = client.load_modules("okokok.no").unload_modules("okokok.no")
 
             import_module.assert_called_once_with("okokok.no")
 
+        assert result is client
         mock_module.unloader.assert_called_once_with(client)
         mock_module.other_unloader.assert_called_once_with(client)
         priv_unloader.assert_not_called()
@@ -1466,37 +1470,240 @@ class TestClient:
 
             import_module.assert_called_once_with("okokok.nok")
 
-    def test_reload_modules_with_system_path(self):
-        ...
-
-    def test_reload_modules_with_system_path_when_all(self):
-        ...
-
-    def test_reload_modules_with_system_path_when_all_and_no_unloaders_found(self):
-        ...
-
-    def test_reload_modules_when_system_path_not_loaded(self):
-        client = tanjun.Client(mock.AsyncMock())
-        path = pathlib.Path("aye")
-        expected_error_path = str(path.absolute()).replace("\\", "\\\\")
-
-        with pytest.raises(ValueError, match=f"Module {expected_error_path} not loaded"):
-            client.reload_modules(path)
-
     def test_reload_modules_with_python_module_path(self):
-        ...
+        priv_unload = mock.Mock(tanjun.clients._UnloaderDescriptor)
+        priv_load = mock.Mock(tanjun.clients._LoaderDescriptor)
+        old_module = mock.Mock(
+            load=mock.Mock(tanjun.clients._LoaderDescriptor),
+            unload=mock.Mock(tanjun.clients._UnloaderDescriptor),
+            ok=123,
+            naye=object(),
+            other_unload=mock.Mock(tanjun.clients._UnloaderDescriptor),
+            _priv_unload=priv_unload,
+        )
+        new_module = mock.Mock(
+            load=mock.Mock(tanjun.clients._LoaderDescriptor),
+            ok=123,
+            naye=object(),
+            other_load=mock.Mock(tanjun.clients._LoaderDescriptor),
+            _priv_load=priv_load,
+        )
+        client = tanjun.Client(mock.AsyncMock())
+
+        with mock.patch.object(importlib, "import_module", return_value=old_module):
+            client.load_modules("waifus")
+
+        old_module.unload.assert_not_called()
+        old_module.other_unload.assert_not_called()
+        priv_unload.assert_not_called()
+        new_module.load.assert_not_called()
+        new_module.other_load.assert_not_called()
+        priv_load.assert_not_called()
+
+        with mock.patch.object(importlib, "reload", return_value=new_module) as reload:
+            result = client.reload_modules("waifus")
+
+            reload.assert_called_once_with(old_module)
+
+        assert result is client
+        old_module.unload.assert_called_once_with(client)
+        old_module.other_unload.assert_called_once_with(client)
+        priv_unload.assert_not_called()
+        new_module.load.assert_called_once_with(client)
+        new_module.other_load.assert_called_once_with(client)
+        priv_load.assert_not_called()
+
+    def test_reload_modules_python_module_path_when_no_unloaders_found(self):
+        priv_unload = mock.Mock(tanjun.clients._UnloaderDescriptor)
+        old_module = mock.Mock(
+            load=mock.Mock(tanjun.clients._LoaderDescriptor),
+            ok=123,
+            naye=object(),
+            _priv_unload=priv_unload,
+        )
+        client = tanjun.Client(mock.AsyncMock())
+
+        with mock.patch.object(importlib, "import_module", return_value=old_module):
+            client.load_modules("waifus")
+
+        with mock.patch.object(importlib, "reload") as reload:
+            with pytest.raises(RuntimeError, match="Didn't find any unloaders in waifus"):
+                client.reload_modules("waifus")
+
+            reload.assert_not_called()
+
+        priv_unload.assert_not_called()
+
+    def test_reload_modules_python_module_path_when_no_loaders_found_in_new_module(self):
+        priv_unload = mock.Mock(tanjun.clients._UnloaderDescriptor)
+        priv_load = mock.Mock(tanjun.clients._LoaderDescriptor)
+        old_module = mock.Mock(
+            load=mock.Mock(tanjun.clients._LoaderDescriptor),
+            unload=mock.Mock(tanjun.clients._UnloaderDescriptor),
+            ok=123,
+            naye=object(),
+            other_unload=mock.Mock(tanjun.clients._UnloaderDescriptor),
+            _priv_unload=priv_unload,
+        )
+        new_module = mock.Mock(
+            ok=123,
+            naye=object(),
+            _priv_load=priv_load,
+        )
+        client = tanjun.Client(mock.AsyncMock())
+
+        with mock.patch.object(importlib, "import_module", return_value=old_module):
+            client.load_modules("yuri.waifus")
+
+        old_module.unload.assert_not_called()
+        old_module.other_unload.assert_not_called()
+        priv_unload.assert_not_called()
+        priv_load.assert_not_called()
+
+        with mock.patch.object(importlib, "reload", return_value=new_module) as reload:
+            with pytest.raises(RuntimeError, match="Didn't find any loader descriptors in yuri.waifus"):
+                client.reload_modules("yuri.waifus")
+
+            reload.assert_called_once_with(old_module)
+
+        old_module.unload.assert_called_once_with(client)
+        old_module.other_unload.assert_called_once_with(client)
+        priv_unload.assert_not_called()
+        priv_load.assert_not_called()
 
     def test_reload_modules_with_python_module_path_when_all(self):
-        ...
-
-    def test_reload_modules_with_python_module_path_when_all_and_no_unloaders_found(self):
-        ...
-
-    def test_reload_modules_when_python_module_path_not_loaded(self):
+        priv_unload = mock.Mock(tanjun.clients._UnloaderDescriptor)
+        priv_load = mock.Mock(tanjun.clients._LoaderDescriptor)
+        old_module = mock.Mock(
+            load=mock.Mock(tanjun.clients._LoaderDescriptor),
+            unload=mock.Mock(tanjun.clients._UnloaderDescriptor),
+            ok=123,
+            naye=object(),
+            other_unload=mock.Mock(tanjun.clients._UnloaderDescriptor),
+            _priv_unload=priv_unload,
+            __all__=["load", "unload", "ok", "_priv_unload"],
+        )
+        new_module = mock.Mock(
+            load=mock.Mock(tanjun.clients._LoaderDescriptor),
+            ok=123,
+            naye=object(),
+            other_load=mock.Mock(tanjun.clients._LoaderDescriptor),
+            _priv_load=priv_load,
+            __all__=["load", "_priv_load"],
+        )
         client = tanjun.Client(mock.AsyncMock())
 
-        with pytest.raises(ValueError, match="Module foo.bar not loaded"):
-            client.reload_modules("foo.bar")
+        with mock.patch.object(importlib, "import_module", return_value=old_module):
+            client.load_modules("waifus")
+
+        old_module.unload.assert_not_called()
+        old_module.other_unload.assert_not_called()
+        priv_unload.assert_not_called()
+        new_module.load.assert_not_called()
+        new_module.other_load.assert_not_called()
+        priv_load.assert_not_called()
+
+        with mock.patch.object(importlib, "reload", return_value=new_module) as reload:
+            result = client.reload_modules("waifus")
+
+            reload.assert_called_once_with(old_module)
+
+        assert result is client
+        old_module.unload.assert_called_once_with(client)
+        old_module.other_unload.assert_not_called()
+        priv_unload.assert_called_once_with(client)
+        new_module.load.assert_called_once_with(client)
+        new_module.other_load.assert_not_called()
+        priv_load.assert_called_once_with(client)
+
+    def test_reload_modules_with_python_module_path_when_all_and_no_unloaders_found(self):
+        priv_unload = mock.Mock(tanjun.clients._UnloaderDescriptor)
+        old_module = mock.Mock(
+            load=mock.Mock(tanjun.clients._LoaderDescriptor),
+            ok=123,
+            naye=object(),
+            _priv_unload=priv_unload,
+            unload=mock.Mock(tanjun.clients._UnloaderDescriptor),
+            __all__=["naye", "load", "ok"],
+        )
+        client = tanjun.Client(mock.AsyncMock())
+
+        with mock.patch.object(importlib, "import_module", return_value=old_module):
+            client.load_modules("waifus")
+
+        with mock.patch.object(importlib, "reload") as reload:
+            with pytest.raises(RuntimeError, match="Didn't find any unloaders in waifus"):
+                client.reload_modules("waifus")
+
+            reload.assert_not_called()
+
+        priv_unload.assert_not_called()
+        old_module.unload.assert_not_called()
+
+    def test_reload_modules_with_python_module_path_when_all_and_no_loaders_found_in_new_module(self):
+        priv_unload = mock.Mock(tanjun.clients._UnloaderDescriptor)
+        priv_load = mock.Mock(tanjun.clients._LoaderDescriptor)
+        old_module = mock.Mock(
+            load=mock.Mock(tanjun.clients._LoaderDescriptor),
+            unload=mock.Mock(tanjun.clients._UnloaderDescriptor),
+            ok=123,
+            naye=object(),
+            other_unload=mock.Mock(tanjun.clients._UnloaderDescriptor),
+            _priv_unload=priv_unload,
+            __all__=["load", "unload", "ok", "naye"],
+        )
+        new_module = mock.Mock(
+            ok=123,
+            naye=object(),
+            _priv_load=priv_load,
+            loader=mock.Mock(tanjun.clients._LoaderDescriptor),
+            __all__=["ok", "naye"],
+        )
+        client = tanjun.Client(mock.AsyncMock())
+
+        with mock.patch.object(importlib, "import_module", return_value=old_module):
+            client.load_modules("yuri.waifus")
+
+        old_module.unload.assert_not_called()
+        old_module.other_unload.assert_not_called()
+        priv_unload.assert_not_called()
+        priv_load.assert_not_called()
+        new_module.loader.assert_not_called()
+
+        with mock.patch.object(importlib, "reload", return_value=new_module) as reload:
+            with pytest.raises(RuntimeError, match="Didn't find any loader descriptors in yuri.waifus"):
+                client.reload_modules("yuri.waifus")
+
+            reload.assert_called_once_with(old_module)
+
+        old_module.unload.assert_called_once_with(client)
+        old_module.other_unload.assert_not_called()
+        priv_unload.assert_not_called()
+        priv_load.assert_not_called()
+        new_module.loader.assert_not_called()
+
+    def test_reload_modules_when_python_module_path_and_not_loaded(self):
+        client = tanjun.Client(mock.AsyncMock())
+
+        with pytest.raises(ValueError, match=f"Module aya.gay.no not loaded"):
+            client.reload_modules("aya.gay.no")
+
+    def test_reload_modules_with_system_path(self):
+        path = pathlib.Path("aye")
+        load_modules_ = mock.Mock()
+        unload_modules_ = mock.Mock()
+
+        class StubClient(tanjun.Client):
+            load_modules = load_modules_
+            unload_modules = unload_modules_
+
+        client = StubClient(mock.AsyncMock())
+
+        result = client.reload_modules(path)
+
+        assert result is client
+        unload_modules_.assert_called_once_with(path, _log=False)
+        load_modules_.assert_called_once_with(path, _log=False)
 
     # Message create event
 
