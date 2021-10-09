@@ -268,7 +268,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   set from the start.
 - `Client.load_modules` now respects `__all__` if present.
 - Renamed `CommandError.message` to `CommandError.content`.
-- Client.load_modules now respects `__all__` if present.
 
 ### Fixed
 - Small change to help MyPy better understand protocol behaviour.
