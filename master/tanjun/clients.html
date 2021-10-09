@@ -778,6 +778,7 @@
             <span class="nb">bool</span><span class="p">,</span>
         <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">_stack_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -822,7 +823,7 @@
                 <span class="s2">&quot;The `set_global_commands` argument is deprecated and will be removed in v2.1.1a1. &quot;</span>
                 <span class="s2">&quot;Use `declare_global_commands` instead.&quot;</span><span class="p">,</span>
                 <span class="ne">DeprecationWarning</span><span class="p">,</span>
-                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span> <span class="o">+</span> <span class="n">_stack_level</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="n">declare_global_commands</span> <span class="o">=</span> <span class="n">declare_global_commands</span> <span class="ow">or</span> <span class="n">set_global_commands</span>
@@ -878,6 +879,7 @@
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.GatewayBotAware` instance.</span>
 
@@ -922,6 +924,8 @@
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
+<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">cls</span><span class="p">(</span>
@@ -932,6 +936,8 @@
                 <span class="n">event_managed</span><span class="o">=</span><span class="n">event_managed</span><span class="p">,</span>
                 <span class="n">mention_prefix</span><span class="o">=</span><span class="n">mention_prefix</span><span class="p">,</span>
                 <span class="n">declare_global_commands</span><span class="o">=</span><span class="n">declare_global_commands</span><span class="p">,</span>
+                <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
+                <span class="n">_stack_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">set_human_only</span><span class="p">()</span>
             <span class="o">.</span><span class="n">set_hikari_trait_injectors</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
@@ -943,6 +949,7 @@
         <span class="n">bot</span><span class="p">:</span> <span class="n">hikari_traits</span><span class="o">.</span><span class="n">RESTBotAware</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.RESTBotAware` instance.</span>
 
@@ -971,9 +978,15 @@
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
+<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">interaction_server</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="n">declare_global_commands</span>
+            <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span>
+            <span class="n">server</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">interaction_server</span><span class="p">,</span>
+            <span class="n">declare_global_commands</span><span class="o">=</span><span class="n">declare_global_commands</span><span class="p">,</span>
+            <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
+            <span class="n">_stack_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">set_hikari_trait_injectors</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__aenter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
@@ -2502,6 +2515,7 @@ to the provided client using it's abstract methods.</li>
             <span class="nb">bool</span><span class="p">,</span>
         <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">_stack_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -2546,7 +2560,7 @@ to the provided client using it's abstract methods.</li>
                 <span class="s2">&quot;The `set_global_commands` argument is deprecated and will be removed in v2.1.1a1. &quot;</span>
                 <span class="s2">&quot;Use `declare_global_commands` instead.&quot;</span><span class="p">,</span>
                 <span class="ne">DeprecationWarning</span><span class="p">,</span>
-                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span> <span class="o">+</span> <span class="n">_stack_level</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="n">declare_global_commands</span> <span class="o">=</span> <span class="n">declare_global_commands</span> <span class="ow">or</span> <span class="n">set_global_commands</span>
@@ -2602,6 +2616,7 @@ to the provided client using it's abstract methods.</li>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.GatewayBotAware` instance.</span>
 
@@ -2646,6 +2661,8 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
+<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">cls</span><span class="p">(</span>
@@ -2656,6 +2673,8 @@ to the provided client using it's abstract methods.</li>
                 <span class="n">event_managed</span><span class="o">=</span><span class="n">event_managed</span><span class="p">,</span>
                 <span class="n">mention_prefix</span><span class="o">=</span><span class="n">mention_prefix</span><span class="p">,</span>
                 <span class="n">declare_global_commands</span><span class="o">=</span><span class="n">declare_global_commands</span><span class="p">,</span>
+                <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
+                <span class="n">_stack_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">set_human_only</span><span class="p">()</span>
             <span class="o">.</span><span class="n">set_hikari_trait_injectors</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
@@ -2667,6 +2686,7 @@ to the provided client using it's abstract methods.</li>
         <span class="n">bot</span><span class="p">:</span> <span class="n">hikari_traits</span><span class="o">.</span><span class="n">RESTBotAware</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.RESTBotAware` instance.</span>
 
@@ -2695,9 +2715,15 @@ to the provided client using it's abstract methods.</li>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
+<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">interaction_server</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="n">declare_global_commands</span>
+            <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span>
+            <span class="n">server</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">interaction_server</span><span class="p">,</span>
+            <span class="n">declare_global_commands</span><span class="o">=</span><span class="n">declare_global_commands</span><span class="p">,</span>
+            <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
+            <span class="n">_stack_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">set_hikari_trait_injectors</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__aenter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
@@ -4139,7 +4165,8 @@ after a rename.</p>
     mention_prefix: bool = False,
     set_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
     declare_global_commands: Union[Sequence[Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int]], hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
-    command_ids: Optional[collections.abc.Mapping[str, Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int]]] = None
+    command_ids: Optional[collections.abc.Mapping[str, Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int]]] = None,
+    _stack_level: int = 0
 )</span>
     </div>
 
@@ -4162,6 +4189,7 @@ after a rename.</p>
             <span class="nb">bool</span><span class="p">,</span>
         <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">_stack_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -4206,7 +4234,7 @@ after a rename.</p>
                 <span class="s2">&quot;The `set_global_commands` argument is deprecated and will be removed in v2.1.1a1. &quot;</span>
                 <span class="s2">&quot;Use `declare_global_commands` instead.&quot;</span><span class="p">,</span>
                 <span class="ne">DeprecationWarning</span><span class="p">,</span>
-                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span> <span class="o">+</span> <span class="n">_stack_level</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="n">declare_global_commands</span> <span class="o">=</span> <span class="n">declare_global_commands</span> <span class="ow">or</span> <span class="n">set_global_commands</span>
@@ -4272,7 +4300,8 @@ after a rename.</p>
     *,
     event_managed: bool = True,
     mention_prefix: bool = False,
-    declare_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False
+    declare_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
+    set_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False
 ) -&gt; <a href="#Client">tanjun.clients.Client</a></span>:
     </div>
 
@@ -4287,6 +4316,7 @@ after a rename.</p>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.GatewayBotAware` instance.</span>
 
@@ -4331,6 +4361,8 @@ after a rename.</p>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
+<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">cls</span><span class="p">(</span>
@@ -4341,6 +4373,8 @@ after a rename.</p>
                 <span class="n">event_managed</span><span class="o">=</span><span class="n">event_managed</span><span class="p">,</span>
                 <span class="n">mention_prefix</span><span class="o">=</span><span class="n">mention_prefix</span><span class="p">,</span>
                 <span class="n">declare_global_commands</span><span class="o">=</span><span class="n">declare_global_commands</span><span class="p">,</span>
+                <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
+                <span class="n">_stack_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">set_human_only</span><span class="p">()</span>
             <span class="o">.</span><span class="n">set_hikari_trait_injectors</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
@@ -4397,6 +4431,8 @@ set on this specific guild at startup rather than globally. This
 can be useful for testing/debug purposes as slash commands may take
 up to an hour to propagate globally but will immediately propagate
 when set on a specific guild.</p></li>
+<li><strong>set_global_commands</strong> (typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
+Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</li>
 </ul>
 </div>
 
@@ -4412,7 +4448,8 @@ when set on a specific guild.</p></li>
     cls,
     bot: hikari.traits.RESTBotAware,
     /,
-    declare_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False
+    declare_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
+    set_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False
 ) -&gt; <a href="#Client">tanjun.clients.Client</a></span>:
     </div>
 
@@ -4424,6 +4461,7 @@ when set on a specific guild.</p></li>
         <span class="n">bot</span><span class="p">:</span> <span class="n">hikari_traits</span><span class="o">.</span><span class="n">RESTBotAware</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.RESTBotAware` instance.</span>
 
@@ -4452,9 +4490,15 @@ when set on a specific guild.</p></li>
 <span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
 <span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
 <span class="sd">            when set on a specific guild.</span>
+<span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">interaction_server</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="n">declare_global_commands</span>
+            <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span>
+            <span class="n">server</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">interaction_server</span><span class="p">,</span>
+            <span class="n">declare_global_commands</span><span class="o">=</span><span class="n">declare_global_commands</span><span class="p">,</span>
+            <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
+            <span class="n">_stack_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">set_hikari_trait_injectors</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
 </pre></div>
 
@@ -4492,6 +4536,8 @@ set on this specific guild at startup rather than globally. This
 can be useful for testing/debug purposes as slash commands may take
 up to an hour to propagate globally but will immediately propagate
 when set on a specific guild.</p></li>
+<li><strong>set_global_commands</strong> (typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
+Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</li>
 </ul>
 </div>
 
