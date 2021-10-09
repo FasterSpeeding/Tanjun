@@ -1620,7 +1620,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         """Add a channel option to a slash command.
 
         .. note::
-            This will always result in `hikari..InteractionChannel`.
+            This will always result in `hikari.InteractionChannel`.
 
         Parameters
         ----------
@@ -1635,6 +1635,10 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         default : typing.Any
             The option's default value.
             If this is left as undefined then this option will be required.
+        types : typing.Optional[collections.abc.Collection[type[hikari.PartialChannel]]]
+            A collection of the channel classes this option should accept.
+
+            If left as `None` or empty then the option will allow all channel types.
         pass_as_kwarg : bool
             Whether or not to pass this option as a keyword argument to the
             command callback.
