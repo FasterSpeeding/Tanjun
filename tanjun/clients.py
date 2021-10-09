@@ -974,7 +974,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             if command_id := command_ids.get(command.name):
                 builder.set_id(hikari.Snowflake(command_id))
 
-            builders[command.name]
+            builders[command.name] = builder
 
         if conflicts:
             raise ValueError(
