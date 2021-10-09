@@ -16566,7 +16566,7 @@ message create events.</p>
         <span class="sd">&quot;&quot;&quot;Add a channel option to a slash command.</span>
 
 <span class="sd">        .. note::</span>
-<span class="sd">            This will always result in `hikari..InteractionChannel`.</span>
+<span class="sd">            This will always result in `hikari.InteractionChannel`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -16581,6 +16581,10 @@ message create events.</p>
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
+<span class="sd">        types : typing.Optional[collections.abc.Collection[type[hikari.PartialChannel]]]</span>
+<span class="sd">            A collection of the channel classes this option should accept.</span>
+
+<span class="sd">            If left as `None` or empty then the option will allow all channel types.</span>
 <span class="sd">        pass_as_kwarg : bool</span>
 <span class="sd">            Whether or not to pass this option as a keyword argument to the</span>
 <span class="sd">            command callback.</span>
@@ -19572,7 +19576,7 @@ The command to add.</li>
         <span class="sd">&quot;&quot;&quot;Add a channel option to a slash command.</span>
 
 <span class="sd">        .. note::</span>
-<span class="sd">            This will always result in `hikari..InteractionChannel`.</span>
+<span class="sd">            This will always result in `hikari.InteractionChannel`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -19587,6 +19591,10 @@ The command to add.</li>
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
+<span class="sd">        types : typing.Optional[collections.abc.Collection[type[hikari.PartialChannel]]]</span>
+<span class="sd">            A collection of the channel classes this option should accept.</span>
+
+<span class="sd">            If left as `None` or empty then the option will allow all channel types.</span>
 <span class="sd">        pass_as_kwarg : bool</span>
 <span class="sd">            Whether or not to pass this option as a keyword argument to the</span>
 <span class="sd">            command callback.</span>
@@ -20898,7 +20906,7 @@ If this is left as undefined then this option will be required.</li>
         <span class="sd">&quot;&quot;&quot;Add a channel option to a slash command.</span>
 
 <span class="sd">        .. note::</span>
-<span class="sd">            This will always result in `hikari..InteractionChannel`.</span>
+<span class="sd">            This will always result in `hikari.InteractionChannel`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -20913,6 +20921,10 @@ If this is left as undefined then this option will be required.</li>
 <span class="sd">        default : typing.Any</span>
 <span class="sd">            The option&#39;s default value.</span>
 <span class="sd">            If this is left as undefined then this option will be required.</span>
+<span class="sd">        types : typing.Optional[collections.abc.Collection[type[hikari.PartialChannel]]]</span>
+<span class="sd">            A collection of the channel classes this option should accept.</span>
+
+<span class="sd">            If left as `None` or empty then the option will allow all channel types.</span>
 <span class="sd">        pass_as_kwarg : bool</span>
 <span class="sd">            Whether or not to pass this option as a keyword argument to the</span>
 <span class="sd">            command callback.</span>
@@ -20962,7 +20974,7 @@ If this is left as undefined then this option will be required.</li>
             <div class="docstring"><p>Add a channel option to a slash command.</p>
 
 <p><em>Note:</em>
-This will always result in <code>hikari..InteractionChannel</code>.</p>
+This will always result in <code>hikari.InteractionChannel</code>.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -20980,6 +20992,10 @@ This should be inclusively between 1-100 characters in length.</li>
 <li><strong>default</strong> (typing.Any):
 The option's default value.
 If this is left as undefined then this option will be required.</li>
+<li><p><strong>types</strong> (typing.Optional[collections.abc.Collection[type[hikari.PartialChannel]]]):
+A collection of the channel classes this option should accept.</p>
+
+<p>If left as <code>None</code> or empty then the option will allow all channel types.</p></li>
 <li><p><strong>pass_as_kwarg</strong> (bool):
 Whether or not to pass this option as a keyword argument to the
 command callback.</p>
