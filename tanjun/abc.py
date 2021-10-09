@@ -2764,7 +2764,7 @@ class Client(abc.ABC):
 
         Returns
         -------
-        typing.Optiona[Component]
+        typing.Optional[Component]
             The component instance if found, else `None`.
         """
 
