@@ -23165,7 +23165,7 @@ This may target roles, guild members or users and results in
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">hooks_</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">set_message_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_message_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">hooks_</span>
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -23749,7 +23749,7 @@ This may target roles, guild members or users and results in
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">hooks_</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">set_message_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_message_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">hooks_</span>
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -24476,13 +24476,14 @@ the component.</p>
             <span class="def">def</span>
             <span class="name">set_message_hooks</span><span class="signature">(
     self: ~_ComponentT,
-    hooks_: Optional[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#MessageContext">tanjun.abc.MessageContext</a>]]
+    hooks_: Optional[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#MessageContext">tanjun.abc.MessageContext</a>]],
+    /
 ) -&gt; ~_ComponentT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_message_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_message_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">hooks_</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
