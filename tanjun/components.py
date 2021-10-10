@@ -267,7 +267,7 @@ class Component(abc.Component):
         self._slash_hooks = hooks_
         return self
 
-    def set_message_hooks(self: _ComponentT, hooks_: typing.Optional[abc.MessageHooks]) -> _ComponentT:
+    def set_message_hooks(self: _ComponentT, hooks_: typing.Optional[abc.MessageHooks], /) -> _ComponentT:
         self._message_hooks = hooks_
         return self
 
