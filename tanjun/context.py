@@ -597,7 +597,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         command: typing.Optional[tanjun_abc.BaseSlashCommand] = None,
         component: typing.Optional[tanjun_abc.Component] = None,
         default_to_ephemeral: bool = False,
-        on_not_found: typing.Optional[typing.Callable[[SlashContext], None]] = None,
+        on_not_found: typing.Optional[collections.Callable[[SlashContext], collections.Awaitable[None]]] = None,
     ) -> None:
         super().__init__(client, injection_client, component=component)
         self._command = command
@@ -705,7 +705,6 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         return self._response_future
 
     async def mark_not_found(self) -> None:
-
         if self._on_not_found and not self._marked_not_found:
             self._marked_not_found = True
             await self._on_not_found(self)

@@ -99,7 +99,9 @@ if typing.TYPE_CHECKING:
             command: typing.Optional[tanjun_abc.BaseSlashCommand] = None,
             component: typing.Optional[tanjun_abc.Component] = None,
             default_to_ephemeral: bool = False,
-            on_not_found: typing.Optional[typing.Callable[[context.SlashContext], None]] = None,
+            on_not_found: typing.Optional[
+                collections.Callable[[context.SlashContext], collections.Awaitable[None]]
+            ] = None,
         ) -> context.SlashContext:
             raise NotImplementedError
 
@@ -2178,7 +2180,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return hooks
 
-    async def _on_slash_not_found(self, ctx: tanjun_abc.SlashContext) -> None:
+    async def _on_slash_not_found(self, ctx: context.SlashContext) -> None:
         await self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
         if self._interaction_not_found and not ctx.has_responded:
             await ctx.create_initial_response(self._interaction_not_found)

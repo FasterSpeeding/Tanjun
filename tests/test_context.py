@@ -1188,7 +1188,6 @@ class TestSlashContext:
 
     @pytest.mark.asyncio()
     async def test_mark_not_found_when_no_callback(self, context: tanjun.SlashContext):
-        on_not_found = mock.AsyncMock()
         context = tanjun.SlashContext(mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=None)
 
         await context.mark_not_found()
