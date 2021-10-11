@@ -432,9 +432,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         Whether or not to automatically set global slash commands when this
         client is first started. Defaults to `False`.
 
-        If one or more guild objects/IDs are passed here then the global
-        commands will be set on the specific guild(s) at startup rather than
-        globally. This can be useful for testing/debug purposes as slash
+        If one or more guild objects/IDs are passed here then the registered
+        global commands will be set on the specified guild(s) at startup rather
+        than globally. This can be useful for testing/debug purposes as slash
         commands may take up to an hour to propagate globally but will
         immediately propagate when set on a specific guild.
     set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
@@ -651,9 +651,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             Whether or not to automatically set global slash commands when this
             client is first started. Defaults to `False`.
 
-            If one or more guild objects/IDs are passed here then the global
-            commands will be set on the specific guild(s) at startup rather than
-            globally. This can be useful for testing/debug purposes as slash
+            If one or more guild objects/IDs are passed here then the registered
+            global commands will be set on the specified guild(s) at startup rather
+            than globally. This can be useful for testing/debug purposes as slash
             commands may take up to an hour to propagate globally but will
             immediately propagate when set on a specific guild.
         set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
@@ -719,9 +719,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             Whether or not to automatically set global slash commands when this
             client is first started. Defaults to `False`.
 
-            If one or more guild objects/IDs are passed here then the global
-            commands will be set on the specific guild(s) at startup rather than
-            globally. This can be useful for testing/debug purposes as slash
+            If one or more guild objects/IDs are passed here then the registered
+            global commands will be set on the specified guild(s) at startup rather
+            than globally. This can be useful for testing/debug purposes as slash
             commands may take up to an hour to propagate globally but will
             immediately propagate when set on a specific guild.
         set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
