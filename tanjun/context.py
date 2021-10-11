@@ -581,7 +581,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         "_has_responded",
         "_interaction",
         "_last_response_id",
-        "_not_found_message",
+        "_marked_not_found",
+        "_on_not_found",
         "_options",
         "_response_future",
         "_response_lock",
@@ -596,7 +597,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         command: typing.Optional[tanjun_abc.BaseSlashCommand] = None,
         component: typing.Optional[tanjun_abc.Component] = None,
         default_to_ephemeral: bool = False,
-        not_found_message: typing.Optional[str] = None,
+        on_not_found: typing.Optional[collections.Callable[[SlashContext], collections.Awaitable[None]]] = None,
     ) -> None:
         super().__init__(client, injection_client, component=component)
         self._command = command
@@ -606,7 +607,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         self._has_responded = False
         self._interaction = interaction
         self._last_response_id: typing.Optional[hikari.Snowflake] = None
-        self._not_found_message: typing.Optional[str] = not_found_message
+        self._marked_not_found = False
+        self._on_not_found = on_not_found
         self._response_future: typing.Optional[asyncio.Future[ResponseTypeT]] = None
         self._response_lock = asyncio.Lock()
         self._set_type_special_case(tanjun_abc.SlashContext, self)
@@ -702,28 +704,10 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
 
         return self._response_future
 
-    async def mark_not_found(
-        self, *, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED
-    ) -> None:
-        flags = flags if flags is not hikari.UNDEFINED else self._get_flags(hikari.UNDEFINED)
-        async with self._response_lock:
-            if self._has_responded or not self._not_found_message:
-                return
-
-            self._has_responded = True
-            if self._has_been_deferred:
-                await self._interaction.edit_initial_response(content=self._not_found_message)
-                return
-
-            if self._response_future:
-                self._response_future.set_result(
-                    self._interaction.build_response().set_flags(flags).set_content(self._not_found_message)
-                )
-
-            else:
-                await self._interaction.create_initial_response(
-                    hikari.ResponseType.MESSAGE_CREATE, content=self._not_found_message, flags=flags
-                )
+    async def mark_not_found(self) -> None:
+        if self._on_not_found and not self._marked_not_found:
+            self._marked_not_found = True
+            await self._on_not_found(self)
 
     def start_defer_timer(self: _SlashContextT, count_down: typing.Union[int, float], /) -> _SlashContextT:
         self._assert_not_final()

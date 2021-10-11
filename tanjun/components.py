@@ -156,6 +156,7 @@ class Component(abc.Component):
         "_checks",
         "_client",
         "_client_callbacks",
+        "_defaults_to_ephemeral",
         "_hooks",
         "_is_strict",
         "_listeners",
@@ -184,6 +185,7 @@ class Component(abc.Component):
         )
         self._client: typing.Optional[abc.Client] = None
         self._client_callbacks: dict[str, list[abc.MetaEventSig]] = {}
+        self._defaults_to_ephemeral: typing.Optional[bool] = None
         self._hooks = hooks
         self._is_strict = strict
         self._listeners: dict[type[base_events.Event], list[abc.ListenerCallbackSig]] = {}
@@ -208,6 +210,10 @@ class Component(abc.Component):
     @property
     def client(self) -> typing.Optional[abc.Client]:
         return self._client
+
+    @property
+    def defaults_to_ephemeral(self) -> typing.Optional[bool]:
+        return self._defaults_to_ephemeral
 
     @property
     def hooks(self) -> typing.Optional[abc.AnyHooks]:
@@ -262,6 +268,27 @@ class Component(abc.Component):
             return self
 
         return copy.copy(self).copy(_new=False)
+
+    def set_ephemeral_default(self: _ComponentT, state: typing.Optional[bool], /) -> _ComponentT:
+        """Set whether slash contexts executed in this component should default to ephemeral responses.
+
+        Parameters
+        ----------
+        typing.Optional[bool]
+            Whether slash command contexts executed in this component should
+            should default to ephemeral.
+            This will be overridden by any response calls which specify flags.
+
+            Setting this to `None` will let the default set on the parent
+            client propagate and decide the ephemeral default behaviour.
+
+        Returns
+        -------
+        SelfT
+            This component to enable method chaining.
+        """
+        self._defaults_to_ephemeral = state
+        return self
 
     def set_slash_hooks(self: _ComponentT, hooks_: typing.Optional[abc.SlashHooks], /) -> _ComponentT:
         self._slash_hooks = hooks_
@@ -639,8 +666,13 @@ class Component(abc.Component):
         *,
         hooks: typing.Optional[collections.MutableSet[abc.SlashHooks]] = None,
     ) -> collections.Coroutine[typing.Any, typing.Any, typing.Optional[collections.Awaitable[None]]]:
-        if command := self._slash_commands.get(ctx.interaction.command_name):
-            ctx.set_ephemeral_default(command.defaults_to_ephemeral)
+        command = self._slash_commands.get(ctx.interaction.command_name)
+        if command:
+            if command.defaults_to_ephemeral is not None:
+                ctx.set_ephemeral_default(command.defaults_to_ephemeral)
+
+            elif self._defaults_to_ephemeral is not None:
+                ctx.set_ephemeral_default(self._defaults_to_ephemeral)
 
         return self._execute_interaction(ctx, command, hooks=hooks)
 

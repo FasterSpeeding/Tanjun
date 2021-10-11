@@ -57,9 +57,17 @@ class TestComponent:
 
         assert component.metadata == {"foo": "bar"}
 
+    def test_defaults_to_ephemeral_property(self):
+        assert tanjun.Component().defaults_to_ephemeral is None
+
     @pytest.mark.skip(reason="TODO")
     def test_copy(self):
         ...
+
+    def test_set_ephemeral_default(self):
+        client = tanjun.Component().set_ephemeral_default(False)
+
+        assert client.defaults_to_ephemeral is False
 
     def test_set_slash_hooks(self):
         mock_hooks = mock.Mock()

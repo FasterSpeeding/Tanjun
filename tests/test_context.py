@@ -955,7 +955,6 @@ class TestSlashContext:
             mock.AsyncMock(options=None),
             command=mock.Mock(),
             component=mock.Mock(),
-            not_found_message="hi",
         )
 
     def test_author_property(self, context: tanjun.SlashContext):
@@ -1001,7 +1000,6 @@ class TestSlashContext:
             mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options),
             command=mock.Mock(),
             component=mock.Mock(),
-            not_found_message="hi",
         )
 
         assert context.options == {}
@@ -1017,7 +1015,6 @@ class TestSlashContext:
             mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2]),
             command=mock.Mock(),
             component=mock.Mock(),
-            not_found_message="hi",
         )
 
         assert len(context.options) == 2
@@ -1043,7 +1040,6 @@ class TestSlashContext:
             mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
             command=mock.Mock(),
             component=mock.Mock(),
-            not_found_message="hi",
         )
 
         assert len(context.options) == 2
@@ -1068,7 +1064,6 @@ class TestSlashContext:
             mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
             command=mock.Mock(),
             component=mock.Mock(),
-            not_found_message="hi",
         )
 
         assert context.options == {}
@@ -1086,7 +1081,6 @@ class TestSlashContext:
             mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
             command=mock.Mock(),
             component=mock.Mock(),
-            not_found_message="hi",
         )
 
         assert len(context.options) == 2
@@ -1112,7 +1106,6 @@ class TestSlashContext:
             mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[group_option]),
             command=mock.Mock(),
             component=mock.Mock(),
-            not_found_message="hi",
         )
 
         assert context.options == {}
@@ -1126,7 +1119,6 @@ class TestSlashContext:
             mock.Mock(options=None),
             command=mock.Mock(),
             component=mock.Mock(),
-            not_found_message="hi",
         )
 
         with mock.patch.object(asyncio, "sleep") as sleep:
@@ -1185,99 +1177,31 @@ class TestSlashContext:
             assert result is mock_future
             get_running_loop.assert_not_called()
 
-    @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_mark_not_found_with_not_found_message_for_rest_interaction(self, context: tanjun.SlashContext):
-        context._response_future = mock.Mock()
-        context._has_responded = False
-        context._has_been_deferred = False
-        context._not_found_message = "bye"
-
-        await context.mark_not_found(flags=777)
-
-        context._response_future.set_result.assert_called_once_with(
-            context.interaction.build_response().set_flags(777).set_content("bye")
-        )
-        assert isinstance(context.interaction, mock.AsyncMock)
-        context.interaction.create_initial_response.assert_not_called()
-        context.interaction.edit_initial_response.assert_not_called()
-
-    @pytest.mark.asyncio()
-    async def test_mark_not_found_with_not_found_message_for_gateway_interaction(self, context: tanjun.SlashContext):
-        context._has_responded = False
-        context._has_been_deferred = False
-        context._response_future = None
-        context._not_found_message = "hi"
-
-        await context.mark_not_found(flags=555)
-
-        assert isinstance(context.interaction, mock.AsyncMock)
-        context.interaction.create_initial_response.assert_awaited_once_with(
-            hikari.ResponseType.MESSAGE_CREATE, content="hi", flags=555
-        )
-        context.interaction.edit_initial_response.assert_not_called()
-
-    @pytest.mark.asyncio()
-    async def test_mark_not_found_with_not_found_message_when_deferred(self, context: tanjun.SlashContext):
-        context._response_future = mock.Mock()
-        context._has_responded = False
-        context._has_been_deferred = True
-        context._not_found_message = "hi"
+    async def test_mark_not_found(self):
+        on_not_found = mock.AsyncMock()
+        context = tanjun.SlashContext(mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found)
 
         await context.mark_not_found()
 
-        context._response_future.set_result.assert_not_called()
-        assert isinstance(context.interaction, mock.AsyncMock)
-        context.interaction.create_initial_response.assert_not_called()
-        context.interaction.edit_initial_response.assert_awaited_once_with(content="hi")
+        on_not_found.assert_awaited_once_with(context)
 
     @pytest.mark.asyncio()
-    async def test_mark_not_found_with_not_found_message_when_already_responded(self, context: tanjun.SlashContext):
-        context._response_future = mock.Mock()
-        context._has_responded = True
-        context._has_been_deferred = False
-        context._not_found_message = "hi"
+    async def test_mark_not_found_when_no_callback(self, context: tanjun.SlashContext):
+        context = tanjun.SlashContext(mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=None)
 
         await context.mark_not_found()
 
-        context._response_future.set_result.assert_not_called()
-        assert isinstance(context.interaction, mock.AsyncMock)
-        context.interaction.create_initial_response.assert_not_called()
-        context.interaction.edit_initial_response.assert_not_called()
-
     @pytest.mark.asyncio()
-    async def test_mark_not_found_with_not_found_message_no_message(self, context: tanjun.SlashContext):
-        context._response_future = mock.Mock()
-        context._has_responded = False
-        context._has_been_deferred = False
-        context._not_found_message = None
+    async def test_mark_not_found_when_already_marked_as_not_found(self, context: tanjun.SlashContext):
+        on_not_found = mock.AsyncMock()
+        context = tanjun.SlashContext(mock.Mock(), mock.Mock(), mock.Mock(options=None), on_not_found=on_not_found)
+        await context.mark_not_found()
+        on_not_found.reset_mock()
 
         await context.mark_not_found()
 
-        context._response_future.set_result.assert_not_called()
-        assert isinstance(context.interaction, mock.AsyncMock)
-        context.interaction.create_initial_response.assert_not_called()
-        context.interaction.edit_initial_response.assert_not_called()
-
-    @pytest.mark.skip(reason="not implemented")
-    @pytest.mark.parametrize(
-        ("state", "flags"), [(True, hikari.MessageFlag.EPHEMERAL), (False, hikari.MessageFlag.NONE)]
-    )
-    @pytest.mark.asyncio()
-    async def test_mark_not_found_defaults_flags(
-        self, context: tanjun.SlashContext, state: bool, flags: hikari.MessageFlag
-    ):
-        context._response_future = mock.Mock()
-        context._has_responded = False
-        context._has_been_deferred = False
-        context._not_found_message = "bye"
-        context.set_ephemeral_default(state)
-
-        await context.mark_not_found()
-
-        context._response_future.set_result.assert_called_once_with(
-            context.interaction.build_response().set_flags(flags).set_content("bye")
-        )
+        on_not_found.assert_not_called()
 
     def test_start_defer_timer(self, mock_client: mock.Mock):
         auto_defer = mock.Mock()
@@ -1287,7 +1211,6 @@ class TestSlashContext:
             mock.Mock(options=None),
             command=mock.Mock(),
             component=mock.Mock(),
-            not_found_message="hi",
         )
 
         with mock.patch.object(asyncio, "create_task") as create_task:
