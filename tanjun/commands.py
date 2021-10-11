@@ -1089,9 +1089,13 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         else:
             raise RuntimeError("Missing sub-command option")
 
-        if (command := self._commands.get(option.name)) and await command.check_context(ctx):
-            await command.execute(ctx, option=option, hooks=hooks)
-            return
+        if command := self._commands.get(option.name):
+            if command.defaults_to_ephemeral is not None:
+                ctx.set_ephemeral_default(command.defaults_to_ephemeral)
+
+            if await command.check_context(ctx):
+                await command.execute(ctx, option=option, hooks=hooks)
+                return
 
         await ctx.mark_not_found()
 

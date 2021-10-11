@@ -212,7 +212,7 @@ class TestPartialCommand:
 
 def test_slash_command_group():
     command = tanjun.slash_command_group(
-        "a_name", "very", default_permission=False, default_to_ephemeral=True, is_global=False
+        "a_name", "very", default_permission=False, defaults_to_ephemeral=True, is_global=False
     )
 
     assert command.name == "a_name"
@@ -240,7 +240,7 @@ def test_as_slash_command():
         "a_very",
         "cool name",
         default_permission=False,
-        default_to_ephemeral=True,
+        defaults_to_ephemeral=True,
         is_global=False,
         sort_options=False,
     )(mock_callback)
@@ -821,7 +821,7 @@ class TestSlashCommandGroup:
 
     @pytest.mark.asyncio()
     async def test_execute(self):
-        mock_command = mock.AsyncMock(set_parent=mock.Mock())
+        mock_command = mock.AsyncMock(set_parent=mock.Mock(), defaults_to_ephemeral=None)
         mock_command.name = "sex"
         mock_command.check_context.return_value = True
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").add_command(mock_command)
@@ -835,6 +835,25 @@ class TestSlashCommandGroup:
 
         mock_command.execute.assert_awaited_once_with(mock_context, option=mock_option, hooks=mock_hooks)
         mock_command.check_context.assert_awaited_once_with(mock_context)
+        mock_context.set_ephemeral_default.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_execute_when_sub_command_has_ephemeral_default_set(self):
+        mock_command = mock.AsyncMock(set_parent=mock.Mock(), defaults_to_ephemeral=True)
+        mock_command.name = "sex"
+        mock_command.check_context.return_value = True
+        command_group = tanjun.SlashCommandGroup("yee", "nsoosos").add_command(mock_command)
+        mock_context = mock.Mock()
+        mock_option = mock.Mock()
+        mock_option.name = "sex"
+        mock_context.interaction.options = [mock_option]
+        mock_hooks = mock.Mock()
+
+        await command_group.execute(mock_context, hooks=mock_hooks)
+
+        mock_command.execute.assert_awaited_once_with(mock_context, option=mock_option, hooks=mock_hooks)
+        mock_command.check_context.assert_awaited_once_with(mock_context)
+        mock_context.set_ephemeral_default.assert_called_once_with(True)
 
     @pytest.mark.asyncio()
     async def test_execute_when_not_found(self):
@@ -847,10 +866,11 @@ class TestSlashCommandGroup:
         await command_group.execute(mock_context)
 
         mock_context.mark_not_found.assert_awaited_once_with()
+        mock_context.set_ephemeral_default.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_execute_when_checks_fail(self):
-        mock_command = mock.AsyncMock(set_parent=mock.Mock())
+        mock_command = mock.AsyncMock(set_parent=mock.Mock(), defaults_to_ephemeral=None)
         mock_command.name = "sex"
         mock_command.check_context.return_value = False
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").add_command(mock_command)
@@ -865,10 +885,13 @@ class TestSlashCommandGroup:
         mock_command.execute.assert_not_called()
         mock_command.check_context.assert_awaited_once_with(mock_context)
         mock_context.mark_not_found.assert_awaited_once_with()
+        mock_context.set_ephemeral_default.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_execute_when_nested(self):
-        mock_command = mock.AsyncMock(check_context=mock.AsyncMock(return_value=True), set_parent=mock.Mock())
+        mock_command = mock.AsyncMock(
+            check_context=mock.AsyncMock(return_value=True), set_parent=mock.Mock(), defaults_to_ephemeral=None
+        )
         mock_command.name = "hi"
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").add_command(mock_command)
         mock_context = mock.Mock()
@@ -881,6 +904,7 @@ class TestSlashCommandGroup:
 
         mock_command.execute.assert_awaited_once_with(mock_context, option=mock_sub_option, hooks=mock_hooks)
         mock_command.check_context.assert_awaited_once_with(mock_context)
+        mock_context.set_ephemeral_default.assert_not_called()
 
     @pytest.mark.skip(reason="TODO")
     def test_load_into_component(self):
