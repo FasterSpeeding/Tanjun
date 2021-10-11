@@ -212,7 +212,7 @@ class TestPartialCommand:
 
 def test_slash_command_group():
     command = tanjun.slash_command_group(
-        "a_name", "very", default_permission=False, defaults_to_ephemeral=True, is_global=False
+        "a_name", "very", default_permission=False, default_to_ephemeral=True, is_global=False
     )
 
     assert command.name == "a_name"
@@ -240,7 +240,7 @@ def test_as_slash_command():
         "a_very",
         "cool name",
         default_permission=False,
-        defaults_to_ephemeral=True,
+        default_to_ephemeral=True,
         is_global=False,
         sort_options=False,
     )(mock_callback)
