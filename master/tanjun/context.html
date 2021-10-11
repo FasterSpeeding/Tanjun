@@ -853,7 +853,8 @@
         <span class="s2">&quot;_has_responded&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_interaction&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_last_response_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_not_found_message&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_marked_not_found&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_on_not_found&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_options&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_response_future&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_response_lock&quot;</span><span class="p">,</span>
@@ -868,7 +869,7 @@
         <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">not_found_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span> <span class="o">=</span> <span class="n">command</span>
@@ -878,7 +879,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span> <span class="o">=</span> <span class="n">interaction</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_response_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">not_found_message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">ResponseTypeT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
@@ -974,28 +976,10 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">flags</span> <span class="o">=</span> <span class="n">flags</span> <span class="k">if</span> <span class="n">flags</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">:</span>
-                <span class="k">return</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">)</span>
-                <span class="k">return</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">build_response</span><span class="p">()</span><span class="o">.</span><span class="n">set_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">)</span>
-                <span class="p">)</span>
-
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span>
-                    <span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">MESSAGE_CREATE</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span>
-                <span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_SlashContextT</span><span class="p">,</span> <span class="n">count_down</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashContextT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_assert_not_final</span><span class="p">()</span>
@@ -2849,7 +2833,8 @@ nature, and will trigger this exception if they occur.</li>
         <span class="s2">&quot;_has_responded&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_interaction&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_last_response_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_not_found_message&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_marked_not_found&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_on_not_found&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_options&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_response_future&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_response_lock&quot;</span><span class="p">,</span>
@@ -2864,7 +2849,7 @@ nature, and will trigger this exception if they occur.</li>
         <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">not_found_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span> <span class="o">=</span> <span class="n">command</span>
@@ -2874,7 +2859,8 @@ nature, and will trigger this exception if they occur.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span> <span class="o">=</span> <span class="n">interaction</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_response_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">not_found_message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">ResponseTypeT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
@@ -2970,28 +2956,10 @@ nature, and will trigger this exception if they occur.</li>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">flags</span> <span class="o">=</span> <span class="n">flags</span> <span class="k">if</span> <span class="n">flags</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">:</span>
-                <span class="k">return</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">)</span>
-                <span class="k">return</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">build_response</span><span class="p">()</span><span class="o">.</span><span class="n">set_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">)</span>
-                <span class="p">)</span>
-
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span>
-                    <span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">MESSAGE_CREATE</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span>
-                <span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_SlashContextT</span><span class="p">,</span> <span class="n">count_down</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashContextT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_assert_not_final</span><span class="p">()</span>
@@ -3426,7 +3394,7 @@ nature, and will trigger this exception if they occur.</li>
     command: Optional[<a href="abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>] = None,
     component: Optional[<a href="abc.html#Component">tanjun.abc.Component</a>] = None,
     default_to_ephemeral: bool = False,
-    not_found_message: Optional[str] = None
+    on_not_found: Optional[collections.abc.Callable[[<a href="#SlashContext">tanjun.context.SlashContext</a>], collections.abc.Awaitable[None]]] = None
 )</span>
     </div>
 
@@ -3441,7 +3409,7 @@ nature, and will trigger this exception if they occur.</li>
         <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">not_found_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span> <span class="o">=</span> <span class="n">command</span>
@@ -3451,7 +3419,8 @@ nature, and will trigger this exception if they occur.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span> <span class="o">=</span> <span class="n">interaction</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_response_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">not_found_message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">ResponseTypeT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
@@ -3781,37 +3750,15 @@ to create the initial response rather than
 
         
             <span class="def">async def</span>
-            <span class="name">mark_not_found</span><span class="signature">(
-    self,
-    *,
-    flags: Union[hikari.undefined.UndefinedType, int, hikari.messages.MessageFlag] = UNDEFINED
-) -&gt; None</span>:
+            <span class="name">mark_not_found</span><span class="signature">(self) -&gt; None</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">flags</span> <span class="o">=</span> <span class="n">flags</span> <span class="k">if</span> <span class="n">flags</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">:</span>
-                <span class="k">return</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">)</span>
-                <span class="k">return</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">build_response</span><span class="p">()</span><span class="o">.</span><span class="n">set_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">)</span>
-                <span class="p">)</span>
-
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span>
-                    <span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">MESSAGE_CREATE</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span>
-                <span class="p">)</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </pre></div>
 
         </details>

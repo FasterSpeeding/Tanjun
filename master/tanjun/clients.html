@@ -49,6 +49,9 @@
                                 <a class="function" href="#Client.from_rest_bot">from_rest_bot</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Client.defaults_to_ephemeral">defaults_to_ephemeral</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Client.message_accepts">message_accepts</a>
                         </li>
                         <li>
@@ -107,6 +110,9 @@
                         </li>
                         <li>
                                 <a class="function" href="#Client.set_auto_defer_after">set_auto_defer_after</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.set_ephemeral_default">set_ephemeral_default</a>
                         </li>
                         <li>
                                 <a class="function" href="#Client.set_hikari_trait_injectors">set_hikari_trait_injectors</a>
@@ -437,7 +443,9 @@
             <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">not_found_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span>
+                <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -803,6 +811,7 @@
         <span class="s2">&quot;_checks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_client_callbacks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_components&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_defaults_to_ephemeral&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_make_message_context&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_make_slash_context&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_events&quot;</span><span class="p">,</span>
@@ -856,6 +865,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
@@ -1068,6 +1078,11 @@
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;CommandClient &lt;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">!r}</span><span class="s2">, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span><span class="si">}</span><span class="s2"> components, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">message_accepts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MessageAcceptsEnum</span><span class="p">:</span>
@@ -1410,6 +1425,26 @@
 <span class="sd">            The time in seconds to defer interaction command responses after.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set whether slash contexts spawned by this client should default to ephemeral responses.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether slash command contexts executed in this component should</span>
+<span class="sd">            should default to ephemeral.</span>
+
+<span class="sd">            This will be overridden by any response calls which specify flags</span>
+<span class="sd">            and defaults to `False`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This component to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_hikari_trait_injectors</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">bot</span><span class="p">:</span> <span class="n">hikari_traits</span><span class="o">.</span><span class="n">RESTAware</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
@@ -2489,6 +2524,11 @@
 
         <span class="k">return</span> <span class="n">hooks</span>
 
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_on_slash_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">has_responded</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">)</span>
+
     <span class="k">async</span> <span class="k">def</span> <span class="nf">on_interaction_create_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionCreateEvent</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute a slash command based on Gateway events.</span>
 
@@ -2508,7 +2548,8 @@
             <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">interaction</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span>
-            <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">,</span>
+            <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
 
@@ -2518,6 +2559,9 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="c1"># This is set on each iteration to ensure that any component</span>
+                    <span class="c1"># state which was set to this isn&#39;t propagated to other components.</span>
+                    <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
                         <span class="k">await</span> <span class="n">future</span>
                         <span class="k">return</span>
@@ -2529,9 +2573,7 @@
             <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">on_interaction_create_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">context</span><span class="o">.</span><span class="n">ResponseTypeT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute a slash command based on received REST requests.</span>
@@ -2547,7 +2589,11 @@
 <span class="sd">            The initial response to send back to Discord.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">(</span>
-            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span>
+            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span>
+            <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">)</span>
@@ -2572,12 +2618,7 @@
             <span class="p">)</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">callback</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
-            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
-            <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
-
-        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">callback</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 </pre></div>
 
@@ -2811,6 +2852,7 @@ from the provided client using it's abstract methods.</li>
         <span class="s2">&quot;_checks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_client_callbacks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_components&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_defaults_to_ephemeral&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_make_message_context&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_make_slash_context&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_events&quot;</span><span class="p">,</span>
@@ -2864,6 +2906,7 @@ from the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
@@ -3076,6 +3119,11 @@ from the provided client using it's abstract methods.</li>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;CommandClient &lt;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">!r}</span><span class="s2">, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span><span class="si">}</span><span class="s2"> components, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">message_accepts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MessageAcceptsEnum</span><span class="p">:</span>
@@ -3418,6 +3466,26 @@ from the provided client using it's abstract methods.</li>
 <span class="sd">            The time in seconds to defer interaction command responses after.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set whether slash contexts spawned by this client should default to ephemeral responses.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether slash command contexts executed in this component should</span>
+<span class="sd">            should default to ephemeral.</span>
+
+<span class="sd">            This will be overridden by any response calls which specify flags</span>
+<span class="sd">            and defaults to `False`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This component to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_hikari_trait_injectors</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">bot</span><span class="p">:</span> <span class="n">hikari_traits</span><span class="o">.</span><span class="n">RESTAware</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
@@ -4497,6 +4565,11 @@ from the provided client using it's abstract methods.</li>
 
         <span class="k">return</span> <span class="n">hooks</span>
 
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_on_slash_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">has_responded</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">)</span>
+
     <span class="k">async</span> <span class="k">def</span> <span class="nf">on_interaction_create_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionCreateEvent</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute a slash command based on Gateway events.</span>
 
@@ -4516,7 +4589,8 @@ from the provided client using it's abstract methods.</li>
             <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">interaction</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span>
-            <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">,</span>
+            <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
 
@@ -4526,6 +4600,9 @@ from the provided client using it's abstract methods.</li>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="c1"># This is set on each iteration to ensure that any component</span>
+                    <span class="c1"># state which was set to this isn&#39;t propagated to other components.</span>
+                    <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
                         <span class="k">await</span> <span class="n">future</span>
                         <span class="k">return</span>
@@ -4537,9 +4614,7 @@ from the provided client using it's abstract methods.</li>
             <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">on_interaction_create_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">context</span><span class="o">.</span><span class="n">ResponseTypeT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute a slash command based on received REST requests.</span>
@@ -4555,7 +4630,11 @@ from the provided client using it's abstract methods.</li>
 <span class="sd">            The initial response to send back to Discord.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">(</span>
-            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span>
+            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span>
+            <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">)</span>
@@ -4580,12 +4659,7 @@ from the provided client using it's abstract methods.</li>
             <span class="p">)</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">callback</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
-            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
-            <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
-
-        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">callback</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 </pre></div>
 
@@ -4736,6 +4810,7 @@ after a rename.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
@@ -5072,6 +5147,38 @@ up to an hour to propagate globally but will immediately propagate
 when set on a specific guild.</p></li>
 <li><strong>set_global_commands</strong> (typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
 Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.defaults_to_ephemeral" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Client.defaults_to_ephemeral">#&nbsp;&nbsp</a>
+
+        <span class="name">defaults_to_ephemeral</span><span class="annotation">: bool</span>
+    </div>
+
+            <div class="docstring"><p>Whether slash contexts spawned by this client should default to ephemeral responses.</p>
+
+<p>This effects calls to <code>SlashContext.create_followup</code>,
+<code>SlashContext.create_initial_response</code>, <code>SlashContext.defer</code> and
+<code>SlashContext.respond</code> unless the <code>flags</code> field is provided for the
+methods which support it.</p>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>This may be overridden by <code>BaseSlashCommand.defaults_to_ephemeral</code>
+and <code>Component.defaults_to_ephemeral</code>.</li>
+<li>This defaults to <code>False</code>.</li>
+<li>This only effects slash command execution.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether slash contexts executed in this component should default
+to ephemeral responses.</li>
 </ul>
 </div>
 
@@ -5745,6 +5852,60 @@ This may lead to unexpected behaviour.</p>
 <ul>
 <li><strong>time</strong> (typing.Optional[float]):
 The time in seconds to defer interaction command responses after.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.set_ephemeral_default" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.set_ephemeral_default">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">set_ephemeral_default</span><span class="signature">(self: ~_ClientT, state: bool, /) -&gt; ~_ClientT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set whether slash contexts spawned by this client should default to ephemeral responses.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether slash command contexts executed in this component should</span>
+<span class="sd">            should default to ephemeral.</span>
+
+<span class="sd">            This will be overridden by any response calls which specify flags</span>
+<span class="sd">            and defaults to `False`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This component to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Set whether slash contexts spawned by this client should default to ephemeral responses.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether slash command contexts executed in this component should
+should default to ephemeral.</li>
+</ul>
+
+<p>This will be overridden by any response calls which specify flags
+and defaults to <code>False</code>.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>SelfT</strong>: This component to enable method chaining.</li>
 </ul>
 </div>
 
@@ -8473,7 +8634,8 @@ If no loader descriptors are found in the new state of the module.</li>
             <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">interaction</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span>
-            <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">,</span>
+            <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
 
@@ -8483,6 +8645,9 @@ If no loader descriptors are found in the new state of the module.</li>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="c1"># This is set on each iteration to ensure that any component</span>
+                    <span class="c1"># state which was set to this isn&#39;t propagated to other components.</span>
+                    <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
                         <span class="k">await</span> <span class="n">future</span>
                         <span class="k">return</span>
@@ -8494,9 +8659,7 @@ If no loader descriptors are found in the new state of the module.</li>
             <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
 </pre></div>
 
         </details>
@@ -8545,7 +8708,11 @@ The event to execute commands based on.</li>
 <span class="sd">            The initial response to send back to Discord.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">(</span>
-            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span>
+            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span>
+            <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">)</span>
@@ -8570,12 +8737,7 @@ The event to execute commands based on.</li>
             <span class="p">)</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">callback</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
-            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
-            <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
-
-        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">callback</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 </pre></div>
 

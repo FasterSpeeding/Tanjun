@@ -134,6 +134,9 @@
                                 <a class="function" href="#Client.from_rest_bot">from_rest_bot</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Client.defaults_to_ephemeral">defaults_to_ephemeral</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Client.message_accepts">message_accepts</a>
                         </li>
                         <li>
@@ -192,6 +195,9 @@
                         </li>
                         <li>
                                 <a class="function" href="#Client.set_auto_defer_after">set_auto_defer_after</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.set_ephemeral_default">set_ephemeral_default</a>
                         </li>
                         <li>
                                 <a class="function" href="#Client.set_hikari_trait_injectors">set_hikari_trait_injectors</a>
@@ -623,6 +629,9 @@
                                 <a class="variable" href="#Component.client">client</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Component.defaults_to_ephemeral">defaults_to_ephemeral</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Component.hooks">hooks</a>
                         </li>
                         <li>
@@ -651,6 +660,9 @@
                         </li>
                         <li>
                                 <a class="function" href="#Component.copy">copy</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Component.set_ephemeral_default">set_ephemeral_default</a>
                         </li>
                         <li>
                                 <a class="function" href="#Component.set_slash_hooks">set_slash_hooks</a>
@@ -3599,18 +3611,21 @@ enable slash (interaction) command execution:</p>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Whether calls to this command should default to ephemeral mode.</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Whether contexts executed by this command should default to ephemeral responses.</span>
 
-<span class="sd">        This indicates whether calls to `SlashContext.respond`,</span>
-<span class="sd">        `SlashContext.create_initial_response` and `SlashContext.create_followup`</span>
-<span class="sd">        on context objects which are linked to this command should default to</span>
-<span class="sd">        ephemeral unless `flags` is explicitly passed.</span>
+<span class="sd">        This effects calls to `SlashContext.create_followup`,</span>
+<span class="sd">        `SlashContext.create_initial_response`, `SlashContext.defer` and</span>
+<span class="sd">        `SlashContext.respond` unless the `flags` field is provided for the</span>
+<span class="sd">        methods which support it.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        bool</span>
 <span class="sd">            Whether calls to this command should default to ephemeral mode.</span>
+
+<span class="sd">            If this is `None` then the default from the parent command(s),</span>
+<span class="sd">            component or client is used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -3970,6 +3985,29 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        -------</span>
 <span class="sd">        client : typing.Optional[Client]</span>
 <span class="sd">            The client this component is bound to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Whether slash contexts executed in this component should default to ephemeral responses.</span>
+
+<span class="sd">        This effects calls to `SlashContext.create_followup`,</span>
+<span class="sd">        `SlashContext.create_initial_response`, `SlashContext.defer` and</span>
+<span class="sd">        `SlashContext.respond` unless the `flags` field is provided for the</span>
+<span class="sd">        methods which support it.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This may be overridden by `BaseSlashCommand.defaults_to_ephemeral`.</span>
+<span class="sd">        * This only effects slash command execution.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Optional[bool]</span>
+<span class="sd">            Whether contexts executed in this component should default to ephemeral responses.</span>
+
+<span class="sd">            If this is `None` then the default from the parent client is used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -4375,6 +4413,30 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        -------</span>
 <span class="sd">        collections.abc.Collection[tanjun.traits.Component]</span>
 <span class="sd">            Collection of the components this command client is using.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether slash contexts spawned by this client should default to ephemeral responses.</span>
+
+<span class="sd">        This effects calls to `SlashContext.create_followup`,</span>
+<span class="sd">        `SlashContext.create_initial_response`, `SlashContext.defer` and</span>
+<span class="sd">        `SlashContext.respond` unless the `flags` field is provided for the</span>
+<span class="sd">        methods which support it.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This may be overridden by `BaseSlashCommand.defaults_to_ephemeral`</span>
+<span class="sd">          and `Component.defaults_to_ephemeral`.</span>
+<span class="sd">        * This defaults to `False`.</span>
+<span class="sd">        * This only effects slash command execution.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether slash contexts executed in this component should default</span>
+<span class="sd">            to ephemeral responses.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -6496,7 +6558,9 @@ a DM context (e.g. can't have any moderation permissions)</li>
             <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">not_found_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span>
+                <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -6862,6 +6926,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="s2">&quot;_checks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_client_callbacks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_components&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_defaults_to_ephemeral&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_make_message_context&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_make_slash_context&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_events&quot;</span><span class="p">,</span>
@@ -6915,6 +6980,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
@@ -7127,6 +7193,11 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;CommandClient &lt;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">!r}</span><span class="s2">, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span><span class="si">}</span><span class="s2"> components, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">message_accepts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MessageAcceptsEnum</span><span class="p">:</span>
@@ -7469,6 +7540,26 @@ a DM context (e.g. can't have any moderation permissions)</li>
 <span class="sd">            The time in seconds to defer interaction command responses after.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set whether slash contexts spawned by this client should default to ephemeral responses.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether slash command contexts executed in this component should</span>
+<span class="sd">            should default to ephemeral.</span>
+
+<span class="sd">            This will be overridden by any response calls which specify flags</span>
+<span class="sd">            and defaults to `False`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This component to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_hikari_trait_injectors</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">bot</span><span class="p">:</span> <span class="n">hikari_traits</span><span class="o">.</span><span class="n">RESTAware</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
@@ -8548,6 +8639,11 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
         <span class="k">return</span> <span class="n">hooks</span>
 
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_on_slash_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">has_responded</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">)</span>
+
     <span class="k">async</span> <span class="k">def</span> <span class="nf">on_interaction_create_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionCreateEvent</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute a slash command based on Gateway events.</span>
 
@@ -8567,7 +8663,8 @@ a DM context (e.g. can't have any moderation permissions)</li>
             <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">interaction</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span>
-            <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">,</span>
+            <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
 
@@ -8577,6 +8674,9 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="c1"># This is set on each iteration to ensure that any component</span>
+                    <span class="c1"># state which was set to this isn&#39;t propagated to other components.</span>
+                    <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
                         <span class="k">await</span> <span class="n">future</span>
                         <span class="k">return</span>
@@ -8588,9 +8688,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
             <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">on_interaction_create_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">context</span><span class="o">.</span><span class="n">ResponseTypeT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute a slash command based on received REST requests.</span>
@@ -8606,7 +8704,11 @@ a DM context (e.g. can't have any moderation permissions)</li>
 <span class="sd">            The initial response to send back to Discord.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">(</span>
-            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span>
+            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span>
+            <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">)</span>
@@ -8631,12 +8733,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
             <span class="p">)</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">callback</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
-            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
-            <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
-
-        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">callback</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 </pre></div>
 
@@ -8874,6 +8971,7 @@ from the provided client using it's abstract methods.</li>
         <span class="s2">&quot;_checks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_client_callbacks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_components&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_defaults_to_ephemeral&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_make_message_context&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_make_slash_context&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_events&quot;</span><span class="p">,</span>
@@ -8927,6 +9025,7 @@ from the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
@@ -9139,6 +9238,11 @@ from the provided client using it's abstract methods.</li>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;CommandClient &lt;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">!r}</span><span class="s2">, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span><span class="si">}</span><span class="s2"> components, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">message_accepts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MessageAcceptsEnum</span><span class="p">:</span>
@@ -9481,6 +9585,26 @@ from the provided client using it's abstract methods.</li>
 <span class="sd">            The time in seconds to defer interaction command responses after.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set whether slash contexts spawned by this client should default to ephemeral responses.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether slash command contexts executed in this component should</span>
+<span class="sd">            should default to ephemeral.</span>
+
+<span class="sd">            This will be overridden by any response calls which specify flags</span>
+<span class="sd">            and defaults to `False`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This component to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_hikari_trait_injectors</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">bot</span><span class="p">:</span> <span class="n">hikari_traits</span><span class="o">.</span><span class="n">RESTAware</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
@@ -10560,6 +10684,11 @@ from the provided client using it's abstract methods.</li>
 
         <span class="k">return</span> <span class="n">hooks</span>
 
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">_on_slash_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">has_responded</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">)</span>
+
     <span class="k">async</span> <span class="k">def</span> <span class="nf">on_interaction_create_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InteractionCreateEvent</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute a slash command based on Gateway events.</span>
 
@@ -10579,7 +10708,8 @@ from the provided client using it's abstract methods.</li>
             <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">interaction</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span>
-            <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">,</span>
+            <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
 
@@ -10589,6 +10719,9 @@ from the provided client using it's abstract methods.</li>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="c1"># This is set on each iteration to ensure that any component</span>
+                    <span class="c1"># state which was set to this isn&#39;t propagated to other components.</span>
+                    <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
                         <span class="k">await</span> <span class="n">future</span>
                         <span class="k">return</span>
@@ -10600,9 +10733,7 @@ from the provided client using it's abstract methods.</li>
             <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">on_interaction_create_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">context</span><span class="o">.</span><span class="n">ResponseTypeT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Execute a slash command based on received REST requests.</span>
@@ -10618,7 +10749,11 @@ from the provided client using it's abstract methods.</li>
 <span class="sd">            The initial response to send back to Discord.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">(</span>
-            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span>
+            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span>
+            <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">)</span>
@@ -10643,12 +10778,7 @@ from the provided client using it's abstract methods.</li>
             <span class="p">)</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">callback</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
-            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
-            <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
-
-        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">callback</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 </pre></div>
 
@@ -10799,6 +10929,7 @@ after a rename.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_message_context</span><span class="p">:</span> <span class="n">_MessageContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">:</span> <span class="n">_SlashContextMakerProto</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="n">events</span>
@@ -11135,6 +11266,38 @@ up to an hour to propagate globally but will immediately propagate
 when set on a specific guild.</p></li>
 <li><strong>set_global_commands</strong> (typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
 Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.defaults_to_ephemeral" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Client.defaults_to_ephemeral">#&nbsp;&nbsp</a>
+
+        <span class="name">defaults_to_ephemeral</span><span class="annotation">: bool</span>
+    </div>
+
+            <div class="docstring"><p>Whether slash contexts spawned by this client should default to ephemeral responses.</p>
+
+<p>This effects calls to <code><a href="#SlashContext.create_followup">SlashContext.create_followup</a></code>,
+<code><a href="#SlashContext.create_initial_response">SlashContext.create_initial_response</a></code>, <code><a href="#SlashContext.defer">SlashContext.defer</a></code> and
+<code><a href="#SlashContext.respond">SlashContext.respond</a></code> unless the <code>flags</code> field is provided for the
+methods which support it.</p>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>This may be overridden by <code>BaseSlashCommand.defaults_to_ephemeral</code>
+and <code><a href="#Component.defaults_to_ephemeral">Component.defaults_to_ephemeral</a></code>.</li>
+<li>This defaults to <code>False</code>.</li>
+<li>This only effects slash command execution.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether slash contexts executed in this component should default
+to ephemeral responses.</li>
 </ul>
 </div>
 
@@ -11808,6 +11971,60 @@ This may lead to unexpected behaviour.</p>
 <ul>
 <li><strong>time</strong> (typing.Optional[float]):
 The time in seconds to defer interaction command responses after.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.set_ephemeral_default" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.set_ephemeral_default">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">set_ephemeral_default</span><span class="signature">(self: ~_ClientT, state: bool, /) -&gt; ~_ClientT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set whether slash contexts spawned by this client should default to ephemeral responses.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether slash command contexts executed in this component should</span>
+<span class="sd">            should default to ephemeral.</span>
+
+<span class="sd">            This will be overridden by any response calls which specify flags</span>
+<span class="sd">            and defaults to `False`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This component to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Set whether slash contexts spawned by this client should default to ephemeral responses.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether slash command contexts executed in this component should
+should default to ephemeral.</li>
+</ul>
+
+<p>This will be overridden by any response calls which specify flags
+and defaults to <code>False</code>.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>SelfT</strong>: This component to enable method chaining.</li>
 </ul>
 </div>
 
@@ -14536,7 +14753,8 @@ If no loader descriptors are found in the new state of the module.</li>
             <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">interaction</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">interaction</span><span class="p">,</span>
-            <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span><span class="p">,</span>
+            <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">hooks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_slash_hooks</span><span class="p">()</span>
 
@@ -14546,6 +14764,9 @@ If no loader descriptors are found in the new state of the module.</li>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="c1"># This is set on each iteration to ensure that any component</span>
+                    <span class="c1"># state which was set to this isn&#39;t propagated to other components.</span>
+                    <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">future</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">component</span><span class="o">.</span><span class="n">execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">):</span>
                         <span class="k">await</span> <span class="n">future</span>
                         <span class="k">return</span>
@@ -14557,9 +14778,7 @@ If no loader descriptors are found in the new state of the module.</li>
             <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
 </pre></div>
 
         </details>
@@ -14608,7 +14827,11 @@ The event to execute commands based on.</li>
 <span class="sd">            The initial response to send back to Discord.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_slash_context</span><span class="p">(</span>
-            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span> <span class="n">not_found_message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_not_found</span>
+            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">injection_client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">interaction</span><span class="o">=</span><span class="n">interaction</span><span class="p">,</span>
+            <span class="n">on_not_found</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_slash_not_found</span><span class="p">,</span>
+            <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ctx</span><span class="o">.</span><span class="n">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_defer_after</span><span class="p">)</span>
@@ -14633,12 +14856,7 @@ The event to execute commands based on.</li>
             <span class="p">)</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 
-        <span class="k">async</span> <span class="k">def</span> <span class="nf">callback</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">SLASH_COMMAND_NOT_FOUND</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
-            <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
-            <span class="n">ctx</span><span class="o">.</span><span class="n">cancel_defer</span><span class="p">()</span>
-
-        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">callback</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interaction</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">future</span>
 </pre></div>
 
@@ -15343,7 +15561,7 @@ message create events.</p>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SlashCommandGroup</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Create a slash command group.</span>
@@ -15396,9 +15614,12 @@ message create events.</p>
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">    default_to_ephemeral : bool</span>
+<span class="sd">    default_to_ephemeral : typing.Optional[bool]</span>
 <span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
-<span class="sd">        are set to override this. This defaults to `False`.</span>
+<span class="sd">        are set to override this.</span>
+
+<span class="sd">        If this is left as `None` then the default set on the parent command(s),</span>
+<span class="sd">        component or client will be in effect.</span>
 <span class="sd">    is_global : bool</span>
 <span class="sd">        Whether this command is a global command. Defaults to `True`.</span>
 
@@ -15432,7 +15653,7 @@ message create events.</p>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">sort_options</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandCallbackSigT</span><span class="p">],</span> <span class="n">SlashCommand</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">]]:</span>
@@ -15478,9 +15699,12 @@ message create events.</p>
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">    default_to_ephemeral : bool</span>
+<span class="sd">    default_to_ephemeral : typing.Optional[bool]</span>
 <span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
-<span class="sd">        are set to override this. This defaults to `False`.</span>
+<span class="sd">        are set to override this.</span>
+
+<span class="sd">        If this is left as `None` then the default set on the parent command(s),</span>
+<span class="sd">        component or client will be in effect.</span>
 <span class="sd">    is_global : bool</span>
 <span class="sd">        Whether this command is a global command. Defaults to `True`.</span>
 <span class="sd">    sort_options : bool</span>
@@ -15921,7 +16145,7 @@ message create events.</p>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -15953,7 +16177,7 @@ message create events.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span>
 
@@ -15994,6 +16218,11 @@ message create events.</p>
 <span class="sd">        ----------</span>
 <span class="sd">        command : hikari.Command</span>
 <span class="sd">            object of the global command this should be tracking.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This command instance for chaining.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
@@ -16006,14 +16235,23 @@ message create events.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set whether this command&#39;s responses should default to ephemeral.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        bool</span>
+<span class="sd">        typing.Optional[bool]</span>
 <span class="sd">            Whether this command&#39;s responses should default to ephemeral.</span>
 <span class="sd">            This will be overridden by any response calls which specify flags.</span>
+
+<span class="sd">            Setting this to `None` will let the default set on the parent</span>
+<span class="sd">            command(s), component or client propagate and decide the ephemeral</span>
+<span class="sd">            default for contexts used by this command.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This command to allow for chaining.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -16059,7 +16297,7 @@ message create events.</p>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -16200,9 +16438,13 @@ message create events.</p>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Missing sub-command option&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
-            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
+                <span class="k">return</span>
 
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
 
@@ -16229,7 +16471,7 @@ message create events.</p>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -17566,7 +17808,7 @@ enforces that command names are unique to a single command within the group.</p>
     *,
     command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
     default_permission: bool = True,
-    default_to_ephemeral: bool = False,
+    default_to_ephemeral: Optional[bool] = None,
     is_global: bool = True,
     sort_options: bool = True
 ) -&gt; collections.abc.Callable[[~CommandCallbackSigT], <a href="tanjun/commands.html#SlashCommand">tanjun.commands.SlashCommand</a>[~CommandCallbackSigT]]</span>:
@@ -17581,7 +17823,7 @@ enforces that command names are unique to a single command within the group.</p>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">sort_options</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandCallbackSigT</span><span class="p">],</span> <span class="n">SlashCommand</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">]]:</span>
@@ -17627,9 +17869,12 @@ enforces that command names are unique to a single command within the group.</p>
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">    default_to_ephemeral : bool</span>
+<span class="sd">    default_to_ephemeral : typing.Optional[bool]</span>
 <span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
-<span class="sd">        are set to override this. This defaults to `False`.</span>
+<span class="sd">        are set to override this.</span>
+
+<span class="sd">        If this is left as `None` then the default set on the parent command(s),</span>
+<span class="sd">        component or client will be in effect.</span>
 <span class="sd">    is_global : bool</span>
 <span class="sd">        Whether this command is a global command. Defaults to `True`.</span>
 <span class="sd">    sort_options : bool</span>
@@ -17711,9 +17956,12 @@ command's name is changed).</p></li>
 Whether this command can be accessed without set permissions.</p>
 
 <p>Defaults to <code>True</code>, meaning that users can access the command by default.</p></li>
-<li><strong>default_to_ephemeral</strong> (bool):
+<li><p><strong>default_to_ephemeral</strong> (typing.Optional[bool]):
 Whether this command's responses should default to ephemeral unless flags
-are set to override this. This defaults to <code>False</code>.</li>
+are set to override this.</p>
+
+<p>If this is left as <code>None</code> then the default set on the parent command(s),
+component or client will be in effect.</p></li>
 <li><strong>is_global</strong> (bool):
 Whether this command is a global command. Defaults to <code>True</code>.</li>
 <li><p><strong>sort_options</strong> (bool):
@@ -17756,7 +18004,7 @@ ones.</p></li>
     *,
     command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
     default_permission: bool = True,
-    default_to_ephemeral: bool = False,
+    default_to_ephemeral: Optional[bool] = None,
     is_global: bool = True
 ) -&gt; <a href="tanjun/commands.html#SlashCommandGroup">tanjun.commands.SlashCommandGroup</a></span>:
     </div>
@@ -17770,7 +18018,7 @@ ones.</p></li>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SlashCommandGroup</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Create a slash command group.</span>
@@ -17823,9 +18071,12 @@ ones.</p></li>
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">    default_to_ephemeral : bool</span>
+<span class="sd">    default_to_ephemeral : typing.Optional[bool]</span>
 <span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
-<span class="sd">        are set to override this. This defaults to `False`.</span>
+<span class="sd">        are set to override this.</span>
+
+<span class="sd">        If this is left as `None` then the default set on the parent command(s),</span>
+<span class="sd">        component or client will be in effect.</span>
 <span class="sd">    is_global : bool</span>
 <span class="sd">        Whether this command is a global command. Defaults to `True`.</span>
 
@@ -17909,9 +18160,12 @@ command's name is changed).</p></li>
 Whether this command can be accessed without set permissions.</p>
 
 <p>Defaults to <code>True</code>, meaning that users can access the command by default.</p></li>
-<li><strong>default_to_ephemeral</strong> (bool):
+<li><p><strong>default_to_ephemeral</strong> (typing.Optional[bool]):
 Whether this command's responses should default to ephemeral unless flags
-are set to override this. This defaults to <code>False</code>.</li>
+are set to override this.</p>
+
+<p>If this is left as <code>None</code> then the default set on the parent command(s),
+component or client will be in effect.</p></li>
 <li><strong>is_global</strong> (bool):
 Whether this command is a global command. Defaults to <code>True</code>.</li>
 </ul>
@@ -19239,7 +19493,7 @@ The command to add.</li>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -20059,7 +20313,7 @@ The command to add.</li>
     checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
     command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
     default_permission: bool = True,
-    default_to_ephemeral: bool = False,
+    default_to_ephemeral: Optional[bool] = None,
     is_global: bool = True,
     hooks: Optional[<a href="tanjun/abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="tanjun/abc.html#SlashContext">tanjun.abc.SlashContext</a>]] = None,
     metadata: Optional[collections.abc.MutableMapping[Any, Any]] = None,
@@ -20080,7 +20334,7 @@ The command to add.</li>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -21636,7 +21890,7 @@ being used.</p></li>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -21777,9 +22031,13 @@ being used.</p></li>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Missing sub-command option&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
-            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
+                <span class="k">return</span>
 
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
 
@@ -21809,7 +22067,7 @@ being used.</p></li>
     /,
     *,
     command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
-    default_to_ephemeral: bool = False,
+    default_to_ephemeral: Optional[bool] = None,
     default_permission: bool = True,
     is_global: bool = True,
     checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
@@ -21828,7 +22086,7 @@ being used.</p></li>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -22163,9 +22421,13 @@ Command to add to this group.</li>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Missing sub-command option&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
-            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
+                <span class="k">return</span>
 
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
 </pre></div>
@@ -23054,6 +23316,7 @@ This may target roles, guild members or users and results in
         <span class="s2">&quot;_checks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_client&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_client_callbacks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_defaults_to_ephemeral&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_hooks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_is_strict&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_listeners&quot;</span><span class="p">,</span>
@@ -23082,6 +23345,7 @@ This may target roles, guild members or users and results in
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -23106,6 +23370,10 @@ This may target roles, guild members or users and results in
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]:</span>
@@ -23160,6 +23428,27 @@ This may target roles, guild members or users and results in
             <span class="k">return</span> <span class="bp">self</span>
 
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set whether slash contexts executed in this component should default to ephemeral responses.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        typing.Optional[bool]</span>
+<span class="sd">            Whether slash command contexts executed in this component should</span>
+<span class="sd">            should default to ephemeral.</span>
+<span class="sd">            This will be overridden by any response calls which specify flags.</span>
+
+<span class="sd">            Setting this to `None` will let the default set on the parent</span>
+<span class="sd">            client propagate and decide the ephemeral default behaviour.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This component to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_slash_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">hooks_</span>
@@ -23537,8 +23826,13 @@ This may target roles, guild members or users and results in
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]:</span>
-        <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">):</span>
-            <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
 
@@ -23638,6 +23932,7 @@ This may target roles, guild members or users and results in
         <span class="s2">&quot;_checks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_client&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_client_callbacks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_defaults_to_ephemeral&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_hooks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_is_strict&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_listeners&quot;</span><span class="p">,</span>
@@ -23666,6 +23961,7 @@ This may target roles, guild members or users and results in
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -23690,6 +23986,10 @@ This may target roles, guild members or users and results in
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]:</span>
@@ -23744,6 +24044,27 @@ This may target roles, guild members or users and results in
             <span class="k">return</span> <span class="bp">self</span>
 
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set whether slash contexts executed in this component should default to ephemeral responses.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        typing.Optional[bool]</span>
+<span class="sd">            Whether slash command contexts executed in this component should</span>
+<span class="sd">            should default to ephemeral.</span>
+<span class="sd">            This will be overridden by any response calls which specify flags.</span>
+
+<span class="sd">            Setting this to `None` will let the default set on the parent</span>
+<span class="sd">            client propagate and decide the ephemeral default behaviour.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This component to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_slash_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">hooks_</span>
@@ -24121,8 +24442,13 @@ This may target roles, guild members or users and results in
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]:</span>
-        <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">):</span>
-            <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
 
@@ -24238,6 +24564,7 @@ spaces and will have to be unique to one command within the component.</p></li>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -24281,6 +24608,37 @@ spaces and will have to be unique to one command within the component.</p></li>
 <li><strong>client</strong> (typing.Optional[Client]):
 The client this component is bound to.</li>
 </ul>
+</div>
+
+
+                            </div>
+                            <div id="Component.defaults_to_ephemeral" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Component.defaults_to_ephemeral">#&nbsp;&nbsp</a>
+
+        <span class="name">defaults_to_ephemeral</span><span class="annotation">: Optional[bool]</span>
+    </div>
+
+            <div class="docstring"><p>Whether slash contexts executed in this component should default to ephemeral responses.</p>
+
+<p>This effects calls to <code><a href="#SlashContext.create_followup">SlashContext.create_followup</a></code>,
+<code><a href="#SlashContext.create_initial_response">SlashContext.create_initial_response</a></code>, <code><a href="#SlashContext.defer">SlashContext.defer</a></code> and
+<code><a href="#SlashContext.respond">SlashContext.respond</a></code> unless the <code>flags</code> field is provided for the
+methods which support it.</p>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>This may be overridden by <code>BaseSlashCommand.defaults_to_ephemeral</code>.</li>
+<li>This only effects slash command execution.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>typing.Optional[bool]</strong>: Whether contexts executed in this component should default to ephemeral responses.</li>
+</ul>
+
+<p>If this is <code>None</code> then the default from the parent client is used.</p>
 </div>
 
 
@@ -24443,6 +24801,62 @@ the component.</p>
         </details>
 
     
+
+                            </div>
+                            <div id="Component.set_ephemeral_default" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Component.set_ephemeral_default">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">set_ephemeral_default</span><span class="signature">(self: ~_ComponentT, state: Optional[bool], /) -&gt; ~_ComponentT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set whether slash contexts executed in this component should default to ephemeral responses.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        typing.Optional[bool]</span>
+<span class="sd">            Whether slash command contexts executed in this component should</span>
+<span class="sd">            should default to ephemeral.</span>
+<span class="sd">            This will be overridden by any response calls which specify flags.</span>
+
+<span class="sd">            Setting this to `None` will let the default set on the parent</span>
+<span class="sd">            client propagate and decide the ephemeral default behaviour.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This component to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Set whether slash contexts executed in this component should default to ephemeral responses.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>typing.Optional[bool]</strong>: Whether slash command contexts executed in this component should
+should default to ephemeral.
+This will be overridden by any response calls which specify flags.</li>
+</ul>
+
+<p>Setting this to <code>None</code> will let the default set on the parent
+client propagate and decide the ephemeral default behaviour.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>SelfT</strong>: This component to enable method chaining.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Component.set_slash_hooks" class="classattr">
@@ -25475,8 +25889,13 @@ The name to check for command matches.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]:</span>
-        <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">):</span>
-            <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
 </pre></div>
@@ -26194,7 +26613,8 @@ execute with the current context.</li>
         <span class="s2">&quot;_has_responded&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_interaction&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_last_response_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_not_found_message&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_marked_not_found&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_on_not_found&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_options&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_response_future&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_response_lock&quot;</span><span class="p">,</span>
@@ -26209,7 +26629,7 @@ execute with the current context.</li>
         <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">not_found_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span> <span class="o">=</span> <span class="n">command</span>
@@ -26219,7 +26639,8 @@ execute with the current context.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span> <span class="o">=</span> <span class="n">interaction</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_response_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">not_found_message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">ResponseTypeT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
@@ -26315,28 +26736,10 @@ execute with the current context.</li>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">flags</span> <span class="o">=</span> <span class="n">flags</span> <span class="k">if</span> <span class="n">flags</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">:</span>
-                <span class="k">return</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">)</span>
-                <span class="k">return</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">build_response</span><span class="p">()</span><span class="o">.</span><span class="n">set_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">)</span>
-                <span class="p">)</span>
-
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span>
-                    <span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">MESSAGE_CREATE</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span>
-                <span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_SlashContextT</span><span class="p">,</span> <span class="n">count_down</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashContextT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_assert_not_final</span><span class="p">()</span>
@@ -28185,7 +28588,8 @@ nature, and will trigger this exception if they occur.</li>
         <span class="s2">&quot;_has_responded&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_interaction&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_last_response_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;_not_found_message&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_marked_not_found&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_on_not_found&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_options&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_response_future&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_response_lock&quot;</span><span class="p">,</span>
@@ -28200,7 +28604,7 @@ nature, and will trigger this exception if they occur.</li>
         <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">not_found_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span> <span class="o">=</span> <span class="n">command</span>
@@ -28210,7 +28614,8 @@ nature, and will trigger this exception if they occur.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span> <span class="o">=</span> <span class="n">interaction</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_response_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">not_found_message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">ResponseTypeT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
@@ -28306,28 +28711,10 @@ nature, and will trigger this exception if they occur.</li>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">flags</span> <span class="o">=</span> <span class="n">flags</span> <span class="k">if</span> <span class="n">flags</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">:</span>
-                <span class="k">return</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">)</span>
-                <span class="k">return</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">build_response</span><span class="p">()</span><span class="o">.</span><span class="n">set_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">)</span>
-                <span class="p">)</span>
-
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span>
-                    <span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">MESSAGE_CREATE</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span>
-                <span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">start_defer_timer</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_SlashContextT</span><span class="p">,</span> <span class="n">count_down</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_SlashContextT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_assert_not_final</span><span class="p">()</span>
@@ -28762,7 +29149,7 @@ nature, and will trigger this exception if they occur.</li>
     command: Optional[<a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>] = None,
     component: Optional[<a href="tanjun/abc.html#Component">tanjun.abc.Component</a>] = None,
     default_to_ephemeral: bool = False,
-    not_found_message: Optional[str] = None
+    on_not_found: Optional[collections.abc.Callable[[<a href="tanjun/context.html#SlashContext">tanjun.context.SlashContext</a>], collections.abc.Awaitable[None]]] = None
 )</span>
     </div>
 
@@ -28777,7 +29164,7 @@ nature, and will trigger this exception if they occur.</li>
         <span class="n">command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">component</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Component</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">not_found_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">on_not_found</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">injection_client</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command</span> <span class="o">=</span> <span class="n">command</span>
@@ -28787,7 +29174,8 @@ nature, and will trigger this exception if they occur.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span> <span class="o">=</span> <span class="n">interaction</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_response_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">not_found_message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="o">=</span> <span class="n">on_not_found</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Future</span><span class="p">[</span><span class="n">ResponseTypeT</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_type_special_case</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
@@ -29117,37 +29505,15 @@ to create the initial response rather than
 
         
             <span class="def">async def</span>
-            <span class="name">mark_not_found</span><span class="signature">(
-    self,
-    *,
-    flags: Union[hikari.undefined.UndefinedType, int, hikari.messages.MessageFlag] = UNDEFINED
-) -&gt; None</span>:
+            <span class="name">mark_not_found</span><span class="signature">(self) -&gt; None</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedType</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">MessageFlag</span><span class="p">]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">flags</span> <span class="o">=</span> <span class="n">flags</span> <span class="k">if</span> <span class="n">flags</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flags</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">)</span>
-        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_lock</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">:</span>
-                <span class="k">return</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_has_responded</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_deferred</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">edit_initial_response</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">)</span>
-                <span class="k">return</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_response_future</span><span class="o">.</span><span class="n">set_result</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">build_response</span><span class="p">()</span><span class="o">.</span><span class="n">set_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">)</span>
-                <span class="p">)</span>
-
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span>
-                    <span class="n">hikari</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">MESSAGE_CREATE</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_not_found_message</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span>
-                <span class="p">)</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">mark_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_marked_not_found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </pre></div>
 
         </details>

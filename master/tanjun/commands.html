@@ -586,7 +586,7 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SlashCommandGroup</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Create a slash command group.</span>
@@ -639,9 +639,12 @@
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">    default_to_ephemeral : bool</span>
+<span class="sd">    default_to_ephemeral : typing.Optional[bool]</span>
 <span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
-<span class="sd">        are set to override this. This defaults to `False`.</span>
+<span class="sd">        are set to override this.</span>
+
+<span class="sd">        If this is left as `None` then the default set on the parent command(s),</span>
+<span class="sd">        component or client will be in effect.</span>
 <span class="sd">    is_global : bool</span>
 <span class="sd">        Whether this command is a global command. Defaults to `True`.</span>
 
@@ -675,7 +678,7 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">sort_options</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandCallbackSigT</span><span class="p">],</span> <span class="n">SlashCommand</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">]]:</span>
@@ -721,9 +724,12 @@
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">    default_to_ephemeral : bool</span>
+<span class="sd">    default_to_ephemeral : typing.Optional[bool]</span>
 <span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
-<span class="sd">        are set to override this. This defaults to `False`.</span>
+<span class="sd">        are set to override this.</span>
+
+<span class="sd">        If this is left as `None` then the default set on the parent command(s),</span>
+<span class="sd">        component or client will be in effect.</span>
 <span class="sd">    is_global : bool</span>
 <span class="sd">        Whether this command is a global command. Defaults to `True`.</span>
 <span class="sd">    sort_options : bool</span>
@@ -1164,7 +1170,7 @@
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1196,7 +1202,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span>
 
@@ -1237,6 +1243,11 @@
 <span class="sd">        ----------</span>
 <span class="sd">        command : hikari.Command</span>
 <span class="sd">            object of the global command this should be tracking.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This command instance for chaining.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
@@ -1249,14 +1260,23 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set whether this command&#39;s responses should default to ephemeral.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        bool</span>
+<span class="sd">        typing.Optional[bool]</span>
 <span class="sd">            Whether this command&#39;s responses should default to ephemeral.</span>
 <span class="sd">            This will be overridden by any response calls which specify flags.</span>
+
+<span class="sd">            Setting this to `None` will let the default set on the parent</span>
+<span class="sd">            command(s), component or client propagate and decide the ephemeral</span>
+<span class="sd">            default for contexts used by this command.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This command to allow for chaining.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -1302,7 +1322,7 @@
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1443,9 +1463,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Missing sub-command option&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
-            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
+                <span class="k">return</span>
 
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
 
@@ -1472,7 +1496,7 @@
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2836,7 +2860,7 @@ enforces that command names are unique to a single command within the group.</p>
     *,
     command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
     default_permission: bool = True,
-    default_to_ephemeral: bool = False,
+    default_to_ephemeral: Optional[bool] = None,
     is_global: bool = True,
     sort_options: bool = True
 ) -&gt; collections.abc.Callable[[~CommandCallbackSigT], <a href="#SlashCommand">tanjun.commands.SlashCommand</a>[~CommandCallbackSigT]]</span>:
@@ -2851,7 +2875,7 @@ enforces that command names are unique to a single command within the group.</p>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">sort_options</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandCallbackSigT</span><span class="p">],</span> <span class="n">SlashCommand</span><span class="p">[</span><span class="n">CommandCallbackSigT</span><span class="p">]]:</span>
@@ -2897,9 +2921,12 @@ enforces that command names are unique to a single command within the group.</p>
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">    default_to_ephemeral : bool</span>
+<span class="sd">    default_to_ephemeral : typing.Optional[bool]</span>
 <span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
-<span class="sd">        are set to override this. This defaults to `False`.</span>
+<span class="sd">        are set to override this.</span>
+
+<span class="sd">        If this is left as `None` then the default set on the parent command(s),</span>
+<span class="sd">        component or client will be in effect.</span>
 <span class="sd">    is_global : bool</span>
 <span class="sd">        Whether this command is a global command. Defaults to `True`.</span>
 <span class="sd">    sort_options : bool</span>
@@ -2981,9 +3008,12 @@ command's name is changed).</p></li>
 Whether this command can be accessed without set permissions.</p>
 
 <p>Defaults to <code>True</code>, meaning that users can access the command by default.</p></li>
-<li><strong>default_to_ephemeral</strong> (bool):
+<li><p><strong>default_to_ephemeral</strong> (typing.Optional[bool]):
 Whether this command's responses should default to ephemeral unless flags
-are set to override this. This defaults to <code>False</code>.</li>
+are set to override this.</p>
+
+<p>If this is left as <code>None</code> then the default set on the parent command(s),
+component or client will be in effect.</p></li>
 <li><strong>is_global</strong> (bool):
 Whether this command is a global command. Defaults to <code>True</code>.</li>
 <li><p><strong>sort_options</strong> (bool):
@@ -3026,7 +3056,7 @@ ones.</p></li>
     *,
     command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
     default_permission: bool = True,
-    default_to_ephemeral: bool = False,
+    default_to_ephemeral: Optional[bool] = None,
     is_global: bool = True
 ) -&gt; <a href="#SlashCommandGroup">tanjun.commands.SlashCommandGroup</a></span>:
     </div>
@@ -3040,7 +3070,7 @@ ones.</p></li>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SlashCommandGroup</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Create a slash command group.</span>
@@ -3093,9 +3123,12 @@ ones.</p></li>
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
 <span class="sd">        Defaults to `True`, meaning that users can access the command by default.</span>
-<span class="sd">    default_to_ephemeral : bool</span>
+<span class="sd">    default_to_ephemeral : typing.Optional[bool]</span>
 <span class="sd">        Whether this command&#39;s responses should default to ephemeral unless flags</span>
-<span class="sd">        are set to override this. This defaults to `False`.</span>
+<span class="sd">        are set to override this.</span>
+
+<span class="sd">        If this is left as `None` then the default set on the parent command(s),</span>
+<span class="sd">        component or client will be in effect.</span>
 <span class="sd">    is_global : bool</span>
 <span class="sd">        Whether this command is a global command. Defaults to `True`.</span>
 
@@ -3179,9 +3212,12 @@ command's name is changed).</p></li>
 Whether this command can be accessed without set permissions.</p>
 
 <p>Defaults to <code>True</code>, meaning that users can access the command by default.</p></li>
-<li><strong>default_to_ephemeral</strong> (bool):
+<li><p><strong>default_to_ephemeral</strong> (typing.Optional[bool]):
 Whether this command's responses should default to ephemeral unless flags
-are set to override this. This defaults to <code>False</code>.</li>
+are set to override this.</p>
+
+<p>If this is left as <code>None</code> then the default set on the parent command(s),
+component or client will be in effect.</p></li>
 <li><strong>is_global</strong> (bool):
 Whether this command is a global command. Defaults to <code>True</code>.</li>
 </ul>
@@ -4992,7 +5028,7 @@ The check to remove.</li>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -5024,7 +5060,7 @@ The check to remove.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span>
 
@@ -5065,6 +5101,11 @@ The check to remove.</li>
 <span class="sd">        ----------</span>
 <span class="sd">        command : hikari.Command</span>
 <span class="sd">            object of the global command this should be tracking.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This command instance for chaining.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
@@ -5077,14 +5118,23 @@ The check to remove.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set whether this command&#39;s responses should default to ephemeral.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        bool</span>
+<span class="sd">        typing.Optional[bool]</span>
 <span class="sd">            Whether this command&#39;s responses should default to ephemeral.</span>
 <span class="sd">            This will be overridden by any response calls which specify flags.</span>
+
+<span class="sd">            Setting this to `None` will let the default set on the parent</span>
+<span class="sd">            command(s), component or client propagate and decide the ephemeral</span>
+<span class="sd">            default for contexts used by this command.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This command to allow for chaining.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -5129,21 +5179,24 @@ The check to remove.</li>
                             <div id="BaseSlashCommand.defaults_to_ephemeral" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#BaseSlashCommand.defaults_to_ephemeral">#&nbsp;&nbsp</a>
 
-        <span class="name">defaults_to_ephemeral</span><span class="annotation">: bool</span>
+        <span class="name">defaults_to_ephemeral</span><span class="annotation">: Optional[bool]</span>
     </div>
 
-            <div class="docstring"><p>Whether calls to this command should default to ephemeral mode.</p>
+            <div class="docstring"><p>Whether contexts executed by this command should default to ephemeral responses.</p>
 
-<p>This indicates whether calls to <code>SlashContext.respond</code>,
-<code>SlashContext.create_initial_response</code> and <code>SlashContext.create_followup</code>
-on context objects which are linked to this command should default to
-ephemeral unless <code>flags</code> is explicitly passed.</p>
+<p>This effects calls to <code>SlashContext.create_followup</code>,
+<code>SlashContext.create_initial_response</code>, <code>SlashContext.defer</code> and
+<code>SlashContext.respond</code> unless the <code>flags</code> field is provided for the
+methods which support it.</p>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
 <li><strong>bool</strong>: Whether calls to this command should default to ephemeral mode.</li>
 </ul>
+
+<p>If this is <code>None</code> then the default from the parent command(s),
+component or client is used.</p>
 </div>
 
 
@@ -5258,6 +5311,11 @@ is inherited regardless of what it's set as on the child command.</p>
 <span class="sd">        ----------</span>
 <span class="sd">        command : hikari.Command</span>
 <span class="sd">            object of the global command this should be tracking.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This command instance for chaining.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
@@ -5285,6 +5343,12 @@ Please pass the command IDs to Client.declare_global_commands or Client.declare_
 <li><strong>command</strong> (hikari.Command):
 object of the global command this should be tracking.</li>
 </ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>SelfT</strong>: This command instance for chaining.</li>
+</ul>
 </div>
 
 
@@ -5294,19 +5358,32 @@ object of the global command this should be tracking.</li>
 
         
             <span class="def">def</span>
-            <span class="name">set_ephemeral_default</span><span class="signature">(self: ~_BaseSlashCommandT, state: bool, /) -&gt; ~_BaseSlashCommandT</span>:
+            <span class="name">set_ephemeral_default</span><span class="signature">(
+    self: ~_BaseSlashCommandT,
+    state: Optional[bool],
+    /
+) -&gt; ~_BaseSlashCommandT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set whether this command&#39;s responses should default to ephemeral.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        bool</span>
+<span class="sd">        typing.Optional[bool]</span>
 <span class="sd">            Whether this command&#39;s responses should default to ephemeral.</span>
 <span class="sd">            This will be overridden by any response calls which specify flags.</span>
+
+<span class="sd">            Setting this to `None` will let the default set on the parent</span>
+<span class="sd">            command(s), component or client propagate and decide the ephemeral</span>
+<span class="sd">            default for contexts used by this command.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This command to allow for chaining.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
         <span class="k">return</span> <span class="bp">self</span>
@@ -5319,8 +5396,18 @@ object of the global command this should be tracking.</li>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>bool</strong>: Whether this command's responses should default to ephemeral.
+<li><strong>typing.Optional[bool]</strong>: Whether this command's responses should default to ephemeral.
 This will be overridden by any response calls which specify flags.</li>
+</ul>
+
+<p>Setting this to <code>None</code> will let the default set on the parent
+command(s), component or client propagate and decide the ephemeral
+default for contexts used by this command.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>SelfT</strong>: This command to allow for chaining.</li>
 </ul>
 </div>
 
@@ -5490,7 +5577,7 @@ This will be overridden by any response calls which specify flags.</li>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -6310,7 +6397,7 @@ This will be overridden by any response calls which specify flags.</li>
     checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
     command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
     default_permission: bool = True,
-    default_to_ephemeral: bool = False,
+    default_to_ephemeral: Optional[bool] = None,
     is_global: bool = True,
     hooks: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#SlashContext">tanjun.abc.SlashContext</a>]] = None,
     metadata: Optional[collections.abc.MutableMapping[Any, Any]] = None,
@@ -6331,7 +6418,7 @@ This will be overridden by any response calls which specify flags.</li>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -7887,7 +7974,7 @@ being used.</p></li>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -8028,9 +8115,13 @@ being used.</p></li>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Missing sub-command option&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
-            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
+                <span class="k">return</span>
 
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
 
@@ -8060,7 +8151,7 @@ being used.</p></li>
     /,
     *,
     command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
-    default_to_ephemeral: bool = False,
+    default_to_ephemeral: Optional[bool] = None,
     default_permission: bool = True,
     is_global: bool = True,
     checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
@@ -8079,7 +8170,7 @@ being used.</p></li>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -8414,9 +8505,13 @@ Command to add to this group.</li>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Missing sub-command option&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
-            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">check_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+                <span class="k">await</span> <span class="n">command</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="n">option</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
+                <span class="k">return</span>
 
         <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">mark_not_found</span><span class="p">()</span>
 </pre></div>

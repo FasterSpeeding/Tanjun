@@ -448,6 +448,9 @@
                                 <a class="variable" href="#Component.client">client</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Component.defaults_to_ephemeral">defaults_to_ephemeral</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Component.name">name</a>
                         </li>
                         <li>
@@ -518,6 +521,9 @@
                         </li>
                         <li>
                                 <a class="variable" href="#Client.components">components</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Client.defaults_to_ephemeral">defaults_to_ephemeral</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Client.events">events</a>
@@ -2490,18 +2496,21 @@
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Whether calls to this command should default to ephemeral mode.</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Whether contexts executed by this command should default to ephemeral responses.</span>
 
-<span class="sd">        This indicates whether calls to `SlashContext.respond`,</span>
-<span class="sd">        `SlashContext.create_initial_response` and `SlashContext.create_followup`</span>
-<span class="sd">        on context objects which are linked to this command should default to</span>
-<span class="sd">        ephemeral unless `flags` is explicitly passed.</span>
+<span class="sd">        This effects calls to `SlashContext.create_followup`,</span>
+<span class="sd">        `SlashContext.create_initial_response`, `SlashContext.defer` and</span>
+<span class="sd">        `SlashContext.respond` unless the `flags` field is provided for the</span>
+<span class="sd">        methods which support it.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        bool</span>
 <span class="sd">            Whether calls to this command should default to ephemeral mode.</span>
+
+<span class="sd">            If this is `None` then the default from the parent command(s),</span>
+<span class="sd">            component or client is used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -2861,6 +2870,29 @@
 <span class="sd">        -------</span>
 <span class="sd">        client : typing.Optional[Client]</span>
 <span class="sd">            The client this component is bound to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Whether slash contexts executed in this component should default to ephemeral responses.</span>
+
+<span class="sd">        This effects calls to `SlashContext.create_followup`,</span>
+<span class="sd">        `SlashContext.create_initial_response`, `SlashContext.defer` and</span>
+<span class="sd">        `SlashContext.respond` unless the `flags` field is provided for the</span>
+<span class="sd">        methods which support it.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This may be overridden by `BaseSlashCommand.defaults_to_ephemeral`.</span>
+<span class="sd">        * This only effects slash command execution.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Optional[bool]</span>
+<span class="sd">            Whether contexts executed in this component should default to ephemeral responses.</span>
+
+<span class="sd">            If this is `None` then the default from the parent client is used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -3266,6 +3298,30 @@
 <span class="sd">        -------</span>
 <span class="sd">        collections.abc.Collection[tanjun.traits.Component]</span>
 <span class="sd">            Collection of the components this command client is using.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether slash contexts spawned by this client should default to ephemeral responses.</span>
+
+<span class="sd">        This effects calls to `SlashContext.create_followup`,</span>
+<span class="sd">        `SlashContext.create_initial_response`, `SlashContext.defer` and</span>
+<span class="sd">        `SlashContext.respond` unless the `flags` field is provided for the</span>
+<span class="sd">        methods which support it.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This may be overridden by `BaseSlashCommand.defaults_to_ephemeral`</span>
+<span class="sd">          and `Component.defaults_to_ephemeral`.</span>
+<span class="sd">        * This defaults to `False`.</span>
+<span class="sd">        * This only effects slash command execution.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether slash contexts executed in this component should default</span>
+<span class="sd">            to ephemeral responses.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -8267,18 +8323,21 @@ nature, and will trigger this exception if they occur.</li>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Whether calls to this command should default to ephemeral mode.</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Whether contexts executed by this command should default to ephemeral responses.</span>
 
-<span class="sd">        This indicates whether calls to `SlashContext.respond`,</span>
-<span class="sd">        `SlashContext.create_initial_response` and `SlashContext.create_followup`</span>
-<span class="sd">        on context objects which are linked to this command should default to</span>
-<span class="sd">        ephemeral unless `flags` is explicitly passed.</span>
+<span class="sd">        This effects calls to `SlashContext.create_followup`,</span>
+<span class="sd">        `SlashContext.create_initial_response`, `SlashContext.defer` and</span>
+<span class="sd">        `SlashContext.respond` unless the `flags` field is provided for the</span>
+<span class="sd">        methods which support it.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        bool</span>
 <span class="sd">            Whether calls to this command should default to ephemeral mode.</span>
+
+<span class="sd">            If this is `None` then the default from the parent command(s),</span>
+<span class="sd">            component or client is used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -8386,21 +8445,24 @@ nature, and will trigger this exception if they occur.</li>
                             <div id="BaseSlashCommand.defaults_to_ephemeral" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#BaseSlashCommand.defaults_to_ephemeral">#&nbsp;&nbsp</a>
 
-        <span class="name">defaults_to_ephemeral</span><span class="annotation">: bool</span>
+        <span class="name">defaults_to_ephemeral</span><span class="annotation">: Optional[bool]</span>
     </div>
 
-            <div class="docstring"><p>Whether calls to this command should default to ephemeral mode.</p>
+            <div class="docstring"><p>Whether contexts executed by this command should default to ephemeral responses.</p>
 
-<p>This indicates whether calls to <code><a href="#SlashContext.respond">SlashContext.respond</a></code>,
-<code><a href="#SlashContext.create_initial_response">SlashContext.create_initial_response</a></code> and <code><a href="#SlashContext.create_followup">SlashContext.create_followup</a></code>
-on context objects which are linked to this command should default to
-ephemeral unless <code>flags</code> is explicitly passed.</p>
+<p>This effects calls to <code><a href="#SlashContext.create_followup">SlashContext.create_followup</a></code>,
+<code><a href="#SlashContext.create_initial_response">SlashContext.create_initial_response</a></code>, <code><a href="#SlashContext.defer">SlashContext.defer</a></code> and
+<code><a href="#SlashContext.respond">SlashContext.respond</a></code> unless the <code>flags</code> field is provided for the
+methods which support it.</p>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
 <li><strong>bool</strong>: Whether calls to this command should default to ephemeral mode.</li>
 </ul>
+
+<p>If this is <code>None</code> then the default from the parent command(s),
+component or client is used.</p>
 </div>
 
 
@@ -10788,6 +10850,29 @@ user.</p>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Whether slash contexts executed in this component should default to ephemeral responses.</span>
+
+<span class="sd">        This effects calls to `SlashContext.create_followup`,</span>
+<span class="sd">        `SlashContext.create_initial_response`, `SlashContext.defer` and</span>
+<span class="sd">        `SlashContext.respond` unless the `flags` field is provided for the</span>
+<span class="sd">        methods which support it.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This may be overridden by `BaseSlashCommand.defaults_to_ephemeral`.</span>
+<span class="sd">        * This only effects slash command execution.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Optional[bool]</span>
+<span class="sd">            Whether contexts executed in this component should default to ephemeral responses.</span>
+
+<span class="sd">            If this is `None` then the default from the parent client is used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Get the component&#39;s identifier.</span>
 
@@ -11183,6 +11268,37 @@ into a tanjun client.</p>
 <li><strong>client</strong> (typing.Optional[Client]):
 The client this component is bound to.</li>
 </ul>
+</div>
+
+
+                            </div>
+                            <div id="Component.defaults_to_ephemeral" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Component.defaults_to_ephemeral">#&nbsp;&nbsp</a>
+
+        <span class="name">defaults_to_ephemeral</span><span class="annotation">: Optional[bool]</span>
+    </div>
+
+            <div class="docstring"><p>Whether slash contexts executed in this component should default to ephemeral responses.</p>
+
+<p>This effects calls to <code><a href="#SlashContext.create_followup">SlashContext.create_followup</a></code>,
+<code><a href="#SlashContext.create_initial_response">SlashContext.create_initial_response</a></code>, <code><a href="#SlashContext.defer">SlashContext.defer</a></code> and
+<code><a href="#SlashContext.respond">SlashContext.respond</a></code> unless the <code>flags</code> field is provided for the
+methods which support it.</p>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>This may be overridden by <code><a href="#BaseSlashCommand.defaults_to_ephemeral">BaseSlashCommand.defaults_to_ephemeral</a></code>.</li>
+<li>This only effects slash command execution.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>typing.Optional[bool]</strong>: Whether contexts executed in this component should default to ephemeral responses.</li>
+</ul>
+
+<p>If this is <code>None</code> then the default from the parent client is used.</p>
 </div>
 
 
@@ -12186,6 +12302,30 @@ execute with the current context.</li>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether slash contexts spawned by this client should default to ephemeral responses.</span>
+
+<span class="sd">        This effects calls to `SlashContext.create_followup`,</span>
+<span class="sd">        `SlashContext.create_initial_response`, `SlashContext.defer` and</span>
+<span class="sd">        `SlashContext.respond` unless the `flags` field is provided for the</span>
+<span class="sd">        methods which support it.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This may be overridden by `BaseSlashCommand.defaults_to_ephemeral`</span>
+<span class="sd">          and `Component.defaults_to_ephemeral`.</span>
+<span class="sd">        * This defaults to `False`.</span>
+<span class="sd">        * This only effects slash command execution.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether slash contexts executed in this component should default</span>
+<span class="sd">            to ephemeral responses.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">EventManager</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Object of the event manager this client was initialised with.</span>
 
@@ -12629,6 +12769,38 @@ with if provided, else <code>None</code>.</li>
 
 <ul>
 <li><strong>collections.abc.Collection[<a href="../tanjun.html#traits.Component">tanjun.traits.Component</a>]</strong>: Collection of the components this command client is using.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.defaults_to_ephemeral" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Client.defaults_to_ephemeral">#&nbsp;&nbsp</a>
+
+        <span class="name">defaults_to_ephemeral</span><span class="annotation">: bool</span>
+    </div>
+
+            <div class="docstring"><p>Whether slash contexts spawned by this client should default to ephemeral responses.</p>
+
+<p>This effects calls to <code><a href="#SlashContext.create_followup">SlashContext.create_followup</a></code>,
+<code><a href="#SlashContext.create_initial_response">SlashContext.create_initial_response</a></code>, <code><a href="#SlashContext.defer">SlashContext.defer</a></code> and
+<code><a href="#SlashContext.respond">SlashContext.respond</a></code> unless the <code>flags</code> field is provided for the
+methods which support it.</p>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>This may be overridden by <code><a href="#BaseSlashCommand.defaults_to_ephemeral">BaseSlashCommand.defaults_to_ephemeral</a></code>
+and <code><a href="#Component.defaults_to_ephemeral">Component.defaults_to_ephemeral</a></code>.</li>
+<li>This defaults to <code>False</code>.</li>
+<li>This only effects slash command execution.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether slash contexts executed in this component should default
+to ephemeral responses.</li>
 </ul>
 </div>
 
