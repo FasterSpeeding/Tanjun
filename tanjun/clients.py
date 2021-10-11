@@ -512,6 +512,28 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         super().__init__()
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
         # TODO: warn if server and dispatch both None but don't error
+        if _LOGGER.isEnabledFor(logging.INFO):
+            _LOGGER.info(
+                "%sClient initialised with the following components: %s",
+                " event-managed" if event_managed else "",
+                ", ".join(
+                    name
+                    for name, value in [
+                        ("cache", cache),
+                        ("event manager", events),
+                        ("interaction server", server),
+                        ("rest", rest),
+                        ("shard manager", shards),
+                    ]
+                    if value
+                ),
+            )
+
+        if not events and not server:
+            _LOGGER.warning(
+                "Client initiaited without an event manager or interaction server, "
+                "automatic command dispatch will be unavailable."
+            )
 
         # TODO: separate slash and gateway checks?
         self._accepts = MessageAcceptsEnum.ALL if events else MessageAcceptsEnum.NONE
@@ -561,14 +583,22 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         declare_global_commands = declare_global_commands or set_global_commands
         command_ids = command_ids or {}
         if isinstance(declare_global_commands, collections.Sequence):
-            if command_ids and len(command_ids) > 1:
+            if command_ids and len(declare_global_commands) > 1:
                 raise ValueError("Cannot declare global guilds in multiple-guilds and pass command IDs")
 
             for guild in declare_global_commands:
+                _LOGGER.info("Registering startup command declarer for %s guild", guild)
                 self.add_client_callback(ClientCallbackNames.STARTING, _StartDeclarer(self, command_ids, guild))
 
         elif isinstance(declare_global_commands, bool):
             if declare_global_commands:
+                _LOGGER.info("Registering startup command declarer for global commands")
+                if not command_ids:
+                    _LOGGER.warning(
+                        "No command IDs passed for startup command declarer, this could lead to previously set "
+                        "command permissions being lost when commands are renamed."
+                    )
+
                 self.add_client_callback(
                     ClientCallbackNames.STARTING, _StartDeclarer(self, command_ids, hikari.UNDEFINED)
                 )
@@ -1056,7 +1086,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         _LOGGER.info("Successfully declared %s (top-level) %s commands", len(responses), target_type)
         if _LOGGER.isEnabledFor(logging.DEBUG):
             _LOGGER.debug(
-                "declared %s command ids: %s", target_type, {response.name: response.id for response in responses}
+                "Declared %s command ids; %s",
+                target_type,
+                ", ".join(f"{response.name}: {response.id}" for response in responses),
             )
 
         return responses

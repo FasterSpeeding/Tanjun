@@ -42,8 +42,6 @@ __all__: list[str] = [
     "TooManyArgumentsError",
     "ParserError",
     "TanjunError",
-    "TanjunWarning",
-    "StateWarning",
 ]
 
 import typing
@@ -54,12 +52,6 @@ if typing.TYPE_CHECKING:
 
 class TanjunError(Exception):
     """The base class for all errors raised by Tanjun."""
-
-    __slots__ = ()
-
-
-class TanjunWarning(RuntimeWarning):
-    """The base class for all warnings raised by Tanjun."""
 
     __slots__ = ()
 
@@ -234,9 +226,3 @@ class TooManyArgumentsError(ParserError):
 
     def __init__(self, message: str, parameter: str, /) -> None:
         super().__init__(message, parameter)
-
-
-class StateWarning(RuntimeWarning):
-    """Warning raised when a utility is loaded without access to state stores it depends on."""
-
-    __slots__ = ()
