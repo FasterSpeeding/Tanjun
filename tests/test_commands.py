@@ -228,7 +228,7 @@ def test_slash_command_group_with_default():
 
     assert command.tracked_command_id is None
     assert command.build().default_permission is True
-    assert command.defaults_to_ephemeral is False
+    assert command.defaults_to_ephemeral is None
     assert command.is_global is True
     assert isinstance(command, tanjun.SlashCommandGroup)
 
@@ -261,7 +261,7 @@ def test_as_slash_command_with_defaults():
 
     assert command.tracked_command_id is None
     assert command.build().default_permission is hikari.UNDEFINED
-    assert command.defaults_to_ephemeral is False
+    assert command.defaults_to_ephemeral is None
     assert command.is_global is True
     assert command._builder._sort_options is True
     assert isinstance(command, tanjun.SlashCommand)

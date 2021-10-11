@@ -212,7 +212,7 @@ def slash_command_group(
     *,
     command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
     default_permission: bool = True,
-    default_to_ephemeral: bool = False,
+    default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> SlashCommandGroup:
     """Create a slash command group.
@@ -265,9 +265,12 @@ def slash_command_group(
         Whether this command can be accessed without set permissions.
 
         Defaults to `True`, meaning that users can access the command by default.
-    default_to_ephemeral : bool
+    default_to_ephemeral : typing.Optional[bool]
         Whether this command's responses should default to ephemeral unless flags
-        are set to override this. This defaults to `False`.
+        are set to override this.
+
+        If this is left as `None` then the default set on the parent command(s),
+        component or client will be in effect.
     is_global : bool
         Whether this command is a global command. Defaults to `True`.
 
@@ -301,7 +304,7 @@ def as_slash_command(
     *,
     command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
     default_permission: bool = True,
-    default_to_ephemeral: bool = False,
+    default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
     sort_options: bool = True,
 ) -> collections.Callable[[CommandCallbackSigT], SlashCommand[CommandCallbackSigT]]:
@@ -347,9 +350,12 @@ def as_slash_command(
         Whether this command can be accessed without set permissions.
 
         Defaults to `True`, meaning that users can access the command by default.
-    default_to_ephemeral : bool
+    default_to_ephemeral : typing.Optional[bool]
         Whether this command's responses should default to ephemeral unless flags
-        are set to override this. This defaults to `False`.
+        are set to override this.
+
+        If this is left as `None` then the default set on the parent command(s),
+        component or client will be in effect.
     is_global : bool
         Whether this command is a global command. Defaults to `True`.
     sort_options : bool
@@ -790,7 +796,7 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         /,
         *,
         command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
-        default_to_ephemeral: bool = False,
+        default_to_ephemeral: typing.Optional[bool] = None,
         is_global: bool = True,
         checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
         hooks: typing.Optional[abc.SlashHooks] = None,
@@ -822,7 +828,7 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         self._parent: typing.Optional[abc.SlashCommandGroup] = None
 
     @property
-    def defaults_to_ephemeral(self) -> bool:
+    def defaults_to_ephemeral(self) -> typing.Optional[bool]:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         return self._defaults_to_ephemeral
 
@@ -863,6 +869,11 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         ----------
         command : hikari.Command
             object of the global command this should be tracking.
+
+        Returns
+        -------
+        SelfT
+            This command instance for chaining.
         """
         if not isinstance(command, hikari.Command):
             warnings.warn(
@@ -875,14 +886,23 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         self._command_id = hikari.Snowflake(command)
         return self
 
-    def set_ephemeral_default(self: _BaseSlashCommandT, state: bool, /) -> _BaseSlashCommandT:
+    def set_ephemeral_default(self: _BaseSlashCommandT, state: typing.Optional[bool], /) -> _BaseSlashCommandT:
         """Set whether this command's responses should default to ephemeral.
 
         Parameters
         ----------
-        bool
+        typing.Optional[bool]
             Whether this command's responses should default to ephemeral.
             This will be overridden by any response calls which specify flags.
+
+            Setting this to `None` will let the default set on the parent
+            command(s), component or client propagate and decide the ephemeral
+            default for contexts used by this command.
+
+        Returns
+        -------
+        SelfT
+            This command to allow for chaining.
         """
         self._defaults_to_ephemeral = state
         return self
@@ -928,7 +948,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         /,
         *,
         command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
-        default_to_ephemeral: bool = False,
+        default_to_ephemeral: typing.Optional[bool] = None,
         default_permission: bool = True,
         is_global: bool = True,
         checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
@@ -1098,7 +1118,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
         command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
         default_permission: bool = True,
-        default_to_ephemeral: bool = False,
+        default_to_ephemeral: typing.Optional[bool] = None,
         is_global: bool = True,
         hooks: typing.Optional[abc.SlashHooks] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,

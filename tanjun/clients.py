@@ -99,7 +99,7 @@ if typing.TYPE_CHECKING:
             command: typing.Optional[tanjun_abc.BaseSlashCommand] = None,
             component: typing.Optional[tanjun_abc.Component] = None,
             default_to_ephemeral: bool = False,
-            not_found_message: typing.Optional[str] = None,
+            on_not_found: typing.Optional[typing.Callable[[context.SlashContext], None]] = None,
         ) -> context.SlashContext:
             raise NotImplementedError
 
@@ -465,6 +465,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         "_checks",
         "_client_callbacks",
         "_components",
+        "_defaults_to_ephemeral",
         "_make_message_context",
         "_make_slash_context",
         "_events",
@@ -518,6 +519,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._checks: list[checks.InjectableCheck] = []
         self._client_callbacks: dict[str, list[injecting.CallbackDescriptor[None]]] = {}
         self._components: dict[str, tanjun_abc.Component] = {}
+        self._defaults_to_ephemeral: bool = False
         self._make_message_context: _MessageContextMakerProto = context.MessageContext
         self._make_slash_context: _SlashContextMakerProto = context.SlashContext
         self._events = events
@@ -730,6 +732,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     def __repr__(self) -> str:
         return f"CommandClient <{type(self).__name__!r}, {len(self._components)} components, {self._prefixes}>"
+
+    @property
+    def defaults_to_ephemeral(self) -> bool:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        return self._defaults_to_ephemeral
 
     @property
     def message_accepts(self) -> MessageAcceptsEnum:
@@ -1072,6 +1079,26 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             The time in seconds to defer interaction command responses after.
         """
         self._auto_defer_after = float(time) if time is not None else None
+        return self
+
+    def set_ephemeral_default(self: _ClientT, state: bool, /) -> _ClientT:
+        """Set whether slash contexts spawned by this client should default to ephemeral responses.
+
+        Parameters
+        ----------
+        bool
+            Whether slash command contexts executed in this component should
+            should default to ephemeral.
+
+            This will be overridden by any response calls which specify flags
+            and defaults to `False`.
+
+        Returns
+        -------
+        SelfT
+            This component to enable method chaining.
+        """
+        self._defaults_to_ephemeral = state
         return self
 
     def set_hikari_trait_injectors(self: _ClientT, bot: hikari_traits.RESTAware, /) -> _ClientT:
@@ -2151,6 +2178,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         return hooks
 
+    async def _on_slash_not_found(self, ctx: tanjun_abc.SlashContext) -> None:
+        await self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
+        if self._interaction_not_found and not ctx.has_responded:
+            await ctx.create_initial_response(self._interaction_not_found)
+
     async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
         """Execute a slash command based on Gateway events.
 
@@ -2170,7 +2202,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             client=self,
             injection_client=self,
             interaction=event.interaction,
-            not_found_message=self._interaction_not_found,
+            on_not_found=self._on_slash_not_found,
+            default_to_ephemeral=self._defaults_to_ephemeral,
         )
         hooks = self._get_slash_hooks()
 
@@ -2180,6 +2213,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         try:
             if await self.check(ctx):
                 for component in self._components.values():
+                    # This is set on each iteration to ensure that any component
+                    # state which was set to this isn't propagated to other components.
+                    ctx.set_ephemeral_default(self._defaults_to_ephemeral)
                     if future := await component.execute_interaction(ctx, hooks=hooks):
                         await future
                         return
@@ -2191,9 +2227,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             await ctx.respond(exc.message)
             return
 
-        await self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
         await ctx.mark_not_found()
-        ctx.cancel_defer()
 
     async def on_interaction_create_request(self, interaction: hikari.CommandInteraction, /) -> context.ResponseTypeT:
         """Execute a slash command based on received REST requests.
@@ -2209,7 +2243,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             The initial response to send back to Discord.
         """
         ctx = self._make_slash_context(
-            client=self, injection_client=self, interaction=interaction, not_found_message=self._interaction_not_found
+            client=self,
+            injection_client=self,
+            interaction=interaction,
+            on_not_found=self._on_slash_not_found,
+            default_to_ephemeral=self._defaults_to_ephemeral,
         )
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
@@ -2234,10 +2272,5 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             )
             return await future
 
-        async def callback() -> None:
-            await self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
-            await ctx.mark_not_found()
-            ctx.cancel_defer()
-
-        asyncio.get_running_loop().create_task(callback(), name=f"{interaction.id} not found")
+        asyncio.get_running_loop().create_task(ctx.mark_not_found(), name=f"{interaction.id} not found")
         return await future

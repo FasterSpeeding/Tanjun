@@ -1876,18 +1876,21 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
 
     @property
     @abc.abstractmethod
-    def defaults_to_ephemeral(self) -> bool:
-        """Whether calls to this command should default to ephemeral mode.
+    def defaults_to_ephemeral(self) -> typing.Optional[bool]:
+        """Whether contexts executed by this command should default to ephemeral responses.
 
-        This indicates whether calls to `SlashContext.respond`,
-        `SlashContext.create_initial_response` and `SlashContext.create_followup`
-        on context objects which are linked to this command should default to
-        ephemeral unless `flags` is explicitly passed.
+        This effects calls to `SlashContext.create_followup`,
+        `SlashContext.create_initial_response`, `SlashContext.defer` and
+        `SlashContext.respond` unless the `flags` field is provided for the
+        methods which support it.
 
         Returns
         -------
         bool
             Whether calls to this command should default to ephemeral mode.
+
+            If this is `None` then the default from the parent command(s),
+            component or client is used.
         """
 
     @property
@@ -2247,6 +2250,29 @@ class Component(abc.ABC):
         -------
         client : typing.Optional[Client]
             The client this component is bound to.
+        """
+
+    @property
+    @abc.abstractmethod
+    def defaults_to_ephemeral(self) -> typing.Optional[bool]:
+        """Whether slash contexts executed in this component should default to ephemeral responses.
+
+        This effects calls to `SlashContext.create_followup`,
+        `SlashContext.create_initial_response`, `SlashContext.defer` and
+        `SlashContext.respond` unless the `flags` field is provided for the
+        methods which support it.
+
+        Notes
+        -----
+        * This may be overridden by `BaseSlashCommand.defaults_to_ephemeral`.
+        * This only effects slash command execution.
+
+        Returns
+        -------
+        typing.Optional[bool]
+            Whether contexts executed in this component should default to ephemeral responses.
+
+            If this is `None` then the default from the parent client is used.
         """
 
     @property
@@ -2652,6 +2678,30 @@ class Client(abc.ABC):
         -------
         collections.abc.Collection[tanjun.traits.Component]
             Collection of the components this command client is using.
+        """
+
+    @property
+    @abc.abstractmethod
+    def defaults_to_ephemeral(self) -> bool:
+        """Whether slash contexts spawned by this client should default to ephemeral responses.
+
+        This effects calls to `SlashContext.create_followup`,
+        `SlashContext.create_initial_response`, `SlashContext.defer` and
+        `SlashContext.respond` unless the `flags` field is provided for the
+        methods which support it.
+
+        Notes
+        -----
+        * This may be overridden by `BaseSlashCommand.defaults_to_ephemeral`
+          and `Component.defaults_to_ephemeral`.
+        * This defaults to `False`.
+        * This only effects slash command execution.
+
+        Returns
+        -------
+        bool
+            Whether slash contexts executed in this component should default
+            to ephemeral responses.
         """
 
     @property
