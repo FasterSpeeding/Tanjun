@@ -83,7 +83,7 @@ def check_versions(session: nox.Session) -> None:
 
         required_version = _try_find_option(session, "--required-version", "-r")
         args = ["--required-version", required_version] if required_version else []
-        session.run("python", file.name, "-r", "tanjun", *args)
+        session.run("python", file.name, "-r", "tanjun", *args, "-i", "flake8")
 
     finally:
         pathlib.Path(file.name).unlink(missing_ok=False)
