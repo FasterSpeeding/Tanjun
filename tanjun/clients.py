@@ -1635,8 +1635,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         Parameters
         ----------
         getter : typing.Optional[PrefixGetterSig]
-            The callback which'll be  to retrieve prefixes for the guild a
-            message event is from. If `None` is passed here then the callback
+            The callback which'll be used to retrieve prefixes for the guild a
+            message context is from. If `None` is passed here then the callback
             will be unset.
 
             This should be an async callback which one argument of type
