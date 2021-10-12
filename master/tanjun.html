@@ -6891,11 +6891,11 @@ a DM context (e.g. can't have any moderation permissions)</li>
 <span class="sd">        Whether or not to automatically set global slash commands when this</span>
 <span class="sd">        client is first started. Defaults to `False`.</span>
 
-<span class="sd">        If a guild object or ID is passed here then the global commands will be</span>
-<span class="sd">        set on this specific guild at startup rather than globally. This</span>
-<span class="sd">        can be useful for testing/debug purposes as slash commands may take</span>
-<span class="sd">        up to an hour to propagate globally but will immediately propagate</span>
-<span class="sd">        when set on a specific guild.</span>
+<span class="sd">        If one or more guild objects/IDs are passed here then the registered</span>
+<span class="sd">        global commands will be set on the specified guild(s) at startup rather</span>
+<span class="sd">        than globally. This can be useful for testing/debug purposes as slash</span>
+<span class="sd">        commands may take up to an hour to propagate globally but will</span>
+<span class="sd">        immediately propagate when set on a specific guild.</span>
 <span class="sd">    set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">        Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
 <span class="sd">    command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
@@ -6960,9 +6960,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span>
-            <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span>
-            <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span>
-            <span class="nb">bool</span><span class="p">,</span>
+            <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span>
         <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -7068,8 +7066,11 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span>
+            <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.GatewayBotAware` instance.</span>
 
@@ -7105,18 +7106,28 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
-<span class="sd">            If a guild object or ID is passed here then the global commands will be</span>
-<span class="sd">            set on this specific guild at startup rather than globally. This</span>
-<span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
-<span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
-<span class="sd">            when set on a specific guild.</span>
+<span class="sd">            If one or more guild objects/IDs are passed here then the registered</span>
+<span class="sd">            global commands will be set on the specified guild(s) at startup rather</span>
+<span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
+<span class="sd">            commands may take up to an hour to propagate globally but will</span>
+<span class="sd">            immediately propagate when set on a specific guild.</span>
 <span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
+
+<span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
+<span class="sd">            isn&#39;t necessarily required, this will in some situations help avoid</span>
+<span class="sd">            permissions which were previously set for a command from being lost</span>
+<span class="sd">            after a rename.</span>
+
+<span class="sd">            This currently isn&#39;t supported when multiple guild IDs are passed for</span>
+<span class="sd">            `declare_global_commands`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501 - line too long</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">cls</span><span class="p">(</span>
                 <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span>
@@ -7127,6 +7138,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
                 <span class="n">mention_prefix</span><span class="o">=</span><span class="n">mention_prefix</span><span class="p">,</span>
                 <span class="n">declare_global_commands</span><span class="o">=</span><span class="n">declare_global_commands</span><span class="p">,</span>
                 <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
+                <span class="n">command_ids</span><span class="o">=</span><span class="n">command_ids</span><span class="p">,</span>
                 <span class="n">_stack_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">set_human_only</span><span class="p">()</span>
@@ -7138,8 +7150,11 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">bot</span><span class="p">:</span> <span class="n">hikari_traits</span><span class="o">.</span><span class="n">RESTBotAware</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span>
+            <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.RESTBotAware` instance.</span>
 
@@ -7159,23 +7174,34 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
-<span class="sd">            If a guild object or ID is passed here then the global commands will be</span>
-<span class="sd">            set on this specific guild at startup rather than globally. This</span>
-<span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
-<span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
-<span class="sd">            when set on a specific guild.</span>
+<span class="sd">            If one or more guild objects/IDs are passed here then the registered</span>
+<span class="sd">            global commands will be set on the specified guild(s) at startup rather</span>
+<span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
+<span class="sd">            commands may take up to an hour to propagate globally but will</span>
+<span class="sd">            immediately propagate when set on a specific guild.</span>
 <span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
+
+<span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
+<span class="sd">            isn&#39;t necessarily required, this will in some situations help avoid</span>
+<span class="sd">            permissions which were previously set for a command from being lost</span>
+<span class="sd">            after a rename.</span>
+
+<span class="sd">            This currently isn&#39;t supported when multiple guild IDs are passed for</span>
+<span class="sd">            `declare_global_commands`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501 - line too long</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span>
             <span class="n">server</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">interaction_server</span><span class="p">,</span>
             <span class="n">declare_global_commands</span><span class="o">=</span><span class="n">declare_global_commands</span><span class="p">,</span>
             <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
+            <span class="n">command_ids</span><span class="o">=</span><span class="n">command_ids</span><span class="p">,</span>
             <span class="n">_stack_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">set_hikari_trait_injectors</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
 
@@ -8936,11 +8962,11 @@ from the provided client using it's abstract methods.</li>
 <span class="sd">        Whether or not to automatically set global slash commands when this</span>
 <span class="sd">        client is first started. Defaults to `False`.</span>
 
-<span class="sd">        If a guild object or ID is passed here then the global commands will be</span>
-<span class="sd">        set on this specific guild at startup rather than globally. This</span>
-<span class="sd">        can be useful for testing/debug purposes as slash commands may take</span>
-<span class="sd">        up to an hour to propagate globally but will immediately propagate</span>
-<span class="sd">        when set on a specific guild.</span>
+<span class="sd">        If one or more guild objects/IDs are passed here then the registered</span>
+<span class="sd">        global commands will be set on the specified guild(s) at startup rather</span>
+<span class="sd">        than globally. This can be useful for testing/debug purposes as slash</span>
+<span class="sd">        commands may take up to an hour to propagate globally but will</span>
+<span class="sd">        immediately propagate when set on a specific guild.</span>
 <span class="sd">    set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">        Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
 <span class="sd">    command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
@@ -9005,9 +9031,7 @@ from the provided client using it's abstract methods.</li>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span>
-            <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span>
-            <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span>
-            <span class="nb">bool</span><span class="p">,</span>
+            <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span>
         <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -9113,8 +9137,11 @@ from the provided client using it's abstract methods.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span>
+            <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.GatewayBotAware` instance.</span>
 
@@ -9150,18 +9177,28 @@ from the provided client using it's abstract methods.</li>
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
-<span class="sd">            If a guild object or ID is passed here then the global commands will be</span>
-<span class="sd">            set on this specific guild at startup rather than globally. This</span>
-<span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
-<span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
-<span class="sd">            when set on a specific guild.</span>
+<span class="sd">            If one or more guild objects/IDs are passed here then the registered</span>
+<span class="sd">            global commands will be set on the specified guild(s) at startup rather</span>
+<span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
+<span class="sd">            commands may take up to an hour to propagate globally but will</span>
+<span class="sd">            immediately propagate when set on a specific guild.</span>
 <span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
+
+<span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
+<span class="sd">            isn&#39;t necessarily required, this will in some situations help avoid</span>
+<span class="sd">            permissions which were previously set for a command from being lost</span>
+<span class="sd">            after a rename.</span>
+
+<span class="sd">            This currently isn&#39;t supported when multiple guild IDs are passed for</span>
+<span class="sd">            `declare_global_commands`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501 - line too long</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">cls</span><span class="p">(</span>
                 <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span>
@@ -9172,6 +9209,7 @@ from the provided client using it's abstract methods.</li>
                 <span class="n">mention_prefix</span><span class="o">=</span><span class="n">mention_prefix</span><span class="p">,</span>
                 <span class="n">declare_global_commands</span><span class="o">=</span><span class="n">declare_global_commands</span><span class="p">,</span>
                 <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
+                <span class="n">command_ids</span><span class="o">=</span><span class="n">command_ids</span><span class="p">,</span>
                 <span class="n">_stack_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">set_human_only</span><span class="p">()</span>
@@ -9183,8 +9221,11 @@ from the provided client using it's abstract methods.</li>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">bot</span><span class="p">:</span> <span class="n">hikari_traits</span><span class="o">.</span><span class="n">RESTBotAware</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span>
+            <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.RESTBotAware` instance.</span>
 
@@ -9204,23 +9245,34 @@ from the provided client using it's abstract methods.</li>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
-<span class="sd">            If a guild object or ID is passed here then the global commands will be</span>
-<span class="sd">            set on this specific guild at startup rather than globally. This</span>
-<span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
-<span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
-<span class="sd">            when set on a specific guild.</span>
+<span class="sd">            If one or more guild objects/IDs are passed here then the registered</span>
+<span class="sd">            global commands will be set on the specified guild(s) at startup rather</span>
+<span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
+<span class="sd">            commands may take up to an hour to propagate globally but will</span>
+<span class="sd">            immediately propagate when set on a specific guild.</span>
 <span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
+
+<span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
+<span class="sd">            isn&#39;t necessarily required, this will in some situations help avoid</span>
+<span class="sd">            permissions which were previously set for a command from being lost</span>
+<span class="sd">            after a rename.</span>
+
+<span class="sd">            This currently isn&#39;t supported when multiple guild IDs are passed for</span>
+<span class="sd">            `declare_global_commands`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501 - line too long</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span>
             <span class="n">server</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">interaction_server</span><span class="p">,</span>
             <span class="n">declare_global_commands</span><span class="o">=</span><span class="n">declare_global_commands</span><span class="p">,</span>
             <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
+            <span class="n">command_ids</span><span class="o">=</span><span class="n">command_ids</span><span class="p">,</span>
             <span class="n">_stack_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">set_hikari_trait_injectors</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
 
@@ -10843,11 +10895,11 @@ message commands.</p></li>
 Whether or not to automatically set global slash commands when this
 client is first started. Defaults to <code>False</code>.</p>
 
-<p>If a guild object or ID is passed here then the global commands will be
-set on this specific guild at startup rather than globally. This
-can be useful for testing/debug purposes as slash commands may take
-up to an hour to propagate globally but will immediately propagate
-when set on a specific guild.</p></li>
+<p>If one or more guild objects/IDs are passed here then the registered
+global commands will be set on the specified guild(s) at startup rather
+than globally. This can be useful for testing/debug purposes as slash
+commands may take up to an hour to propagate globally but will
+immediately propagate when set on a specific guild.</p></li>
 <li><strong>set_global_commands</strong> (typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
 Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</li>
 <li><p><strong>command_ids</strong> (typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]):
@@ -10909,9 +10961,7 @@ after a rename.</p>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span>
-            <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span>
-            <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span>
-            <span class="nb">bool</span><span class="p">,</span>
+            <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span>
         <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">_stack_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -11028,8 +11078,9 @@ after a rename.</p>
     *,
     event_managed: bool = True,
     mention_prefix: bool = False,
-    declare_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
-    set_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False
+    declare_global_commands: Union[Sequence[Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int]], hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
+    set_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
+    command_ids: Optional[collections.abc.Mapping[str, Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int]]] = None
 ) -&gt; <a href="tanjun/clients.html#Client">tanjun.clients.Client</a></span>:
     </div>
 
@@ -11043,8 +11094,11 @@ after a rename.</p>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">event_managed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">mention_prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span>
+            <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.GatewayBotAware` instance.</span>
 
@@ -11080,18 +11134,28 @@ after a rename.</p>
 
 <span class="sd">            Defaults to `False` and it should be noted that this only applies to</span>
 <span class="sd">            message commands.</span>
-<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
-<span class="sd">            If a guild object or ID is passed here then the global commands will be</span>
-<span class="sd">            set on this specific guild at startup rather than globally. This</span>
-<span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
-<span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
-<span class="sd">            when set on a specific guild.</span>
+<span class="sd">            If one or more guild objects/IDs are passed here then the registered</span>
+<span class="sd">            global commands will be set on the specified guild(s) at startup rather</span>
+<span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
+<span class="sd">            commands may take up to an hour to propagate globally but will</span>
+<span class="sd">            immediately propagate when set on a specific guild.</span>
 <span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
+
+<span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
+<span class="sd">            isn&#39;t necessarily required, this will in some situations help avoid</span>
+<span class="sd">            permissions which were previously set for a command from being lost</span>
+<span class="sd">            after a rename.</span>
+
+<span class="sd">            This currently isn&#39;t supported when multiple guild IDs are passed for</span>
+<span class="sd">            `declare_global_commands`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501 - line too long</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">cls</span><span class="p">(</span>
                 <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span>
@@ -11102,6 +11166,7 @@ after a rename.</p>
                 <span class="n">mention_prefix</span><span class="o">=</span><span class="n">mention_prefix</span><span class="p">,</span>
                 <span class="n">declare_global_commands</span><span class="o">=</span><span class="n">declare_global_commands</span><span class="p">,</span>
                 <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
+                <span class="n">command_ids</span><span class="o">=</span><span class="n">command_ids</span><span class="p">,</span>
                 <span class="n">_stack_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">set_human_only</span><span class="p">()</span>
@@ -11150,17 +11215,27 @@ client is first started.</p>
 
 <p>Defaults to <code>False</code> and it should be noted that this only applies to
 message commands.</p></li>
-<li><p><strong>declare_global_commands</strong> (typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
+<li><p><strong>declare_global_commands</strong> (typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
 Whether or not to automatically set global slash commands when this
 client is first started. Defaults to <code>False</code>.</p>
 
-<p>If a guild object or ID is passed here then the global commands will be
-set on this specific guild at startup rather than globally. This
-can be useful for testing/debug purposes as slash commands may take
-up to an hour to propagate globally but will immediately propagate
-when set on a specific guild.</p></li>
+<p>If one or more guild objects/IDs are passed here then the registered
+global commands will be set on the specified guild(s) at startup rather
+than globally. This can be useful for testing/debug purposes as slash
+commands may take up to an hour to propagate globally but will
+immediately propagate when set on a specific guild.</p></li>
 <li><strong>set_global_commands</strong> (typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
 Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</li>
+<li><p><strong>command_ids</strong> (typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]):
+If provided, a mapping of top level command names to IDs of the commands to update.</p>
+
+<p>This field is complementary to <code><a href="#Client.declare_global_commands">declare_global_commands</a></code> and, while it
+isn't necessarily required, this will in some situations help avoid
+permissions which were previously set for a command from being lost
+after a rename.</p>
+
+<p>This currently isn't supported when multiple guild IDs are passed for
+<code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</p></li>
 </ul>
 </div>
 
@@ -11176,8 +11251,9 @@ Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_command
     cls,
     bot: hikari.traits.RESTBotAware,
     /,
-    declare_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
-    set_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False
+    declare_global_commands: Union[Sequence[Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int]], hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
+    set_global_commands: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, bool] = False,
+    command_ids: Optional[collections.abc.Mapping[str, Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int]]] = None
 ) -&gt; <a href="tanjun/clients.html#Client">tanjun.clients.Client</a></span>:
     </div>
 
@@ -11188,8 +11264,11 @@ Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_command
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">bot</span><span class="p">:</span> <span class="n">hikari_traits</span><span class="o">.</span><span class="n">RESTBotAware</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">declare_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span>
+            <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishSequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">set_global_commands</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Build a `Client` from a `hikari.traits.RESTBotAware` instance.</span>
 
@@ -11209,23 +11288,34 @@ Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_command
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
-<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
+<span class="sd">        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Whether or not to automatically set global slash commands when this</span>
 <span class="sd">            client is first started. Defaults to `False`.</span>
 
-<span class="sd">            If a guild object or ID is passed here then the global commands will be</span>
-<span class="sd">            set on this specific guild at startup rather than globally. This</span>
-<span class="sd">            can be useful for testing/debug purposes as slash commands may take</span>
-<span class="sd">            up to an hour to propagate globally but will immediately propagate</span>
-<span class="sd">            when set on a specific guild.</span>
+<span class="sd">            If one or more guild objects/IDs are passed here then the registered</span>
+<span class="sd">            global commands will be set on the specified guild(s) at startup rather</span>
+<span class="sd">            than globally. This can be useful for testing/debug purposes as slash</span>
+<span class="sd">            commands may take up to an hour to propagate globally but will</span>
+<span class="sd">            immediately propagate when set on a specific guild.</span>
 <span class="sd">        set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]</span>
 <span class="sd">            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">            If provided, a mapping of top level command names to IDs of the commands to update.</span>
+
+<span class="sd">            This field is complementary to `declare_global_commands` and, while it</span>
+<span class="sd">            isn&#39;t necessarily required, this will in some situations help avoid</span>
+<span class="sd">            permissions which were previously set for a command from being lost</span>
+<span class="sd">            after a rename.</span>
+
+<span class="sd">            This currently isn&#39;t supported when multiple guild IDs are passed for</span>
+<span class="sd">            `declare_global_commands`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501 - line too long</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">rest</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span>
             <span class="n">server</span><span class="o">=</span><span class="n">bot</span><span class="o">.</span><span class="n">interaction_server</span><span class="p">,</span>
             <span class="n">declare_global_commands</span><span class="o">=</span><span class="n">declare_global_commands</span><span class="p">,</span>
             <span class="n">set_global_commands</span><span class="o">=</span><span class="n">set_global_commands</span><span class="p">,</span>
+            <span class="n">command_ids</span><span class="o">=</span><span class="n">command_ids</span><span class="p">,</span>
             <span class="n">_stack_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">set_hikari_trait_injectors</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
 </pre></div>
@@ -11255,17 +11345,27 @@ The bot client to build from.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>declare_global_commands</strong> (typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
+<li><p><strong>declare_global_commands</strong> (typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
 Whether or not to automatically set global slash commands when this
 client is first started. Defaults to <code>False</code>.</p>
 
-<p>If a guild object or ID is passed here then the global commands will be
-set on this specific guild at startup rather than globally. This
-can be useful for testing/debug purposes as slash commands may take
-up to an hour to propagate globally but will immediately propagate
-when set on a specific guild.</p></li>
+<p>If one or more guild objects/IDs are passed here then the registered
+global commands will be set on the specified guild(s) at startup rather
+than globally. This can be useful for testing/debug purposes as slash
+commands may take up to an hour to propagate globally but will
+immediately propagate when set on a specific guild.</p></li>
 <li><strong>set_global_commands</strong> (typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]):
 Deprecated as of v2.1.1a1 alias of <code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</li>
+<li><p><strong>command_ids</strong> (typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]):
+If provided, a mapping of top level command names to IDs of the commands to update.</p>
+
+<p>This field is complementary to <code><a href="#Client.declare_global_commands">declare_global_commands</a></code> and, while it
+isn't necessarily required, this will in some situations help avoid
+permissions which were previously set for a command from being lost
+after a rename.</p>
+
+<p>This currently isn't supported when multiple guild IDs are passed for
+<code><a href="#Client.declare_global_commands">declare_global_commands</a></code>.</p></li>
 </ul>
 </div>
 
