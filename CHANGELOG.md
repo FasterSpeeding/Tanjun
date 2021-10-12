@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Passing Iterable[tuple[str, value]] as choices to the slash command options has been deprecated
   in favour of Mapping[str, value].
 
+### Fixed
+- `MessageContext` not being passed to the prefix getter as the only positional argument.
+
 ### Removed
 - `tanjun.abc.ExecutableCommand.execute` and `check_context` as this doesn't work typing wise.
   This doesn't effect the implementations nor full command types.

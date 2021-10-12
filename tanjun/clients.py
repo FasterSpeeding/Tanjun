@@ -315,7 +315,7 @@ class _InjectablePrefixGetter(injecting.BaseInjectableCallback[collections.Itera
         super().__init__(callback)
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> collections.Iterable[str]:
-        return await self.descriptor.resolve_with_command_context(ctx)
+        return await self.descriptor.resolve_with_command_context(ctx, ctx)
 
     @property
     def callback(self) -> PrefixGetterSig:
@@ -432,11 +432,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         Whether or not to automatically set global slash commands when this
         client is first started. Defaults to `False`.
 
-        If a guild object or ID is passed here then the global commands will be
-        set on this specific guild at startup rather than globally. This
-        can be useful for testing/debug purposes as slash commands may take
-        up to an hour to propagate globally but will immediately propagate
-        when set on a specific guild.
+        If one or more guild objects/IDs are passed here then the registered
+        global commands will be set on the specified guild(s) at startup rather
+        than globally. This can be useful for testing/debug purposes as slash
+        commands may take up to an hour to propagate globally but will
+        immediately propagate when set on a specific guild.
     set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
         Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
     command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]
@@ -501,9 +501,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         mention_prefix: bool = False,
         set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
         declare_global_commands: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialGuild],
-            hikari.SnowflakeishOr[hikari.PartialGuild],
-            bool,
+            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
         ] = False,
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
         _stack_level: int = 0,
@@ -609,8 +607,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         *,
         event_managed: bool = True,
         mention_prefix: bool = False,
-        declare_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
+        declare_global_commands: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
+        ] = False,
         set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
     ) -> Client:
         """Build a `Client` from a `hikari.traits.GatewayBotAware` instance.
 
@@ -646,18 +647,28 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             Defaults to `False` and it should be noted that this only applies to
             message commands.
-        declare_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
+        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]
             Whether or not to automatically set global slash commands when this
             client is first started. Defaults to `False`.
 
-            If a guild object or ID is passed here then the global commands will be
-            set on this specific guild at startup rather than globally. This
-            can be useful for testing/debug purposes as slash commands may take
-            up to an hour to propagate globally but will immediately propagate
-            when set on a specific guild.
+            If one or more guild objects/IDs are passed here then the registered
+            global commands will be set on the specified guild(s) at startup rather
+            than globally. This can be useful for testing/debug purposes as slash
+            commands may take up to an hour to propagate globally but will
+            immediately propagate when set on a specific guild.
         set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        """
+        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]
+            If provided, a mapping of top level command names to IDs of the commands to update.
+
+            This field is complementary to `declare_global_commands` and, while it
+            isn't necessarily required, this will in some situations help avoid
+            permissions which were previously set for a command from being lost
+            after a rename.
+
+            This currently isn't supported when multiple guild IDs are passed for
+            `declare_global_commands`.
+        """  # noqa: E501 - line too long
         return (
             cls(
                 rest=bot.rest,
@@ -668,6 +679,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 mention_prefix=mention_prefix,
                 declare_global_commands=declare_global_commands,
                 set_global_commands=set_global_commands,
+                command_ids=command_ids,
                 _stack_level=1,
             )
             .set_human_only()
@@ -679,8 +691,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         cls,
         bot: hikari_traits.RESTBotAware,
         /,
-        declare_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
+        declare_global_commands: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
+        ] = False,
         set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
     ) -> Client:
         """Build a `Client` from a `hikari.traits.RESTBotAware` instance.
 
@@ -700,23 +715,34 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         Other Parameters
         ----------------
-        declare_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
+        declare_global_commands : typing.Union[hikari.SnowflakeishSequenceOr[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool]
             Whether or not to automatically set global slash commands when this
             client is first started. Defaults to `False`.
 
-            If a guild object or ID is passed here then the global commands will be
-            set on this specific guild at startup rather than globally. This
-            can be useful for testing/debug purposes as slash commands may take
-            up to an hour to propagate globally but will immediately propagate
-            when set on a specific guild.
+            If one or more guild objects/IDs are passed here then the registered
+            global commands will be set on the specified guild(s) at startup rather
+            than globally. This can be useful for testing/debug purposes as slash
+            commands may take up to an hour to propagate globally but will
+            immediately propagate when set on a specific guild.
         set_global_commands : typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool]
             Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
-        """
+        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]
+            If provided, a mapping of top level command names to IDs of the commands to update.
+
+            This field is complementary to `declare_global_commands` and, while it
+            isn't necessarily required, this will in some situations help avoid
+            permissions which were previously set for a command from being lost
+            after a rename.
+
+            This currently isn't supported when multiple guild IDs are passed for
+            `declare_global_commands`.
+        """  # noqa: E501 - line too long
         return cls(
             rest=bot.rest,
             server=bot.interaction_server,
             declare_global_commands=declare_global_commands,
             set_global_commands=set_global_commands,
+            command_ids=command_ids,
             _stack_level=1,
         ).set_hikari_trait_injectors(bot)
 
@@ -1609,8 +1635,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         Parameters
         ----------
         getter : typing.Optional[PrefixGetterSig]
-            The callback which'll be  to retrieve prefixes for the guild a
-            message event is from. If `None` is passed here then the callback
+            The callback which'll be used to retrieve prefixes for the guild a
+            message context is from. If `None` is passed here then the callback
             will be unset.
 
             This should be an async callback which one argument of type
