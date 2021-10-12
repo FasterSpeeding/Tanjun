@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SlashCommand's ephemeral default now defaults to `None` indicating that the parent entity's state should
   be used.
 
+### Fixed
+- `MessageContext` not being passed to the prefix getter as the only positional argument.
+
 ### Removed
 - `tanjun.abc.ExecutableCommand.execute` and `check_context` as this doesn't work typing wise.
   This doesn't effect the implementations nor full command types.
