@@ -38,6 +38,7 @@
 import re
 import types
 import typing
+import warnings
 from unittest import mock
 
 import hikari
@@ -274,7 +275,7 @@ def test_with_str_slash_option():
     result = tanjun.with_str_slash_option(
         "a_name",
         "a_value",
-        choices=["ok", ("no", "u")],
+        choices={"Go home": "ok", "no": "u"},
         converters=[mock_converter],
         default="ANY",
         pass_as_kwarg=False,
@@ -285,9 +286,10 @@ def test_with_str_slash_option():
         "a_name",
         "a_value",
         default="ANY",
-        choices=["ok", ("no", "u")],
+        choices={"Go home": "ok", "no": "u"},
         converters=[mock_converter],
         pass_as_kwarg=False,
+        _stack_level=1,
     )
 
 
@@ -298,7 +300,13 @@ def test_with_str_slash_option_with_defaults():
 
     assert result is mock_command.add_str_option.return_value
     mock_command.add_str_option.assert_called_once_with(
-        "a_name", "a_value", default=tanjun.commands._UNDEFINED_DEFAULT, choices=None, converters=(), pass_as_kwarg=True
+        "a_name",
+        "a_value",
+        default=tanjun.commands._UNDEFINED_DEFAULT,
+        choices=None,
+        converters=(),
+        pass_as_kwarg=True,
+        _stack_level=1,
     )
 
 
@@ -307,12 +315,18 @@ def test_with_int_slash_option():
     mock_converter = mock.Mock()
 
     result = tanjun.with_int_slash_option(
-        "im_con", "con man", choices=[("a", 123)], converters=[mock_converter], default=321123, pass_as_kwarg=False
+        "im_con", "con man", choices={"a": 123}, converters=[mock_converter], default=321123, pass_as_kwarg=False
     )(mock_command)
 
     assert result is mock_command.add_int_option.return_value
     mock_command.add_int_option.assert_called_once_with(
-        "im_con", "con man", choices=[("a", 123)], converters=[mock_converter], default=321123, pass_as_kwarg=False
+        "im_con",
+        "con man",
+        choices={"a": 123},
+        converters=[mock_converter],
+        default=321123,
+        pass_as_kwarg=False,
+        _stack_level=1,
     )
 
 
@@ -323,7 +337,13 @@ def test_with_int_slash_option_with_defaults():
 
     assert result is mock_command.add_int_option.return_value
     mock_command.add_int_option.assert_called_once_with(
-        "im_con", "con man", choices=None, converters=(), default=tanjun.commands._UNDEFINED_DEFAULT, pass_as_kwarg=True
+        "im_con",
+        "con man",
+        choices=None,
+        converters=(),
+        default=tanjun.commands._UNDEFINED_DEFAULT,
+        pass_as_kwarg=True,
+        _stack_level=1,
     )
 
 
@@ -335,7 +355,7 @@ def test_with_float_slash_option():
         "di",
         "ni",
         always_float=False,
-        choices=[("no", 3.14), ("bye", 2.33)],
+        choices={"no": 3.14, "bye": 2.33},
         converters=[mock_converter],
         default=21.321,
         pass_as_kwarg=False,
@@ -347,9 +367,10 @@ def test_with_float_slash_option():
         "ni",
         always_float=False,
         default=21.321,
-        choices=[("no", 3.14), ("bye", 2.33)],
+        choices={"no": 3.14, "bye": 2.33},
         converters=[mock_converter],
         pass_as_kwarg=False,
+        _stack_level=1,
     )
 
 
@@ -367,6 +388,7 @@ def test_with_float_slash_option_with_defaults():
         choices=None,
         converters=(),
         pass_as_kwarg=True,
+        _stack_level=1,
     )
 
 
@@ -934,7 +956,7 @@ class TestSlashCommand:
     def test_add_str_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
         command.add_str_option(
-            "boom", "No u", choices=["aye", ("Bye man", "bye")], converters=[mock_converter], default="ayya"
+            "boom", "No u", choices={"Aye": "aye", "Bye man": "bye"}, converters=[mock_converter], default="ayya"
         )
 
         option = command.build().options[0]
@@ -953,6 +975,60 @@ class TestSlashCommand:
         assert tracked.type is hikari.OptionType.STRING
         assert tracked.default == "ayya"
         assert tracked.converters == [mock_converter]
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_str_option_with_choices_list(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_str_option("boom", "No u", choices=["video", "channel", "playlist"])
+
+        option = command.build().options[0]
+        assert option.name == "boom"
+        assert option.description == "No u"
+        assert option.is_required is True
+        assert option.options is None
+        assert option.type is hikari.OptionType.STRING
+        assert option.choices == [
+            hikari.CommandChoice(name="Video", value="video"),
+            hikari.CommandChoice(name="Channel", value="channel"),
+            hikari.CommandChoice(name="Playlist", value="playlist"),
+        ]
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.STRING
+        assert tracked.default is tanjun.commands._UNDEFINED_DEFAULT
+        assert tracked.converters == []
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_str_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+
+            command.add_str_option(
+                "boom",
+                "No u",
+                choices=[("gay", "Gay"), "no", ("lesbian_bi", "Lesbian Bi"), ("transive", "Trans")],  # type: ignore
+            )
+
+        option = command.build().options[0]
+        assert option.name == "boom"
+        assert option.description == "No u"
+        assert option.is_required is True
+        assert option.options is None
+        assert option.type is hikari.OptionType.STRING
+        assert option.choices == [
+            hikari.CommandChoice(name="gay", value="Gay"),
+            hikari.CommandChoice(name="No", value="no"),
+            hikari.CommandChoice(name="lesbian_bi", value="Lesbian Bi"),
+            hikari.CommandChoice(name="transive", value="Trans"),
+        ]
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.STRING
+        assert tracked.default is tanjun.commands._UNDEFINED_DEFAULT
+        assert tracked.converters == []
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
@@ -1019,11 +1095,12 @@ class TestSlashCommand:
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
-            command.add_str_option("namae", "aye", choices=[(mock.Mock(), mock.Mock())] * 26)
+            command.add_str_option("namae", "aye", choices={mock.Mock(): mock.Mock() for _ in range(26)})
 
     def test_add_int_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
-        command.add_int_option("see", "seesee", choices=[("no", 4)], converters=[mock_converter], default="nya")
+
+        command.add_int_option("see", "seesee", choices={"hi": 1, "no": 21}, converters=[mock_converter], default="nya")
 
         option = command.build().options[0]
         assert option.name == "see"
@@ -1031,13 +1108,35 @@ class TestSlashCommand:
         assert option.is_required is False
         assert option.options is None
         assert option.type is hikari.OptionType.INTEGER
-        assert option.choices == [hikari.CommandChoice(name="no", value=4)]
+        assert option.choices == [hikari.CommandChoice(name="hi", value=1), hikari.CommandChoice(name="no", value=21)]
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.INTEGER
         assert tracked.default == "nya"
         assert tracked.converters == [mock_converter]
+        assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_int_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+
+            command.add_int_option("see", "seesee", choices=[("les", 1), ("g", 43)])  # type: ignore
+
+        option = command.build().options[0]
+        assert option.name == "see"
+        assert option.description == "seesee"
+        assert option.is_required is True
+        assert option.options is None
+        assert option.type is hikari.OptionType.INTEGER
+        assert option.choices == [hikari.CommandChoice(name="les", value=1), hikari.CommandChoice(name="g", value=43)]
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.INTEGER
+        assert tracked.default is tanjun.commands._UNDEFINED_DEFAULT
+        assert tracked.converters == []
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
@@ -1104,12 +1203,17 @@ class TestSlashCommand:
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
-            command.add_int_option("namae", "aye", choices=[(mock.Mock(), mock.Mock())] * 26)
+            command.add_int_option("namae", "aye", choices={mock.Mock(): mock.Mock() for _ in range(26)})
 
     def test_add_float_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
         command.add_float_option(
-            "sesese", "asasasa", choices=[("no", 4.4)], converters=[mock_converter], default="eaf", always_float=False
+            "sesese",
+            "asasasa",
+            choices={"no": 4.4, "ok": 6.9},
+            converters=[mock_converter],
+            default="eaf",
+            always_float=False,
         )
 
         option = command.build().options[0]
@@ -1118,7 +1222,10 @@ class TestSlashCommand:
         assert option.is_required is False
         assert option.options is None
         assert option.type is hikari.OptionType.FLOAT
-        assert option.choices == [hikari.CommandChoice(name="no", value=4.4)]
+        assert option.choices == [
+            hikari.CommandChoice(name="no", value=4.4),
+            hikari.CommandChoice(name="ok", value=6.9),
+        ]
 
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
@@ -1126,6 +1233,31 @@ class TestSlashCommand:
         assert tracked.default == "eaf"
         assert tracked.converters == [mock_converter]
         assert tracked.is_always_float is False
+        assert tracked.is_only_member is False
+
+    def test_add_float_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+
+            command.add_float_option("easy", "aaa", choices=[("blam", 4.20), ("blam2", 6.9)])  # type: ignore
+
+        option = command.build().options[0]
+        assert option.name == "easy"
+        assert option.description == "aaa"
+        assert option.is_required is True
+        assert option.options is None
+        assert option.type is hikari.OptionType.FLOAT
+        assert option.choices == [
+            hikari.CommandChoice(name="blam", value=4.20),
+            hikari.CommandChoice(name="blam2", value=6.9),
+        ]
+
+        tracked = command._tracked_options[option.name]
+        assert tracked.name == option.name
+        assert tracked.type is hikari.OptionType.FLOAT
+        assert tracked.default is tanjun.commands._UNDEFINED_DEFAULT
+        assert tracked.converters == []
+        assert tracked.is_always_float is True
         assert tracked.is_only_member is False
 
     def test_add_float_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
@@ -1191,7 +1323,7 @@ class TestSlashCommand:
         command = tanjun.SlashCommand(mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
-            command.add_float_option("namae", "aye", choices=[(mock.Mock(), mock.Mock())] * 26)
+            command.add_float_option("namae", "aye", choices={mock.Mock(): mock.Mock() for _ in range(26)})
 
     def test_add_bool_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_bool_option("eaassa", "saas", default="feel")

@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SlashCommand's ephemeral default now defaults to `None` indicating that the parent entity's state should
   be used.
 
+### Deprecated
+- Passing Iterable[tuple[str, value]] as choices to the slash command options has been deprecated
+  in favour of Mapping[str, value].
+
 ### Removed
 - `tanjun.abc.ExecutableCommand.execute` and `check_context` as this doesn't work typing wise.
   This doesn't effect the implementations nor full command types.

@@ -399,7 +399,7 @@ def with_str_slash_option(
     description: str,
     /,
     *,
-    choices: typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]] = None,
+    choices: typing.Union[collections.Mapping[str, str], collections.Sequence[str], None] = None,
     converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig] = (),
     default: typing.Any = _UNDEFINED_DEFAULT,
     pass_as_kwarg: bool = True,
@@ -423,7 +423,13 @@ def with_str_slash_option(
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_str_option(
-        name, description, default=default, choices=choices, converters=converters, pass_as_kwarg=pass_as_kwarg
+        name,
+        description,
+        default=default,
+        choices=choices,
+        converters=converters,
+        pass_as_kwarg=pass_as_kwarg,
+        _stack_level=1,
     )
 
 
@@ -432,7 +438,7 @@ def with_int_slash_option(
     description: str,
     /,
     *,
-    choices: typing.Optional[collections.Iterable[tuple[str, int]]] = None,
+    choices: typing.Optional[collections.Mapping[str, int]] = None,
     converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
     default: typing.Any = _UNDEFINED_DEFAULT,
     pass_as_kwarg: bool = True,
@@ -456,7 +462,13 @@ def with_int_slash_option(
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_int_option(
-        name, description, default=default, choices=choices, converters=converters, pass_as_kwarg=pass_as_kwarg
+        name,
+        description,
+        default=default,
+        choices=choices,
+        converters=converters,
+        pass_as_kwarg=pass_as_kwarg,
+        _stack_level=1,
     )
 
 
@@ -466,7 +478,7 @@ def with_float_slash_option(
     /,
     *,
     always_float: bool = True,
-    choices: typing.Optional[collections.Iterable[tuple[str, float]]] = None,
+    choices: typing.Optional[collections.Mapping[str, float]] = None,
     converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
     default: typing.Any = _UNDEFINED_DEFAULT,
     pass_as_kwarg: bool = True,
@@ -497,6 +509,7 @@ def with_float_slash_option(
         choices=choices,
         converters=converters,
         pass_as_kwarg=pass_as_kwarg,
+        _stack_level=1,
     )
 
 
@@ -1191,11 +1204,14 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         *,
         always_float: bool = False,
         channel_types: typing.Optional[collections.Sequence[int]] = None,
-        choices: typing.Optional[collections.Iterable[tuple[str, typing.Union[str, int, float]]]] = None,
+        choices: typing.Union[
+            collections.Mapping[str, typing.Union[str, int, float]], collections.Sequence[typing.Any], None
+        ] = None,
         converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
         default: typing.Any = _UNDEFINED_DEFAULT,
         only_member: bool = False,
         pass_as_kwarg: bool = True,
+        _stack_level: int = 0,
     ) -> _SlashCommandT:
         if not _SCOMMAND_NAME_REG.fullmatch(name):
             raise ValueError(
@@ -1220,9 +1236,22 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
                 if isinstance(converter.callback, conversion.BaseConverter):
                     converter.callback.check_client(self._client, f"{self._name}'s slash option '{name}'")
 
-        choices_ = [hikari.CommandChoice(name=name, value=value) for name, value in choices] if choices else None
+        if choices is None:
+            actual_choices: typing.Optional[list[hikari.CommandChoice]] = None
 
-        if choices_ and len(choices_) > 25:
+        elif isinstance(choices, collections.Mapping):
+            actual_choices = [hikari.CommandChoice(name=name, value=value) for name, value in choices.items()]
+
+        else:
+            warnings.warn(
+                "Passing a sequence of tuples to `choices` is deprecated since 2.1.2a1, "
+                "please pass a mapping instead.",
+                category=DeprecationWarning,
+                stacklevel=2 + _stack_level,
+            )
+            actual_choices = [hikari.CommandChoice(name=name, value=value) for name, value in choices]
+
+        if actual_choices and len(actual_choices) > 25:
             raise ValueError("Slash command options cannot have more than 25 choices")
 
         required = default is _UNDEFINED_DEFAULT
@@ -1232,7 +1261,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
                 name=name,
                 description=description,
                 is_required=required,
-                choices=choices_,
+                choices=actual_choices,
                 channel_types=channel_types,
             )
         )
@@ -1253,10 +1282,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         description: str,
         /,
         *,
-        choices: typing.Optional[collections.Iterable[typing.Union[tuple[str, str], str]]] = None,
+        choices: typing.Union[collections.Mapping[str, str], collections.Sequence[str], None] = None,
         converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig] = (),
         default: typing.Any = _UNDEFINED_DEFAULT,
         pass_as_kwarg: bool = True,
+        _stack_level: int = 0,
     ) -> _SlashCommandT:
         """Add a string option to the slash command.
 
@@ -1275,12 +1305,13 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
         Other Parameters
         ----------------
-        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, str], str]]]
+        choices : typing.Union[collections.abc.Mapping[str, str], collections.abc.Sequence[str], None]
             The option's choices.
 
-            This may be either one or multiple `tuple[opton_name, option_value]`
-            Where both option_name and option_value should be strings of up to 100
-            characters.
+            This a mapping of [option_name, option_value] where both option_name
+            and option_value should be strings of up to 100 characters or a sequence
+            of strings where the string will be used for both the choice's name and
+            value.
         converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig]
             The option's converters.
 
@@ -1314,15 +1345,36 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             * If the option has more than 25 choices.
             * If the command already has 25 options.
         """
-        choices_: typing.Optional[collections.Iterator[tuple[str, str]]] = None
-        if choices is not None:
-            choices_ = (choice if isinstance(choice, tuple) else (choice.capitalize(), choice) for choice in choices)
+        if choices is None:
+            actual_choices = None
+
+        elif isinstance(choices, collections.Mapping):
+            actual_choices = choices
+
+        else:
+            actual_choices = {}
+            warned = False
+            for choice in choices:
+                if isinstance(choice, tuple):
+                    if not warned:
+                        warnings.warn(
+                            "Passing a sequence of tuples for 'choices' is deprecated since 2.1.2a1, "
+                            "please pass a mapping instead.",
+                            category=DeprecationWarning,
+                            stacklevel=2 + _stack_level,
+                        )
+                        warned = True
+
+                    actual_choices[choice[0]] = choice[1]
+
+                else:
+                    actual_choices[choice.capitalize()] = choice
 
         return self._add_option(
             name,
             description,
             hikari.OptionType.STRING,
-            choices=choices_,
+            choices=actual_choices,
             converters=converters,
             default=default,
             pass_as_kwarg=pass_as_kwarg,
@@ -1334,10 +1386,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         description: str,
         /,
         *,
-        choices: typing.Optional[collections.Iterable[tuple[str, int]]] = None,
+        choices: typing.Optional[collections.Mapping[str, int]] = None,
         converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
         default: typing.Any = _UNDEFINED_DEFAULT,
         pass_as_kwarg: bool = True,
+        _stack_level: int = 0,
     ) -> _SlashCommandT:
         """Add an integer option to the slash command.
 
@@ -1351,12 +1404,12 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
         Other Parameters
         ----------------
-        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, int]]]]
+        choices : typing.Optional[collections.abc.Mapping[str, int]]
             The option's choices.
 
-            This may be either one or multiple `tuple[opton_name, option_value]`
-            where option_name should be a string of up to 100 characters and
-            option_value should be an integer.
+            This is a mapping of [option_name, option_value] where option_name
+            should be a string of up to 100 characters and option_value should
+            be an integer.
         converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]
             The option's converters.
 
@@ -1398,6 +1451,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             converters=converters,
             default=default,
             pass_as_kwarg=pass_as_kwarg,
+            _stack_level=_stack_level + 1,
         )
 
     def add_float_option(
@@ -1407,10 +1461,11 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         /,
         *,
         always_float: bool = True,
-        choices: typing.Optional[collections.Iterable[tuple[str, float]]] = None,
+        choices: typing.Optional[collections.Mapping[str, float]] = None,
         converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
         default: typing.Any = _UNDEFINED_DEFAULT,
         pass_as_kwarg: bool = True,
+        _stack_level: int = 0,
     ) -> _SlashCommandT:
         """Add a float option to a slash command.
 
@@ -1430,12 +1485,12 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
             This masks behaviour from Discord where we will either be provided a `float`
             or `int` dependent on what the user provided and defaults to `True`.
-        choices : typing.Optional[collections.abc.Iterable[typing.Union[tuple[str, float]]]]
+        choices : typing.Optional[collections.abc.Mapping[str, float]]
             The option's choices.
 
-            This may be either one or multiple `tuple[opton_name, option_value]`
-            where option_name should be a string of up to 100 characters and
-            option_value should be a float.
+            This is a mapping of [option_name, option_value] where option_name
+            should be a string of up to 100 characters and option_value should
+            be a float.
         converters : typing.Union[collections.abc.Sequence[ConverterSig], ConverterSig, None]
             The option's converters.
 
@@ -1479,6 +1534,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             default=default,
             pass_as_kwarg=pass_as_kwarg,
             always_float=always_float,
+            _stack_level=_stack_level + 1,
         )
 
     def add_bool_option(
