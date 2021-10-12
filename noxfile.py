@@ -273,7 +273,7 @@ def check_dependencies(session: nox.Session) -> None:
         with file:
             file.write(code)
 
-        session.run("python", file.name, , "-i", "flake8")
+        session.run("python", file.name, "-i", "flake8")
 
     finally:
         pathlib.Path(file.name).unlink(missing_ok=False)
