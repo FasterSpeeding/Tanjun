@@ -1308,7 +1308,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         choices : typing.Union[collections.abc.Mapping[str, str], collections.abc.Sequence[str], None]
             The option's choices.
 
-            This a mapping of [option_name, option_value] where both option_name
+            This either a mapping of [option_name, option_value] where both option_name
             and option_value should be strings of up to 100 characters or a sequence
             of strings where the string will be used for both the choice's name and
             value.
