@@ -315,7 +315,7 @@ class _InjectablePrefixGetter(injecting.BaseInjectableCallback[collections.Itera
         super().__init__(callback)
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> collections.Iterable[str]:
-        return await self.descriptor.resolve_with_command_context(ctx)
+        return await self.descriptor.resolve_with_command_context(ctx, ctx)
 
     @property
     def callback(self) -> PrefixGetterSig:
