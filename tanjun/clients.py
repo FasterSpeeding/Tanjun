@@ -784,14 +784,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     @property
     def checks(self) -> collections.Collection[tanjun_abc.CheckSig]:
-        """Return a collcetion of the level `tanjun.abc.Context` checks registered to this client.
+        """Collection of the level `tanjun.abc.Context` checks registered to this client.
 
-        Returns
-        -------
-        collections.abc.Collection[tanjun.abc.CheckSig]
-            Colleciton of the `tanjun.abc.Context` based checks registered for
-            this client.
-
+        .. note::
             These may be taking advantage of the standard dependency injection.
         """
         return tuple(check.callback for check in self._checks)
@@ -831,12 +826,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         """Top level `tanjun.abc.SlashHooks` set for this client.
 
         These are only called during interaction command execution.
-
-        Returns
-        -------
-        typing.Optional[tanjun.abc.SlashHooks]
-            The top level `tanjun.abc.SlashContext` based hooks set
-            for this client.
         """
         return self._slash_hooks
 
@@ -847,15 +836,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     @property
     def message_hooks(self) -> typing.Optional[tanjun_abc.MessageHooks]:
-        """Get the top level `tanjun.abc.MessageHooks` set for this client.
+        """Top level `tanjun.abc.MessageHooks` set for this client.
 
         These are only called during both message command execution.
-
-        Returns
-        -------
-        typing.Optional[tanjun.abc.MessageHooks]
-            The top level `tanjun.abc.MessageContext` based hooks set for
-            this client.
         """
         return self._message_hooks
 
@@ -866,27 +849,15 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     @property
     def prefix_getter(self) -> typing.Optional[PrefixGetterSig]:
-        """Get the prefix getter method set for this client.
+        """Prefix getter method set for this client.
 
-        Returns
-        -------
-        typing.Optional[PrefixGetterSig]
-            The prefix getter method set for this client if applicable,
-            else `None`.
-
-            For more information on this callback's signature see `PrefixGetter`.
+        For more information on this callback's signature see `PrefixGetter`.
         """
         return self._prefix_getter.callback if self._prefix_getter else None
 
     @property
     def prefixes(self) -> collections.Collection[str]:
-        """Set of the standard prefixes set for this client.
-
-        Returns
-        -------
-        collections.abc.Collection[str]
-            The standard prefixes set for this client.
-        """
+        """Collection of the standard prefixes set for this client."""
         return self._prefixes.copy()
 
     @property

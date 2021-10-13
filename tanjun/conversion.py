@@ -113,13 +113,8 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
             aren't necessary but simply avoid the converter from falling back to
             REST requests.
 
-        Returns
-        -------
-        hikari.CacheComponents
-            The cache components the converter takes advantage of.
-
-            This will be `hikari.CacheComponents.NONE` if the converter doesn't
-            make cache calls.
+        This will be `hikari.CacheComponents.NONE` if the converter doesn't
+        make cache calls.
         """
 
     @property
@@ -135,11 +130,6 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
             Unless `BaseConverter.requires_cache` is `True`, these intents being
             disabled won't stop this converter from working as it'll still fall
             back to REST requests.
-
-        Returns
-        -------
-        hikari.Intents
-            Bitwise flag of the intents this converter takes advantage of.
         """
 
     @property
@@ -147,14 +137,9 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
     def requires_cache(self) -> bool:
         """Whether this converter relies on the relevant cache stores to work.
 
-        Returns
-        -------
-        bool
-            Whether the converter relies on the relevant cache stores to work.
-
-            If this is `True` then this converter will not function properly
-            in an environment `BaseConverter.intents` or `BaseConverter.cache_components`
-            isn't satisfied and will never fallback to REST requests.
+        If this is `True` then this converter will not function properly
+        in an environment `BaseConverter.intents` or `BaseConverter.cache_components`
+        isn't satisfied and will never fallback to REST requests.
         """
 
     @abc.abstractmethod
