@@ -55,7 +55,8 @@ if typing.TYPE_CHECKING:
 
 
 CommandT = typing.TypeVar("CommandT", bound="abc.ExecutableCommand[typing.Any]")
-WithCommandReturnSig = typing.Union[CommandT, collections.Callable[[CommandT], CommandT]]
+# This errors on earlier 3.9 releases when not quotes cause dumb handling of the [CommandT] list
+WithCommandReturnSig = typing.Union[CommandT, "collections.Callable[[CommandT], CommandT]"]
 
 
 @typing.runtime_checkable
