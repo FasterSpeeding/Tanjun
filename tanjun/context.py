@@ -210,7 +210,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         content: str,
         message: hikari.Message,
         *,
-        command: typing.Optional[tanjun_abc.MessageCommand] = None,
+        command: typing.Optional[tanjun_abc.MessageCommand[typing.Any]] = None,
         component: typing.Optional[tanjun_abc.Component] = None,
         triggering_name: str = "",
         triggering_prefix: str = "",
@@ -243,7 +243,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         return self._message.channel_id
 
     @property
-    def command(self) -> typing.Optional[tanjun_abc.MessageCommand]:
+    def command(self) -> typing.Optional[tanjun_abc.MessageCommand[typing.Any]]:
         # <<inherited docstring from tanjun.abc.MessageContext>>.
         return self._command
 
@@ -306,7 +306,9 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
 
         return self._client.shards.shards[shard_id]
 
-    def set_command(self: _MessageContextT, command: typing.Optional[tanjun_abc.MessageCommand], /) -> _MessageContextT:
+    def set_command(
+        self: _MessageContextT, command: typing.Optional[tanjun_abc.MessageCommand[typing.Any]], /
+    ) -> _MessageContextT:
         # <<inherited docstring from tanjun.abc.MessageContext>>.
         self._assert_not_final()
         self._command = command

@@ -38,7 +38,6 @@ async def note(ctx: tanjun.abc.Context) -> None:
 @note.with_command
 @tanjun.with_greedy_argument("value")
 @tanjun.with_argument("name")
-@tanjun.with_parser
 @tanjun.as_message_command("add", "create")
 async def note_add(ctx: tanjun.abc.Context, name: str, value: str) -> None:
     ...  # Actual implementation
@@ -48,7 +47,6 @@ async def note_add(ctx: tanjun.abc.Context, name: str, value: str) -> None:
 @note.with_command
 @tanjun.with_option("force", "--force", "-f", converters=(bool,), default=False)
 @tanjun.with_argument("name")
-@tanjun.with_parser
 @tanjun.as_message_command("remove", "delete")
 async def note_remove(ctx: tanjun.abc.Context, name: str, force: bool) -> None:
     ...  # Actual implementation

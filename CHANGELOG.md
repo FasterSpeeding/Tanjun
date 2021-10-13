@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `InMemoryConcurrencyLimiter.set_bucket`'s parameters are now positional only.
 - Updated application command name and option name checking to allow for all unicode \w characters
   rather than just ASCII.
+- `as_slash_command`, `as_message_command` and `as_message_command_group` now support decorating Command
+  instances.
+- `@with_parser` now errors if a parser is already set.
+- `with_option` and `with_argument` command parser decorators now implicitly set shlex parser if not set.
 
 ### Removed
 - `TanjunWarning` and `StateWarning`.

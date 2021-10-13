@@ -242,7 +242,7 @@ class AuthorPermissionCheck(_Check):
         if not ctx.member:
             # If there's no member when this is within a guild then it's likely
             # something like a webhook or guild visitor with no real permissions
-            # outside of some basic set of send messages
+            # outside of some basic set of send messages.
             if ctx.guild_id:
                 permissions = await utilities.fetch_everyone_permissions(
                     ctx.client, ctx.guild_id, channel=ctx.channel_id
@@ -292,7 +292,7 @@ class OwnPermissionCheck(_Check):
 
             except hikari.NotFoundError:
                 # If we're not in the Guild then we have to assume the application
-                # if still in there and that we likely won't be able to do anything.
+                # is still in there and that we likely won't be able to do anything.
                 # TODO: re-visit this later.
                 return self._handle_result(False)
 

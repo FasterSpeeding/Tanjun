@@ -34,7 +34,6 @@ from __future__ import annotations
 
 __all__: list[str] = [
     "AnyMessageCommandT",
-    "CommandCallbackSigT",
     "ConverterSig",
     "as_message_command",
     "as_message_command_group",
@@ -87,8 +86,7 @@ if typing.TYPE_CHECKING:
     _SlashCommandGroupT = typing.TypeVar("_SlashCommandGroupT", bound="SlashCommandGroup")
 
 
-AnyMessageCommandT = typing.TypeVar("AnyMessageCommandT", bound=abc.MessageCommand)
-CommandCallbackSigT = typing.TypeVar("CommandCallbackSigT", bound=abc.CommandCallbackSig)
+AnyMessageCommandT = typing.TypeVar("AnyMessageCommandT", bound=abc.MessageCommand[typing.Any])
 ConverterSig = collections.Callable[..., abc.MaybeAwaitableT[typing.Any]]
 """Type hint of a converter used for a slash command option."""
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
@@ -288,7 +286,16 @@ def as_slash_command(
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
     sort_options: bool = True,
-) -> collections.Callable[[CommandCallbackSigT], SlashCommand[CommandCallbackSigT]]:
+) -> collections.Callable[
+    [
+        typing.Union[
+            abc.CommandCallbackSigT,
+            abc.MessageCommand[abc.CommandCallbackSigT],
+            abc.SlashCommand[abc.CommandCallbackSigT],
+        ]
+    ],
+    SlashCommand[abc.CommandCallbackSigT],
+]:
     r"""Build a `SlashCommand` by decorating a function.
 
     .. note::
@@ -357,7 +364,7 @@ def as_slash_command(
         * If the description is over 100 characters long.
     """
     return lambda c: SlashCommand(
-        c,
+        c.callback if isinstance(c, (abc.MessageCommand, abc.SlashCommand)) else c,
         name,
         description,
         default_permission=default_permission,
@@ -1060,12 +1067,12 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         await ctx.mark_not_found()
 
 
-class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCallbackSigT]):
+class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[abc.CommandCallbackSigT]):
     __slots__ = ("_builder", "_callback", "_client", "_tracked_options")
 
     def __init__(
         self,
-        callback: CommandCallbackSigT,
+        callback: abc.CommandCallbackSigT,
         name: str,
         description: str,
         /,
@@ -1094,7 +1101,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         self._tracked_options: dict[str, _TrackedOption] = {}
 
     if typing.TYPE_CHECKING:
-        __call__: CommandCallbackSigT
+        __call__: abc.CommandCallbackSigT
 
     else:
 
@@ -1102,9 +1109,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
             await self._callback.callback(*args, **kwargs)
 
     @property
-    def callback(self) -> CommandCallbackSigT:
+    def callback(self) -> abc.CommandCallbackSigT:
         # <<inherited docstring from tanjun.abc.SlashCommand>>.
-        return typing.cast(CommandCallbackSigT, self._callback.callback)
+        return typing.cast(abc.CommandCallbackSigT, self._callback.callback)
 
     @property
     def needs_injector(self) -> bool:
@@ -1924,7 +1931,16 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
 def as_message_command(
     name: str, /, *names: str
-) -> collections.Callable[[CommandCallbackSigT], MessageCommand[CommandCallbackSigT]]:
+) -> collections.Callable[
+    [
+        typing.Union[
+            abc.CommandCallbackSigT,
+            abc.MessageCommand[abc.CommandCallbackSigT],
+            abc.SlashCommand[abc.CommandCallbackSigT],
+        ]
+    ],
+    MessageCommand[abc.CommandCallbackSigT],
+]:
     """Build a message command from a decorated callback.
 
     Parameters
@@ -1939,15 +1955,17 @@ def as_message_command(
 
     Returns
     -------
-    collections.abc.Callable[[CommandCallbackSigT], MessageCommand[CommandCallbackSigT]]
+    collections.abc.Callable[[abc.CommandCallbackSigT], MessageCommand[abc.CommandCallbackSigT]]
         Decorator callback used to build a MessageCommand` from the decorated callback.
     """
-    return lambda callback: MessageCommand(callback, name, *names)
+    return lambda callback: MessageCommand(
+        callback.callback if isinstance(callback, (abc.SlashCommand, abc.MessageCommand)) else callback, name, *names
+    )
 
 
 def as_message_command_group(
     name: str, /, *names: str, strict: bool = False
-) -> collections.Callable[[CommandCallbackSigT], MessageCommandGroup[CommandCallbackSigT]]:
+) -> collections.Callable[[abc.CommandCallbackSigT], MessageCommandGroup[abc.CommandCallbackSigT]]:
     """Build a message command group from a decorated callback.
 
     Parameters
@@ -1967,18 +1985,18 @@ def as_message_command_group(
 
     Returns
     -------
-    collections.abc.Callable[[CommandCallbackSigT], MessageCommandGroup[CommandCallbackSigT]]
+    collections.abc.Callable[[abc.CommandCallbackSigT], MessageCommandGroup[abc.CommandCallbackSigT]]
         Decorator callback used to build a `MessageCommandGroup` from the decorated callback.
     """
     return lambda callback: MessageCommandGroup(callback, name, *names, strict=strict)
 
 
-class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typing.Generic[CommandCallbackSigT]):
+class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typing.Generic[abc.CommandCallbackSigT]):
     __slots__ = ("_callback", "_names", "_parent", "_parser")
 
     def __init__(
         self,
-        callback: CommandCallbackSigT,
+        callback: abc.CommandCallbackSigT,
         name: str,
         /,
         *names: str,
@@ -1990,16 +2008,16 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
         super().__init__(checks=checks, hooks=hooks, metadata=metadata)
         self._callback = injecting.CallbackDescriptor(callback)
         self._names = list(dict.fromkeys((name, *names)))
-        self._parent: typing.Optional[abc.MessageCommandGroup] = None
+        self._parent: typing.Optional[abc.MessageCommandGroup[typing.Any]] = None
         self._parser = parser
 
     def __repr__(self) -> str:
         return f"Command <{self._names}>"
 
     @property
-    def callback(self) -> CommandCallbackSigT:
+    def callback(self) -> abc.CommandCallbackSigT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
-        return typing.cast(CommandCallbackSigT, self._callback.callback)
+        return typing.cast(abc.CommandCallbackSigT, self._callback.callback)
 
     @property
     # <<inherited docstring from tanjun.abc.MessageCommand>>.
@@ -2011,7 +2029,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
         return self._callback.needs_injector
 
     @property
-    def parent(self) -> typing.Optional[abc.MessageCommandGroup]:
+    def parent(self) -> typing.Optional[abc.MessageCommandGroup[typing.Any]]:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         return self._parent
 
@@ -2036,7 +2054,10 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
         return self
 
     def copy(
-        self: _MessageCommandT, *, parent: typing.Optional[abc.MessageCommandGroup] = None, _new: bool = True
+        self: _MessageCommandT,
+        *,
+        parent: typing.Optional[abc.MessageCommandGroup[typing.Any]] = None,
+        _new: bool = True,
     ) -> _MessageCommandT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if not _new:
@@ -2048,7 +2069,9 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
 
         return super().copy(_new=_new)
 
-    def set_parent(self: _MessageCommandT, parent: typing.Optional[abc.MessageCommandGroup], /) -> _MessageCommandT:
+    def set_parent(
+        self: _MessageCommandT, parent: typing.Optional[abc.MessageCommandGroup[typing.Any]], /
+    ) -> _MessageCommandT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         self._parent = parent
         return self
@@ -2110,12 +2133,12 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
             component.add_message_command(self)
 
 
-class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageCommandGroup):
+class MessageCommandGroup(MessageCommand[abc.CommandCallbackSigT], abc.MessageCommandGroup):
     __slots__ = ("_commands", "_is_strict", "_names_to_commands")
 
     def __init__(
         self,
-        callback: CommandCallbackSigT,
+        callback: abc.CommandCallbackSigT,
         name: str,
         /,
         *names: str,
@@ -2126,15 +2149,15 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
         parser: typing.Optional[parsing.AbstractParser] = None,
     ) -> None:
         super().__init__(callback, name, *names, checks=checks, hooks=hooks, metadata=metadata, parser=parser)
-        self._commands: list[abc.MessageCommand] = []
+        self._commands: list[abc.MessageCommand[typing.Any]] = []
         self._is_strict = strict
-        self._names_to_commands: dict[str, abc.MessageCommand] = {}
+        self._names_to_commands: dict[str, abc.MessageCommand[typing.Any]] = {}
 
     def __repr__(self) -> str:
         return f"CommandGroup <{len(self._commands)}: {self._names}>"
 
     @property
-    def commands(self) -> collections.Collection[abc.MessageCommand]:
+    def commands(self) -> collections.Collection[abc.MessageCommand[typing.Any]]:
         # <<inherited docstring from tanjun.abc.MessageCommandGroup>>.
         return self._commands.copy()
 
@@ -2143,7 +2166,10 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
         return self._is_strict
 
     def copy(
-        self: _MessageCommandGroupT, *, parent: typing.Optional[abc.MessageCommandGroup] = None, _new: bool = True
+        self: _MessageCommandGroupT,
+        *,
+        parent: typing.Optional[abc.MessageCommandGroup[typing.Any]] = None,
+        _new: bool = True,
     ) -> _MessageCommandGroupT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if not _new:
@@ -2154,7 +2180,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
 
         return super().copy(parent=parent, _new=_new)
 
-    def add_command(self: _MessageCommandGroupT, command: abc.MessageCommand, /) -> _MessageCommandGroupT:
+    def add_command(self: _MessageCommandGroupT, command: abc.MessageCommand[typing.Any], /) -> _MessageCommandGroupT:
         """Add a command to this group.
 
         Parameters
@@ -2192,7 +2218,9 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
         self._commands.append(command)
         return self
 
-    def remove_command(self: _MessageCommandGroupT, command: abc.MessageCommand, /) -> _MessageCommandGroupT:
+    def remove_command(
+        self: _MessageCommandGroupT, command: abc.MessageCommand[typing.Any], /
+    ) -> _MessageCommandGroupT:
         # <<inherited docstring from tanjun.abc.MessageCommandGroup>>.
         self._commands.remove(command)
         if self._is_strict:
@@ -2223,7 +2251,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
 
         return self
 
-    def find_command(self, content: str, /) -> collections.Iterable[tuple[str, abc.MessageCommand]]:
+    def find_command(self, content: str, /) -> collections.Iterable[tuple[str, abc.MessageCommand[typing.Any]]]:
         if self._is_strict:
             name = content.split(" ")[0]
             if command := self._names_to_commands.get(name):

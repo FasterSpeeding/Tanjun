@@ -325,11 +325,14 @@ def with_argument(
 ) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
     """Add an argument to a parsable command through a decorator call.
 
-    .. note::
-        Order matters for positional arguments and since decorator execution
-        starts at the decorator closest to the command and goes upwards this
-        will decide where a positional argument is located in a command's
-        signature.
+    Notes
+    -----
+    * Order matters for positional arguments and since decorator execution
+      starts at the decorator closest to the command and goes upwards this
+      will decide where a positional argument is located in a command's
+      signature.
+    * If no parser is explicitly set on the command this is decorating before
+      this decorator call then this will set `ShlexParser` as the parser.
 
     Parameters
     ----------
@@ -372,7 +375,8 @@ def with_argument(
 
     def decorator(command: ParseableProtoT, /) -> ParseableProtoT:
         if command.parser is None:
-            raise ValueError("Cannot add a parameter to a command client without a parser.")
+            with_parser(command)
+            assert command.parser
 
         argument = Argument(key, converters=converters, default=default, greedy=greedy, multi=multi)
         command.parser.add_parameter(argument)
@@ -400,6 +404,8 @@ def with_greedy_argument(
       starts at the decorator closest to the command and goes upwards this
       will decide where a positional argument is located in a command's
       signature.
+    * If no parser is explicitly set on the command this is decorating before
+      this decorator call then this will set `ShlexParser` as the parser.
 
     Parameters
     ----------
@@ -460,6 +466,8 @@ def with_multi_argument(
       starts at the decorator closest to the command and goes upwards this
       will decide where a positional argument is located in a command's
       signature.
+    * If no parser is explicitly set on the command this is decorating before
+      this decorator call then this will set `ShlexParser` as the parser.
 
     Parameters
     ----------
@@ -513,6 +521,10 @@ def with_option(
 ) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
     """Add an option to a parsable command through a decorator call.
 
+    .. note::
+        If no parser is explicitly set on the command this is decorating before
+        this decorator call then this will set `ShlexParser` as the parser.
+
     Parameters
     ----------
     key : str
@@ -564,7 +576,8 @@ def with_option(
 
     def decorator(command: ParseableProtoT) -> ParseableProtoT:
         if command.parser is None:
-            raise ValueError("Cannot add an option to a command client without a parser.")
+            with_parser(command)
+            assert command.parser
 
         option = Option(key, name, *names, converters=converters, default=default, empty_value=empty_value, multi=multi)
         command.parser.add_parameter(option)
@@ -584,11 +597,14 @@ def with_multi_option(
 ) -> collections.Callable[[ParseableProtoT], ParseableProtoT]:
     """Add an multi-option to a command's parser through a decorator call.
 
-    .. note::
-        A multi option will consume all the values provided for an option and
-        pass them through to the converters as an array of strings while also
-        requiring that at least one value is provided for the option unless
-        a default is set.
+    Notes
+    -----
+    * A multi option will consume all the values provided for an option and
+      pass them through to the converters as an array of strings while also
+      requiring that at least one value is provided for the option unless
+      a default is set.
+    * If no parser is explicitly set on the command this is decorating before
+      this decorator call then this will set `ShlexParser` as the parser.
 
     Parameters
     ----------
@@ -991,5 +1007,34 @@ class ShlexParser(AbstractParser):
 
 
 def with_parser(command: ParseableProtoT, /) -> ParseableProtoT:
-    """Add a shlex parser command parser to a supported command."""
+    """Add a shlex parser command parser to a supported command.
+
+    Example
+    -------
+    ```py
+    @tanjun.with_argument("arg", converters=int)
+    @tanjun.with_parser
+    @tanjun.as_message_command("hi")
+    async def hi(ctx: tanjun.MessageContext, arg: int) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    command : ParseableProtoT
+        The parseable command to set the parser on.
+
+    Returns
+    -------
+    ParseableProtoT
+        The command with the parser set.
+
+    Raises
+    ------
+    ValueError
+        If the command already has a parser set.
+    """
+    if command.parser:
+        raise ValueError("Command already has a parser set")
+
     return command.set_parser(ShlexParser())
