@@ -74,7 +74,8 @@ if typing.TYPE_CHECKING:
 
 
 CommandT = typing.TypeVar("CommandT", bound="tanjun_abc.ExecutableCommand[typing.Any]")
-CallbackReturnT = typing.Union[CommandT, collections.Callable[[CommandT], CommandT]]
+# This errors on earlier 3.9 releases when not quotes cause dumb handling of the [CommandT] list
+CallbackReturnT = typing.Union[CommandT, "collections.Callable[[CommandT], CommandT]"]
 """Type hint for the return value of decorators which optionally take keyword arguments.
 
 Examples
