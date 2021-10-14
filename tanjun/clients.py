@@ -66,6 +66,7 @@ from . import context
 from . import errors
 from . import hooks
 from . import injecting
+from . import standard_dependencies
 from . import utilities
 
 if typing.TYPE_CHECKING:
@@ -508,6 +509,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     ) -> None:
         # InjectorClient.__init__
         super().__init__()
+        standard_dependencies.set_standard_dependencies(self)
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
         # TODO: warn if server and dispatch both None but don't error
 

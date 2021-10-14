@@ -626,17 +626,14 @@ class _CacheCallback(typing.Generic[_T]):
             self._lock = asyncio.Lock()
 
         async with self._lock:
-            if self._has_expired:
-                self._last_called = time.monotonic()
-                self._result = await self._callback.resolve(ctx, *args)
-                return self._result
-
-            if self._result is not UNDEFINED:
+            if self._result is not UNDEFINED and not self._has_expired:
                 assert not isinstance(self._result, Undefined)
                 return self._result
 
-            self._last_called = time.monotonic()
             self._result = await self._callback.resolve(ctx, *args)
+            self._last_called = time.monotonic()
+            # This is set to None afterwards to ensure that it isn't persisted between loops.
+            self._lock = None
             return self._result
 
 

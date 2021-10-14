@@ -205,6 +205,8 @@ __all__: list[str] = [
     "with_option",
     "with_multi_option",
     "with_parser",
+    # standard_dependencies.py
+    "standard_dependencies",
     # utilities.py
     "utilities",
 ]
@@ -212,6 +214,7 @@ __all__: list[str] = [
 import typing
 
 from . import abc
+from . import standard_dependencies
 from . import utilities
 from .checks import *
 from .clients import *

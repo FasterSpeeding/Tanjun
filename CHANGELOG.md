@@ -10,10 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ephemeral default is now applicable at a client and component level with it defaulting to `None` on
   components, this will propagate down from the client to the command being executed with each level
   having the option to override its state or leave it as is.
+- `OwnerCheck` now relies on a standard dependency which can easily be overridden for its actual logic.
 
 ### Changed
 - SlashCommand's ephemeral default now defaults to `None` indicating that the parent entity's state should
   be used.
+- Check functions such as `nsfw_check`, `sfw_check`, `dm_check`, `guild_check` have been replaced with
+  check classes (NsfwCheck, SfwCheck, DmCheck, GuildCheck).
+- Renamed `ApplicationOwnerCheck` to `OwnerCheck`.
 
 ### Deprecated
 - Passing Iterable[tuple[str, value]] as choices to the slash command options has been deprecated
