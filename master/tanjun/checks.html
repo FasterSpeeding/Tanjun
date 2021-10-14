@@ -226,7 +226,8 @@
 
 
 <span class="n">CommandT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;CommandT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;tanjun_abc.ExecutableCommand[typing.Any]&quot;</span><span class="p">)</span>
-<span class="n">CallbackReturnT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">CommandT</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]]</span>
+<span class="c1"># This errors on earlier 3.9 releases when not quotes cause dumb handling of the [CommandT] list</span>
+<span class="n">CallbackReturnT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">CommandT</span><span class="p">,</span> <span class="s2">&quot;collections.Callable[[CommandT], CommandT]&quot;</span><span class="p">]</span>
 <span class="sd">&quot;&quot;&quot;Type hint for the return value of decorators which optionally take keyword arguments.</span>
 
 <span class="sd">Examples</span>
@@ -964,7 +965,7 @@
                 <section id="CallbackReturnT">
                                 <div class="attr variable"><a class="headerlink" href="#CallbackReturnT">#&nbsp;&nbsp</a>
 
-        <span class="name">CallbackReturnT</span><span class="default_value"> = typing.Union[~CommandT, collections.abc.Callable[[~CommandT], ~CommandT]]</span>
+        <span class="name">CallbackReturnT</span><span class="default_value"> = typing.Union[~CommandT, ForwardRef(&#39;collections.Callable[[CommandT], CommandT]&#39;)]</span>
     </div>
 
             <div class="docstring"><p>Type hint for the return value of decorators which optionally take keyword arguments.</p>

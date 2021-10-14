@@ -264,7 +264,8 @@
 
 
 <span class="n">CommandT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;CommandT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;abc.ExecutableCommand[typing.Any]&quot;</span><span class="p">)</span>
-<span class="n">WithCommandReturnSig</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">CommandT</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]]</span>
+<span class="c1"># This errors on earlier 3.9 releases when not quotes cause dumb handling of the [CommandT] list</span>
+<span class="n">WithCommandReturnSig</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">CommandT</span><span class="p">,</span> <span class="s2">&quot;collections.Callable[[CommandT], CommandT]&quot;</span><span class="p">]</span>
 
 
 <span class="nd">@typing</span><span class="o">.</span><span class="n">runtime_checkable</span>
@@ -2369,7 +2370,7 @@ The command to remove.</li>
     /,
     *,
     copy: bool = False
-) -&gt; Union[~BaseSlashCommandT, collections.abc.Callable[[~BaseSlashCommandT], ~BaseSlashCommandT]]</span>:
+) -&gt; Union[~BaseSlashCommandT, collections.abc.Callable[[~CommandT], ~CommandT]]</span>:
     </div>
 
                 <details>
@@ -2553,7 +2554,7 @@ The command to remove.</li>
     /,
     *,
     copy: bool = False
-) -&gt; Union[~MessageCommandT, collections.abc.Callable[[~MessageCommandT], ~MessageCommandT]]</span>:
+) -&gt; Union[~MessageCommandT, collections.abc.Callable[[~CommandT], ~CommandT]]</span>:
     </div>
 
                 <details>
@@ -3241,7 +3242,7 @@ If <code>None</code> is returned, the attribute will be left as-is.</li>
                 <section id="WithCommandReturnSig">
                                 <div class="attr variable"><a class="headerlink" href="#WithCommandReturnSig">#&nbsp;&nbsp</a>
 
-        <span class="name">WithCommandReturnSig</span><span class="default_value"> = typing.Union[~CommandT, collections.abc.Callable[[~CommandT], ~CommandT]]</span>
+        <span class="name">WithCommandReturnSig</span><span class="default_value"> = typing.Union[~CommandT, ForwardRef(&#39;collections.Callable[[CommandT], CommandT]&#39;)]</span>
     </div>
 
     
