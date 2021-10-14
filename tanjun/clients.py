@@ -1467,7 +1467,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     def remove_component_by_name(self: _ClientT, name: str, /) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
-        return self.remove_component(self._components.pop(name))
+        return self.remove_component(self._components[name])
 
     def add_client_callback(self: _ClientT, name: str, callback: tanjun_abc.MetaEventSig, /) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.

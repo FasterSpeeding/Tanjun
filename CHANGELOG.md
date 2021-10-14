@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `MessageContext` not being passed to the prefix getter as the only positional argument.
+- `Client.remove_component_by_name`.
 
 ### Removed
 - `tanjun.abc.ExecutableCommand.execute` and `check_context` as this doesn't work typing wise.
