@@ -50,8 +50,10 @@ if typing.TYPE_CHECKING:
     import contextlib
     from collections import abc as collections
 
+    _LazyConstantT = typing.TypeVar("_LazyConstantT", bound="LazyConstant[typing.Any]")
 
 _T = typing.TypeVar("_T")
+_DefaultT = typing.TypeVar("_DefaultT")
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun")
 
 
@@ -117,22 +119,6 @@ class OwnerCheck(AbstractOwnerCheck):
     .. warning::
         `fallback_to_application` is only possible when the REST client
         is bound to a Bot token.
-
-    Other Parameters
-    ----------------
-    expire_after : datetime.timedelta
-        The amount of time to cache application owner data for.
-
-        This defaults to 5 minutes and is only applicable if `rest` is also
-        passed.
-    fallback_to_application : bool
-        Whether this check should fallback to checking the application's owners
-        if the user isn't in `owners.
-
-        This only works when the bot's rest client is bound to a Bot token.
-    owners : typing.Optional[hikari.SnowflakeishSequence[hikari.User]]
-        Sequence of objects and IDs of the users that are allowed to use the
-        bot's "owners".
     """
 
     __slots__ = ("_expire_after", "_fallback_to_application", "_owner_ids", "_value")
@@ -144,6 +130,24 @@ class OwnerCheck(AbstractOwnerCheck):
         fallback_to_application: bool = True,
         owners: typing.Optional[hikari.SnowflakeishSequence[hikari.User]] = None,
     ) -> None:
+        """Initiate a new owner check dependency.
+
+        Other Parameters
+        ----------------
+        expire_after : datetime.timedelta
+            The amount of time to cache application owner data for.
+
+            This defaults to 5 minutes and is only applicable if `rest` is also
+            passed.
+        fallback_to_application : bool
+            Whether this check should fallback to checking the application's owners
+            if the user isn't in `owners.
+
+            This only works when the bot's rest client is bound to a Bot token.
+        owners : typing.Optional[hikari.SnowflakeishSequence[hikari.User]]
+            Sequence of objects and IDs of the users that are allowed to use the
+            bot's "owners".
+        """
         self._expire_after = expire_after
         self._fallback_to_application = fallback_to_application
         self._owner_ids = {hikari.Snowflake(id_) for id_ in owners} if owners else set[hikari.Snowflake]()
@@ -170,37 +174,72 @@ class OwnerCheck(AbstractOwnerCheck):
 class LazyConstant(typing.Generic[_T]):
     """Injected type used to hold and generate lazy constants.
 
-    Parameters
-    ----------
-    callback : collections.abc.Callable[..., _T]
-        Callback used to resolve this to a constant value.
-
-        This supports dependency injection.
+    .. note::
+        To quickly resolve this type, use the result of
+        `tanjun.make_lc_resolver(_T)` as a callback dependency.
     """
 
     __slots__ = ("_callback", "_lock", "_value")
 
     def __init__(self, callback: collections.Callable[..., tanjun_abc.MaybeAwaitableT[_T]], /) -> None:
+        """Initiate a new lazy constant.
+
+        Parameters
+        ----------
+        callback : collections.abc.Callable[..., tanjun.abc.MaybeAwaitable[_T]]
+            Callback used to resolve this to a constant value.
+
+            This supports dependency injection and may either be sync or asynchronous.
+        """
         self._callback = injecting.CallbackDescriptor(callback)
         self._lock: typing.Optional[asyncio.Lock] = None
         self._value: typing.Optional[_T] = None
 
     @property
     def callback(self) -> injecting.CallbackDescriptor[_T]:
+        """Descriptor of the callback used to get this constant's initial value."""
         return self._callback
 
-    @property
-    def value(self) -> typing.Optional[_T]:
+    def get_value(self) -> typing.Optional[_T]:
+        """Get the value of this constant if set, else `None`."""
         return self._value
 
-    def clear(self) -> None:
+    def reset(self: _LazyConstantT) -> _LazyConstantT:
+        """Clear the internally stored value."""
         self._value = None
+        return self
 
-    def set_value(self, value: _T) -> None:
+    def set_value(self: _LazyConstantT, value: _T) -> _LazyConstantT:
+        """Set the constant value.
+
+        Parameters
+        ----------
+        value : _T
+            The value to set.
+
+        Raises
+        ------
+        RuntimeError
+            If the constant has already been set.
+        """
+        if self._value is not None:
+            raise RuntimeError("Constant value already set.")
+
         self._value = value
         self._lock = None
+        return self
 
     def acquire(self) -> contextlib.AbstractAsyncContextManager[typing.Any]:
+        """Acquire this lazy constant to's asynchronous lock.
+
+        This is used to ensure that the value is only generated once
+        and should be kept acquired until `LazyConstant.set_value` is called.
+
+        Returns
+        -------
+        contextlib.AbstractAsyncContextManager[typing.Any]
+            Context manager that can be used to acquire the lock.
+        """
         if not self._lock:
             # Error if this is called outside of a running event loop.
             asyncio.get_running_loop()
@@ -211,6 +250,10 @@ class LazyConstant(typing.Generic[_T]):
 
 def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., _T]:
     """Make an injected callback which resolves a LazyConstant.
+
+    .. note::
+        For this to work, a `LazyConstant` must've been set as a type
+        dependency for the passed `type_`.
 
     Parameters
     ----------
@@ -252,12 +295,13 @@ def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., _T]:
         constant: LazyConstant[_T] = injecting.injected(type=LazyConstant[type_]),
         ctx: injecting.AbstractInjectionContext = injecting.injected(type=injecting.AbstractInjectionContext),
     ) -> _T:
-        if constant.value is not None:
-            return constant.value
+        """Resolve a lazy constant."""
+        if (value := constant.get_value()) is not None:
+            return value
 
         async with constant.acquire():
-            if constant.value is not None:
-                return typing.cast(_T, constant.value)
+            if (value := constant.get_value()) is not None:
+                return value
 
             result = await constant.callback.resolve(ctx)
             constant.set_value(result)
