@@ -300,7 +300,7 @@ async def test_cache_callback():
     with mock.patch.object(
         tanjun.injecting, "CallbackDescriptor", return_value=mock.Mock(resolve=mock.AsyncMock())
     ) as callback_descriptor:
-        cached_callback = tanjun.injecting.cache_callback(mock_callback)
+        cached_callback = tanjun.dependencies.cache_callback(mock_callback)
 
         callback_descriptor.assert_called_once_with(mock_callback)
 
@@ -333,7 +333,7 @@ async def test_cache_callback_when_expired():
         "CallbackDescriptor",
         return_value=mock.Mock(resolve=mock.AsyncMock(side_effect=[mock_first_result, mock_second_result])),
     ) as callback_descriptor:
-        cached_callback = tanjun.injecting.cache_callback(mock_callback, expire_after=datetime.timedelta(seconds=4))
+        cached_callback = tanjun.dependencies.cache_callback(mock_callback, expire_after=datetime.timedelta(seconds=4))
 
         callback_descriptor.assert_called_once_with(mock_callback)
 
@@ -367,7 +367,7 @@ async def test_cache_callback_when_not_expired():
     with mock.patch.object(
         tanjun.injecting, "CallbackDescriptor", return_value=mock.Mock(resolve=mock.AsyncMock())
     ) as callback_descriptor:
-        cached_callback = tanjun.injecting.cache_callback(mock_callback, expire_after=datetime.timedelta(seconds=15))
+        cached_callback = tanjun.dependencies.cache_callback(mock_callback, expire_after=datetime.timedelta(seconds=15))
 
         callback_descriptor.assert_called_once_with(mock_callback)
 
