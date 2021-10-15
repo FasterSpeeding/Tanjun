@@ -52,7 +52,6 @@ from collections import abc as collections
 
 import hikari
 
-from . import _backoff as backoff
 from . import errors
 
 if typing.TYPE_CHECKING:
@@ -60,7 +59,6 @@ if typing.TYPE_CHECKING:
     from . import checks
 
 
-_ResourceT = typing.TypeVar("_ResourceT")
 _KeyT = typing.TypeVar("_KeyT")
 _ValueT = typing.TypeVar("_ValueT")
 
@@ -127,28 +125,6 @@ async def gather_checks(ctx: abc.Context, checks_: collections.Iterable[checks.I
 
     except errors.FailedCheck:
         return False
-
-
-async def fetch_resource(
-    retry: backoff.Backoff, call: collections.Callable[..., collections.Awaitable[_ResourceT]], *args: typing.Any
-) -> _ResourceT:  # TODO: replace this
-    """Try a request until it passes or timesout. Used by Tanjun internally."""
-    retry.reset()
-    async for _ in retry:
-        try:
-            return await call(*args)
-
-        except (hikari.RateLimitedError, hikari.RateLimitTooLongError) as exc:
-            if exc.retry_after > 5:
-                raise
-
-            retry.set_next_backoff(exc.retry_after)
-
-        except hikari.InternalServerError:
-            continue
-
-    else:
-        return await call(*args)
 
 
 def match_prefix_names(content: str, names: collections.Iterable[str], /) -> typing.Optional[str]:
@@ -279,7 +255,7 @@ def calculate_permissions(
 
 
 async def _fetch_channel(
-    client: abc.Client, retry: backoff.Backoff, channel: hikari.SnowflakeishOr[hikari.PartialChannel]
+    client: abc.Client, channel: hikari.SnowflakeishOr[hikari.PartialChannel]
 ) -> hikari.GuildChannel:
     if isinstance(channel, hikari.GuildChannel):
         return channel
@@ -289,7 +265,7 @@ async def _fetch_channel(
         found_channel = client.cache.get_guild_channel(hikari.Snowflake(channel))
 
     if not found_channel:
-        raw_channel = await fetch_resource(retry, client.rest.fetch_channel, channel)
+        raw_channel = await client.rest.fetch_channel(channel)
         assert isinstance(raw_channel, hikari.GuildChannel), "Cannot perform operation on a DM channel."
         found_channel = raw_channel
 
@@ -330,12 +306,11 @@ async def fetch_permissions(
     """
     # The ordering of how this adds and removes permissions does matter.
     # For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.
-    retry = backoff.Backoff(maximum=5, max_retries=4)
     guild: typing.Optional[hikari.Guild]
     roles: typing.Optional[collections.Mapping[hikari.Snowflake, hikari.Role]] = None
     guild = client.cache.get_guild(member.guild_id) if client.cache else None
     if not guild:
-        guild = await fetch_resource(retry, client.rest.fetch_guild, member.guild_id)
+        guild = await client.rest.fetch_guild(member.guild_id)
         roles = guild.roles
 
     # Guild owners are implicitly admins.
@@ -344,7 +319,7 @@ async def fetch_permissions(
 
     roles = roles or client.cache and client.cache.get_roles_view_for_guild(member.guild_id)
     if not roles:
-        raw_roles = await fetch_resource(retry, client.rest.fetch_roles, member.guild_id)
+        raw_roles = await client.rest.fetch_roles(member.guild_id)
         roles = {role.id: role for role in raw_roles}
 
     # Admin permission overrides all overwrites and is only applicable to roles.
@@ -354,7 +329,7 @@ async def fetch_permissions(
     if not channel:
         return permissions
 
-    channel = await _fetch_channel(client, retry, channel)
+    channel = await _fetch_channel(client, channel)
     if channel.guild_id != guild.id:
         raise ValueError("Channel doesn't match up with the member's guild")
 
@@ -440,10 +415,9 @@ async def fetch_everyone_permissions(
     """
     # The ordering of how this adds and removes permissions does matter.
     # For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.
-    retry = backoff.Backoff(maximum=5, max_retries=4)
     role = client.cache.get_role(guild_id) if client.cache else None
     if not role:
-        for role in await fetch_resource(retry, client.rest.fetch_roles, guild_id):
+        for role in await client.rest.fetch_roles(guild_id):
             if role.id == guild_id:
                 break
 
@@ -458,7 +432,7 @@ async def fetch_everyone_permissions(
     if not channel:
         return permissions
 
-    channel = await _fetch_channel(client, retry, channel)
+    channel = await _fetch_channel(client, channel)
     if everyone_overwrite := channel.permission_overwrites.get(guild_id):
         permissions &= ~everyone_overwrite.deny
         permissions |= everyone_overwrite.allow

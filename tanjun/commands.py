@@ -66,7 +66,6 @@ from collections import abc as collections
 
 import hikari
 
-from . import _backoff as backoff
 from . import abc
 from . import checks as checks_
 from . import components
@@ -2145,26 +2144,7 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
 
         except errors.CommandError as exc:
             response = exc.message if len(exc.message) <= 2000 else exc.message[:1997] + "..."
-            retry = backoff.Backoff(max_retries=5, maximum=2)
-            # TODO: preemptive cache based permission checks before throwing to the REST gods.
-            async for _ in retry:
-                try:
-                    await ctx.respond(content=response)
-
-                except (hikari.RateLimitedError, hikari.RateLimitTooLongError) as retry_error:
-                    if retry_error.retry_after > 4:
-                        raise
-
-                    retry.set_next_backoff(retry_error.retry_after)  # TODO: check if this is too large.
-
-                except hikari.InternalServerError:
-                    continue
-
-                except (hikari.ForbiddenError, hikari.NotFoundError):
-                    break
-
-                else:
-                    break
+            await ctx.respond(content=response)
 
         except errors.HaltExecution:
             raise

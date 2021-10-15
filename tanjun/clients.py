@@ -59,10 +59,10 @@ from collections import abc as collections
 import hikari
 from hikari import traits as hikari_traits
 
-from . import _backoff as backoff
 from . import abc as tanjun_abc
 from . import checks
 from . import context
+from . import dependencies
 from . import errors
 from . import hooks
 from . import injecting
@@ -508,6 +508,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     ) -> None:
         # InjectorClient.__init__
         super().__init__()
+        dependencies.set_standard_dependencies(self)
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
         # TODO: warn if server and dispatch both None but don't error
 
@@ -1792,30 +1793,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._is_alive = True
         self._is_closing = False
         await self.dispatch_client_callback(ClientCallbackNames.STARTING)
+
         if self._grab_mention_prefix:
-            user: typing.Optional[hikari.User] = None
             if self._cache:
-                user = self._cache.get_me()
-
-            if not user:
-                retry = backoff.Backoff(max_retries=4, maximum=30)
-
-                async for _ in retry:
-                    try:
-                        user = await self._rest.fetch_my_user()
-                        break
-
-                    except (hikari.RateLimitedError, hikari.RateLimitTooLongError) as exc:
-                        if exc.retry_after > 30:
-                            raise
-
-                        retry.set_next_backoff(exc.retry_after)
-
-                    except hikari.InternalServerError:
-                        continue
-
-                else:
-                    user = await self._rest.fetch_my_user()
+                user = self._cache.get_me() or await self._rest.fetch_my_user()
+            else:
+                user = await self._rest.fetch_my_user()
 
             for prefix in f"<@{user.id}>", f"<@!{user.id}>":
                 if prefix not in self._prefixes:

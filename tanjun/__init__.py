@@ -170,6 +170,11 @@ __all__: list[str] = [
     "to_snowflake",
     "to_user",
     "to_voice_state",
+    # dependencies.py
+    "dependencies",
+    "cache_callback",
+    "LazyConstant",
+    "make_lc_resolver",
     # errors.py
     "errors",
     "CommandError",
@@ -191,7 +196,6 @@ __all__: list[str] = [
     "SlashHooks",
     # injecting.py
     "injecting",
-    "cache_callback",
     "injected",
     "Injected",
     # parsing.py
@@ -219,6 +223,7 @@ from .commands import *
 from .components import *
 from .context import *
 from .conversion import *
+from .dependencies import *
 from .errors import *
 from .hooks import *
 from .injecting import *
