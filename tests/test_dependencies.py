@@ -291,3 +291,102 @@ def test_set_standard_dependencies():
             mock.call(lazy_constant.__getitem__.return_value, lazy_constant.return_value),
         ]
     )
+
+
+@pytest.mark.asyncio()
+async def test_cache_callback():
+    mock_callback = mock.Mock()
+    mock_context = mock.Mock()
+    with mock.patch.object(
+        tanjun.injecting, "CallbackDescriptor", return_value=mock.Mock(resolve=mock.AsyncMock())
+    ) as callback_descriptor:
+        cached_callback = tanjun.injecting.cache_callback(mock_callback)
+
+        callback_descriptor.assert_called_once_with(mock_callback)
+
+    with mock.patch.object(time, "monotonic"):
+        results = await asyncio.gather(
+            *(
+                cached_callback(1, ctx=mock_context),
+                cached_callback(2, ctx=mock.Mock()),
+                cached_callback(3, ctx=mock.Mock()),
+                cached_callback(4, ctx=mock.Mock()),
+                cached_callback(5, ctx=mock.Mock()),
+                cached_callback(6, ctx=mock.Mock()),
+            )
+        )
+
+    callback_descriptor.return_value.resolve.assert_awaited_once_with(mock_context, 1)
+    assert len(results) == 6
+    assert all(r is callback_descriptor.return_value.resolve.return_value for r in results)
+
+
+@pytest.mark.asyncio()
+async def test_cache_callback_when_expired():
+    mock_callback = mock.Mock()
+    mock_first_context = mock.Mock()
+    mock_second_context = mock.Mock()
+    mock_first_result = mock.Mock()
+    mock_second_result = mock.Mock()
+    with mock.patch.object(
+        tanjun.injecting,
+        "CallbackDescriptor",
+        return_value=mock.Mock(resolve=mock.AsyncMock(side_effect=[mock_first_result, mock_second_result])),
+    ) as callback_descriptor:
+        cached_callback = tanjun.injecting.cache_callback(mock_callback, expire_after=datetime.timedelta(seconds=4))
+
+        callback_descriptor.assert_called_once_with(mock_callback)
+
+    with mock.patch.object(time, "monotonic", return_value=123.111):
+        first_result = await cached_callback(0, ctx=mock_first_context)
+
+    with mock.patch.object(time, "monotonic", return_value=128.11):
+        results = await asyncio.gather(
+            *(
+                cached_callback(1, ctx=mock_second_context),
+                cached_callback(2, ctx=mock.Mock()),
+                cached_callback(3, ctx=mock.Mock()),
+                cached_callback(4, ctx=mock.Mock()),
+                cached_callback(5, ctx=mock.Mock()),
+                cached_callback(6, ctx=mock.Mock()),
+            )
+        )
+
+    callback_descriptor.return_value.resolve.assert_has_awaits(
+        [mock.call(mock_first_context, 0), mock.call(mock_second_context, 1)]
+    )
+    assert first_result is mock_first_result
+    assert len(results) == 6
+    assert all(r is mock_second_result for r in results)
+
+
+@pytest.mark.asyncio()
+async def test_cache_callback_when_not_expired():
+    mock_callback = mock.Mock()
+    mock_context = mock.Mock()
+    with mock.patch.object(
+        tanjun.injecting, "CallbackDescriptor", return_value=mock.Mock(resolve=mock.AsyncMock())
+    ) as callback_descriptor:
+        cached_callback = tanjun.injecting.cache_callback(mock_callback, expire_after=datetime.timedelta(seconds=15))
+
+        callback_descriptor.assert_called_once_with(mock_callback)
+
+    with mock.patch.object(time, "monotonic", return_value=853.123):
+        first_result = await cached_callback(0, ctx=mock_context)
+
+    with mock.patch.object(time, "monotonic", return_value=866.123):
+        results = await asyncio.gather(
+            *(
+                cached_callback(1, ctx=mock.Mock()),
+                cached_callback(2, ctx=mock.Mock()),
+                cached_callback(3, ctx=mock.Mock()),
+                cached_callback(4, ctx=mock.Mock()),
+                cached_callback(5, ctx=mock.Mock()),
+                cached_callback(6, ctx=mock.Mock()),
+            )
+        )
+
+    callback_descriptor.return_value.resolve.assert_awaited_once_with(mock_context, 0)
+    assert first_result is callback_descriptor.return_value.resolve.return_value
+    assert len(results) == 6
+    assert all(r is callback_descriptor.return_value.resolve.return_value for r in results)

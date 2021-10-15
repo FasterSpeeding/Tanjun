@@ -172,6 +172,7 @@ __all__: list[str] = [
     "to_voice_state",
     # dependencies.py
     "dependencies",
+    "cache_callback",
     "LazyConstant",
     "make_lc_resolver",
     # errors.py
@@ -195,7 +196,6 @@ __all__: list[str] = [
     "SlashHooks",
     # injecting.py
     "injecting",
-    "cache_callback",
     "injected",
     "Injected",
     # parsing.py

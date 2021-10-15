@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   check classes (NsfwCheck, SfwCheck, DmCheck, GuildCheck).
 - Renamed `ApplicationOwnerCheck` to `OwnerCheck`.
 - Renamed `OwnPermissionsCheck` to `OwnPermissionCheck`.
+- Moved `cache_callback` from `tanjun.injecting` to `tanjun.dependencies`.
 
 ### Deprecated
 - Passing Iterable[tuple[str, value]] as choices to the slash command options has been deprecated

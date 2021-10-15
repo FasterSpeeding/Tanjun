@@ -32,7 +32,7 @@
 """Default dependency classes used within Tanjun and their abstract interfaces."""
 from __future__ import annotations
 
-__all__: list[str] = ["AbstractOwnerCheck", "LazyConstant", "make_lc_resolver", "OwnerCheck"]
+__all__: list[str] = ["AbstractOwnerCheck", "cache_callback", "LazyConstant", "make_lc_resolver", "OwnerCheck"]
 
 import abc
 import asyncio
@@ -356,3 +356,76 @@ def set_standard_dependencies(client: injecting.InjectorClient, /) -> None:
             LazyConstant[hikari.OwnUser], LazyConstant(fetch_my_user)
         )
     )
+
+
+class _CacheCallback(typing.Generic[_T]):
+    __slots__ = ("_callback", "_expire_after", "_last_called", "_lock", "_result")
+
+    def __init__(
+        self, callback: injecting.CallbackSig[_T], /, *, expire_after: typing.Optional[datetime.timedelta]
+    ) -> None:
+        self._callback = injecting.CallbackDescriptor(callback)
+        self._expire_after = expire_after.total_seconds() if expire_after else None
+        self._last_called: typing.Optional[float] = None
+        self._lock: typing.Optional[asyncio.Lock] = None
+        self._result: typing.Union[_T, injecting.Undefined] = injecting.UNDEFINED
+
+    @property
+    def _has_expired(self) -> bool:
+        return self._expire_after is not None and (
+            not self._last_called or self._expire_after <= (time.monotonic() - self._last_called)
+        )
+
+    async def __call__(
+        self,
+        # Positional arg(s) may be guaranteed under some contexts so we want to pass those through.
+        *args: typing.Any,
+        ctx: injecting.AbstractInjectionContext = injecting.injected(type=injecting.AbstractInjectionContext),
+    ) -> _T:
+        if self._result is not injecting.UNDEFINED and not self._has_expired:
+            assert not isinstance(self._result, injecting.Undefined)
+            return self._result
+
+        if not self._lock:
+            self._lock = asyncio.Lock()
+
+        async with self._lock:
+            if self._result is not injecting.UNDEFINED and not self._has_expired:
+                assert not isinstance(self._result, injecting.Undefined)
+                return self._result
+
+            self._result = await self._callback.resolve(ctx, *args)
+            self._last_called = time.monotonic()
+            # This is set to None afterwards to ensure that it isn't persisted between loops.
+            self._lock = None
+            return self._result
+
+
+def cache_callback(
+    callback: injecting.CallbackSig[_T], /, *, expire_after: typing.Optional[datetime.timedelta] = None
+) -> collections.Callable[..., collections.Awaitable[_T]]:
+    """Cache the result of a callback within a dependency injection context.
+
+    This is useful for dependencies which will always resolve to the same value
+    but are expensive to execute (e.g. they make a request or start a client
+    connection).
+
+    Parameters
+    ----------
+    callback : CallbackSig[_T]
+        The callback to cache the result of.
+
+    Other Parameters
+    ----------------
+    expire_after : typing.Optional[datetime.timedelta]
+        The amount of time to cache the result for.
+
+        Leave this as `None` to cache for the runtime of the application.
+
+    Returns
+    -------
+    Callable[..., Awaitable[_T]]
+        A callback which will cache the result of the given callback after the
+        first call.
+    """
+    return _CacheCallback(callback, expire_after=expire_after)
