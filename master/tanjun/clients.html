@@ -403,10 +403,10 @@
 <span class="kn">import</span> <span class="nn">hikari</span>
 <span class="kn">from</span> <span class="nn">hikari</span> <span class="kn">import</span> <span class="n">traits</span> <span class="k">as</span> <span class="n">hikari_traits</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_backoff</span> <span class="k">as</span> <span class="n">backoff</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">tanjun_abc</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">checks</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">context</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">dependencies</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">hooks</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">injecting</span>
@@ -852,6 +852,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">dependencies</span><span class="o">.</span><span class="n">set_standard_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="c1"># TODO: logging or something to indicate this is running statelessly rather than statefully.</span>
         <span class="c1"># TODO: warn if server and dispatch both None but don&#39;t error</span>
 
@@ -2136,30 +2137,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span><span class="p">:</span>
-            <span class="n">user</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
-                <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get_me</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
-                <span class="n">retry</span> <span class="o">=</span> <span class="n">backoff</span><span class="o">.</span><span class="n">Backoff</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-
-                <span class="k">async</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">retry</span><span class="p">:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
-                        <span class="k">break</span>
-
-                    <span class="k">except</span> <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">RateLimitedError</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">RateLimitTooLongError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">retry_after</span> <span class="o">&gt;</span> <span class="mi">30</span><span class="p">:</span>
-                            <span class="k">raise</span>
-
-                        <span class="n">retry</span><span class="o">.</span><span class="n">set_next_backoff</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">retry_after</span><span class="p">)</span>
-
-                    <span class="k">except</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InternalServerError</span><span class="p">:</span>
-                        <span class="k">continue</span>
-
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get_me</span><span class="p">()</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
 
             <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="sa">f</span><span class="s2">&quot;&lt;@</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;&lt;@!</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">prefix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span>
@@ -2919,6 +2902,7 @@ from the provided client using it's abstract methods.</li>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">dependencies</span><span class="o">.</span><span class="n">set_standard_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="c1"># TODO: logging or something to indicate this is running statelessly rather than statefully.</span>
         <span class="c1"># TODO: warn if server and dispatch both None but don&#39;t error</span>
 
@@ -4203,30 +4187,12 @@ from the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span><span class="p">:</span>
-            <span class="n">user</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
-                <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get_me</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
-                <span class="n">retry</span> <span class="o">=</span> <span class="n">backoff</span><span class="o">.</span><span class="n">Backoff</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-
-                <span class="k">async</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">retry</span><span class="p">:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
-                        <span class="k">break</span>
-
-                    <span class="k">except</span> <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">RateLimitedError</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">RateLimitTooLongError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">retry_after</span> <span class="o">&gt;</span> <span class="mi">30</span><span class="p">:</span>
-                            <span class="k">raise</span>
-
-                        <span class="n">retry</span><span class="o">.</span><span class="n">set_next_backoff</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">retry_after</span><span class="p">)</span>
-
-                    <span class="k">except</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InternalServerError</span><span class="p">:</span>
-                        <span class="k">continue</span>
-
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get_me</span><span class="p">()</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
 
             <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="sa">f</span><span class="s2">&quot;&lt;@</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;&lt;@!</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">prefix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span>
@@ -4849,6 +4815,7 @@ after a rename.</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># InjectorClient.__init__</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">dependencies</span><span class="o">.</span><span class="n">set_standard_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="c1"># TODO: logging or something to indicate this is running statelessly rather than statefully.</span>
         <span class="c1"># TODO: warn if server and dispatch both None but don&#39;t error</span>
 
@@ -7964,30 +7931,12 @@ Name to check against.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">dispatch_client_callback</span><span class="p">(</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grab_mention_prefix</span><span class="p">:</span>
-            <span class="n">user</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
-                <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get_me</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
-                <span class="n">retry</span> <span class="o">=</span> <span class="n">backoff</span><span class="o">.</span><span class="n">Backoff</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-
-                <span class="k">async</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">retry</span><span class="p">:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
-                        <span class="k">break</span>
-
-                    <span class="k">except</span> <span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">RateLimitedError</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">RateLimitTooLongError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">retry_after</span> <span class="o">&gt;</span> <span class="mi">30</span><span class="p">:</span>
-                            <span class="k">raise</span>
-
-                        <span class="n">retry</span><span class="o">.</span><span class="n">set_next_backoff</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">retry_after</span><span class="p">)</span>
-
-                    <span class="k">except</span> <span class="n">hikari</span><span class="o">.</span><span class="n">InternalServerError</span><span class="p">:</span>
-                        <span class="k">continue</span>
-
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get_me</span><span class="p">()</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">user</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
 
             <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="sa">f</span><span class="s2">&quot;&lt;@</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;&lt;@!</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&gt;&quot;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">prefix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span>
