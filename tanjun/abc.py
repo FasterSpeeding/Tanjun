@@ -2588,7 +2588,7 @@ class Component(abc.ABC):
     ) -> typing.Optional[collections.Awaitable[None]]:
         """Execute a slash context.
 
-        .. info::
+        .. note::
             Unlike `Component.execute_message`, this shouldn't be expected to
             raise `tanjun.errors.HaltExecution` nor `tanjun.errors.CommandError`.
 

@@ -37,7 +37,6 @@ import typing
 from unittest import mock
 
 import pytest
-from hikari import permissions
 
 import tanjun
 
@@ -145,171 +144,82 @@ class TestGuildCheck:
             tanjun.checks.GuildCheck(halt_execution=False, error_message="hi")(mock.Mock(guild_id=None))
 
 
-class TestPermissionCheck:
-    @pytest.fixture()
-    def permission_check_cls(self) -> type[tanjun.checks.PermissionCheck]:
-        class Check(tanjun.checks.PermissionCheck):
-            get_permissions = mock.AsyncMock()  # type: ignore
-
-        return Check
-
-    @pytest.mark.asyncio()
-    async def test___call___when_matched(
-        self, permission_check_cls: type[tanjun.checks.PermissionCheck], context: tanjun.abc.Context
-    ):
-        assert isinstance(permission_check_cls.get_permissions, mock.AsyncMock)
-        get_permissions = permission_check_cls.get_permissions
-        get_permissions.return_value = permissions.Permissions(75)
-        check = permission_check_cls(permissions.Permissions(11), error_message=None, halt_execution=False)
-
-        assert await check(context) is True
-        get_permissions.assert_awaited_once_with(context)
-
-    @pytest.mark.asyncio()
-    async def test___call___when_missing_permissions(
-        self, permission_check_cls: type[tanjun.checks.PermissionCheck], context: tanjun.abc.Context
-    ):
-        assert isinstance(permission_check_cls.get_permissions, mock.AsyncMock)
-        get_permissions = permission_check_cls.get_permissions
-        get_permissions.return_value = permissions.Permissions(16)
-        check = permission_check_cls(422, error_message=None, halt_execution=False)
-
-        assert await check(context) is False
-        get_permissions.assert_awaited_once_with(context)
-
-    @pytest.mark.asyncio()
-    async def test___call___when_missing_permissions_and_halt_execution(
-        self, permission_check_cls: type[tanjun.checks.PermissionCheck], context: tanjun.abc.Context
-    ):
-        assert isinstance(permission_check_cls.get_permissions, mock.AsyncMock)
-        get_permissions = permission_check_cls.get_permissions
-        get_permissions.return_value = permissions.Permissions(16)
-        check = permission_check_cls(422, halt_execution=True, error_message=None)
-
-        with pytest.raises(tanjun.HaltExecution):
-            await check(context)
-
-        get_permissions.assert_awaited_once_with(context)
-
-    @pytest.mark.asyncio()
-    async def test___call___when_missing_permissions_and_error_message(
-        self, permission_check_cls: type[tanjun.checks.PermissionCheck], context: tanjun.abc.Context
-    ):
-        assert isinstance(permission_check_cls.get_permissions, mock.AsyncMock)
-        get_permissions = permission_check_cls.get_permissions
-        get_permissions.return_value = permissions.Permissions(16)
-        check = permission_check_cls(422, error_message="hi")
-
-        with pytest.raises(tanjun.CommandError):
-            await check(context)
-
-        get_permissions.assert_awaited_once_with(context)
-
-
 @pytest.mark.skip(reason="Not implemented")
 class TestAuthorPermissionCheck:
     ...
 
 
 @pytest.mark.skip(reason="Not implemented")
-class TestOwnPermissionsCheck:
+class TestOwnPermissionCheck:
     ...
 
 
 def test_with_dm_check(command: mock.Mock):
-    mock_ctx = object()
     with mock.patch.object(tanjun.checks, "DmCheck") as DmCheck:
         assert tanjun.checks.with_dm_check(command) is command
-        assert command.add_check.mock_calls[0].args[0](mock_ctx) is DmCheck.return_value.return_value
 
-        command.add_check.assert_called_once()
+        command.add_check.assert_called_once_with(DmCheck.return_value)
         DmCheck.assert_called_once_with(halt_execution=False, error_message="Command can only be used in DMs")
-        DmCheck.return_value.assert_called_once_with(mock_ctx)
 
 
 def test_with_dm_check_with_keyword_arguments(command: mock.Mock):
-    mock_ctx = object()
     with mock.patch.object(tanjun.checks, "DmCheck") as DmCheck:
         assert tanjun.checks.with_dm_check(halt_execution=True, error_message="message")(command) is command
-        assert command.add_check.mock_calls[0].args[0](mock_ctx) is DmCheck.return_value.return_value
 
-        command.add_check.assert_called_once()
+        command.add_check.assert_called_once_with(DmCheck.return_value)
         DmCheck.assert_called_once_with(halt_execution=True, error_message="message")
-        DmCheck.return_value.assert_called_once_with(mock_ctx)
 
 
 def test_with_guild_check(command: mock.Mock):
-    mock_ctx = object()
     with mock.patch.object(tanjun.checks, "GuildCheck") as GuildCheck:
         assert tanjun.checks.with_guild_check(command) is command
-        assert command.add_check.mock_calls[0].args[0](mock_ctx) is GuildCheck.return_value.return_value
 
-        command.add_check.assert_called_once()
+        command.add_check.assert_called_once_with(GuildCheck.return_value)
         GuildCheck.assert_called_once_with(
             halt_execution=False, error_message="Command can only be used in guild channels"
         )
-        GuildCheck.return_value.assert_called_once_with(mock_ctx)
 
 
 def test_with_guild_check_with_keyword_arguments(command: mock.Mock):
-    mock_ctx = object()
     with mock.patch.object(tanjun.checks, "GuildCheck") as GuildCheck:
         assert tanjun.checks.with_guild_check(halt_execution=True, error_message="eee")(command) is command
-        assert command.add_check.mock_calls[0].args[0](mock_ctx) is GuildCheck.return_value.return_value
 
-        command.add_check.assert_called_once()
+        command.add_check.assert_called_once_with(GuildCheck.return_value)
         GuildCheck.assert_called_once_with(halt_execution=True, error_message="eee")
-        GuildCheck.return_value.assert_called_once_with(mock_ctx)
 
 
-@pytest.mark.asyncio()
-async def test_with_nsfw_check(command: mock.Mock):
-    mock_ctx = object()
+def test_with_nsfw_check(command: mock.Mock):
     with mock.patch.object(tanjun.checks, "NsfwCheck", return_value=mock.AsyncMock()) as NsfwCheck:
         assert tanjun.checks.with_nsfw_check(command) is command
-        assert await command.add_check.mock_calls[0].args[0](mock_ctx) is NsfwCheck.return_value.return_value
 
-        command.add_check.assert_called_once()
+        command.add_check.assert_called_once_with(NsfwCheck.return_value)
         NsfwCheck.assert_called_once_with(
             halt_execution=False, error_message="Command can only be used in NSFW channels"
         )
-        NsfwCheck.return_value.assert_awaited_once_with(mock_ctx)
 
 
-@pytest.mark.asyncio()
-async def test_with_nsfw_check_with_keyword_arguments(command: mock.Mock):
-    mock_ctx = object()
+def test_with_nsfw_check_with_keyword_arguments(command: mock.Mock):
     with mock.patch.object(tanjun.checks, "NsfwCheck", return_value=mock.AsyncMock()) as NsfwCheck:
         assert tanjun.checks.with_nsfw_check(halt_execution=True, error_message="banned!!!")(command) is command
-        assert await command.add_check.mock_calls[0].args[0](mock_ctx) is NsfwCheck.return_value.return_value
 
-        command.add_check.assert_called_once()
+        command.add_check.assert_called_once_with(NsfwCheck.return_value)
         NsfwCheck.assert_called_once_with(halt_execution=True, error_message="banned!!!")
-        NsfwCheck.return_value.assert_awaited_once_with(mock_ctx)
 
 
-@pytest.mark.asyncio()
-async def test_with_sfw_check(command: mock.Mock):
-    mock_ctx = object()
+def test_with_sfw_check(command: mock.Mock):
     with mock.patch.object(tanjun.checks, "SfwCheck", return_value=mock.AsyncMock()) as SfwCheck:
         assert tanjun.checks.with_sfw_check(command) is command
-        assert await command.add_check.mock_calls[0].args[0](mock_ctx) is SfwCheck.return_value.return_value
 
-        command.add_check.assert_called_once()
+        command.add_check.assert_called_once_with(SfwCheck.return_value)
         SfwCheck.assert_called_once_with(halt_execution=False, error_message="Command can only be used in SFW channels")
-        SfwCheck.return_value.assert_awaited_once_with(mock_ctx)
 
 
-@pytest.mark.asyncio()
-async def test_with_sfw_check_with_keyword_arguments(command: mock.Mock):
-    mock_ctx = object()
+def test_with_sfw_check_with_keyword_arguments(command: mock.Mock):
     with mock.patch.object(tanjun.checks, "SfwCheck", return_value=mock.AsyncMock()) as SfwCheck:
         assert tanjun.checks.with_sfw_check(halt_execution=True, error_message="bango")(command) is command
-        assert await command.add_check.mock_calls[0].args[0](mock_ctx) is SfwCheck.return_value.return_value
 
-        command.add_check.assert_called_once()
+        command.add_check.assert_called_once_with(SfwCheck.return_value)
         SfwCheck.assert_called_once_with(halt_execution=True, error_message="bango")
-        SfwCheck.return_value.assert_awaited_once_with(mock_ctx)
 
 
 def test_with_owner_check(command: mock.Mock):
@@ -347,11 +257,11 @@ def test_with_author_permission_check(command: mock.Mock):
 
 def test_with_own_permission_check(command: mock.Mock):
     mock_check = object()
-    with mock.patch.object(tanjun.checks, "OwnPermissionsCheck", return_value=mock_check) as OwnPermissionsCheck:
+    with mock.patch.object(tanjun.checks, "OwnPermissionCheck", return_value=mock_check) as OwnPermissionCheck:
         assert (
             tanjun.checks.with_own_permission_check(5412312, halt_execution=True, error_message="hi")(command)
             is command
         )
 
         command.add_check.assert_called_once_with(mock_check)
-        OwnPermissionsCheck.assert_called_once_with(5412312, halt_execution=True, error_message="hi")
+        OwnPermissionCheck.assert_called_once_with(5412312, halt_execution=True, error_message="hi")

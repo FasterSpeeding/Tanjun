@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Check functions such as `nsfw_check`, `sfw_check`, `dm_check`, `guild_check` have been replaced with
   check classes (NsfwCheck, SfwCheck, DmCheck, GuildCheck).
 - Renamed `ApplicationOwnerCheck` to `OwnerCheck`.
+- Renamed `OwnPermissionsCheck` to `OwnPermissionCheck`.
 
 ### Deprecated
 - Passing Iterable[tuple[str, value]] as choices to the slash command options has been deprecated
@@ -29,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - `tanjun.abc.ExecutableCommand.execute` and `check_context` as this doesn't work typing wise.
   This doesn't effect the implementations nor full command types.
+- Base `PermissionsCheck` class.
 
 ## [2.1.1a1] - 2021-10-09
 ### Added

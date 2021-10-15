@@ -41,9 +41,8 @@ __all__: list[str] = [
     "SfwCheck",
     "DmCheck",
     "GuildCheck",
-    "PermissionCheck",
     "AuthorPermissionCheck",
-    "OwnPermissionsCheck",
+    "OwnPermissionCheck",
     "with_check",
     "with_dm_check",
     "with_guild_check",
@@ -54,17 +53,15 @@ __all__: list[str] = [
     "with_own_permission_check",
 ]
 
-import abc
-import asyncio
 import typing
 from collections import abc as collections
 
 import hikari
 
 from . import _backoff as backoff
+from . import dependencies
 from . import errors
 from . import injecting
-from . import standard_dependencies
 from . import utilities
 
 if typing.TYPE_CHECKING:
@@ -133,9 +130,9 @@ class _Check:
     def _handle_result(self, result: bool) -> bool:
         if not result:
             if self._error_message:
-                raise errors.CommandError(self._error_message)
+                raise errors.CommandError(self._error_message) from None
             if self._halt_execution:
-                raise errors.HaltExecution
+                raise errors.HaltExecution from None
 
         return result
 
@@ -154,9 +151,7 @@ class OwnerCheck(_Check):
     async def __call__(
         self,
         ctx: tanjun_abc.Context,
-        dependency: standard_dependencies.AbstractOwnerCheck = injecting.injected(
-            type=standard_dependencies.AbstractOwnerCheck
-        ),
+        dependency: dependencies.AbstractOwnerCheck = injecting.injected(type=dependencies.AbstractOwnerCheck),
     ) -> bool:
         return self._handle_result(await dependency.check_ownership(ctx.client, ctx.author))
 
@@ -229,31 +224,8 @@ class GuildCheck(_Check):
         return self._handle_result(ctx.guild_id is not None)
 
 
-class PermissionCheck(_Check):
-    __slots__ = ("_halt_execution", "_error_message", "permissions")
-
-    def __init__(
-        self,
-        permissions: typing.Union[hikari.Permissions, int],
-        /,
-        *,
-        error_message: typing.Optional[str],
-        halt_execution: bool = False,
-    ) -> None:
-        super().__init__(error_message, halt_execution)
-        self.permissions = hikari.Permissions(permissions)
-
-    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
-        result = (self.permissions & await self.get_permissions(ctx)) == self.permissions
-        return self._handle_result(result)
-
-    @abc.abstractmethod
-    async def get_permissions(self, ctx: tanjun_abc.Context, /) -> hikari.Permissions:
-        raise NotImplementedError
-
-
-class AuthorPermissionCheck(PermissionCheck):
-    __slots__ = ()
+class AuthorPermissionCheck(_Check):
+    __slots__ = ("permissions",)
 
     def __init__(
         self,
@@ -263,26 +235,33 @@ class AuthorPermissionCheck(PermissionCheck):
         error_message: typing.Optional[str] = "You don't have the permissions required to use this command",
         halt_execution: bool = False,
     ) -> None:
-        super().__init__(permissions, error_message=error_message, halt_execution=halt_execution)
+        super().__init__(error_message=error_message, halt_execution=halt_execution)
+        self.permissions = permissions
 
-    async def get_permissions(self, ctx: tanjun_abc.Context, /) -> hikari.Permissions:
+    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
         if not ctx.member:
             # If there's no member when this is within a guild then it's likely
             # something like a webhook or guild visitor with no real permissions
             # outside of some basic set of send messages
             if ctx.guild_id:
-                return await utilities.fetch_everyone_permissions(ctx.client, ctx.guild_id, channel=ctx.channel_id)
+                permissions = await utilities.fetch_everyone_permissions(
+                    ctx.client, ctx.guild_id, channel=ctx.channel_id
+                )
 
-            return utilities.DM_PERMISSIONS
+            else:
+                permissions = utilities.DM_PERMISSIONS
 
-        if isinstance(ctx.member, hikari.InteractionMember):
-            return ctx.member.permissions
+        elif isinstance(ctx.member, hikari.InteractionMember):
+            permissions = ctx.member.permissions
 
-        return await utilities.fetch_permissions(ctx.client, ctx.member, channel=ctx.channel_id)
+        else:
+            permissions = await utilities.fetch_permissions(ctx.client, ctx.member, channel=ctx.channel_id)
+
+        return self._handle_result((self.permissions & permissions) == self.permissions)
 
 
-class OwnPermissionsCheck(PermissionCheck):
-    __slots__ = ("_lock", "_me")
+class OwnPermissionCheck(_Check):
+    __slots__ = ("permissions",)
 
     def __init__(
         self,
@@ -292,40 +271,34 @@ class OwnPermissionsCheck(PermissionCheck):
         error_message: typing.Optional[str] = "Bot doesn't have the permissions required to run this command",
         halt_execution: bool = False,
     ) -> None:
-        super().__init__(permissions, error_message=error_message, halt_execution=halt_execution)
-        self._lock = asyncio.Lock()
-        self._me: typing.Optional[hikari.User] = None
+        super().__init__(error_message=error_message, halt_execution=halt_execution)
+        self.permissions = permissions
 
-    async def get_permissions(self, ctx: tanjun_abc.Context, /) -> hikari.Permissions:
+    async def __call__(
+        self,
+        ctx: tanjun_abc.Context,
+        /,
+        my_user: hikari.OwnUser = injecting.injected(callback=dependencies.make_lc_resolver(hikari.OwnUser)),
+    ) -> bool:
         if ctx.guild_id is None:
-            return utilities.DM_PERMISSIONS
+            permissions = utilities.DM_PERMISSIONS
 
-        member = await self._get_member(ctx, ctx.guild_id)
-        return await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
+        elif ctx.cache and (member := ctx.cache.get_member(ctx.guild_id, my_user)):
+            permissions = await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
-    async def _get_member(self, ctx: tanjun_abc.Context, guild_id: hikari.Snowflake, /) -> hikari.Member:
-        user = self._me or await self._get_user(ctx.client.cache, ctx.client.rest)
+        else:
+            try:
+                member = await ctx.rest.fetch_member(ctx.guild_id, my_user.id)
 
-        if ctx.client.cache and (member := ctx.client.cache.get_member(guild_id, user.id)):
-            return member
+            except hikari.NotFoundError:
+                # If we're not in the Guild then we have to assume the application
+                # if still in there and that we likely won't be able to do anything.
+                # TODO: re-visit this later.
+                return self._handle_result(False)
 
-        retry = backoff.Backoff(maximum=5, max_retries=4)
-        return await utilities.fetch_resource(retry, ctx.client.rest.fetch_member, guild_id, user.id)
+            permissions = await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
-    async def _get_user(self, cache: typing.Optional[hikari.api.Cache], rest: hikari.api.RESTClient, /) -> hikari.User:
-        async with self._lock:
-            if self._me:
-                return self._me
-
-            if cache and (user := cache.get_me()):
-                self._me = user
-
-            else:
-                retry = backoff.Backoff(maximum=5, max_retries=4)
-                raw_user = await utilities.fetch_resource(retry, rest.fetch_my_user)
-                self._me = raw_user
-
-        return self._me
+        return (permissions & self.permissions) == self.permissions
 
 
 @typing.overload
@@ -677,7 +650,7 @@ def with_own_permission_check(
         A command decorator callback which adds the check.
     """
     return lambda command: command.add_check(
-        OwnPermissionsCheck(permissions, halt_execution=halt_execution, error_message=error_message)
+        OwnPermissionCheck(permissions, halt_execution=halt_execution, error_message=error_message)
     )
 
 

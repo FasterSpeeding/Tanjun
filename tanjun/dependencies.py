@@ -32,7 +32,7 @@
 """Default dependency classes used within Tanjun and their abstract interfaces."""
 from __future__ import annotations
 
-__all__: list[str] = ["AbstractOwnerCheck", "OwnerCheck"]
+__all__: list[str] = ["AbstractOwnerCheck", "LazyConstant", "make_lc_resolver", "OwnerCheck"]
 
 import abc
 import asyncio
@@ -44,9 +44,12 @@ import typing
 import hikari
 
 from . import abc as tanjun_abc
+from . import injecting
 
 if typing.TYPE_CHECKING:
-    from . import injecting
+    import contextlib
+    from collections import abc as collections
+
 
 _T = typing.TypeVar("_T")
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun")
@@ -90,7 +93,7 @@ class _CachedValue(typing.Generic[_T]):
             not self._last_called or self._expire_after <= (time.monotonic() - self._last_called)
         )
 
-    async def acquire(self, callback: typing.Callable[[], typing.Awaitable[_T]], /) -> _T:
+    async def acquire(self, callback: collections.Callable[[], collections.Awaitable[_T]], /) -> _T:
         if self._result is not None and not self._has_expired:
             return self._result
 
@@ -110,6 +113,10 @@ class _CachedValue(typing.Generic[_T]):
 
 class OwnerCheck(AbstractOwnerCheck):
     """Default implementation of the owner check interface.
+
+    .. warning::
+        `fallback_to_application` is only possible when the REST client
+        is bound to a Bot token.
 
     Other Parameters
     ----------------
@@ -149,7 +156,7 @@ class OwnerCheck(AbstractOwnerCheck):
         if not self._fallback_to_application:
             return False
 
-        if client.rest.token_type != hikari.TokenType.BOT:
+        if client.rest.token_type is not hikari.TokenType.BOT:
             _LOGGER.warning(
                 "Owner checks cannot fallback to application owners when bound to an OAuth2 "
                 "client credentials token and may always fail unless bound to a Bot token."
@@ -160,6 +167,139 @@ class OwnerCheck(AbstractOwnerCheck):
         return user.id in application.team.members if application.team else user.id == application.owner.id
 
 
+class LazyConstant(typing.Generic[_T]):
+    """Injected type used to hold and generate lazy constants.
+
+    Parameters
+    ----------
+    callback : collections.abc.Callable[..., _T]
+        Callback used to resolve this to a constant value.
+
+        This supports dependency injection.
+    """
+
+    __slots__ = ("_callback", "_lock", "_value")
+
+    def __init__(self, callback: collections.Callable[..., tanjun_abc.MaybeAwaitableT[_T]], /) -> None:
+        self._callback = injecting.CallbackDescriptor(callback)
+        self._lock: typing.Optional[asyncio.Lock] = None
+        self._value: typing.Optional[_T] = None
+
+    @property
+    def callback(self) -> injecting.CallbackDescriptor[_T]:
+        return self._callback
+
+    @property
+    def value(self) -> typing.Optional[_T]:
+        return self._value
+
+    def clear(self) -> None:
+        self._value = None
+
+    def set_value(self, value: _T) -> None:
+        self._value = value
+        self._lock = None
+
+    def acquire(self) -> contextlib.AbstractAsyncContextManager[typing.Any]:
+        if not self._lock:
+            # Error if this is called outside of a running event loop.
+            asyncio.get_running_loop()
+            self._lock = asyncio.Lock()
+
+        return self._lock
+
+
+def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., _T]:
+    """Make an injected callback which resolves a LazyConstant.
+
+    Parameters
+    ----------
+    constant : type[_T]
+        The type of the constant to resolve.
+
+    Returns
+    -------
+    collections.abc.Callable[..., _T]
+        An injected callback used to resolve the LazyConstant.
+
+    Example
+    -------
+    ```py
+    @component.with_command
+    @tanjun.as_message_command
+    async def command(
+        ctx: tanjun.abc.MessageCommand,
+        application: hikari.Application = tanjun.injected(
+            callback=tanjun.make_lc_resolver(hikari.Application)
+        )
+    ) -> None:
+        raise NotImplementedError
+
+    ...
+
+    async def resolve_app(
+        client: tanjun.abc.Client = tanjun.injected(type=tanjun.abc.Client)
+    ) -> hikari.Application:
+        raise NotImplementedError
+
+    tanjun.Client.from_gateway_bot(...).set_type_dependency(
+        tanjun.LazyConstant[hikari.Application] = tanjun.LazyConstant(resolve_app)
+    )
+    ```
+    """
+
+    async def resolve(
+        constant: LazyConstant[_T] = injecting.injected(type=LazyConstant[type_]),
+        ctx: injecting.AbstractInjectionContext = injecting.injected(type=injecting.AbstractInjectionContext),
+    ) -> _T:
+        if constant.value is not None:
+            return constant.value
+
+        async with constant.acquire():
+            if constant.value is not None:
+                return typing.cast(_T, constant.value)
+
+            result = await constant.callback.resolve(ctx)
+            constant.set_value(result)
+            return result
+
+    return resolve
+
+
+async def fetch_current_user(
+    client: tanjun_abc.Client = injecting.injected(type=tanjun_abc.Client),
+) -> hikari.OwnUser:
+    """Fetch the current user from the client's cache or rest client.
+
+    .. note::
+        This is used in the standard `LazyConstant[hikari.OwnUser]`
+        dependency.
+
+    Parameters
+    ----------
+    client : tanjun.abc.Client
+        The client to use to fetch the user.
+
+    Returns
+    -------
+    hikari.OwnUser
+        The current user.
+
+    Raises
+    ------
+    RuntimeError
+        If the cache couldn't be used to get the current user and the REST
+        client is not bound to a Bot token.
+    """
+    if client.cache and (user := client.cache.get_me()):
+        return user
+
+    if client.rest.token_type is not hikari.TokenType.BOT:
+        raise RuntimeError("Cannot fetch current user with a REST client that's bound to a client credentials token")
+
+    return await client.rest.fetch_my_user()
+
+
 def set_standard_dependencies(client: injecting.InjectorClient, /) -> None:
     """Set the standard dependencies for Tanjun.
 
@@ -168,4 +308,8 @@ def set_standard_dependencies(client: injecting.InjectorClient, /) -> None:
     client: tanjun.injecting.InjectorClient
         The injector client to set the standard dependencies on.
     """
-    client.set_type_dependency(AbstractOwnerCheck, OwnerCheck())
+    (
+        client.set_type_dependency(AbstractOwnerCheck, OwnerCheck()).set_type_dependency(
+            LazyConstant[hikari.OwnUser], LazyConstant(fetch_current_user)
+        )
+    )
