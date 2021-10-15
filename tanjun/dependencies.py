@@ -309,7 +309,7 @@ def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., _T]:
     return resolve
 
 
-async def fetch_current_user(
+async def fetch_my_user(
     client: tanjun_abc.Client = injecting.injected(type=tanjun_abc.Client),
 ) -> hikari.OwnUser:
     """Fetch the current user from the client's cache or rest client.
@@ -353,6 +353,6 @@ def set_standard_dependencies(client: injecting.InjectorClient, /) -> None:
     """
     (
         client.set_type_dependency(AbstractOwnerCheck, OwnerCheck()).set_type_dependency(
-            LazyConstant[hikari.OwnUser], LazyConstant(fetch_current_user)
+            LazyConstant[hikari.OwnUser], LazyConstant(fetch_my_user)
         )
     )

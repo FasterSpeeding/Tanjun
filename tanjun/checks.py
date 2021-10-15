@@ -58,7 +58,6 @@ from collections import abc as collections
 
 import hikari
 
-from . import _backoff as backoff
 from . import dependencies
 from . import errors
 from . import injecting
@@ -156,16 +155,13 @@ class OwnerCheck(_Check):
         return self._handle_result(await dependency.check_ownership(ctx.client, ctx.author))
 
 
-async def _get_is_nsfw(ctx: tanjun_abc.Context, /) -> bool:
+async def _get_is_nsfw(ctx: tanjun_abc.Context, /, *, dm_default: bool) -> bool:
     channel: typing.Optional[hikari.PartialChannel] = None
-    if ctx.client.cache:
-        channel = ctx.client.cache.get_guild_channel(ctx.channel_id)
+    if ctx.cache and (channel := ctx.cache.get_guild_channel(ctx.channel_id)):
+        return channel.is_nsfw or False
 
-    if not channel:
-        retry = backoff.Backoff(maximum=5, max_retries=4)
-        channel = await utilities.fetch_resource(retry, ctx.client.rest.fetch_channel, ctx.channel_id)
-
-    return channel.is_nsfw or False if isinstance(channel, hikari.GuildChannel) else True
+    channel = await ctx.rest.fetch_channel(ctx.channel_id)
+    return channel.is_nsfw or False if isinstance(channel, hikari.GuildChannel) else dm_default
 
 
 class NsfwCheck(_Check):
@@ -179,7 +175,7 @@ class NsfwCheck(_Check):
         super().__init__(error_message, halt_execution)
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
-        return self._handle_result(await _get_is_nsfw(ctx))
+        return self._handle_result(await _get_is_nsfw(ctx, dm_default=True))
 
 
 class SfwCheck(_Check):
@@ -193,7 +189,7 @@ class SfwCheck(_Check):
         super().__init__(error_message, halt_execution)
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
-        return self._handle_result(not await _get_is_nsfw(ctx))
+        return self._handle_result(not await _get_is_nsfw(ctx, dm_default=False))
 
 
 class DmCheck(_Check):
