@@ -46,6 +46,9 @@
                                 <a class="variable" href="#Component.client">client</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Component.defaults_to_ephemeral">defaults_to_ephemeral</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Component.hooks">hooks</a>
                         </li>
                         <li>
@@ -74,6 +77,9 @@
                         </li>
                         <li>
                                 <a class="function" href="#Component.copy">copy</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Component.set_ephemeral_default">set_ephemeral_default</a>
                         </li>
                         <li>
                                 <a class="function" href="#Component.set_slash_hooks">set_slash_hooks</a>
@@ -258,7 +264,8 @@
 
 
 <span class="n">CommandT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;CommandT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;abc.ExecutableCommand[typing.Any]&quot;</span><span class="p">)</span>
-<span class="n">WithCommandReturnSig</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">CommandT</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CommandT</span><span class="p">],</span> <span class="n">CommandT</span><span class="p">]]</span>
+<span class="c1"># This errors on earlier 3.9 releases when not quotes cause dumb handling of the [CommandT] list</span>
+<span class="n">WithCommandReturnSig</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">CommandT</span><span class="p">,</span> <span class="s2">&quot;collections.Callable[[CommandT], CommandT]&quot;</span><span class="p">]</span>
 
 
 <span class="nd">@typing</span><span class="o">.</span><span class="n">runtime_checkable</span>
@@ -332,7 +339,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    checks : typing.Optional[typing.Iterable[abc.CheckSig]]</span>
+<span class="sd">    checks : typing.Optional[collections.abc.Iterable[abc.CheckSig]]</span>
 <span class="sd">        Iterable of check callbacks to set for this component, if provided.</span>
 <span class="sd">    hooks : typing.Optional[tanjun.abc.AnyHooks]</span>
 <span class="sd">        The hooks this component should add to the execution of all its</span>
@@ -359,6 +366,7 @@
         <span class="s2">&quot;_checks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_client&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_client_callbacks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_defaults_to_ephemeral&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_hooks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_is_strict&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_listeners&quot;</span><span class="p">,</span>
@@ -387,6 +395,7 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -411,6 +420,10 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]:</span>
@@ -466,11 +479,32 @@
 
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set whether slash contexts executed in this component should default to ephemeral responses.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        typing.Optional[bool]</span>
+<span class="sd">            Whether slash command contexts executed in this component should</span>
+<span class="sd">            should default to ephemeral.</span>
+<span class="sd">            This will be overridden by any response calls which specify flags.</span>
+
+<span class="sd">            Setting this to `None` will let the default set on the parent</span>
+<span class="sd">            client propagate and decide the ephemeral default behaviour.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This component to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
     <span class="k">def</span> <span class="nf">set_slash_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">hooks_</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">set_message_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_message_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">hooks_</span>
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -842,8 +876,13 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]:</span>
-        <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">):</span>
-            <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
 
@@ -921,7 +960,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    checks : typing.Optional[typing.Iterable[abc.CheckSig]]</span>
+<span class="sd">    checks : typing.Optional[collections.abc.Iterable[abc.CheckSig]]</span>
 <span class="sd">        Iterable of check callbacks to set for this component, if provided.</span>
 <span class="sd">    hooks : typing.Optional[tanjun.abc.AnyHooks]</span>
 <span class="sd">        The hooks this component should add to the execution of all its</span>
@@ -948,6 +987,7 @@
         <span class="s2">&quot;_checks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_client&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_client_callbacks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_defaults_to_ephemeral&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_hooks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_is_strict&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_listeners&quot;</span><span class="p">,</span>
@@ -976,6 +1016,7 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1000,6 +1041,10 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]:</span>
@@ -1055,11 +1100,32 @@
 
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set whether slash contexts executed in this component should default to ephemeral responses.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        typing.Optional[bool]</span>
+<span class="sd">            Whether slash command contexts executed in this component should</span>
+<span class="sd">            should default to ephemeral.</span>
+<span class="sd">            This will be overridden by any response calls which specify flags.</span>
+
+<span class="sd">            Setting this to `None` will let the default set on the parent</span>
+<span class="sd">            client propagate and decide the ephemeral default behaviour.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This component to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
     <span class="k">def</span> <span class="nf">set_slash_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">hooks_</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">set_message_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_message_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">hooks_</span>
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -1431,8 +1497,13 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]:</span>
-        <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">):</span>
-            <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
 
@@ -1489,7 +1560,7 @@ supports dependency injection.</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>checks</strong> (typing.Optional[typing.Iterable[abc.CheckSig]]):
+<li><strong>checks</strong> (typing.Optional[collections.abc.Iterable[abc.CheckSig]]):
 Iterable of check callbacks to set for this component, if provided.</li>
 <li><strong>hooks</strong> (typing.Optional[<a href="abc.html#AnyHooks">tanjun.abc.AnyHooks</a>]):
 The hooks this component should add to the execution of all its
@@ -1548,6 +1619,7 @@ spaces and will have to be unique to one command within the component.</p></li>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_callbacks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MetaEventSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1591,6 +1663,37 @@ spaces and will have to be unique to one command within the component.</p></li>
 <li><strong>client</strong> (typing.Optional[Client]):
 The client this component is bound to.</li>
 </ul>
+</div>
+
+
+                            </div>
+                            <div id="Component.defaults_to_ephemeral" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Component.defaults_to_ephemeral">#&nbsp;&nbsp</a>
+
+        <span class="name">defaults_to_ephemeral</span><span class="annotation">: Optional[bool]</span>
+    </div>
+
+            <div class="docstring"><p>Whether slash contexts executed in this component should default to ephemeral responses.</p>
+
+<p>This effects calls to <code>SlashContext.create_followup</code>,
+<code>SlashContext.create_initial_response</code>, <code>SlashContext.defer</code> and
+<code>SlashContext.respond</code> unless the <code>flags</code> field is provided for the
+methods which support it.</p>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>This may be overridden by <code>BaseSlashCommand.defaults_to_ephemeral</code>.</li>
+<li>This only effects slash command execution.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>typing.Optional[bool]</strong>: Whether contexts executed in this component should default to ephemeral responses.</li>
+</ul>
+
+<p>If this is <code>None</code> then the default from the parent client is used.</p>
 </div>
 
 
@@ -1755,6 +1858,62 @@ the component.</p>
     
 
                             </div>
+                            <div id="Component.set_ephemeral_default" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Component.set_ephemeral_default">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">set_ephemeral_default</span><span class="signature">(self: ~_ComponentT, state: Optional[bool], /) -&gt; ~_ComponentT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set whether slash contexts executed in this component should default to ephemeral responses.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        typing.Optional[bool]</span>
+<span class="sd">            Whether slash command contexts executed in this component should</span>
+<span class="sd">            should default to ephemeral.</span>
+<span class="sd">            This will be overridden by any response calls which specify flags.</span>
+
+<span class="sd">            Setting this to `None` will let the default set on the parent</span>
+<span class="sd">            client propagate and decide the ephemeral default behaviour.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SelfT</span>
+<span class="sd">            This component to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Set whether slash contexts executed in this component should default to ephemeral responses.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>typing.Optional[bool]</strong>: Whether slash command contexts executed in this component should
+should default to ephemeral.
+This will be overridden by any response calls which specify flags.</li>
+</ul>
+
+<p>Setting this to <code>None</code> will let the default set on the parent
+client propagate and decide the ephemeral default behaviour.</p>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>SelfT</strong>: This component to enable method chaining.</li>
+</ul>
+</div>
+
+
+                            </div>
                             <div id="Component.set_slash_hooks" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Component.set_slash_hooks">#&nbsp;&nbsp</a>
 
@@ -1786,13 +1945,14 @@ the component.</p>
             <span class="def">def</span>
             <span class="name">set_message_hooks</span><span class="signature">(
     self: ~_ComponentT,
-    hooks_: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#MessageContext">tanjun.abc.MessageContext</a>]]
+    hooks_: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#MessageContext">tanjun.abc.MessageContext</a>]],
+    /
 ) -&gt; ~_ComponentT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_message_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_message_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">hooks_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">hooks_</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
@@ -2210,7 +2370,7 @@ The command to remove.</li>
     /,
     *,
     copy: bool = False
-) -&gt; Union[~BaseSlashCommandT, collections.abc.Callable[[~BaseSlashCommandT], ~BaseSlashCommandT]]</span>:
+) -&gt; Union[~BaseSlashCommandT, collections.abc.Callable[[~CommandT], ~CommandT]]</span>:
     </div>
 
                 <details>
@@ -2394,7 +2554,7 @@ The command to remove.</li>
     /,
     *,
     copy: bool = False
-) -&gt; Union[~MessageCommandT, collections.abc.Callable[[~MessageCommandT], ~MessageCommandT]]</span>:
+) -&gt; Union[~MessageCommandT, collections.abc.Callable[[~CommandT], ~CommandT]]</span>:
     </div>
 
                 <details>
@@ -2580,7 +2740,7 @@ The event to listen for.</li>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</strong>: Decorator callback which takes listener to add.</li>
+<li><strong>collections.abc.Callable[[ListenerCallbackSigT], ListenerCallbackSigT]</strong>: Decorator callback which takes listener to add.</li>
 </ul>
 </div>
 
@@ -2784,8 +2944,13 @@ The name to check for command matches.</li>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]:</span>
-        <span class="k">if</span> <span class="n">command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">):</span>
-            <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">command_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">command</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">defaults_to_ephemeral</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute_interaction</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">)</span>
 </pre></div>
@@ -2794,9 +2959,9 @@ The name to check for command matches.</li>
 
             <div class="docstring"><p>Execute a slash context.</p>
 
-<p>.. info::
-    Unlike <code><a href="#Component.execute_message">Component.execute_message</a></code>, this shouldn't be expected to
-    raise <code><a href="errors.html#HaltExecution">tanjun.errors.HaltExecution</a></code> nor <code><a href="errors.html#CommandError">tanjun.errors.CommandError</a></code>.</p>
+<p><em>Note:</em>
+Unlike <code><a href="#Component.execute_message">Component.execute_message</a></code>, this shouldn't be expected to
+raise <code><a href="errors.html#HaltExecution">tanjun.errors.HaltExecution</a></code> nor <code><a href="errors.html#CommandError">tanjun.errors.CommandError</a></code>.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -3077,7 +3242,7 @@ If <code>None</code> is returned, the attribute will be left as-is.</li>
                 <section id="WithCommandReturnSig">
                                 <div class="attr variable"><a class="headerlink" href="#WithCommandReturnSig">#&nbsp;&nbsp</a>
 
-        <span class="name">WithCommandReturnSig</span><span class="default_value"> = typing.Union[~CommandT, collections.abc.Callable[[~CommandT], ~CommandT]]</span>
+        <span class="name">WithCommandReturnSig</span><span class="default_value"> = typing.Union[~CommandT, ForwardRef(&#39;collections.Callable[[CommandT], CommandT]&#39;)]</span>
     </div>
 
     

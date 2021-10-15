@@ -1234,7 +1234,7 @@
 <span class="n">to_channel</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">ChannelConverter</span><span class="p">]</span> <span class="o">=</span> <span class="n">ChannelConverter</span><span class="p">()</span>
 <span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.channels.PartialChannel` object.&quot;&quot;&quot;</span>
 
-<span class="n">to_colour</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ArgumentT</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="p">]]</span> <span class="o">=</span> <span class="n">to_color</span>
+<span class="n">to_colour</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ArgumentT</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="p">]]</span> <span class="o">=</span> <span class="n">to_color</span>
 <span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.colors.Color` object.&quot;&quot;&quot;</span>
 
 <span class="n">to_emoji</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">EmojiConverter</span><span class="p">]</span> <span class="o">=</span> <span class="n">EmojiConverter</span><span class="p">()</span>
@@ -1258,7 +1258,7 @@
 <span class="n">to_role</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">RoleConverter</span><span class="p">]</span> <span class="o">=</span> <span class="n">RoleConverter</span><span class="p">()</span>
 <span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.guilds.Role` object.&quot;&quot;&quot;</span>
 
-<span class="n">to_snowflake</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ArgumentT</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]]</span> <span class="o">=</span> <span class="n">parse_snowflake</span>
+<span class="n">to_snowflake</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">ArgumentT</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]]</span> <span class="o">=</span> <span class="n">parse_snowflake</span>
 <span class="sd">&quot;&quot;&quot;Convert user input to a `hikari.snowflakes.Snowflake`.</span>
 
 <span class="sd">.. note::</span>
