@@ -294,7 +294,7 @@ class OwnPermissionCheck(_Check):
 
             permissions = await utilities.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
-        return (permissions & self.permissions) == self.permissions
+        return self._handle_result((permissions & self.permissions) == self.permissions)
 
 
 @typing.overload
