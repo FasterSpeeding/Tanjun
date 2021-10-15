@@ -120,20 +120,22 @@ def _optional_kwargs(
 
 
 class _Check:
-    __slots__ = ("_error_message", "_halt_execution")
+    __slots__ = ("_error_embed", "_error_message", "_halt_execution")
 
     def __init__(
         self,
         error_message: typing.Optional[str],
+        error_embed: typing.Optional[hikari.Embed],
         halt_execution: bool,
     ) -> None:
-        self._error_message = error_message
+        self._error_embed = error_embed or hikari.UNDEFINED
+        self._error_message = error_message or hikari.UNDEFINED
         self._halt_execution = halt_execution
 
     def _handle_result(self, result: bool) -> bool:
         if not result:
-            if self._error_message:
-                raise errors.CommandError(self._error_message) from None
+            if self._error_message or self._error_embed:
+                raise errors.CommandError(self._error_message, embed=self._error_embed) from None
             if self._halt_execution:
                 raise errors.HaltExecution from None
 
@@ -152,6 +154,7 @@ class OwnerCheck(_Check):
         self,
         *,
         error_message: typing.Optional[str] = "Only bot owners can use this command",
+        error_embed: typing.Optional[hikari.Embed] = None,
         halt_execution: bool = False,
     ) -> None:
         """Initialise a owner check.
@@ -172,7 +175,7 @@ class OwnerCheck(_Check):
 
             Defaults to `False`.
         """
-        super().__init__(error_message, halt_execution)
+        super().__init__(error_message, error_embed=error_embed, halt_execution)
 
     async def __call__(
         self,
@@ -226,6 +229,7 @@ class NsfwCheck(_Check):
         self,
         *,
         error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
+        error_embed: typing.Optional[hikari.Embed] = None,
         halt_execution: bool = False,
     ) -> None:
         """Initialise a NSFW check.
@@ -246,7 +250,7 @@ class NsfwCheck(_Check):
 
             Defaults to `False`.
         """
-        super().__init__(error_message, halt_execution)
+        super().__init__(error_message, error_embed=error_embed, halt_execution)
 
     async def __call__(
         self,
@@ -269,6 +273,7 @@ class SfwCheck(_Check):
         self,
         *,
         error_message: typing.Optional[str] = "Command can only be used in SFW channels",
+        error_embed: typing.Optional[hikari.Embed] = None,
         halt_execution: bool = False,
     ) -> None:
         """Initialise a SFW check.
@@ -289,7 +294,7 @@ class SfwCheck(_Check):
 
             Defaults to `False`.
         """
-        super().__init__(error_message, halt_execution)
+        super().__init__(error_message, error_embed=error_embed, halt_execution)
 
     async def __call__(
         self,
@@ -312,6 +317,7 @@ class DmCheck(_Check):
         self,
         *,
         error_message: typing.Optional[str] = "Command can only be used in DMs",
+        error_embed: typing.Optional[hikari.Embed] = None,
         halt_execution: bool = False,
     ) -> None:
         """Initialise a DM check.
@@ -332,7 +338,7 @@ class DmCheck(_Check):
 
             Defaults to `False`.
         """
-        super().__init__(error_message, halt_execution)
+        super().__init__(error_message, error_embed=error_embed, halt_execution)
 
     def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
         return self._handle_result(ctx.guild_id is None)
@@ -350,6 +356,7 @@ class GuildCheck(_Check):
         self,
         *,
         error_message: typing.Optional[str] = "Command can only be used in guild channels",
+        error_embed: typing.Optional[hikari.Embed] = None,
         halt_execution: bool = False,
     ) -> None:
         """Initialise a guild check.
@@ -370,7 +377,7 @@ class GuildCheck(_Check):
 
             Defaults to `False`.
         """
-        super().__init__(error_message, halt_execution)
+        super().__init__(error_message, error_embed=error_embed, halt_execution)
 
     def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
         return self._handle_result(ctx.guild_id is not None)
@@ -390,6 +397,7 @@ class AuthorPermissionCheck(_Check):
         /,
         *,
         error_message: typing.Optional[str] = "You don't have the permissions required to use this command",
+        error_embed: typing.Optional[hikari.Embed] = None,
         halt_execution: bool = False,
     ) -> None:
         """Initialise an author permission check.
@@ -415,7 +423,7 @@ class AuthorPermissionCheck(_Check):
 
             Defaults to `False`.
         """
-        super().__init__(error_message=error_message, halt_execution=halt_execution)
+        super().__init__(error_message=error_message, error_embed=error_embed, halt_execution=halt_execution)
         self._permissions = permissions
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
@@ -454,6 +462,7 @@ class OwnPermissionCheck(_Check):
         /,
         *,
         error_message: typing.Optional[str] = "Bot doesn't have the permissions required to run this command",
+        error_embed: typing.Optional[hikari.Embed] = None,
         halt_execution: bool = False,
     ) -> None:
         """Initialise a own permission check.
@@ -479,7 +488,7 @@ class OwnPermissionCheck(_Check):
 
             Defaults to `False`.
         """
-        super().__init__(error_message=error_message, halt_execution=halt_execution)
+        super().__init__(error_message=error_message, error_embed=error_embed, halt_execution=halt_execution)
         self._permissions = permissions
 
     async def __call__(
@@ -516,7 +525,10 @@ def with_dm_check(command: CommandT, /) -> CommandT:
 
 @typing.overload
 def with_dm_check(
-    *, error_message: typing.Optional[str] = "Command can only be used in DMs", halt_execution: bool = False
+    *,
+    error_message: typing.Optional[str] = "Command can only be used in DMs",
+    error_embed: typing.Optional[hikari.Embed] = None,
+    halt_execution: bool = False,
 ) -> collections.Callable[[CommandT], CommandT]:
     ...
 
@@ -526,6 +538,7 @@ def with_dm_check(
     /,
     *,
     error_message: typing.Optional[str] = "Command can only be used in DMs",
+    error_embed: typing.Optional[hikari.Embed] = None,
     halt_execution: bool = False,
 ) -> CallbackReturnT[CommandT]:
     """Only let a command run in a DM channel.
@@ -559,7 +572,9 @@ def with_dm_check(
     CallbackReturnT[CommandT]
         The command this check was added to.
     """
-    return _optional_kwargs(command, DmCheck(halt_execution=halt_execution, error_message=error_message))
+    return _optional_kwargs(
+        command, DmCheck(halt_execution=halt_execution, error_embed=error_embed, error_message=error_message)
+    )
 
 
 @typing.overload
@@ -569,7 +584,10 @@ def with_guild_check(command: CommandT, /) -> CommandT:
 
 @typing.overload
 def with_guild_check(
-    *, error_message: typing.Optional[str] = "Command can only be used in guild channels", halt_execution: bool = False
+    *,
+    error_message: typing.Optional[str] = "Command can only be used in guild channels",
+    error_embed: typing.Optional[hikari.Embed] = None,
+    halt_execution: bool = False,
 ) -> collections.Callable[[CommandT], CommandT]:
     ...
 
@@ -579,6 +597,7 @@ def with_guild_check(
     /,
     *,
     error_message: typing.Optional[str] = "Command can only be used in guild channels",
+    error_embed: typing.Optional[hikari.Embed] = None,
     halt_execution: bool = False,
 ) -> CallbackReturnT[CommandT]:
     """Only let a command run in a guild channel.
@@ -612,7 +631,9 @@ def with_guild_check(
     CallbackReturnT[CommandT]
         The command this check was added to.
     """
-    return _optional_kwargs(command, GuildCheck(halt_execution=halt_execution, error_message=error_message))
+    return _optional_kwargs(
+        command, GuildCheck(halt_execution=halt_execution, error_embed=error_embed, error_message=error_message)
+    )
 
 
 @typing.overload
@@ -622,7 +643,10 @@ def with_nsfw_check(command: CommandT, /) -> CommandT:
 
 @typing.overload
 def with_nsfw_check(
-    *, error_message: typing.Optional[str] = "Command can only be used in NSFW channels", halt_execution: bool = False
+    *,
+    error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
+    error_embed: typing.Optional[hikari.Embed] = None,
+    halt_execution: bool = False,
 ) -> collections.Callable[[CommandT], CommandT]:
     ...
 
@@ -632,6 +656,7 @@ def with_nsfw_check(
     /,
     *,
     error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
+    error_embed: typing.Optional[hikari.Embed] = None,
     halt_execution: bool = False,
 ) -> CallbackReturnT[CommandT]:
     """Only let a command run in a channel that's marked as nsfw.
@@ -665,7 +690,9 @@ def with_nsfw_check(
     CallbackReturnT[CommandT]
         The command this check was added to.
     """
-    return _optional_kwargs(command, NsfwCheck(halt_execution=halt_execution, error_message=error_message))
+    return _optional_kwargs(
+        command, NsfwCheck(halt_execution=halt_execution, error_embed=error_embed, error_message=error_message)
+    )
 
 
 @typing.overload
@@ -677,6 +704,7 @@ def with_sfw_check(command: CommandT, /) -> CommandT:
 def with_sfw_check(
     *,
     error_message: typing.Optional[str] = "Command can only be used in SFW channels",
+    error_embed: typing.Optional[hikari.Embed] = None,
     halt_execution: bool = False,
 ) -> collections.Callable[[CommandT], CommandT]:
     ...
@@ -687,6 +715,7 @@ def with_sfw_check(
     /,
     *,
     error_message: typing.Optional[str] = "Command can only be used in SFW channels",
+    error_embed: typing.Optional[hikari.Embed] = None,
     halt_execution: bool = False,
 ) -> CallbackReturnT[CommandT]:
     """Only let a command run in a channel that's marked as sfw.
@@ -720,7 +749,9 @@ def with_sfw_check(
     CallbackReturnT[CommandT]
         The command this check was added to.
     """
-    return _optional_kwargs(command, SfwCheck(halt_execution=halt_execution, error_message=error_message))
+    return _optional_kwargs(
+        command, SfwCheck(halt_execution=halt_execution, error_embed=error_embed, error_message=error_message)
+    )
 
 
 @typing.overload
@@ -732,6 +763,7 @@ def with_owner_check(command: CommandT, /) -> CommandT:
 def with_owner_check(
     *,
     error_message: typing.Optional[str] = "Only bot owners can use this command",
+    error_embed: typing.Optional[hikari.Embed] = None,
     halt_execution: bool = False,
 ) -> collections.Callable[[CommandT], CommandT]:
     ...
@@ -742,6 +774,7 @@ def with_owner_check(
     /,
     *,
     error_message: typing.Optional[str] = "Only bot owners can use this command",
+    error_embed: typing.Optional[hikari.Embed] = None,
     halt_execution: bool = False,
 ) -> CallbackReturnT[CommandT]:
     """Only let a command run if it's being triggered by one of the bot's owners.
@@ -775,13 +808,16 @@ def with_owner_check(
     CallbackReturnT[CommandT]
         The command this check was added to.
     """
-    return _optional_kwargs(command, OwnerCheck(halt_execution=halt_execution, error_message=error_message))
+    return _optional_kwargs(
+        command, OwnerCheck(halt_execution=halt_execution, error_embed=error_embed, error_message=error_message)
+    )
 
 
 def with_author_permission_check(
     permissions: typing.Union[hikari.Permissions, int],
     *,
     error_message: typing.Optional[str] = "You don't have the permissions required to use this command",
+    error_embed: typing.Optional[hikari.Embed] = None,
     halt_execution: bool = False,
 ) -> collections.Callable[[CommandT], CommandT]:
     """Only let a command run if the author has certain permissions in the current channel.
@@ -816,7 +852,9 @@ def with_author_permission_check(
         A command decorator callback which adds the check.
     """
     return lambda command: command.add_check(
-        AuthorPermissionCheck(permissions, halt_execution=halt_execution, error_message=error_message)
+        AuthorPermissionCheck(
+            permissions, halt_execution=halt_execution, error_embed=error_embed, error_message=error_message
+        )
     )
 
 
@@ -824,6 +862,7 @@ def with_own_permission_check(
     permissions: typing.Union[hikari.Permissions, int],
     *,
     error_message: typing.Optional[str] = "Bot doesn't have the permissions required to run this command",
+    error_embed: typing.Optional[hikari.Embed] = None,
     halt_execution: bool = False,
 ) -> collections.Callable[[CommandT], CommandT]:
     """Only let a command run if we have certain permissions in the current channel.
@@ -858,7 +897,9 @@ def with_own_permission_check(
         A command decorator callback which adds the check.
     """
     return lambda command: command.add_check(
-        OwnPermissionCheck(permissions, halt_execution=halt_execution, error_message=error_message)
+        OwnPermissionCheck(
+            permissions, halt_execution=halt_execution, error_embed=error_embed, error_message=error_message
+        )
     )
 
 

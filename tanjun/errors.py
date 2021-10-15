@@ -47,12 +47,12 @@ __all__: list[str] = [
 ]
 
 import typing
+
 import hikari
 
 if typing.TYPE_CHECKING:
     import pathlib
     from collections import abc as collections
-
 
 
 class TanjunError(Exception):
@@ -93,7 +93,7 @@ class MissingDependencyError(TanjunError):
 class CommandError(TanjunError):
     """Error raised to end command execution."""
 
-    __slots__ = ("message",)
+    __slots__ = ("content", "embeds")
 
     content: hikari.UndefinedOr[str]
     """The response error message's content.
@@ -104,7 +104,13 @@ class CommandError(TanjunError):
     embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]]
     """Sequence of up to (and including) 10 embeds to send as a response."""
 
-    def __init__(self, content: hikari.UndefinedOr[str] = hikari.UNDEFINED, *, embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED, embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED) -> None:
+    def __init__(
+        self,
+        content: hikari.UndefinedOr[str] = hikari.UNDEFINED,
+        *,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+    ) -> None:
         """Initialise a command error.
 
         Other Parameters
@@ -124,7 +130,7 @@ class CommandError(TanjunError):
         ValueError
             Raises value error for any of the following reasons:
             * When the message content is specified as 2000 characters long or empty.
-                * When more than 10 embeds are passed.
+            * When more than 10 embeds are passed.
             * When both embed and embeds are passed.
             * When no message or embed is passed.
         """
