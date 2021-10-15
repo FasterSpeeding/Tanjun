@@ -348,12 +348,14 @@ class TestGuildCheck:
             tanjun.checks.GuildCheck(halt_execution=False, error_message="hi")(mock.Mock(guild_id=None))
 
 
+@pytest.mark.skip(reason="Not Implemented")
 class TestAuthorPermissionCheck:
-    ...  # TODO: write this before merge
+    ...
 
 
+@pytest.mark.skip(reason="Not Implemented")
 class TestOwnPermissionCheck:
-    ...  # TODO: write this before merge
+    ...
 
 
 def test_with_dm_check(command: mock.Mock):

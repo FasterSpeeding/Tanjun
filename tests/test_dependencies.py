@@ -223,14 +223,16 @@ class TestLazyConstant:
             assert result is lock.return_value
 
 
+@pytest.mark.skip(reason="Not Implemented")
 @pytest.mark.asyncio()
 async def test_make_lc_resolver_when_already_cached():
-    ...  # TODO: find a good strategy for testing stuff like this which relies on DI
+    ...
 
 
+@pytest.mark.skip(reason="Not Implemented")
 @pytest.mark.asyncio()
 async def test_make_lc_resolver():
-    ...  # TODO: find a good strategy for testing stuff like this which relies on DI
+    ...
 
 
 @pytest.mark.asyncio()
