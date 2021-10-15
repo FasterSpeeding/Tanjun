@@ -53,7 +53,6 @@ if typing.TYPE_CHECKING:
     _LazyConstantT = typing.TypeVar("_LazyConstantT", bound="LazyConstant[typing.Any]")
 
 _T = typing.TypeVar("_T")
-_DefaultT = typing.TypeVar("_DefaultT")
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun")
 
 
