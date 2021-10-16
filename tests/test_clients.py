@@ -391,6 +391,10 @@ class TestClient:
     async def test_set_global_commands(self):
         ...
 
+    @pytest.mark.skip(reason="TODO")
+    async def test_declare_global_commands(self):
+        ...
+
     def test_add_check(self):
         mock_check = mock.Mock()
         client = tanjun.Client(mock.Mock())

@@ -550,7 +550,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         if set_global_commands:
             warnings.warn(
-                "The `set_global_commands` argument is deprecated and will be removed in v2.1.1a1. "
+                "The `set_global_commands` argument is deprecated since v2.1.1a1. "
                 "Use `declare_global_commands` instead.",
                 DeprecationWarning,
                 stacklevel=2 + _stack_level,
@@ -1210,7 +1210,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             based on webhook and bot messages.
         """
         if value:
-            self.add_check(checks.InjectableCheck(_check_human))
+            self.add_check(_check_human)
 
         else:
             try:
@@ -1262,6 +1262,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         .. deprecated:: v2.1.1a1
             Use `Client.declare_global_commands` instead.
         """
+        warnings.warn(
+            "The `Client.set_global_commands` method has been deprecated since v2.1.1a1. "
+            "Use `Client.declare_global_commands` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return await self.declare_global_commands(application=application, guild=guild, force=force)
 
     async def declare_global_commands(
