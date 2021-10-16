@@ -150,7 +150,7 @@ class OwnerCheck(_Check):
     async def __call__(
         self,
         ctx: tanjun_abc.Context,
-        dependency: dependencies.AbstractOwnerCheck = injecting.injected(type=dependencies.AbstractOwnerCheck),
+        dependency: dependencies.AbstractOwnerCheck = injecting.inject(type=dependencies.AbstractOwnerCheck),
     ) -> bool:
         return self._handle_result(await dependency.check_ownership(ctx.client, ctx.author))
 

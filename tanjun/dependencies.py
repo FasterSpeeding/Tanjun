@@ -276,8 +276,8 @@ def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., collection
     """
 
     async def resolve(
-        constant: LazyConstant[_T] = injecting.injected(type=LazyConstant[type_]),
-        ctx: injecting.AbstractInjectionContext = injecting.injected(type=injecting.AbstractInjectionContext),
+        constant: LazyConstant[_T] = injecting.inject(type=LazyConstant[type_]),
+        ctx: injecting.AbstractInjectionContext = injecting.inject(type=injecting.AbstractInjectionContext),
     ) -> _T:
         """Resolve a lazy constant."""
         if (value := constant.get_value()) is not None:
@@ -297,7 +297,7 @@ def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., collection
 def inject_lc(type_: type[_T], /) -> _T:
     """Make a LazyConstant injector.
 
-    This acts like `tanjun.injecting.injected` and the result of it
+    This acts like `tanjun.injecting.inject` and the result of it
     should also be assigned to a parameter's default to be used.
 
     .. note::
@@ -328,7 +328,7 @@ def inject_lc(type_: type[_T], /) -> _T:
     ...
 
     async def resolve_app(
-        client: tanjun.abc.Client = tanjun.injected(type=tanjun.abc.Client)
+        client: tanjun.abc.Client = tanjun.inject(type=tanjun.abc.Client)
     ) -> hikari.Application:
         raise NotImplementedError
 
@@ -337,11 +337,11 @@ def inject_lc(type_: type[_T], /) -> _T:
     )
     ```
     """
-    return injecting.injected(callback=make_lc_resolver(type_))
+    return injecting.inject(callback=make_lc_resolver(type_))
 
 
 async def fetch_my_user(
-    client: tanjun_abc.Client = injecting.injected(type=tanjun_abc.Client),
+    client: tanjun_abc.Client = injecting.inject(type=tanjun_abc.Client),
 ) -> hikari.OwnUser:
     """Fetch the current user from the client's cache or rest client.
 
@@ -411,7 +411,7 @@ class _CacheCallback(typing.Generic[_T]):
         self,
         # Positional arg(s) may be guaranteed under some contexts so we want to pass those through.
         *args: typing.Any,
-        ctx: injecting.AbstractInjectionContext = injecting.injected(type=injecting.AbstractInjectionContext),
+        ctx: injecting.AbstractInjectionContext = injecting.inject(type=injecting.AbstractInjectionContext),
     ) -> _T:
         if self._result is not injecting.UNDEFINED and not self._has_expired:
             assert not isinstance(self._result, injecting.Undefined)
@@ -466,7 +466,7 @@ def cached_inject(
 ) -> _T:
     """Inject a callback with caching.
 
-    This acts like `tanjun.injecting.injected` and the result of it
+    This acts like `tanjun.injecting.inject` and the result of it
     should also be assigned to a parameter's default to be used.
 
     Parameters
@@ -489,7 +489,9 @@ def cached_inject(
     Example
     -------
     ```py
-    async def resolve_database(...) -> Database:
+    async def resolve_database(
+        client: tanjun.abc.Client = tanjun.inject(type=tanjun.abc.Client)
+    ) -> Database:
         raise NotImplementedError
 
     @tanjun.as_message_command("command name")
@@ -498,4 +500,4 @@ def cached_inject(
     ) -> None:
         raise NotImplementedError
     """
-    return injecting.injected(callback=cache_callback(callback, expire_after=expire_after))
+    return injecting.inject(callback=cache_callback(callback, expire_after=expire_after))

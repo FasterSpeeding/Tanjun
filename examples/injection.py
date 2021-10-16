@@ -28,7 +28,7 @@ async def guild_command(
     #
     # The implementation for this is provided with Client.set_type_dependency.
     ctx: tanjun.abc.MessageContext,
-    database: protos.DatabaseProto = tanjun.injected(type=protos.DatabaseProto),
+    database: protos.DatabaseProto = tanjun.inject(type=protos.DatabaseProto),
 ):
     assert ctx.guild_id is not None  # This is checked by the "with_guild_check"
     guild_info = await database.get_guild_info(ctx.guild_id)
@@ -49,7 +49,7 @@ async def user(
     #
     # The implementation for this is provided with Client.set_type_dependency.
     ctx: tanjun.abc.MessageContext,
-    database: protos.DatabaseProto = tanjun.injected(type=protos.DatabaseProto),
+    database: protos.DatabaseProto = tanjun.inject(type=protos.DatabaseProto),
 ) -> None:
     user = await database.get_user_info(ctx.author.id)
 
@@ -68,19 +68,19 @@ async def remove_self(
     #
     # The implementation for this is provided with Client.set_type_dependency.
     ctx: tanjun.abc.MessageContext,
-    database: protos.DatabaseProto = tanjun.injected(type=protos.DatabaseProto),
+    database: protos.DatabaseProto = tanjun.inject(type=protos.DatabaseProto),
 ) -> None:
     await database.remove_user(ctx.author.id)
 
 
 # Since this is being used as an injected callback, we can also ask for an injected type here.
-async def _fetch_info(database: protos.DatabaseProto = tanjun.injected(type=protos.DatabaseProto)) -> typing.Any:
+async def _fetch_info(database: protos.DatabaseProto = tanjun.inject(type=protos.DatabaseProto)) -> typing.Any:
     raise NotImplementedError  # This is an example callback and doesn't provide an implementation.
 
 
 # Since this is being used as an injected callback, we can also ask for an injected type here.
 async def _fetch_cachable_info(
-    database: protos.DatabaseProto = tanjun.injected(type=protos.DatabaseProto),
+    database: protos.DatabaseProto = tanjun.inject(type=protos.DatabaseProto),
 ) -> typing.Any:
     raise NotImplementedError  # This is an example callback and doesn't provide an implementation.
 
@@ -94,7 +94,7 @@ async def get_info(
     # Injected callbacks are callbacks which'll be called before this function is called
     # with the result of it being being passed to the command callback.
     # (note these also support dependency injection).
-    info: typing.Any = tanjun.injected(callback=_fetch_info),
+    info: typing.Any = tanjun.inject(callback=_fetch_info),
     # Here we set _fetch_cachable_info as a cached injected callback.
     #
     # `cached_inject(callback)` is a variant of `inject(callback=callback)`
