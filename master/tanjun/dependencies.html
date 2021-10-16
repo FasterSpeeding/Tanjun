@@ -43,6 +43,9 @@
                     <a class="function" href="#cache_callback">cache_callback</a>
             </li>
             <li>
+                    <a class="function" href="#cached_inject">cached_inject</a>
+            </li>
+            <li>
                     <a class="class" href="#LazyConstant">LazyConstant</a>
                             <ul class="memberlist">
                         <li>
@@ -65,6 +68,9 @@
                         </li>
                 </ul>
 
+            </li>
+            <li>
+                    <a class="function" href="#inject_lc">inject_lc</a>
             </li>
             <li>
                     <a class="function" href="#make_lc_resolver">make_lc_resolver</a>
@@ -136,7 +142,15 @@
 <span class="sd">&quot;&quot;&quot;Default dependency classes used within Tanjun and their abstract interfaces.&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AbstractOwnerCheck&quot;</span><span class="p">,</span> <span class="s2">&quot;cache_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;LazyConstant&quot;</span><span class="p">,</span> <span class="s2">&quot;make_lc_resolver&quot;</span><span class="p">,</span> <span class="s2">&quot;OwnerCheck&quot;</span><span class="p">]</span>
+<span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;AbstractOwnerCheck&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cache_callback&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cached_inject&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LazyConstant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;inject_lc&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;make_lc_resolver&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;OwnerCheck&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">asyncio</span>
@@ -351,52 +365,29 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span>
 
 
-<span class="k">def</span> <span class="nf">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;Make an injected callback which resolves a LazyConstant.</span>
 
-<span class="sd">    .. note::</span>
-<span class="sd">        For this to work, a `LazyConstant` must&#39;ve been set as a type</span>
-<span class="sd">        dependency for the passed `type_`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * This is internally used by `inject_lc`.</span>
+<span class="sd">    * For this to work, a `LazyConstant` must&#39;ve been set as a type</span>
+<span class="sd">      dependency for the passed `type_`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    constant : type[_T]</span>
+<span class="sd">    type_ : type[_T]</span>
 <span class="sd">        The type of the constant to resolve.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[..., _T]</span>
+<span class="sd">    collections.abc.Callable[..., collections.abc.Awaitable[_T]]</span>
 <span class="sd">        An injected callback used to resolve the LazyConstant.</span>
-
-<span class="sd">    Example</span>
-<span class="sd">    -------</span>
-<span class="sd">    ```py</span>
-<span class="sd">    @component.with_command</span>
-<span class="sd">    @tanjun.as_message_command</span>
-<span class="sd">    async def command(</span>
-<span class="sd">        ctx: tanjun.abc.MessageCommand,</span>
-<span class="sd">        application: hikari.Application = tanjun.injected(</span>
-<span class="sd">            callback=tanjun.make_lc_resolver(hikari.Application)</span>
-<span class="sd">        )</span>
-<span class="sd">    ) -&gt; None:</span>
-<span class="sd">        raise NotImplementedError</span>
-
-<span class="sd">    ...</span>
-
-<span class="sd">    async def resolve_app(</span>
-<span class="sd">        client: tanjun.abc.Client = tanjun.injected(type=tanjun.abc.Client)</span>
-<span class="sd">    ) -&gt; hikari.Application:</span>
-<span class="sd">        raise NotImplementedError</span>
-
-<span class="sd">    tanjun.Client.from_gateway_bot(...).set_type_dependency(</span>
-<span class="sd">        tanjun.LazyConstant[hikari.Application] = tanjun.LazyConstant(resolve_app)</span>
-<span class="sd">    )</span>
-<span class="sd">    ```</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span>
-        <span class="n">constant</span><span class="p">:</span> <span class="n">LazyConstant</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">LazyConstant</span><span class="p">[</span><span class="n">type_</span><span class="p">]),</span>
-        <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
+        <span class="n">constant</span><span class="p">:</span> <span class="n">LazyConstant</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">LazyConstant</span><span class="p">[</span><span class="n">type_</span><span class="p">]),</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Resolve a lazy constant.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="n">constant</span><span class="o">.</span><span class="n">get_value</span><span class="p">())</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -413,8 +404,54 @@
     <span class="k">return</span> <span class="n">resolve</span>
 
 
+<span class="k">def</span> <span class="nf">inject_lc</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Make a LazyConstant injector.</span>
+
+<span class="sd">    This acts like `tanjun.injecting.inject` and the result of it</span>
+<span class="sd">    should also be assigned to a parameter&#39;s default to be used.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        For this to work, a `LazyConstant` must&#39;ve been set as a type</span>
+<span class="sd">        dependency for the passed `type_`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    type_ : type[_T]</span>
+<span class="sd">        The type of the constant to resolve.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tanjun.injecting.Injected[_T]</span>
+<span class="sd">        Injector used to resolve the LazyConstant.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    @component.with_command</span>
+<span class="sd">    @tanjun.as_message_command</span>
+<span class="sd">    async def command(</span>
+<span class="sd">        ctx: tanjun.abc.MessageCommand,</span>
+<span class="sd">        application: hikari.Application = tanjun.inject_lc(hikari.Application)</span>
+<span class="sd">    ) -&gt; None:</span>
+<span class="sd">        raise NotImplementedError</span>
+
+<span class="sd">    ...</span>
+
+<span class="sd">    async def resolve_app(</span>
+<span class="sd">        client: tanjun.abc.Client = tanjun.inject(type=tanjun.abc.Client)</span>
+<span class="sd">    ) -&gt; hikari.Application:</span>
+<span class="sd">        raise NotImplementedError</span>
+
+<span class="sd">    tanjun.Client.from_gateway_bot(...).set_type_dependency(</span>
+<span class="sd">        tanjun.LazyConstant[hikari.Application] = tanjun.LazyConstant(resolve_app)</span>
+<span class="sd">    )</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">))</span>
+
+
 <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_my_user</span><span class="p">(</span>
-    <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">),</span>
+    <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Fetch the current user from the client&#39;s cache or rest client.</span>
 
@@ -484,7 +521,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="c1"># Positional arg(s) may be guaranteed under some contexts so we want to pass those through.</span>
         <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
-        <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">injecting</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_expired</span><span class="p">:</span>
             <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
@@ -510,9 +547,8 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;Cache the result of a callback within a dependency injection context.</span>
 
-<span class="sd">    This is useful for dependencies which will always resolve to the same value</span>
-<span class="sd">    but are expensive to execute (e.g. they make a request or start a client</span>
-<span class="sd">    connection).</span>
+<span class="sd">    .. note::</span>
+<span class="sd">        This is internally used by `cached_inject`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -533,6 +569,48 @@
 <span class="sd">        first call.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_CacheCallback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">cached_inject</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Inject a callback with caching.</span>
+
+<span class="sd">    This acts like `tanjun.injecting.inject` and the result of it</span>
+<span class="sd">    should also be assigned to a parameter&#39;s default to be used.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    callback : CallbackSig[_T]</span>
+<span class="sd">        The callback to inject.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    expire_after : typing.Optional[datetime.timedelta]</span>
+<span class="sd">        The amount of time to cache the result for.</span>
+
+<span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tanjun.injecting.Injected[_T]</span>
+<span class="sd">        Injector used to resolve the cached callback.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    async def resolve_database(</span>
+<span class="sd">        client: tanjun.abc.Client = tanjun.inject(type=tanjun.abc.Client)</span>
+<span class="sd">    ) -&gt; Database:</span>
+<span class="sd">        raise NotImplementedError</span>
+
+<span class="sd">    @tanjun.as_message_command(&quot;command name&quot;)</span>
+<span class="sd">    async def command(</span>
+<span class="sd">        ctx: tanjun.abc.Context, db: Database = tanjun.cached_inject(resolve_database)</span>
+<span class="sd">    ) -&gt; None:</span>
+<span class="sd">        raise NotImplementedError</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">cache_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">))</span>
 </pre></div>
 
         </details>
@@ -650,9 +728,8 @@ The user to check ownership for.</li>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;Cache the result of a callback within a dependency injection context.</span>
 
-<span class="sd">    This is useful for dependencies which will always resolve to the same value</span>
-<span class="sd">    but are expensive to execute (e.g. they make a request or start a client</span>
-<span class="sd">    connection).</span>
+<span class="sd">    .. note::</span>
+<span class="sd">        This is internally used by `cached_inject`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -679,9 +756,8 @@ The user to check ownership for.</li>
 
             <div class="docstring"><p>Cache the result of a callback within a dependency injection context.</p>
 
-<p>This is useful for dependencies which will always resolve to the same value
-but are expensive to execute (e.g. they make a request or start a client
-connection).</p>
+<p><em>Note:</em>
+This is internally used by <code><a href="#cached_inject">cached_inject</a></code>.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -705,6 +781,109 @@ The amount of time to cache the result for.</p>
 <li><strong>Callable[..., Awaitable[_T]]</strong>: A callback which will cache the result of the given callback after the
 first call.</li>
 </ul>
+</div>
+
+
+                </section>
+                <section id="cached_inject">
+                            <div class="attr function"><a class="headerlink" href="#cached_inject">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">cached_inject</span><span class="signature">(
+    callback: collections.abc.Callable,
+    /,
+    *,
+    expire_after: Optional[datetime.timedelta] = None
+) -&gt; ~_T</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">cached_inject</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Inject a callback with caching.</span>
+
+<span class="sd">    This acts like `tanjun.injecting.inject` and the result of it</span>
+<span class="sd">    should also be assigned to a parameter&#39;s default to be used.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    callback : CallbackSig[_T]</span>
+<span class="sd">        The callback to inject.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    expire_after : typing.Optional[datetime.timedelta]</span>
+<span class="sd">        The amount of time to cache the result for.</span>
+
+<span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tanjun.injecting.Injected[_T]</span>
+<span class="sd">        Injector used to resolve the cached callback.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    async def resolve_database(</span>
+<span class="sd">        client: tanjun.abc.Client = tanjun.inject(type=tanjun.abc.Client)</span>
+<span class="sd">    ) -&gt; Database:</span>
+<span class="sd">        raise NotImplementedError</span>
+
+<span class="sd">    @tanjun.as_message_command(&quot;command name&quot;)</span>
+<span class="sd">    async def command(</span>
+<span class="sd">        ctx: tanjun.abc.Context, db: Database = tanjun.cached_inject(resolve_database)</span>
+<span class="sd">    ) -&gt; None:</span>
+<span class="sd">        raise NotImplementedError</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">cache_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Inject a callback with caching.</p>
+
+<p>This acts like <code><a href="injecting.html#inject">tanjun.injecting.inject</a></code> and the result of it
+should also be assigned to a parameter's default to be used.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>callback</strong> (CallbackSig[_T]):
+The callback to inject.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>expire_after</strong> (typing.Optional[datetime.timedelta]):
+The amount of time to cache the result for.</p>
+
+<p>Leave this as <code>None</code> to cache for the runtime of the application.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong><a href="injecting.html#Injected">tanjun.injecting.Injected</a>[_T]</strong>: Injector used to resolve the cached callback.</li>
+</ul>
+
+<h6 id="example">Example</h6>
+
+<p>```py
+async def resolve_database(
+    client: <a href="abc.html#Client">tanjun.abc.Client</a> = <a href="../tanjun.html#inject">tanjun.inject</a>(type=<a href="abc.html#Client">tanjun.abc.Client</a>)
+) -> Database:
+    raise NotImplementedError</p>
+
+<p>@<a href="../tanjun.html#as_message_command">tanjun.as_message_command</a>("command name")
+async def command(
+    ctx: <a href="abc.html#Context">tanjun.abc.Context</a>, db: Database = <a href="../tanjun.html#cached_inject">tanjun.cached_inject</a>(resolve_database)
+) -> None:
+    raise NotImplementedError</p>
 </div>
 
 
@@ -1000,18 +1179,21 @@ and should be kept acquired until <code><a href="#LazyConstant.set_value">LazyCo
 
                             </div>
                 </section>
-                <section id="make_lc_resolver">
-                            <div class="attr function"><a class="headerlink" href="#make_lc_resolver">#&nbsp;&nbsp</a>
+                <section id="inject_lc">
+                            <div class="attr function"><a class="headerlink" href="#inject_lc">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">make_lc_resolver</span><span class="signature">(type_: type, /) -&gt; collections.abc.Callable[..., ~_T]</span>:
+            <span class="name">inject_lc</span><span class="signature">(type_: type, /) -&gt; ~_T</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Make an injected callback which resolves a LazyConstant.</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">inject_lc</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Make a LazyConstant injector.</span>
+
+<span class="sd">    This acts like `tanjun.injecting.inject` and the result of it</span>
+<span class="sd">    should also be assigned to a parameter&#39;s default to be used.</span>
 
 <span class="sd">    .. note::</span>
 <span class="sd">        For this to work, a `LazyConstant` must&#39;ve been set as a type</span>
@@ -1019,13 +1201,13 @@ and should be kept acquired until <code><a href="#LazyConstant.set_value">LazyCo
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    constant : type[_T]</span>
+<span class="sd">    type_ : type[_T]</span>
 <span class="sd">        The type of the constant to resolve.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[..., _T]</span>
-<span class="sd">        An injected callback used to resolve the LazyConstant.</span>
+<span class="sd">    tanjun.injecting.Injected[_T]</span>
+<span class="sd">        Injector used to resolve the LazyConstant.</span>
 
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
@@ -1034,16 +1216,14 @@ and should be kept acquired until <code><a href="#LazyConstant.set_value">LazyCo
 <span class="sd">    @tanjun.as_message_command</span>
 <span class="sd">    async def command(</span>
 <span class="sd">        ctx: tanjun.abc.MessageCommand,</span>
-<span class="sd">        application: hikari.Application = tanjun.injected(</span>
-<span class="sd">            callback=tanjun.make_lc_resolver(hikari.Application)</span>
-<span class="sd">        )</span>
+<span class="sd">        application: hikari.Application = tanjun.inject_lc(hikari.Application)</span>
 <span class="sd">    ) -&gt; None:</span>
 <span class="sd">        raise NotImplementedError</span>
 
 <span class="sd">    ...</span>
 
 <span class="sd">    async def resolve_app(</span>
-<span class="sd">        client: tanjun.abc.Client = tanjun.injected(type=tanjun.abc.Client)</span>
+<span class="sd">        client: tanjun.abc.Client = tanjun.inject(type=tanjun.abc.Client)</span>
 <span class="sd">    ) -&gt; hikari.Application:</span>
 <span class="sd">        raise NotImplementedError</span>
 
@@ -1052,10 +1232,94 @@ and should be kept acquired until <code><a href="#LazyConstant.set_value">LazyCo
 <span class="sd">    )</span>
 <span class="sd">    ```</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Make a LazyConstant injector.</p>
+
+<p>This acts like <code><a href="injecting.html#inject">tanjun.injecting.inject</a></code> and the result of it
+should also be assigned to a parameter's default to be used.</p>
+
+<p><em>Note:</em>
+For this to work, a <code><a href="#LazyConstant">LazyConstant</a></code> must've been set as a type
+dependency for the passed <code>type_</code>.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>type_</strong> (type[_T]):
+The type of the constant to resolve.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong><a href="injecting.html#Injected">tanjun.injecting.Injected</a>[_T]</strong>: Injector used to resolve the LazyConstant.</li>
+</ul>
+
+<h6 id="example">Example</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">,</span>
+    <span class="n">application</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Application</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">inject_lc</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+<span class="o">...</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">resolve_app</span><span class="p">(</span>
+    <span class="n">client</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+<span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="o">...</span><span class="p">)</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span>
+    <span class="n">tanjun</span><span class="o">.</span><span class="n">LazyConstant</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">]</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">LazyConstant</span><span class="p">(</span><span class="n">resolve_app</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+</div>
+
+
+                </section>
+                <section id="make_lc_resolver">
+                            <div class="attr function"><a class="headerlink" href="#make_lc_resolver">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">make_lc_resolver</span><span class="signature">(
+    type_: type,
+    /
+) -&gt; collections.abc.Callable[..., collections.abc.Awaitable[~_T]]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Make an injected callback which resolves a LazyConstant.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * This is internally used by `inject_lc`.</span>
+<span class="sd">    * For this to work, a `LazyConstant` must&#39;ve been set as a type</span>
+<span class="sd">      dependency for the passed `type_`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    type_ : type[_T]</span>
+<span class="sd">        The type of the constant to resolve.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.abc.Callable[..., collections.abc.Awaitable[_T]]</span>
+<span class="sd">        An injected callback used to resolve the LazyConstant.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span>
-        <span class="n">constant</span><span class="p">:</span> <span class="n">LazyConstant</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">LazyConstant</span><span class="p">[</span><span class="n">type_</span><span class="p">]),</span>
-        <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
+        <span class="n">constant</span><span class="p">:</span> <span class="n">LazyConstant</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">LazyConstant</span><span class="p">[</span><span class="n">type_</span><span class="p">]),</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Resolve a lazy constant.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="n">constant</span><span class="o">.</span><span class="n">get_value</span><span class="p">())</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1076,46 +1340,26 @@ and should be kept acquired until <code><a href="#LazyConstant.set_value">LazyCo
 
             <div class="docstring"><p>Make an injected callback which resolves a LazyConstant.</p>
 
-<p><em>Note:</em>
-For this to work, a <code><a href="#LazyConstant">LazyConstant</a></code> must've been set as a type
-dependency for the passed <code>type_</code>.</p>
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>This is internally used by <code><a href="#inject_lc">inject_lc</a></code>.</li>
+<li>For this to work, a <code><a href="#LazyConstant">LazyConstant</a></code> must've been set as a type
+dependency for the passed <code>type_</code>.</li>
+</ul>
 
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>constant</strong> (type[_T]):
+<li><strong>type_</strong> (type[_T]):
 The type of the constant to resolve.</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>collections.abc.Callable[..., _T]</strong>: An injected callback used to resolve the LazyConstant.</li>
+<li><strong>collections.abc.Callable[..., collections.abc.Awaitable[_T]]</strong>: An injected callback used to resolve the LazyConstant.</li>
 </ul>
-
-<h6 id="example">Example</h6>
-
-<div class="codehilite"><pre><span></span><code><span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">,</span>
-    <span class="n">application</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Application</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span>
-        <span class="n">callback</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">make_lc_resolver</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">)</span>
-    <span class="p">)</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
-<span class="o">...</span>
-
-<span class="k">async</span> <span class="k">def</span> <span class="nf">resolve_app</span><span class="p">(</span>
-    <span class="n">client</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
-<span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="o">...</span><span class="p">)</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span>
-    <span class="n">tanjun</span><span class="o">.</span><span class="n">LazyConstant</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">]</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">LazyConstant</span><span class="p">(</span><span class="n">resolve_app</span><span class="p">)</span>
-<span class="p">)</span>
-</code></pre></div>
 </div>
 
 

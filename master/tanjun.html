@@ -1023,7 +1023,10 @@
                     <a class="module" href="#dependencies">dependencies</a>
             </li>
             <li>
-                    <a class="function" href="#cache_callback">cache_callback</a>
+                    <a class="function" href="#cached_inject">cached_inject</a>
+            </li>
+            <li>
+                    <a class="function" href="#inject_lc">inject_lc</a>
             </li>
             <li>
                     <a class="class" href="#LazyConstant">LazyConstant</a>
@@ -1048,9 +1051,6 @@
                         </li>
                 </ul>
 
-            </li>
-            <li>
-                    <a class="function" href="#make_lc_resolver">make_lc_resolver</a>
             </li>
             <li>
                     <a class="module" href="#errors">errors</a>
@@ -1236,52 +1236,10 @@
                     <a class="module" href="#injecting">injecting</a>
             </li>
             <li>
-                    <a class="function" href="#injected">injected</a>
-            </li>
-            <li>
-                    <a class="class" href="#Injected">Injected</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#Injected.__init__">Injected</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Injected.callback">callback</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Injected.type">type</a>
-                        </li>
-                </ul>
-
+                    <a class="function" href="#inject">inject</a>
             </li>
             <li>
                     <a class="module" href="#parsing">parsing</a>
-            </li>
-            <li>
-                    <a class="class" href="#Argument">Argument</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#Argument.__init__">Argument</a>
-                        </li>
-                </ul>
-
-            </li>
-            <li>
-                    <a class="class" href="#Option">Option</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#Option.__init__">Option</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Option.empty_value">empty_value</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Option.names">names</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Option.is_multi">is_multi</a>
-                        </li>
-                </ul>
-
             </li>
             <li>
                     <a class="class" href="#ShlexParser">ShlexParser</a>
@@ -1601,9 +1559,9 @@ enable slash (interaction) command execution:</p>
     <span class="s2">&quot;to_voice_state&quot;</span><span class="p">,</span>
     <span class="c1"># dependencies.py</span>
     <span class="s2">&quot;dependencies&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;cache_callback&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cached_inject&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;inject_lc&quot;</span><span class="p">,</span>
     <span class="s2">&quot;LazyConstant&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;make_lc_resolver&quot;</span><span class="p">,</span>
     <span class="c1"># errors.py</span>
     <span class="s2">&quot;errors&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CommandError&quot;</span><span class="p">,</span>
@@ -1625,12 +1583,9 @@ enable slash (interaction) command execution:</p>
     <span class="s2">&quot;SlashHooks&quot;</span><span class="p">,</span>
     <span class="c1"># injecting.py</span>
     <span class="s2">&quot;injecting&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;injected&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Injected&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;inject&quot;</span><span class="p">,</span>
     <span class="c1"># parsing.py</span>
     <span class="s2">&quot;parsing&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Argument&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Option&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ShlexParser&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_argument&quot;</span><span class="p">,</span>
     <span class="s2">&quot;with_greedy_argument&quot;</span><span class="p">,</span>
@@ -4744,7 +4699,7 @@ enable slash (interaction) command execution:</p>
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-        <span class="n">dependency</span><span class="p">:</span> <span class="n">dependencies</span><span class="o">.</span><span class="n">AbstractOwnerCheck</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">dependencies</span><span class="o">.</span><span class="n">AbstractOwnerCheck</span><span class="p">),</span>
+        <span class="n">dependency</span><span class="p">:</span> <span class="n">dependencies</span><span class="o">.</span><span class="n">AbstractOwnerCheck</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">dependencies</span><span class="o">.</span><span class="n">AbstractOwnerCheck</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_result</span><span class="p">(</span><span class="k">await</span> <span class="n">dependency</span><span class="o">.</span><span class="n">check_ownership</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">client</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">author</span><span class="p">))</span>
 
@@ -4868,7 +4823,7 @@ enable slash (interaction) command execution:</p>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
-        <span class="n">my_user</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">dependencies</span><span class="o">.</span><span class="n">make_lc_resolver</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">)),</span>
+        <span class="n">my_user</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span> <span class="o">=</span> <span class="n">dependencies</span><span class="o">.</span><span class="n">inject_lc</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">guild_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">permissions</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">DM_PERMISSIONS</span>
@@ -30694,7 +30649,7 @@ user.</p>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">argument</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">argument</span><span class="p">)</span>
 
@@ -32146,7 +32101,15 @@ The error message to raise if the value cannot be parsed.</li>
 <span class="sd">&quot;&quot;&quot;Default dependency classes used within Tanjun and their abstract interfaces.&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AbstractOwnerCheck&quot;</span><span class="p">,</span> <span class="s2">&quot;cache_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;LazyConstant&quot;</span><span class="p">,</span> <span class="s2">&quot;make_lc_resolver&quot;</span><span class="p">,</span> <span class="s2">&quot;OwnerCheck&quot;</span><span class="p">]</span>
+<span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;AbstractOwnerCheck&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cache_callback&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cached_inject&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LazyConstant&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;inject_lc&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;make_lc_resolver&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;OwnerCheck&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">asyncio</span>
@@ -32361,52 +32324,29 @@ The error message to raise if the value cannot be parsed.</li>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span>
 
 
-<span class="k">def</span> <span class="nf">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;Make an injected callback which resolves a LazyConstant.</span>
 
-<span class="sd">    .. note::</span>
-<span class="sd">        For this to work, a `LazyConstant` must&#39;ve been set as a type</span>
-<span class="sd">        dependency for the passed `type_`.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * This is internally used by `inject_lc`.</span>
+<span class="sd">    * For this to work, a `LazyConstant` must&#39;ve been set as a type</span>
+<span class="sd">      dependency for the passed `type_`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    constant : type[_T]</span>
+<span class="sd">    type_ : type[_T]</span>
 <span class="sd">        The type of the constant to resolve.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[..., _T]</span>
+<span class="sd">    collections.abc.Callable[..., collections.abc.Awaitable[_T]]</span>
 <span class="sd">        An injected callback used to resolve the LazyConstant.</span>
-
-<span class="sd">    Example</span>
-<span class="sd">    -------</span>
-<span class="sd">    ```py</span>
-<span class="sd">    @component.with_command</span>
-<span class="sd">    @tanjun.as_message_command</span>
-<span class="sd">    async def command(</span>
-<span class="sd">        ctx: tanjun.abc.MessageCommand,</span>
-<span class="sd">        application: hikari.Application = tanjun.injected(</span>
-<span class="sd">            callback=tanjun.make_lc_resolver(hikari.Application)</span>
-<span class="sd">        )</span>
-<span class="sd">    ) -&gt; None:</span>
-<span class="sd">        raise NotImplementedError</span>
-
-<span class="sd">    ...</span>
-
-<span class="sd">    async def resolve_app(</span>
-<span class="sd">        client: tanjun.abc.Client = tanjun.injected(type=tanjun.abc.Client)</span>
-<span class="sd">    ) -&gt; hikari.Application:</span>
-<span class="sd">        raise NotImplementedError</span>
-
-<span class="sd">    tanjun.Client.from_gateway_bot(...).set_type_dependency(</span>
-<span class="sd">        tanjun.LazyConstant[hikari.Application] = tanjun.LazyConstant(resolve_app)</span>
-<span class="sd">    )</span>
-<span class="sd">    ```</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span>
-        <span class="n">constant</span><span class="p">:</span> <span class="n">LazyConstant</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">LazyConstant</span><span class="p">[</span><span class="n">type_</span><span class="p">]),</span>
-        <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
+        <span class="n">constant</span><span class="p">:</span> <span class="n">LazyConstant</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">LazyConstant</span><span class="p">[</span><span class="n">type_</span><span class="p">]),</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Resolve a lazy constant.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="n">constant</span><span class="o">.</span><span class="n">get_value</span><span class="p">())</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -32423,8 +32363,54 @@ The error message to raise if the value cannot be parsed.</li>
     <span class="k">return</span> <span class="n">resolve</span>
 
 
+<span class="k">def</span> <span class="nf">inject_lc</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Make a LazyConstant injector.</span>
+
+<span class="sd">    This acts like `tanjun.injecting.inject` and the result of it</span>
+<span class="sd">    should also be assigned to a parameter&#39;s default to be used.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        For this to work, a `LazyConstant` must&#39;ve been set as a type</span>
+<span class="sd">        dependency for the passed `type_`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    type_ : type[_T]</span>
+<span class="sd">        The type of the constant to resolve.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tanjun.injecting.Injected[_T]</span>
+<span class="sd">        Injector used to resolve the LazyConstant.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    @component.with_command</span>
+<span class="sd">    @tanjun.as_message_command</span>
+<span class="sd">    async def command(</span>
+<span class="sd">        ctx: tanjun.abc.MessageCommand,</span>
+<span class="sd">        application: hikari.Application = tanjun.inject_lc(hikari.Application)</span>
+<span class="sd">    ) -&gt; None:</span>
+<span class="sd">        raise NotImplementedError</span>
+
+<span class="sd">    ...</span>
+
+<span class="sd">    async def resolve_app(</span>
+<span class="sd">        client: tanjun.abc.Client = tanjun.inject(type=tanjun.abc.Client)</span>
+<span class="sd">    ) -&gt; hikari.Application:</span>
+<span class="sd">        raise NotImplementedError</span>
+
+<span class="sd">    tanjun.Client.from_gateway_bot(...).set_type_dependency(</span>
+<span class="sd">        tanjun.LazyConstant[hikari.Application] = tanjun.LazyConstant(resolve_app)</span>
+<span class="sd">    )</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">))</span>
+
+
 <span class="k">async</span> <span class="k">def</span> <span class="nf">fetch_my_user</span><span class="p">(</span>
-    <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">),</span>
+    <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">OwnUser</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Fetch the current user from the client&#39;s cache or rest client.</span>
 
@@ -32494,7 +32480,7 @@ The error message to raise if the value cannot be parsed.</li>
         <span class="bp">self</span><span class="p">,</span>
         <span class="c1"># Positional arg(s) may be guaranteed under some contexts so we want to pass those through.</span>
         <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
-        <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">injecting</span><span class="o">.</span><span class="n">UNDEFINED</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_expired</span><span class="p">:</span>
             <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
@@ -32520,9 +32506,8 @@ The error message to raise if the value cannot be parsed.</li>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;Cache the result of a callback within a dependency injection context.</span>
 
-<span class="sd">    This is useful for dependencies which will always resolve to the same value</span>
-<span class="sd">    but are expensive to execute (e.g. they make a request or start a client</span>
-<span class="sd">    connection).</span>
+<span class="sd">    .. note::</span>
+<span class="sd">        This is internally used by `cached_inject`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -32543,6 +32528,48 @@ The error message to raise if the value cannot be parsed.</li>
 <span class="sd">        first call.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_CacheCallback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">cached_inject</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Inject a callback with caching.</span>
+
+<span class="sd">    This acts like `tanjun.injecting.inject` and the result of it</span>
+<span class="sd">    should also be assigned to a parameter&#39;s default to be used.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    callback : CallbackSig[_T]</span>
+<span class="sd">        The callback to inject.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    expire_after : typing.Optional[datetime.timedelta]</span>
+<span class="sd">        The amount of time to cache the result for.</span>
+
+<span class="sd">        Leave this as `None` to cache for the runtime of the application.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tanjun.injecting.Injected[_T]</span>
+<span class="sd">        Injector used to resolve the cached callback.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    async def resolve_database(</span>
+<span class="sd">        client: tanjun.abc.Client = tanjun.inject(type=tanjun.abc.Client)</span>
+<span class="sd">    ) -&gt; Database:</span>
+<span class="sd">        raise NotImplementedError</span>
+
+<span class="sd">    @tanjun.as_message_command(&quot;command name&quot;)</span>
+<span class="sd">    async def command(</span>
+<span class="sd">        ctx: tanjun.abc.Context, db: Database = tanjun.cached_inject(resolve_database)</span>
+<span class="sd">    ) -&gt; None:</span>
+<span class="sd">        raise NotImplementedError</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">cache_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">))</span>
 </pre></div>
 
         </details>
@@ -32552,34 +32579,33 @@ The error message to raise if the value cannot be parsed.</li>
 
 
                 </section>
-                <section id="cache_callback">
-                            <div class="attr function"><a class="headerlink" href="#cache_callback">#&nbsp;&nbsp</a>
+                <section id="cached_inject">
+                            <div class="attr function"><a class="headerlink" href="#cached_inject">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">cache_callback</span><span class="signature">(
+            <span class="name">cached_inject</span><span class="signature">(
     callback: collections.abc.Callable,
     /,
     *,
     expire_after: Optional[datetime.timedelta] = None
-) -&gt; collections.abc.Callable[..., collections.abc.Awaitable[~_T]]</span>:
+) -&gt; ~_T</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">cache_callback</span><span class="p">(</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">cached_inject</span><span class="p">(</span>
     <span class="n">callback</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">expire_after</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
-    <span class="sd">&quot;&quot;&quot;Cache the result of a callback within a dependency injection context.</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Inject a callback with caching.</span>
 
-<span class="sd">    This is useful for dependencies which will always resolve to the same value</span>
-<span class="sd">    but are expensive to execute (e.g. they make a request or start a client</span>
-<span class="sd">    connection).</span>
+<span class="sd">    This acts like `tanjun.injecting.inject` and the result of it</span>
+<span class="sd">    should also be assigned to a parameter&#39;s default to be used.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    callback : CallbackSig[_T]</span>
-<span class="sd">        The callback to cache the result of.</span>
+<span class="sd">        The callback to inject.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
@@ -32590,26 +32616,38 @@ The error message to raise if the value cannot be parsed.</li>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Callable[..., Awaitable[_T]]</span>
-<span class="sd">        A callback which will cache the result of the given callback after the</span>
-<span class="sd">        first call.</span>
+<span class="sd">    tanjun.injecting.Injected[_T]</span>
+<span class="sd">        Injector used to resolve the cached callback.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    async def resolve_database(</span>
+<span class="sd">        client: tanjun.abc.Client = tanjun.inject(type=tanjun.abc.Client)</span>
+<span class="sd">    ) -&gt; Database:</span>
+<span class="sd">        raise NotImplementedError</span>
+
+<span class="sd">    @tanjun.as_message_command(&quot;command name&quot;)</span>
+<span class="sd">    async def command(</span>
+<span class="sd">        ctx: tanjun.abc.Context, db: Database = tanjun.cached_inject(resolve_database)</span>
+<span class="sd">    ) -&gt; None:</span>
+<span class="sd">        raise NotImplementedError</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_CacheCallback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">cache_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">expire_after</span><span class="o">=</span><span class="n">expire_after</span><span class="p">))</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Cache the result of a callback within a dependency injection context.</p>
+            <div class="docstring"><p>Inject a callback with caching.</p>
 
-<p>This is useful for dependencies which will always resolve to the same value
-but are expensive to execute (e.g. they make a request or start a client
-connection).</p>
+<p>This acts like <code><a href="tanjun/injecting.html#inject">tanjun.injecting.inject</a></code> and the result of it
+should also be assigned to a parameter's default to be used.</p>
 
 <h6 id="parameters">Parameters</h6>
 
 <ul>
 <li><strong>callback</strong> (CallbackSig[_T]):
-The callback to cache the result of.</li>
+The callback to inject.</li>
 </ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
@@ -32624,9 +32662,127 @@ The amount of time to cache the result for.</p>
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>Callable[..., Awaitable[_T]]</strong>: A callback which will cache the result of the given callback after the
-first call.</li>
+<li><strong><a href="tanjun/injecting.html#Injected">tanjun.injecting.Injected</a>[_T]</strong>: Injector used to resolve the cached callback.</li>
 </ul>
+
+<h6 id="example">Example</h6>
+
+<p>```py
+async def resolve_database(
+    client: <a href="tanjun/abc.html#Client">tanjun.abc.Client</a> = <a href="#inject">tanjun.inject</a>(type=<a href="tanjun/abc.html#Client">tanjun.abc.Client</a>)
+) -> Database:
+    raise NotImplementedError</p>
+
+<p>@<a href="#as_message_command">tanjun.as_message_command</a>("command name")
+async def command(
+    ctx: <a href="tanjun/abc.html#Context">tanjun.abc.Context</a>, db: Database = <a href="#cached_inject">tanjun.cached_inject</a>(resolve_database)
+) -> None:
+    raise NotImplementedError</p>
+</div>
+
+
+                </section>
+                <section id="inject_lc">
+                            <div class="attr function"><a class="headerlink" href="#inject_lc">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">inject_lc</span><span class="signature">(type_: type, /) -&gt; ~_T</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">inject_lc</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Make a LazyConstant injector.</span>
+
+<span class="sd">    This acts like `tanjun.injecting.inject` and the result of it</span>
+<span class="sd">    should also be assigned to a parameter&#39;s default to be used.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        For this to work, a `LazyConstant` must&#39;ve been set as a type</span>
+<span class="sd">        dependency for the passed `type_`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    type_ : type[_T]</span>
+<span class="sd">        The type of the constant to resolve.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tanjun.injecting.Injected[_T]</span>
+<span class="sd">        Injector used to resolve the LazyConstant.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    @component.with_command</span>
+<span class="sd">    @tanjun.as_message_command</span>
+<span class="sd">    async def command(</span>
+<span class="sd">        ctx: tanjun.abc.MessageCommand,</span>
+<span class="sd">        application: hikari.Application = tanjun.inject_lc(hikari.Application)</span>
+<span class="sd">    ) -&gt; None:</span>
+<span class="sd">        raise NotImplementedError</span>
+
+<span class="sd">    ...</span>
+
+<span class="sd">    async def resolve_app(</span>
+<span class="sd">        client: tanjun.abc.Client = tanjun.inject(type=tanjun.abc.Client)</span>
+<span class="sd">    ) -&gt; hikari.Application:</span>
+<span class="sd">        raise NotImplementedError</span>
+
+<span class="sd">    tanjun.Client.from_gateway_bot(...).set_type_dependency(</span>
+<span class="sd">        tanjun.LazyConstant[hikari.Application] = tanjun.LazyConstant(resolve_app)</span>
+<span class="sd">    )</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">injecting</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Make a LazyConstant injector.</p>
+
+<p>This acts like <code><a href="tanjun/injecting.html#inject">tanjun.injecting.inject</a></code> and the result of it
+should also be assigned to a parameter's default to be used.</p>
+
+<p><em>Note:</em>
+For this to work, a <code><a href="#LazyConstant">LazyConstant</a></code> must've been set as a type
+dependency for the passed <code>type_</code>.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>type_</strong> (type[_T]):
+The type of the constant to resolve.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong><a href="tanjun/injecting.html#Injected">tanjun.injecting.Injected</a>[_T]</strong>: Injector used to resolve the LazyConstant.</li>
+</ul>
+
+<h6 id="example">Example</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">,</span>
+    <span class="n">application</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Application</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">inject_lc</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+<span class="o">...</span>
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">resolve_app</span><span class="p">(</span>
+    <span class="n">client</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+<span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="o">...</span><span class="p">)</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span>
+    <span class="n">tanjun</span><span class="o">.</span><span class="n">LazyConstant</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">]</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">LazyConstant</span><span class="p">(</span><span class="n">resolve_app</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
 </div>
 
 
@@ -32921,126 +33077,6 @@ and should be kept acquired until <code><a href="#LazyConstant.set_value">LazyCo
 
 
                             </div>
-                </section>
-                <section id="make_lc_resolver">
-                            <div class="attr function"><a class="headerlink" href="#make_lc_resolver">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">def</span>
-            <span class="name">make_lc_resolver</span><span class="signature">(type_: type, /) -&gt; collections.abc.Callable[..., ~_T]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_lc_resolver</span><span class="p">(</span><span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">_T</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Make an injected callback which resolves a LazyConstant.</span>
-
-<span class="sd">    .. note::</span>
-<span class="sd">        For this to work, a `LazyConstant` must&#39;ve been set as a type</span>
-<span class="sd">        dependency for the passed `type_`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    constant : type[_T]</span>
-<span class="sd">        The type of the constant to resolve.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    collections.abc.Callable[..., _T]</span>
-<span class="sd">        An injected callback used to resolve the LazyConstant.</span>
-
-<span class="sd">    Example</span>
-<span class="sd">    -------</span>
-<span class="sd">    ```py</span>
-<span class="sd">    @component.with_command</span>
-<span class="sd">    @tanjun.as_message_command</span>
-<span class="sd">    async def command(</span>
-<span class="sd">        ctx: tanjun.abc.MessageCommand,</span>
-<span class="sd">        application: hikari.Application = tanjun.injected(</span>
-<span class="sd">            callback=tanjun.make_lc_resolver(hikari.Application)</span>
-<span class="sd">        )</span>
-<span class="sd">    ) -&gt; None:</span>
-<span class="sd">        raise NotImplementedError</span>
-
-<span class="sd">    ...</span>
-
-<span class="sd">    async def resolve_app(</span>
-<span class="sd">        client: tanjun.abc.Client = tanjun.injected(type=tanjun.abc.Client)</span>
-<span class="sd">    ) -&gt; hikari.Application:</span>
-<span class="sd">        raise NotImplementedError</span>
-
-<span class="sd">    tanjun.Client.from_gateway_bot(...).set_type_dependency(</span>
-<span class="sd">        tanjun.LazyConstant[hikari.Application] = tanjun.LazyConstant(resolve_app)</span>
-<span class="sd">    )</span>
-<span class="sd">    ```</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span>
-        <span class="n">constant</span><span class="p">:</span> <span class="n">LazyConstant</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">LazyConstant</span><span class="p">[</span><span class="n">type_</span><span class="p">]),</span>
-        <span class="n">ctx</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">injecting</span><span class="o">.</span><span class="n">AbstractInjectionContext</span><span class="p">),</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Resolve a lazy constant.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="n">constant</span><span class="o">.</span><span class="n">get_value</span><span class="p">())</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">value</span>
-
-        <span class="k">async</span> <span class="k">with</span> <span class="n">constant</span><span class="o">.</span><span class="n">acquire</span><span class="p">():</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="n">constant</span><span class="o">.</span><span class="n">get_value</span><span class="p">())</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">value</span>
-
-            <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">constant</span><span class="o">.</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
-            <span class="n">constant</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">result</span>
-
-    <span class="k">return</span> <span class="n">resolve</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Make an injected callback which resolves a LazyConstant.</p>
-
-<p><em>Note:</em>
-For this to work, a <code><a href="#LazyConstant">LazyConstant</a></code> must've been set as a type
-dependency for the passed <code>type_</code>.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>constant</strong> (type[_T]):
-The type of the constant to resolve.</li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Callable[..., _T]</strong>: An injected callback used to resolve the LazyConstant.</li>
-</ul>
-
-<h6 id="example">Example</h6>
-
-<div class="codehilite"><pre><span></span><code><span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">,</span>
-    <span class="n">application</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Application</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span>
-        <span class="n">callback</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">make_lc_resolver</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">)</span>
-    <span class="p">)</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
-<span class="o">...</span>
-
-<span class="k">async</span> <span class="k">def</span> <span class="nf">resolve_app</span><span class="p">(</span>
-    <span class="n">client</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">injected</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
-<span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="o">...</span><span class="p">)</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span>
-    <span class="n">tanjun</span><span class="o">.</span><span class="n">LazyConstant</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Application</span><span class="p">]</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">LazyConstant</span><span class="p">(</span><span class="n">resolve_app</span><span class="p">)</span>
-<span class="p">)</span>
-</code></pre></div>
-</div>
-
-
                 </section>
                 <section id="errors">
                                 <div class="attr module"><a class="headerlink" href="#errors">#&nbsp;&nbsp</a>
@@ -36182,6 +36218,7 @@ may be either synchronous or asynchronous.</p></li>
     <span class="s2">&quot;Undefined&quot;</span><span class="p">,</span>
     <span class="s2">&quot;UNDEFINED&quot;</span><span class="p">,</span>
     <span class="s2">&quot;UndefinedOr&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;inject&quot;</span><span class="p">,</span>
     <span class="s2">&quot;injected&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Injected&quot;</span><span class="p">,</span>
     <span class="s2">&quot;InjectorClient&quot;</span><span class="p">,</span>
@@ -36570,7 +36607,7 @@ may be either synchronous or asynchronous.</p></li>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
 
 
-<span class="k">def</span> <span class="nf">injected</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">inject</span><span class="p">(</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="nb">type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
@@ -36598,6 +36635,15 @@ may be either synchronous or asynchronous.</p></li>
 <span class="sd">        If both `callback` and `type` are specified or if neither is specified.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Injected</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">type</span><span class="p">)</span>  <span class="c1"># type: ignore  # TODO: This is a pyright bug</span>
+
+
+<span class="k">def</span> <span class="nf">injected</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Injected</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Alias of `inject`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">type</span><span class="p">)</span>  <span class="c1"># type: ignore  # TODO: This is a pyright bug</span>
 
 
 <span class="k">class</span> <span class="nc">InjectorClient</span><span class="p">:</span>
@@ -36733,12 +36779,12 @@ may be either synchronous or asynchronous.</p></li>
 
 
                 </section>
-                <section id="injected">
-                            <div class="attr function"><a class="headerlink" href="#injected">#&nbsp;&nbsp</a>
+                <section id="inject">
+                            <div class="attr function"><a class="headerlink" href="#inject">#&nbsp;&nbsp</a>
 
         
             <span class="def">def</span>
-            <span class="name">injected</span><span class="signature">(
+            <span class="name">inject</span><span class="signature">(
     *,
     callback: Optional[collections.abc.Callable[..., Union[~_T, collections.abc.Awaitable[~_T]]]] = None,
     type: Optional[type[~_T]] = None
@@ -36747,7 +36793,7 @@ may be either synchronous or asynchronous.</p></li>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">injected</span><span class="p">(</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">inject</span><span class="p">(</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="nb">type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
@@ -36806,112 +36852,6 @@ level.</p></li>
 </div>
 
 
-                </section>
-                <section id="Injected">
-                                <div class="attr class">
-        <a class="headerlink" href="#Injected">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">Injected</span><wbr>(<span class="base">typing.Generic[~_T]</span>):
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Injected</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_T</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;callback&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="nb">type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># TODO: add default/factory to this?</span>
-        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify one of `callback` or `type`&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only one of `callback` or `type` can be specified&quot;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Abstract base class for generic types.</p>
-
-<p>A generic type is typically declared by inheriting from
-this class parameterized with one or more type variables.
-For example, a generic mapping type might be defined as::</p>
-
-<p>class Mapping(Generic[KT, VT]):
-      def __getitem__(self, key: KT) -> VT:
-          ...
-      # Etc.</p>
-
-<p>This class can then be used as follows::</p>
-
-<p>def lookup_name(mapping: Mapping[KT, VT], key: KT, default: VT) -> VT:
-      try:
-          return mapping[key]
-      except KeyError:
-          return default</p>
-</div>
-
-
-                            <div id="Injected.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Injected.__init__">#&nbsp;&nbsp</a>
-
-        
-            <span class="name">Injected</span><span class="signature">(
-    *,
-    callback: Optional[collections.abc.Callable[..., Union[~_T, collections.abc.Awaitable[~_T]]]] = None,
-    type: Optional[type[~_T]] = None
-)</span>
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="nb">type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># TODO: add default/factory to this?</span>
-        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify one of `callback` or `type`&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only one of `callback` or `type` can be specified&quot;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
-                            <div id="Injected.callback" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#Injected.callback">#&nbsp;&nbsp</a>
-
-        <span class="name">callback</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="Injected.type" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#Injected.type">#&nbsp;&nbsp</a>
-
-        <span class="name">type</span>
-    </div>
-
-    
-
-                            </div>
                 </section>
                 <section id="parsing">
                                 <div class="attr module"><a class="headerlink" href="#parsing">#&nbsp;&nbsp</a>
@@ -37909,229 +37849,6 @@ For example, a generic mapping type might be defined as::</p>
 </div>
 
 
-                </section>
-                <section id="Argument">
-                                <div class="attr class">
-        <a class="headerlink" href="#Argument">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">Argument</span><wbr>(<span class="base"><a href="tanjun/parsing.html#Parameter">tanjun.parsing.Parameter</a></span>):
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Argument</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
-        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
-        <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">greedy</span> <span class="ow">and</span> <span class="n">multi</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Argument cannot be both greed and multi.&quot;</span><span class="p">)</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="n">greedy</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            <div id="Argument.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Argument.__init__">#&nbsp;&nbsp</a>
-
-        
-            <span class="name">Argument</span><span class="signature">(
-    key: str,
-    /,
-    *,
-    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
-    default: Union[Any, <a href="tanjun/parsing.html#UndefinedDefaultT">tanjun.parsing.UndefinedDefaultT</a>] = UNDEFINED_DEFAULT,
-    greedy: bool = False,
-    multi: bool = False
-)</span>
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
-        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
-        <span class="n">greedy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">greedy</span> <span class="ow">and</span> <span class="n">multi</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Argument cannot be both greed and multi.&quot;</span><span class="p">)</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="n">greedy</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
-                            <div class="inherited">
-                                <h5>Inherited Members</h5>
-                                <dl>
-                                    <div><dt><a href="tanjun/parsing.html#Parameter">tanjun.parsing.Parameter</a></dt>
-                                <dd id="Argument.default" class="variable"><a href="tanjun/parsing.html#Parameter.default">default</a></dd>
-                <dd id="Argument.is_greedy" class="variable"><a href="tanjun/parsing.html#Parameter.is_greedy">is_greedy</a></dd>
-                <dd id="Argument.is_multi" class="variable"><a href="tanjun/parsing.html#Parameter.is_multi">is_multi</a></dd>
-                <dd id="Argument.converters" class="variable"><a href="tanjun/parsing.html#Parameter.converters">converters</a></dd>
-                <dd id="Argument.key" class="variable"><a href="tanjun/parsing.html#Parameter.key">key</a></dd>
-                <dd id="Argument.needs_injector" class="variable"><a href="tanjun/parsing.html#Parameter.needs_injector">needs_injector</a></dd>
-                <dd id="Argument.bind_client" class="function"><a href="tanjun/parsing.html#Parameter.bind_client">bind_client</a></dd>
-                <dd id="Argument.bind_component" class="function"><a href="tanjun/parsing.html#Parameter.bind_component">bind_component</a></dd>
-                <dd id="Argument.convert" class="function"><a href="tanjun/parsing.html#Parameter.convert">convert</a></dd>
-                <dd id="Argument.copy" class="function"><a href="tanjun/parsing.html#Parameter.copy">copy</a></dd>
-
-            </div>
-                                </dl>
-                            </div>
-                </section>
-                <section id="Option">
-                                <div class="attr class">
-        <a class="headerlink" href="#Option">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">Option</span><wbr>(<span class="base"><a href="tanjun/parsing.html#Parameter">tanjun.parsing.Parameter</a></span>):
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Option</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_empty_value&quot;</span><span class="p">,</span> <span class="s2">&quot;is_multi&quot;</span><span class="p">,</span> <span class="s2">&quot;_names&quot;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
-        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
-        <span class="n">empty_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
-        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All option names must start with `-`&quot;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_empty_value</span> <span class="o">=</span> <span class="n">empty_value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">]</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">empty_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_empty_value</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> &lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_names</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            <div id="Option.__init__" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Option.__init__">#&nbsp;&nbsp</a>
-
-        
-            <span class="name">Option</span><span class="signature">(
-    key: str,
-    name: str,
-    *names: str,
-    converters: Union[collections.abc.Iterable[collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]], collections.abc.Callable[..., Union[Any, collections.abc.Awaitable[Any]]]] = (),
-    default: Union[Any, <a href="tanjun/parsing.html#UndefinedDefaultT">tanjun.parsing.UndefinedDefaultT</a>] = UNDEFINED_DEFAULT,
-    empty_value: Union[Any, <a href="tanjun/parsing.html#UndefinedDefaultT">tanjun.parsing.UndefinedDefaultT</a>] = UNDEFINED_DEFAULT,
-    multi: bool = True
-)</span>
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">converters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">ConverterSig</span><span class="p">],</span> <span class="n">ConverterSig</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
-        <span class="n">default</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
-        <span class="n">empty_value</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">UndefinedDefaultT</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span>
-        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All option names must start with `-`&quot;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_empty_value</span> <span class="o">=</span> <span class="n">empty_value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">]</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="n">converters</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-    
-
-                            </div>
-                            <div id="Option.empty_value" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#Option.empty_value">#&nbsp;&nbsp</a>
-
-        <span class="name">empty_value</span><span class="annotation">: Union[Any, <a href="tanjun/parsing.html#UndefinedDefaultT">tanjun.parsing.UndefinedDefaultT</a>]</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="Option.names" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#Option.names">#&nbsp;&nbsp</a>
-
-        <span class="name">names</span><span class="annotation">: collections.abc.Sequence[str]</span>
-    </div>
-
-    
-
-                            </div>
-                            <div id="Option.is_multi" class="classattr">
-                                            <div class="attr variable"><a class="headerlink" href="#Option.is_multi">#&nbsp;&nbsp</a>
-
-        <span class="name">is_multi</span>
-    </div>
-
-    
-
-                            </div>
-                            <div class="inherited">
-                                <h5>Inherited Members</h5>
-                                <dl>
-                                    <div><dt><a href="tanjun/parsing.html#Parameter">tanjun.parsing.Parameter</a></dt>
-                                <dd id="Option.default" class="variable"><a href="tanjun/parsing.html#Parameter.default">default</a></dd>
-                <dd id="Option.is_greedy" class="variable"><a href="tanjun/parsing.html#Parameter.is_greedy">is_greedy</a></dd>
-                <dd id="Option.converters" class="variable"><a href="tanjun/parsing.html#Parameter.converters">converters</a></dd>
-                <dd id="Option.key" class="variable"><a href="tanjun/parsing.html#Parameter.key">key</a></dd>
-                <dd id="Option.needs_injector" class="variable"><a href="tanjun/parsing.html#Parameter.needs_injector">needs_injector</a></dd>
-                <dd id="Option.bind_client" class="function"><a href="tanjun/parsing.html#Parameter.bind_client">bind_client</a></dd>
-                <dd id="Option.bind_component" class="function"><a href="tanjun/parsing.html#Parameter.bind_component">bind_component</a></dd>
-                <dd id="Option.convert" class="function"><a href="tanjun/parsing.html#Parameter.convert">convert</a></dd>
-                <dd id="Option.copy" class="function"><a href="tanjun/parsing.html#Parameter.copy">copy</a></dd>
-
-            </div>
-                                </dl>
-                            </div>
                 </section>
                 <section id="ShlexParser">
                                 <div class="attr class">
