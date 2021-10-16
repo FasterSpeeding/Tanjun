@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `tanjun.dependencies.inject_lc(Type)` which is a shorthand for
   `tanjun.injected(callback=tanjun.make_lc_resolver(Type))`.
 - `tanjun.dependencies.cached_inject(...)` which is a shorthand for
-  `tanjun.injected(callback=tanjun.cache_callback(...)).
+  `tanjun.injected(callback=tanjun.cache_callback(...))`.
 - `tanjun.inject` which is identical to `tanjun.injecting.injected` but does not replace it.
 
 ### Fixed
