@@ -32,7 +32,7 @@
 """Default dependency classes used within Tanjun and their abstract interfaces."""
 from __future__ import annotations
 
-__all__: list[str] = ["AbstractOwnerCheck", "cache_callback", "LazyConstant", "make_lc_resolver", "OwnerCheck"]
+__all__: list[str] = ["AbstractOwnerCheck", "cache_callback", "LazyConstant", "injected_lc", "OwnerCheck"]
 
 import abc
 import asyncio
@@ -247,47 +247,24 @@ class LazyConstant(typing.Generic[_T]):
         return self._lock
 
 
-def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., _T]:
+def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., collections.Awaitable[_T]]:
     """Make an injected callback which resolves a LazyConstant.
 
-    .. note::
-        For this to work, a `LazyConstant` must've been set as a type
-        dependency for the passed `type_`.
+    Notes
+    -----
+    * This is internally used by `injected_lc`.
+    * For this to work, a `LazyConstant` must've been set as a type
+      dependency for the passed `type_`.
 
     Parameters
     ----------
-    constant : type[_T]
+    type_ : type[_T]
         The type of the constant to resolve.
 
     Returns
     -------
-    collections.abc.Callable[..., _T]
+    collections.abc.Callable[..., collections.abc.Awaitable[_T]]
         An injected callback used to resolve the LazyConstant.
-
-    Example
-    -------
-    ```py
-    @component.with_command
-    @tanjun.as_message_command
-    async def command(
-        ctx: tanjun.abc.MessageCommand,
-        application: hikari.Application = tanjun.injected(
-            callback=tanjun.make_lc_resolver(hikari.Application)
-        )
-    ) -> None:
-        raise NotImplementedError
-
-    ...
-
-    async def resolve_app(
-        client: tanjun.abc.Client = tanjun.injected(type=tanjun.abc.Client)
-    ) -> hikari.Application:
-        raise NotImplementedError
-
-    tanjun.Client.from_gateway_bot(...).set_type_dependency(
-        tanjun.LazyConstant[hikari.Application] = tanjun.LazyConstant(resolve_app)
-    )
-    ```
     """
 
     async def resolve(
@@ -307,6 +284,52 @@ def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., _T]:
             return result
 
     return resolve
+
+
+def injected_lc(type_: type[_T], /) -> _T:
+    """Make a LazyConstant injector.
+
+    This acts like `tanjun.injecting.injected` and the result of it
+    should also be assigned to a parameter's default to be used.
+
+    .. note::
+        For this to work, a `LazyConstant` must've been set as a type
+        dependency for the passed `type_`.
+
+    Parameters
+    ----------
+    type_ : type[_T]
+        The type of the constant to resolve.
+
+    Returns
+    -------
+    tanjun.injecting.Injected[_T]
+        Injector used to resolve the LazyConstant.
+
+    Example
+    -------
+    ```py
+    @component.with_command
+    @tanjun.as_message_command
+    async def command(
+        ctx: tanjun.abc.MessageCommand,
+        application: hikari.Application = tanjun.injected_lc(hikari.Application)
+    ) -> None:
+        raise NotImplementedError
+
+    ...
+
+    async def resolve_app(
+        client: tanjun.abc.Client = tanjun.injected(type=tanjun.abc.Client)
+    ) -> hikari.Application:
+        raise NotImplementedError
+
+    tanjun.Client.from_gateway_bot(...).set_type_dependency(
+        tanjun.LazyConstant[hikari.Application] = tanjun.LazyConstant(resolve_app)
+    )
+    ```
+    """
+    return injecting.injected(callback=make_lc_resolver(type_))
 
 
 async def fetch_my_user(

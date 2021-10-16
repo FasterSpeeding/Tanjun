@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- `tanjun.dependencies.injected_lc` which is a shortcut for
+  `tanjun.injected(callback=tanjun.make_lc_resolver(Type))`.
 
 ## [2.1.2a1] - 2021-10-15
 ### Added
