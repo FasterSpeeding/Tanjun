@@ -525,22 +525,33 @@ class TestInjected:
             tanjun.injecting.Injected()  # type: ignore
 
 
-def test_injected_with_callback():
+def test_inject_with_callback():
     mock_type: type[typing.Any] = mock.Mock()
 
-    result = tanjun.injecting.injected(type=mock_type)
+    result = tanjun.injecting.inject(type=mock_type)
 
     assert result.callback is None
     assert result.type is mock_type
 
 
-def test_injected_with_type():
+def test_inject_with_type():
     mock_callback = mock.Mock()
 
-    result = tanjun.injecting.injected(callback=mock_callback)
+    result = tanjun.injecting.inject(callback=mock_callback)
 
     assert result.callback is mock_callback
     assert result.type is None
+
+
+def test_injected():
+    mock_callback = mock.Mock()
+    mock_type: type[typing.Any] = mock.Mock()
+
+    with mock.patch.object(tanjun.injecting, "injected") as injected:
+        result = tanjun.injecting.injected(callback=mock_callback, type=mock_type)  # type: ignore
+
+    assert result is injected.return_value
+    injected.assert_called_once_with(callback=mock_callback, type=mock_type)
 
 
 class TestInjectorClient:

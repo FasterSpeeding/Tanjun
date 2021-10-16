@@ -37,6 +37,7 @@ import asyncio
 import contextlib
 import datetime
 import time
+import typing
 from unittest import mock
 
 import hikari
@@ -235,6 +236,20 @@ async def test_make_lc_resolver():
     ...
 
 
+def test_inject_lc():
+    stack = contextlib.ExitStack()
+    inject = stack.enter_context(mock.patch.object(tanjun.injecting, "inject"))
+    make_lc_resolver = stack.enter_context(mock.patch.object(tanjun.dependencies, "make_lc_resolver"))
+    mock_type: type[typing.Any] = mock.Mock()
+
+    with stack:
+        result = tanjun.inject_lc(mock_type)
+
+    assert result is inject.return_value
+    inject.assert_called_once_with(callback=make_lc_resolver.return_value)
+    make_lc_resolver.assert_called_once_with(mock_type)
+
+
 @pytest.mark.asyncio()
 async def test_fetch_my_user_when_cached():
     mock_client = mock.Mock()
@@ -392,3 +407,31 @@ async def test_cache_callback_when_not_expired():
     assert first_result is callback_descriptor.return_value.resolve.return_value
     assert len(results) == 6
     assert all(r is callback_descriptor.return_value.resolve.return_value for r in results)
+
+
+def test_cached_inject():
+    stack = contextlib.ExitStack()
+    inject = stack.enter_context(mock.patch.object(tanjun.injecting, "inject"))
+    cache_callback = stack.enter_context(mock.patch.object(tanjun.dependencies, "cache_callback"))
+    mock_callback = mock.Mock()
+
+    with stack:
+        result = tanjun.cached_inject(mock_callback, expire_after=datetime.timedelta(seconds=15))
+
+    assert result is inject.return_value
+    inject.assert_called_once_with(callback=cache_callback.return_value)
+    cache_callback.assert_called_once_with(mock_callback, expire_after=datetime.timedelta(seconds=15))
+
+
+def test_cached_inject_with_defaults():
+    stack = contextlib.ExitStack()
+    inject = stack.enter_context(mock.patch.object(tanjun.injecting, "inject"))
+    cache_callback = stack.enter_context(mock.patch.object(tanjun.dependencies, "cache_callback"))
+    mock_callback = mock.Mock()
+
+    with stack:
+        result = tanjun.cached_inject(mock_callback)
+
+    assert result is inject.return_value
+    inject.assert_called_once_with(callback=cache_callback.return_value)
+    cache_callback.assert_called_once_with(mock_callback, expire_after=None)

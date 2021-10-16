@@ -150,7 +150,7 @@ class OwnerCheck(_Check):
     async def __call__(
         self,
         ctx: tanjun_abc.Context,
-        dependency: dependencies.AbstractOwnerCheck = injecting.injected(type=dependencies.AbstractOwnerCheck),
+        dependency: dependencies.AbstractOwnerCheck = injecting.inject(type=dependencies.AbstractOwnerCheck),
     ) -> bool:
         return self._handle_result(await dependency.check_ownership(ctx.client, ctx.author))
 
@@ -274,7 +274,7 @@ class OwnPermissionCheck(_Check):
         self,
         ctx: tanjun_abc.Context,
         /,
-        my_user: hikari.OwnUser = injecting.injected(callback=dependencies.make_lc_resolver(hikari.OwnUser)),
+        my_user: hikari.OwnUser = dependencies.inject_lc(hikari.OwnUser),
     ) -> bool:
         if ctx.guild_id is None:
             permissions = utilities.DM_PERMISSIONS

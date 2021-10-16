@@ -32,7 +32,15 @@
 """Default dependency classes used within Tanjun and their abstract interfaces."""
 from __future__ import annotations
 
-__all__: list[str] = ["AbstractOwnerCheck", "cache_callback", "LazyConstant", "make_lc_resolver", "OwnerCheck"]
+__all__: list[str] = [
+    "AbstractOwnerCheck",
+    "cache_callback",
+    "cached_inject",
+    "LazyConstant",
+    "inject_lc",
+    "make_lc_resolver",
+    "OwnerCheck",
+]
 
 import abc
 import asyncio
@@ -247,52 +255,29 @@ class LazyConstant(typing.Generic[_T]):
         return self._lock
 
 
-def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., _T]:
+def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., collections.Awaitable[_T]]:
     """Make an injected callback which resolves a LazyConstant.
 
-    .. note::
-        For this to work, a `LazyConstant` must've been set as a type
-        dependency for the passed `type_`.
+    Notes
+    -----
+    * This is internally used by `inject_lc`.
+    * For this to work, a `LazyConstant` must've been set as a type
+      dependency for the passed `type_`.
 
     Parameters
     ----------
-    constant : type[_T]
+    type_ : type[_T]
         The type of the constant to resolve.
 
     Returns
     -------
-    collections.abc.Callable[..., _T]
+    collections.abc.Callable[..., collections.abc.Awaitable[_T]]
         An injected callback used to resolve the LazyConstant.
-
-    Example
-    -------
-    ```py
-    @component.with_command
-    @tanjun.as_message_command
-    async def command(
-        ctx: tanjun.abc.MessageCommand,
-        application: hikari.Application = tanjun.injected(
-            callback=tanjun.make_lc_resolver(hikari.Application)
-        )
-    ) -> None:
-        raise NotImplementedError
-
-    ...
-
-    async def resolve_app(
-        client: tanjun.abc.Client = tanjun.injected(type=tanjun.abc.Client)
-    ) -> hikari.Application:
-        raise NotImplementedError
-
-    tanjun.Client.from_gateway_bot(...).set_type_dependency(
-        tanjun.LazyConstant[hikari.Application] = tanjun.LazyConstant(resolve_app)
-    )
-    ```
     """
 
     async def resolve(
-        constant: LazyConstant[_T] = injecting.injected(type=LazyConstant[type_]),
-        ctx: injecting.AbstractInjectionContext = injecting.injected(type=injecting.AbstractInjectionContext),
+        constant: LazyConstant[_T] = injecting.inject(type=LazyConstant[type_]),
+        ctx: injecting.AbstractInjectionContext = injecting.inject(type=injecting.AbstractInjectionContext),
     ) -> _T:
         """Resolve a lazy constant."""
         if (value := constant.get_value()) is not None:
@@ -309,8 +294,54 @@ def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., _T]:
     return resolve
 
 
+def inject_lc(type_: type[_T], /) -> _T:
+    """Make a LazyConstant injector.
+
+    This acts like `tanjun.injecting.inject` and the result of it
+    should also be assigned to a parameter's default to be used.
+
+    .. note::
+        For this to work, a `LazyConstant` must've been set as a type
+        dependency for the passed `type_`.
+
+    Parameters
+    ----------
+    type_ : type[_T]
+        The type of the constant to resolve.
+
+    Returns
+    -------
+    tanjun.injecting.Injected[_T]
+        Injector used to resolve the LazyConstant.
+
+    Example
+    -------
+    ```py
+    @component.with_command
+    @tanjun.as_message_command
+    async def command(
+        ctx: tanjun.abc.MessageCommand,
+        application: hikari.Application = tanjun.inject_lc(hikari.Application)
+    ) -> None:
+        raise NotImplementedError
+
+    ...
+
+    async def resolve_app(
+        client: tanjun.abc.Client = tanjun.inject(type=tanjun.abc.Client)
+    ) -> hikari.Application:
+        raise NotImplementedError
+
+    tanjun.Client.from_gateway_bot(...).set_type_dependency(
+        tanjun.LazyConstant[hikari.Application] = tanjun.LazyConstant(resolve_app)
+    )
+    ```
+    """
+    return injecting.inject(callback=make_lc_resolver(type_))
+
+
 async def fetch_my_user(
-    client: tanjun_abc.Client = injecting.injected(type=tanjun_abc.Client),
+    client: tanjun_abc.Client = injecting.inject(type=tanjun_abc.Client),
 ) -> hikari.OwnUser:
     """Fetch the current user from the client's cache or rest client.
 
@@ -380,7 +411,7 @@ class _CacheCallback(typing.Generic[_T]):
         self,
         # Positional arg(s) may be guaranteed under some contexts so we want to pass those through.
         *args: typing.Any,
-        ctx: injecting.AbstractInjectionContext = injecting.injected(type=injecting.AbstractInjectionContext),
+        ctx: injecting.AbstractInjectionContext = injecting.inject(type=injecting.AbstractInjectionContext),
     ) -> _T:
         if self._result is not injecting.UNDEFINED and not self._has_expired:
             assert not isinstance(self._result, injecting.Undefined)
@@ -406,9 +437,8 @@ def cache_callback(
 ) -> collections.Callable[..., collections.Awaitable[_T]]:
     """Cache the result of a callback within a dependency injection context.
 
-    This is useful for dependencies which will always resolve to the same value
-    but are expensive to execute (e.g. they make a request or start a client
-    connection).
+    .. note::
+        This is internally used by `cached_inject`.
 
     Parameters
     ----------
@@ -429,3 +459,45 @@ def cache_callback(
         first call.
     """
     return _CacheCallback(callback, expire_after=expire_after)
+
+
+def cached_inject(
+    callback: injecting.CallbackSig[_T], /, *, expire_after: typing.Optional[datetime.timedelta] = None
+) -> _T:
+    """Inject a callback with caching.
+
+    This acts like `tanjun.injecting.inject` and the result of it
+    should also be assigned to a parameter's default to be used.
+
+    Parameters
+    ----------
+    callback : CallbackSig[_T]
+        The callback to inject.
+
+    Other Parameters
+    ----------------
+    expire_after : typing.Optional[datetime.timedelta]
+        The amount of time to cache the result for.
+
+        Leave this as `None` to cache for the runtime of the application.
+
+    Returns
+    -------
+    tanjun.injecting.Injected[_T]
+        Injector used to resolve the cached callback.
+
+    Example
+    -------
+    ```py
+    async def resolve_database(
+        client: tanjun.abc.Client = tanjun.inject(type=tanjun.abc.Client)
+    ) -> Database:
+        raise NotImplementedError
+
+    @tanjun.as_message_command("command name")
+    async def command(
+        ctx: tanjun.abc.Context, db: Database = tanjun.cached_inject(resolve_database)
+    ) -> None:
+        raise NotImplementedError
+    """
+    return injecting.inject(callback=cache_callback(callback, expire_after=expire_after))

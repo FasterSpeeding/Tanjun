@@ -99,7 +99,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
     __slots__ = ()
 
     async def __call__(
-        self, argument: ArgumentT, ctx: tanjun_abc.Context = injecting.injected(type=tanjun_abc.Context)
+        self, argument: ArgumentT, ctx: tanjun_abc.Context = injecting.inject(type=tanjun_abc.Context)
     ) -> _ValueT:
         return await self.convert(ctx, argument)
 

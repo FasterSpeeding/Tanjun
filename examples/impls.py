@@ -25,9 +25,7 @@ class DatabaseImpl:
     def __init__(self) -> None:
         self._conn: typing.Optional[typing.Any] = None
 
-    async def connect(
-        self, config: examples.config.ExampleConfig = tanjun.injected(type=examples.config.ExampleConfig)
-    ):
+    async def connect(self, config: examples.config.ExampleConfig = tanjun.inject(type=examples.config.ExampleConfig)):
         self._conn = await connect_to_database(password=config.database_password, url=config.database_url)
 
     async def get_guild_info(self, guild_id: int) -> typing.Optional[protos.GuildConfig]:

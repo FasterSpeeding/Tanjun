@@ -36,11 +36,11 @@ __all__: list[str] = [
     "BasicInjectionContext",
     "CallbackDescriptor",
     "Descriptor",
-    "cache_callback",
     "CallbackSig",
     "Undefined",
     "UNDEFINED",
     "UndefinedOr",
+    "inject",
     "injected",
     "Injected",
     "InjectorClient",
@@ -48,7 +48,6 @@ __all__: list[str] = [
 ]
 
 import abc
-import datetime
 import typing
 from collections import abc as collections
 
@@ -145,6 +144,12 @@ class Injected(typing.Generic[_T]):
     def __init__(self, *, type: _TypeT[_T]) -> None: ...
 
 @typing.overload
+def inject(*, callback: collections.Callable[..., collections.Awaitable[_T]]) -> _T: ...
+@typing.overload
+def inject(*, callback: collections.Callable[..., _T]) -> _T: ...
+@typing.overload
+def inject(*, type: _TypeT[_T]) -> _T: ...
+@typing.overload
 def injected(*, callback: collections.Callable[..., collections.Awaitable[_T]]) -> _T: ...
 @typing.overload
 def injected(*, callback: collections.Callable[..., _T]) -> _T: ...
@@ -177,15 +182,3 @@ class BaseInjectableCallback(typing.Generic[_T]):
     def needs_injector(self) -> bool: ...
     def copy(self: _BaseInjectableCallbackT) -> _BaseInjectableCallbackT: ...
     def overwrite_callback(self, callback: CallbackSig[_T], /) -> None: ...
-
-@typing.overload
-def cache_callback(
-    callback: collections.Callable[..., collections.Awaitable[_T]],
-    /,
-    *,
-    expire_after: typing.Optional[datetime.timedelta] = ...,
-) -> collections.Callable[..., collections.Awaitable[_T]]: ...
-@typing.overload
-def cache_callback(  # type: ignore  # TODO: fix pyright thinking these overlap
-    callback: collections.Callable[..., _T], /, *, expire_after: typing.Optional[datetime.timedelta] = ...
-) -> collections.Callable[..., collections.Awaitable[_T]]: ...

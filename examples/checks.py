@@ -45,7 +45,7 @@ def check(ctx: tanjun.abc.Context) -> bool:
 # It's also worth noting that since this check takes `SlashContext` it is
 # therefore only valid for the slash command flow.
 async def slash_check(
-    ctx: tanjun.abc.SlashContext, db: protos.DatabaseProto = tanjun.injected(type=protos.DatabaseProto)
+    ctx: tanjun.abc.SlashContext, db: protos.DatabaseProto = tanjun.inject(type=protos.DatabaseProto)
 ) -> bool:
     # Here we return `True` (indicating that the command can run) if the
     # user has an account in the database.
