@@ -3484,17 +3484,11 @@ Whether this command is a global command. Defaults to <code>True</code>.</li>
         <span class="name">callback</span><span class="annotation">: ~CommandCallbackSigT</span>
     </div>
 
-            <div class="docstring"><p>Get the callback which is called during execution.</p>
+            <div class="docstring"><p>Callback which is called during execution.</p>
 
 <p><em>Note:</em>
 For command groups, this is called when none of the inner-commands
 matches the message.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>CommandCallbackSig</strong>: The callback to call when the command is executed.</li>
-</ul>
 </div>
 
 
@@ -3505,13 +3499,7 @@ matches the message.</p>
         <span class="name">names</span><span class="annotation">: collections.abc.Collection[str]</span>
     </div>
 
-            <div class="docstring"><p>Get a collection of this command's names.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Collection[str]</strong>: The names of this command.</li>
-</ul>
+            <div class="docstring"><p>Collection of this command's names.</p>
 </div>
 
 
@@ -3531,13 +3519,7 @@ matches the message.</p>
         <span class="name">parent</span><span class="annotation">: Optional[<a href="abc.html#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>]</span>
     </div>
 
-            <div class="docstring"><p>Parent group of this command.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[MessageCommandGroup]</strong>: The parent group of this command if it's owned by a group.</li>
-</ul>
+            <div class="docstring"><p>Parent group of this command if it's onwned by a group.</p>
 </div>
 
 
@@ -4083,17 +4065,10 @@ The parent of this command.</li>
         <span class="name">commands</span><span class="annotation">: collections.abc.Collection[<a href="abc.html#MessageCommand">tanjun.abc.MessageCommand</a>]</span>
     </div>
 
-            <div class="docstring"><p>Get a collection of the commands in this group.</p>
+            <div class="docstring"><p>Collection of the commands in this group.</p>
 
 <p><em>Note:</em>
 This may include command groups.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>commands</strong> (collections.abc.Collection[MessageCommand]):
-The commands in this group.</li>
-</ul>
 </div>
 
 
@@ -4670,13 +4645,7 @@ The command to add.</li>
         <span class="name">checks</span><span class="annotation">: collections.abc.Collection[collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]]]</span>
     </div>
 
-            <div class="docstring"><p>Get a collection of checks that must be met before the command can be executed.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Collection[CheckSig]</strong>: The checks that must be met before the command can be executed.</li>
-</ul>
+            <div class="docstring"><p>Collection of checks that must be met before the command can be executed.</p>
 </div>
 
 
@@ -4721,15 +4690,10 @@ The command to add.</li>
         <span class="name">metadata</span><span class="annotation">: collections.abc.MutableMapping[typing.Any, typing.Any]</span>
     </div>
 
-            <div class="docstring"><p>Get the mutable mapping of metadata set for this command.</p>
+            <div class="docstring"><p>Mutable mapping of metadata set for this command.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.MutableMapping[typing.Any, typing.Any]</strong>: The metadata set for this component.</li>
-</ul>
-
-<p>Any modifications made to this mutable mapping will be preserved by
+<p><em>Note:</em>
+Any modifications made to this mutable mapping will be preserved by
 the command.</p>
 </div>
 
@@ -5219,12 +5183,6 @@ component or client is used.</p>
 <p><em>Warning:</em>
 For commands within command groups the state of this flag
 is inherited regardless of what it's set as on the child command.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>bool</strong>: Whether the command should be declared globally or not.</li>
-</ul>
 </div>
 
 
@@ -5236,12 +5194,6 @@ is inherited regardless of what it's set as on the child command.</p>
     </div>
 
             <div class="docstring"><p>Name of the command.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>str</strong>: The name of the command.</li>
-</ul>
 </div>
 
 
@@ -5253,12 +5205,6 @@ is inherited regardless of what it's set as on the child command.</p>
     </div>
 
             <div class="docstring"><p>Object of the group this command is in.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[SlashCommandGroup]</strong>: The group this command is in, if relevant else <code>None</code>.</li>
-</ul>
 </div>
 
 
@@ -5272,12 +5218,6 @@ is inherited regardless of what it's set as on the child command.</p>
             <div class="docstring"><p>ID of the actual command this object tracks if set.</p>
 
 <p>This will be used when this command is used in bulk declarations.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.Snowflake]</strong>: The ID of the actual command this object tracks.</li>
-</ul>
 </div>
 
 
@@ -6498,13 +6438,7 @@ default for contexts used by this command.</p>
         <span class="name">callback</span><span class="annotation">: ~CommandCallbackSigT</span>
     </div>
 
-            <div class="docstring"><p>Get the callback which is called during execution..</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>CommandCallbackSig</strong>: The command's callback.</li>
-</ul>
+            <div class="docstring"><p>Callback which is called during execution.</p>
 </div>
 
 
@@ -8276,7 +8210,7 @@ being used.</p></li>
         <span class="name">commands</span><span class="annotation">: collections.abc.Collection[<a href="abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>]</span>
     </div>
 
-            <div class="docstring"><p>Get a collection of the commands in this group.</p>
+            <div class="docstring"><p>Collection of the commands in this group.</p>
 
 <h6 id="returns">Returns</h6>
 

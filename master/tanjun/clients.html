@@ -1128,14 +1128,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Return a collcetion of the level `tanjun.abc.Context` checks registered to this client.</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the level `tanjun.abc.Context` checks registered to this client.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Collection[tanjun.abc.CheckSig]</span>
-<span class="sd">            Colleciton of the `tanjun.abc.Context` based checks registered for</span>
-<span class="sd">            this client.</span>
-
+<span class="sd">        .. note::</span>
 <span class="sd">            These may be taking advantage of the standard dependency injection.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">check</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
@@ -1175,12 +1170,6 @@
         <span class="sd">&quot;&quot;&quot;Top level `tanjun.abc.SlashHooks` set for this client.</span>
 
 <span class="sd">        These are only called during interaction command execution.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[tanjun.abc.SlashHooks]</span>
-<span class="sd">            The top level `tanjun.abc.SlashContext` based hooks set</span>
-<span class="sd">            for this client.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span>
 
@@ -1191,15 +1180,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">message_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get the top level `tanjun.abc.MessageHooks` set for this client.</span>
+        <span class="sd">&quot;&quot;&quot;Top level `tanjun.abc.MessageHooks` set for this client.</span>
 
 <span class="sd">        These are only called during both message command execution.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[tanjun.abc.MessageHooks]</span>
-<span class="sd">            The top level `tanjun.abc.MessageContext` based hooks set for</span>
-<span class="sd">            this client.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span>
 
@@ -1210,27 +1193,15 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">prefix_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">PrefixGetterSig</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get the prefix getter method set for this client.</span>
+        <span class="sd">&quot;&quot;&quot;Prefix getter method set for this client.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[PrefixGetterSig]</span>
-<span class="sd">            The prefix getter method set for this client if applicable,</span>
-<span class="sd">            else `None`.</span>
-
-<span class="sd">            For more information on this callback&#39;s signature see `PrefixGetter`.</span>
+<span class="sd">        For more information on this callback&#39;s signature see `PrefixGetter`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="o">.</span><span class="n">callback</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">prefixes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Set of the standard prefixes set for this client.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Collection[str]</span>
-<span class="sd">            The standard prefixes set for this client.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the standard prefixes set for this client.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -3178,14 +3149,9 @@ from the provided client using it's abstract methods.</li>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Return a collcetion of the level `tanjun.abc.Context` checks registered to this client.</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the level `tanjun.abc.Context` checks registered to this client.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Collection[tanjun.abc.CheckSig]</span>
-<span class="sd">            Colleciton of the `tanjun.abc.Context` based checks registered for</span>
-<span class="sd">            this client.</span>
-
+<span class="sd">        .. note::</span>
 <span class="sd">            These may be taking advantage of the standard dependency injection.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">check</span><span class="o">.</span><span class="n">callback</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">)</span>
@@ -3225,12 +3191,6 @@ from the provided client using it's abstract methods.</li>
         <span class="sd">&quot;&quot;&quot;Top level `tanjun.abc.SlashHooks` set for this client.</span>
 
 <span class="sd">        These are only called during interaction command execution.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[tanjun.abc.SlashHooks]</span>
-<span class="sd">            The top level `tanjun.abc.SlashContext` based hooks set</span>
-<span class="sd">            for this client.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span>
 
@@ -3241,15 +3201,9 @@ from the provided client using it's abstract methods.</li>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">message_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get the top level `tanjun.abc.MessageHooks` set for this client.</span>
+        <span class="sd">&quot;&quot;&quot;Top level `tanjun.abc.MessageHooks` set for this client.</span>
 
 <span class="sd">        These are only called during both message command execution.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[tanjun.abc.MessageHooks]</span>
-<span class="sd">            The top level `tanjun.abc.MessageContext` based hooks set for</span>
-<span class="sd">            this client.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span>
 
@@ -3260,27 +3214,15 @@ from the provided client using it's abstract methods.</li>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">prefix_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">PrefixGetterSig</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get the prefix getter method set for this client.</span>
+        <span class="sd">&quot;&quot;&quot;Prefix getter method set for this client.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[PrefixGetterSig]</span>
-<span class="sd">            The prefix getter method set for this client if applicable,</span>
-<span class="sd">            else `None`.</span>
-
-<span class="sd">            For more information on this callback&#39;s signature see `PrefixGetter`.</span>
+<span class="sd">        For more information on this callback&#39;s signature see `PrefixGetter`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="o">.</span><span class="n">callback</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">prefixes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Set of the standard prefixes set for this client.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Collection[str]</span>
-<span class="sd">            The standard prefixes set for this client.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the standard prefixes set for this client.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -5240,13 +5182,6 @@ and <code>Component.defaults_to_ephemeral</code>.</li>
 <li>This defaults to <code>False</code>.</li>
 <li>This only effects slash command execution.</li>
 </ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>bool</strong>: Whether slash contexts executed in this component should default
-to ephemeral responses.</li>
-</ul>
 </div>
 
 
@@ -5280,13 +5215,6 @@ to ephemeral responses.</li>
     </div>
 
             <div class="docstring"><p>Hikari cache instance this command client was initialised with.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.api.Cache]</strong>: Hikari cache instance this command client was initialised
-with if provided, else <code>None</code>.</li>
-</ul>
 </div>
 
 
@@ -5297,16 +5225,10 @@ with if provided, else <code>None</code>.</li>
         <span class="name">checks</span><span class="annotation">: collections.abc.Collection[collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]]]</span>
     </div>
 
-            <div class="docstring"><p>Return a collcetion of the level <code><a href="abc.html#Context">tanjun.abc.Context</a></code> checks registered to this client.</p>
+            <div class="docstring"><p>Collection of the level <code><a href="abc.html#Context">tanjun.abc.Context</a></code> checks registered to this client.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Collection[<a href="abc.html#CheckSig">tanjun.abc.CheckSig</a>]</strong>: Colleciton of the <code><a href="abc.html#Context">tanjun.abc.Context</a></code> based checks registered for
-this client.</li>
-</ul>
-
-<p>These may be taking advantage of the standard dependency injection.</p>
+<p><em>Note:</em>
+These may be taking advantage of the standard dependency injection.</p>
 </div>
 
 
@@ -5317,13 +5239,7 @@ this client.</li>
         <span class="name">components</span><span class="annotation">: collections.abc.Collection[<a href="abc.html#Component">tanjun.abc.Component</a>]</span>
     </div>
 
-            <div class="docstring"><p>Get a collection of the components this command client is using.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Collection[<a href="../tanjun.html#traits.Component">tanjun.traits.Component</a>]</strong>: Collection of the components this command client is using.</li>
-</ul>
+            <div class="docstring"><p>Collection of the components this command client is using.</p>
 </div>
 
 
@@ -5337,13 +5253,6 @@ this client.</li>
             <div class="docstring"><p>Object of the event manager this client was initialised with.</p>
 
 <p>This is used for executing message commands if set.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.api.EventManager]</strong>: The Hikari event manager this client was initialised with
-if provided, else <code>None</code>.</li>
-</ul>
 </div>
 
 
@@ -5354,13 +5263,7 @@ if provided, else <code>None</code>.</li>
         <span class="name">listeners</span><span class="annotation">: collections.abc.Mapping[type[hikari.events.base_events.Event], collections.abc.Collection[collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, None]]]]</span>
     </div>
 
-            <div class="docstring"><p>Get a mapping of event types to the listeners registered in this client.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]</strong>: The listeners in this component.</li>
-</ul>
+            <div class="docstring"><p>Mapping of event types to the listeners registered in this client.</p>
 </div>
 
 
@@ -5394,13 +5297,6 @@ client if applicable, else <code>None</code>.</li>
             <div class="docstring"><p>Top level <code><a href="abc.html#SlashHooks">tanjun.abc.SlashHooks</a></code> set for this client.</p>
 
 <p>These are only called during interaction command execution.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[<a href="abc.html#SlashHooks">tanjun.abc.SlashHooks</a>]</strong>: The top level <code><a href="abc.html#SlashContext">tanjun.abc.SlashContext</a></code> based hooks set
-for this client.</li>
-</ul>
 </div>
 
 
@@ -5422,16 +5318,9 @@ for this client.</li>
         <span class="name">message_hooks</span><span class="annotation">: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#MessageContext">tanjun.abc.MessageContext</a>]]</span>
     </div>
 
-            <div class="docstring"><p>Get the top level <code><a href="abc.html#MessageHooks">tanjun.abc.MessageHooks</a></code> set for this client.</p>
+            <div class="docstring"><p>Top level <code><a href="abc.html#MessageHooks">tanjun.abc.MessageHooks</a></code> set for this client.</p>
 
 <p>These are only called during both message command execution.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[<a href="abc.html#MessageHooks">tanjun.abc.MessageHooks</a>]</strong>: The top level <code><a href="abc.html#MessageContext">tanjun.abc.MessageContext</a></code> based hooks set for
-this client.</li>
-</ul>
 </div>
 
 
@@ -5442,15 +5331,10 @@ this client.</li>
         <span class="name">metadata</span><span class="annotation">: collections.abc.MutableMapping[typing.Any, typing.Any]</span>
     </div>
 
-            <div class="docstring"><p>Get the mutable mapping of the metadata set for this client.</p>
+            <div class="docstring"><p>Mutable mapping of the metadata set for this client.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.MutableMapping[typing.Any, typing.Any]</strong>: The metadata set for this client.</li>
-</ul>
-
-<p>Any modifications made to this mutable mapping will be preserved by
+<p><em>Note:</em>
+Any modifications made to this mutable mapping will be preserved by
 the client.</p>
 </div>
 
@@ -5462,14 +5346,7 @@ the client.</p>
         <span class="name">prefix_getter</span><span class="annotation">: Optional[collections.abc.Callable[..., collections.abc.Awaitable[collections.abc.Iterable[str]]]]</span>
     </div>
 
-            <div class="docstring"><p>Get the prefix getter method set for this client.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[PrefixGetterSig]</strong>: The prefix getter method set for this client if applicable,
-else <code>None</code>.</li>
-</ul>
+            <div class="docstring"><p>Prefix getter method set for this client.</p>
 
 <p>For more information on this callback's signature see <code>PrefixGetter</code>.</p>
 </div>
@@ -5482,13 +5359,7 @@ else <code>None</code>.</li>
         <span class="name">prefixes</span><span class="annotation">: collections.abc.Collection[str]</span>
     </div>
 
-            <div class="docstring"><p>Set of the standard prefixes set for this client.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Collection[str]</strong>: The standard prefixes set for this client.</li>
-</ul>
+            <div class="docstring"><p>Collection of the standard prefixes set for this client.</p>
 </div>
 
 
@@ -5500,12 +5371,6 @@ else <code>None</code>.</li>
     </div>
 
             <div class="docstring"><p>Object of the Hikari REST client this client was initialised with.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>hikari.api.RESTClient</strong>: The Hikari REST client this client was initialised with.</li>
-</ul>
 </div>
 
 
@@ -5519,13 +5384,6 @@ else <code>None</code>.</li>
             <div class="docstring"><p>Object of the Hikari interaction server provided for this client.</p>
 
 <p>This is used for executing slash commands if set.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.api.InteractionServer]</strong>: The Hikari interaction server this client was initialised
-with if provided, else <code>None</code>.</li>
-</ul>
 </div>
 
 
@@ -5537,13 +5395,6 @@ with if provided, else <code>None</code>.</li>
     </div>
 
             <div class="docstring"><p>Object of the Hikari shard manager this client was initialised with.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.traits.ShardAware]</strong>: The Hikari shard manager this client was initialised with
-if provided, else <code>None</code>.</li>
-</ul>
 </div>
 
 

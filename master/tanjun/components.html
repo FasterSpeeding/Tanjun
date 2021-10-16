@@ -1656,13 +1656,6 @@ spaces and will have to be unique to one command within the component.</p></li>
     </div>
 
             <div class="docstring"><p>Tanjun client this component is bound to.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>client</strong> (typing.Optional[Client]):
-The client this component is bound to.</li>
-</ul>
 </div>
 
 
@@ -1685,15 +1678,8 @@ methods which support it.</p>
 <ul>
 <li>This may be overridden by <code>BaseSlashCommand.defaults_to_ephemeral</code>.</li>
 <li>This only effects slash command execution.</li>
+<li>If this is <code>None</code> then the default from the parent client is used.</li>
 </ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[bool]</strong>: Whether contexts executed in this component should default to ephemeral responses.</li>
-</ul>
-
-<p>If this is <code>None</code> then the default from the parent client is used.</p>
 </div>
 
 
@@ -1713,17 +1699,10 @@ methods which support it.</p>
         <span class="name">name</span><span class="annotation">: str</span>
     </div>
 
-            <div class="docstring"><p>Get the component's identifier.</p>
+            <div class="docstring"><p>Component's unique identifier.</p>
 
 <p><em>Note:</em>
 This will be preserved between copies of a component.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>name</strong> (str):
-The name of this component.</li>
-</ul>
 </div>
 
 
@@ -1734,13 +1713,7 @@ The name of this component.</li>
         <span class="name">slash_commands</span><span class="annotation">: collections.abc.Collection[<a href="abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>]</span>
     </div>
 
-            <div class="docstring"><p>Get a collection of the slash commands in this component.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Collection[BaseSlashCommand]</strong>: The slash commands in this component.</li>
-</ul>
+            <div class="docstring"><p>Collection of the slash commands in this component.</p>
 </div>
 
 
@@ -1760,13 +1733,7 @@ The name of this component.</li>
         <span class="name">message_commands</span><span class="annotation">: collections.abc.Collection[<a href="abc.html#MessageCommand">tanjun.abc.MessageCommand</a>]</span>
     </div>
 
-            <div class="docstring"><p>Get a cllection of the message commands in this component.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Collection[MessageCommand]</strong>: The message commands in this component.</li>
-</ul>
+            <div class="docstring"><p>Collection of the message commands in this component.</p>
 </div>
 
 
@@ -1795,13 +1762,7 @@ The name of this component.</li>
         <span class="name">listeners</span><span class="annotation">: collections.abc.Mapping[type[hikari.events.base_events.Event], collections.abc.Collection[collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, None]]]]</span>
     </div>
 
-            <div class="docstring"><p>Get a mapping of event types to the listeners registered for them in this component.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]</strong>: The listeners in this component.</li>
-</ul>
+            <div class="docstring"><p>Mapping of event types to the listeners registered for them in this component.</p>
 </div>
 
 
@@ -1812,15 +1773,10 @@ The name of this component.</li>
         <span class="name">metadata</span><span class="annotation">: dict[typing.Any, typing.Any]</span>
     </div>
 
-            <div class="docstring"><p>Get the mutable mapping of the metadata set for this component.</p>
+            <div class="docstring"><p>Mutable mapping of the metadata set for this component.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.MutableMapping[typing.Any, typing.Any]</strong>: The metadata set for this component.</li>
-</ul>
-
-<p>Any modifications made to this mutable mapping will be preserved by
+<p><em>Note:</em>
+Any modifications made to this mutable mapping will be preserved by
 the component.</p>
 </div>
 

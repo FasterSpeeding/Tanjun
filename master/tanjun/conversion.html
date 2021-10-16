@@ -247,13 +247,8 @@
 <span class="sd">            aren&#39;t necessary but simply avoid the converter from falling back to</span>
 <span class="sd">            REST requests.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hikari.CacheComponents</span>
-<span class="sd">            The cache components the converter takes advantage of.</span>
-
-<span class="sd">            This will be `hikari.CacheComponents.NONE` if the converter doesn&#39;t</span>
-<span class="sd">            make cache calls.</span>
+<span class="sd">        This will be `hikari.CacheComponents.NONE` if the converter doesn&#39;t</span>
+<span class="sd">        make cache calls.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -269,11 +264,6 @@
 <span class="sd">            Unless `BaseConverter.requires_cache` is `True`, these intents being</span>
 <span class="sd">            disabled won&#39;t stop this converter from working as it&#39;ll still fall</span>
 <span class="sd">            back to REST requests.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hikari.Intents</span>
-<span class="sd">            Bitwise flag of the intents this converter takes advantage of.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -281,14 +271,9 @@
     <span class="k">def</span> <span class="nf">requires_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Whether this converter relies on the relevant cache stores to work.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        bool</span>
-<span class="sd">            Whether the converter relies on the relevant cache stores to work.</span>
-
-<span class="sd">            If this is `True` then this converter will not function properly</span>
-<span class="sd">            in an environment `BaseConverter.intents` or `BaseConverter.cache_components`</span>
-<span class="sd">            isn&#39;t satisfied and will never fallback to REST requests.</span>
+<span class="sd">        If this is `True` then this converter will not function properly</span>
+<span class="sd">        in an environment `BaseConverter.intents` or `BaseConverter.cache_components`</span>
+<span class="sd">        isn&#39;t satisfied and will never fallback to REST requests.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>

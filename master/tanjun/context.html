@@ -1760,12 +1760,6 @@
     </div>
 
             <div class="docstring"><p>Object of the user who triggered this command.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>hikari.User</strong>: Object of the user who triggered this command.</li>
-</ul>
 </div>
 
 
@@ -1777,12 +1771,6 @@
     </div>
 
             <div class="docstring"><p>ID of the channel this command was triggered in.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>hikari.Snowflake</strong>: ID of the channel this command was triggered in.</li>
-</ul>
 </div>
 
 
@@ -1798,12 +1786,6 @@
 <p><em>Note:</em>
 This will only be <code>None</code> before this has been bound to a
 specific command but never during command execution.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[ExecutableCommand[ContextT]]</strong>: The command this context is bound to.</li>
-</ul>
 </div>
 
 
@@ -1815,13 +1797,6 @@ specific command but never during command execution.</p>
     </div>
 
             <div class="docstring"><p>Content of the context's message minus the triggering name and prefix.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>str</strong>: The content the of the context's message minus the triggering name
-and prefix.</li>
-</ul>
 </div>
 
 
@@ -1834,12 +1809,8 @@ and prefix.</li>
 
             <div class="docstring"><p>When this context was created.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>datetime.datetime</strong>: When this context was created.
-This will either refer to a message or integration's creation date.</li>
-</ul>
+<p><em>Note:</em>
+This will either refer to a message or integration's creation date.</p>
 </div>
 
 
@@ -1851,12 +1822,6 @@ This will either refer to a message or integration's creation date.</li>
     </div>
 
             <div class="docstring"><p>ID of the guild this command was executed in.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.Snowflake]</strong>: ID of the guild this command was executed in.</li>
-</ul>
 
 <p>Will be <code>None</code> for all DM command executions.</p>
 </div>
@@ -1870,12 +1835,6 @@ This will either refer to a message or integration's creation date.</li>
     </div>
 
             <div class="docstring"><p>Whether an initial response has been made for this context.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>bool</strong>: Whether an initial response has been made for this context.</li>
-</ul>
 </div>
 
 
@@ -1887,12 +1846,6 @@ This will either refer to a message or integration's creation date.</li>
     </div>
 
             <div class="docstring"><p>Whether this command execution was triggered by a human.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>bool</strong>: Whether this command execution was triggered by a human.</li>
-</ul>
 
 <p>Will be <code>False</code> for bot and webhook triggered commands.</p>
 </div>
@@ -1907,12 +1860,6 @@ This will either refer to a message or integration's creation date.</li>
 
             <div class="docstring"><p>Guild member object of this command's author.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.Member]</strong>: Guild member object of this command's author.</li>
-</ul>
-
 <p>Will be <code>None</code> for DM command executions.</p>
 </div>
 
@@ -1925,12 +1872,6 @@ This will either refer to a message or integration's creation date.</li>
     </div>
 
             <div class="docstring"><p>Message that triggered the context.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>hikari.Message</strong>: The message that triggered the context.</li>
-</ul>
 </div>
 
 
@@ -1942,12 +1883,6 @@ This will either refer to a message or integration's creation date.</li>
     </div>
 
             <div class="docstring"><p>Command name this execution was triggered with.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>str</strong>: The command name this execution was triggered with.</li>
-</ul>
 </div>
 
 
@@ -1959,12 +1894,6 @@ This will either refer to a message or integration's creation date.</li>
     </div>
 
             <div class="docstring"><p>Prefix that triggered the context.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>str</strong>: The prefix that triggered the context.</li>
-</ul>
 </div>
 
 
@@ -1977,12 +1906,8 @@ This will either refer to a message or integration's creation date.</li>
 
             <div class="docstring"><p>Shard that triggered the context.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.api.GatewayShard]</strong>: The shard that triggered the context if <code>ctx.shards</code> is set.
-Otherwise, returns <code>None</code>.</li>
-</ul>
+<p><em>Note:</em>
+This will be <code>None</code> if <code>ctx.shards</code> is also <code>None</code>.</p>
 </div>
 
 
@@ -3450,12 +3375,6 @@ nature, and will trigger this exception if they occur.</li>
     </div>
 
             <div class="docstring"><p>Object of the user who triggered this command.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>hikari.User</strong>: Object of the user who triggered this command.</li>
-</ul>
 </div>
 
 
@@ -3467,12 +3386,6 @@ nature, and will trigger this exception if they occur.</li>
     </div>
 
             <div class="docstring"><p>ID of the channel this command was triggered in.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>hikari.Snowflake</strong>: ID of the channel this command was triggered in.</li>
-</ul>
 </div>
 
 
@@ -3484,12 +3397,6 @@ nature, and will trigger this exception if they occur.</li>
     </div>
 
             <div class="docstring"><p>Tanjun <code>Client</code> implementation this context was spawned by.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>Client</strong>: The Tanjun <code>Client</code> implementation this context was spawned by.</li>
-</ul>
 </div>
 
 
@@ -3505,12 +3412,6 @@ nature, and will trigger this exception if they occur.</li>
 <p><em>Note:</em>
 This will only be <code>None</code> before this has been bound to a
 specific command but never during command execution.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[ExecutableCommand[ContextT]]</strong>: The command this context is bound to.</li>
-</ul>
 </div>
 
 
@@ -3523,12 +3424,8 @@ specific command but never during command execution.</p>
 
             <div class="docstring"><p>When this context was created.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>datetime.datetime</strong>: When this context was created.
-This will either refer to a message or integration's creation date.</li>
-</ul>
+<p><em>Note:</em>
+This will either refer to a message or integration's creation date.</p>
 </div>
 
 
@@ -3563,12 +3460,6 @@ methods which support it.</p>
 
             <div class="docstring"><p>ID of the guild this command was executed in.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.Snowflake]</strong>: ID of the guild this command was executed in.</li>
-</ul>
-
 <p>Will be <code>None</code> for all DM command executions.</p>
 </div>
 
@@ -3587,12 +3478,6 @@ If this is <code>True</code> when <code><a href="#SlashContext.has_responded">Sl
 then <code><a href="#SlashContext.edit_initial_response">SlashContext.edit_initial_response</a></code> will need to be used
 to create the initial response rather than
 <code><a href="#SlashContext.create_initial_response">SlashContext.create_initial_response</a></code>.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>bool</strong>: Whether the initial response for this context has been deferred.</li>
-</ul>
 </div>
 
 
@@ -3604,12 +3489,6 @@ to create the initial response rather than
     </div>
 
             <div class="docstring"><p>Whether an initial response has been made for this context.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>bool</strong>: Whether an initial response has been made for this context.</li>
-</ul>
 </div>
 
 
@@ -3621,12 +3500,6 @@ to create the initial response rather than
     </div>
 
             <div class="docstring"><p>Whether this command execution was triggered by a human.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>bool</strong>: Whether this command execution was triggered by a human.</li>
-</ul>
 
 <p>Will be <code>False</code> for bot and webhook triggered commands.</p>
 </div>
@@ -3641,12 +3514,6 @@ to create the initial response rather than
 
             <div class="docstring"><p>Guild member object of this command's author.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.Member]</strong>: Guild member object of this command's author.</li>
-</ul>
-
 <p>Will be <code>None</code> for DM command executions.</p>
 </div>
 
@@ -3659,12 +3526,6 @@ to create the initial response rather than
     </div>
 
             <div class="docstring"><p>Command name this execution was triggered with.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>str</strong>: The command name this execution was triggered with.</li>
-</ul>
 </div>
 
 
@@ -3676,12 +3537,6 @@ to create the initial response rather than
     </div>
 
             <div class="docstring"><p>Interaction this context is for.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>hikari.CommandInteraction</strong>: The interaction this context is for.</li>
-</ul>
 </div>
 
 
@@ -3692,7 +3547,7 @@ to create the initial response rather than
         <span class="name">options</span><span class="annotation">: collections.abc.Mapping[str, <a href="abc.html#SlashOption">tanjun.abc.SlashOption</a>]</span>
     </div>
 
-            <div class="docstring"><p>Return a mapping of option names to the values provided for them.</p>
+            <div class="docstring"><p>Mapping of option names to the values provided for them.</p>
 
 <h6 id="returns">Returns</h6>
 
@@ -5175,12 +5030,6 @@ nature, and will trigger this exception if they occur.</li>
 <p><em>Note:</em>
 For discord entity option types (e.g. user, member, channel and
 role) this will be the entity's ID.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Union[str, int, bool, float]</strong>: The value provided for this option.</li>
-</ul>
 </div>
 
 

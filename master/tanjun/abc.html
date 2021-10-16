@@ -753,47 +753,22 @@
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">author</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Object of the user who triggered this command.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hikari.User</span>
-<span class="sd">            Object of the user who triggered this command.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Object of the user who triggered this command.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">channel_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;ID of the channel this command was triggered in.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hikari.Snowflake</span>
-<span class="sd">            ID of the channel this command was triggered in.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;ID of the channel this command was triggered in.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">Cache</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Hikari cache instance this context&#39;s command client was initialised with.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.api.Cache]</span>
-<span class="sd">            Hikari cache instance this context&#39;s command client was initialised</span>
-<span class="sd">            with if provided, else `None`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Hikari cache instance this context&#39;s command client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Tanjun `Client` implementation this context was spawned by.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Client</span>
-<span class="sd">            The Tanjun `Client` implementation this context was spawned by.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Tanjun `Client` implementation this context was spawned by.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -803,11 +778,6 @@
 <span class="sd">        .. note::</span>
 <span class="sd">            This will only be `None` before this has been bound to a</span>
 <span class="sd">            specific command but never during command execution nor checks.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[Component[ContextT]]</span>
-<span class="sd">            The component this context is bound to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>  <span class="c1"># TODO: can we somehow have this always be present on the command execution facing interface</span>
@@ -818,11 +788,6 @@
 <span class="sd">        .. note::</span>
 <span class="sd">            This will only be `None` before this has been bound to a</span>
 <span class="sd">            specific command but never during command execution.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[ExecutableCommand[ContextT]]</span>
-<span class="sd">            The command this context is bound to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -830,60 +795,34 @@
     <span class="k">def</span> <span class="nf">created_at</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;When this context was created.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        datetime.datetime</span>
-<span class="sd">            When this context was created.</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            This will either refer to a message or integration&#39;s creation date.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">EventManager</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Object of the event manager this context&#39;s client was initialised with.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.api.EventManager]</span>
-<span class="sd">            The Hikari event manager this context&#39;s client was initialised with</span>
-<span class="sd">            if provided, else `None`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Object of the event manager this context&#39;s client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">guild_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;ID of the guild this command was executed in.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.Snowflake]</span>
-<span class="sd">            ID of the guild this command was executed in.</span>
-
-<span class="sd">            Will be `None` for all DM command executions.</span>
+<span class="sd">        Will be `None` for all DM command executions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">has_responded</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Whether an initial response has been made for this context.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        bool</span>
-<span class="sd">            Whether an initial response has been made for this context.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Whether an initial response has been made for this context.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">is_human</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Whether this command execution was triggered by a human.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        bool</span>
-<span class="sd">            Whether this command execution was triggered by a human.</span>
-
-<span class="sd">            Will be `False` for bot and webhook triggered commands.</span>
+<span class="sd">        Will be `False` for bot and webhook triggered commands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -891,59 +830,28 @@
     <span class="k">def</span> <span class="nf">member</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Guild member object of this command&#39;s author.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.Member]</span>
-<span class="sd">            Guild member object of this command&#39;s author.</span>
-
-<span class="sd">            Will be `None` for DM command executions.</span>
+<span class="sd">        Will be `None` for DM command executions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">server</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionServer</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Object of the Hikari interaction server provided for this context&#39;s client.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.api.InteractionServer]</span>
-<span class="sd">            The Hikari interaction server this context&#39;s client was initialised</span>
-<span class="sd">            with if provided, else `None`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Object of the Hikari interaction server provided for this context&#39;s client.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">rest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">RESTClient</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Object of the Hikari REST client this context&#39;s client was initialised with.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hikari.api.RESTClient</span>
-<span class="sd">            The Hikari REST client this context&#39;s client was initialised with.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Object of the Hikari REST client this context&#39;s client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">shards</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Object of the Hikari shard manager this context&#39;s client was initialised with.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.traits.ShardAware]</span>
-<span class="sd">            The Hikari shard manager this context&#39;s client was initialised with</span>
-<span class="sd">            if provided, else `None`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Object of the Hikari shard manager this context&#39;s client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">triggering_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Command name this execution was triggered with.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        str</span>
-<span class="sd">            The command name this execution was triggered with.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Command name this execution was triggered with.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">set_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">Component</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
@@ -1555,11 +1463,7 @@
     <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Command that was invoked.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[MessageCommand]</span>
-<span class="sd">            The command that was invoked.</span>
-
+<span class="sd">        .. note::</span>
 <span class="sd">            This is always set during command, command check and parser</span>
 <span class="sd">            converter execution but isn&#39;t guaranteed during client callback</span>
 <span class="sd">            nor client/component check execution.</span>
@@ -1568,59 +1472,31 @@
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">content</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Content of the context&#39;s message minus the triggering name and prefix.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        str</span>
-<span class="sd">            The content the of the context&#39;s message minus the triggering name</span>
-<span class="sd">            and prefix.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Content of the context&#39;s message minus the triggering name and prefix.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Message that triggered the context.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hikari.Message</span>
-<span class="sd">            The message that triggered the context.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Message that triggered the context.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">shard</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">GatewayShard</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Shard that triggered the context.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.api.GatewayShard]</span>
-<span class="sd">            The shard that triggered the context if `ctx.shards` is set.</span>
-<span class="sd">            Otherwise, returns `None`.</span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This will be `None` if `ctx.shards` is also `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">triggering_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Prefix that triggered the context.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        str</span>
-<span class="sd">            The prefix that triggered the context.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Prefix that triggered the context.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">triggering_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Command name that triggered the context.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        str</span>
-<span class="sd">            The command name that triggered the context.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Command name that triggered the context.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
@@ -1813,11 +1689,6 @@
 <span class="sd">        .. note::</span>
 <span class="sd">            For discord entity option types (e.g. user, member, channel and</span>
 <span class="sd">            role) this will be the entity&#39;s ID.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Union[str, int, bool, float]</span>
-<span class="sd">            The value provided for this option.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -1967,11 +1838,7 @@
     <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Command that was invoked.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[BaseSlashCommand]</span>
-<span class="sd">            The command that was invoked.</span>
-
+<span class="sd">        .. note::</span>
 <span class="sd">            This should always be set during command, command check execution</span>
 <span class="sd">            and command hook execution but isn&#39;t guaranteed for client callbacks</span>
 <span class="sd">            nor component/client checks.</span>
@@ -2003,23 +1870,12 @@
 <span class="sd">            then `SlashContext.edit_initial_response` will need to be used</span>
 <span class="sd">            to create the initial response rather than</span>
 <span class="sd">            `SlashContext.create_initial_response`.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        bool</span>
-<span class="sd">            Whether the initial response for this context has been deferred.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">interaction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Interaction this context is for.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hikari.CommandInteraction</span>
-<span class="sd">            The interaction this context is for.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Interaction this context is for.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -2035,7 +1891,7 @@
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SlashOption</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Return a mapping of option names to the values provided for them.</span>
+        <span class="sd">&quot;&quot;&quot;Mapping of option names to the values provided for them.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -2376,13 +2232,7 @@
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">CheckSig</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a collection of checks that must be met before the command can be executed.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Collection[CheckSig]</span>
-<span class="sd">            The checks that must be met before the command can be executed.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Collection of checks that must be met before the command can be executed.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -2409,13 +2259,9 @@
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get the mutable mapping of metadata set for this command.</span>
+        <span class="sd">&quot;&quot;&quot;Mutable mapping of metadata set for this command.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.MutableMapping[typing.Any, typing.Any]</span>
-<span class="sd">            The metadata set for this component.</span>
-
+<span class="sd">        .. note::</span>
 <span class="sd">            Any modifications made to this mutable mapping will be preserved by</span>
 <span class="sd">            the command.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2521,34 +2367,17 @@
 <span class="sd">        .. warning::</span>
 <span class="sd">            For commands within command groups the state of this flag</span>
 <span class="sd">            is inherited regardless of what it&#39;s set as on the child command.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        bool</span>
-<span class="sd">            Whether the command should be declared globally or not.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Name of the command.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        str</span>
-<span class="sd">            The name of the command.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Name of the command.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">SlashCommandGroup</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Object of the group this command is in.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[SlashCommandGroup]</span>
-<span class="sd">            The group this command is in, if relevant else `None`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Object of the group this command is in.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -2556,11 +2385,6 @@
         <span class="sd">&quot;&quot;&quot;ID of the actual command this object tracks if set.</span>
 
 <span class="sd">        This will be used when this command is used in bulk declarations.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.Snowflake]</span>
-<span class="sd">            The ID of the actual command this object tracks.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -2617,13 +2441,7 @@
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallbackSig</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Get the callback which is called during execution..</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        CommandCallbackSig</span>
-<span class="sd">            The command&#39;s callback.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Callback which is called during execution.&quot;&quot;&quot;</span>
 
 
 <span class="k">class</span> <span class="nc">SlashCommandGroup</span><span class="p">(</span><span class="n">BaseSlashCommand</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
@@ -2639,7 +2457,7 @@
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a collection of the commands in this group.</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the commands in this group.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -2706,39 +2524,22 @@
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallbackSig</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Get the callback which is called during execution.</span>
+        <span class="sd">&quot;&quot;&quot;Callback which is called during execution.</span>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            For command groups, this is called when none of the inner-commands</span>
 <span class="sd">            matches the message.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        CommandCallbackSig</span>
-<span class="sd">            The callback to call when the command is executed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a collection of this command&#39;s names.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Collection[str]</span>
-<span class="sd">            The names of this command.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Collection of this command&#39;s names.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Parent group of this command.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[MessageCommandGroup]</span>
-<span class="sd">            The parent group of this command if it&#39;s owned by a group.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Parent group of this command if it&#39;s onwned by a group.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">set_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
@@ -2789,15 +2590,10 @@
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a collection of the commands in this group.</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the commands in this group.</span>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            This may include command groups.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        commands : collections.abc.Collection[MessageCommand]</span>
-<span class="sd">            The commands in this group.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -2864,13 +2660,7 @@
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">Client</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Tanjun client this component is bound to.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        client : typing.Optional[Client]</span>
-<span class="sd">            The client this component is bound to.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Tanjun client this component is bound to.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -2886,72 +2676,39 @@
 <span class="sd">        -----</span>
 <span class="sd">        * This may be overridden by `BaseSlashCommand.defaults_to_ephemeral`.</span>
 <span class="sd">        * This only effects slash command execution.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[bool]</span>
-<span class="sd">            Whether contexts executed in this component should default to ephemeral responses.</span>
-
-<span class="sd">            If this is `None` then the default from the parent client is used.</span>
+<span class="sd">        * If this is `None` then the default from the parent client is used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Get the component&#39;s identifier.</span>
+        <span class="sd">&quot;&quot;&quot;Component&#39;s unique identifier.</span>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            This will be preserved between copies of a component.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        name : str</span>
-<span class="sd">            The name of this component.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">slash_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a collection of the slash commands in this component.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Collection[BaseSlashCommand]</span>
-<span class="sd">            The slash commands in this component.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the slash commands in this component.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a cllection of the message commands in this component.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Collection[MessageCommand]</span>
-<span class="sd">            The message commands in this component.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the message commands in this component.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a mapping of event types to the listeners registered for them in this component.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]</span>
-<span class="sd">            The listeners in this component.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Mapping of event types to the listeners registered for them in this component.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get the mutable mapping of the metadata set for this component.</span>
+        <span class="sd">&quot;&quot;&quot;Mutable mapping of the metadata set for this component.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.MutableMapping[typing.Any, typing.Any]</span>
-<span class="sd">            The metadata set for this component.</span>
-
+<span class="sd">        .. note::</span>
 <span class="sd">            Any modifications made to this mutable mapping will be preserved by</span>
 <span class="sd">            the component.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3280,25 +3037,12 @@
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">Cache</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Hikari cache instance this command client was initialised with.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.api.Cache]</span>
-<span class="sd">            Hikari cache instance this command client was initialised</span>
-<span class="sd">            with if provided, else `None`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Hikari cache instance this command client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">Component</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a collection of the components this command client is using.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Collection[tanjun.traits.Component]</span>
-<span class="sd">            Collection of the components this command client is using.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the components this command client is using.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -3316,12 +3060,6 @@
 <span class="sd">          and `Component.defaults_to_ephemeral`.</span>
 <span class="sd">        * This defaults to `False`.</span>
 <span class="sd">        * This only effects slash command execution.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        bool</span>
-<span class="sd">            Whether slash contexts executed in this component should default</span>
-<span class="sd">            to ephemeral responses.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -3330,35 +3068,19 @@
         <span class="sd">&quot;&quot;&quot;Object of the event manager this client was initialised with.</span>
 
 <span class="sd">        This is used for executing message commands if set.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.api.EventManager]</span>
-<span class="sd">            The Hikari event manager this client was initialised with</span>
-<span class="sd">            if provided, else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>  <span class="c1"># TODO: switch over to a mapping of event to collection cause convenience</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a mapping of event types to the listeners registered in this client.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]</span>
-<span class="sd">            The listeners in this component.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Mapping of event types to the listeners registered in this client.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get the mutable mapping of the metadata set for this client.</span>
+        <span class="sd">&quot;&quot;&quot;Mutable mapping of the metadata set for this client.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.MutableMapping[typing.Any, typing.Any]</span>
-<span class="sd">            The metadata set for this client.</span>
-
+<span class="sd">        .. note::</span>
 <span class="sd">            Any modifications made to this mutable mapping will be preserved by</span>
 <span class="sd">            the client.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3366,27 +3088,16 @@
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">prefixes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a collection of the prefixes set for this client.</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the prefixes set for this client.</span>
 
 <span class="sd">        These are only use during message command execution to match commands</span>
 <span class="sd">        to this command client.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collcetions.abc.Collection[str]</span>
-<span class="sd">            Collection of the prefixes set for this client.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">rest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">RESTClient</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Object of the Hikari REST client this client was initialised with.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hikari.api.RESTClient</span>
-<span class="sd">            The Hikari REST client this client was initialised with.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Object of the Hikari REST client this client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -3394,25 +3105,12 @@
         <span class="sd">&quot;&quot;&quot;Object of the Hikari interaction server provided for this client.</span>
 
 <span class="sd">        This is used for executing slash commands if set.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.api.InteractionServer]</span>
-<span class="sd">            The Hikari interaction server this client was initialised</span>
-<span class="sd">            with if provided, else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">shards</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Object of the Hikari shard manager this client was initialised with.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.traits.ShardAware]</span>
-<span class="sd">            The Hikari shard manager this client was initialised with</span>
-<span class="sd">            if provided, else `None`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Object of the Hikari shard manager this client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">add_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
@@ -3785,47 +3483,22 @@
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">author</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Object of the user who triggered this command.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hikari.User</span>
-<span class="sd">            Object of the user who triggered this command.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Object of the user who triggered this command.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">channel_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;ID of the channel this command was triggered in.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hikari.Snowflake</span>
-<span class="sd">            ID of the channel this command was triggered in.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;ID of the channel this command was triggered in.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">Cache</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Hikari cache instance this context&#39;s command client was initialised with.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.api.Cache]</span>
-<span class="sd">            Hikari cache instance this context&#39;s command client was initialised</span>
-<span class="sd">            with if provided, else `None`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Hikari cache instance this context&#39;s command client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Client</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Tanjun `Client` implementation this context was spawned by.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Client</span>
-<span class="sd">            The Tanjun `Client` implementation this context was spawned by.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Tanjun `Client` implementation this context was spawned by.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -3835,11 +3508,6 @@
 <span class="sd">        .. note::</span>
 <span class="sd">            This will only be `None` before this has been bound to a</span>
 <span class="sd">            specific command but never during command execution nor checks.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[Component[ContextT]]</span>
-<span class="sd">            The component this context is bound to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>  <span class="c1"># TODO: can we somehow have this always be present on the command execution facing interface</span>
@@ -3850,11 +3518,6 @@
 <span class="sd">        .. note::</span>
 <span class="sd">            This will only be `None` before this has been bound to a</span>
 <span class="sd">            specific command but never during command execution.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[ExecutableCommand[ContextT]]</span>
-<span class="sd">            The command this context is bound to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -3862,60 +3525,34 @@
     <span class="k">def</span> <span class="nf">created_at</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;When this context was created.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        datetime.datetime</span>
-<span class="sd">            When this context was created.</span>
+<span class="sd">        .. note::</span>
 <span class="sd">            This will either refer to a message or integration&#39;s creation date.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">EventManager</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Object of the event manager this context&#39;s client was initialised with.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.api.EventManager]</span>
-<span class="sd">            The Hikari event manager this context&#39;s client was initialised with</span>
-<span class="sd">            if provided, else `None`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Object of the event manager this context&#39;s client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">guild_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;ID of the guild this command was executed in.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.Snowflake]</span>
-<span class="sd">            ID of the guild this command was executed in.</span>
-
-<span class="sd">            Will be `None` for all DM command executions.</span>
+<span class="sd">        Will be `None` for all DM command executions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">has_responded</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Whether an initial response has been made for this context.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        bool</span>
-<span class="sd">            Whether an initial response has been made for this context.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Whether an initial response has been made for this context.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">is_human</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Whether this command execution was triggered by a human.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        bool</span>
-<span class="sd">            Whether this command execution was triggered by a human.</span>
-
-<span class="sd">            Will be `False` for bot and webhook triggered commands.</span>
+<span class="sd">        Will be `False` for bot and webhook triggered commands.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -3923,59 +3560,28 @@
     <span class="k">def</span> <span class="nf">member</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Member</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Guild member object of this command&#39;s author.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.Member]</span>
-<span class="sd">            Guild member object of this command&#39;s author.</span>
-
-<span class="sd">            Will be `None` for DM command executions.</span>
+<span class="sd">        Will be `None` for DM command executions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">server</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">InteractionServer</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Object of the Hikari interaction server provided for this context&#39;s client.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.api.InteractionServer]</span>
-<span class="sd">            The Hikari interaction server this context&#39;s client was initialised</span>
-<span class="sd">            with if provided, else `None`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Object of the Hikari interaction server provided for this context&#39;s client.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">rest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">RESTClient</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Object of the Hikari REST client this context&#39;s client was initialised with.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hikari.api.RESTClient</span>
-<span class="sd">            The Hikari REST client this context&#39;s client was initialised with.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Object of the Hikari REST client this context&#39;s client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">shards</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Object of the Hikari shard manager this context&#39;s client was initialised with.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.traits.ShardAware]</span>
-<span class="sd">            The Hikari shard manager this context&#39;s client was initialised with</span>
-<span class="sd">            if provided, else `None`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Object of the Hikari shard manager this context&#39;s client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">triggering_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Command name this execution was triggered with.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        str</span>
-<span class="sd">            The command name this execution was triggered with.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Command name this execution was triggered with.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">set_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">Component</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
@@ -4592,12 +4198,6 @@
     </div>
 
             <div class="docstring"><p>Object of the user who triggered this command.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>hikari.User</strong>: Object of the user who triggered this command.</li>
-</ul>
 </div>
 
 
@@ -4609,12 +4209,6 @@
     </div>
 
             <div class="docstring"><p>ID of the channel this command was triggered in.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>hikari.Snowflake</strong>: ID of the channel this command was triggered in.</li>
-</ul>
 </div>
 
 
@@ -4626,13 +4220,6 @@
     </div>
 
             <div class="docstring"><p>Hikari cache instance this context's command client was initialised with.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.api.Cache]</strong>: Hikari cache instance this context's command client was initialised
-with if provided, else <code>None</code>.</li>
-</ul>
 </div>
 
 
@@ -4644,12 +4231,6 @@ with if provided, else <code>None</code>.</li>
     </div>
 
             <div class="docstring"><p>Tanjun <code><a href="#Client">Client</a></code> implementation this context was spawned by.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>Client</strong>: The Tanjun <code><a href="#Client">Client</a></code> implementation this context was spawned by.</li>
-</ul>
 </div>
 
 
@@ -4665,12 +4246,6 @@ with if provided, else <code>None</code>.</li>
 <p><em>Note:</em>
 This will only be <code>None</code> before this has been bound to a
 specific command but never during command execution nor checks.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[Component[ContextT]]</strong>: The component this context is bound to.</li>
-</ul>
 </div>
 
 
@@ -4686,12 +4261,6 @@ specific command but never during command execution nor checks.</p>
 <p><em>Note:</em>
 This will only be <code>None</code> before this has been bound to a
 specific command but never during command execution.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[ExecutableCommand[ContextT]]</strong>: The command this context is bound to.</li>
-</ul>
 </div>
 
 
@@ -4704,12 +4273,8 @@ specific command but never during command execution.</p>
 
             <div class="docstring"><p>When this context was created.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>datetime.datetime</strong>: When this context was created.
-This will either refer to a message or integration's creation date.</li>
-</ul>
+<p><em>Note:</em>
+This will either refer to a message or integration's creation date.</p>
 </div>
 
 
@@ -4721,13 +4286,6 @@ This will either refer to a message or integration's creation date.</li>
     </div>
 
             <div class="docstring"><p>Object of the event manager this context's client was initialised with.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.api.EventManager]</strong>: The Hikari event manager this context's client was initialised with
-if provided, else <code>None</code>.</li>
-</ul>
 </div>
 
 
@@ -4739,12 +4297,6 @@ if provided, else <code>None</code>.</li>
     </div>
 
             <div class="docstring"><p>ID of the guild this command was executed in.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.Snowflake]</strong>: ID of the guild this command was executed in.</li>
-</ul>
 
 <p>Will be <code>None</code> for all DM command executions.</p>
 </div>
@@ -4758,12 +4310,6 @@ if provided, else <code>None</code>.</li>
     </div>
 
             <div class="docstring"><p>Whether an initial response has been made for this context.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>bool</strong>: Whether an initial response has been made for this context.</li>
-</ul>
 </div>
 
 
@@ -4775,12 +4321,6 @@ if provided, else <code>None</code>.</li>
     </div>
 
             <div class="docstring"><p>Whether this command execution was triggered by a human.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>bool</strong>: Whether this command execution was triggered by a human.</li>
-</ul>
 
 <p>Will be <code>False</code> for bot and webhook triggered commands.</p>
 </div>
@@ -4795,12 +4335,6 @@ if provided, else <code>None</code>.</li>
 
             <div class="docstring"><p>Guild member object of this command's author.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.Member]</strong>: Guild member object of this command's author.</li>
-</ul>
-
 <p>Will be <code>None</code> for DM command executions.</p>
 </div>
 
@@ -4813,13 +4347,6 @@ if provided, else <code>None</code>.</li>
     </div>
 
             <div class="docstring"><p>Object of the Hikari interaction server provided for this context's client.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.api.InteractionServer]</strong>: The Hikari interaction server this context's client was initialised
-with if provided, else <code>None</code>.</li>
-</ul>
 </div>
 
 
@@ -4831,12 +4358,6 @@ with if provided, else <code>None</code>.</li>
     </div>
 
             <div class="docstring"><p>Object of the Hikari REST client this context's client was initialised with.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>hikari.api.RESTClient</strong>: The Hikari REST client this context's client was initialised with.</li>
-</ul>
 </div>
 
 
@@ -4848,13 +4369,6 @@ with if provided, else <code>None</code>.</li>
     </div>
 
             <div class="docstring"><p>Object of the Hikari shard manager this context's client was initialised with.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.traits.ShardAware]</strong>: The Hikari shard manager this context's client was initialised with
-if provided, else <code>None</code>.</li>
-</ul>
 </div>
 
 
@@ -4866,12 +4380,6 @@ if provided, else <code>None</code>.</li>
     </div>
 
             <div class="docstring"><p>Command name this execution was triggered with.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>str</strong>: The command name this execution was triggered with.</li>
-</ul>
 </div>
 
 
@@ -6446,13 +5954,7 @@ inheritance.</p>
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">checks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">CheckSig</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a collection of checks that must be met before the command can be executed.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Collection[CheckSig]</span>
-<span class="sd">            The checks that must be met before the command can be executed.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Collection of checks that must be met before the command can be executed.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -6479,13 +5981,9 @@ inheritance.</p>
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get the mutable mapping of metadata set for this command.</span>
+        <span class="sd">&quot;&quot;&quot;Mutable mapping of metadata set for this command.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.MutableMapping[typing.Any, typing.Any]</span>
-<span class="sd">            The metadata set for this component.</span>
-
+<span class="sd">        .. note::</span>
 <span class="sd">            Any modifications made to this mutable mapping will be preserved by</span>
 <span class="sd">            the command.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -6571,13 +6069,7 @@ inheritance.</p>
         <span class="name">checks</span><span class="annotation">: collections.abc.Collection[collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]]]</span>
     </div>
 
-            <div class="docstring"><p>Get a collection of checks that must be met before the command can be executed.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Collection[CheckSig]</strong>: The checks that must be met before the command can be executed.</li>
-</ul>
+            <div class="docstring"><p>Collection of checks that must be met before the command can be executed.</p>
 </div>
 
 
@@ -6622,15 +6114,10 @@ inheritance.</p>
         <span class="name">metadata</span><span class="annotation">: collections.abc.MutableMapping[typing.Any, typing.Any]</span>
     </div>
 
-            <div class="docstring"><p>Get the mutable mapping of metadata set for this command.</p>
+            <div class="docstring"><p>Mutable mapping of metadata set for this command.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.MutableMapping[typing.Any, typing.Any]</strong>: The metadata set for this component.</li>
-</ul>
-
-<p>Any modifications made to this mutable mapping will be preserved by
+<p><em>Note:</em>
+Any modifications made to this mutable mapping will be preserved by
 the command.</p>
 </div>
 
@@ -6920,39 +6407,22 @@ The check to remove.</li>
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallbackSig</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Get the callback which is called during execution.</span>
+        <span class="sd">&quot;&quot;&quot;Callback which is called during execution.</span>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            For command groups, this is called when none of the inner-commands</span>
 <span class="sd">            matches the message.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        CommandCallbackSig</span>
-<span class="sd">            The callback to call when the command is executed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a collection of this command&#39;s names.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Collection[str]</span>
-<span class="sd">            The names of this command.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Collection of this command&#39;s names.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Parent group of this command.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[MessageCommandGroup]</span>
-<span class="sd">            The parent group of this command if it&#39;s owned by a group.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Parent group of this command if it&#39;s onwned by a group.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">set_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommandGroup</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
@@ -7007,17 +6477,11 @@ The check to remove.</li>
         <span class="name">callback</span><span class="annotation">: collections.abc.Callable[..., collections.abc.Awaitable[None]]</span>
     </div>
 
-            <div class="docstring"><p>Get the callback which is called during execution.</p>
+            <div class="docstring"><p>Callback which is called during execution.</p>
 
 <p><em>Note:</em>
 For command groups, this is called when none of the inner-commands
 matches the message.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>CommandCallbackSig</strong>: The callback to call when the command is executed.</li>
-</ul>
 </div>
 
 
@@ -7028,13 +6492,7 @@ matches the message.</p>
         <span class="name">names</span><span class="annotation">: collections.abc.Collection[str]</span>
     </div>
 
-            <div class="docstring"><p>Get a collection of this command's names.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Collection[str]</strong>: The names of this command.</li>
-</ul>
+            <div class="docstring"><p>Collection of this command's names.</p>
 </div>
 
 
@@ -7045,13 +6503,7 @@ matches the message.</p>
         <span class="name">parent</span><span class="annotation">: Optional[<a href="#MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>]</span>
     </div>
 
-            <div class="docstring"><p>Parent group of this command.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[MessageCommandGroup]</strong>: The parent group of this command if it's owned by a group.</li>
-</ul>
+            <div class="docstring"><p>Parent group of this command if it's onwned by a group.</p>
 </div>
 
 
@@ -7250,15 +6702,10 @@ The parent of the copy.</li>
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a collection of the commands in this group.</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the commands in this group.</span>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            This may include command groups.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        commands : collections.abc.Collection[MessageCommand]</span>
-<span class="sd">            The commands in this group.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -7324,17 +6771,10 @@ The parent of the copy.</li>
         <span class="name">commands</span><span class="annotation">: collections.abc.Collection[<a href="#MessageCommand">tanjun.abc.MessageCommand</a>]</span>
     </div>
 
-            <div class="docstring"><p>Get a collection of the commands in this group.</p>
+            <div class="docstring"><p>Collection of the commands in this group.</p>
 
 <p><em>Note:</em>
 This may include command groups.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>commands</strong> (collections.abc.Collection[MessageCommand]):
-The commands in this group.</li>
-</ul>
 </div>
 
 
@@ -7538,11 +6978,7 @@ The command to add.</li>
     <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Command that was invoked.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[MessageCommand]</span>
-<span class="sd">            The command that was invoked.</span>
-
+<span class="sd">        .. note::</span>
 <span class="sd">            This is always set during command, command check and parser</span>
 <span class="sd">            converter execution but isn&#39;t guaranteed during client callback</span>
 <span class="sd">            nor client/component check execution.</span>
@@ -7551,59 +6987,31 @@ The command to add.</li>
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">content</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Content of the context&#39;s message minus the triggering name and prefix.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        str</span>
-<span class="sd">            The content the of the context&#39;s message minus the triggering name</span>
-<span class="sd">            and prefix.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Content of the context&#39;s message minus the triggering name and prefix.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Message that triggered the context.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hikari.Message</span>
-<span class="sd">            The message that triggered the context.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Message that triggered the context.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">shard</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">GatewayShard</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Shard that triggered the context.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.api.GatewayShard]</span>
-<span class="sd">            The shard that triggered the context if `ctx.shards` is set.</span>
-<span class="sd">            Otherwise, returns `None`.</span>
+<span class="sd">        .. note::</span>
+<span class="sd">            This will be `None` if `ctx.shards` is also `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">triggering_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Prefix that triggered the context.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        str</span>
-<span class="sd">            The prefix that triggered the context.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Prefix that triggered the context.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">triggering_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Command name that triggered the context.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        str</span>
-<span class="sd">            The command name that triggered the context.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Command name that triggered the context.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
@@ -7787,13 +7195,8 @@ The command to add.</li>
 
             <div class="docstring"><p>Command that was invoked.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[MessageCommand]</strong>: The command that was invoked.</li>
-</ul>
-
-<p>This is always set during command, command check and parser
+<p><em>Note:</em>
+This is always set during command, command check and parser
 converter execution but isn't guaranteed during client callback
 nor client/component check execution.</p>
 </div>
@@ -7807,13 +7210,6 @@ nor client/component check execution.</p>
     </div>
 
             <div class="docstring"><p>Content of the context's message minus the triggering name and prefix.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>str</strong>: The content the of the context's message minus the triggering name
-and prefix.</li>
-</ul>
 </div>
 
 
@@ -7825,12 +7221,6 @@ and prefix.</li>
     </div>
 
             <div class="docstring"><p>Message that triggered the context.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>hikari.Message</strong>: The message that triggered the context.</li>
-</ul>
 </div>
 
 
@@ -7843,12 +7233,8 @@ and prefix.</li>
 
             <div class="docstring"><p>Shard that triggered the context.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.api.GatewayShard]</strong>: The shard that triggered the context if <code>ctx.shards</code> is set.
-Otherwise, returns <code>None</code>.</li>
-</ul>
+<p><em>Note:</em>
+This will be <code>None</code> if <code>ctx.shards</code> is also <code>None</code>.</p>
 </div>
 
 
@@ -7860,12 +7246,6 @@ Otherwise, returns <code>None</code>.</li>
     </div>
 
             <div class="docstring"><p>Prefix that triggered the context.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>str</strong>: The prefix that triggered the context.</li>
-</ul>
 </div>
 
 
@@ -7877,12 +7257,6 @@ Otherwise, returns <code>None</code>.</li>
     </div>
 
             <div class="docstring"><p>Command name that triggered the context.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>str</strong>: The command name that triggered the context.</li>
-</ul>
 </div>
 
 
@@ -8348,34 +7722,17 @@ nature, and will trigger this exception if they occur.</li>
 <span class="sd">        .. warning::</span>
 <span class="sd">            For commands within command groups the state of this flag</span>
 <span class="sd">            is inherited regardless of what it&#39;s set as on the child command.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        bool</span>
-<span class="sd">            Whether the command should be declared globally or not.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Name of the command.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        str</span>
-<span class="sd">            The name of the command.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Name of the command.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">SlashCommandGroup</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Object of the group this command is in.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[SlashCommandGroup]</span>
-<span class="sd">            The group this command is in, if relevant else `None`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Object of the group this command is in.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -8383,11 +7740,6 @@ nature, and will trigger this exception if they occur.</li>
         <span class="sd">&quot;&quot;&quot;ID of the actual command this object tracks if set.</span>
 
 <span class="sd">        This will be used when this command is used in bulk declarations.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.Snowflake]</span>
-<span class="sd">            The ID of the actual command this object tracks.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -8478,12 +7830,6 @@ component or client is used.</p>
 <p><em>Warning:</em>
 For commands within command groups the state of this flag
 is inherited regardless of what it's set as on the child command.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>bool</strong>: Whether the command should be declared globally or not.</li>
-</ul>
 </div>
 
 
@@ -8495,12 +7841,6 @@ is inherited regardless of what it's set as on the child command.</p>
     </div>
 
             <div class="docstring"><p>Name of the command.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>str</strong>: The name of the command.</li>
-</ul>
 </div>
 
 
@@ -8512,12 +7852,6 @@ is inherited regardless of what it's set as on the child command.</p>
     </div>
 
             <div class="docstring"><p>Object of the group this command is in.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[SlashCommandGroup]</strong>: The group this command is in, if relevant else <code>None</code>.</li>
-</ul>
 </div>
 
 
@@ -8531,12 +7865,6 @@ is inherited regardless of what it's set as on the child command.</p>
             <div class="docstring"><p>ID of the actual command this object tracks if set.</p>
 
 <p>This will be used when this command is used in bulk declarations.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.Snowflake]</strong>: The ID of the actual command this object tracks.</li>
-</ul>
 </div>
 
 
@@ -8740,13 +8068,7 @@ Object of the global command this tracks.</li>
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallbackSig</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Get the callback which is called during execution..</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        CommandCallbackSig</span>
-<span class="sd">            The command&#39;s callback.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Callback which is called during execution.&quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
@@ -8761,13 +8083,7 @@ Object of the global command this tracks.</li>
         <span class="name">callback</span><span class="annotation">: collections.abc.Callable[..., collections.abc.Awaitable[None]]</span>
     </div>
 
-            <div class="docstring"><p>Get the callback which is called during execution..</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>CommandCallbackSig</strong>: The command's callback.</li>
-</ul>
+            <div class="docstring"><p>Callback which is called during execution.</p>
 </div>
 
 
@@ -8828,7 +8144,7 @@ Object of the global command this tracks.</li>
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a collection of the commands in this group.</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the commands in this group.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -8903,7 +8219,7 @@ their own callback.</p>
         <span class="name">commands</span><span class="annotation">: collections.abc.Collection[<a href="#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>]</span>
     </div>
 
-            <div class="docstring"><p>Get a collection of the commands in this group.</p>
+            <div class="docstring"><p>Collection of the commands in this group.</p>
 
 <h6 id="returns">Returns</h6>
 
@@ -9120,11 +8436,7 @@ The command to add.</li>
     <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Command that was invoked.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[BaseSlashCommand]</span>
-<span class="sd">            The command that was invoked.</span>
-
+<span class="sd">        .. note::</span>
 <span class="sd">            This should always be set during command, command check execution</span>
 <span class="sd">            and command hook execution but isn&#39;t guaranteed for client callbacks</span>
 <span class="sd">            nor component/client checks.</span>
@@ -9156,23 +8468,12 @@ The command to add.</li>
 <span class="sd">            then `SlashContext.edit_initial_response` will need to be used</span>
 <span class="sd">            to create the initial response rather than</span>
 <span class="sd">            `SlashContext.create_initial_response`.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        bool</span>
-<span class="sd">            Whether the initial response for this context has been deferred.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">interaction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">CommandInteraction</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Interaction this context is for.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hikari.CommandInteraction</span>
-<span class="sd">            The interaction this context is for.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Interaction this context is for.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -9188,7 +8489,7 @@ The command to add.</li>
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SlashOption</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Return a mapping of option names to the values provided for them.</span>
+        <span class="sd">&quot;&quot;&quot;Mapping of option names to the values provided for them.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -9476,13 +8777,8 @@ The command to add.</li>
 
             <div class="docstring"><p>Command that was invoked.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[BaseSlashCommand]</strong>: The command that was invoked.</li>
-</ul>
-
-<p>This should always be set during command, command check execution
+<p><em>Note:</em>
+This should always be set during command, command check execution
 and command hook execution but isn't guaranteed for client callbacks
 nor component/client checks.</p>
 </div>
@@ -9524,12 +8820,6 @@ If this is <code>True</code> when <code><a href="#SlashContext.has_responded">Sl
 then <code><a href="#SlashContext.edit_initial_response">SlashContext.edit_initial_response</a></code> will need to be used
 to create the initial response rather than
 <code><a href="#SlashContext.create_initial_response">SlashContext.create_initial_response</a></code>.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>bool</strong>: Whether the initial response for this context has been deferred.</li>
-</ul>
 </div>
 
 
@@ -9541,12 +8831,6 @@ to create the initial response rather than
     </div>
 
             <div class="docstring"><p>Interaction this context is for.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>hikari.CommandInteraction</strong>: The interaction this context is for.</li>
-</ul>
 </div>
 
 
@@ -9574,7 +8858,7 @@ to create the initial response rather than
         <span class="name">options</span><span class="annotation">: collections.abc.Mapping[str, <a href="#SlashOption">tanjun.abc.SlashOption</a>]</span>
     </div>
 
-            <div class="docstring"><p>Return a mapping of option names to the values provided for them.</p>
+            <div class="docstring"><p>Mapping of option names to the values provided for them.</p>
 
 <h6 id="returns">Returns</h6>
 
@@ -10265,11 +9549,6 @@ nature, and will trigger this exception if they occur.</li>
 <span class="sd">        .. note::</span>
 <span class="sd">            For discord entity option types (e.g. user, member, channel and</span>
 <span class="sd">            role) this will be the entity&#39;s ID.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Union[str, int, bool, float]</span>
-<span class="sd">            The value provided for this option.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -10448,12 +9727,6 @@ nature, and will trigger this exception if they occur.</li>
 <p><em>Note:</em>
 For discord entity option types (e.g. user, member, channel and
 role) this will be the entity's ID.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Union[str, int, bool, float]</strong>: The value provided for this option.</li>
-</ul>
 </div>
 
 
@@ -10840,13 +10113,7 @@ user.</p>
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">Client</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Tanjun client this component is bound to.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        client : typing.Optional[Client]</span>
-<span class="sd">            The client this component is bound to.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Tanjun client this component is bound to.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -10862,72 +10129,39 @@ user.</p>
 <span class="sd">        -----</span>
 <span class="sd">        * This may be overridden by `BaseSlashCommand.defaults_to_ephemeral`.</span>
 <span class="sd">        * This only effects slash command execution.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[bool]</span>
-<span class="sd">            Whether contexts executed in this component should default to ephemeral responses.</span>
-
-<span class="sd">            If this is `None` then the default from the parent client is used.</span>
+<span class="sd">        * If this is `None` then the default from the parent client is used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Get the component&#39;s identifier.</span>
+        <span class="sd">&quot;&quot;&quot;Component&#39;s unique identifier.</span>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            This will be preserved between copies of a component.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        name : str</span>
-<span class="sd">            The name of this component.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">slash_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a collection of the slash commands in this component.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Collection[BaseSlashCommand]</span>
-<span class="sd">            The slash commands in this component.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the slash commands in this component.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">message_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">MessageCommand</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a cllection of the message commands in this component.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Collection[MessageCommand]</span>
-<span class="sd">            The message commands in this component.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the message commands in this component.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a mapping of event types to the listeners registered for them in this component.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]</span>
-<span class="sd">            The listeners in this component.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Mapping of event types to the listeners registered for them in this component.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get the mutable mapping of the metadata set for this component.</span>
+        <span class="sd">&quot;&quot;&quot;Mutable mapping of the metadata set for this component.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.MutableMapping[typing.Any, typing.Any]</span>
-<span class="sd">            The metadata set for this component.</span>
-
+<span class="sd">        .. note::</span>
 <span class="sd">            Any modifications made to this mutable mapping will be preserved by</span>
 <span class="sd">            the component.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -11261,13 +10495,6 @@ into a tanjun client.</p>
     </div>
 
             <div class="docstring"><p>Tanjun client this component is bound to.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>client</strong> (typing.Optional[Client]):
-The client this component is bound to.</li>
-</ul>
 </div>
 
 
@@ -11290,15 +10517,8 @@ methods which support it.</p>
 <ul>
 <li>This may be overridden by <code><a href="#BaseSlashCommand.defaults_to_ephemeral">BaseSlashCommand.defaults_to_ephemeral</a></code>.</li>
 <li>This only effects slash command execution.</li>
+<li>If this is <code>None</code> then the default from the parent client is used.</li>
 </ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[bool]</strong>: Whether contexts executed in this component should default to ephemeral responses.</li>
-</ul>
-
-<p>If this is <code>None</code> then the default from the parent client is used.</p>
 </div>
 
 
@@ -11309,17 +10529,10 @@ methods which support it.</p>
         <span class="name">name</span><span class="annotation">: str</span>
     </div>
 
-            <div class="docstring"><p>Get the component's identifier.</p>
+            <div class="docstring"><p>Component's unique identifier.</p>
 
 <p><em>Note:</em>
 This will be preserved between copies of a component.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>name</strong> (str):
-The name of this component.</li>
-</ul>
 </div>
 
 
@@ -11330,13 +10543,7 @@ The name of this component.</li>
         <span class="name">slash_commands</span><span class="annotation">: collections.abc.Collection[<a href="#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>]</span>
     </div>
 
-            <div class="docstring"><p>Get a collection of the slash commands in this component.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Collection[BaseSlashCommand]</strong>: The slash commands in this component.</li>
-</ul>
+            <div class="docstring"><p>Collection of the slash commands in this component.</p>
 </div>
 
 
@@ -11347,13 +10554,7 @@ The name of this component.</li>
         <span class="name">message_commands</span><span class="annotation">: collections.abc.Collection[<a href="#MessageCommand">tanjun.abc.MessageCommand</a>]</span>
     </div>
 
-            <div class="docstring"><p>Get a cllection of the message commands in this component.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Collection[MessageCommand]</strong>: The message commands in this component.</li>
-</ul>
+            <div class="docstring"><p>Collection of the message commands in this component.</p>
 </div>
 
 
@@ -11364,13 +10565,7 @@ The name of this component.</li>
         <span class="name">listeners</span><span class="annotation">: collections.abc.Mapping[type[hikari.events.base_events.Event], collections.abc.Collection[collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, None]]]]</span>
     </div>
 
-            <div class="docstring"><p>Get a mapping of event types to the listeners registered for them in this component.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]</strong>: The listeners in this component.</li>
-</ul>
+            <div class="docstring"><p>Mapping of event types to the listeners registered for them in this component.</p>
 </div>
 
 
@@ -11381,15 +10576,10 @@ The name of this component.</li>
         <span class="name">metadata</span><span class="annotation">: collections.abc.MutableMapping[typing.Any, typing.Any]</span>
     </div>
 
-            <div class="docstring"><p>Get the mutable mapping of the metadata set for this component.</p>
+            <div class="docstring"><p>Mutable mapping of the metadata set for this component.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.MutableMapping[typing.Any, typing.Any]</strong>: The metadata set for this component.</li>
-</ul>
-
-<p>Any modifications made to this mutable mapping will be preserved by
+<p><em>Note:</em>
+Any modifications made to this mutable mapping will be preserved by
 the component.</p>
 </div>
 
@@ -12280,25 +11470,12 @@ execute with the current context.</li>
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">Cache</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Hikari cache instance this command client was initialised with.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.api.Cache]</span>
-<span class="sd">            Hikari cache instance this command client was initialised</span>
-<span class="sd">            with if provided, else `None`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Hikari cache instance this command client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">Component</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a collection of the components this command client is using.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Collection[tanjun.traits.Component]</span>
-<span class="sd">            Collection of the components this command client is using.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the components this command client is using.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -12316,12 +11493,6 @@ execute with the current context.</li>
 <span class="sd">          and `Component.defaults_to_ephemeral`.</span>
 <span class="sd">        * This defaults to `False`.</span>
 <span class="sd">        * This only effects slash command execution.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        bool</span>
-<span class="sd">            Whether slash contexts executed in this component should default</span>
-<span class="sd">            to ephemeral responses.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -12330,35 +11501,19 @@ execute with the current context.</li>
         <span class="sd">&quot;&quot;&quot;Object of the event manager this client was initialised with.</span>
 
 <span class="sd">        This is used for executing message commands if set.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.api.EventManager]</span>
-<span class="sd">            The Hikari event manager this client was initialised with</span>
-<span class="sd">            if provided, else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>  <span class="c1"># TODO: switch over to a mapping of event to collection cause convenience</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a mapping of event types to the listeners registered in this client.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]</span>
-<span class="sd">            The listeners in this component.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Mapping of event types to the listeners registered in this client.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get the mutable mapping of the metadata set for this client.</span>
+        <span class="sd">&quot;&quot;&quot;Mutable mapping of the metadata set for this client.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.MutableMapping[typing.Any, typing.Any]</span>
-<span class="sd">            The metadata set for this client.</span>
-
+<span class="sd">        .. note::</span>
 <span class="sd">            Any modifications made to this mutable mapping will be preserved by</span>
 <span class="sd">            the client.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -12366,27 +11521,16 @@ execute with the current context.</li>
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">prefixes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Get a collection of the prefixes set for this client.</span>
+        <span class="sd">&quot;&quot;&quot;Collection of the prefixes set for this client.</span>
 
 <span class="sd">        These are only use during message command execution to match commands</span>
 <span class="sd">        to this command client.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collcetions.abc.Collection[str]</span>
-<span class="sd">            Collection of the prefixes set for this client.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">rest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">RESTClient</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Object of the Hikari REST client this client was initialised with.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hikari.api.RESTClient</span>
-<span class="sd">            The Hikari REST client this client was initialised with.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Object of the Hikari REST client this client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -12394,25 +11538,12 @@ execute with the current context.</li>
         <span class="sd">&quot;&quot;&quot;Object of the Hikari interaction server provided for this client.</span>
 
 <span class="sd">        This is used for executing slash commands if set.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.api.InteractionServer]</span>
-<span class="sd">            The Hikari interaction server this client was initialised</span>
-<span class="sd">            with if provided, else `None`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">shards</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Object of the Hikari shard manager this client was initialised with.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        typing.Optional[hikari.traits.ShardAware]</span>
-<span class="sd">            The Hikari shard manager this client was initialised with</span>
-<span class="sd">            if provided, else `None`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Object of the Hikari shard manager this client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">add_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
@@ -12746,13 +11877,6 @@ provided hikari clients.</p>
     </div>
 
             <div class="docstring"><p>Hikari cache instance this command client was initialised with.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.api.Cache]</strong>: Hikari cache instance this command client was initialised
-with if provided, else <code>None</code>.</li>
-</ul>
 </div>
 
 
@@ -12763,13 +11887,7 @@ with if provided, else <code>None</code>.</li>
         <span class="name">components</span><span class="annotation">: collections.abc.Collection[<a href="#Component">tanjun.abc.Component</a>]</span>
     </div>
 
-            <div class="docstring"><p>Get a collection of the components this command client is using.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Collection[<a href="../tanjun.html#traits.Component">tanjun.traits.Component</a>]</strong>: Collection of the components this command client is using.</li>
-</ul>
+            <div class="docstring"><p>Collection of the components this command client is using.</p>
 </div>
 
 
@@ -12795,13 +11913,6 @@ and <code><a href="#Component.defaults_to_ephemeral">Component.defaults_to_ephem
 <li>This defaults to <code>False</code>.</li>
 <li>This only effects slash command execution.</li>
 </ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>bool</strong>: Whether slash contexts executed in this component should default
-to ephemeral responses.</li>
-</ul>
 </div>
 
 
@@ -12815,13 +11926,6 @@ to ephemeral responses.</li>
             <div class="docstring"><p>Object of the event manager this client was initialised with.</p>
 
 <p>This is used for executing message commands if set.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.api.EventManager]</strong>: The Hikari event manager this client was initialised with
-if provided, else <code>None</code>.</li>
-</ul>
 </div>
 
 
@@ -12832,13 +11936,7 @@ if provided, else <code>None</code>.</li>
         <span class="name">listeners</span><span class="annotation">: collections.abc.Mapping[type[hikari.events.base_events.Event], collections.abc.Collection[collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, None]]]]</span>
     </div>
 
-            <div class="docstring"><p>Get a mapping of event types to the listeners registered in this client.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]</strong>: The listeners in this component.</li>
-</ul>
+            <div class="docstring"><p>Mapping of event types to the listeners registered in this client.</p>
 </div>
 
 
@@ -12849,15 +11947,10 @@ if provided, else <code>None</code>.</li>
         <span class="name">metadata</span><span class="annotation">: collections.abc.MutableMapping[typing.Any, typing.Any]</span>
     </div>
 
-            <div class="docstring"><p>Get the mutable mapping of the metadata set for this client.</p>
+            <div class="docstring"><p>Mutable mapping of the metadata set for this client.</p>
 
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.MutableMapping[typing.Any, typing.Any]</strong>: The metadata set for this client.</li>
-</ul>
-
-<p>Any modifications made to this mutable mapping will be preserved by
+<p><em>Note:</em>
+Any modifications made to this mutable mapping will be preserved by
 the client.</p>
 </div>
 
@@ -12869,16 +11962,10 @@ the client.</p>
         <span class="name">prefixes</span><span class="annotation">: collections.abc.Collection[str]</span>
     </div>
 
-            <div class="docstring"><p>Get a collection of the prefixes set for this client.</p>
+            <div class="docstring"><p>Collection of the prefixes set for this client.</p>
 
 <p>These are only use during message command execution to match commands
 to this command client.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collcetions.abc.Collection[str]</strong>: Collection of the prefixes set for this client.</li>
-</ul>
 </div>
 
 
@@ -12890,12 +11977,6 @@ to this command client.</p>
     </div>
 
             <div class="docstring"><p>Object of the Hikari REST client this client was initialised with.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>hikari.api.RESTClient</strong>: The Hikari REST client this client was initialised with.</li>
-</ul>
 </div>
 
 
@@ -12909,13 +11990,6 @@ to this command client.</p>
             <div class="docstring"><p>Object of the Hikari interaction server provided for this client.</p>
 
 <p>This is used for executing slash commands if set.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.api.InteractionServer]</strong>: The Hikari interaction server this client was initialised
-with if provided, else <code>None</code>.</li>
-</ul>
 </div>
 
 
@@ -12927,13 +12001,6 @@ with if provided, else <code>None</code>.</li>
     </div>
 
             <div class="docstring"><p>Object of the Hikari shard manager this client was initialised with.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[hikari.traits.ShardAware]</strong>: The Hikari shard manager this client was initialised with
-if provided, else <code>None</code>.</li>
-</ul>
 </div>
 
 
