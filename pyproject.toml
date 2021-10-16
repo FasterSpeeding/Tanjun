@@ -65,7 +65,7 @@ flake8 = [
 lint = ["codespell~=2.1.0"]
 publish = ["flit~=3.3"]
 reformat = ["black~=21.7b0", "isort~=5.9.3"]
-tests = ["pytest~=6.2.5", "pytest-asyncio==0.15.1", "pytest-cov~=3.0.0"]
+tests = ["pytest~=6.2.5", "pytest-asyncio==0.16.0", "pytest-cov~=3.0.0"]
 type_checking = ["pyright==0.0.10"]
 
 [project.urls]
