@@ -894,7 +894,7 @@
 
         <span class="k">if</span> <span class="n">set_global_commands</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;The `set_global_commands` argument is deprecated and will be removed in v2.1.1a1. &quot;</span>
+                <span class="s2">&quot;The `set_global_commands` argument is deprecated since v2.1.1a1. &quot;</span>
                 <span class="s2">&quot;Use `declare_global_commands` instead.&quot;</span><span class="p">,</span>
                 <span class="ne">DeprecationWarning</span><span class="p">,</span>
                 <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span> <span class="o">+</span> <span class="n">_stack_level</span><span class="p">,</span>
@@ -1554,7 +1554,7 @@
 <span class="sd">            based on webhook and bot messages.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">_check_human</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">_check_human</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -1606,6 +1606,12 @@
 <span class="sd">        .. deprecated:: v2.1.1a1</span>
 <span class="sd">            Use `Client.declare_global_commands` instead.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;The `Client.set_global_commands` method has been deprecated since v2.1.1a1. &quot;</span>
+            <span class="s2">&quot;Use `Client.declare_global_commands` instead.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_global_commands</span><span class="p">(</span><span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_global_commands</span><span class="p">(</span>
@@ -2915,7 +2921,7 @@ from the provided client using it's abstract methods.</li>
 
         <span class="k">if</span> <span class="n">set_global_commands</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;The `set_global_commands` argument is deprecated and will be removed in v2.1.1a1. &quot;</span>
+                <span class="s2">&quot;The `set_global_commands` argument is deprecated since v2.1.1a1. &quot;</span>
                 <span class="s2">&quot;Use `declare_global_commands` instead.&quot;</span><span class="p">,</span>
                 <span class="ne">DeprecationWarning</span><span class="p">,</span>
                 <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span> <span class="o">+</span> <span class="n">_stack_level</span><span class="p">,</span>
@@ -3575,7 +3581,7 @@ from the provided client using it's abstract methods.</li>
 <span class="sd">            based on webhook and bot messages.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">_check_human</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">_check_human</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -3627,6 +3633,12 @@ from the provided client using it's abstract methods.</li>
 <span class="sd">        .. deprecated:: v2.1.1a1</span>
 <span class="sd">            Use `Client.declare_global_commands` instead.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;The `Client.set_global_commands` method has been deprecated since v2.1.1a1. &quot;</span>
+            <span class="s2">&quot;Use `Client.declare_global_commands` instead.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_global_commands</span><span class="p">(</span><span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_global_commands</span><span class="p">(</span>
@@ -4799,7 +4811,7 @@ after a rename.</p>
 
         <span class="k">if</span> <span class="n">set_global_commands</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;The `set_global_commands` argument is deprecated and will be removed in v2.1.1a1. &quot;</span>
+                <span class="s2">&quot;The `set_global_commands` argument is deprecated since v2.1.1a1. &quot;</span>
                 <span class="s2">&quot;Use `declare_global_commands` instead.&quot;</span><span class="p">,</span>
                 <span class="ne">DeprecationWarning</span><span class="p">,</span>
                 <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span> <span class="o">+</span> <span class="n">_stack_level</span><span class="p">,</span>
@@ -6117,7 +6129,7 @@ of <code><a href="context.html#SlashContext">tanjun.context.SlashContext</a></co
 <span class="sd">            based on webhook and bot messages.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">_check_human</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">_check_human</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -6249,6 +6261,12 @@ Object or ID of the guild to clear commands for.</p>
 <span class="sd">        .. deprecated:: v2.1.1a1</span>
 <span class="sd">            Use `Client.declare_global_commands` instead.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;The `Client.set_global_commands` method has been deprecated since v2.1.1a1. &quot;</span>
+            <span class="s2">&quot;Use `Client.declare_global_commands` instead.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_global_commands</span><span class="p">(</span><span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
 </pre></div>
 
