@@ -32,7 +32,14 @@
 """Default dependency classes used within Tanjun and their abstract interfaces."""
 from __future__ import annotations
 
-__all__: list[str] = ["AbstractOwnerCheck", "cache_callback", "LazyConstant", "injected_lc", "OwnerCheck"]
+__all__: list[str] = [
+    "AbstractOwnerCheck",
+    "cache_callback",
+    "LazyConstant",
+    "injected_lc",
+    "make_lc_resolver",
+    "OwnerCheck",
+]
 
 import abc
 import asyncio
