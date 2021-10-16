@@ -197,11 +197,8 @@ __all__: list[str] = [
     # injecting.py
     "injecting",
     "inject",
-    "Injected",
     # parsing.py
     "parsing",
-    "Argument",
-    "Option",
     "ShlexParser",
     "with_argument",
     "with_greedy_argument",
