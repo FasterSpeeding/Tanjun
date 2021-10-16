@@ -98,7 +98,7 @@ async def get_info(
     # Here we set _fetch_cachable_info as a cached injected callback.
     #
     # `cached_inject(callback)` is a variant of `inject(callback=callback)`
-    # which caches the result of the callback for the expire duration.
+    # which caches the result of the callback for the provided expire duration.
     cached_info: typing.Any = tanjun.cached_inject(_fetch_cachable_info, expire_after=datetime.timedelta(minutes=30)),
 ) -> None:
     await ctx.respond(cached_info.format())

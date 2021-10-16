@@ -172,7 +172,6 @@ __all__: list[str] = [
     "to_voice_state",
     # dependencies.py
     "dependencies",
-    "cache_callback",
     "cached_inject",
     "inject_lc",
     "LazyConstant",

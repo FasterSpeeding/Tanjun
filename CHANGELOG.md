@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `tanjun.injected(callback=tanjun.cache_callback(...)).
 -  Add tanjun.inject to only partially replace tanjun.injecting.injected.
 
+### Fixed
+- Removed `cache_callback` from injecting.pyi
+
 ## [2.1.2a1] - 2021-10-15
 ### Added
 - `Client.iter_commands`, `Client.iter_message_commands` and `Client.iter_slash_commands`.
