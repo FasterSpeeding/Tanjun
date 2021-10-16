@@ -41,6 +41,7 @@ __all__: list[str] = [
     "Undefined",
     "UNDEFINED",
     "UndefinedOr",
+    "inject",
     "injected",
     "Injected",
     "InjectorClient",
@@ -144,6 +145,12 @@ class Injected(typing.Generic[_T]):
     @typing.overload
     def __init__(self, *, type: _TypeT[_T]) -> None: ...
 
+@typing.overload
+def inject(*, callback: collections.Callable[..., collections.Awaitable[_T]]) -> _T: ...
+@typing.overload
+def inject(*, callback: collections.Callable[..., _T]) -> _T: ...
+@typing.overload
+def inject(*, type: _TypeT[_T]) -> _T: ...
 @typing.overload
 def injected(*, callback: collections.Callable[..., collections.Awaitable[_T]]) -> _T: ...
 @typing.overload

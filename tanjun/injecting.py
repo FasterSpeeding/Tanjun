@@ -41,6 +41,7 @@ __all__: list[str] = [
     "Undefined",
     "UNDEFINED",
     "UndefinedOr",
+    "inject",
     "injected",
     "Injected",
     "InjectorClient",
@@ -429,7 +430,7 @@ class Injected(typing.Generic[_T]):
         self.type = type
 
 
-def injected(
+def inject(
     *,
     callback: typing.Optional[CallbackSig[_T]] = None,
     type: typing.Optional[_TypeT[_T]] = None,  # noqa: A002
@@ -457,6 +458,15 @@ def injected(
         If both `callback` and `type` are specified or if neither is specified.
     """
     return Injected(callback=callback, type=type)  # type: ignore  # TODO: This is a pyright bug
+
+
+def injected(
+    *,
+    callback: typing.Optional[CallbackSig[_T]] = None,
+    type: typing.Optional[_TypeT[_T]] = None,  # noqa: A002
+) -> Injected[_T]:
+    """Alias of `inject`."""
+    return inject(callback=callback, type=type)  # type: ignore  # TODO: This is a pyright bug
 
 
 class InjectorClient:

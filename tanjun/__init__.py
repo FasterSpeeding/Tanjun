@@ -197,7 +197,7 @@ __all__: list[str] = [
     "SlashHooks",
     # injecting.py
     "injecting",
-    "injected",
+    "inject",
     "Injected",
     # parsing.py
     "parsing",
