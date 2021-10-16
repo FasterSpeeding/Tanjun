@@ -182,8 +182,7 @@ class LazyConstant(typing.Generic[_T]):
     """Injected type used to hold and generate lazy constants.
 
     .. note::
-        To quickly resolve this type, use the result of
-        `tanjun.make_lc_resolver(_T)` as a callback dependency.
+        To easily resolve this type use `inject_lc`.
     """
 
     __slots__ = ("_callback", "_lock", "_value")
