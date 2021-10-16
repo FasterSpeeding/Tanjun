@@ -274,7 +274,7 @@ class OwnPermissionCheck(_Check):
         self,
         ctx: tanjun_abc.Context,
         /,
-        my_user: hikari.OwnUser = dependencies.injected_lc(hikari.OwnUser),
+        my_user: hikari.OwnUser = dependencies.inject_lc(hikari.OwnUser),
     ) -> bool:
         if ctx.guild_id is None:
             permissions = utilities.DM_PERMISSIONS

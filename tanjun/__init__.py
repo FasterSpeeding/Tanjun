@@ -173,7 +173,8 @@ __all__: list[str] = [
     # dependencies.py
     "dependencies",
     "cache_callback",
-    "injected_lc",
+    "cached_inject",
+    "inject_lc",
     "LazyConstant",
     # errors.py
     "errors",

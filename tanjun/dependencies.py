@@ -35,8 +35,9 @@ from __future__ import annotations
 __all__: list[str] = [
     "AbstractOwnerCheck",
     "cache_callback",
+    "cached_inject",
     "LazyConstant",
-    "injected_lc",
+    "inject_lc",
     "make_lc_resolver",
     "OwnerCheck",
 ]
@@ -259,7 +260,7 @@ def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., collection
 
     Notes
     -----
-    * This is internally used by `injected_lc`.
+    * This is internally used by `inject_lc`.
     * For this to work, a `LazyConstant` must've been set as a type
       dependency for the passed `type_`.
 
@@ -293,7 +294,7 @@ def make_lc_resolver(type_: type[_T], /) -> collections.Callable[..., collection
     return resolve
 
 
-def injected_lc(type_: type[_T], /) -> _T:
+def inject_lc(type_: type[_T], /) -> _T:
     """Make a LazyConstant injector.
 
     This acts like `tanjun.injecting.injected` and the result of it
@@ -320,7 +321,7 @@ def injected_lc(type_: type[_T], /) -> _T:
     @tanjun.as_message_command
     async def command(
         ctx: tanjun.abc.MessageCommand,
-        application: hikari.Application = tanjun.injected_lc(hikari.Application)
+        application: hikari.Application = tanjun.inject_lc(hikari.Application)
     ) -> None:
         raise NotImplementedError
 
@@ -436,9 +437,8 @@ def cache_callback(
 ) -> collections.Callable[..., collections.Awaitable[_T]]:
     """Cache the result of a callback within a dependency injection context.
 
-    This is useful for dependencies which will always resolve to the same value
-    but are expensive to execute (e.g. they make a request or start a client
-    connection).
+    .. note::
+        This is internally used by `cached_inject`.
 
     Parameters
     ----------
@@ -459,3 +459,43 @@ def cache_callback(
         first call.
     """
     return _CacheCallback(callback, expire_after=expire_after)
+
+
+def cached_inject(
+    callback: injecting.CallbackSig[_T], /, *, expire_after: typing.Optional[datetime.timedelta] = None
+) -> _T:
+    """Inject a callback with caching.
+
+    This acts like `tanjun.injecting.injected` and the result of it
+    should also be assigned to a parameter's default to be used.
+
+    Parameters
+    ----------
+    callback : CallbackSig[_T]
+        The callback to inject.
+
+    Other Parameters
+    ----------------
+    expire_after : typing.Optional[datetime.timedelta]
+        The amount of time to cache the result for.
+
+        Leave this as `None` to cache for the runtime of the application.
+
+    Returns
+    -------
+    tanjun.injecting.Injected[_T]
+        Injector used to resolve the cached callback.
+
+    Example
+    -------
+    ```py
+    async def resolve_database(...) -> Database:
+        raise NotImplementedError
+
+    @tanjun.as_message_command("command name")
+    async def command(
+        ctx: tanjun.abc.Context, db: Database = tanjun.cached_inject(resolve_database)
+    ) -> None:
+        raise NotImplementedError
+    """
+    return injecting.injected(callback=cache_callback(callback, expire_after=expire_after))
