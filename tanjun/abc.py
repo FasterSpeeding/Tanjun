@@ -133,47 +133,22 @@ class Context(abc.ABC):
     @property
     @abc.abstractmethod
     def author(self) -> hikari.User:
-        """Object of the user who triggered this command.
-
-        Returns
-        -------
-        hikari.User
-            Object of the user who triggered this command.
-        """
+        """Object of the user who triggered this command."""
 
     @property
     @abc.abstractmethod
     def channel_id(self) -> hikari.Snowflake:
-        """ID of the channel this command was triggered in.
-
-        Returns
-        -------
-        hikari.Snowflake
-            ID of the channel this command was triggered in.
-        """
+        """ID of the channel this command was triggered in."""
 
     @property
     @abc.abstractmethod
     def cache(self) -> typing.Optional[hikari.api.Cache]:
-        """Hikari cache instance this context's command client was initialised with.
-
-        Returns
-        -------
-        typing.Optional[hikari.api.Cache]
-            Hikari cache instance this context's command client was initialised
-            with if provided, else `None`.
-        """
+        """Hikari cache instance this context's command client was initialised with."""
 
     @property
     @abc.abstractmethod
     def client(self) -> Client:
-        """Tanjun `Client` implementation this context was spawned by.
-
-        Returns
-        -------
-        Client
-            The Tanjun `Client` implementation this context was spawned by.
-        """
+        """Tanjun `Client` implementation this context was spawned by."""
 
     @property
     @abc.abstractmethod
@@ -183,11 +158,6 @@ class Context(abc.ABC):
         .. note::
             This will only be `None` before this has been bound to a
             specific command but never during command execution nor checks.
-
-        Returns
-        -------
-        typing.Optional[Component[ContextT]]
-            The component this context is bound to.
         """
 
     @property  # TODO: can we somehow have this always be present on the command execution facing interface
@@ -198,11 +168,6 @@ class Context(abc.ABC):
         .. note::
             This will only be `None` before this has been bound to a
             specific command but never during command execution.
-
-        Returns
-        -------
-        typing.Optional[ExecutableCommand[ContextT]]
-            The command this context is bound to.
         """
 
     @property
@@ -210,60 +175,34 @@ class Context(abc.ABC):
     def created_at(self) -> datetime.datetime:
         """When this context was created.
 
-        Returns
-        -------
-        datetime.datetime
-            When this context was created.
+        .. note::
             This will either refer to a message or integration's creation date.
         """
 
     @property
     @abc.abstractmethod
     def events(self) -> typing.Optional[hikari.api.EventManager]:
-        """Object of the event manager this context's client was initialised with.
-
-        Returns
-        -------
-        typing.Optional[hikari.api.EventManager]
-            The Hikari event manager this context's client was initialised with
-            if provided, else `None`.
-        """
+        """Object of the event manager this context's client was initialised with."""
 
     @property
     @abc.abstractmethod
     def guild_id(self) -> typing.Optional[hikari.Snowflake]:
         """ID of the guild this command was executed in.
 
-        Returns
-        -------
-        typing.Optional[hikari.Snowflake]
-            ID of the guild this command was executed in.
-
-            Will be `None` for all DM command executions.
+        Will be `None` for all DM command executions.
         """
 
     @property
     @abc.abstractmethod
     def has_responded(self) -> bool:
-        """Whether an initial response has been made for this context.
-
-        Returns
-        -------
-        bool
-            Whether an initial response has been made for this context.
-        """
+        """Whether an initial response has been made for this context."""
 
     @property
     @abc.abstractmethod
     def is_human(self) -> bool:
         """Whether this command execution was triggered by a human.
 
-        Returns
-        -------
-        bool
-            Whether this command execution was triggered by a human.
-
-            Will be `False` for bot and webhook triggered commands.
+        Will be `False` for bot and webhook triggered commands.
         """
 
     @property
@@ -271,59 +210,28 @@ class Context(abc.ABC):
     def member(self) -> typing.Optional[hikari.Member]:
         """Guild member object of this command's author.
 
-        Returns
-        -------
-        typing.Optional[hikari.Member]
-            Guild member object of this command's author.
-
-            Will be `None` for DM command executions.
+        Will be `None` for DM command executions.
         """
 
     @property
     @abc.abstractmethod
     def server(self) -> typing.Optional[hikari.api.InteractionServer]:
-        """Object of the Hikari interaction server provided for this context's client.
-
-        Returns
-        -------
-        typing.Optional[hikari.api.InteractionServer]
-            The Hikari interaction server this context's client was initialised
-            with if provided, else `None`.
-        """
+        """Object of the Hikari interaction server provided for this context's client."""
 
     @property
     @abc.abstractmethod
     def rest(self) -> hikari.api.RESTClient:
-        """Object of the Hikari REST client this context's client was initialised with.
-
-        Returns
-        -------
-        hikari.api.RESTClient
-            The Hikari REST client this context's client was initialised with.
-        """
+        """Object of the Hikari REST client this context's client was initialised with."""
 
     @property
     @abc.abstractmethod
     def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
-        """Object of the Hikari shard manager this context's client was initialised with.
-
-        Returns
-        -------
-        typing.Optional[hikari.traits.ShardAware]
-            The Hikari shard manager this context's client was initialised with
-            if provided, else `None`.
-        """
+        """Object of the Hikari shard manager this context's client was initialised with."""
 
     @property
     @abc.abstractmethod
     def triggering_name(self) -> str:
-        """Command name this execution was triggered with.
-
-        Returns
-        -------
-        str
-            The command name this execution was triggered with.
-        """
+        """Command name this execution was triggered with."""
 
     @abc.abstractmethod
     def set_component(self: _T, _: typing.Optional[Component], /) -> _T:
@@ -935,11 +843,7 @@ class MessageContext(Context, abc.ABC):
     def command(self) -> typing.Optional[MessageCommand]:
         """Command that was invoked.
 
-        Returns
-        -------
-        typing.Optional[MessageCommand]
-            The command that was invoked.
-
+        .. note::
             This is always set during command, command check and parser
             converter execution but isn't guaranteed during client callback
             nor client/component check execution.
@@ -948,59 +852,31 @@ class MessageContext(Context, abc.ABC):
     @property
     @abc.abstractmethod
     def content(self) -> str:
-        """Content of the context's message minus the triggering name and prefix.
-
-        Returns
-        -------
-        str
-            The content the of the context's message minus the triggering name
-            and prefix.
-        """
+        """Content of the context's message minus the triggering name and prefix."""
 
     @property
     @abc.abstractmethod
     def message(self) -> hikari.Message:
-        """Message that triggered the context.
-
-        Returns
-        -------
-        hikari.Message
-            The message that triggered the context.
-        """
+        """Message that triggered the context."""
 
     @property
     @abc.abstractmethod
     def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
         """Shard that triggered the context.
 
-        Returns
-        -------
-        typing.Optional[hikari.api.GatewayShard]
-            The shard that triggered the context if `ctx.shards` is set.
-            Otherwise, returns `None`.
+        .. note::
+            This will be `None` if `ctx.shards` is also `None`.
         """
 
     @property
     @abc.abstractmethod
     def triggering_prefix(self) -> str:
-        """Prefix that triggered the context.
-
-        Returns
-        -------
-        str
-            The prefix that triggered the context.
-        """
+        """Prefix that triggered the context."""
 
     @property
     @abc.abstractmethod
     def triggering_name(self) -> str:
-        """Command name that triggered the context.
-
-        Returns
-        -------
-        str
-            The command name that triggered the context.
-        """
+        """Command name that triggered the context."""
 
     @abc.abstractmethod
     def set_command(self: _T, _: typing.Optional[MessageCommand], /) -> _T:
@@ -1193,11 +1069,6 @@ class SlashOption(abc.ABC):
         .. note::
             For discord entity option types (e.g. user, member, channel and
             role) this will be the entity's ID.
-
-        Returns
-        -------
-        typing.Union[str, int, bool, float]
-            The value provided for this option.
         """
 
     @abc.abstractmethod
@@ -1347,11 +1218,7 @@ class SlashContext(Context, abc.ABC):
     def command(self) -> typing.Optional[BaseSlashCommand]:
         """Command that was invoked.
 
-        Returns
-        -------
-        typing.Optional[BaseSlashCommand]
-            The command that was invoked.
-
+        .. note::
             This should always be set during command, command check execution
             and command hook execution but isn't guaranteed for client callbacks
             nor component/client checks.
@@ -1383,23 +1250,12 @@ class SlashContext(Context, abc.ABC):
             then `SlashContext.edit_initial_response` will need to be used
             to create the initial response rather than
             `SlashContext.create_initial_response`.
-
-        Returns
-        -------
-        bool
-            Whether the initial response for this context has been deferred.
         """
 
     @property
     @abc.abstractmethod
     def interaction(self) -> hikari.CommandInteraction:
-        """Interaction this context is for.
-
-        Returns
-        -------
-        hikari.CommandInteraction
-            The interaction this context is for.
-        """
+        """Interaction this context is for."""
 
     @property
     @abc.abstractmethod
@@ -1415,7 +1271,7 @@ class SlashContext(Context, abc.ABC):
     @property
     @abc.abstractmethod
     def options(self) -> collections.Mapping[str, SlashOption]:
-        """Return a mapping of option names to the values provided for them.
+        """Mapping of option names to the values provided for them.
 
         Returns
         -------
@@ -1756,13 +1612,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT_co]):
     @property
     @abc.abstractmethod
     def checks(self) -> collections.Collection[CheckSig]:
-        """Get a collection of checks that must be met before the command can be executed.
-
-        Returns
-        -------
-        collections.abc.Collection[CheckSig]
-            The checks that must be met before the command can be executed.
-        """
+        """Collection of checks that must be met before the command can be executed."""
 
     @property
     @abc.abstractmethod
@@ -1789,13 +1639,9 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT_co]):
     @property
     @abc.abstractmethod
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
-        """Get the mutable mapping of metadata set for this command.
+        """Mutable mapping of metadata set for this command.
 
-        Returns
-        -------
-        collections.abc.MutableMapping[typing.Any, typing.Any]
-            The metadata set for this component.
-
+        .. note::
             Any modifications made to this mutable mapping will be preserved by
             the command.
         """
@@ -1901,34 +1747,17 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
         .. warning::
             For commands within command groups the state of this flag
             is inherited regardless of what it's set as on the child command.
-
-        Returns
-        -------
-        bool
-            Whether the command should be declared globally or not.
         """
 
     @property
     @abc.abstractmethod
     def name(self) -> str:
-        """Name of the command.
-
-        Returns
-        -------
-        str
-            The name of the command.
-        """
+        """Name of the command."""
 
     @property
     @abc.abstractmethod
     def parent(self) -> typing.Optional[SlashCommandGroup]:
-        """Object of the group this command is in.
-
-        Returns
-        -------
-        typing.Optional[SlashCommandGroup]
-            The group this command is in, if relevant else `None`.
-        """
+        """Object of the group this command is in."""
 
     @property
     @abc.abstractmethod
@@ -1936,11 +1765,6 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
         """ID of the actual command this object tracks if set.
 
         This will be used when this command is used in bulk declarations.
-
-        Returns
-        -------
-        typing.Optional[hikari.Snowflake]
-            The ID of the actual command this object tracks.
         """
 
     @abc.abstractmethod
@@ -1997,13 +1821,7 @@ class SlashCommand(BaseSlashCommand, abc.ABC):
     @property
     @abc.abstractmethod
     def callback(self) -> CommandCallbackSig:
-        """Get the callback which is called during execution..
-
-        Returns
-        -------
-        CommandCallbackSig
-            The command's callback.
-        """
+        """Callback which is called during execution."""
 
 
 class SlashCommandGroup(BaseSlashCommand, abc.ABC):
@@ -2019,7 +1837,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.ABC):
     @property
     @abc.abstractmethod
     def commands(self) -> collections.Collection[BaseSlashCommand]:
-        """Get a collection of the commands in this group.
+        """Collection of the commands in this group.
 
         Returns
         -------
@@ -2086,39 +1904,22 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC):
     @property
     @abc.abstractmethod
     def callback(self) -> CommandCallbackSig:
-        """Get the callback which is called during execution.
+        """Callback which is called during execution.
 
         .. note::
             For command groups, this is called when none of the inner-commands
             matches the message.
-
-        Returns
-        -------
-        CommandCallbackSig
-            The callback to call when the command is executed.
         """
 
     @property
     @abc.abstractmethod
     def names(self) -> collections.Collection[str]:
-        """Get a collection of this command's names.
-
-        Returns
-        -------
-        collections.abc.Collection[str]
-            The names of this command.
-        """
+        """Collection of this command's names."""
 
     @property
     @abc.abstractmethod
     def parent(self) -> typing.Optional[MessageCommandGroup]:
-        """Parent group of this command.
-
-        Returns
-        -------
-        typing.Optional[MessageCommandGroup]
-            The parent group of this command if it's owned by a group.
-        """
+        """Parent group of this command if it's onwned by a group."""
 
     @abc.abstractmethod
     def set_parent(self: _T, _: typing.Optional[MessageCommandGroup], /) -> _T:
@@ -2169,15 +1970,10 @@ class MessageCommandGroup(MessageCommand, abc.ABC):
     @property
     @abc.abstractmethod
     def commands(self) -> collections.Collection[MessageCommand]:
-        """Get a collection of the commands in this group.
+        """Collection of the commands in this group.
 
         .. note::
             This may include command groups.
-
-        Returns
-        -------
-        commands : collections.abc.Collection[MessageCommand]
-            The commands in this group.
         """
 
     @abc.abstractmethod
@@ -2244,13 +2040,7 @@ class Component(abc.ABC):
     @property
     @abc.abstractmethod
     def client(self) -> typing.Optional[Client]:
-        """Tanjun client this component is bound to.
-
-        Returns
-        -------
-        client : typing.Optional[Client]
-            The client this component is bound to.
-        """
+        """Tanjun client this component is bound to."""
 
     @property
     @abc.abstractmethod
@@ -2266,72 +2056,39 @@ class Component(abc.ABC):
         -----
         * This may be overridden by `BaseSlashCommand.defaults_to_ephemeral`.
         * This only effects slash command execution.
-
-        Returns
-        -------
-        typing.Optional[bool]
-            Whether contexts executed in this component should default to ephemeral responses.
-
-            If this is `None` then the default from the parent client is used.
+        * If this is `None` then the default from the parent client is used.
         """
 
     @property
     @abc.abstractmethod
     def name(self) -> str:
-        """Get the component's identifier.
+        """Component's unique identifier.
 
         .. note::
             This will be preserved between copies of a component.
-
-        Returns
-        -------
-        name : str
-            The name of this component.
         """
 
     @property
     @abc.abstractmethod
     def slash_commands(self) -> collections.Collection[BaseSlashCommand]:
-        """Get a collection of the slash commands in this component.
-
-        Returns
-        -------
-        collections.abc.Collection[BaseSlashCommand]
-            The slash commands in this component.
-        """
+        """Collection of the slash commands in this component."""
 
     @property
     @abc.abstractmethod
     def message_commands(self) -> collections.Collection[MessageCommand]:
-        """Get a cllection of the message commands in this component.
-
-        Returns
-        -------
-        collections.abc.Collection[MessageCommand]
-            The message commands in this component.
-        """
+        """Collection of the message commands in this component."""
 
     @property
     @abc.abstractmethod
     def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[ListenerCallbackSig]]:
-        """Get a mapping of event types to the listeners registered for them in this component.
-
-        Returns
-        -------
-        collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]
-            The listeners in this component.
-        """
+        """Mapping of event types to the listeners registered for them in this component."""
 
     @property
     @abc.abstractmethod
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
-        """Get the mutable mapping of the metadata set for this component.
+        """Mutable mapping of the metadata set for this component.
 
-        Returns
-        -------
-        collections.abc.MutableMapping[typing.Any, typing.Any]
-            The metadata set for this component.
-
+        .. note::
             Any modifications made to this mutable mapping will be preserved by
             the component.
         """
@@ -2660,25 +2417,12 @@ class Client(abc.ABC):
     @property
     @abc.abstractmethod
     def cache(self) -> typing.Optional[hikari.api.Cache]:
-        """Hikari cache instance this command client was initialised with.
-
-        Returns
-        -------
-        typing.Optional[hikari.api.Cache]
-            Hikari cache instance this command client was initialised
-            with if provided, else `None`.
-        """
+        """Hikari cache instance this command client was initialised with."""
 
     @property
     @abc.abstractmethod
     def components(self) -> collections.Collection[Component]:
-        """Get a collection of the components this command client is using.
-
-        Returns
-        -------
-        collections.abc.Collection[tanjun.traits.Component]
-            Collection of the components this command client is using.
-        """
+        """Collection of the components this command client is using."""
 
     @property
     @abc.abstractmethod
@@ -2696,12 +2440,6 @@ class Client(abc.ABC):
           and `Component.defaults_to_ephemeral`.
         * This defaults to `False`.
         * This only effects slash command execution.
-
-        Returns
-        -------
-        bool
-            Whether slash contexts executed in this component should default
-            to ephemeral responses.
         """
 
     @property
@@ -2710,35 +2448,19 @@ class Client(abc.ABC):
         """Object of the event manager this client was initialised with.
 
         This is used for executing message commands if set.
-
-        Returns
-        -------
-        typing.Optional[hikari.api.EventManager]
-            The Hikari event manager this client was initialised with
-            if provided, else `None`.
         """
 
     @property  # TODO: switch over to a mapping of event to collection cause convenience
     @abc.abstractmethod
     def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[ListenerCallbackSig]]:
-        """Get a mapping of event types to the listeners registered in this client.
-
-        Returns
-        -------
-        collections.abc.Mapping[type[hikari.Event], collections.abc.Collection[ListenerCallbackSig]]
-            The listeners in this component.
-        """
+        """Mapping of event types to the listeners registered in this client."""
 
     @property
     @abc.abstractmethod
     def metadata(self) -> collections.MutableMapping[typing.Any, typing.Any]:
-        """Get the mutable mapping of the metadata set for this client.
+        """Mutable mapping of the metadata set for this client.
 
-        Returns
-        -------
-        collections.abc.MutableMapping[typing.Any, typing.Any]
-            The metadata set for this client.
-
+        .. note::
             Any modifications made to this mutable mapping will be preserved by
             the client.
         """
@@ -2746,27 +2468,16 @@ class Client(abc.ABC):
     @property
     @abc.abstractmethod
     def prefixes(self) -> collections.Collection[str]:
-        """Get a collection of the prefixes set for this client.
+        """Collection of the prefixes set for this client.
 
         These are only use during message command execution to match commands
         to this command client.
-
-        Returns
-        -------
-        collcetions.abc.Collection[str]
-            Collection of the prefixes set for this client.
         """
 
     @property
     @abc.abstractmethod
     def rest(self) -> hikari.api.RESTClient:
-        """Object of the Hikari REST client this client was initialised with.
-
-        Returns
-        -------
-        hikari.api.RESTClient
-            The Hikari REST client this client was initialised with.
-        """
+        """Object of the Hikari REST client this client was initialised with."""
 
     @property
     @abc.abstractmethod
@@ -2774,25 +2485,12 @@ class Client(abc.ABC):
         """Object of the Hikari interaction server provided for this client.
 
         This is used for executing slash commands if set.
-
-        Returns
-        -------
-        typing.Optional[hikari.api.InteractionServer]
-            The Hikari interaction server this client was initialised
-            with if provided, else `None`.
         """
 
     @property
     @abc.abstractmethod
     def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
-        """Object of the Hikari shard manager this client was initialised with.
-
-        Returns
-        -------
-        typing.Optional[hikari.traits.ShardAware]
-            The Hikari shard manager this client was initialised with
-            if provided, else `None`.
-        """
+        """Object of the Hikari shard manager this client was initialised with."""
 
     @abc.abstractmethod
     def add_component(self: _T, component: Component, /) -> _T:

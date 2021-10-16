@@ -111,13 +111,7 @@ class AbstractInjectionContext(abc.ABC):
     @property
     @abc.abstractmethod
     def injection_client(self) -> InjectorClient:
-        """Injection client this context is bound to.
-
-        Returns
-        -------
-        InjectorClient
-            The injection client this context is bound to.
-        """
+        """Injection client this context is bound to."""
 
     @abc.abstractmethod
     def cache_result(self, callback: CallbackSig[_T], value: _T, /) -> None:
