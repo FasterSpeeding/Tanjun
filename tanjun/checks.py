@@ -509,6 +509,42 @@ class OwnPermissionCheck(_Check):
         return self._handle_result((permissions & self._permissions) == self._permissions)
 
 
+class HasAnyRoleCheck(_Check):
+    __slots__ = (
+        "_halt_execution",
+        "_error_message",
+        "required_roles",
+    )
+
+    def __init__(
+        self,
+        roles: list[hikari.SnowflakeishOr[hikari.Role] | str] = list(),
+        *,
+        error_message: typing.Optional[str] = "You do not have the required roles to use this command!",
+        halt_execution: bool = True,
+    ) -> None:
+        super().__init__(error_message, halt_execution)
+        self.required_roles = roles
+
+    async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
+
+        if not ctx.member:
+            return self._handle_result(False)
+
+        member_roles = ctx.member.get_roles()
+
+        result = any(self.check_roles(member_role) for member_role in member_roles)
+        return self._handle_result(result)
+
+    def check_roles(self, member_role: hikari.Role) -> bool:
+        for check in self.required_roles:
+            if isinstance(check, int) and member_role.id == check:
+                return True
+            elif isinstance(check, str) and member_role.name == check:
+                return True
+        return False
+
+
 @typing.overload
 def with_dm_check(command: CommandT, /) -> CommandT:
     ...
@@ -859,6 +895,40 @@ def with_own_permission_check(
     """
     return lambda command: command.add_check(
         OwnPermissionCheck(permissions, halt_execution=halt_execution, error_message=error_message)
+    )
+
+
+def with_any_role_check(
+    roles: list[hikari.SnowflakeishOr[hikari.Role] | int | str] = list(),
+    *,
+    error_message: typing.Optional[str] = "You do not have the required roles to use this command!",
+    halt_execution: bool = True,
+) -> collections.Callable[[CommandT], CommandT]:
+    """Only let a command run if the author has a specific role.
+
+    Parameters
+    ----------
+    roles: list[Union[SnowflakeishOr[Role], int]]
+        The author must have at least one (1) role in this list. (Role.name and Role.id are checked)
+
+    Other Parameters
+    ----------------
+    error_message: Optional[str]
+        The error message raised if the member does not have a required role.
+
+        Defaults to 'You do not have the required roles to use this command!'
+    halt_execution: bool
+        Whether this check should raise `tanjun.errors.HaltExecution` to
+        end the execution search when it fails instead of returning `False`.
+
+        Defaults to `False`.
+
+    Returns
+    -------
+    collections.abc.Callable[[CommandT], CommandT]
+        A command decorator callback which adds the check."""
+    return lambda command: command.add_check(
+        HasAnyRoleCheck(roles, error_message=error_message, halt_execution=halt_execution)
     )
 
 
