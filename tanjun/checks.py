@@ -520,7 +520,7 @@ class HasAnyRoleCheck(_Check):
         halt_execution: bool = True,
     ) -> None:
         super().__init__(error_message, halt_execution)
-        self.required_roles = set(roles)
+        self.required_roles = roles
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
         if not ctx.member:
@@ -529,15 +529,13 @@ class HasAnyRoleCheck(_Check):
         member_roles = ctx.member.get_roles()
 
         for member_role in member_roles:
-            if result := self.check_roles(member_role):
-                return self._handle_result(result)
+            if self.check_roles(member_role):
+                return self._handle_result(True)
         return self._handle_result(False)
 
     def check_roles(self, member_role: hikari.Role) -> bool:
         for check in self.required_roles:
-            if isinstance(check, int) and member_role.id == check:
-                return True
-            elif isinstance(check, str) and member_role.name == check:
+            if member_role.id == check or member_role.name == check:
                 return True
         return False
 
@@ -899,13 +897,13 @@ def with_any_role_check(
     roles: collections.Sequence[typing.Union[hikari.SnowflakeishOr[hikari.Role], int, str]] = [],
     *,
     error_message: typing.Optional[str] = "You do not have the required roles to use this command!",
-    halt_execution: bool = True,
+    halt_execution: bool = False,
 ) -> collections.Callable[[CommandT], CommandT]:
     """Only let a command run if the author has a specific role.
 
     Parameters
     ----------
-    roles: list[Union[SnowflakeishOr[Role], int]]
+    roles: collections.Sequence[Union[SnowflakeishOr[Role], int, str]]
         The author must have at least one (1) role in this list. (Role.name and Role.id are checked)
 
     Other Parameters
