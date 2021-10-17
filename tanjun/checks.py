@@ -510,31 +510,28 @@ class OwnPermissionCheck(_Check):
 
 
 class HasAnyRoleCheck(_Check):
-    __slots__ = (
-        "_halt_execution",
-        "_error_message",
-        "required_roles",
-    )
+    __slots__ = ("required_roles",)
 
     def __init__(
         self,
-        roles: list[hikari.SnowflakeishOr[hikari.Role] | str] = [],
+        roles: collections.Sequence[typing.Union[hikari.SnowflakeishOr[hikari.Role], str]] = [],
         *,
         error_message: typing.Optional[str] = "You do not have the required roles to use this command!",
         halt_execution: bool = True,
     ) -> None:
         super().__init__(error_message, halt_execution)
-        self.required_roles = roles
+        self.required_roles = set(roles)
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
-
         if not ctx.member:
             return self._handle_result(False)
 
         member_roles = ctx.member.get_roles()
 
-        result = any(self.check_roles(member_role) for member_role in member_roles)
-        return self._handle_result(result)
+        for member_role in member_roles:
+            if result := self.check_roles(member_role):
+                return self._handle_result(result)
+        return self._handle_result(False)
 
     def check_roles(self, member_role: hikari.Role) -> bool:
         for check in self.required_roles:
@@ -899,7 +896,7 @@ def with_own_permission_check(
 
 
 def with_any_role_check(
-    roles: list[hikari.SnowflakeishOr[hikari.Role] | int | str] = [],
+    roles: collections.Sequence[typing.Union[hikari.SnowflakeishOr[hikari.Role], int, str]] = [],
     *,
     error_message: typing.Optional[str] = "You do not have the required roles to use this command!",
     halt_execution: bool = True,
