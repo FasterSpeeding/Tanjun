@@ -518,7 +518,7 @@ class HasAnyRoleCheck(_Check):
 
     def __init__(
         self,
-        roles: list[hikari.SnowflakeishOr[hikari.Role] | str] = list(),
+        roles: list[hikari.SnowflakeishOr[hikari.Role] | str] = [],
         *,
         error_message: typing.Optional[str] = "You do not have the required roles to use this command!",
         halt_execution: bool = True,
@@ -899,7 +899,7 @@ def with_own_permission_check(
 
 
 def with_any_role_check(
-    roles: list[hikari.SnowflakeishOr[hikari.Role] | int | str] = list(),
+    roles: list[hikari.SnowflakeishOr[hikari.Role] | int | str] = [],
     *,
     error_message: typing.Optional[str] = "You do not have the required roles to use this command!",
     halt_execution: bool = True,
@@ -926,7 +926,8 @@ def with_any_role_check(
     Returns
     -------
     collections.abc.Callable[[CommandT], CommandT]
-        A command decorator callback which adds the check."""
+        A command decorator callback which adds the check.
+    """
     return lambda command: command.add_check(
         HasAnyRoleCheck(roles, error_message=error_message, halt_execution=halt_execution)
     )
