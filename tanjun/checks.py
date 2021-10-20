@@ -530,10 +530,7 @@ class HasAnyRoleCheck(_Check):
 
         member_roles = ctx.member.get_roles()
 
-        for member_role in member_roles:
-            if self.check_roles(member_role):
-                return self._handle_result(True)
-        return self._handle_result(False)
+        return self._handle_result(any(map(self.check_roles, member_roles)))
 
     def check_roles(self, member_role: hikari.Role) -> bool:
         for check in self.required_roles:
