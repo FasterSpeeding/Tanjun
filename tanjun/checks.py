@@ -533,10 +533,7 @@ class HasAnyRoleCheck(_Check):
         return self._handle_result(any(map(self.check_roles, member_roles)))
 
     def check_roles(self, member_role: hikari.Role) -> bool:
-        for check in self.required_roles:
-            if member_role.id == check or member_role.name == check:
-                return True
-        return False
+        return any(member_role.id == check or member_role.name == check for check in self.required_roles)
 
 
 @typing.overload
