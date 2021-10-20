@@ -121,6 +121,7 @@ __all__: list[str] = [
     "with_owner_check",
     "with_author_permission_check",
     "with_own_permission_check",
+    "with_any_role_check",
     # clients.py
     "clients",
     "as_loader",

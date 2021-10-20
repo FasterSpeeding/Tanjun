@@ -48,6 +48,7 @@ __all__: list[str] = [
     "with_owner_check",
     "with_author_permission_check",
     "with_own_permission_check",
+    "with_any_role_check",
     "DmCheck",
     "GuildCheck",
     "NsfwCheck",
@@ -55,6 +56,7 @@ __all__: list[str] = [
     "OwnerCheck",
     "AuthorPermissionCheck",
     "OwnPermissionCheck",
+    "HasAnyRoleCheck",
 ]
 
 import typing
@@ -899,7 +901,7 @@ def with_any_role_check(
     error_message: typing.Optional[str] = "You do not have the required roles to use this command!",
     halt_execution: bool = False,
 ) -> collections.Callable[[CommandT], CommandT]:
-    """Only let a command run if the author has a specific role.
+    """Only let a command run if the author has a specific role and the command is called in a guild.
 
     Parameters
     ----------
