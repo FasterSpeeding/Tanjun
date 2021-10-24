@@ -215,7 +215,7 @@ class LazyConstant(typing.Generic[_T]):
         self._value = None
         return self
 
-    def set_value(self: _LazyConstantT, value: _T) -> _LazyConstantT:
+    def set_value(self: _LazyConstantT, value: _T, /) -> _LazyConstantT:
         """Set the constant value.
 
         Parameters
