@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `tanjun.injected(callback=tanjun.cache_callback(...))`.
 - `tanjun.inject` which is identical to `tanjun.injecting.injected` but does not replace it.
 
+### Changed
+- Added USE_EXTERNAL_STICKERS to DM permissions
+
 ### Fixed
 - Removed `cache_callback` from injecting.pyi
 
