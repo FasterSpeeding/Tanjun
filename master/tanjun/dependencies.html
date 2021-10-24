@@ -325,7 +325,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_LazyConstantT</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_LazyConstantT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_LazyConstantT</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_LazyConstantT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the constant value.</span>
 
 <span class="sd">        Parameters</span>
@@ -935,7 +935,7 @@ async def command(
         <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_LazyConstantT</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_LazyConstantT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_LazyConstantT</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_LazyConstantT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the constant value.</span>
 
 <span class="sd">        Parameters</span>
@@ -1084,12 +1084,12 @@ Callback used to resolve this to a constant value.</p>
 
         
             <span class="def">def</span>
-            <span class="name">set_value</span><span class="signature">(self: ~_LazyConstantT, value: ~_T) -&gt; ~_LazyConstantT</span>:
+            <span class="name">set_value</span><span class="signature">(self: ~_LazyConstantT, value: ~_T, /) -&gt; ~_LazyConstantT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_LazyConstantT</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_LazyConstantT</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_LazyConstantT</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_LazyConstantT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the constant value.</span>
 
 <span class="sd">        Parameters</span>
