@@ -162,6 +162,7 @@ DM_PERMISSIONS: typing.Final[hikari.Permissions] = (
     | hikari.Permissions.ATTACH_FILES
     | hikari.Permissions.READ_MESSAGE_HISTORY
     | hikari.Permissions.USE_EXTERNAL_EMOJIS
+    | hikari.Permissions.USE_EXTERNAL_STICKERS
     | hikari.Permissions.USE_APPLICATION_COMMANDS
 )
 """Bitfield of the permissions which are accessibly within DM channels."""
