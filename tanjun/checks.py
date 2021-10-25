@@ -528,11 +528,19 @@ class HasAnyRoleCheck(_Check):
         if not ctx.member:
             return self._handle_result(False)
 
-        member_roles = ctx.member.get_roles()
+        guild_roles = ctx.cache.get_roles_view_for_guild(ctx.member.guild_id) if ctx.cache else None
+        if not guild_roles:
+            guild_roles = await ctx.rest.fetch_roles(ctx.member.guild_id)
+            member_roles = [role for role in guild_roles if role.id in ctx.member.role_ids]
+        else:
+            member_roles = [guild_roles.get(role) for role in ctx.member.role_ids]
 
-        return self._handle_result(any(map(self.check_roles, member_roles)))
+        return self._handle_result(any(map(self._check_roles, member_roles)))
 
-    def check_roles(self, member_role: hikari.Role) -> bool:
+    def _check_roles(self, member_role: typing.Union[int, hikari.Role]) -> bool:
+        if isinstance(member_role, int):
+            return any(member_role == check for check in self.required_roles)
+
         return any(member_role.id == check or member_role.name == check for check in self.required_roles)
 
 
