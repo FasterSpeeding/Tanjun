@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Added USE_EXTERNAL_STICKERS to DM permissions
+- `Client.listeners` now returns a sequence of callbacks rather than descriptors.
 
 ### Fixed
 - Removed `cache_callback` from injecting.pyi

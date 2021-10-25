@@ -323,7 +323,7 @@ class TypeDescriptor(typing.Generic[_T]):
 
     @property
     def type(self) -> _TypeT[_T]:
-        return self._type  # type: ignore # TODO: pyright bug
+        return self._type  # type: ignore  # pyright bug?
 
     def resolve_with_command_context(self, ctx: tanjun_abc.Context, /) -> _T:
         if isinstance(ctx, AbstractInjectionContext):
@@ -457,7 +457,7 @@ def inject(
     ValueError
         If both `callback` and `type` are specified or if neither is specified.
     """
-    return Injected(callback=callback, type=type)  # type: ignore  # TODO: This is a pyright bug
+    return Injected(callback=callback, type=type)
 
 
 def injected(
@@ -466,7 +466,7 @@ def injected(
     type: typing.Optional[_TypeT[_T]] = None,  # noqa: A002
 ) -> Injected[_T]:
     """Alias of `inject`."""
-    return inject(callback=callback, type=type)  # type: ignore  # TODO: This is a pyright bug
+    return inject(callback=callback, type=type)
 
 
 class InjectorClient:

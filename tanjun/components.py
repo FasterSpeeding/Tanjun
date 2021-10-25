@@ -248,7 +248,7 @@ class Component(abc.Component):
     def listeners(
         self,
     ) -> collections.Mapping[type[base_events.Event], collections.Collection[abc.ListenerCallbackSig]]:
-        return self._listeners.copy()
+        return utilities.CastedView(self._listeners, lambda x: x.copy())
 
     @property
     def metadata(self) -> dict[typing.Any, typing.Any]:

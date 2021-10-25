@@ -775,7 +775,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     @property
     def is_human_only(self) -> bool:
         """Whether this client is only executing for non-bot/webhook users messages."""
-        return _check_human in self._checks  # type: ignore[comparison-overlap]
+        return _check_human in self._checks
 
     @property
     def cache(self) -> typing.Optional[hikari.api.Cache]:
@@ -805,7 +805,10 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     def listeners(
         self,
     ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun_abc.ListenerCallbackSig]]:
-        return utilities.CastedView(self._listeners, lambda x: x.copy())
+        return utilities.CastedView(
+            self._listeners,
+            lambda x: [typing.cast(tanjun_abc.ListenerCallbackSig, callback.callback) for callback in x],
+        )
 
     @property
     def hooks(self) -> typing.Optional[tanjun_abc.AnyHooks]:
@@ -1347,7 +1350,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         Self
             The client instance to enable chained calls.
         """
-        if check not in self._checks:  # type: ignore[arg-type]
+        if check not in self._checks:
             self._checks.append(checks.InjectableCheck(check))
 
         return self

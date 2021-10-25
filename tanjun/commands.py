@@ -104,7 +104,7 @@ class _LoadableInjector(checks_.InjectableCheck):
         if isinstance(self.callback, types.MethodType):
             raise ValueError("Callback is already a method type")
 
-        self.overwrite_callback(types.MethodType(self.callback, component))  # type: ignore[assignment]
+        self.overwrite_callback(types.MethodType(self.callback, component))
 
 
 class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
@@ -168,7 +168,7 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
 
     def add_check(self: _PartialCommandT, check: abc.CheckSig, /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        if check not in self._checks:  # type: ignore
+        if check not in self._checks:
             self._checks.append(checks_.InjectableCheck(check))
 
         return self
@@ -179,7 +179,7 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
         return self
 
     def with_check(self, check: abc.CheckSigT, /) -> abc.CheckSigT:
-        if check not in self._checks:  # type: ignore
+        if check not in self._checks:
             self._checks.append(_LoadableInjector(check))
 
         return check
@@ -937,9 +937,9 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         if not _new:
             self._parent = parent
-            return super().copy(_new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
+            return super().copy(_new=_new)
 
-        return super().copy(_new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
+        return super().copy(_new=_new)
 
     def load_into_component(
         self: _BaseSlashCommandT, component: abc.Component, /
@@ -1018,9 +1018,9 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         if not _new:
             self._commands = {name: command.copy() for name, command in self._commands.items()}
-            return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars
+            return super().copy(_new=_new, parent=parent)
 
-        return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars
+        return super().copy(_new=_new, parent=parent)
 
     def add_command(self: _SlashCommandGroupT, command: abc.BaseSlashCommand, /) -> _SlashCommandGroupT:
         """Add a slash command to this group.
@@ -1118,7 +1118,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
             if isinstance(command, components.LoadableProtocol):
                 command.load_into_component(component)
 
-        return super().load_into_component(component)  # type: ignore  # Pyright seems to mis-handle the typevars
+        return super().load_into_component(component)
 
 
 class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCallbackSigT]):
@@ -1962,9 +1962,9 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         if not _new:
             self._callback = copy.copy(self._callback)
-            return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars
+            return super().copy(_new=_new, parent=parent)
 
-        return super().copy(_new=_new, parent=parent)  # type: ignore  # Pyright seems to mis-handle the typevars here
+        return super().copy(_new=_new, parent=parent)
 
     def load_into_component(self: _SlashCommandT, component: abc.Component, /) -> typing.Optional[_SlashCommandT]:
         if isinstance(self._callback.callback, types.MethodType):
@@ -2100,9 +2100,9 @@ class MessageCommand(PartialCommand[abc.MessageContext], abc.MessageCommand, typ
             self._names = self._names.copy()
             self._parent = parent
             self._parser = self._parser.copy() if self._parser else None
-            return super().copy(_new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
+            return super().copy(_new=_new)
 
-        return super().copy(_new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
+        return super().copy(_new=_new)
 
     def set_parent(self: _MessageCommandT, parent: typing.Optional[abc.MessageCommandGroup], /) -> _MessageCommandT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
@@ -2212,9 +2212,9 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
             commands = {command: command.copy(parent=self) for command in self._commands}
             self._commands = list(commands.values())
             self._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
-            return super().copy(parent=parent, _new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars
+            return super().copy(parent=parent, _new=_new)
 
-        return super().copy(parent=parent, _new=_new)  # type: ignore  # Pyright seems to mis-handle the typevars here
+        return super().copy(parent=parent, _new=_new)
 
     def add_command(self: _MessageCommandGroupT, command: abc.MessageCommand, /) -> _MessageCommandGroupT:
         """Add a command to this group.

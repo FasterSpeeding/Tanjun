@@ -61,6 +61,7 @@ if typing.TYPE_CHECKING:
 
 _KeyT = typing.TypeVar("_KeyT")
 _ValueT = typing.TypeVar("_ValueT")
+_OtherValueT = typing.TypeVar("_OtherValueT")
 
 
 async def async_chain(
@@ -441,15 +442,15 @@ async def fetch_everyone_permissions(
     return permissions
 
 
-class CastedView(collections.Mapping[_KeyT, _ValueT]):
+class CastedView(collections.Mapping[_KeyT, _OtherValueT], typing.Generic[_KeyT, _ValueT, _OtherValueT]):
     __slots__ = ("_buffer", "_cast", "_raw_data")
 
-    def __init__(self, raw_data: dict[_KeyT, _ValueT], cast: collections.Callable[[_ValueT], _ValueT]) -> None:
-        self._buffer: dict[_KeyT, _ValueT] = {}
+    def __init__(self, raw_data: dict[_KeyT, _ValueT], cast: collections.Callable[[_ValueT], _OtherValueT]) -> None:
+        self._buffer: dict[_KeyT, _OtherValueT] = {}
         self._cast = cast
         self._raw_data = raw_data
 
-    def __getitem__(self, key: _KeyT, /) -> _ValueT:
+    def __getitem__(self, key: _KeyT, /) -> _OtherValueT:
         try:
             return self._buffer[key]
 
