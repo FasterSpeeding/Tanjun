@@ -1119,7 +1119,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_human_only</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Whether this client is only executing for non-bot/webhook users messages.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_check_human</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span>  <span class="c1"># type: ignore[comparison-overlap]</span>
+        <span class="k">return</span> <span class="n">_check_human</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">Cache</span><span class="p">]:</span>
@@ -1149,7 +1149,10 @@
     <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
-        <span class="k">return</span> <span class="n">utilities</span><span class="o">.</span><span class="n">CastedView</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">utilities</span><span class="o">.</span><span class="n">CastedView</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="n">callback</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">x</span><span class="p">],</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]:</span>
@@ -1691,7 +1694,7 @@
 <span class="sd">        Self</span>
 <span class="sd">            The client instance to enable chained calls.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="k">if</span> <span class="n">check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="bp">self</span>
@@ -3146,7 +3149,7 @@ from the provided client using it's abstract methods.</li>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_human_only</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Whether this client is only executing for non-bot/webhook users messages.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_check_human</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span>  <span class="c1"># type: ignore[comparison-overlap]</span>
+        <span class="k">return</span> <span class="n">_check_human</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">Cache</span><span class="p">]:</span>
@@ -3176,7 +3179,10 @@ from the provided client using it's abstract methods.</li>
     <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
-        <span class="k">return</span> <span class="n">utilities</span><span class="o">.</span><span class="n">CastedView</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">utilities</span><span class="o">.</span><span class="n">CastedView</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="n">callback</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">x</span><span class="p">],</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]:</span>
@@ -3718,7 +3724,7 @@ from the provided client using it's abstract methods.</li>
 <span class="sd">        Self</span>
 <span class="sd">            The client instance to enable chained calls.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="k">if</span> <span class="n">check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="bp">self</span>
@@ -6436,7 +6442,7 @@ of only 200 application command creates per day (per guild or globally).</p></li
 <span class="sd">        Self</span>
 <span class="sd">            The client instance to enable chained calls.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="k">if</span> <span class="n">check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="bp">self</span>
