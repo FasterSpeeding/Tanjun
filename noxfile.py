@@ -244,6 +244,9 @@ def type_check(session: nox.Session) -> None:
     if _try_find_option(session, "--force-env", when_empty="True"):
         session.env["PYRIGHT_PYTHON_GLOBAL_NODE"] = "off"
 
+    if version := _try_find_option(session, "--pyright-version"):
+        session.env["PYRIGHT_PYTHON_FORCE_VERSION"] = version
+
     session.run("python", "-m", "pyright", "--version")
     session.run("python", "-m", "pyright")
 
