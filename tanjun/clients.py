@@ -172,7 +172,7 @@ def as_loader(callback: LoaderSig, /) -> LoaderSig:
 def as_unloader(callback: LoaderSig, /) -> LoaderSig:
     """Mark a callback as being used to unload a module's utilities from a client.
 
-    ... note::
+    .. note::
         This is the inverse of `as_loader` and is only necessary if you wish
         to use the `tanjun.Client.unload_module` or
         `tanjun.Client.reload_module`.
