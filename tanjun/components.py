@@ -1017,7 +1017,7 @@ class Component(tanjun_abc.Component):
         event_loop: typing.Optional[asyncio.AbstractEventLoop] = None,
     ) -> collections.Callable[[CallbackSigT], abc.AbstractRepeater]:
         def decorator(callback: CallbackSigT) -> abc.AbstractRepeater:
-            repeater = Repeater(callback, delay=delay, max_runs=max_runs, event_loop=event_loop)
+            repeater = Repeater(callback, delay, max_runs=max_runs, event_loop=event_loop)
             self.add_repeater(repeater)
             return repeater
 

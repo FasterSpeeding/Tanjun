@@ -82,8 +82,6 @@ if typing.TYPE_CHECKING:
 
     from hikari import traits as hikari_traits
 
-    from tanjun import AbstractRepeater
-
 
 _T = typing.TypeVar("_T")
 

@@ -1659,7 +1659,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             self._server.set_listener(hikari.CommandInteraction, None)
 
         for component in self._components:
-            for repeater in component.repeaters:
+            # TODO - repeater isn't in the ABC anymore
+            for repeater in component.repeaters:  # type: ignore
                 repeater.stop()
                 
         await asyncio.gather(*(component.close() for component in self._components.copy().values()))
@@ -1719,8 +1720,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if register_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, self.on_interaction_create_request)
 
-        for component in self._components:
-            for repeater in component.repeaters:
+        for component in self.components:
+            # TODO - repeaters isn't in the abc anymore, so I need to cast to make pyright happy
+            for repeater in component.repeaters:  # type: ignore
                 repeater.start()
 
         self._loop.create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED))

@@ -43,18 +43,17 @@ __all__: list[str] = [
 
 import abc
 import asyncio
-import collections
+import collections.abc
 import datetime
 import typing
 
-CallbackSig = collections.Callable[..., collections.Awaitable[None]]
+CallbackSig = collections.abc.Callable[..., collections.abc.Awaitable[None]]
 CallbackSigT = typing.TypeVar("CallbackSigT", bound=CallbackSig)
 
 
 class AbstractRepeater(abc.ABC):
-    """
-    Abstract repeater class
-    """
+    """Abstract repeater class."""
+
     __slots__ = ()
 
     @property
@@ -120,7 +119,8 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
         "_iteration_count",
         "_ignored_exceptions",
         "_fatal_exceptions",
-        "_task"
+        "_task",
+        "_delay",
     )
 
     def __init__(
@@ -164,7 +164,7 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
             The callback to set.
 
         Returns
-----    -------
+        -------
         Self
             The repeater instance to enable chained calls.
         """
@@ -203,6 +203,7 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
             await self._pre_callback()
         while not self._max_runs or self._iteration_count < self._max_runs:
             self._iteration_count += 1
+            assert self._event_loop
             self._event_loop.create_task(self._wrapped_coro())
             await asyncio.sleep(self._delay.total_seconds())
         if self._post_callback:
@@ -232,6 +233,7 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
             raise RuntimeError("Repeater not running")
         self._task.cancel()
         if self._post_callback:
+            assert self._event_loop
             self._event_loop.create_task(self._post_callback())
 
     @property
@@ -351,7 +353,7 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
 
 def with_ignored_exceptions(
     *exceptions: type[Exception],
-) -> collections.Callable[[Repeater[CallbackSigT]], Repeater[CallbackSigT]]:
+) -> collections.abc.Callable[[Repeater[CallbackSigT]], Repeater[CallbackSigT]]:
     """
     Set the exceptions that a task will ignore.
 
@@ -389,7 +391,7 @@ def with_ignored_exceptions(
 
 def with_fatal_exceptions(
     *exceptions: type[Exception],
-) -> collections.Callable[[Repeater[CallbackSigT]], Repeater[CallbackSigT]]:
+) -> collections.abc.Callable[[Repeater[CallbackSigT]], Repeater[CallbackSigT]]:
     """
     Set the exceptions that will stop a task.
 
