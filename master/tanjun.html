@@ -6151,7 +6151,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
 <span class="k">def</span> <span class="nf">as_unloader</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">LoaderSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoaderSig</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Mark a callback as being used to unload a module&#39;s utilities from a client.</span>
 
-<span class="sd">    ... note::</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This is the inverse of `as_loader` and is only necessary if you wish</span>
 <span class="sd">        to use the `tanjun.Client.unload_module` or</span>
 <span class="sd">        `tanjun.Client.reload_module`.</span>
@@ -8330,7 +8330,7 @@ to the provided client using it's abstract methods.</li>
             <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_unloader</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">LoaderSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoaderSig</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Mark a callback as being used to unload a module&#39;s utilities from a client.</span>
 
-<span class="sd">    ... note::</span>
+<span class="sd">    .. note::</span>
 <span class="sd">        This is the inverse of `as_loader` and is only necessary if you wish</span>
 <span class="sd">        to use the `tanjun.Client.unload_module` or</span>
 <span class="sd">        `tanjun.Client.reload_module`.</span>
@@ -8355,10 +8355,10 @@ to the provided client using it's abstract methods.</li>
 
             <div class="docstring"><p>Mark a callback as being used to unload a module's utilities from a client.</p>
 
-<p>... note::
-    This is the inverse of <code><a href="#as_loader">as_loader</a></code> and is only necessary if you wish
-    to use the <code><a href="#Client.unload_module">tanjun.Client.unload_module</a></code> or
-    <code><a href="#Client.reload_module">tanjun.Client.reload_module</a></code>.</p>
+<p><em>Note:</em>
+This is the inverse of <code><a href="#as_loader">as_loader</a></code> and is only necessary if you wish
+to use the <code><a href="#Client.unload_module">tanjun.Client.unload_module</a></code> or
+<code><a href="#Client.reload_module">tanjun.Client.reload_module</a></code>.</p>
 
 <h6 id="parameters">Parameters</h6>
 
