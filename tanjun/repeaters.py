@@ -43,14 +43,20 @@ __all__: list[str] = [
 
 import abc
 import asyncio
+import collections
 import datetime
 import typing
 
-CallbackSig = typing.Callable[..., typing.Awaitable[typing.Any]]
+CallbackSig = collections.Callable[..., collections.Awaitable[None]]
 CallbackSigT = typing.TypeVar("CallbackSigT", bound=CallbackSig)
 
 
 class AbstractRepeater(abc.ABC):
+    """
+    Abstract repeater class
+    """
+    __slots__ = ()
+
     @property
     @abc.abstractmethod
     def iteration_count(self) -> int:
@@ -85,7 +91,7 @@ class AbstractRepeater(abc.ABC):
 
         Returns
         -------
-        typing.Callable[..., typing.Awaitable[typing.Any]]
+        CallbackSig
             The callback attached to this repeater
         """
 
@@ -105,12 +111,24 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
         The event loop the repeater runs on. Defaults to `asyncio.get_event_loop()`
     """
 
+    __slots__ = (
+        "_max_runs",
+        "_event_loop",
+        "_callback",
+        "_pre_callback",
+        "_post_callback",
+        "_iteration_count",
+        "_ignored_exceptions",
+        "_fatal_exceptions",
+        "_task"
+    )
+
     def __init__(
         self,
-        /,
         callback: CallbackSigT,
-        *,
         delay: typing.Union[datetime.timedelta, int, float],
+        /,
+        *,
         max_runs: typing.Optional[int] = None,
         event_loop: typing.Optional[asyncio.AbstractEventLoop] = None,
     ):
@@ -118,43 +136,48 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
             self._delay: datetime.timedelta = delay
         else:
             self._delay: datetime.timedelta = datetime.timedelta(seconds=delay)
-        self._max_runs: typing.Optional[int] = max_runs
-        self._event_loop = event_loop or asyncio.get_event_loop()
-        self._callback: CallbackSig = callback
+        self._max_runs = max_runs
+        self._event_loop = event_loop
+        self._callback = callback
         self._pre_callback: typing.Optional[CallbackSig] = None
         self._post_callback: typing.Optional[CallbackSig] = None
         self._iteration_count: int = 0
-        self._ignored_exceptions: typing.List[type[Exception]] = []
-        self._fatal_exceptions: typing.List[type[Exception]] = []
+        self._ignored_exceptions: list[type[Exception]] = []
+        self._fatal_exceptions: list[type[Exception]] = []
         self._task: typing.Optional[asyncio.Task[None]] = None
 
-    def __call__(self, *args: list[typing.Any], **kwargs: dict[typing.Any, typing.Any]):
-        return self._callback(*args, **kwargs)
+    if typing.TYPE_CHECKING:
+        __call__: CallbackSigT
 
-    def set_pre_callback(self, callback: CallbackSigT) -> Repeater[CallbackSigT]:
+    else:
+
+        async def __call__(self, *args, **kwargs) -> None:
+            await self._callback(*args, **kwargs)
+
+    def set_pre_callback(self, callback: CallbackSigT, /) -> Repeater[CallbackSigT]:
         """
         Set the callback executed before the repeater starts to run.
 
         Parameters
         ----------
-        callback : typing.Callable[..., typing.Awaitable[typing.Any]]
+        callback : CallbackSig
             The callback to set.
 
         Returns
-        -------
-        Repeater[CallbackSigT]
-            Self
+----    -------
+        Self
+            The repeater instance to enable chained calls.
         """
         self._pre_callback = callback
         return self
 
-    def set_post_callback(self, callback: CallbackSigT) -> Repeater[CallbackSigT]:
+    def set_post_callback(self, callback: CallbackSigT, /) -> Repeater[CallbackSigT]:
         """
         Set the callback executed after the repeater is finished.
 
         Parameters
         ----------
-        callback : typing.Callable[..., typing.Awaitable[typing.Any]]
+        callback : CallbackSig
             The callback to set.
 
         Returns
@@ -168,7 +191,7 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
     async def _wrapped_coro(self):
         try:
             await self._callback()
-        except Exception as e:  # noqa - I have to
+        except Exception as e:  # noqa 722 do not use bare except
             if type(e) in self._fatal_exceptions:
                 self.stop()
                 raise
@@ -197,6 +220,8 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
         return self._delay
 
     def start(self) -> asyncio.Task[None]:
+        if not self._event_loop:
+            self._event_loop = asyncio.get_running_loop()
         if self._task is not None and not self._task.done():
             raise RuntimeError("Repeater already running")
         self._task = self._event_loop.create_task(self._loop())
@@ -222,12 +247,12 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
 
         Parameters
         ----------
-        callback : typing.Callable[..., typing.Awaitable[typing.Any]]
+        callback : CallbackSig
             The callback to set.
 
         Returns
         -------
-        typing.Callable[..., typing.Awaitable[typing.Any]]
+        CallbackSig
             The callback.
 
         Examples
@@ -256,12 +281,12 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
 
         Parameters
         ----------
-        callback : typing.Callable[..., typing.Awaitable[typing.Any]]
+        callback : CallbackSig
             The callback to set.
 
         Returns
         -------
-        typing.Callable[..., typing.Awaitable[typing.Any]]
+        CallbackSig
             The callback.
 
         Examples
@@ -293,7 +318,7 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
 
         Parameters
         ----------
-        exceptions : typing.List[type[Exception]]
+        exceptions : list[type[Exception]]
             List of exception types
 
         Returns
@@ -312,7 +337,7 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
 
         Parameters
         ----------
-        exceptions : typing.List[type[Exception]]
+        exceptions : list[type[Exception]]
             List of exception types
 
         Returns
@@ -326,7 +351,7 @@ class Repeater(typing.Generic[CallbackSigT], AbstractRepeater):
 
 def with_ignored_exceptions(
     *exceptions: type[Exception],
-) -> typing.Callable[[Repeater[CallbackSigT]], Repeater[CallbackSigT]]:
+) -> collections.Callable[[Repeater[CallbackSigT]], Repeater[CallbackSigT]]:
     """
     Set the exceptions that a task will ignore.
 
@@ -336,14 +361,14 @@ def with_ignored_exceptions(
 
     Parameters
     ----------
-    exceptions : typing.List[type[Exception]]
+    exceptions : list[type[Exception]]
         List of exception types
 
     Examples
     --------
     ```py
-    @yuyo.with_ignored_exceptions(ZeroDivisionError)
-    @yuyo.as_repeater(seconds=1)
+    @tanjun.with_ignored_exceptions(ZeroDivisionError)
+    @tanjun.as_repeater(seconds=1)
     async def repeater():
         global run_count
         run_count += 1
@@ -364,7 +389,7 @@ def with_ignored_exceptions(
 
 def with_fatal_exceptions(
     *exceptions: type[Exception],
-) -> typing.Callable[[Repeater[CallbackSigT]], Repeater[CallbackSigT]]:
+) -> collections.Callable[[Repeater[CallbackSigT]], Repeater[CallbackSigT]]:
     """
     Set the exceptions that will stop a task.
 
@@ -372,14 +397,14 @@ def with_fatal_exceptions(
 
     Parameters
     ----------
-    exceptions : typing.List[type[Exception]]
+    exceptions : list[type[Exception]]
         List of exception types
 
     Examples
     --------
     ```py
-    @yuyo.with_fatal_exceptions(ZeroDivisionError, RuntimeError)
-    @yuyo.as_repeater(seconds=1)
+    @tanjun.with_fatal_exceptions(ZeroDivisionError, RuntimeError)
+    @tanjun.as_repeater(seconds=1)
     async def repeater():
         global run_count
         run_count += 1

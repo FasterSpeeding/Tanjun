@@ -214,9 +214,9 @@ __all__: list[str] = [
     # utilities.py
     "utilities",
     # repeaters.py
+    "repeaters",
     "AbstractRepeater",
     "Repeater",
-    "repeaters",
 ]
 
 import typing

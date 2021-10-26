@@ -2397,17 +2397,6 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def repeaters(self) -> typing.List[AbstractRepeater]:
-        """Repeaters attached to this component.
-
-        Returns
-        -------
-        repeaters : typing.List[tanjun.repeaters.AbstractRepeater]
-            The list of repeaters attached to this component.
-        """
-
-    @property
-    @abc.abstractmethod
     def name(self) -> str:
         """Component's unique identifier.
 

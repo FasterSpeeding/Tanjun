@@ -239,7 +239,7 @@ class Component(tanjun_abc.Component):
         """Collection of the checks being run against every command execution in this component."""
         return tuple(check.callback for check in self._checks)
 
-    def repeaters(self) -> typing.List[AbstractRepeater]:
+    def repeaters(self) -> typing.Sequence[AbstractRepeater]:
         return self._repeaters
 
     @property
