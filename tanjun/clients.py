@@ -1039,17 +1039,17 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if not application:
             application = self._cached_application_id or await self.fetch_rest_application_id()
 
-        name = "global" if guild is hikari.UNDEFINED else f"guild {int(guild)}"
+        target_type = "global" if guild is hikari.UNDEFINED else f"guild {int(guild)}"
 
         if not force:
             registered_commands = await self._rest.fetch_application_commands(application, guild=guild)
             if len(registered_commands) == len(builders) and all(
                 _cmp_command(builders.get(command.name), command) for command in registered_commands
             ):
-                _LOGGER.info("Skipping bulk declare for %s slash commands due to them already being set", name)
+                _LOGGER.info("Skipping bulk declare for %s slash commands due to them already being set", target_type)
                 return registered_commands
 
-        _LOGGER.info("Bulk declaring %s %s slash commands", len(builders), name)
+        _LOGGER.info("Bulk declaring %s %s slash commands", len(builders), target_type)
         responses = await self._rest.set_application_commands(application, list(builders.values()), guild=guild)
 
         for response in responses:
@@ -1058,15 +1058,16 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
             if (expected_id := command_ids.get(response.name)) and hikari.Snowflake(expected_id) != response.id:
                 _LOGGER.warning(
-                    "ID mismatch found for %s command %s, expected %s but got %s. "
+                    "ID mismatch found for %s command %r, expected %s but got %s. "
                     "This suggests that any previous permissions set for this command will have been lost.",
-                    name,
+                    target_type,
+                    response.name,
                     expected_id,
                     response.id,
                 )
 
-        _LOGGER.info("Successfully declared %s (top-level) %s commands", len(responses), name)
-        _LOGGER.debug("declared %s command ids: %s", [response.id for response in responses])
+        _LOGGER.info("Successfully declared %s (top-level) %s commands", len(responses), target_type)
+        _LOGGER.debug("declared %s command ids: %s", target_type, [response.id for response in responses])
         return responses
 
     def set_auto_defer_after(self: _ClientT, time: typing.Optional[float], /) -> _ClientT:

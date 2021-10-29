@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Removed `cache_callback` from injecting.pyi
+- Some bodged logging calls in declare_slash_commands which weren't providing the right amont of format args.
 
 ## [2.1.2a1] - 2021-10-15
 ### Added
