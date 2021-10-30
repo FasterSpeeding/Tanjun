@@ -2079,7 +2079,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         *modules: typing.Union[str, pathlib.Path]
             Paths of one or more module to unload.
 
-            These  should be the same paths which were passed to `load_module`.
+            These should be the same paths which were passed to `load_module`.
 
         Returns
         -------
