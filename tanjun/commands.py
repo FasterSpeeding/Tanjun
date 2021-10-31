@@ -774,7 +774,7 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
         super().add_option(option)
         return self
 
-    def build(self, entity_factory: hikari.api.EntityFactory, /) -> dict[str, typing.Any]:
+    def sort(self: _CommandBuilderT) -> _CommandBuilderT:
         if self._sort_options and not self._has_been_sorted:
             required: list[hikari.CommandOption] = []
             not_required: list[hikari.CommandOption] = []
@@ -787,7 +787,7 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
             self._options = [*required, *not_required]
             self._has_been_sorted = True
 
-        return super().build(entity_factory)
+        return self
 
     def copy(self) -> _CommandBuilder:  # TODO: can we just del _CommandBuilder.__copy__ to go back to the default?
         builder = _CommandBuilder(self.name, self.description, self._sort_options, id=self.id)
@@ -1192,7 +1192,7 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
 
     def build(self) -> special_endpoints_api.CommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        return self._builder.copy()
+        return self._builder.sort().copy()
 
     def _add_option(
         self: _SlashCommandT,
