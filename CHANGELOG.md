@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.1.3a1] - 2021-10-15
 ### Added
 - `tanjun.dependencies.inject_lc(Type)` which is a shorthand for
   `tanjun.injected(callback=tanjun.make_lc_resolver(Type))`.
@@ -13,11 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `tanjun.inject` which is identical to `tanjun.injecting.injected` but does not replace it.
 
 ### Changed
-- Added USE_EXTERNAL_STICKERS to DM permissions
+- Added USE_EXTERNAL_STICKERS to DM permissions.
 - `Client.listeners` now returns a sequence of callbacks rather than descriptors.
 
 ### Fixed
-- Removed `cache_callback` from injecting.pyi
+- Removed `cache_callback` from injecting.pyi.
 - Some bodged logging calls in declare_slash_commands which weren't providing the right amont of format args.
 - Options not being sorted for slash commands within a command group.
 - Stop shlex from treating stuff after a `#` as a comment.
@@ -292,7 +294,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.2a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.3a1...HEAD
+[2.1.3a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.2a1...v2.1.3a1
 [2.1.2a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.1a1...v2.1.2a1
 [2.1.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.0a1...v2.1.1a1
 [2.1.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.0.1a1...v2.1.0a1
