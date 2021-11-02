@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.1.3a1] - 2021-10-15
+## [2.1.3a1] - 2021-11-02
 ### Added
 - `tanjun.dependencies.inject_lc(Type)` which is a shorthand for
   `tanjun.injected(callback=tanjun.make_lc_resolver(Type))`.
