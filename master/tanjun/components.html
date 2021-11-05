@@ -519,7 +519,7 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;checks_.InjectableCheck&quot;</span><span class="p">,</span> <span class="n">check</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">with_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">:</span>
@@ -1140,7 +1140,7 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">remove_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;checks_.InjectableCheck&quot;</span><span class="p">,</span> <span class="n">check</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">with_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">:</span>
@@ -1983,7 +1983,7 @@ client propagate and decide the ephemeral default behaviour.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;checks_.InjectableCheck&quot;</span><span class="p">,</span> <span class="n">check</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
