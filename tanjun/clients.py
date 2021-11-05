@@ -1369,7 +1369,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         ValueError
             If the check was not previously added.
         """
-        self._checks.remove(check)  # type: ignore[arg-type]
+        self._checks.remove(typing.cast("checks.InjectableCheck", check))
         return self
 
     def with_check(self, check: tanjun_abc.CheckSigT, /) -> tanjun_abc.CheckSigT:
@@ -1504,7 +1504,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     def remove_client_callback(self: _ClientT, name: str, callback: tanjun_abc.MetaEventSig, /) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
         name = name.casefold()
-        self._client_callbacks[name].remove(callback)  # type: ignore
+        self._client_callbacks[name].remove(typing.cast("injecting.CallbackDescriptor[None]", callback))
         if not self._client_callbacks[name]:
             del self._client_callbacks[name]
 
@@ -1543,7 +1543,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self: _ClientT, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /
     ) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
-        registered_callback = self._listeners[event_type].pop(self._listeners[event_type].index(callback))
+        index = self._listeners[event_type].index(typing.cast("_InjectableListener", callback))
+        registered_callback = self._listeners[event_type].pop(index)
 
         if not self._listeners[event_type]:
             del self._listeners[event_type]

@@ -310,7 +310,7 @@ class Component(abc.Component):
         return self
 
     def remove_check(self: _ComponentT, check: abc.CheckSig, /) -> _ComponentT:
-        self._checks.remove(check)  # type: ignore[arg-type]
+        self._checks.remove(typing.cast("checks_.InjectableCheck", check))
         return self
 
     def with_check(self, check: abc.CheckSigT, /) -> abc.CheckSigT:

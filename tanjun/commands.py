@@ -175,7 +175,7 @@ class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
 
     def remove_check(self: _PartialCommandT, check: abc.CheckSig, /) -> _PartialCommandT:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        self._checks.remove(check)  # type: ignore[arg-type]
+        self._checks.remove(typing.cast("checks_.InjectableCheck", check))
         return self
 
     def with_check(self, check: abc.CheckSigT, /) -> abc.CheckSigT:
