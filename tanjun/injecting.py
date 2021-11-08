@@ -37,7 +37,6 @@ __all__: list[str] = [
     "as_self_injecting",
     "BasicInjectionContext",
     "CallbackDescriptor",
-    "SelfInjectingCallback",
     "Descriptor",
     "CallbackSig",
     "Undefined",
@@ -47,6 +46,7 @@ __all__: list[str] = [
     "injected",
     "Injected",
     "InjectorClient",
+    "SelfInjectingCallback",
     "TypeDescriptor",
 ]
 
