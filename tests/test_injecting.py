@@ -186,7 +186,7 @@ class TestCallbackDescriptor:
         assert descriptor.needs_injector is False
 
     def test_overwrite_callback_errors_on_injected_positional_only_injected_argument(self):
-        def foo(self: int = tanjun.injecting.injected(type=int), /) -> None:
+        def foo(self: int = tanjun.injecting.injected(type=int), /) -> int:
             ...
 
         descriptor = tanjun.injecting.CallbackDescriptor(int)
@@ -403,8 +403,9 @@ class TestClientBoundCallback:
         )
 
         with mock.patch.object(tanjun.injecting, "BasicInjectionContext") as base_injection_context:
-            await callback(123, b=333, c=222)
+            result = await callback(123, b=333, c=222)
 
+        assert result is mock_resolve.return_value
         base_injection_context.assert_called_once_with(mock_client)
         mock_resolve.assert_awaited_once_with(base_injection_context.return_value, 123, b=333, c=222)
 
