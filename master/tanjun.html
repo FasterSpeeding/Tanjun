@@ -1236,6 +1236,9 @@
                     <a class="module" href="#injecting">injecting</a>
             </li>
             <li>
+                    <a class="function" href="#as_self_injecting">as_self_injecting</a>
+            </li>
+            <li>
                     <a class="function" href="#inject">inject</a>
             </li>
             <li>
@@ -1583,6 +1586,7 @@ enable slash (interaction) command execution:</p>
     <span class="s2">&quot;SlashHooks&quot;</span><span class="p">,</span>
     <span class="c1"># injecting.py</span>
     <span class="s2">&quot;injecting&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;as_self_injecting&quot;</span><span class="p">,</span>
     <span class="s2">&quot;inject&quot;</span><span class="p">,</span>
     <span class="c1"># parsing.py</span>
     <span class="s2">&quot;parsing&quot;</span><span class="p">,</span>
@@ -4645,11 +4649,11 @@ enable slash (interaction) command execution:</p>
 <span class="sd">&quot;&quot;&quot;</span>
 
 
-<span class="k">class</span> <span class="nc">InjectableCheck</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BaseInjectableCallback</span><span class="p">[</span><span class="nb">bool</span><span class="p">]):</span>
+<span class="k">class</span> <span class="nc">InjectableCheck</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="nb">bool</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">descriptor</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">result</span>
 
         <span class="k">raise</span> <span class="n">errors</span><span class="o">.</span><span class="n">FailedCheck</span>
@@ -6287,32 +6291,6 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="n">_LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Client callback raised exception&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="n">exc</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">_InjectablePrefixGetter</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BaseInjectableCallback</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">PrefixGetterSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">descriptor</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrefixGetterSig</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">PrefixGetterSig</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">descriptor</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span>
-
-
-<span class="k">class</span> <span class="nc">_InjectableListener</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BaseInjectableCallback</span><span class="p">[</span><span class="kc">None</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_injector_client&quot;</span><span class="p">,)</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">injector_client</span><span class="p">:</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_injector_client</span> <span class="o">=</span> <span class="n">injector_client</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ctx</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_injector_client</span><span class="p">)</span>
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">descriptor</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
-
-
 <span class="k">async</span> <span class="k">def</span> <span class="nf">on_parser_error</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="n">errors</span><span class="o">.</span><span class="n">ParserError</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Handle message parser errors.</span>
 
@@ -6509,12 +6487,12 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">_InjectableListener</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">SelfInjectingCallback</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_InjectablePrefixGetter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span> <span class="o">=</span> <span class="n">rest</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">server</span>
@@ -6835,7 +6813,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
 <span class="sd">        For more information on this callback&#39;s signature see `PrefixGetter`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="o">.</span><span class="n">callback</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">PrefixGetterSig</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">prefixes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -7503,7 +7481,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="n">injected</span> <span class="o">=</span> <span class="n">_InjectableListener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+        <span class="n">injected</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">SelfInjectingCallback</span><span class="p">[</span><span class="kc">None</span><span class="p">](</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
                 <span class="k">return</span> <span class="bp">self</span>
@@ -7522,7 +7500,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;_InjectableListener&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="p">))</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;injecting.SelfInjectingCallback[None]&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="p">))</span>
         <span class="n">registered_callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
@@ -7610,7 +7588,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
 <span class="sd">        Self</span>
 <span class="sd">            The client instance to enable chained calls.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span> <span class="o">=</span> <span class="n">_InjectablePrefixGetter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span> <span class="k">if</span> <span class="n">getter</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span> <span class="k">if</span> <span class="n">getter</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">with_prefix_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">getter</span><span class="p">:</span> <span class="n">PrefixGetterSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrefixGetterSigT</span><span class="p">:</span>
@@ -7675,7 +7653,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_check_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
                     <span class="k">return</span> <span class="n">prefix</span>
 
@@ -8545,12 +8523,12 @@ from the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">_InjectableListener</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">SelfInjectingCallback</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_InjectablePrefixGetter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span> <span class="o">=</span> <span class="n">rest</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">server</span>
@@ -8871,7 +8849,7 @@ from the provided client using it's abstract methods.</li>
 
 <span class="sd">        For more information on this callback&#39;s signature see `PrefixGetter`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="o">.</span><span class="n">callback</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">PrefixGetterSig</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">prefixes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -9539,7 +9517,7 @@ from the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="n">injected</span> <span class="o">=</span> <span class="n">_InjectableListener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+        <span class="n">injected</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">SelfInjectingCallback</span><span class="p">[</span><span class="kc">None</span><span class="p">](</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
                 <span class="k">return</span> <span class="bp">self</span>
@@ -9558,7 +9536,7 @@ from the provided client using it's abstract methods.</li>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;_InjectableListener&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="p">))</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;injecting.SelfInjectingCallback[None]&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="p">))</span>
         <span class="n">registered_callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
@@ -9646,7 +9624,7 @@ from the provided client using it's abstract methods.</li>
 <span class="sd">        Self</span>
 <span class="sd">            The client instance to enable chained calls.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span> <span class="o">=</span> <span class="n">_InjectablePrefixGetter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span> <span class="k">if</span> <span class="n">getter</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span> <span class="k">if</span> <span class="n">getter</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">with_prefix_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">getter</span><span class="p">:</span> <span class="n">PrefixGetterSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PrefixGetterSigT</span><span class="p">:</span>
@@ -9711,7 +9689,7 @@ from the provided client using it's abstract methods.</li>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_check_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">(</span><span class="n">ctx</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
                     <span class="k">return</span> <span class="n">prefix</span>
 
@@ -10440,12 +10418,12 @@ after a rename.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_closing</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">_InjectableListener</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">SelfInjectingCallback</span><span class="p">[</span><span class="kc">None</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_path_modules</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_InjectablePrefixGetter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prefixes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span> <span class="o">=</span> <span class="n">rest</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">server</span>
@@ -12745,7 +12723,7 @@ detail around the <code>name</code> being subscribed to.</p>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="n">injected</span> <span class="o">=</span> <span class="n">_InjectableListener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+        <span class="n">injected</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">SelfInjectingCallback</span><span class="p">[</span><span class="kc">None</span><span class="p">](</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
                 <span class="k">return</span> <span class="bp">self</span>
@@ -12806,7 +12784,7 @@ regardless of client implementation detail.</p></li>
         <span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">,</span> <span class="o">/</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;_InjectableListener&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="p">))</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;injecting.SelfInjectingCallback[None]&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="p">))</span>
         <span class="n">registered_callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">[</span><span class="n">event_type</span><span class="p">]:</span>
@@ -13063,7 +13041,7 @@ The prefix to remove.</li>
 <span class="sd">        Self</span>
 <span class="sd">            The client instance to enable chained calls.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span> <span class="o">=</span> <span class="n">_InjectablePrefixGetter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span> <span class="k">if</span> <span class="n">getter</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prefix_getter</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span> <span class="k">if</span> <span class="n">getter</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
@@ -30778,7 +30756,7 @@ user.</p>
             <span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">InjectableConverter</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BaseInjectableCallback</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]):</span>
+<span class="k">class</span> <span class="nc">InjectableConverter</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;A specialised injectable callback which accounts for special casing `BaseConverter`.</span>
 
 <span class="sd">    Parameters</span>
@@ -30795,10 +30773,10 @@ user.</p>
 
     <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ArgumentT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_base_converter</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">descriptor</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">BaseConverter</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">_ValueT</span><span class="p">,</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">descriptor</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ctx</span><span class="p">))</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span> <span class="n">BaseConverter</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">_ValueT</span><span class="p">,</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ctx</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">descriptor</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">ChannelConverter</span><span class="p">(</span><span class="n">BaseConverter</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span><span class="p">]):</span>
@@ -36238,6 +36216,7 @@ may be either synchronous or asynchronous.</p></li>
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;AbstractInjectionContext&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;as_self_injecting&quot;</span><span class="p">,</span>
     <span class="s2">&quot;BasicInjectionContext&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CallbackDescriptor&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Descriptor&quot;</span><span class="p">,</span>
@@ -36249,6 +36228,7 @@ may be either synchronous or asynchronous.</p></li>
     <span class="s2">&quot;injected&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Injected&quot;</span><span class="p">,</span>
     <span class="s2">&quot;InjectorClient&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SelfInjectingCallback&quot;</span><span class="p">,</span>
     <span class="s2">&quot;TypeDescriptor&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
@@ -36262,7 +36242,6 @@ may be either synchronous or asynchronous.</p></li>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="n">_BaseInjectableCallbackT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_BaseInjectableCallbackT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;BaseInjectableCallback[typing.Any]&quot;</span><span class="p">)</span>
     <span class="n">_CallbackDescriptorT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_CallbackDescriptorT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;CallbackDescriptor[typing.Any]&quot;</span><span class="p">)</span>
 
 <span class="n">_InjectorClientT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_InjectorClientT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;InjectorClient&quot;</span><span class="p">)</span>
@@ -36417,17 +36396,54 @@ may be either synchronous or asynchronous.</p></li>
 
 
 <span class="k">class</span> <span class="nc">CallbackDescriptor</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_T</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Descriptor of a callback taking advantage of dependency injection.</span>
+
+<span class="sd">    This holds metadata and logic necessary for callback injection.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    callback : CallbackSig[_T]</span>
+<span class="sd">        The callback to wrap with dependency injection.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `callback` has any injected arguments which can only be passed</span>
+<span class="sd">        positionally.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_descriptors&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_async&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_descriptors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_descriptors</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+
+    <span class="c1"># This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span>
+
+    <span class="c1"># This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.</span>
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The descriptor&#39;s callback.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether the descriptor&#39;s callback requires a dependency injection client to be resolved.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_descriptors</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_parse_descriptors</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Descriptor</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">parameters</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>  <span class="c1"># If we can&#39;t inspect it then we have to assume this is a NO</span>
             <span class="c1"># As a note, this fails on some &quot;signature-less&quot; builtin functions/types like str.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_descriptors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Descriptor</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">return</span>
+            <span class="k">return</span> <span class="p">{}</span>
 
         <span class="n">descriptors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Descriptor</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
@@ -36444,34 +36460,68 @@ may be either synchronous or asynchronous.</p></li>
                 <span class="k">assert</span> <span class="n">parameter</span><span class="o">.</span><span class="n">default</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                 <span class="n">descriptors</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">Descriptor</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">parameter</span><span class="o">.</span><span class="n">default</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_descriptors</span> <span class="o">=</span> <span class="n">descriptors</span>
-
-    <span class="c1"># This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.</span>
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span>
-
-    <span class="c1"># This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.</span>
-    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_descriptors</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">descriptors</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_CallbackDescriptorT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_CallbackDescriptorT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Create a copy of this descriptor.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        CallbackDescriptor[_T]</span>
+<span class="sd">            A copy of this descriptor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span>
 
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">overwrite_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Overwrite the callback of this descriptor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : CallbackSig[_T]</span>
+<span class="sd">            The new callback to overwrite with.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If `callback` has any injected arguments which can only be passed</span>
+<span class="sd">            positionally.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">callback</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_async</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_descriptors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_descriptors</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+
     <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve_with_command_context</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Try to resolve the callback with the given command context.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ctx : tanjun.abc.Context</span>
+<span class="sd">            The context to resolve the callback with.</span>
+<span class="sd">        *args : typing.Any</span>
+<span class="sd">            The positional arguments to pass to the callback.</span>
+<span class="sd">        **kwargs : typing.Any</span>
+<span class="sd">            The keyword arguments to pass to the callback.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _T</span>
+<span class="sd">            The callback&#39;s result.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the callback needs a dependency injection client but the</span>
+<span class="sd">            context does not have one.</span>
+<span class="sd">        tanjun.errors.MissingDependencyError</span>
+<span class="sd">            If the callback needs an injected type which isn&#39;t present in the</span>
+<span class="sd">            context or client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">needs_injector</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">AbstractInjectionContext</span><span class="p">):</span>
                 <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -36479,6 +36529,25 @@ may be either synchronous or asynchronous.</p></li>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve_without_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Try to resolve the callback without a dependency injection client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *args : typing.Any</span>
+<span class="sd">            The positional arguments to pass to the callback.</span>
+<span class="sd">        **kwargs : typing.Any</span>
+<span class="sd">            The keyword arguments to pass to the callback.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _T</span>
+<span class="sd">            The callback&#39;s result.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the callback needs a dependency injection client present.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">needs_injector</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;This callback cannot be called without dependency injection&quot;</span><span class="p">)</span>
 
@@ -36494,6 +36563,28 @@ may be either synchronous or asynchronous.</p></li>
         <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">_T</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">AbstractInjectionContext</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve the callback with the given dependency injection context.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ctx : AbstractInjectionContext</span>
+<span class="sd">            The context to resolve the callback with.</span>
+<span class="sd">        *args : typing.Any</span>
+<span class="sd">            The positional arguments to pass to the callback.</span>
+<span class="sd">        **kwargs : typing.Any</span>
+<span class="sd">            The keyword arguments to pass to the callback.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _T</span>
+<span class="sd">            The callback&#39;s result.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        tanjun.errors.MissingDependencyError</span>
+<span class="sd">            If the callback needs an injected type which isn&#39;t present in the</span>
+<span class="sd">            context or client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">override</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">injection_client</span><span class="o">.</span><span class="n">get_callback_override</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">):</span>
             <span class="k">return</span> <span class="k">await</span> <span class="n">override</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -36515,11 +36606,112 @@ may be either synchronous or asynchronous.</p></li>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
+        <span class="c1"># TODO: should we avoid caching the result if args/kwargs are passed?</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">cache_result</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">_T</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
 
 
+<span class="k">class</span> <span class="nc">SelfInjectingCallback</span><span class="p">(</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">_T</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Class used to make a callback self-injecting by linking it to a client.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    async def callback(database: Database = tanjun.inject(type=Database)) -&gt; None:</span>
+<span class="sd">        await database.do_something()</span>
+
+<span class="sd">    ...</span>
+
+<span class="sd">    client = tanjun.Client.from_gateway_bot(bot)</span>
+<span class="sd">    injecting_callback = tanjun.SelfInjectingCallback(callback, client)</span>
+<span class="sd">    await injecting_callback()</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    injector : InjectorClient</span>
+<span class="sd">        The injection client to use to resolve dependencies.</span>
+<span class="sd">    callback : CallbackSig[_T]</span>
+<span class="sd">        The callback to make self-injecting.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `callback` has any injected arguments which can only be passed</span>
+<span class="sd">        positionally.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_client&quot;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">injector_client</span><span class="p">:</span> <span class="n">InjectorClient</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">injector_client</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Call this callback with the provided arguments + injected arguments.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *args : typing.Any</span>
+<span class="sd">            The positional arguments to pass to the callback.</span>
+<span class="sd">        **kwargs : typing.Any</span>
+<span class="sd">            The keyword arguments to pass to the callback.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _T</span>
+<span class="sd">            The callback&#39;s result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">as_self_injecting</span><span class="p">(</span>
+    <span class="n">injector_client</span><span class="p">:</span> <span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]],</span> <span class="n">SelfInjectingCallback</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Make a callback self-inecting by linking it to a client through a decorator call.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    def make_callback(client: tanjun.Client) -&gt; typing.Callable[[], int]:</span>
+<span class="sd">        @tanjun.as_self_injected(client)</span>
+<span class="sd">        async def get_int_value(</span>
+<span class="sd">            redis: redis.Client = tanjun.inject(type=redis.Client)</span>
+<span class="sd">        ) -&gt; int:</span>
+<span class="sd">            return int(await redis.get(&#39;key&#39;))</span>
+
+<span class="sd">        return get_int_value</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    injector_client : InjectorClient</span>
+<span class="sd">        The injection client to use to resolve dependencies.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.abc.Callable[[CallbackSig[_T]], SelfInjectingCallback[_T]]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SelfInjectingCallback</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">SelfInjectingCallback</span><span class="p">(</span><span class="n">injector_client</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">decorator</span>
+
+
 <span class="k">class</span> <span class="nc">TypeDescriptor</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_T</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Descriptor of an injected type.</span>
+
+<span class="sd">    This class holds all the logic for resolving a type with dependency</span>
+<span class="sd">    injection.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    type_ : type[_T]</span>
+<span class="sd">        The type to resolve.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_type&quot;</span><span class="p">,)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -36527,15 +36719,52 @@ may be either synchronous or asynchronous.</p></li>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The type being injected.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span>  <span class="c1"># type: ignore  # pyright bug?</span>
 
     <span class="k">def</span> <span class="nf">resolve_with_command_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Try to resolve the type with the given command context.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ctx : tanjun.abc.Context</span>
+<span class="sd">            The context to resolve the type with.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _T</span>
+<span class="sd">            The injected implementation of the type.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the command context does not have a dependency injection client.</span>
+<span class="sd">        tanjun.errors.MissingDependencyError</span>
+<span class="sd">            If the client does not have an implementation of the type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">AbstractInjectionContext</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
 
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Type injector cannot be resolved without anm injection client&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">AbstractInjectionContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve the type with the given dependency injection context.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ctx : AbstractInjectionContext</span>
+<span class="sd">            The context to resolve the type with.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _T</span>
+<span class="sd">            The injected implementation of the type.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        tanjun.errors.MissingDependencyError</span>
+<span class="sd">            If the client does not have an implementation of the type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">injection_client</span><span class="o">.</span><span class="n">get_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">UNDEFINED</span><span class="p">:</span>
             <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">result</span>
@@ -36548,6 +36777,26 @@ may be either synchronous or asynchronous.</p></li>
 
 
 <span class="k">class</span> <span class="nc">Descriptor</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_T</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Descriptor of an injected type or callback.</span>
+
+<span class="sd">    This class holds all the logic for resolving a type or callback with</span>
+<span class="sd">    dependency injection.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    type_ : typing.Optional[type[_T]]</span>
+<span class="sd">        The type to resolve.</span>
+<span class="sd">    callback : typing.Optional[CallbackSig[_T]]</span>
+<span class="sd">        The callback to resolve.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `callback` has any injected arguments which can only be passed</span>
+<span class="sd">        positionally.</span>
+<span class="sd">        If both `type_` and `callback` are given.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_callback&quot;</span><span class="p">,</span> <span class="s2">&quot;_type&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -36572,50 +36821,122 @@ may be either synchronous or asynchronous.</p></li>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;The callback being injected if this is an injected callback.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">callback</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this injector will only run with dependency injection.&quot;&quot;&quot;</span>
         <span class="c1"># Type injectors always need the injector as of present</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">needs_injector</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="k">else</span> <span class="kc">True</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_TypeT</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;The type being injected if this is an injected type.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="o">.</span><span class="n">type</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="k">else</span> <span class="kc">None</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve_with_command_context</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">args</span> <span class="ow">or</span> <span class="n">kwargs</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;*args and **kwargs cannot be passed for a type descriptor&quot;</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve_with_command_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Try to resolve the type or callback with the given command context.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ctx : tanjun.abc.Context</span>
+<span class="sd">            The context to resolve the type or callback with.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _T</span>
+<span class="sd">            The result to be injected.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the command context does not have a dependency injection client when</span>
+<span class="sd">            dependency injection is required.</span>
+<span class="sd">        tanjun.errors.MissingDependencyError</span>
+<span class="sd">            If the client does not have an implementation of the type dependency.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
 
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">resolve_with_command_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve_without_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve_without_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Try to resolve this type or callback without dependency injection.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _T</span>
+<span class="sd">            The result to be injected.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If dependency injection is required.</span>
+<span class="sd">        tanjun.errors.MissingDependencyError</span>
+<span class="sd">            If the client does not have an implementation of the type dependency.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Type injector cannot be resolved without an injector present&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">()</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">AbstractInjectionContext</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">AbstractInjectionContext</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Resolve the type or callback with the given dependency injection context.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ctx : tanjun.abc.AbstractInjectionContext</span>
+<span class="sd">            The context to resolve the type or callback with.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _T</span>
+<span class="sd">            The result to be injected.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        tanjun.errors.MissingDependencyError</span>
+<span class="sd">            If the client does not have an implementation of the type dependency.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">args</span> <span class="ow">or</span> <span class="n">kwargs</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;**args and **kwargs cannot be passed for a type descriptor&quot;</span><span class="p">)</span>
-
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
 
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
 
 
 <span class="n">_TypeT</span> <span class="o">=</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span>
 
 
 <span class="k">class</span> <span class="nc">Injected</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_T</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Decare a keyword-argument as requiring an injected dependency.</span>
+
+<span class="sd">    This is the type returned by `inject`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    callback : typing.Optional[CallbackSig[_T]]</span>
+<span class="sd">        The callback to use to resolve the dependency.</span>
+
+<span class="sd">        If this callback has no type dependencies then this will still work</span>
+<span class="sd">        without an injection context but this can be overridden using</span>
+<span class="sd">        `InjectionClient.set_callback_override`.</span>
+<span class="sd">    type : typing.Optional[type[_T]]</span>
+<span class="sd">        The type of the dependency to resolve.</span>
+
+<span class="sd">        Unlike `callback`, `type` is resolved using the injection client and</span>
+<span class="sd">        therefore requires that dependency injection is implemented on a context</span>
+<span class="sd">        level.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If both `callback` and `type` are specified or if neither is specified.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;callback&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -36640,6 +36961,24 @@ may be either synchronous or asynchronous.</p></li>
     <span class="nb">type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Injected</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Decare a keyword-argument as requiring an injected dependency.</span>
+
+<span class="sd">    This should be assigned to an arugment&#39;s default value.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    @tanjun.as_slash_command(&quot;name&quot;, &quot;description&quot;)</span>
+<span class="sd">    async def command_callback(</span>
+<span class="sd">        ctx: tanjun.abc.Context,</span>
+<span class="sd">        # Here we take advantage of scope based special casing which allows</span>
+<span class="sd">        # us to inject the `Component` type.</span>
+<span class="sd">        injected_type: tanjun.abc.Component = tanjun.inject(type=tanjun.abc.Component)</span>
+<span class="sd">        # Here we inject an out-of-scope callback which itself is taking</span>
+<span class="sd">        # advantage of type injection.</span>
+<span class="sd">        callback_result: ResultT = tanjun.inject(callback=injected_callback)</span>
+<span class="sd">    ) -&gt; None:</span>
+<span class="sd">        raise NotImplementedError</span>
+<span class="sd">    ```</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -36725,6 +37064,23 @@ may be either synchronous or asynchronous.</p></li>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">UNDEFINED</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">remove_type_dependency</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InjectorClientT</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InjectorClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Remove a type dependency.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        type_: type[_T]</span>
+<span class="sd">            The associated type.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to allow chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If `type_` is not registered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type_dependencies</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -36752,56 +37108,124 @@ may be either synchronous or asynchronous.</p></li>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">get_callback_override</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Get the set override for a specific injected callback.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback: CallbackSig[_T]</span>
+<span class="sd">            The injected callback to get the override for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typing.Optional[CallbackDescriptor[_T]]</span>
+<span class="sd">            The override if found, else `None`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback_overrides</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">remove_callback_override</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_InjectorClientT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_InjectorClientT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Remove a callback override.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback: CallbackSig[_T]</span>
+<span class="sd">            The injected callback to remove the override for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The client instance to allow chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If no override is found for the callback.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback_overrides</span><span class="p">[</span><span class="n">callback</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span>
-
-
-<span class="k">class</span> <span class="nc">BaseInjectableCallback</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_T</span><span class="p">]):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_descriptor&quot;</span><span class="p">,)</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_descriptor</span><span class="p">:</span> <span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
-
-    <span class="c1"># This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.</span>
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span>
-
-    <span class="c1"># This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.</span>
-    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="si">!r}</span><span class="s2">)&quot;</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_descriptor</span><span class="o">.</span><span class="n">callback</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">descriptor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackDescriptor</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_descriptor</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">needs_injector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_descriptor</span><span class="o">.</span><span class="n">needs_injector</span>
-
-    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BaseInjectableCallbackT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">_new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseInjectableCallbackT</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">_new</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_descriptor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_descriptor</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="k">return</span> <span class="bp">self</span>
-
-        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">overwrite_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_descriptor</span> <span class="o">=</span> <span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
 </pre></div>
 
         </details>
 
             <div class="docstring"><p>Logic and data classes used within the standard Tanjun implementation to enable dependency injection.</p>
+</div>
+
+
+                </section>
+                <section id="as_self_injecting">
+                            <div class="attr function"><a class="headerlink" href="#as_self_injecting">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">as_self_injecting</span><span class="signature">(
+    injector_client: <a href="tanjun/injecting.html#InjectorClient">tanjun.injecting.InjectorClient</a>,
+    /
+) -&gt; collections.abc.Callable[[collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]]], <a href="tanjun/injecting.html#SelfInjectingCallback">tanjun.injecting.SelfInjectingCallback</a>[~_T]]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_self_injecting</span><span class="p">(</span>
+    <span class="n">injector_client</span><span class="p">:</span> <span class="n">InjectorClient</span><span class="p">,</span> <span class="o">/</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]],</span> <span class="n">SelfInjectingCallback</span><span class="p">[</span><span class="n">_T</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Make a callback self-inecting by linking it to a client through a decorator call.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    def make_callback(client: tanjun.Client) -&gt; typing.Callable[[], int]:</span>
+<span class="sd">        @tanjun.as_self_injected(client)</span>
+<span class="sd">        async def get_int_value(</span>
+<span class="sd">            redis: redis.Client = tanjun.inject(type=redis.Client)</span>
+<span class="sd">        ) -&gt; int:</span>
+<span class="sd">            return int(await redis.get(&#39;key&#39;))</span>
+
+<span class="sd">        return get_int_value</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    injector_client : InjectorClient</span>
+<span class="sd">        The injection client to use to resolve dependencies.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    collections.abc.Callable[[CallbackSig[_T]], SelfInjectingCallback[_T]]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SelfInjectingCallback</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">SelfInjectingCallback</span><span class="p">(</span><span class="n">injector_client</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">decorator</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Make a callback self-inecting by linking it to a client through a decorator call.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">make_callback</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[],</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_self_injected</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">get_int_value</span><span class="p">(</span>
+        <span class="n">redis</span><span class="p">:</span> <span class="n">redis</span><span class="o">.</span><span class="n">Client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">redis</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="k">await</span> <span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">get_int_value</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>injector_client</strong> (InjectorClient):
+The injection client to use to resolve dependencies.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Callable[[CallbackSig[_T]], SelfInjectingCallback[_T]]</strong></li>
+</ul>
 </div>
 
 
@@ -36826,6 +37250,24 @@ may be either synchronous or asynchronous.</p></li>
     <span class="nb">type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_TypeT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Injected</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Decare a keyword-argument as requiring an injected dependency.</span>
+
+<span class="sd">    This should be assigned to an arugment&#39;s default value.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    ```py</span>
+<span class="sd">    @tanjun.as_slash_command(&quot;name&quot;, &quot;description&quot;)</span>
+<span class="sd">    async def command_callback(</span>
+<span class="sd">        ctx: tanjun.abc.Context,</span>
+<span class="sd">        # Here we take advantage of scope based special casing which allows</span>
+<span class="sd">        # us to inject the `Component` type.</span>
+<span class="sd">        injected_type: tanjun.abc.Component = tanjun.inject(type=tanjun.abc.Component)</span>
+<span class="sd">        # Here we inject an out-of-scope callback which itself is taking</span>
+<span class="sd">        # advantage of type injection.</span>
+<span class="sd">        callback_result: ResultT = tanjun.inject(callback=injected_callback)</span>
+<span class="sd">    ) -&gt; None:</span>
+<span class="sd">        raise NotImplementedError</span>
+<span class="sd">    ```</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -36853,6 +37295,23 @@ may be either synchronous or asynchronous.</p></li>
         </details>
 
             <div class="docstring"><p>Decare a keyword-argument as requiring an injected dependency.</p>
+
+<p>This should be assigned to an arugment's default value.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command_callback</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+    <span class="c1"># Here we take advantage of scope based special casing which allows</span>
+    <span class="c1"># us to inject the `Component` type.</span>
+    <span class="n">injected_type</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Component</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Component</span><span class="p">)</span>
+    <span class="c1"># Here we inject an out-of-scope callback which itself is taking</span>
+    <span class="c1"># advantage of type injection.</span>
+    <span class="n">callback_result</span><span class="p">:</span> <span class="n">ResultT</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">injected_callback</span><span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div>
 
 <h6 id="parameters">Parameters</h6>
 
