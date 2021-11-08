@@ -63,20 +63,6 @@ async def test_async_chain():
 
 
 @pytest.mark.asyncio()
-async def test_await_if_async_handles_async_callback():
-    callback = mock.AsyncMock()
-
-    assert await utilities.await_if_async(callback) is callback.return_value
-
-
-@pytest.mark.asyncio()
-async def test_await_if_async_handles_sync_callback():
-    callback = mock.Mock()
-
-    assert await utilities.await_if_async(callback) is callback.return_value
-
-
-@pytest.mark.asyncio()
 async def test_gather_checks_handles_no_checks():
     assert await utilities.gather_checks(mock.Mock(), ()) is True
 

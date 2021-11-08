@@ -32,7 +32,7 @@
 """Standard implementation of Tanjun's command execution hook models."""
 from __future__ import annotations
 
-__all__: list[str] = ["AnyHooks", "ErrorHookSig", "Hooks", "HookSig", "MessageHooks", "ParserHookSig", "SlashHooks"]
+__all__: list[str] = ["AnyHooks", "Hooks", "MessageHooks", "SlashHooks"]
 
 import asyncio
 import copy
@@ -41,43 +41,12 @@ from collections import abc as collections
 
 from . import abc
 from . import errors
-from . import utilities
+from . import injecting
 
 if typing.TypeVar:
     _HooksT = typing.TypeVar("_HooksT", bound="Hooks[typing.Any]")
 
 CommandT = typing.TypeVar("CommandT", bound=abc.ExecutableCommand[typing.Any])
-
-ParserHookSig = collections.Callable[[abc.ContextT, errors.ParserError], abc.MaybeAwaitableT[None]]
-"""Type hint of the callback used as a parser error hook.
-
-This will be called whenever a `tanjun.errors.ParserError` is raised during the
-command argument parsing stage, will have to take two positional arguments - of
-type `tanjun.abc.Context` and `tanjun.errors.ParserError` - and may be either
-synchronous or asynchronous callback which returns `None`
-"""
-
-ErrorHookSig = collections.Callable[[abc.ContextT, Exception], abc.MaybeAwaitableT[typing.Optional[bool]]]
-"""Type hint of the callback used as a unexpected command error hook.
-
-This will be called whenever a `Exception` is raised during the
-execution stage whenever the command callback raises any exception except
-`tanjun.errors.CommandError`,  will have to take two positional arguments - of
-type `tanjun.abc.Context` and `Exception` - and may be either a
-synchronous or asynchronous callback which returns `bool` or `None`.
-
-`True` is returned to indicate that the exception should be suppressed and
-`False` is returned to indicate that the exception should be re-raised.
-"""
-
-HookSig = collections.Callable[[abc.ContextT], abc.MaybeAwaitableT[None]]
-"""Type hint of the callback used as a general command hook.
-
-This may be called during different stages of command execution (decided by
-which hook this is registered as), will have to take one positional argument of
-type `tanjun.abc.Context` and may be synchronous or asynchronous callback
-which returns `None`.
-"""
 
 
 class Hooks(abc.Hooks[abc.ContextT_contra]):
@@ -93,20 +62,20 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
         if a registered handler is found.
     """
 
-    __slots__ = ("_error", "_parser_error", "_pre_execution", "_post_execution", "_success")
+    __slots__ = (
+        "_error_callbacks",
+        "_parser_error_callbacks",
+        "_pre_execution_callbacks",
+        "_post_execution_callbacks",
+        "_success_callbacks",
+    )
 
     def __init__(self) -> None:
-        self._error: typing.Optional[ErrorHookSig[abc.ContextT_contra]] = None
-        self._parser_error: typing.Optional[ParserHookSig[abc.ContextT_contra]] = None
-        self._pre_execution: typing.Optional[HookSig[abc.ContextT_contra]] = None
-        self._post_execution: typing.Optional[HookSig[abc.ContextT_contra]] = None
-        self._success: typing.Optional[HookSig[abc.ContextT_contra]] = None
-
-    def __repr__(self) -> str:
-        return (
-            f"Hooks <{self._error!r}, {self._parser_error!r}, {self._pre_execution!r}, "
-            f"{self._post_execution!r}, {self._success!r}>"
-        )
+        self._error_callbacks: list[injecting.CallbackDescriptor[typing.Union[bool, None]]] = []
+        self._parser_error_callbacks: list[injecting.CallbackDescriptor[None]] = []
+        self._pre_execution_callbacks: list[injecting.CallbackDescriptor[None]] = []
+        self._post_execution_callbacks: list[injecting.CallbackDescriptor[None]] = []
+        self._success_callbacks: list[injecting.CallbackDescriptor[None]] = []
 
     def add_to_command(self, command: CommandT, /) -> CommandT:
         """Add this hook object to a command.
@@ -140,9 +109,14 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
 
     def copy(self: _HooksT) -> _HooksT:
         """Copy this hook object."""
-        return copy.deepcopy(self)
+        return copy.deepcopy(self)  # TODO: maybe don't
 
-    def set_on_error(self: _HooksT, callback: typing.Optional[ErrorHookSig[abc.ContextT_contra]], /) -> _HooksT:
+    def add_on_error(self: _HooksT, callback: abc.ErrorHookSig, /) -> _HooksT:
+        # <<inherited docstring from tanjun.abc.Hooks>>.
+        self._error_callbacks.append(injecting.CallbackDescriptor(callback))
+        return self
+
+    def set_on_error(self: _HooksT, callback: typing.Optional[abc.ErrorHookSig], /) -> _HooksT:
         """Set the error callback for this hook object.
 
         .. note::
@@ -152,88 +126,51 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
 
         Parameters
         ----------
-        callback : typing.Optional[ErrorHookSig[tanjun.abc.ContextT_contra]]
-            The callback to set for this hook, if `None` then any previously set
-            callback will be removed.
+        callback : typing.Optional[tanjun.abc.ErrorHookSig]
+            The callback to set for this hook. This will remove any previously
+            set callbacks.
 
-            This callback should be a callback which takes two positional
-            arguments (of type `tanjun.abc.ContextT_contra` and `Exception`) and
-            may be either synchronous or asynchronous.
+            This callback should take two positional arguments (of type
+            `tanjun.abc.ContextT_contra` and `Exception`) and may be either
+            synchronous or asynchronous.
 
-            If this returns `True` then that indicates that this error should
-            be suppressed, with `False` indicating that it should be re-raise
-            and `None` indicating no decision has been made. This will be
-            accounted for along with the decisions the other error hooks make
-            by majority rule.
+            Returning `True` indicates that the error should be suppressed,
+            `False` that it should be re-raised and `None` that no decision
+            has been made. This will be accounted for along with the decisions
+            other error hooks make by majority rule.
 
         Returns
         -------
         Self
             The hook object to enable method chaining.
         """
-        self._error = callback
-        return self
+        self._error_callbacks.clear()
+        return self.add_on_error(callback) if callback else self
 
-    def with_on_error(self, callback: ErrorHookSig[abc.ContextT_contra], /) -> ErrorHookSig[abc.ContextT_contra]:
-        """Set the error callback for this hook object through a decorator call.
-
-        .. note::
-            This will not be called for `tanjun.errors.ParserError`s as these
-            are generally speaking expected. To handle those see
-            `Hooks.with_on_parser_error`.
-
-        Examples
-        --------
-        ```py
-        hooks = AnyHooks()
-
-        @hooks.with_on_error
-        async def on_error(ctx: tanjun.abc.Context, error: Exception) -> bool:
-            if isinstance(error, SomeExpectedType):
-                await ctx.respond("You dun goofed")
-                return True  # Indicating that it should be suppressed.
-
-            await ctx.respond(f"An error occurred: {error}")
-            return False  # Indicating that it should be re-raised
-        ```
-
-        Parameters
-        ----------
-        callback : ErrorHookSig[tanjun.abc.ContextT_contra]
-            The callback to set for this hook.
-
-            This callback should be a callback which takes two positional
-            arguments (of type `tanjun.abc.ContextT_contra` and `Exception`) and
-            may be either synchronous or asynchronous.
-
-            If this returns `True` then that indicates that this error should
-            be suppressed, with `False` indicating that it should be re-raise
-            and `None` indicating no decision has been made. This will be
-            accounted for along with the decisions the other error hooks make
-            by majority rule.
-
-        Returns
-        -------
-        ErrorHookSig[tanjun.abc.ContextT_contra]
-            The hook callback which was set.
-        """
-        self.set_on_error(callback)
+    def with_on_error(self, callback: abc.ErrorHookSigT, /) -> abc.ErrorHookSigT:
+        # <<inherited docstring from tanjun.abc.Hooks>>.
+        self.add_on_error(callback)
         return callback
 
-    def set_on_parser_error(self: _HooksT, callback: typing.Optional[ParserHookSig[abc.ContextT_contra]], /) -> _HooksT:
+    def add_on_parser_error(self: _HooksT, callback: abc.HookSig, /) -> _HooksT:
+        # <<inherited docstring from tanjun.abc.Hooks>>.
+        self._parser_error_callbacks.append(injecting.CallbackDescriptor(callback))
+        return self
+
+    def set_on_parser_error(self: _HooksT, callback: typing.Optional[abc.HookSig], /) -> _HooksT:
         """Set the parser error callback for this hook object.
 
         Parameters
         ----------
-        callback : typing.Optional[ParserHookSig[tanjun.abc.ContextT_contra]]
-            The callback to set for this hook, if `None` then any previously set
-            callback will be removed.
+        callback : typing.Optional[tanjun.abc.HookSig]
+            The callback to set for this hook. This will remove any previously
+            set callbacks.
 
-            This callback should be a callback which takes two positional
-            arguments (of type `tanjun.abc.ContextT_contra` and `tanjun.errors.ParserError`),
+            This callback should take two positional arguments (of type
+            `tanjun.abc.ContextT_contra` and `tanjun.errors.ParserError`),
             return `None` and may be either synchronous or asynchronous.
 
-            It's worth noting that this unlike general error handlers, this will
+            It's worth noting that, unlike general error handlers, this will
             always suppress the error.
 
         Returns
@@ -241,192 +178,105 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
         Self
             The hook object to enable method chaining.
         """
-        self._parser_error = callback
-        return self
+        self._parser_error_callbacks.clear()
+        return self.add_on_parser_error(callback) if callback else self
 
-    def with_on_parser_error(
-        self, callback: ParserHookSig[abc.ContextT_contra], /
-    ) -> ParserHookSig[abc.ContextT_contra]:
-        """Set the parser error callback for this hook object through a decorator call.
-
-        Examples
-        --------
-        ```py
-        hooks = AnyHooks()
-
-        @hooks.with_on_parser_error
-        async def on_parser_error(ctx: tanjun.abc.Context, error: tanjun.errors.ParserError) -> None:
-            await ctx.respond(f"You gave invalid input: {error}")
-        ```
-
-        Parameters
-        ----------
-        callback : ParserHookSig[tanjun.abc.ContextT_contra]
-            The parser error callback to set for this hook.
-
-            This callback should be a callback which takes two positional
-            arguments (of type `tanjun.abc.ContextT_contra` and `tanjun.errors.ParserError`),
-            return `None` and may be either synchronous or asynchronous.
-
-        Returns
-        -------
-        ParserHookSig[tanjun.abc.ContextT_contra]
-            The callback which was set.
-        """
-        self.set_on_parser_error(callback)
+    def with_on_parser_error(self, callback: abc.HookSigT, /) -> abc.HookSigT:
+        # <<inherited docstring from tanjun.abc.Hooks>>.
+        self.add_on_parser_error(callback)
         return callback
 
-    def set_post_execution(self: _HooksT, callback: typing.Optional[HookSig[abc.ContextT_contra]], /) -> _HooksT:
+    def add_post_execution(self: _HooksT, callback: abc.HookSig, /) -> _HooksT:
+        # <<inherited docstring from tanjun.abc.Hooks>>.
+        self._post_execution_callbacks.append(injecting.CallbackDescriptor(callback))
+        return self
+
+    def set_post_execution(self: _HooksT, callback: typing.Optional[abc.HookSig], /) -> _HooksT:
         """Set the post-execution callback for this hook object.
 
         Parameters
         ----------
-        callback : typing.Optional[HookSig[tanjun.abc.ContextT_contra]]
-            The callback to set for this hook, if `None` then any previously set
-            callback will be removed.
+        callback : typing.Optional[tanjun.abc.HookSig]
+            The callback to set for this hook. This will remove any previously
+            set callbacks.
 
-            This callback should be a callback which takes one positional
-            argument (of type `tanjun.abc.ContextT_contra`), return `None` and
-            may be either synchronous or asynchronous.
+            This callback should take one positional argument (of type
+            `tanjun.abc.ContextT_contra`), return `None` and may be either
+            synchronous or asynchronous.
 
         Returns
         -------
         Self
             The hook object to enable method chaining.
         """
-        self._post_execution = callback
-        return self
+        self._post_execution_callbacks.clear()
+        return self.add_post_execution(callback) if callback else self
 
-    def with_post_execution(self, callback: HookSig[abc.ContextT_contra], /) -> HookSig[abc.ContextT_contra]:
-        """Set the post-execution callback for this hook object through a decorator call.
-
-        Examples
-        --------
-        ```py
-        hooks = AnyHooks()
-
-        @hooks.with_post_execution
-        async def post_execution(ctx: tanjun.abc.Context) -> None:
-            await ctx.respond("You did something")
-        ```
-
-        Parameters
-        ----------
-        callback : HookSig[tanjun.abc.ContextT_contra]
-            The post-execution callback to set for this hook.
-
-            This callback should be a callback which takes one positional
-            argument (of type `tanjun.abc.ContextT_contra`), return `None` and
-            may be either synchronous or asynchronous.
-
-        Returns
-        -------
-        HookSig[tanjun.abc.ContextT_contra]
-            The post-execution callback which was set.
-        """
-        self.set_post_execution(callback)
+    def with_post_execution(self, callback: abc.HookSigT, /) -> abc.HookSigT:
+        # <<inherited docstring from tanjun.abc.Hooks>>.
+        self.add_post_execution(callback)
         return callback
 
-    def set_pre_execution(self: _HooksT, callback: typing.Optional[HookSig[abc.ContextT_contra]], /) -> _HooksT:
+    def add_pre_execution(self: _HooksT, callback: abc.HookSig, /) -> _HooksT:
+        # <<inherited docstring from tanjun.abc.Hooks>>.
+        self._pre_execution_callbacks.append(injecting.CallbackDescriptor(callback))
+        return self
+
+    def set_pre_execution(self: _HooksT, callback: typing.Optional[abc.HookSig], /) -> _HooksT:
         """Set the pre-execution callback for this hook object.
 
         Parameters
         ----------
-        callback : typing.Optional[HookSig[tanjun.abc.ContextT_contra]]
-            The callback to set for this hook, if `None` then any previously set
-            callback will be removed.
+        callback : typing.Optional[tanjun.abc.HookSig]
+            The callback to set for this hook. This will remove any previously
+            set callbacks.
 
-            This callback should be a callback which takes one positional
-            argument (of type `tanjun.abc.ContextT_contra`), return `None` and
-            may be either synchronous or asynchronous.
+            This callback should take one positional argument (of type
+            `tanjun.abc.ContextT_contra`), return `None` and may be either
+            synchronous or asynchronous.
 
         Returns
         -------
         Self
             The hook object to enable method chaining.
         """
-        self._pre_execution = callback
-        return self
+        self._pre_execution_callbacks.clear()
+        return self.add_pre_execution(callback) if callback else self
 
-    def with_pre_execution(self, callback: HookSig[abc.ContextT_contra], /) -> HookSig[abc.ContextT_contra]:
-        """Set the pre-execution callback for this hook object through a decorator call.
-
-        Examples
-        --------
-        ```py
-        hooks = AnyHooks()
-
-        @hooks.with_pre_execution
-        async def pre_execution(ctx: tanjun.abc.Context) -> None:
-            await ctx.respond("You did something")
-        ```
-
-        Parameters
-        ----------
-        callback : HookSig[tanjun.abc.ContextT_contra]
-            The pre-execution callback to set for this hook.
-
-            This callback should be a callback which takes one positional
-            argument (of type `tanjun.abc.ContextT_contra`), return `None` and
-            may be either synchronous or asynchronous.
-
-        Returns
-        -------
-        HookSig[tanjun.abc.ContextT_contra]
-            The pre-execution callback which was set.
-        """
-        self.set_pre_execution(callback)
+    def with_pre_execution(self, callback: abc.HookSigT, /) -> abc.HookSigT:
+        # <<inherited docstring from tanjun.abc.Hooks>>.
+        self.add_pre_execution(callback)
         return callback
 
-    def set_on_success(self: _HooksT, callback: typing.Optional[HookSig[abc.ContextT_contra]], /) -> _HooksT:
+    def add_on_success(self: _HooksT, callback: abc.HookSig, /) -> _HooksT:
+        # <<inherited docstring from tanjun.abc.Hooks>>.
+        self._success_callbacks.append(injecting.CallbackDescriptor(callback))
+        return self
+
+    def set_on_success(self: _HooksT, callback: typing.Optional[abc.HookSig], /) -> _HooksT:
         """Set the success callback for this hook object.
 
         Parameters
         ----------
-        callback : typing.Optional[HookSig[tanjun.abc.ContextT_contra]]
-            The callback to set for this hook, if `None` then any previously set
-            callback will be removed.
+        callback : typing.Optional[HookSig[tanjun.abc.HookSig]]
+            The callback to set for this hook. This will remove any previously
+            set callbacks.
 
-            This callback should be a callback which takes one positional
-            argument (of type `tanjun.abc.ContextT_contra`), return `None` and
-            may be either synchronous or asynchronous.
+            This callback should take one positional argument (of type
+            `tanjun.abc.ContextT_contra`), return `None` and may be either
+            synchronous or asynchronous.
 
         Returns
         -------
         Self
             The hook object to enable method chaining.
         """
-        self._success = callback
-        return self
+        self._success_callbacks.clear()
+        return self.add_on_success(callback) if callback else self
 
-    def with_on_success(self, callback: HookSig[abc.ContextT_contra], /) -> HookSig[abc.ContextT_contra]:
-        """Set the success callback for this hook object through a decorator call.
-
-        Examples
-        --------
-        ```py
-        hooks = AnyHooks()
-
-        @hooks.with_on_success
-        async def on_success(ctx: tanjun.abc.Context) -> None:
-            await ctx.respond("You did something")
-        ```
-
-        Parameters
-        ----------
-        callback : HookSig[tanjun.abc.ContextT_contra]
-            The success callback to set for this hook.
-
-            This callback should be a callback which takes one positional
-            argument (of type `tanjun.abc.ContextT_contra`), return `None` and
-            may be either synchronous or asynchronous.
-
-        Returns
-        -------
-        HookSig[tanjun.abc.ContextT_contra]
-            The success callback which was set.
-        """
-        self.set_on_success(callback)
+    def with_on_success(self, callback: abc.HookSigT, /) -> abc.HookSigT:
+        # <<inherited docstring from tanjun.abc.Hooks>>.
+        self.add_on_success(callback)
         return callback
 
     async def trigger_error(
@@ -440,16 +290,17 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
         # <<inherited docstring from tanjun.abc.Hooks>>.
         level = 0
         if isinstance(exception, errors.ParserError):
-            if self._parser_error:
-                await utilities.await_if_async(self._parser_error, ctx, exception)
+            if self._parser_error_callbacks:
+                await asyncio.gather(
+                    *(c.resolve_with_command_context(ctx, ctx, exception) for c in self._parser_error_callbacks)
+                )
                 level = 100  # We don't want to re-raise a parser error if it was caught
 
-        elif self._error:
-            result = await utilities.await_if_async(self._error, ctx, exception)
-            if result is True:
-                level += 1
-            elif result is False:
-                level -= 1
+        elif self._error_callbacks:
+            results = await asyncio.gather(
+                *(c.resolve_with_command_context(ctx, ctx, exception) for c in self._error_callbacks)
+            )
+            level = results.count(True) - results.count(False)
 
         if hooks:
             level += sum(await asyncio.gather(*(hook.trigger_error(ctx, exception) for hook in hooks)))
@@ -464,8 +315,8 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
         hooks: typing.Optional[collections.Set[abc.Hooks[abc.ContextT_contra]]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.Hooks>>.
-        if self._post_execution:
-            await utilities.await_if_async(self._post_execution, ctx)
+        if self._post_execution_callbacks:
+            await asyncio.gather(*(c.resolve_with_command_context(ctx, ctx) for c in self._post_execution_callbacks))
 
         if hooks:
             await asyncio.gather(*(hook.trigger_post_execution(ctx) for hook in hooks))
@@ -478,8 +329,8 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
         hooks: typing.Optional[collections.Set[abc.Hooks[abc.ContextT_contra]]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.Hooks>>.
-        if self._pre_execution:
-            await utilities.await_if_async(self._pre_execution, ctx)
+        if self._pre_execution_callbacks:
+            await asyncio.gather(*(c.resolve_with_command_context(ctx, ctx) for c in self._pre_execution_callbacks))
 
         if hooks:
             await asyncio.gather(*(hook.trigger_pre_execution(ctx) for hook in hooks))
@@ -492,8 +343,8 @@ class Hooks(abc.Hooks[abc.ContextT_contra]):
         hooks: typing.Optional[collections.Set[abc.Hooks[abc.ContextT_contra]]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.Hooks>>.
-        if self._success:
-            await utilities.await_if_async(self._success, ctx)
+        if self._success_callbacks:
+            await asyncio.gather(*(c.resolve_with_command_context(ctx, ctx) for c in self._success_callbacks))
 
         if hooks:
             await asyncio.gather(*(hook.trigger_success(ctx) for hook in hooks))
