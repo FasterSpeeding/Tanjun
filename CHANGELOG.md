@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   externally.
 - Dependency injection support for hook callbacks.
 - `voice` property to Context and Client.
+- `delete_after` option to context response methods.
 
 ### Changed
 - `Hooks` can now contain multiple callbacks per hook type.
