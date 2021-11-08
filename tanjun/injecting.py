@@ -789,11 +789,11 @@ def inject(
     async def command_callback(
         ctx: tanjun.abc.Context,
         # Here we take advantage of scope based special casing which allows
-        # us to inject the `Context` type.
-        injected_type: tanjun.inject(type=tanjun.Context)
+        # us to inject the `Component` type.
+        injected_type: tanjun.abc.Component = tanjun.inject(type=tanjun.abc.Component)
         # Here we inject an out-of-scope callback which itself is taking
         # advantage of type injection.
-        callback_result: tanjun.inject(callback=injected_callback)
+        callback_result: ResultT = tanjun.inject(callback=injected_callback)
     ) -> None:
         raise NotImplementedError
     ```
