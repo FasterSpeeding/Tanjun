@@ -57,41 +57,33 @@ def context() -> tanjun.abc.Context:
 class TestInjectableCheck:
     @pytest.mark.asyncio()
     async def test(self):
-        mock_callback = mock.Mock()
         mock_context = mock.Mock()
+        mock_resolve_with_command_context = mock.AsyncMock()
 
-        with mock.patch.object(
-            tanjun.injecting, "CallbackDescriptor", return_value=mock.AsyncMock()
-        ) as callback_descriptor:
-            check = tanjun.checks.InjectableCheck(mock_callback)
+        class StubCheck(tanjun.checks.InjectableCheck):
+            resolve_with_command_context = mock_resolve_with_command_context
 
-            callback_descriptor.assert_called_once_with(mock_callback)
+        check = StubCheck(mock.Mock())
 
         result = await check(mock_context)
 
-        assert result is callback_descriptor.return_value.resolve_with_command_context.return_value
-        callback_descriptor.return_value.resolve_with_command_context.assert_awaited_once_with(
-            mock_context, mock_context
-        )
+        assert result is mock_resolve_with_command_context.return_value
+        mock_resolve_with_command_context.assert_awaited_once_with(mock_context, mock_context)
 
     @pytest.mark.asyncio()
     async def test_when_returns_false(self):
-        mock_callback = mock.Mock()
         mock_context = mock.Mock()
-        mock_descriptor = mock.AsyncMock()
-        mock_descriptor.resolve_with_command_context.return_value = False
+        mock_resolve_with_command_context = mock.AsyncMock(return_value=False)
 
-        with mock.patch.object(
-            tanjun.injecting, "CallbackDescriptor", return_value=mock_descriptor
-        ) as callback_descriptor:
-            check = tanjun.checks.InjectableCheck(mock_callback)
+        class StubCheck(tanjun.checks.InjectableCheck):
+            resolve_with_command_context = mock_resolve_with_command_context
 
-            callback_descriptor.assert_called_once_with(mock_callback)
+        check = StubCheck(mock.Mock())
 
         with pytest.raises(tanjun.errors.FailedCheck):
             await check(mock_context)
 
-        mock_descriptor.resolve_with_command_context.assert_awaited_once_with(mock_context, mock_context)
+        mock_resolve_with_command_context.assert_awaited_once_with(mock_context, mock_context)
 
 
 class TestOwnerCheck:

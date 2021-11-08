@@ -198,7 +198,7 @@ class BaseConverter(typing.Generic[_ValueT], abc.ABC):
             )
 
 
-class InjectableConverter(injecting.BaseInjectableCallback[_ValueT]):
+class InjectableConverter(injecting.CallbackDescriptor[_ValueT]):
     """A specialised injectable callback which accounts for special casing `BaseConverter`.
 
     Parameters
@@ -215,10 +215,10 @@ class InjectableConverter(injecting.BaseInjectableCallback[_ValueT]):
 
     async def __call__(self, ctx: tanjun_abc.Context, value: ArgumentT, /) -> _ValueT:
         if self._is_base_converter:
-            assert isinstance(self.descriptor.callback, BaseConverter)
-            return typing.cast(_ValueT, await self.descriptor.callback(value, ctx))
+            assert isinstance(self.callback, BaseConverter)
+            return typing.cast(_ValueT, await self.callback(value, ctx))
 
-        return await self.descriptor.resolve_with_command_context(ctx, value)
+        return await self.resolve_with_command_context(ctx, value)
 
 
 class ChannelConverter(BaseConverter[hikari.PartialChannel]):

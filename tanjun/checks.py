@@ -96,11 +96,11 @@ def foo_command(self, ctx: Context) -> None:
 """
 
 
-class InjectableCheck(injecting.BaseInjectableCallback[bool]):
+class InjectableCheck(injecting.CallbackDescriptor[bool]):
     __slots__ = ()
 
     async def __call__(self, ctx: tanjun_abc.Context, /) -> bool:
-        if result := await self.descriptor.resolve_with_command_context(ctx, ctx):
+        if result := await self.resolve_with_command_context(ctx, ctx):
             return result
 
         raise errors.FailedCheck

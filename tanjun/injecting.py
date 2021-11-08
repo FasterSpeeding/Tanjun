@@ -36,6 +36,7 @@ __all__: list[str] = [
     "AbstractInjectionContext",
     "BasicInjectionContext",
     "CallbackDescriptor",
+    "ClientBoundCallback",
     "Descriptor",
     "CallbackSig",
     "Undefined",
@@ -58,7 +59,6 @@ from . import abc as tanjun_abc
 from . import errors
 
 if typing.TYPE_CHECKING:
-    _BaseInjectableCallbackT = typing.TypeVar("_BaseInjectableCallbackT", bound="BaseInjectableCallback[typing.Any]")
     _CallbackDescriptorT = typing.TypeVar("_CallbackDescriptorT", bound="CallbackDescriptor[typing.Any]")
 
 _InjectorClientT = typing.TypeVar("_InjectorClientT", bound="InjectorClient")
@@ -218,29 +218,7 @@ class CallbackDescriptor(typing.Generic[_T]):
     def __init__(self, callback: CallbackSig[_T], /) -> None:
         self._callback = callback
         self._is_async: typing.Optional[bool] = None
-        try:
-            parameters = inspect.signature(callback).parameters.items()
-        except ValueError:  # If we can't inspect it then we have to assume this is a NO
-            # As a note, this fails on some "signature-less" builtin functions/types like str.
-            self._descriptors: dict[str, Descriptor[typing.Any]] = {}
-            return
-
-        descriptors: dict[str, Descriptor[typing.Any]] = {}
-        for name, parameter in parameters:
-            if parameter.default is parameter.empty or not isinstance(parameter.default, Injected):
-                continue
-
-            if parameter.kind is parameter.POSITIONAL_ONLY:
-                raise ValueError("Injected positional only arguments are not supported")
-
-            if parameter.default.callback is not None:
-                descriptors[name] = Descriptor(callback=parameter.default.callback)
-
-            else:
-                assert parameter.default.type is not None
-                descriptors[name] = Descriptor(type=parameter.default.type)
-
-        self._descriptors = descriptors
+        self._descriptors = self._parse_descriptors(callback)
 
     # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
     def __eq__(self, other: typing.Any) -> bool:
@@ -258,12 +236,42 @@ class CallbackDescriptor(typing.Generic[_T]):
     def needs_injector(self) -> bool:
         return bool(self._descriptors)
 
+    @staticmethod
+    def _parse_descriptors(callback: CallbackSig[_T], /) -> dict[str, Descriptor[typing.Any]]:
+        try:
+            parameters = inspect.signature(callback).parameters.items()
+        except ValueError:  # If we can't inspect it then we have to assume this is a NO
+            # As a note, this fails on some "signature-less" builtin functions/types like str.
+            return {}
+
+        descriptors: dict[str, Descriptor[typing.Any]] = {}
+        for name, parameter in parameters:
+            if parameter.default is parameter.empty or not isinstance(parameter.default, Injected):
+                continue
+
+            if parameter.kind is parameter.POSITIONAL_ONLY:
+                raise ValueError("Injected positional only arguments are not supported")
+
+            if parameter.default.callback is not None:
+                descriptors[name] = Descriptor(callback=parameter.default.callback)
+
+            else:
+                assert parameter.default.type is not None
+                descriptors[name] = Descriptor(type=parameter.default.type)
+
+        return descriptors
+
     def copy(self: _CallbackDescriptorT, *, _new: bool = True) -> _CallbackDescriptorT:
         if not _new:
             self._callback = copy.copy(self._callback)
             return self
 
         return copy.copy(self).copy(_new=False)
+
+    def overwrite_callback(self, callback: CallbackSig[_T], /) -> None:
+        self._callback = callback
+        self._is_async = None
+        self._descriptors = self._parse_descriptors(callback)
 
     async def resolve_with_command_context(
         self, ctx: tanjun_abc.Context, /, *args: typing.Any, **kwargs: typing.Any
@@ -313,6 +321,18 @@ class CallbackDescriptor(typing.Generic[_T]):
 
         ctx.cache_result(self._callback, result)
         return typing.cast(_T, result)
+
+
+class ClientBoundCallback(CallbackDescriptor[_T]):
+    __slots__ = ("_client",)
+
+    def __init__(self, injector_client: InjectorClient, callback: CallbackSig[_T], /) -> None:
+        super().__init__(callback)
+        self._client = injector_client
+
+    async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
+        ctx = BasicInjectionContext(self._client)
+        await self.resolve(ctx, *args, **kwargs)
 
 
 class TypeDescriptor(typing.Generic[_T]):
@@ -553,43 +573,3 @@ class InjectorClient:
     def remove_callback_override(self: _InjectorClientT, callback: CallbackSig[_T], /) -> _InjectorClientT:
         del self._callback_overrides[callback]
         return self
-
-
-class BaseInjectableCallback(typing.Generic[_T]):
-    __slots__ = ("_descriptor",)
-
-    def __init__(self, callback: CallbackSig[_T], /) -> None:
-        self._descriptor: CallbackDescriptor[_T] = CallbackDescriptor(callback)
-
-    # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
-    def __eq__(self, other: typing.Any) -> bool:
-        return bool(self.callback == other)
-
-    # This is delegated to the callback in-order to delegate set/list behaviour for this class to the callback.
-    def __hash__(self) -> int:
-        return hash(self.callback)
-
-    def __repr__(self) -> str:
-        return f"{type(self).__name__}({self.callback!r})"
-
-    @property
-    def callback(self) -> CallbackSig[_T]:
-        return self._descriptor.callback
-
-    @property
-    def descriptor(self) -> CallbackDescriptor[_T]:
-        return self._descriptor
-
-    @property
-    def needs_injector(self) -> bool:
-        return self._descriptor.needs_injector
-
-    def copy(self: _BaseInjectableCallbackT, *, _new: bool = True) -> _BaseInjectableCallbackT:
-        if not _new:
-            self._descriptor = self._descriptor.copy()
-            return self
-
-        return copy.copy(self).copy(_new=False)
-
-    def overwrite_callback(self, callback: CallbackSig[_T], /) -> None:
-        self._descriptor = CallbackDescriptor(callback)
