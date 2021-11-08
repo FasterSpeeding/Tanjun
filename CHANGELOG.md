@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - `injecting.BaseInjectableCallback` and other private extensions of this as these cases could
-  easily be achieved with `ClientBoundCallback` and `CallbackDescriptor`.
+  easily be achieved with `SelfInjectingCallback` and `CallbackDescriptor`.
 
 
 ## [2.1.3a1] - 2021-11-02
