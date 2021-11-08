@@ -504,7 +504,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
         self._is_alive = False
         self._is_closing = False
-        self._listeners: dict[type[hikari.Event], list[injecting.ClientBoundCallback[None]]] = {}
+        self._listeners: dict[type[hikari.Event], list[injecting.SelfInjectingCallback[None]]] = {}
         self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._modules: dict[str, types.ModuleType] = {}
@@ -1498,7 +1498,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self: _ClientT, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /
     ) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
-        injected = injecting.ClientBoundCallback[None](self, callback)
+        injected = injecting.SelfInjectingCallback[None](self, callback)
         try:
             if callback in self._listeners[event_type]:
                 return self
@@ -1517,7 +1517,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self: _ClientT, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /
     ) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
-        index = self._listeners[event_type].index(typing.cast("injecting.ClientBoundCallback[None]", callback))
+        index = self._listeners[event_type].index(typing.cast("injecting.SelfInjectingCallback[None]", callback))
         registered_callback = self._listeners[event_type].pop(index)
 
         if not self._listeners[event_type]:

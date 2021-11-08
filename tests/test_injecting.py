@@ -392,13 +392,13 @@ class TestCallbackDescriptor:
         resolve_without_injector.assert_awaited_once_with(123, b=333, c=222)
 
 
-class TestClientBoundCallback:
+class TestSelfInjectingCallback:
     @pytest.mark.asyncio()
     async def test___call__(self):
         mock_client = mock.Mock()
         mock_resolve = mock.AsyncMock()
 
-        callback = stub_class(tanjun.injecting.ClientBoundCallback[typing.Any], resolve=mock_resolve)(
+        callback = stub_class(tanjun.injecting.SelfInjectingCallback[typing.Any], resolve=mock_resolve)(
             mock_client, mock.Mock()
         )
 
@@ -408,6 +408,17 @@ class TestClientBoundCallback:
         assert result is mock_resolve.return_value
         base_injection_context.assert_called_once_with(mock_client)
         mock_resolve.assert_awaited_once_with(base_injection_context.return_value, 123, b=333, c=222)
+
+
+def test_as_self_injecting():
+    mock_callback = mock.Mock()
+    mock_client = mock.Mock()
+
+    with mock.patch.object(tanjun.injecting, "SelfInjectingCallback") as self_injecting_callback:
+        result = tanjun.injecting.as_self_injecting(mock_client)(mock_callback)
+
+    assert result is self_injecting_callback.return_value
+    self_injecting_callback.assert_called_once_with(mock_client, mock_callback)
 
 
 class TestTypeDescriptor:

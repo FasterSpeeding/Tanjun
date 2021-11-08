@@ -33,9 +33,10 @@ from __future__ import annotations
 
 __all__: list[str] = [
     "AbstractInjectionContext",
+    "as_self_injecting",
     "BasicInjectionContext",
     "CallbackDescriptor",
-    "ClientBoundCallback",
+    "SelfInjectingCallback",
     "Descriptor",
     "CallbackSig",
     "Undefined",
@@ -102,10 +103,14 @@ class CallbackDescriptor(typing.Generic[_T]):
     async def resolve_without_injector(self, *args: typing.Any, **kwargs: typing.Any) -> _T: ...
     async def resolve(self, ctx: AbstractInjectionContext, /, *args: typing.Any, **kwargs: typing.Any) -> _T: ...
 
-class ClientBoundCallback(CallbackDescriptor[_T]):
+class SelfInjectingCallback(CallbackDescriptor[_T]):
     __slots__: typing.Union[str, collections.Iterable[str]]
     def __init__(self, injector_client: InjectorClient, callback: CallbackSig[_T], /) -> None: ...
     async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None: ...
+
+def as_self_injecting(
+    injector_client: InjectorClient, /
+) -> collections.Callable[[CallbackSig[_T]], SelfInjectingCallback[_T]]: ...
 
 class TypeDescriptor(typing.Generic[_T]):
     __slots__: typing.Union[str, collections.Iterable[str]]

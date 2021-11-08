@@ -34,9 +34,10 @@ from __future__ import annotations
 
 __all__: list[str] = [
     "AbstractInjectionContext",
+    "as_self_injecting",
     "BasicInjectionContext",
     "CallbackDescriptor",
-    "ClientBoundCallback",
+    "SelfInjectingCallback",
     "Descriptor",
     "CallbackSig",
     "Undefined",
@@ -428,8 +429,8 @@ class CallbackDescriptor(typing.Generic[_T]):
         return typing.cast(_T, result)
 
 
-class ClientBoundCallback(CallbackDescriptor[_T]):
-    """Class used to make a self-injecting callback.
+class SelfInjectingCallback(CallbackDescriptor[_T]):
+    """Class used to make a callback self-injecting by linking it to a client.
 
     Examples
     --------
@@ -440,7 +441,7 @@ class ClientBoundCallback(CallbackDescriptor[_T]):
     ...
 
     client = tanjun.Client.from_gateway_bot(bot)
-    injecting_callback = tanjun.ClientBoundCallback(callback, client)
+    injecting_callback = tanjun.SelfInjectingCallback(callback, client)
     await injecting_callback()
     ```
 
@@ -465,7 +466,7 @@ class ClientBoundCallback(CallbackDescriptor[_T]):
         self._client = injector_client
 
     async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> _T:
-        """Call the callback with the given arguments.
+        """Call this callback with the provided arguments + injected arguments.
 
         Parameters
         ----------
@@ -482,37 +483,39 @@ class ClientBoundCallback(CallbackDescriptor[_T]):
         ctx = BasicInjectionContext(self._client)
         return await self.resolve(ctx, *args, **kwargs)
 
-    def decorate(
-        self, injector_client: InjectorClient, /
-    ) -> collections.Callable[[CallbackSig[_T]], ClientBoundCallback[_T]]:
-        """Make a callback self-inecting through a decorator call.
 
+def as_self_injecting(
+    injector_client: InjectorClient, /
+) -> collections.Callable[[CallbackSig[_T]], SelfInjectingCallback[_T]]:
+    """Make a callback self-inecting by linking it to a client through a decorator call.
 
-        Examples
-        --------
-        ```py
-        def make_callback(client: tanjun.Client) -> typing.Callable[[], int]:
-            @tanjun.ClientBoundCallback.decorate(client)
-            async def get_int_value(redis: redis.Client) -> int:
-                return int(await redis.get('key'))
+    Examples
+    --------
+    ```py
+    def make_callback(client: tanjun.Client) -> typing.Callable[[], int]:
+        @tanjun.as_self_injected(client)
+        async def get_int_value(
+            redis: redis.Client = tanjun.inject(type=redis.Client)
+        ) -> int:
+            return int(await redis.get('key'))
 
-            return get_int_value
-        ```
+        return get_int_value
+    ```
 
-        Parameters
-        ----------
-        injector_client : InjectorClient
-            The injection client to use to resolve dependencies.
+    Parameters
+    ----------
+    injector_client : InjectorClient
+        The injection client to use to resolve dependencies.
 
-        Returns
-        -------
-        collections.abc.Callable[[CallbackSig[_T]], ClientBoundCallback[_T]]
-        """
+    Returns
+    -------
+    collections.abc.Callable[[CallbackSig[_T]], SelfInjectingCallback[_T]]
+    """
 
-        def decorator(callback: CallbackSig[_T], /) -> ClientBoundCallback[_T]:
-            return ClientBoundCallback(injector_client, callback)
+    def decorator(callback: CallbackSig[_T], /) -> SelfInjectingCallback[_T]:
+        return SelfInjectingCallback(injector_client, callback)
 
-        return decorator
+    return decorator
 
 
 class TypeDescriptor(typing.Generic[_T]):

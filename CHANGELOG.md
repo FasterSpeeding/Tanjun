@@ -6,7 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- `injecting.ClientBoundCallback` to make it easier to use Tanjun's dependency injection externally.
+- `injecting.SelfInjectingCallback` and `tanjun.as_self_injecting` to let make a callback self-injecting 
+  by linking it to a client instance. This should make it easier to use Tanjun's dependency injection
+  externally.
 
 ### Removed
 - `injecting.BaseInjectableCallback` and other private extensions of this as these cases could
