@@ -147,20 +147,18 @@ class TestInjectableConverter:
 
     @pytest.mark.asyncio()
     async def test___call__(self):
-        mock_callback = mock.Mock()
+        mock_resolve_with_command_context = mock.AsyncMock()
         mock_ctx = mock.Mock()
 
-        with mock.patch.object(
-            tanjun.injecting, "CallbackDescriptor", return_value=mock.AsyncMock()
-        ) as CallbackDescriptor:
-            converter = tanjun.conversion.InjectableConverter(mock_callback)
+        class StubConverter(tanjun.conversion.InjectableConverter[typing.Any]):
+            resolve_with_command_context = mock_resolve_with_command_context
 
-        CallbackDescriptor.assert_called_once_with(mock_callback)
+        converter = StubConverter(mock.Mock())
 
         result = await converter(mock_ctx, "123")
 
-        assert result is CallbackDescriptor.return_value.resolve_with_command_context.return_value
-        CallbackDescriptor.return_value.resolve_with_command_context.assert_awaited_once_with(mock_ctx, "123")
+        assert result is mock_resolve_with_command_context.return_value
+        mock_resolve_with_command_context.assert_awaited_once_with(mock_ctx, "123")
 
 
 class TestChannelConverter:

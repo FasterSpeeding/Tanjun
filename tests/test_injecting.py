@@ -106,7 +106,13 @@ class TestBasicInjectionContext:
         assert ctx.get_type_special_case(mock_type) is tanjun.injecting.UNDEFINED
 
 
+# TODO: integration tests since we don't cover __init__'s normal behaviour since its kinda hard to
+# unit test
 class TestCallbackDescriptor:
+    @pytest.mark.skip(reason="TODO: not sure how to test this")
+    def test___init__(self):
+        ...
+
     def test___init___handles_signature_less_builtin_function(self):
         with pytest.raises(ValueError, match=".*"):
             inspect.signature(str)
@@ -160,6 +166,33 @@ class TestCallbackDescriptor:
 
         assert result.callback == mock_callback
         assert result.callback is not mock_callback
+
+    @pytest.mark.skip(reason="TODO: not sure how to test this")
+    def test_overwrite_callback(self):
+        ...
+
+    def test_overwrite_callback_handles_signature_less_builtin_function(self):
+        def foo(self: int = tanjun.injecting.injected(type=int)) -> str:
+            ...
+
+        with pytest.raises(ValueError, match=".*"):
+            inspect.signature(str)
+
+        descriptor = tanjun.injecting.CallbackDescriptor(foo)
+
+        descriptor.overwrite_callback(str)
+
+        assert descriptor.callback is str
+        assert descriptor.needs_injector is False
+
+    def test_overwrite_callback_errors_on_injected_positional_only_injected_argument(self):
+        def foo(self: int = tanjun.injecting.injected(type=int), /) -> int:
+            ...
+
+        descriptor = tanjun.injecting.CallbackDescriptor(int)
+
+        with pytest.raises(ValueError, match="Injected positional only arguments are not supported"):
+            descriptor.overwrite_callback(foo)
 
     @pytest.mark.asyncio()
     async def test_resolve_with_command_context_when_needs_injector_and_is_injection_context(self):
@@ -359,6 +392,35 @@ class TestCallbackDescriptor:
         resolve_without_injector.assert_awaited_once_with(123, b=333, c=222)
 
 
+class TestSelfInjectingCallback:
+    @pytest.mark.asyncio()
+    async def test___call__(self):
+        mock_client = mock.Mock()
+        mock_resolve = mock.AsyncMock()
+
+        callback = stub_class(tanjun.injecting.SelfInjectingCallback[typing.Any], resolve=mock_resolve)(
+            mock_client, mock.Mock()
+        )
+
+        with mock.patch.object(tanjun.injecting, "BasicInjectionContext") as base_injection_context:
+            result = await callback(123, b=333, c=222)
+
+        assert result is mock_resolve.return_value
+        base_injection_context.assert_called_once_with(mock_client)
+        mock_resolve.assert_awaited_once_with(base_injection_context.return_value, 123, b=333, c=222)
+
+
+def test_as_self_injecting():
+    mock_callback = mock.Mock()
+    mock_client = mock.Mock()
+
+    with mock.patch.object(tanjun.injecting, "SelfInjectingCallback") as self_injecting_callback:
+        result = tanjun.injecting.as_self_injecting(mock_client)(mock_callback)
+
+    assert result is self_injecting_callback.return_value
+    self_injecting_callback.assert_called_once_with(mock_client, mock_callback)
+
+
 class TestTypeDescriptor:
     def test_type_property(self):
         mock_type: type[typing.Any] = mock.Mock()
@@ -479,32 +541,16 @@ class TestDescriptor:
         type_descriptor.return_value.resolve_with_command_context.assert_called_once_with(mock_ctx)
 
     @pytest.mark.asyncio()
-    async def test_resolve_with_command_context_for_type_bound_descriptor_when_args_passed(self):
-        mock_type: type[typing.Any] = mock.Mock()
-        descriptor = tanjun.injecting.Descriptor(type=mock_type)
-
-        with pytest.raises(ValueError, match=r"\*args and \*\*kwargs cannot be passed for a type descriptor"):
-            await descriptor.resolve_with_command_context(mock.Mock(), 1)
-
-    @pytest.mark.asyncio()
-    async def test_resolve_with_command_context_for_type_bound_descriptor_when_kwargs_passed(self):
-        mock_type: type[typing.Any] = mock.Mock()
-        descriptor = tanjun.injecting.Descriptor(type=mock_type)
-
-        with pytest.raises(ValueError, match=r"\*args and \*\*kwargs cannot be passed for a type descriptor"):
-            await descriptor.resolve_with_command_context(mock.Mock(), a=1)
-
-    @pytest.mark.asyncio()
     async def test_resolve_without_injector_for_callback_bound_descriptor(self):
         with mock.patch.object(
             tanjun.injecting, "CallbackDescriptor", return_value=mock.AsyncMock()
         ) as callback_descriptor:
             descriptor = tanjun.injecting.Descriptor(callback=mock.Mock())
 
-        result = await descriptor.resolve_without_injector(4, 2, 6, a=75, b=123)
+        result = await descriptor.resolve_without_injector()
 
         assert result is callback_descriptor.return_value.resolve_without_injector.return_value
-        callback_descriptor.return_value.resolve_without_injector.assert_awaited_once_with(4, 2, 6, a=75, b=123)
+        callback_descriptor.return_value.resolve_without_injector.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
     async def test_resolve_without_injector_for_type_bound_descriptor(self):
@@ -597,67 +643,3 @@ class TestInjectorClient:
 
         assert result is client
         assert client.get_callback_override(mock_callback) is None
-
-
-class TestBaseInjectableCallback:
-    def test___eq___with_same_function(self):
-        mock_callback = mock.Mock()
-
-        assert (tanjun.injecting.BaseInjectableCallback(mock_callback) == mock_callback) is True
-
-    def test___eq___with_different_function(self):
-        assert (tanjun.injecting.BaseInjectableCallback(mock.Mock()) == mock.Mock()) is False
-
-    def test___hash___(self):
-        mock_callback = mock.Mock()
-        assert hash(tanjun.injecting.BaseInjectableCallback(mock_callback)) == hash(mock_callback)
-
-    def test___repr___(self):
-        mock_callback = mock.Mock()
-        wrapped = tanjun.injecting.BaseInjectableCallback(mock_callback)
-
-        assert repr(wrapped) == f"BaseInjectableCallback({mock_callback!r})"
-
-    def test_callback_property(self):
-        mock_callback = mock.Mock()
-        assert tanjun.injecting.BaseInjectableCallback(mock_callback).callback is mock_callback
-
-    def test_descriptor_property(self):
-        mock_callback = mock.Mock()
-
-        with mock.patch.object(tanjun.injecting, "CallbackDescriptor") as callback_descriptor:
-            assert tanjun.injecting.BaseInjectableCallback(mock_callback).descriptor is callback_descriptor.return_value
-
-            callback_descriptor.assert_called_once_with(mock_callback)
-
-    def test_needs_injector_property(self):
-        mock_callback = mock.Mock()
-
-        with mock.patch.object(tanjun.injecting, "CallbackDescriptor") as callback_descriptor:
-            result = tanjun.injecting.BaseInjectableCallback(mock_callback)
-
-            assert result.needs_injector is callback_descriptor.return_value.needs_injector
-            callback_descriptor.assert_called_once_with(mock_callback)
-
-    def test_copy(self):
-        mock_callback = mock.Mock()
-        with mock.patch.object(tanjun.injecting, "CallbackDescriptor") as callback_descriptor:
-            injectable = tanjun.injecting.BaseInjectableCallback(mock_callback)
-
-            callback_descriptor.assert_called_once_with(mock_callback)
-
-        new_injectable = injectable.copy()
-
-        assert new_injectable.callback is callback_descriptor.return_value.copy.return_value.callback
-        callback_descriptor.return_value.copy.assert_called_once_with()
-
-    def test_overwrite_callback(self):
-        mock_callback = mock.Mock()
-        injectable = tanjun.injecting.BaseInjectableCallback(mock.Mock())
-
-        with mock.patch.object(tanjun.injecting, "CallbackDescriptor") as callback_descriptor:
-            injectable.overwrite_callback(mock_callback)
-
-            callback_descriptor.assert_called_once_with(mock_callback)
-
-        assert injectable.needs_injector is callback_descriptor.return_value.needs_injector

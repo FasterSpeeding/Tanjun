@@ -308,32 +308,6 @@ async def _wrap_client_callback(
         _LOGGER.error("Client callback raised exception", exc_info=exc)
 
 
-class _InjectablePrefixGetter(injecting.BaseInjectableCallback[collections.Iterable[str]]):
-    __slots__ = ()
-
-    def __init__(self, callback: PrefixGetterSig, /) -> None:
-        super().__init__(callback)
-
-    async def __call__(self, ctx: tanjun_abc.Context, /) -> collections.Iterable[str]:
-        return await self.descriptor.resolve_with_command_context(ctx, ctx)
-
-    @property
-    def callback(self) -> PrefixGetterSig:
-        return typing.cast(PrefixGetterSig, self.descriptor.callback)
-
-
-class _InjectableListener(injecting.BaseInjectableCallback[None]):
-    __slots__ = ("_injector_client",)
-
-    def __init__(self, injector_client: injecting.InjectorClient, callback: tanjun_abc.ListenerCallbackSig, /) -> None:
-        super().__init__(callback)
-        self._injector_client = injector_client
-
-    async def __call__(self, event: hikari.Event) -> None:
-        ctx = injecting.BasicInjectionContext(self._injector_client)
-        await self.descriptor.resolve(ctx, event)
-
-
 async def on_parser_error(ctx: tanjun_abc.Context, error: errors.ParserError) -> None:
     """Handle message parser errors.
 
@@ -530,12 +504,12 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._slash_hooks: typing.Optional[tanjun_abc.SlashHooks] = None
         self._is_alive = False
         self._is_closing = False
-        self._listeners: dict[type[hikari.Event], list[_InjectableListener]] = {}
+        self._listeners: dict[type[hikari.Event], list[injecting.SelfInjectingCallback[None]]] = {}
         self._message_hooks: typing.Optional[tanjun_abc.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._modules: dict[str, types.ModuleType] = {}
         self._path_modules: dict[pathlib.Path, types.ModuleType] = {}
-        self._prefix_getter: typing.Optional[_InjectablePrefixGetter] = None
+        self._prefix_getter: typing.Optional[injecting.CallbackDescriptor[collections.Iterable[str]]] = None
         self._prefixes: list[str] = []
         self._rest = rest
         self._server = server
@@ -856,7 +830,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         For more information on this callback's signature see `PrefixGetter`.
         """
-        return self._prefix_getter.callback if self._prefix_getter else None
+        return typing.cast(PrefixGetterSig, self._prefix_getter.callback) if self._prefix_getter else None
 
     @property
     def prefixes(self) -> collections.Collection[str]:
@@ -1524,7 +1498,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self: _ClientT, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /
     ) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
-        injected = _InjectableListener(self, callback)
+        injected = injecting.SelfInjectingCallback[None](self, callback)
         try:
             if callback in self._listeners[event_type]:
                 return self
@@ -1543,7 +1517,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self: _ClientT, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /
     ) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
-        index = self._listeners[event_type].index(typing.cast("_InjectableListener", callback))
+        index = self._listeners[event_type].index(typing.cast("injecting.SelfInjectingCallback[None]", callback))
         registered_callback = self._listeners[event_type].pop(index)
 
         if not self._listeners[event_type]:
@@ -1631,7 +1605,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         Self
             The client instance to enable chained calls.
         """
-        self._prefix_getter = _InjectablePrefixGetter(getter) if getter else None
+        self._prefix_getter = injecting.CallbackDescriptor(getter) if getter else None
         return self
 
     def with_prefix_getter(self, getter: PrefixGetterSigT, /) -> PrefixGetterSigT:
@@ -1696,7 +1670,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     async def _check_prefix(self, ctx: tanjun_abc.MessageContext, /) -> typing.Optional[str]:
         if self._prefix_getter:
-            for prefix in await self._prefix_getter(ctx):
+            for prefix in await self._prefix_getter.resolve_with_command_context(ctx, ctx):
                 if ctx.content.startswith(prefix):
                     return prefix
 
