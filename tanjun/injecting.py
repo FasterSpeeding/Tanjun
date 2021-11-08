@@ -215,7 +215,7 @@ class BasicInjectionContext(AbstractInjectionContext):
 class CallbackDescriptor(typing.Generic[_T]):
     """Descriptor of a callback taking advantage of dependency injection.
 
-    This holes metadata and logic necessary for callback injection.
+    This holds metadata and logic necessary for callback injection.
 
     Parameters
     ----------
@@ -280,7 +280,7 @@ class CallbackDescriptor(typing.Generic[_T]):
         return descriptors
 
     def copy(self: _CallbackDescriptorT, *, _new: bool = True) -> _CallbackDescriptorT:
-        """Create a copy of this descriptor.`
+        """Create a copy of this descriptor.
 
         Returns
         -------
@@ -431,6 +431,19 @@ class CallbackDescriptor(typing.Generic[_T]):
 class ClientBoundCallback(CallbackDescriptor[_T]):
     """Class used to make a self-injecting callback.
 
+    Examples
+    --------
+    ```py
+    async def callback(database: Database = tanjun.inject(type=Database)) -> None:
+        await database.do_something()
+
+    ...
+
+    client = tanjun.Client.from_gateway_bot(bot)
+    injecting_callback = tanjun.ClientBoundCallback(callback, client)
+    await injecting_callback()
+    ```
+
     Parameters
     ----------
     injector : InjectorClient
@@ -468,6 +481,38 @@ class ClientBoundCallback(CallbackDescriptor[_T]):
         """
         ctx = BasicInjectionContext(self._client)
         return await self.resolve(ctx, *args, **kwargs)
+
+    def decorate(
+        self, injector_client: InjectorClient, /
+    ) -> collections.Callable[[CallbackSig[_T]], ClientBoundCallback[_T]]:
+        """Make a callback self-inecting through a decorator call.
+
+
+        Examples
+        --------
+        ```py
+        def make_callback(client: tanjun.Client) -> typing.Callable[[], int]:
+            @tanjun.ClientBoundCallback.decorate(client)
+            async def get_int_value(redis: redis.Client) -> int:
+                return int(await redis.get('key'))
+
+            return get_int_value
+        ```
+
+        Parameters
+        ----------
+        injector_client : InjectorClient
+            The injection client to use to resolve dependencies.
+
+        Returns
+        -------
+        collections.abc.Callable[[CallbackSig[_T]], ClientBoundCallback[_T]]
+        """
+
+        def decorator(callback: CallbackSig[_T], /) -> ClientBoundCallback[_T]:
+            return ClientBoundCallback(injector_client, callback)
+
+        return decorator
 
 
 class TypeDescriptor(typing.Generic[_T]):
@@ -605,19 +650,13 @@ class Descriptor(typing.Generic[_T]):
         """The type being injected if this is an injected type."""
         return self._type.type if self._type else None
 
-    async def resolve_with_command_context(
-        self, ctx: tanjun_abc.Context, /, *args: typing.Any, **kwargs: typing.Any
-    ) -> _T:
+    async def resolve_with_command_context(self, ctx: tanjun_abc.Context, /) -> _T:
         """Try to resolve the type or callback with the given command context.
 
         Parameters
         ----------
         ctx : tanjun.abc.Context
             The context to resolve the type or callback with.
-        *args : typing.Any
-            The positional arguments to pass to the callback if this is an injected callback.
-        **kwargs : typing.Any
-            The keyword arguments to pass to the callback if this is an injected callback.
 
         Returns
         -------
@@ -626,8 +665,6 @@ class Descriptor(typing.Generic[_T]):
 
         Raises
         ------
-        ValueError
-            If any *args or **kwargs are passed when this is a callback descriptor.
         RuntimeError
             If the command context does not have a dependency injection client when
             dependency injection is required.
@@ -636,23 +673,13 @@ class Descriptor(typing.Generic[_T]):
         """
 
         if self._type:
-            if args or kwargs:
-                raise ValueError("*args and **kwargs cannot be passed for a type descriptor")
-
             return self._type.resolve_with_command_context(ctx)
 
         assert self._callback
-        return await self._callback.resolve_with_command_context(ctx, *args, **kwargs)
+        return await self._callback.resolve_with_command_context(ctx)
 
-    async def resolve_without_injector(self, *args: typing.Any, **kwargs: typing.Any) -> _T:
+    async def resolve_without_injector(self) -> _T:
         """Try to resolve this type or callback without dependency injection.
-
-        Parameters
-        ----------
-        *args : typing.Any
-            The positional arguments to pass to the callback if this is an injected callback.
-        **kwargs : typing.Any
-            The keyword arguments to pass to the callback if this is an injected callback.
 
         Returns
         -------
@@ -661,8 +688,6 @@ class Descriptor(typing.Generic[_T]):
 
         Raises
         ------
-        ValueError
-            If any *args or **kwargs are passed when this is a callback descriptor.
         RuntimeError
             If dependency injection is required.
         tanjun.errors.MissingDependencyError
@@ -671,19 +696,15 @@ class Descriptor(typing.Generic[_T]):
         if not self._callback:
             raise RuntimeError("Type injector cannot be resolved without an injector present")
 
-        return await self._callback.resolve_without_injector(*args, **kwargs)
+        return await self._callback.resolve_without_injector()
 
-    async def resolve(self, ctx: AbstractInjectionContext, /, *args: typing.Any, **kwargs: typing.Any) -> _T:
+    async def resolve(self, ctx: AbstractInjectionContext, /) -> _T:
         """Resolve the type or callback with the given dependency injection context.
 
         Parameters
         ----------
         ctx : tanjun.abc.AbstractInjectionContext
             The context to resolve the type or callback with.
-        *args : typing.Any
-            The positional arguments to pass to the callback if this is an injected callback.
-        **kwargs : typing.Any
-            The keyword arguments to pass to the callback if this is an injected callback.
 
         Returns
         -------
@@ -692,19 +713,14 @@ class Descriptor(typing.Generic[_T]):
 
         Raises
         ------
-        ValueError
-            If any *args or **kwargs are passed when this is a callback descriptor.
         tanjun.errors.MissingDependencyError
             If the client does not have an implementation of the type dependency.
         """
         if self._type:
-            if args or kwargs:
-                raise ValueError("**args and **kwargs cannot be passed for a type descriptor")
-
             return self._type.resolve(ctx)
 
         assert self._callback
-        return await self._callback.resolve(ctx, *args, **kwargs)
+        return await self._callback.resolve(ctx)
 
 
 _TypeT = type[_T]

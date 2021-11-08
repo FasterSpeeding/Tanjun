@@ -530,32 +530,16 @@ class TestDescriptor:
         type_descriptor.return_value.resolve_with_command_context.assert_called_once_with(mock_ctx)
 
     @pytest.mark.asyncio()
-    async def test_resolve_with_command_context_for_type_bound_descriptor_when_args_passed(self):
-        mock_type: type[typing.Any] = mock.Mock()
-        descriptor = tanjun.injecting.Descriptor(type=mock_type)
-
-        with pytest.raises(ValueError, match=r"\*args and \*\*kwargs cannot be passed for a type descriptor"):
-            await descriptor.resolve_with_command_context(mock.Mock(), 1)
-
-    @pytest.mark.asyncio()
-    async def test_resolve_with_command_context_for_type_bound_descriptor_when_kwargs_passed(self):
-        mock_type: type[typing.Any] = mock.Mock()
-        descriptor = tanjun.injecting.Descriptor(type=mock_type)
-
-        with pytest.raises(ValueError, match=r"\*args and \*\*kwargs cannot be passed for a type descriptor"):
-            await descriptor.resolve_with_command_context(mock.Mock(), a=1)
-
-    @pytest.mark.asyncio()
     async def test_resolve_without_injector_for_callback_bound_descriptor(self):
         with mock.patch.object(
             tanjun.injecting, "CallbackDescriptor", return_value=mock.AsyncMock()
         ) as callback_descriptor:
             descriptor = tanjun.injecting.Descriptor(callback=mock.Mock())
 
-        result = await descriptor.resolve_without_injector(4, 2, 6, a=75, b=123)
+        result = await descriptor.resolve_without_injector()
 
         assert result is callback_descriptor.return_value.resolve_without_injector.return_value
-        callback_descriptor.return_value.resolve_without_injector.assert_awaited_once_with(4, 2, 6, a=75, b=123)
+        callback_descriptor.return_value.resolve_without_injector.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
     async def test_resolve_without_injector_for_type_bound_descriptor(self):
