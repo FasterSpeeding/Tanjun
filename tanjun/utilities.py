@@ -34,7 +34,6 @@ from __future__ import annotations
 
 __all__: list[str] = [
     "async_chain",
-    "await_if_async",
     "gather_checks",
     "ALL_PERMISSIONS",
     "CastedView",
@@ -71,36 +70,6 @@ async def async_chain(
     for async_iterable in iterable:
         async for value in async_iterable:
             yield value
-
-
-async def await_if_async(
-    callback: collections.Callable[..., abc.MaybeAwaitableT[_ValueT]], /, *args: typing.Any
-) -> _ValueT:
-    """Resole any awaitable returned by a callback call.
-
-    Parameters
-    ----------
-    callback : collections.abc.Callable[..., tanjun.abc.MaybeAwaitableT[_ValueT]]
-        The async or non-async callback to call.
-
-    Other Parameters
-    ----------------
-    *args : typing.Any
-        A variable amount of positional arguments to pass through when calling
-        `callback`.
-
-    Returns
-    -------
-    _ValueT
-        The resolved result of the passed callback.
-    """
-    result = callback(*args)
-
-    if isinstance(result, collections.Awaitable):  # TODO: this is probably slow
-        # For some reason MYPY thinks this returns typing.Any
-        return typing.cast(_ValueT, await result)
-
-    return result
 
 
 async def gather_checks(ctx: abc.Context, checks_: collections.Iterable[checks.InjectableCheck], /) -> bool:

@@ -133,11 +133,11 @@ async def pre_execution(ctx: tanjun.abc.Context) -> None:
 
 hooks = (
     tanjun.AnyHooks()
-    .set_on_parser_error(on_parser_error)
-    .set_on_error(on_error)
-    .set_on_success(on_success)
-    .set_pre_execution(pre_execution)
-    .set_post_execution(post_execution)
+    .add_on_parser_error(on_parser_error)
+    .add_on_error(on_error)
+    .add_on_success(on_success)
+    .add_pre_execution(pre_execution)
+    .add_post_execution(post_execution)
 )
 
 

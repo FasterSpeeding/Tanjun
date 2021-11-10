@@ -42,25 +42,6 @@ import tanjun
 
 
 class TestHooks:
-    def test___repr__(self):
-        on_error = mock.Mock()
-        parser_error = mock.Mock()
-        pre_execution = mock.Mock()
-        post_execution = mock.Mock()
-        success = mock.Mock()
-        result = (
-            tanjun.AnyHooks()
-            .set_on_error(on_error)
-            .set_on_parser_error(parser_error)
-            .set_pre_execution(pre_execution)
-            .set_post_execution(post_execution)
-            .set_on_success(success)
-        )
-
-        assert repr(result) == (
-            f"Hooks <{on_error!r}, {parser_error!r}, " f"{pre_execution!r}, {post_execution!r}, {success!r}>"
-        )
-
     def test_add_to_command(self):
         hooks = tanjun.AnyHooks()
         mock_command = mock.Mock()
@@ -78,85 +59,170 @@ class TestHooks:
         assert result == hooks
         assert result is not hooks
 
+    def test_add_on_error(self):
+        mock_other_callback = mock.Mock()
+        hooks = tanjun.AnyHooks().set_on_error(mock_other_callback)
+        mock_on_error = mock.Mock()
+
+        assert hooks.add_on_error(mock_on_error) is hooks
+
+        assert hooks._error_callbacks == [mock_other_callback, mock_on_error]
+
     def test_set_on_error(self):
-        hooks = tanjun.AnyHooks()
+        hooks = tanjun.AnyHooks().set_on_error(mock.Mock())
         mock_on_error = mock.Mock()
 
         assert hooks.set_on_error(mock_on_error) is hooks
 
-        assert hooks._error is mock_on_error
+        assert hooks._error_callbacks == [mock_on_error]
+
+    def test_set_on_error_when_none(self):
+        hooks = tanjun.AnyHooks().set_on_error(mock.Mock())
+
+        assert hooks.set_on_error(None) is hooks
+
+        assert hooks._error_callbacks == []
 
     def test_with_on_error(self):
-        hooks = tanjun.AnyHooks()
+        mock_other_callback = mock.Mock()
+        hooks = tanjun.AnyHooks().set_on_error(mock_other_callback)
         mock_on_error = mock.Mock()
 
         assert hooks.with_on_error(mock_on_error) is mock_on_error
 
-        assert hooks._error is mock_on_error
+        assert hooks._error_callbacks == [mock_other_callback, mock_on_error]
+
+    def test_add_on_parser_error(self):
+        mock_other_callback = mock.Mock()
+        hooks = tanjun.AnyHooks().add_on_parser_error(mock_other_callback)
+        mock_on_parser_error = mock.Mock()
+
+        assert hooks.add_on_parser_error(mock_on_parser_error) is hooks
+
+        assert hooks._parser_error_callbacks == [mock_other_callback, mock_on_parser_error]
 
     def test_set_on_parser_error(self):
-        hooks = tanjun.AnyHooks()
+        hooks = tanjun.AnyHooks().add_on_parser_error(mock.Mock())
         mock_on_parser_error = mock.Mock()
 
         assert hooks.set_on_parser_error(mock_on_parser_error) is hooks
 
-        assert hooks._parser_error is mock_on_parser_error
+        assert hooks._parser_error_callbacks == [mock_on_parser_error]
+
+    def test_set_on_parser_error_when_none(self):
+        hooks = tanjun.AnyHooks().add_on_parser_error(mock.Mock())
+
+        assert hooks.set_on_parser_error(None) is hooks
+
+        assert hooks._parser_error_callbacks == []
 
     def test_with_on_parser_error(self):
-        hooks = tanjun.AnyHooks()
+        mock_other_callback = mock.Mock()
+        hooks = tanjun.AnyHooks().add_on_parser_error(mock_other_callback)
         mock_on_parser_error = mock.Mock()
 
         assert hooks.with_on_parser_error(mock_on_parser_error) is mock_on_parser_error
 
-        assert hooks._parser_error is mock_on_parser_error
+        assert hooks._parser_error_callbacks == [mock_other_callback, mock_on_parser_error]
+
+    def test_add_post_execution(self):
+        mock_other_callback = mock.Mock()
+        hooks = tanjun.AnyHooks().set_post_execution(mock_other_callback)
+        mock_post_execution = mock.Mock()
+
+        assert hooks.add_post_execution(mock_post_execution) is hooks
+
+        assert hooks._post_execution_callbacks == [mock_other_callback, mock_post_execution]
 
     def test_set_post_execution(self):
-        hooks = tanjun.AnyHooks()
+        hooks = tanjun.AnyHooks().set_post_execution(mock.Mock())
         mock_post_execution = mock.Mock()
 
         assert hooks.set_post_execution(mock_post_execution) is hooks
 
-        assert hooks._post_execution is mock_post_execution
+        assert hooks._post_execution_callbacks == [mock_post_execution]
+
+    def test_set_post_execution_when_none(self):
+        hooks = tanjun.AnyHooks().set_post_execution(mock.Mock())
+
+        assert hooks.set_post_execution(None) is hooks
+
+        assert hooks._post_execution_callbacks == []
 
     def test_with_post_execution(self):
-        hooks = tanjun.AnyHooks()
+        mock_other_callback = mock.Mock()
+        hooks = tanjun.AnyHooks().add_post_execution(mock_other_callback)
         mock_post_execution = mock.Mock()
 
         assert hooks.with_post_execution(mock_post_execution) is mock_post_execution
 
-        assert hooks._post_execution is mock_post_execution
+        assert hooks._post_execution_callbacks == [mock_other_callback, mock_post_execution]
+
+    def test_add_pre_execution(self):
+        mock_other_callback = mock.Mock()
+        hooks = tanjun.AnyHooks().add_pre_execution(mock_other_callback)
+        mock_pre_execution = mock.Mock()
+
+        assert hooks.add_pre_execution(mock_pre_execution) is hooks
+
+        assert hooks._pre_execution_callbacks == [mock_other_callback, mock_pre_execution]
 
     def test_set_pre_execution(self):
-        hooks = tanjun.AnyHooks()
+        hooks = tanjun.AnyHooks().add_pre_execution(mock.Mock())
         mock_pre_execution = mock.Mock()
 
         assert hooks.set_pre_execution(mock_pre_execution) is hooks
 
-        assert hooks._pre_execution is mock_pre_execution
+        assert hooks._pre_execution_callbacks == [mock_pre_execution]
+
+    def test_set_pre_execution_when_none(self):
+        hooks = tanjun.AnyHooks().add_pre_execution(mock.Mock())
+
+        assert hooks.set_pre_execution(None) is hooks
+
+        assert hooks._pre_execution_callbacks == []
 
     def test_with_pre_execution(self):
-        hooks = tanjun.AnyHooks()
+        mock_other_callback = mock.Mock()
+        hooks = tanjun.AnyHooks().add_pre_execution(mock_other_callback)
         mock_pre_execution = mock.Mock()
 
         assert hooks.with_pre_execution(mock_pre_execution) is mock_pre_execution
 
-        assert hooks._pre_execution is mock_pre_execution
+        assert hooks._pre_execution_callbacks == [mock_other_callback, mock_pre_execution]
+
+    def test_add_on_success(self):
+        mock_other_callback = mock.Mock()
+        hooks = tanjun.AnyHooks().add_on_success(mock_other_callback)
+        mock_on_success = mock.Mock()
+
+        assert hooks.add_on_success(mock_on_success) is hooks
+
+        assert hooks._success_callbacks == [mock_other_callback, mock_on_success]
 
     def test_set_on_success(self):
-        hooks = tanjun.AnyHooks()
+        hooks = tanjun.AnyHooks().add_on_success(mock.Mock())
         mock_on_success = mock.Mock()
 
         assert hooks.set_on_success(mock_on_success) is hooks
 
-        assert hooks._success is mock_on_success
+        assert hooks._success_callbacks == [mock_on_success]
+
+    def test_set_on_success_when_none(self):
+        hooks = tanjun.AnyHooks().add_on_success(mock.Mock())
+
+        assert hooks.set_on_success(None) is hooks
+
+        assert hooks._success_callbacks == []
 
     def test_with_on_success(self):
-        hooks = tanjun.AnyHooks()
+        mock_other_callback = mock.Mock()
+        hooks = tanjun.AnyHooks().add_on_success(mock_other_callback)
         mock_on_success = mock.Mock()
 
         assert hooks.with_on_success(mock_on_success) is mock_on_success
 
-        assert hooks._success is mock_on_success
+        assert hooks._success_callbacks == [mock_other_callback, mock_on_success]
 
     @pytest.mark.asyncio()
     async def test_trigger_error_for_parser_error_with_handlers(self):
