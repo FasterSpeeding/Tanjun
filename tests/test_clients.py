@@ -189,11 +189,32 @@ class TestClient:
 
         assert client.server is mock_server
 
+    def test_server_property_when_none(self) -> None:
+        client = tanjun.Client(mock.Mock)
+
+        assert client.server is None
+
     def test_shards_property(self) -> None:
         mock_shards = mock.Mock()
         client = tanjun.Client(mock.Mock(), shards=mock_shards)
 
         assert client.shards is mock_shards
+
+    def test_shards_property_when_none(self) -> None:
+        client = tanjun.Client(mock.Mock())
+
+        assert client.shards is None
+
+    def test_voice_property(self) -> None:
+        mock_voice = mock.Mock()
+        client = tanjun.Client(mock.Mock(), voice=mock_voice)
+
+        assert client.voice is mock_voice
+
+    def test_voice_property_when_none(self) -> None:
+        client = tanjun.Client(mock.Mock())
+
+        assert client.voice is None
 
     @pytest.mark.asyncio()
     async def test_declare_slash_command_when_command_id_provided(self):

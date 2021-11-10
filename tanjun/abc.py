@@ -262,6 +262,10 @@ class Context(abc.ABC):
         """Object of the Hikari shard manager this context's client was initialised with."""
 
     @property
+    def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
+        """Object of the Hikari voice component this context's client was initialised with."""
+
+    @property
     @abc.abstractmethod
     def triggering_name(self) -> str:
         """Command name this execution was triggered with."""
@@ -2790,6 +2794,10 @@ class Client(abc.ABC):
     @abc.abstractmethod
     def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
         """Object of the Hikari shard manager this client was initialised with."""
+
+    @property
+    def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
+        """Object of the Hikari voice component this client was initialised with."""
 
     @abc.abstractmethod
     def add_component(self: _T, component: Component, /) -> _T:

@@ -74,9 +74,11 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
         self._client = client
         self._component = component
         self._final = False
-        self._set_type_special_case(tanjun_abc.Context, self)
-        self._set_type_special_case(BaseContext, self)
-        self._set_type_special_case(type(self), self)
+        (
+            self._set_type_special_case(tanjun_abc.Context, self)
+            ._set_type_special_case(BaseContext, self)
+            ._set_type_special_case(type(self), self)
+        )
 
     @property
     def cache(self) -> typing.Optional[hikari.api.Cache]:
@@ -106,6 +108,10 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
     def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
         return self._client.shards
 
+    @property
+    def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
+        return self._client.voice
+
     def _assert_not_final(self) -> None:
         if self._final:
             raise TypeError("Cannot modify a finalised context")
@@ -117,8 +123,9 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
     def set_component(self: _BaseContextT, component: typing.Optional[tanjun_abc.Component], /) -> _BaseContextT:
         self._assert_not_final()
         if component:
-            self._set_type_special_case(tanjun_abc.Component, component)
-            self._set_type_special_case(type(component), component)
+            self._set_type_special_case(tanjun_abc.Component, component)._set_type_special_case(
+                type(component), component
+            )
 
         elif (component_case := self.get_type_special_case(tanjun_abc.Component)) is not injecting.UNDEFINED:
             assert not isinstance(component_case, injecting.Undefined)
@@ -192,9 +199,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         self._message = message
         self._triggering_name = triggering_name
         self._triggering_prefix = triggering_prefix
-        self._set_type_special_case(tanjun_abc.MessageContext, self)
-        self._set_type_special_case(MessageContext, self)
-        self._set_type_special_case(type(self), self)
+        self._set_type_special_case(tanjun_abc.MessageContext, self)._set_type_special_case(MessageContext, self)
 
     def __repr__(self) -> str:
         return f"MessageContext <{self._message!r}, {self._command!r}>"
@@ -264,9 +269,11 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         self._assert_not_final()
         self._command = command
         if command:
-            self._set_type_special_case(tanjun_abc.ExecutableCommand, command)
-            self._set_type_special_case(tanjun_abc.MessageCommand, command)
-            self._set_type_special_case(type(command), command)
+            (
+                self._set_type_special_case(tanjun_abc.ExecutableCommand, command)
+                ._set_type_special_case(tanjun_abc.MessageCommand, command)
+                ._set_type_special_case(type(command), command)
+            )
 
         elif (command_case := self.get_type_special_case(tanjun_abc.ExecutableCommand)) is not injecting.UNDEFINED:
             assert not isinstance(command_case, injecting.Undefined)
@@ -611,9 +618,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         self._on_not_found = on_not_found
         self._response_future: typing.Optional[asyncio.Future[ResponseTypeT]] = None
         self._response_lock = asyncio.Lock()
-        self._set_type_special_case(tanjun_abc.SlashContext, self)
-        self._set_type_special_case(SlashContext, self)
-        self._set_type_special_case(type(self), self)
+        self._set_type_special_case(tanjun_abc.SlashContext, self)._set_type_special_case(SlashContext, self)
 
         options = interaction.options
         while options and (first_option := options[0]).type in _COMMAND_OPTION_TYPES:
@@ -721,11 +726,12 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         self._assert_not_final()
         self._command = command
         if command:
-            self._set_type_special_case(tanjun_abc.ExecutableCommand, command)
-            self._set_type_special_case(tanjun_abc.BaseSlashCommand, command)
-            self._set_type_special_case(tanjun_abc.SlashCommand, command)
-            self._set_type_special_case(type(command), command)
-
+            (
+                self._set_type_special_case(tanjun_abc.ExecutableCommand, command)
+                ._set_type_special_case(tanjun_abc.BaseSlashCommand, command)
+                ._set_type_special_case(tanjun_abc.SlashCommand, command)
+                ._set_type_special_case(type(command), command)
+            )
         elif (command_case := self.get_type_special_case(tanjun_abc.ExecutableCommand)) is not injecting.UNDEFINED:
             assert not isinstance(command_case, injecting.Undefined)
             self._remove_type_special_case(tanjun_abc.ExecutableCommand)
