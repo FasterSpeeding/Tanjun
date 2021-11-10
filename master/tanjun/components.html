@@ -1949,7 +1949,7 @@ client propagate and decide the ephemeral default behaviour.</p>
             <span class="def">def</span>
             <span class="name">add_check</span><span class="signature">(
     self: ~_ComponentT,
-    check: collections.abc.Callable,
+    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
     /
 ) -&gt; ~_ComponentT</span>:
     </div>
@@ -1975,7 +1975,7 @@ client propagate and decide the ephemeral default behaviour.</p>
             <span class="def">def</span>
             <span class="name">remove_check</span><span class="signature">(
     self: ~_ComponentT,
-    check: collections.abc.Callable,
+    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
     /
 ) -&gt; ~_ComponentT</span>:
     </div>
@@ -2020,7 +2020,7 @@ client propagate and decide the ephemeral default behaviour.</p>
             <span class="name">add_client_callback</span><span class="signature">(
     self: ~_ComponentT,
     event_name: str,
-    callback: collections.abc.Callable,
+    callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
     /
 ) -&gt; ~_ComponentT</span>:
     </div>
@@ -2077,7 +2077,12 @@ client propagate and decide the ephemeral default behaviour.</p>
 
         
             <span class="def">def</span>
-            <span class="name">remove_client_callback</span><span class="signature">(self, event_name: str, callback: collections.abc.Callable, /) -&gt; None</span>:
+            <span class="name">remove_client_callback</span><span class="signature">(
+    self,
+    event_name: str,
+    callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
+    /
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -2555,8 +2560,8 @@ Whether to copy the command before adding it.</li>
             <span class="def">def</span>
             <span class="name">add_listener</span><span class="signature">(
     self: ~_ComponentT,
-    event: type,
-    listener: collections.abc.Callable,
+    event: type[hikari.events.base_events.Event],
+    listener: collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, None]],
     /
 ) -&gt; ~_ComponentT</span>:
     </div>
@@ -2610,8 +2615,8 @@ The listener to add.</li>
             <span class="def">def</span>
             <span class="name">remove_listener</span><span class="signature">(
     self: ~_ComponentT,
-    event: type,
-    listener: collections.abc.Callable,
+    event: type[hikari.events.base_events.Event],
+    listener: collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, None]],
     /
 ) -&gt; ~_ComponentT</span>:
     </div>
@@ -2666,7 +2671,7 @@ The listener to remove.</li>
             <span class="def">def</span>
             <span class="name">with_listener</span><span class="signature">(
     self,
-    event_type: type
+    event_type: type[hikari.events.base_events.Event]
 ) -&gt; collections.abc.Callable[[~ListenerCallbackSigT], ~ListenerCallbackSigT]</span>:
     </div>
 
@@ -3099,8 +3104,33 @@ execute with the current context.</li>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">_no_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Protocols cannot be instantiated&#39;</span><span class="p">)</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">_no_init_or_replace_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="bp">cls</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_is_protocol</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Protocols cannot be instantiated&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Already using a custom `__init__`. No need to calculate correct</span>
+    <span class="c1"># `__init__` to call. This can lead to RecursionError. See bpo-45121.</span>
+    <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_no_init_or_replace_init</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Initially, `__init__` of a protocol subclass is set to `_no_init_or_replace_init`.</span>
+    <span class="c1"># The first instantiation of the subclass will call `_no_init_or_replace_init` which</span>
+    <span class="c1"># searches for a proper new `__init__` in the MRO. The new `__init__`</span>
+    <span class="c1"># replaces the subclass&#39; old `__init__` (ie `_no_init_or_replace_init`). Subsequent</span>
+    <span class="c1"># instantiation of the protocol subclass will thus use the new</span>
+    <span class="c1"># `__init__` and no longer call `_no_init_or_replace_init`.</span>
+    <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__mro__</span><span class="p">:</span>
+        <span class="n">init</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;__init__&#39;</span><span class="p">,</span> <span class="n">_no_init_or_replace_init</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">init</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_no_init_or_replace_init</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span> <span class="o">=</span> <span class="n">init</span>
+            <span class="k">break</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># should not happen</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__init__</span>
+
+    <span class="bp">cls</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 
         </details>

@@ -4789,7 +4789,7 @@ The hooks that are triggered when the command is executed.</li>
             <span class="def">def</span>
             <span class="name">add_check</span><span class="signature">(
     self: ~_PartialCommandT,
-    check: collections.abc.Callable,
+    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
     /
 ) -&gt; ~_PartialCommandT</span>:
     </div>
@@ -4831,7 +4831,7 @@ The check to add.</li>
             <span class="def">def</span>
             <span class="name">remove_check</span><span class="signature">(
     self: ~_PartialCommandT,
-    check: collections.abc.Callable,
+    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
     /
 ) -&gt; ~_PartialCommandT</span>:
     </div>

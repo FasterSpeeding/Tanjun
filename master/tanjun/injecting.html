@@ -308,9 +308,10 @@
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="n">_BasicInjectionContextT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_BasicInjectionContextT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;BasicInjectionContext&quot;</span><span class="p">)</span>
     <span class="n">_CallbackDescriptorT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_CallbackDescriptorT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;CallbackDescriptor[typing.Any]&quot;</span><span class="p">)</span>
+    <span class="n">_InjectorClientT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_InjectorClientT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;InjectorClient&quot;</span><span class="p">)</span>
 
-<span class="n">_InjectorClientT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_InjectorClientT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;InjectorClient&quot;</span><span class="p">)</span>
 <span class="n">_T</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_T&quot;</span><span class="p">)</span>
 <span class="n">CallbackSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="n">_T</span><span class="p">]]</span>
 <span class="sd">&quot;&quot;&quot;Type-hint of a injector callback.</span>
@@ -454,11 +455,13 @@
 
         <span class="k">return</span> <span class="n">UNDEFINED</span>
 
-    <span class="k">def</span> <span class="nf">_set_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_set_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BasicInjectionContextT</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BasicInjectionContextT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">_remove_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_remove_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BasicInjectionContextT</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BasicInjectionContextT</span><span class="p">:</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span>
 
 
 <span class="k">class</span> <span class="nc">CallbackDescriptor</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">_T</span><span class="p">]):</span>
@@ -1305,7 +1308,12 @@
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">cache_result</span><span class="signature">(self, callback: collections.abc.Callable, value: ~_T, /) -&gt; None</span>:
+            <span class="name">cache_result</span><span class="signature">(
+    self,
+    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
+    value: ~_T,
+    /
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -1347,7 +1355,7 @@ The value to cache.</li>
             <span class="def">def</span>
             <span class="name">get_cached_result</span><span class="signature">(
     self,
-    callback: collections.abc.Callable,
+    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
     /
 ) -&gt; Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>:
     </div>
@@ -1398,7 +1406,7 @@ has not been cached within this context.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">get_type_special_case</span><span class="signature">(self, type_: type, /) -&gt; Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>:
+            <span class="name">get_type_special_case</span><span class="signature">(self, type_: type[~_T], /) -&gt; Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>:
     </div>
 
                 <details>
@@ -1581,11 +1589,13 @@ The injection client to use to resolve dependencies.</li>
 
         <span class="k">return</span> <span class="n">UNDEFINED</span>
 
-    <span class="k">def</span> <span class="nf">_set_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_set_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BasicInjectionContextT</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_T</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BasicInjectionContextT</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">_remove_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_remove_type_special_case</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BasicInjectionContextT</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BasicInjectionContextT</span><span class="p">:</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_special_case_types</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
@@ -1641,7 +1651,12 @@ The injection client this context is bound to.</li>
 
         
             <span class="def">def</span>
-            <span class="name">cache_result</span><span class="signature">(self, callback: collections.abc.Callable, value: ~_T, /) -&gt; None</span>:
+            <span class="name">cache_result</span><span class="signature">(
+    self,
+    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
+    value: ~_T,
+    /
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -1677,7 +1692,7 @@ The value to cache.</li>
             <span class="def">def</span>
             <span class="name">get_cached_result</span><span class="signature">(
     self,
-    callback: collections.abc.Callable,
+    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
     /
 ) -&gt; Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>:
     </div>
@@ -1715,7 +1730,7 @@ has not been cached within this context.</li>
 
         
             <span class="def">def</span>
-            <span class="name">get_type_special_case</span><span class="signature">(self, type_: type, /) -&gt; Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>:
+            <span class="name">get_type_special_case</span><span class="signature">(self, type_: type[~_T], /) -&gt; Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>:
     </div>
 
                 <details>
@@ -2006,7 +2021,10 @@ positionally.</li>
                                         <div class="attr function"><a class="headerlink" href="#CallbackDescriptor.__init__">#&nbsp;&nbsp</a>
 
         
-            <span class="name">CallbackDescriptor</span><span class="signature">(callback: collections.abc.Callable, /)</span>
+            <span class="name">CallbackDescriptor</span><span class="signature">(
+    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
+    /
+)</span>
     </div>
 
                 <details>
@@ -2091,7 +2109,11 @@ positionally.</li>
 
         
             <span class="def">def</span>
-            <span class="name">overwrite_callback</span><span class="signature">(self, callback: collections.abc.Callable, /) -&gt; None</span>:
+            <span class="name">overwrite_callback</span><span class="signature">(
+    self,
+    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
+    /
+) -&gt; None</span>:
     </div>
 
                 <details>
@@ -3341,7 +3363,7 @@ level.</p></li>
             <span class="def">def</span>
             <span class="name">set_type_dependency</span><span class="signature">(
     self: ~_InjectorClientT,
-    type_: type,
+    type_: type[~_T],
     value: ~_T,
     /
 ) -&gt; ~_InjectorClientT</span>:
@@ -3414,7 +3436,7 @@ The type of the dependency to resolve.</li>
 
         
             <span class="def">def</span>
-            <span class="name">get_type_dependency</span><span class="signature">(self, type_: type, /) -&gt; Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>:
+            <span class="name">get_type_dependency</span><span class="signature">(self, type_: type[~_T], /) -&gt; Union[<a href="#Undefined">tanjun.injecting.Undefined</a>, ~_T]</span>:
     </div>
 
                 <details>
@@ -3460,7 +3482,11 @@ The associated type.</li>
 
         
             <span class="def">def</span>
-            <span class="name">remove_type_dependency</span><span class="signature">(self: ~_InjectorClientT, type_: type, /) -&gt; ~_InjectorClientT</span>:
+            <span class="name">remove_type_dependency</span><span class="signature">(
+    self: ~_InjectorClientT,
+    type_: type[typing.Any],
+    /
+) -&gt; ~_InjectorClientT</span>:
     </div>
 
                 <details>
@@ -3520,8 +3546,8 @@ The associated type.</li>
             <span class="def">def</span>
             <span class="name">set_callback_override</span><span class="signature">(
     self: ~_InjectorClientT,
-    callback: collections.abc.Callable,
-    override: collections.abc.Callable,
+    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
+    override: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
     /
 ) -&gt; ~_InjectorClientT</span>:
     </div>
@@ -3584,7 +3610,7 @@ The callback to use instead.</li>
             <span class="def">def</span>
             <span class="name">get_callback_override</span><span class="signature">(
     self,
-    callback: collections.abc.Callable,
+    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
     /
 ) -&gt; Optional[<a href="#CallbackDescriptor">tanjun.injecting.CallbackDescriptor</a>[~_T]]</span>:
     </div>
@@ -3634,7 +3660,7 @@ The injected callback to get the override for.</li>
             <span class="def">def</span>
             <span class="name">remove_callback_override</span><span class="signature">(
     self: ~_InjectorClientT,
-    callback: collections.abc.Callable,
+    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
     /
 ) -&gt; ~_InjectorClientT</span>:
     </div>
@@ -3796,7 +3822,7 @@ positionally.</li>
         
             <span class="name">SelfInjectingCallback</span><span class="signature">(
     injector_client: <a href="#InjectorClient">tanjun.injecting.InjectorClient</a>,
-    callback: collections.abc.Callable,
+    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
     /
 )</span>
     </div>
@@ -3936,7 +3962,7 @@ The type to resolve.</li>
                                         <div class="attr function"><a class="headerlink" href="#TypeDescriptor.__init__">#&nbsp;&nbsp</a>
 
         
-            <span class="name">TypeDescriptor</span><span class="signature">(type_: type, /)</span>
+            <span class="name">TypeDescriptor</span><span class="signature">(type_: type[~_T], /)</span>
     </div>
 
                 <details>

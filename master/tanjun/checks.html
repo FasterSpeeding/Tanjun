@@ -1340,7 +1340,7 @@ while decorating a function.</p>
         
             <span class="def">def</span>
             <span class="name">with_check</span><span class="signature">(
-    check: collections.abc.Callable,
+    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
     /
 ) -&gt; collections.abc.Callable[[~CommandT], ~CommandT]</span>:
     </div>

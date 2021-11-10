@@ -91,6 +91,9 @@
                                 <a class="variable" href="#Context.shards">shards</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Context.voice">voice</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Context.triggering_name">triggering_name</a>
                         </li>
                         <li>
@@ -595,6 +598,9 @@
                                 <a class="variable" href="#Client.shards">shards</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Client.voice">voice</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Client.add_component">add_component</a>
                         </li>
                         <li>
@@ -928,6 +934,10 @@
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">shards</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Object of the Hikari shard manager this context&#39;s client was initialised with.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">voice</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">VoiceComponent</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Object of the Hikari voice component this context&#39;s client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -3459,6 +3469,10 @@
     <span class="k">def</span> <span class="nf">shards</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Object of the Hikari shard manager this client was initialised with.&quot;&quot;&quot;</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">voice</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">VoiceComponent</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Object of the Hikari voice component this client was initialised with.&quot;&quot;&quot;</span>
+
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">add_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a component to this client.</span>
@@ -3924,6 +3938,10 @@
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">shards</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Object of the Hikari shard manager this context&#39;s client was initialised with.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">voice</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">VoiceComponent</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Object of the Hikari voice component this context&#39;s client was initialised with.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -4716,6 +4734,17 @@ This will either refer to a message or integration's creation date.</p>
     </div>
 
             <div class="docstring"><p>Object of the Hikari shard manager this context's client was initialised with.</p>
+</div>
+
+
+                            </div>
+                            <div id="Context.voice" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Context.voice">#&nbsp;&nbsp</a>
+
+        <span class="name">voice</span><span class="annotation">: Optional[hikari.api.voice.VoiceComponent]</span>
+    </div>
+
+            <div class="docstring"><p>Object of the Hikari voice component this context's client was initialised with.</p>
 </div>
 
 
@@ -6363,7 +6392,11 @@ nature, and will trigger this exception if they occur.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">add_on_error</span><span class="signature">(self: ~_T, callback: collections.abc.Callable, /) -&gt; ~_T</span>:
+            <span class="name">add_on_error</span><span class="signature">(
+    self: ~_T,
+    callback: collections.abc.Callable[..., typing.Union[bool, NoneType, collections.abc.Awaitable[typing.Optional[bool]]]],
+    /
+) -&gt; ~_T</span>:
     </div>
 
                 <details>
@@ -6534,7 +6567,11 @@ other error hooks make by majority rule.</p></li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">add_on_parser_error</span><span class="signature">(self: ~_T, callback: collections.abc.Callable, /) -&gt; ~_T</span>:
+            <span class="name">add_on_parser_error</span><span class="signature">(
+    self: ~_T,
+    callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
+    /
+) -&gt; ~_T</span>:
     </div>
 
                 <details>
@@ -6669,7 +6706,11 @@ return <code>None</code> and may be either synchronous or asynchronous.</p></li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">add_post_execution</span><span class="signature">(self: ~_T, callback: collections.abc.Callable, /) -&gt; ~_T</span>:
+            <span class="name">add_post_execution</span><span class="signature">(
+    self: ~_T,
+    callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
+    /
+) -&gt; ~_T</span>:
     </div>
 
                 <details>
@@ -6798,7 +6839,11 @@ synchronous or asynchronous.</p></li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">add_pre_execution</span><span class="signature">(self: ~_T, callback: collections.abc.Callable, /) -&gt; ~_T</span>:
+            <span class="name">add_pre_execution</span><span class="signature">(
+    self: ~_T,
+    callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
+    /
+) -&gt; ~_T</span>:
     </div>
 
                 <details>
@@ -6927,7 +6972,11 @@ synchronous or asynchronous.</p></li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">add_on_success</span><span class="signature">(self: ~_T, callback: collections.abc.Callable, /) -&gt; ~_T</span>:
+            <span class="name">add_on_success</span><span class="signature">(
+    self: ~_T,
+    callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
+    /
+) -&gt; ~_T</span>:
     </div>
 
                 <details>
@@ -7558,7 +7607,11 @@ The hooks that are triggered when the command is executed.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">add_check</span><span class="signature">(self: ~_T, check: collections.abc.Callable, /) -&gt; ~_T</span>:
+            <span class="name">add_check</span><span class="signature">(
+    self: ~_T,
+    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
+    /
+) -&gt; ~_T</span>:
     </div>
 
                 <details>
@@ -7605,7 +7658,11 @@ The check to add.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">remove_check</span><span class="signature">(self: ~_T, check: collections.abc.Callable, /) -&gt; ~_T</span>:
+            <span class="name">remove_check</span><span class="signature">(
+    self: ~_T,
+    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
+    /
+) -&gt; ~_T</span>:
     </div>
 
                 <details>
@@ -9016,6 +9073,7 @@ nature, and will trigger this exception if they occur.</li>
                 <dd id="MessageContext.server" class="variable"><a href="#Context.server">server</a></dd>
                 <dd id="MessageContext.rest" class="variable"><a href="#Context.rest">rest</a></dd>
                 <dd id="MessageContext.shards" class="variable"><a href="#Context.shards">shards</a></dd>
+                <dd id="MessageContext.voice" class="variable"><a href="#Context.voice">voice</a></dd>
                 <dd id="MessageContext.set_component" class="function"><a href="#Context.set_component">set_component</a></dd>
                 <dd id="MessageContext.fetch_channel" class="function"><a href="#Context.fetch_channel">fetch_channel</a></dd>
                 <dd id="MessageContext.fetch_guild" class="function"><a href="#Context.fetch_guild">fetch_guild</a></dd>
@@ -10850,6 +10908,7 @@ nature, and will trigger this exception if they occur.</li>
                 <dd id="SlashContext.server" class="variable"><a href="#Context.server">server</a></dd>
                 <dd id="SlashContext.rest" class="variable"><a href="#Context.rest">rest</a></dd>
                 <dd id="SlashContext.shards" class="variable"><a href="#Context.shards">shards</a></dd>
+                <dd id="SlashContext.voice" class="variable"><a href="#Context.voice">voice</a></dd>
                 <dd id="SlashContext.triggering_name" class="variable"><a href="#Context.triggering_name">triggering_name</a></dd>
                 <dd id="SlashContext.set_component" class="function"><a href="#Context.set_component">set_component</a></dd>
                 <dd id="SlashContext.fetch_channel" class="function"><a href="#Context.fetch_channel">fetch_channel</a></dd>
@@ -12288,7 +12347,12 @@ Whether to copy the command before adding it.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">add_listener</span><span class="signature">(self: ~_T, event: type, listener: collections.abc.Callable, /) -&gt; ~_T</span>:
+            <span class="name">add_listener</span><span class="signature">(
+    self: ~_T,
+    event: type[hikari.events.base_events.Event],
+    listener: collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, None]],
+    /
+) -&gt; ~_T</span>:
     </div>
 
                 <details>
@@ -12339,7 +12403,12 @@ The listener to add.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">remove_listener</span><span class="signature">(self: ~_T, event: type, listener: collections.abc.Callable, /) -&gt; ~_T</span>:
+            <span class="name">remove_listener</span><span class="signature">(
+    self: ~_T,
+    event: type[hikari.events.base_events.Event],
+    listener: collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, None]],
+    /
+) -&gt; ~_T</span>:
     </div>
 
                 <details>
@@ -12403,7 +12472,7 @@ The listener to remove.</li>
             <span class="def">def</span>
             <span class="name">with_listener</span><span class="signature">(
     self,
-    event_type: type
+    event_type: type[hikari.events.base_events.Event]
 ) -&gt; collections.abc.Callable[[~ListenerCallbackSigT], ~ListenerCallbackSigT]</span>:
     </div>
 
@@ -12898,6 +12967,10 @@ execute with the current context.</li>
     <span class="k">def</span> <span class="nf">shards</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari_traits</span><span class="o">.</span><span class="n">ShardAware</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Object of the Hikari shard manager this client was initialised with.&quot;&quot;&quot;</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">voice</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">VoiceComponent</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Object of the Hikari voice component this client was initialised with.&quot;&quot;&quot;</span>
+
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">add_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a component to this client.</span>
@@ -13358,6 +13431,17 @@ to this command client.</p>
 
 
                             </div>
+                            <div id="Client.voice" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Client.voice">#&nbsp;&nbsp</a>
+
+        <span class="name">voice</span><span class="annotation">: Optional[hikari.api.voice.VoiceComponent]</span>
+    </div>
+
+            <div class="docstring"><p>Object of the Hikari voice component this client was initialised with.</p>
+</div>
+
+
+                            </div>
                             <div id="Client.add_component" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Client.add_component">#&nbsp;&nbsp</a>
 
@@ -13573,7 +13657,12 @@ Name of the component to remove from this client.</li>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">add_client_callback</span><span class="signature">(self: ~_T, name: str, callback: collections.abc.Callable, /) -&gt; ~_T</span>:
+            <span class="name">add_client_callback</span><span class="signature">(
+    self: ~_T,
+    name: str,
+    callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
+    /
+) -&gt; ~_T</span>:
     </div>
 
                 <details>
@@ -13691,7 +13780,12 @@ The name to get the callbacks registered for.</p>
                 <div class="decorator">@abc.abstractmethod</div>
 
             <span class="def">def</span>
-            <span class="name">remove_client_callback</span><span class="signature">(self: ~_T, name: str, callback: collections.abc.Callable, /) -&gt; ~_T</span>:
+            <span class="name">remove_client_callback</span><span class="signature">(
+    self: ~_T,
+    name: str,
+    callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
+    /
+) -&gt; ~_T</span>:
     </div>
 
                 <details>
@@ -13844,8 +13938,8 @@ detail around the <code>name</code> being subscribed to.</p>
             <span class="def">def</span>
             <span class="name">add_listener</span><span class="signature">(
     self: ~_T,
-    event_type: type,
-    callback: collections.abc.Callable,
+    event_type: type[hikari.events.base_events.Event],
+    callback: collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, None]],
     /
 ) -&gt; ~_T</span>:
     </div>
@@ -13908,8 +14002,8 @@ regardless of client implementation detail.</p></li>
             <span class="def">def</span>
             <span class="name">remove_listener</span><span class="signature">(
     self: ~_T,
-    event_type: type,
-    callback: collections.abc.Callable,
+    event_type: type[hikari.events.base_events.Event],
+    callback: collections.abc.Callable[..., collections.abc.Coroutine[typing.Any, typing.Any, None]],
     /
 ) -&gt; ~_T</span>:
     </div>
@@ -13978,7 +14072,7 @@ The callback to remove.</li>
             <span class="def">def</span>
             <span class="name">with_listener</span><span class="signature">(
     self,
-    event_type: type,
+    event_type: type[hikari.events.base_events.Event],
     /
 ) -&gt; collections.abc.Callable[[~ListenerCallbackSigT], ~ListenerCallbackSigT]</span>:
     </div>

@@ -536,7 +536,7 @@
         
             <span class="def">async def</span>
             <span class="name">async_chain</span><span class="signature">(
-    iterable: collections.abc.Iterable
+    iterable: collections.abc.Iterable[collections.abc.AsyncIterable[~_ValueT]]
 ) -&gt; collections.abc.AsyncIterator[~_ValueT]</span>:
     </div>
 
@@ -565,7 +565,7 @@
             <span class="def">async def</span>
             <span class="name">gather_checks</span><span class="signature">(
     ctx: <a href="abc.html#Context">tanjun.abc.Context</a>,
-    checks_: collections.abc.Iterable,
+    checks_: collections.abc.Iterable[<a href="checks.html#InjectableCheck">tanjun.checks.InjectableCheck</a>],
     /
 ) -&gt; bool</span>:
     </div>
@@ -695,7 +695,10 @@ For example, a generic mapping type might be defined as::</p>
                                         <div class="attr function"><a class="headerlink" href="#CastedView.__init__">#&nbsp;&nbsp</a>
 
         
-            <span class="name">CastedView</span><span class="signature">(raw_data: dict, cast: collections.abc.Callable)</span>
+            <span class="name">CastedView</span><span class="signature">(
+    raw_data: dict[~_KeyT, ~_ValueT],
+    cast: collections.abc.Callable[[~_ValueT], ~_OtherValueT]
+)</span>
     </div>
 
                 <details>
@@ -831,7 +834,7 @@ permissions on a guild level.</p></li>
             <span class="name">calculate_permissions</span><span class="signature">(
     member: hikari.guilds.Member,
     guild: hikari.guilds.Guild,
-    roles: collections.abc.Mapping,
+    roles: collections.abc.Mapping[hikari.snowflakes.Snowflake, hikari.guilds.Role],
     *,
     channel: Optional[hikari.channels.GuildChannel] = None
 ) -&gt; hikari.permissions.Permissions</span>:
@@ -1158,7 +1161,11 @@ permissions.</li>
 
         
             <span class="def">def</span>
-            <span class="name">match_prefix_names</span><span class="signature">(content: str, names: collections.abc.Iterable, /) -&gt; Optional[str]</span>:
+            <span class="name">match_prefix_names</span><span class="signature">(
+    content: str,
+    names: collections.abc.Iterable[str],
+    /
+) -&gt; Optional[str]</span>:
     </div>
 
                 <details>

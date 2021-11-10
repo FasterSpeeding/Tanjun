@@ -973,7 +973,11 @@ The command to add the hooks to.</li>
 
         
             <span class="def">def</span>
-            <span class="name">add_on_error</span><span class="signature">(self: ~_HooksT, callback: collections.abc.Callable, /) -&gt; ~_HooksT</span>:
+            <span class="name">add_on_error</span><span class="signature">(
+    self: ~_HooksT,
+    callback: collections.abc.Callable[..., typing.Union[bool, NoneType, collections.abc.Awaitable[typing.Optional[bool]]]],
+    /
+) -&gt; ~_HooksT</span>:
     </div>
 
                 <details>
@@ -1164,7 +1168,11 @@ other error hooks make by majority rule.</p></li>
 
         
             <span class="def">def</span>
-            <span class="name">add_on_parser_error</span><span class="signature">(self: ~_HooksT, callback: collections.abc.Callable, /) -&gt; ~_HooksT</span>:
+            <span class="name">add_on_parser_error</span><span class="signature">(
+    self: ~_HooksT,
+    callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
+    /
+) -&gt; ~_HooksT</span>:
     </div>
 
                 <details>
@@ -1323,7 +1331,11 @@ return <code>None</code> and may be either synchronous or asynchronous.</p></li>
 
         
             <span class="def">def</span>
-            <span class="name">add_post_execution</span><span class="signature">(self: ~_HooksT, callback: collections.abc.Callable, /) -&gt; ~_HooksT</span>:
+            <span class="name">add_post_execution</span><span class="signature">(
+    self: ~_HooksT,
+    callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
+    /
+) -&gt; ~_HooksT</span>:
     </div>
 
                 <details>
@@ -1473,7 +1485,11 @@ synchronous or asynchronous.</p></li>
 
         
             <span class="def">def</span>
-            <span class="name">add_pre_execution</span><span class="signature">(self: ~_HooksT, callback: collections.abc.Callable, /) -&gt; ~_HooksT</span>:
+            <span class="name">add_pre_execution</span><span class="signature">(
+    self: ~_HooksT,
+    callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
+    /
+) -&gt; ~_HooksT</span>:
     </div>
 
                 <details>
@@ -1623,7 +1639,11 @@ synchronous or asynchronous.</p></li>
 
         
             <span class="def">def</span>
-            <span class="name">add_on_success</span><span class="signature">(self: ~_HooksT, callback: collections.abc.Callable, /) -&gt; ~_HooksT</span>:
+            <span class="name">add_on_success</span><span class="signature">(
+    self: ~_HooksT,
+    callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
+    /
+) -&gt; ~_HooksT</span>:
     </div>
 
                 <details>
