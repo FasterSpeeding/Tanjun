@@ -388,6 +388,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         The Hikari interaction server client this will use if applicable.
     shards : hikari.traits.ShardAware
         The Hikari shard aware client this will use if applicable.
+    voice : hikari.api.voice.VoiceComponent
+        The Hikari voice component this will use if applicable.
     event_managed : bool
         Whether or not this client is managed by the event manager.
 
@@ -461,6 +463,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         "_rest",
         "_server",
         "_shards",
+        "_voice",
     )
 
     def __init__(
@@ -471,6 +474,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         events: typing.Optional[hikari.api.EventManager] = None,
         server: typing.Optional[hikari.api.InteractionServer] = None,
         shards: typing.Optional[hikari_traits.ShardAware] = None,
+        voice: typing.Optional[hikari.api.VoiceComponent] = None,
         event_managed: bool = False,
         mention_prefix: bool = False,
         set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
@@ -514,6 +518,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self._rest = rest
         self._server = server
         self._shards = shards
+        self._voice = voice
 
         if event_managed:
             if not events:
@@ -650,6 +655,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 cache=bot.cache,
                 events=bot.event_manager,
                 shards=bot,
+                voice=bot.voice,
                 event_managed=event_managed,
                 mention_prefix=mention_prefix,
                 declare_global_commands=declare_global_commands,
@@ -851,6 +857,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._shards
+
+    @property
+    def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        return self._voice
 
     async def _on_starting_event(self, _: hikari.StartingEvent, /) -> None:
         await self.open()

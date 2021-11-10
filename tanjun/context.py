@@ -106,6 +106,10 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
     def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
         return self._client.shards
 
+    @property
+    def voice(self) -> typing.Optional[hikari.VoiceComponent]:
+        return self._client.voice
+
     def _assert_not_final(self) -> None:
         if self._final:
             raise TypeError("Cannot modify a finalised context")

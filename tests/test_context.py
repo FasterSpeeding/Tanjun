@@ -87,14 +87,17 @@ class TestBaseContext:
     def test_events_proprety(self, context: tanjun.context.BaseContext, mock_client: mock.Mock):
         assert context.events is mock_client.events
 
-    def test_server_property(self, context: tanjun.context.BaseContext, mock_client: mock.Mock):
-        assert context.server is mock_client.server
-
     def test_rest_property(self, context: tanjun.context.BaseContext, mock_client: mock.Mock):
         assert context.rest is mock_client.rest
 
+    def test_server_property(self, context: tanjun.context.BaseContext, mock_client: mock.Mock):
+        assert context.server is mock_client.server
+
     def test_shards_property(self, context: tanjun.context.BaseContext, mock_client: mock.Mock):
         assert context.shards is mock_client.shards
+
+    def test_voice_property(self, context: tanjun.context.BaseContext, mock_client: mock.Mock):
+        assert context.voice is mock_client.voice
 
     def test_finalise(self, context: tanjun.context.BaseContext):
         context.finalise()
