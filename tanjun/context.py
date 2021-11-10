@@ -55,6 +55,7 @@ if typing.TYPE_CHECKING:
     _T = typing.TypeVar("_T")
 
 ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
+_MESSAGE_NOT_FOUND: typing.Final[int] = 10008
 
 
 def _delete_after_to_float(delete_after: typing.Union[datetime.timedelta, float, int]) -> float:
@@ -421,7 +422,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         try:
             await message.delete()
         except hikari.NotFoundError as exc:
-            if exc.code != 10008:  # Message not found
+            if exc.code != _MESSAGE_NOT_FOUND:
                 raise
 
     async def respond(
@@ -804,7 +805,11 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         self, delete_after: typing.Union[datetime.timedelta, float, int], message: hikari.Message
     ) -> None:
         await asyncio.sleep(_delete_after_to_float(delete_after))
-        await self._interaction.delete_message(message)
+        try:
+            await self._interaction.delete_message(message)
+        except hikari.NotFoundError as exc:
+            if exc.code != _MESSAGE_NOT_FOUND:
+                raise
 
     async def _create_followup(
         self,
@@ -889,7 +894,11 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
     async def _delete_initial_response_after(self, delete_after: typing.Union[datetime.timedelta, float, int]) -> None:
         # TODO: raise if delete_after is too long?
         await asyncio.sleep(_delete_after_to_float(delete_after))
-        await self.delete_initial_response()
+        try:
+            await self.delete_initial_response()
+        except hikari.NotFoundError as exc:
+            if exc.code != _MESSAGE_NOT_FOUND:
+                raise
 
     async def _create_initial_response(
         self,
@@ -1010,6 +1019,9 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
 
     async def delete_initial_response(self) -> None:
         await self._interaction.delete_initial_response()
+        # If they defer then delete the initial response then this should be treated as having
+        # an initial response to allow for followup responses.
+        self._has_responded = True
 
     async def delete_last_response(self) -> None:
         if self._last_response_id is None:

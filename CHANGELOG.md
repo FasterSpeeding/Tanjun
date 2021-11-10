@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `Hooks` can now contain multiple callbacks per hook type.
 
+### Fixed
+- `SlashContext.respond` trying to edit in the initial response instead of create a follow up
+  if a deferred initial response was deleted.
+
 ### Removed
 - `injecting.BaseInjectableCallback` and other private extensions of this as these cases could
   easily be achieved with `SelfInjectingCallback` and `CallbackDescriptor`.
