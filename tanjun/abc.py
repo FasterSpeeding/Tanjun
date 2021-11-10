@@ -1604,9 +1604,9 @@ class Hooks(abc.ABC, typing.Generic[ContextT_contra]):
             synchronous or asynchronous.
 
             Returning `True` indicates that the error should be suppressed,
-            with `False` that it should be re-raised and `None` that no
-            decision has been made. This will be accounted for along with the
-            decisions other error hooks make by majority rule.
+            `False` that it should be re-raised and `None` that no decision has
+            been made. This will be accounted for along with the decisions
+            other error hooks make by majority rule.
 
         Returns
         -------
