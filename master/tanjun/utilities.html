@@ -34,9 +34,6 @@
                     <a class="function" href="#async_chain">async_chain</a>
             </li>
             <li>
-                    <a class="function" href="#await_if_async">await_if_async</a>
-            </li>
-            <li>
                     <a class="function" href="#gather_checks">gather_checks</a>
             </li>
             <li>
@@ -126,7 +123,6 @@
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;async_chain&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;await_if_async&quot;</span><span class="p">,</span>
     <span class="s2">&quot;gather_checks&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ALL_PERMISSIONS&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CastedView&quot;</span><span class="p">,</span>
@@ -163,36 +159,6 @@
     <span class="k">for</span> <span class="n">async_iterable</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
         <span class="k">async</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">async_iterable</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">value</span>
-
-
-<span class="k">async</span> <span class="k">def</span> <span class="nf">await_if_async</span><span class="p">(</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Resole any awaitable returned by a callback call.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    callback : collections.abc.Callable[..., tanjun.abc.MaybeAwaitableT[_ValueT]]</span>
-<span class="sd">        The async or non-async callback to call.</span>
-
-<span class="sd">    Other Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    *args : typing.Any</span>
-<span class="sd">        A variable amount of positional arguments to pass through when calling</span>
-<span class="sd">        `callback`.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    _ValueT</span>
-<span class="sd">        The resolved result of the passed callback.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">):</span>  <span class="c1"># TODO: this is probably slow</span>
-        <span class="c1"># For some reason MYPY thinks this returns typing.Any</span>
-        <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">_ValueT</span><span class="p">,</span> <span class="k">await</span> <span class="n">result</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">result</span>
 
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">gather_checks</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">checks_</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">checks</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -588,74 +554,6 @@
         </details>
 
             <div class="docstring"><p>Make an asynchronous iterator of the elements within multiple asynchronous iterators.</p>
-</div>
-
-
-                </section>
-                <section id="await_if_async">
-                            <div class="attr function"><a class="headerlink" href="#await_if_async">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">async def</span>
-            <span class="name">await_if_async</span><span class="signature">(callback: collections.abc.Callable, /, *args: Any) -&gt; ~_ValueT</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">async</span> <span class="k">def</span> <span class="nf">await_if_async</span><span class="p">(</span>
-    <span class="n">callback</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="n">_ValueT</span><span class="p">]],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ValueT</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Resole any awaitable returned by a callback call.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    callback : collections.abc.Callable[..., tanjun.abc.MaybeAwaitableT[_ValueT]]</span>
-<span class="sd">        The async or non-async callback to call.</span>
-
-<span class="sd">    Other Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    *args : typing.Any</span>
-<span class="sd">        A variable amount of positional arguments to pass through when calling</span>
-<span class="sd">        `callback`.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    _ValueT</span>
-<span class="sd">        The resolved result of the passed callback.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">):</span>  <span class="c1"># TODO: this is probably slow</span>
-        <span class="c1"># For some reason MYPY thinks this returns typing.Any</span>
-        <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">_ValueT</span><span class="p">,</span> <span class="k">await</span> <span class="n">result</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">result</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Resole any awaitable returned by a callback call.</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>callback</strong> (collections.abc.Callable[..., <a href="abc.html#MaybeAwaitableT">tanjun.abc.MaybeAwaitableT</a>[_ValueT]]):
-The async or non-async callback to call.</li>
-</ul>
-
-<h6 id="other-parameters">Other Parameters</h6>
-
-<ul>
-<li><strong>*args</strong> (typing.Any):
-A variable amount of positional arguments to pass through when calling
-<code>callback</code>.</li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>_ValueT</strong>: The resolved result of the passed callback.</li>
-</ul>
 </div>
 
 

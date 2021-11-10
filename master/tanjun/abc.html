@@ -139,6 +139,36 @@
                                 <a class="function" href="#Hooks.copy">copy</a>
                         </li>
                         <li>
+                                <a class="function" href="#Hooks.add_on_error">add_on_error</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Hooks.with_on_error">with_on_error</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Hooks.add_on_parser_error">add_on_parser_error</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Hooks.with_on_parser_error">with_on_parser_error</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Hooks.add_post_execution">add_post_execution</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Hooks.with_post_execution">with_post_execution</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Hooks.add_pre_execution">add_pre_execution</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Hooks.with_pre_execution">with_pre_execution</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Hooks.add_on_success">add_on_success</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Hooks.with_on_success">with_on_success</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Hooks.trigger_error">trigger_error</a>
                         </li>
                         <li>
@@ -206,6 +236,24 @@
                         </li>
                 </ul>
 
+            </li>
+            <li>
+                    <a class="class" href="#HookSig">HookSig</a>
+                            <ul class="memberlist">
+                </ul>
+
+            </li>
+            <li>
+                    <a class="variable" href="#HookSigT">HookSigT</a>
+            </li>
+            <li>
+                    <a class="class" href="#ErrorHookSig">ErrorHookSig</a>
+                            <ul class="memberlist">
+                </ul>
+
+            </li>
+            <li>
+                    <a class="variable" href="#ErrorHookSigT">ErrorHookSigT</a>
             </li>
             <li>
                     <a class="class" href="#ListenerCallbackSig">ListenerCallbackSig</a>
@@ -664,6 +712,10 @@
     <span class="s2">&quot;MessageHooks&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SlashHooks&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ExecutableCommand&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HookSig&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HookSigT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ErrorHookSig&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ErrorHookSigT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ListenerCallbackSig&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ListenerCallbackSigT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MaybeAwaitableT&quot;</span><span class="p">,</span>
@@ -733,6 +785,35 @@
 
 <span class="n">CheckSigT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;CheckSigT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">CheckSig</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Generic equivalent of `CheckSig`&quot;&quot;&quot;</span>
+
+<span class="n">HookSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
+<span class="sd">&quot;&quot;&quot;Type hint of the callback used as a general command hook.</span>
+
+<span class="sd">.. note::</span>
+<span class="sd">    This may be asynchronous or synchronous, dependency injection is supported</span>
+<span class="sd">    for this callback&#39;s keyword arguments and the positional arguments which</span>
+<span class="sd">    are passed dependent on the type of hook this is being registered as.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">HookSigT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;HookSigT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">HookSig</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Generic equivalent of `HookSig`.&quot;&quot;&quot;</span>
+
+<span class="n">ErrorHookSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]]</span>
+<span class="sd">&quot;&quot;&quot;Type hint of the callback used as a unexpected command error hook.</span>
+
+<span class="sd">This will be called whenever an unexpected `Exception` is raised during the</span>
+<span class="sd">execution stage of a command (not including expected `tanjun.errors.TanjunError`).</span>
+
+<span class="sd">This should take two positional arguments - of type `tanjun.abc.Context` and</span>
+<span class="sd">`Exception` - and may be either a synchronous or asynchronous callback which</span>
+<span class="sd">returns `bool` or `None` and may take advantage of dependency injection.</span>
+
+<span class="sd">`True` is returned to indicate that the exception should be suppressed and</span>
+<span class="sd">`False` is returned to indicate that the exception should be re-raised.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">ErrorHookSigT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;ErrorHookSigT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">ErrorHookSig</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Generic equivalent of `ErrorHookSig`.&quot;&quot;&quot;</span>
 
 <span class="n">ListenerCallbackSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
 <span class="sd">&quot;&quot;&quot;Type hint of a hikari event manager callback.</span>
@@ -2166,11 +2247,277 @@
 
 
 <span class="k">class</span> <span class="nc">Hooks</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">ContextT_contra</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Interface of a collection of callbacks called during set stage of command execution.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ErrorHookSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add an error callback to this hook object.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This won&#39;t be called for expected `tanjun.TanjunError` derived errors.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : ErrorHookSig</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take two positional arguments (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra` and `Exception`) and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">            Returning `True` indicates that the error should be suppressed,</span>
+<span class="sd">            `False` that it should be re-raised and `None` that no decision has</span>
+<span class="sd">            been made. This will be accounted for along with the decisions</span>
+<span class="sd">            other error hooks make by majority rule.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ErrorHookSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ErrorHookSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add an error callback to this hook object through a decorator call.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This won&#39;t be called for expected `tanjun.TanjunError` derived errors.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_error</span>
+<span class="sd">        async def on_error(ctx: tanjun.abc.Context, error: Exception) -&gt; bool:</span>
+<span class="sd">            if isinstance(error, SomeExpectedType):</span>
+<span class="sd">                await ctx.respond(&quot;You dun goofed&quot;)</span>
+<span class="sd">                return True  # Indicating that it should be suppressed.</span>
+
+<span class="sd">            await ctx.respond(f&quot;An error occurred: {error}&quot;)</span>
+<span class="sd">            return False  # Indicating that it should be re-raised</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : ErrorHookSigT</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take two positional arguments (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra` and `Exception`) and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">            Returning `True` indicates that the error shoul be suppressed,</span>
+<span class="sd">            `False` that it should be re-raised and `None` that no decision</span>
+<span class="sd">            has been made. This will be accounted for along with the decisions</span>
+<span class="sd">            other error hooks make by majority rule.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ErrorHookSigT</span>
+<span class="sd">            The hook callback which was added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_on_parser_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a parser error callback to this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take two positional arguments (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra` and `tanjun.errors.ParserError`),</span>
+<span class="sd">            return `None` and may be either synchronous or asynchronous.</span>
+
+<span class="sd">            It&#39;s worth noting that this unlike general error handlers, this will</span>
+<span class="sd">            always suppress the error.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_on_parser_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a parser error callback to this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_parser_error</span>
+<span class="sd">        async def on_parser_error(ctx: tanjun.abc.Context, error: tanjun.errors.ParserError) -&gt; None:</span>
+<span class="sd">            await ctx.respond(f&quot;You gave invalid input: {error}&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSigT</span>
+<span class="sd">            The parser error callback to add to this hook.</span>
+
+<span class="sd">            This callback should take two positional arguments (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra` and `tanjun.errors.ParserError`),</span>
+<span class="sd">            return `None` and may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSigT</span>
+<span class="sd">            The callback which was added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a post-execution callback to this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a post-execution callback to this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_post_execution</span>
+<span class="sd">        async def post_execution(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSigT</span>
+<span class="sd">            The post-execution callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSigT</span>
+<span class="sd">            The post-execution callback which was seaddedt.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a pre-execution callback for this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a pre-execution callback to this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_pre_execution</span>
+<span class="sd">        async def pre_execution(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSigT</span>
+<span class="sd">            The pre-execution callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSigT</span>
+<span class="sd">            The pre-execution callback which was added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a success callback to this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a success callback to this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_success</span>
+<span class="sd">        async def on_success(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSigT</span>
+<span class="sd">            The success callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSigT</span>
+<span class="sd">            The success callback which was added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">trigger_error</span><span class="p">(</span>
@@ -5669,11 +6016,277 @@ nature, and will trigger this exception if they occur.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Hooks</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">ContextT_contra</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Interface of a collection of callbacks called during set stage of command execution.&quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ErrorHookSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add an error callback to this hook object.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This won&#39;t be called for expected `tanjun.TanjunError` derived errors.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : ErrorHookSig</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take two positional arguments (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra` and `Exception`) and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">            Returning `True` indicates that the error should be suppressed,</span>
+<span class="sd">            `False` that it should be re-raised and `None` that no decision has</span>
+<span class="sd">            been made. This will be accounted for along with the decisions</span>
+<span class="sd">            other error hooks make by majority rule.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ErrorHookSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ErrorHookSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add an error callback to this hook object through a decorator call.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This won&#39;t be called for expected `tanjun.TanjunError` derived errors.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_error</span>
+<span class="sd">        async def on_error(ctx: tanjun.abc.Context, error: Exception) -&gt; bool:</span>
+<span class="sd">            if isinstance(error, SomeExpectedType):</span>
+<span class="sd">                await ctx.respond(&quot;You dun goofed&quot;)</span>
+<span class="sd">                return True  # Indicating that it should be suppressed.</span>
+
+<span class="sd">            await ctx.respond(f&quot;An error occurred: {error}&quot;)</span>
+<span class="sd">            return False  # Indicating that it should be re-raised</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : ErrorHookSigT</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take two positional arguments (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra` and `Exception`) and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">            Returning `True` indicates that the error shoul be suppressed,</span>
+<span class="sd">            `False` that it should be re-raised and `None` that no decision</span>
+<span class="sd">            has been made. This will be accounted for along with the decisions</span>
+<span class="sd">            other error hooks make by majority rule.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ErrorHookSigT</span>
+<span class="sd">            The hook callback which was added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_on_parser_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a parser error callback to this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take two positional arguments (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra` and `tanjun.errors.ParserError`),</span>
+<span class="sd">            return `None` and may be either synchronous or asynchronous.</span>
+
+<span class="sd">            It&#39;s worth noting that this unlike general error handlers, this will</span>
+<span class="sd">            always suppress the error.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_on_parser_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a parser error callback to this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_parser_error</span>
+<span class="sd">        async def on_parser_error(ctx: tanjun.abc.Context, error: tanjun.errors.ParserError) -&gt; None:</span>
+<span class="sd">            await ctx.respond(f&quot;You gave invalid input: {error}&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSigT</span>
+<span class="sd">            The parser error callback to add to this hook.</span>
+
+<span class="sd">            This callback should take two positional arguments (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra` and `tanjun.errors.ParserError`),</span>
+<span class="sd">            return `None` and may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSigT</span>
+<span class="sd">            The callback which was added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a post-execution callback to this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a post-execution callback to this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_post_execution</span>
+<span class="sd">        async def post_execution(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSigT</span>
+<span class="sd">            The post-execution callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSigT</span>
+<span class="sd">            The post-execution callback which was seaddedt.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a pre-execution callback for this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a pre-execution callback to this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_pre_execution</span>
+<span class="sd">        async def pre_execution(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSigT</span>
+<span class="sd">            The pre-execution callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSigT</span>
+<span class="sd">            The pre-execution callback which was added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a success callback to this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a success callback to this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_success</span>
+<span class="sd">        async def on_success(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSigT</span>
+<span class="sd">            The success callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSigT</span>
+<span class="sd">            The success callback which was added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">trigger_error</span><span class="p">(</span>
@@ -5719,8 +6332,7 @@ nature, and will trigger this exception if they occur.</li>
 
         </details>
 
-            <div class="docstring"><p>Helper class that provides a standard way to create an ABC using
-inheritance.</p>
+            <div class="docstring"><p>Interface of a collection of callbacks called during set stage of command execution.</p>
 </div>
 
 
@@ -5743,6 +6355,699 @@ inheritance.</p>
         </details>
 
     
+
+                            </div>
+                            <div id="Hooks.add_on_error" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Hooks.add_on_error">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">add_on_error</span><span class="signature">(self: ~_T, callback: collections.abc.Callable, /) -&gt; ~_T</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ErrorHookSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add an error callback to this hook object.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This won&#39;t be called for expected `tanjun.TanjunError` derived errors.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : ErrorHookSig</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take two positional arguments (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra` and `Exception`) and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">            Returning `True` indicates that the error should be suppressed,</span>
+<span class="sd">            `False` that it should be re-raised and `None` that no decision has</span>
+<span class="sd">            been made. This will be accounted for along with the decisions</span>
+<span class="sd">            other error hooks make by majority rule.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add an error callback to this hook object.</p>
+
+<p><em>Note:</em>
+This won't be called for expected <code><a href="../tanjun.html#TanjunError">tanjun.TanjunError</a></code> derived errors.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (ErrorHookSig):
+The callback to add to this hook.</p>
+
+<p>This callback should take two positional arguments (of type
+<code><a href="#ContextT_contra">tanjun.abc.ContextT_contra</a></code> and <code>Exception</code>) and may be either
+synchronous or asynchronous.</p>
+
+<p>Returning <code>True</code> indicates that the error should be suppressed,
+<code>False</code> that it should be re-raised and <code>None</code> that no decision has
+been made. This will be accounted for along with the decisions
+other error hooks make by majority rule.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The hook object to enable method chaining.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Hooks.with_on_error" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Hooks.with_on_error">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">with_on_error</span><span class="signature">(self, callback: ~ErrorHookSigT, /) -&gt; ~ErrorHookSigT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ErrorHookSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ErrorHookSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add an error callback to this hook object through a decorator call.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This won&#39;t be called for expected `tanjun.TanjunError` derived errors.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_error</span>
+<span class="sd">        async def on_error(ctx: tanjun.abc.Context, error: Exception) -&gt; bool:</span>
+<span class="sd">            if isinstance(error, SomeExpectedType):</span>
+<span class="sd">                await ctx.respond(&quot;You dun goofed&quot;)</span>
+<span class="sd">                return True  # Indicating that it should be suppressed.</span>
+
+<span class="sd">            await ctx.respond(f&quot;An error occurred: {error}&quot;)</span>
+<span class="sd">            return False  # Indicating that it should be re-raised</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : ErrorHookSigT</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take two positional arguments (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra` and `Exception`) and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">            Returning `True` indicates that the error shoul be suppressed,</span>
+<span class="sd">            `False` that it should be re-raised and `None` that no decision</span>
+<span class="sd">            has been made. This will be accounted for along with the decisions</span>
+<span class="sd">            other error hooks make by majority rule.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ErrorHookSigT</span>
+<span class="sd">            The hook callback which was added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add an error callback to this hook object through a decorator call.</p>
+
+<p><em>Note:</em>
+This won't be called for expected <code><a href="../tanjun.html#TanjunError">tanjun.TanjunError</a></code> derived errors.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="n">hooks</span> <span class="o">=</span> <span class="n">AnyHooks</span><span class="p">()</span>
+
+<span class="nd">@hooks</span><span class="o">.</span><span class="n">with_on_error</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">on_error</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">SomeExpectedType</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="s2">&quot;You dun goofed&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># Indicating that it should be suppressed.</span>
+
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error occurred: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Indicating that it should be re-raised</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (ErrorHookSigT):
+The callback to add to this hook.</p>
+
+<p>This callback should take two positional arguments (of type
+<code><a href="#ContextT_contra">tanjun.abc.ContextT_contra</a></code> and <code>Exception</code>) and may be either
+synchronous or asynchronous.</p>
+
+<p>Returning <code>True</code> indicates that the error shoul be suppressed,
+<code>False</code> that it should be re-raised and <code>None</code> that no decision
+has been made. This will be accounted for along with the decisions
+other error hooks make by majority rule.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>ErrorHookSigT</strong>: The hook callback which was added.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Hooks.add_on_parser_error" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Hooks.add_on_parser_error">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">add_on_parser_error</span><span class="signature">(self: ~_T, callback: collections.abc.Callable, /) -&gt; ~_T</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_on_parser_error</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a parser error callback to this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take two positional arguments (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra` and `tanjun.errors.ParserError`),</span>
+<span class="sd">            return `None` and may be either synchronous or asynchronous.</span>
+
+<span class="sd">            It&#39;s worth noting that this unlike general error handlers, this will</span>
+<span class="sd">            always suppress the error.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a parser error callback to this hook object.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (HookSig):
+The callback to add to this hook.</p>
+
+<p>This callback should take two positional arguments (of type
+<code><a href="#ContextT_contra">tanjun.abc.ContextT_contra</a></code> and <code><a href="errors.html#ParserError">tanjun.errors.ParserError</a></code>),
+return <code>None</code> and may be either synchronous or asynchronous.</p>
+
+<p>It's worth noting that this unlike general error handlers, this will
+always suppress the error.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The hook object to enable method chaining.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Hooks.with_on_parser_error" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Hooks.with_on_parser_error">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">with_on_parser_error</span><span class="signature">(self, callback: ~HookSigT, /) -&gt; ~HookSigT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_on_parser_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a parser error callback to this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_parser_error</span>
+<span class="sd">        async def on_parser_error(ctx: tanjun.abc.Context, error: tanjun.errors.ParserError) -&gt; None:</span>
+<span class="sd">            await ctx.respond(f&quot;You gave invalid input: {error}&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSigT</span>
+<span class="sd">            The parser error callback to add to this hook.</span>
+
+<span class="sd">            This callback should take two positional arguments (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra` and `tanjun.errors.ParserError`),</span>
+<span class="sd">            return `None` and may be either synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSigT</span>
+<span class="sd">            The callback which was added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a parser error callback to this hook object through a decorator call.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="n">hooks</span> <span class="o">=</span> <span class="n">AnyHooks</span><span class="p">()</span>
+
+<span class="nd">@hooks</span><span class="o">.</span><span class="n">with_on_parser_error</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">on_parser_error</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ParserError</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;You gave invalid input: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (HookSigT):
+The parser error callback to add to this hook.</p>
+
+<p>This callback should take two positional arguments (of type
+<code><a href="#ContextT_contra">tanjun.abc.ContextT_contra</a></code> and <code><a href="errors.html#ParserError">tanjun.errors.ParserError</a></code>),
+return <code>None</code> and may be either synchronous or asynchronous.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>HookSigT</strong>: The callback which was added.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Hooks.add_post_execution" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Hooks.add_post_execution">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">add_post_execution</span><span class="signature">(self: ~_T, callback: collections.abc.Callable, /) -&gt; ~_T</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a post-execution callback to this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a post-execution callback to this hook object.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (HookSig):
+The callback to add to this hook.</p>
+
+<p>This callback should take one positional argument (of type
+<code><a href="#ContextT_contra">tanjun.abc.ContextT_contra</a></code>), return <code>None</code> and may be either
+synchronous or asynchronous.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The hook object to enable method chaining.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Hooks.with_post_execution" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Hooks.with_post_execution">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">with_post_execution</span><span class="signature">(self, callback: ~HookSigT, /) -&gt; ~HookSigT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a post-execution callback to this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_post_execution</span>
+<span class="sd">        async def post_execution(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSigT</span>
+<span class="sd">            The post-execution callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSigT</span>
+<span class="sd">            The post-execution callback which was seaddedt.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a post-execution callback to this hook object through a decorator call.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="n">hooks</span> <span class="o">=</span> <span class="n">AnyHooks</span><span class="p">()</span>
+
+<span class="nd">@hooks</span><span class="o">.</span><span class="n">with_post_execution</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">post_execution</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="s2">&quot;You did something&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (HookSigT):
+The post-execution callback to add to this hook.</p>
+
+<p>This callback should take one positional argument (of type
+<code><a href="#ContextT_contra">tanjun.abc.ContextT_contra</a></code>), return <code>None</code> and may be either
+synchronous or asynchronous.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>HookSigT</strong>: The post-execution callback which was seaddedt.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Hooks.add_pre_execution" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Hooks.add_pre_execution">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">add_pre_execution</span><span class="signature">(self: ~_T, callback: collections.abc.Callable, /) -&gt; ~_T</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a pre-execution callback for this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a pre-execution callback for this hook object.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (HookSig):
+The callback to add to this hook.</p>
+
+<p>This callback should take one positional argument (of type
+<code><a href="#ContextT_contra">tanjun.abc.ContextT_contra</a></code>), return <code>None</code> and may be either
+synchronous or asynchronous.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The hook object to enable method chaining.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Hooks.with_pre_execution" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Hooks.with_pre_execution">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">with_pre_execution</span><span class="signature">(self, callback: ~HookSigT, /) -&gt; ~HookSigT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_pre_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a pre-execution callback to this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_pre_execution</span>
+<span class="sd">        async def pre_execution(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSigT</span>
+<span class="sd">            The pre-execution callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSigT</span>
+<span class="sd">            The pre-execution callback which was added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a pre-execution callback to this hook object through a decorator call.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="n">hooks</span> <span class="o">=</span> <span class="n">AnyHooks</span><span class="p">()</span>
+
+<span class="nd">@hooks</span><span class="o">.</span><span class="n">with_pre_execution</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">pre_execution</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="s2">&quot;You did something&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (HookSigT):
+The pre-execution callback to add to this hook.</p>
+
+<p>This callback should take one positional argument (of type
+<code><a href="#ContextT_contra">tanjun.abc.ContextT_contra</a></code>), return <code>None</code> and may be either
+synchronous or asynchronous.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>HookSigT</strong>: The pre-execution callback which was added.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Hooks.add_on_success" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Hooks.add_on_success">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">add_on_success</span><span class="signature">(self: ~_T, callback: collections.abc.Callable, /) -&gt; ~_T</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a success callback to this hook object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSig</span>
+<span class="sd">            The callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The hook object to enable method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a success callback to this hook object.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (HookSig):
+The callback to add to this hook.</p>
+
+<p>This callback should take one positional argument (of type
+<code><a href="#ContextT_contra">tanjun.abc.ContextT_contra</a></code>), return <code>None</code> and may be either
+synchronous or asynchronous.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The hook object to enable method chaining.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Hooks.with_on_success" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Hooks.with_on_success">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">with_on_success</span><span class="signature">(self, callback: ~HookSigT, /) -&gt; ~HookSigT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">with_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">HookSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HookSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a success callback to this hook object through a decorator call.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ```py</span>
+<span class="sd">        hooks = AnyHooks()</span>
+
+<span class="sd">        @hooks.with_on_success</span>
+<span class="sd">        async def on_success(ctx: tanjun.abc.Context) -&gt; None:</span>
+<span class="sd">            await ctx.respond(&quot;You did something&quot;)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : HookSigT</span>
+<span class="sd">            The success callback to add to this hook.</span>
+
+<span class="sd">            This callback should take one positional argument (of type</span>
+<span class="sd">            `tanjun.abc.ContextT_contra`), return `None` and may be either</span>
+<span class="sd">            synchronous or asynchronous.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        HookSigT</span>
+<span class="sd">            The success callback which was added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a success callback to this hook object through a decorator call.</p>
+
+<h6 id="examples">Examples</h6>
+
+<div class="codehilite"><pre><span></span><code><span class="n">hooks</span> <span class="o">=</span> <span class="n">AnyHooks</span><span class="p">()</span>
+
+<span class="nd">@hooks</span><span class="o">.</span><span class="n">with_on_success</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">on_success</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="s2">&quot;You did something&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (HookSigT):
+The success callback to add to this hook.</p>
+
+<p>This callback should take one positional argument (of type
+<code><a href="#ContextT_contra">tanjun.abc.ContextT_contra</a></code>), return <code>None</code> and may be either
+synchronous or asynchronous.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>HookSigT</strong>: The success callback which was added.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Hooks.trigger_error" class="classattr">
@@ -6352,6 +7657,54 @@ The check to remove.</li>
 
 
                             </div>
+                </section>
+                <section id="HookSig">
+                                <div class="attr class">
+        <a class="headerlink" href="#HookSig">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">HookSig</span>:
+    </div>
+
+        
+    
+
+                </section>
+                <section id="HookSigT">
+                                <div class="attr variable"><a class="headerlink" href="#HookSigT">#&nbsp;&nbsp</a>
+
+        <span class="name">HookSigT</span><span class="default_value"> = ~HookSigT</span>
+    </div>
+
+            <div class="docstring"><p>Generic equivalent of <code><a href="#HookSig">HookSig</a></code>.</p>
+</div>
+
+
+                </section>
+                <section id="ErrorHookSig">
+                                <div class="attr class">
+        <a class="headerlink" href="#ErrorHookSig">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">ErrorHookSig</span>:
+    </div>
+
+        
+    
+
+                </section>
+                <section id="ErrorHookSigT">
+                                <div class="attr variable"><a class="headerlink" href="#ErrorHookSigT">#&nbsp;&nbsp</a>
+
+        <span class="name">ErrorHookSigT</span><span class="default_value"> = ~ErrorHookSigT</span>
+    </div>
+
+            <div class="docstring"><p>Generic equivalent of <code><a href="#ErrorHookSig">ErrorHookSig</a></code>.</p>
+</div>
+
+
                 </section>
                 <section id="ListenerCallbackSig">
                                 <div class="attr class">
