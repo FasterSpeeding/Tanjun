@@ -45,6 +45,7 @@ __all__: list[str] = [
 import abc
 import asyncio
 import datetime
+import enum
 import logging
 import time
 import typing
@@ -62,6 +63,108 @@ if typing.TYPE_CHECKING:
 
 _T = typing.TypeVar("_T")
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun")
+
+
+class AbstractCooldownManager(abc.ABC):
+    """Interface used for managing command calldowns."""
+
+    __slots__ = ()
+
+    @abc.abstractmethod
+    async def check_cooldown(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> typing.Optional[float]:
+        """Check if a bucket is on cooldown for the provided context.
+
+        Parameters
+        ----------
+        bucket_id : str
+            The cooldown bucket to check.
+        ctx : tanjun.abc.Context
+            The context of the command.
+
+        Returns
+        -------
+        typing.Optional[float]
+            When this command will next be usable in the current context if its
+            in cooldown else `None`.
+        """
+
+    @abc.abstractmethod
+    async def increment_cooldown(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
+        """Increment the cooldown of a cooldown bucket.
+
+        Parameters
+        ----------
+        bucket_id : str
+            The cooldown bucket's ID.
+        ctx : tanjun.abc.Context
+            The context of the command.
+        """
+
+
+class CooldownPreExecution:
+    """Pre-execution hook used to increment the cooldown of a command.
+
+    Parameters
+    ----------
+    bucket_id : str
+        The cooldown bucket's ID.
+    """
+
+    __slots__ = ("_bucket_id",)
+
+    def __init__(self, bucket_id: str, /) -> None:
+        self._bucket_id = bucket_id
+
+    def __call__(
+        self,
+        ctx: tanjun_abc.Context,
+        cooldowns: AbstractCooldownManager = injecting.inject(type=AbstractCooldownManager),
+    ) -> typing.Awaitable[None]:
+        return cooldowns.increment_cooldown(self._bucket_id, ctx)
+
+
+class CooldownResource(int, enum.Enum):
+    """Cooldown resource types."""
+
+    USER = 0
+    MEMBER = 1
+    CHANNEL = 2
+    PARENT_CHANNEL = 3
+    CATEGORY = 4
+    HIGHEST_ROLE = 5
+    GUILD = 6
+
+
+class _Cooldown:
+    __slots__ = ()
+
+
+class _CooldownResource:
+    __slots__ = ("type", "mapping")
+
+    def __init__(self, type_: CooldownResource, /) -> None:
+        self.type = type_
+        self.mapping: dict[hikari.Snowflake, _Cooldown] = {}
+
+
+class InMemoryCooldownManager(AbstractCooldownManager):
+    """In-memory standard implementation of `AbstractCooldownManager`."""
+
+    __slots__ = ("_routes",)
+
+    def __init__(self) -> None:
+        self._routes: dict[str, _CooldownResource] = {"default": _CooldownResource(CooldownResource.USER)}
+
+    async def check_cooldown(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> float:
+        if not (route := self._routes.get(bucket_id)):
+            _LOGGER.info("No route found for {bucket_id}, falling back to 'default' bucket.")
+            route = self._routes[bucket_id] = self._routes["default"]
+
+        route
+        raise NotImplementedError
+
+    async def increment_cooldown(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
+        raise NotImplementedError
 
 
 class AbstractOwnerCheck(abc.ABC):
