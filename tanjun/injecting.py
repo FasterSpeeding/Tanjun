@@ -60,9 +60,10 @@ from . import abc as tanjun_abc
 from . import errors
 
 if typing.TYPE_CHECKING:
+    _BasicInjectionContextT = typing.TypeVar("_BasicInjectionContextT", bound="BasicInjectionContext")
     _CallbackDescriptorT = typing.TypeVar("_CallbackDescriptorT", bound="CallbackDescriptor[typing.Any]")
+    _InjectorClientT = typing.TypeVar("_InjectorClientT", bound="InjectorClient")
 
-_InjectorClientT = typing.TypeVar("_InjectorClientT", bound="InjectorClient")
 _T = typing.TypeVar("_T")
 CallbackSig = collections.Callable[..., tanjun_abc.MaybeAwaitableT[_T]]
 """Type-hint of a injector callback.
@@ -206,11 +207,13 @@ class BasicInjectionContext(AbstractInjectionContext):
 
         return UNDEFINED
 
-    def _set_type_special_case(self, type_: type[_T], value: _T, /) -> None:
+    def _set_type_special_case(self: _BasicInjectionContextT, type_: type[_T], value: _T, /) -> _BasicInjectionContextT:
         self._special_case_types[type_] = value
+        return self
 
-    def _remove_type_special_case(self, type_: type[typing.Any], /) -> None:
+    def _remove_type_special_case(self: _BasicInjectionContextT, type_: type[typing.Any], /) -> _BasicInjectionContextT:
         del self._special_case_types[type_]
+        return self
 
 
 class CallbackDescriptor(typing.Generic[_T]):

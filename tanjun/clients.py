@@ -558,26 +558,27 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 ClientCallbackNames.STARTING, _StartDeclarer(self, command_ids, declare_global_commands)
             )
 
-        self.set_type_dependency(tanjun_abc.Client, self)
-        self.set_type_dependency(Client, self)
-        self.set_type_dependency(type(self), self)
-        self.set_type_dependency(hikari.api.RESTClient, rest)
-        self.set_type_dependency(type(rest), rest)
+        (
+            self.set_type_dependency(tanjun_abc.Client, self)
+            .set_type_dependency(Client, self)
+            .set_type_dependency(type(self), self)
+            .set_type_dependency(hikari.api.RESTClient, rest)
+            .set_type_dependency(type(rest), rest)
+        )
         if cache:
-            self.set_type_dependency(hikari.api.Cache, cache)
-            self.set_type_dependency(type(cache), cache)
+            self.set_type_dependency(hikari.api.Cache, cache).set_type_dependency(type(cache), cache)
 
         if events:
-            self.set_type_dependency(hikari.api.EventManager, events)
-            self.set_type_dependency(type(events), events)
+            self.set_type_dependency(hikari.api.EventManager, events).set_type_dependency(type(events), events)
 
         if server:
-            self.set_type_dependency(hikari.api.InteractionServer, server)
-            self.set_type_dependency(type(server), server)
+            self.set_type_dependency(hikari.api.InteractionServer, server).set_type_dependency(type(server), server)
 
         if shards:
-            self.set_type_dependency(hikari_traits.ShardAware, shards)
-            self.set_type_dependency(type(shards), shards)
+            self.set_type_dependency(hikari_traits.ShardAware, shards).set_type_dependency(type(shards), shards)
+
+        if voice:
+            self.set_type_dependency(hikari.api.VoiceComponent, voice).set_type_dependency(type(voice), voice)
 
     @classmethod
     def from_gateway_bot(
