@@ -35,6 +35,8 @@ from __future__ import annotations
 __all__: list[str] = ["MessageContext", "ResponseTypeT", "SlashContext", "SlashOption"]
 
 import asyncio
+import datetime
+import logging
 import typing
 
 import hikari
@@ -44,7 +46,6 @@ from . import abc as tanjun_abc
 from . import injecting
 
 if typing.TYPE_CHECKING:
-    import datetime
     from collections import abc as collections
 
     from hikari import traits as hikari_traits
@@ -55,7 +56,8 @@ if typing.TYPE_CHECKING:
     _T = typing.TypeVar("_T")
 
 ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
-_MESSAGE_NOT_FOUND: typing.Final[int] = 10008
+_INTERACTION_LIFETIME: typing.Final[datetime.timedelta] = datetime.timedelta(minutes=15)
+_LOGGER = logging.getLogger("hikari.tanjun.context")
 
 
 def _delete_after_to_float(delete_after: typing.Union[datetime.timedelta, float, int]) -> float:
@@ -335,6 +337,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        delete_after = _delete_after_to_float(delete_after) if delete_after is not None else None
         if self._initial_response_id is None:
             raise LookupError("Context has no initial response")
 
@@ -378,6 +381,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        delete_after = _delete_after_to_float(delete_after) if delete_after is not None else None
         if self._last_response_id is None:
             raise LookupError("Context has no previous tracked response")
 
@@ -415,15 +419,12 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         raise LookupError("No responses found for this context")
 
     @staticmethod
-    async def _delete_after(
-        delete_after: typing.Union[datetime.timedelta, float, int], message: hikari.Message
-    ) -> None:
-        await asyncio.sleep(_delete_after_to_float(delete_after))
+    async def _delete_after(delete_after: float, message: hikari.Message) -> None:
+        await asyncio.sleep(delete_after)
         try:
             await message.delete()
         except hikari.NotFoundError as exc:
-            if exc.code != _MESSAGE_NOT_FOUND:
-                raise
+            _LOGGER.debug("Failed to delete response message after %.2f seconds", delete_after, exc_info=exc)
 
     async def respond(
         self,
@@ -449,6 +450,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        delete_after = _delete_after_to_float(delete_after) if delete_after is not None else None
         async with self._response_lock:
             message = await self._message.respond(
                 content=content,
@@ -801,15 +803,22 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
                     hikari.ResponseType.DEFERRED_MESSAGE_CREATE, flags=flags
                 )
 
-    async def _delete_followup_after(
-        self, delete_after: typing.Union[datetime.timedelta, float, int], message: hikari.Message
-    ) -> None:
-        await asyncio.sleep(_delete_after_to_float(delete_after))
+    def _validate_delete_after(self, delete_after: typing.Union[float, int, datetime.timedelta]) -> float:
+        delete_after = _delete_after_to_float(delete_after)
+        time_left = (
+            _INTERACTION_LIFETIME - (datetime.datetime.now(tz=datetime.timezone.utc) - self.created_at)
+        ).total_seconds()
+        if delete_after + 10 > time_left:
+            raise ValueError("This interaction will have expired before delete_after is reached")
+
+        return delete_after
+
+    async def _delete_followup_after(self, delete_after: float, message: hikari.Message) -> None:
+        await asyncio.sleep(delete_after)
         try:
             await self._interaction.delete_message(message)
         except hikari.NotFoundError as exc:
-            if exc.code != _MESSAGE_NOT_FOUND:
-                raise
+            _LOGGER.debug("Failed to delete response message after %.2f seconds", delete_after, exc_info=exc)
 
     async def _create_followup(
         self,
@@ -832,6 +841,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        delete_after = self._validate_delete_after(delete_after) if delete_after is not None else None
         message = await self._interaction.execute(
             content=content,
             attachment=attachment,
@@ -891,14 +901,12 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
                 flags=flags,
             )
 
-    async def _delete_initial_response_after(self, delete_after: typing.Union[datetime.timedelta, float, int]) -> None:
-        # TODO: raise if delete_after is too long?
-        await asyncio.sleep(_delete_after_to_float(delete_after))
+    async def _delete_initial_response_after(self, delete_after: float) -> None:
+        await asyncio.sleep(delete_after)
         try:
             await self.delete_initial_response()
         except hikari.NotFoundError as exc:
-            if exc.code != _MESSAGE_NOT_FOUND:
-                raise
+            _LOGGER.debug("Failed to delete response message after %.2f seconds", delete_after, exc_info=exc)
 
     async def _create_initial_response(
         self,
@@ -920,6 +928,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
     ) -> None:
         flags = self._get_flags(flags)
+        delete_after = self._validate_delete_after(delete_after) if delete_after is not None else None
         if self._has_responded:
             raise RuntimeError("Initial response has already been created")
 
@@ -1053,6 +1062,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        delete_after = self._validate_delete_after(delete_after) if delete_after is not None else None
         result = await self._interaction.edit_initial_response(
             content=content,
             attachment=attachment,
@@ -1094,6 +1104,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
         if self._last_response_id:
+            delete_after = self._validate_delete_after(delete_after) if delete_after is not None else None
             message = await self._interaction.edit_message(
                 self._last_response_id,
                 content=content,
