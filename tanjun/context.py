@@ -688,6 +688,10 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         return self._defaults_to_ephemeral
 
     @property
+    def expires_at(self) -> datetime.datetime:
+        return self.created_at + _INTERACTION_LIFETIME
+
+    @property
     def guild_id(self) -> typing.Optional[hikari.Snowflake]:
         return self._interaction.guild_id
 

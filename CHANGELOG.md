@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dependency injection support for hook callbacks.
 - `voice` property to Context and Client.
 - `delete_after` option to context response methods.
+- `expires_at` property to SlashContext.
 
 ### Changed
 - `Hooks` can now contain multiple callbacks per hook type.

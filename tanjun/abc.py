@@ -442,6 +442,11 @@ class Context(abc.ABC):
 
         Other Parameters
         ----------------
+        delete_after : typing.Union[datetime.timedelta, float, int, None]
+            If provided, the seconds after which the response message should be delete.
+
+            .. note::
+                As of writing, this does not support ephemeral slash command responses.
         attachment : hikari.UndefinedOr[hikari.Resourceish]
             A singular attachment to edit the initial response with.
         attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]
@@ -589,6 +594,11 @@ class Context(abc.ABC):
 
         Other Parameters
         ----------------
+        delete_after : typing.Union[datetime.timedelta, float, int, None]
+            If provided, the seconds after which the response message should be delete.
+
+            .. note::
+                As of writing, this does not support ephemeral slash command responses.
         attachment : hikari.UndefinedOr[hikari.Resourceish]
             A singular attachment to edit the last response with.
         attachments : hikari.UndefinedOr[collections.abc.Sequence[hikari.Resourceish]]
@@ -806,6 +816,11 @@ class Context(abc.ABC):
 
             It's worth noting that, under certain scenarios within the slash
             command flow, this may lead to an extre request being made.
+        delete_after : typing.Union[datetime.timedelta, float, int, None]
+            If provided, the seconds after which the response message should be delete.
+
+            .. note::
+                As of writing, this does not support ephemeral slash command responses.
         component : hikari.UndefinedOr[hikari.api.ComponentBuilder]
             If provided, builder object of the component to include in this response.
         components : hikari.UndefinedOr[collections.abc.Sequence[hikari.api.ComponentBuilder]]
@@ -983,6 +998,11 @@ class MessageContext(Context, abc.ABC):
             This parameter does nothing in the message command flow, as the result
             will always be available, but is present to keep the signature
             compatible with `Context.respond`.
+        delete_after : typing.Union[datetime.timedelta, float, int, None]
+            If provided, the seconds after which the response message should be delete.
+
+            .. note::
+                As of writing, this does not support ephemeral slash command responses.
         tts : hikari.UndefinedOr[bool]
             Whether to respond with tts/text to speech or no.
         reply : hikari.Undefinedor[hikari.SnowflakeishOr[hikari.PartialMessage]]
@@ -1057,6 +1077,8 @@ class MessageContext(Context, abc.ABC):
         ValueError
             If more than 100 unique objects/entities are passed for
             `role_mentions` or `user_mentions`.
+
+            If the interaction will have expired before `delete_after` is reached.
         TypeError
             If both `attachment` and `attachments` are specified.
         hikari.BadRequestError
@@ -1276,11 +1298,14 @@ class SlashContext(Context, abc.ABC):
         `SlashContext.create_initial_response`, `SlashContext.defer` and
         `SlashContext.respond` unless the `flags` field is provided for the
         methods which support it.
+        """
 
-        Returns
-        -------
-        bool
-            Whether the context is marked as defaulting to ephemeral responses.
+    @property
+    def expires_at(self) -> datetime.datetime:
+        """When this application command context expires.
+
+        After this time is reached, the message/response methods on this
+        context will always raise `hikari.errors.NotFoundError`.
         """
 
     @property
@@ -1303,24 +1328,12 @@ class SlashContext(Context, abc.ABC):
     @property
     @abc.abstractmethod
     def member(self) -> typing.Optional[hikari.InteractionMember]:
-        """Object of the member that triggered this command if this is in a guild.
-
-        Returns
-        -------
-        typing.Optional[hikari.InteractionMember]
-            The member that triggered this command if this is in a guild.
-        """
+        """Object of the member that triggered this command if this is in a guild."""
 
     @property
     @abc.abstractmethod
     def options(self) -> collections.Mapping[str, SlashOption]:
-        """Mapping of option names to the values provided for them.
-
-        Returns
-        -------
-        collections.abc.Mapping[str, SlashOption]
-            Mapping of option names to their values.
-        """
+        """Mapping of option names to the values provided for them."""
 
     @abc.abstractmethod
     def set_command(self: _T, _: typing.Optional[BaseSlashCommand], /) -> _T:
@@ -1411,8 +1424,11 @@ class SlashContext(Context, abc.ABC):
 
         Other Parameters
         ----------------
-        tts : hikari.UndefinedOr[bool]
-            If provided, whether the message will be sent as a TTS message.
+        delete_after : typing.Union[datetime.timedelta, float, int, None]
+            If provided, the seconds after which the response message should be delete.
+
+            .. note::
+                As of writing, this does not support ephemeral slash command responses.
         attachment : hikari.UndefinedOr[hikari.Resourceish]
             If provided, the message attachment. This can be a resource,
             or string of a path on your computer or a URL.
@@ -1446,8 +1462,10 @@ class SlashContext(Context, abc.ABC):
             `hikari.Snowflake`, or
             `hikari.PartialRole` derivatives to enforce mentioning
             specific roles.
+        tts : hikari.UndefinedOr[bool]
+            If provided, whether the message will be sent as a TTS message.
         flags : typing.Union[hikari.UndefinedType, int, hikari.MessageFlag]
-            The flags to set for this webhook message.
+            The flags to set for this response.
 
             As of writing this can only flag which can be provided is EPHEMERAL,
             other flags are just ignored.
@@ -1469,12 +1487,11 @@ class SlashContext(Context, abc.ABC):
             or embeds are specified.
             If any invalid snowflake IDs are passed; a snowflake may be invalid
             due to it being outside of the range of a 64 bit integer.
-        hikari.UnauthorizedError
-            If you pass a token that's invalid for the target webhook.
         ValueError
-            If either `ExecutableWebhook.token` is `None` or more than 100 unique
-            objects/entities are passed for `role_mentions` or `user_mentions or
-            if `token` is not available.
+            If more than 100 unique objects/entities are passed for
+            `role_mentions` or `user_mentions.
+
+            If the interaction will have expired before `delete_after` is reached.
         TypeError
             If both `attachment` and `attachments` are specified.
         """
@@ -1509,6 +1526,11 @@ class SlashContext(Context, abc.ABC):
 
         Other Parameters
         ----------------
+        delete_after : typing.Union[datetime.timedelta, float, int, None]
+            If provided, the seconds after which the response message should be delete.
+
+            .. note::
+                As of writing, this does not support ephemeral slash command responses.
         content : hikari.UndefinedOr[typing.Any]
             If provided, the message contents. If
             `hikari.UNDEFINED`, then nothing will be sent
@@ -1562,6 +1584,8 @@ class SlashContext(Context, abc.ABC):
         ValueError
             If more than 100 unique objects/entities are passed for
             `role_mentions` or `user_mentions`.
+
+            If the interaction will have expired before `delete_after` is reached.
         TypeError
             If both `embed` and `embeds` are specified.
         hikari.BadRequestError
@@ -1928,24 +1952,12 @@ class ExecutableCommand(abc.ABC, typing.Generic[ContextT_co]):
     @property
     @abc.abstractmethod
     def component(self) -> typing.Optional[Component]:
-        """Component that the command is registered with.
-
-        Returns
-        -------
-        typing.Optional[Component]
-            The component that the command is registered with.
-        """
+        """Component that the command is registered with."""
 
     @property
     @abc.abstractmethod
     def hooks(self) -> typing.Optional[Hooks[ContextT_co]]:
-        """Hooks that are triggered when the command is executed.
-
-        Returns
-        -------
-        typing.Optional[Hooks[ContextT_co]]
-            The hooks that are triggered when the command is executed if set.
-        """
+        """Hooks that are triggered when the command is executed."""
 
     @property
     @abc.abstractmethod
@@ -2148,13 +2160,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.ABC):
     @property
     @abc.abstractmethod
     def commands(self) -> collections.Collection[BaseSlashCommand]:
-        """Collection of the commands in this group.
-
-        Returns
-        -------
-        commands : collections.abc.Collection[BaseSlashCommand]
-            The commands in this group.
-        """
+        """Collection of the commands in this group."""
 
     @abc.abstractmethod
     def add_command(self: _T, command: BaseSlashCommand, /) -> _T:
