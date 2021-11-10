@@ -107,7 +107,7 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
         return self._client.shards
 
     @property
-    def voice(self) -> typing.Optional[hikari.VoiceComponent]:
+    def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
         return self._client.voice
 
     def _assert_not_final(self) -> None:
