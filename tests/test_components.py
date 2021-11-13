@@ -172,8 +172,8 @@ class TestComponent:
         mock_check = mock.Mock()
         component = tanjun.Component().add_slash_check(mock_check)
 
-        with mock.patch.object(tanjun.slash_checks, "InjectableCheck") as InjectableCheck:
-            result = component.add_check(mock_check)
+        with mock.patch.object(tanjun.checks, "InjectableCheck") as InjectableCheck:
+            result = component.add_slash_check(mock_check)
 
             InjectableCheck.assert_not_called()
 
@@ -212,7 +212,7 @@ class TestComponent:
         mock_check = mock.Mock()
         component = tanjun.Component().add_message_check(mock_check)
 
-        with mock.patch.object(tanjun.message_checks, "InjectableCheck") as InjectableCheck:
+        with mock.patch.object(tanjun.checks, "InjectableCheck") as InjectableCheck:
             result = component.add_message_check(mock_check)
 
             InjectableCheck.assert_not_called()
