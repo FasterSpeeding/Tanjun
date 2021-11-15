@@ -570,6 +570,27 @@ class TestMessageContext:
         mock_client.rest.fetch_message.assert_not_called()
 
     @pytest.mark.asyncio()
+    async def test__delete_after(self, context: tanjun.MessageContext):
+        mock_message = mock.AsyncMock()
+
+        with mock.patch.object(asyncio, "sleep") as sleep:
+            await context._delete_after(1545.4, mock_message)
+
+            sleep.assert_awaited_once_with(1545.4)
+            mock_message.delete.assert_awaited_once_with()
+
+    @pytest.mark.asyncio()
+    async def test__delete_after_handles_not_found_error(self, context: tanjun.MessageContext):
+        mock_message = mock.AsyncMock()
+        mock_message.delete.side_effect = hikari.NotFoundError(url="", headers={}, raw_body=None)
+
+        with mock.patch.object(asyncio, "sleep") as sleep:
+            await context._delete_after(1545.4, mock_message)
+
+            sleep.assert_awaited_once_with(1545.4)
+            mock_message.delete.assert_awaited_once_with()
+
+    @pytest.mark.asyncio()
     async def test_respond(self, context: tanjun.MessageContext):
         mock_attachment = mock.Mock()
         mock_attachments = [mock.Mock()]
@@ -1372,7 +1393,7 @@ class TestSlashContext:
         with mock.patch.object(asyncio, "sleep") as sleep:
             await context._delete_followup_after(543, mock_message)
 
-            sleep.assert_called_once_with(543)
+            sleep.assert_awaited_once_with(543)
 
         assert isinstance(context.interaction.delete_message, mock.AsyncMock)
         context.interaction.delete_message.assert_awaited_once_with(mock_message)
@@ -1386,7 +1407,7 @@ class TestSlashContext:
         with mock.patch.object(asyncio, "sleep") as sleep:
             await context._delete_followup_after(543, mock_message)
 
-            sleep.assert_called_once_with(543)
+            sleep.assert_awaited_once_with(543)
 
         context.interaction.delete_message.assert_awaited_once_with(mock_message)
 
@@ -1405,7 +1426,7 @@ class TestSlashContext:
         with mock.patch.object(asyncio, "sleep") as sleep:
             await context._delete_initial_response_after(123)
 
-            sleep.assert_called_once_with(123)
+            sleep.assert_awaited_once_with(123)
             mock_delete_initial_response.assert_awaited_once_with()
 
     @pytest.mark.asyncio()
@@ -1421,7 +1442,7 @@ class TestSlashContext:
         with mock.patch.object(asyncio, "sleep") as sleep:
             await context._delete_initial_response_after(123)
 
-            sleep.assert_called_once_with(123)
+            sleep.assert_awaited_once_with(123)
             mock_delete_initial_response.assert_awaited_once_with()
 
     @pytest.mark.skip(reason="not implemented")
