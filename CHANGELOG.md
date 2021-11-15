@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.1.4a1] - 2021-11-15
 ### Added
-- `injecting.SelfInjectingCallback` and `tanjun.as_self_injecting` to let make a callback self-injecting 
+- `injecting.SelfInjectingCallback` and `tanjun.as_self_injecting` to let users make a callback self-injecting 
   by linking it to a client instance. This should make it easier to use Tanjun's dependency injection
   externally.
 - Dependency injection support for hook callbacks.
