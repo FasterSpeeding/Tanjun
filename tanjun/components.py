@@ -293,8 +293,7 @@ class Component(abc.Component):
         include_globals: bool = False,
         scope: typing.Optional[collections.Mapping[str, typing.Any]] = None,
     ) -> _ComponentT:
-        """
-        Load top-level commands from the calling scope.
+        """Load top-level commands into the component from the calling scope.
 
         Notes
         -----
