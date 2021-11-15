@@ -35,6 +35,7 @@
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 
+import inspect
 import types
 from unittest import mock
 
@@ -42,6 +43,9 @@ import hikari
 import pytest
 
 import tanjun
+
+mock_global_command_1 = mock.Mock(tanjun.abc.SlashCommand)
+mock_global_command_2 = mock.Mock(tanjun.abc.MessageCommand)
 
 
 class TestComponent:
@@ -63,6 +67,101 @@ class TestComponent:
     @pytest.mark.skip(reason="TODO")
     def test_copy(self):
         ...
+
+    def test_detect_commands(self):
+        # Some of the variables in this test have a type: ignore and noqa on them,
+        # this is to silence warnings about these variables being "unused" which
+        # we ignore in this case as we're testing that detect_command can deal with
+        # ignoring variable noise.
+        baz = 1  # type: ignore  # noqa: F841
+        mock_command_1 = mock.MagicMock(tanjun.abc.MessageCommand)
+        foo = None  # type: ignore  # noqa: F841
+        bar = object()  # type: ignore  # noqa: F841
+        mock_command_2 = mock.MagicMock(tanjun.abc.SlashCommand)
+        mock_add_command = mock.Mock()
+
+        class StubComponent(tanjun.Component):
+            add_command = mock_add_command
+
+        component = StubComponent()
+
+        result = component.detect_commands()
+
+        assert result is component
+        mock_add_command.assert_has_calls([mock.call(mock_command_1), mock.call(mock_command_2)])
+
+    def test_detect_commands_when_including_globals(self):
+        # Some of the variables in this test have a type: ignore and noqa on them,
+        # this is to silence warnings about these variables being "unused" which
+        # we ignore in this case as we're testing that detect_command can deal with
+        # ignoring variable noise.
+        baz = 1  # type: ignore  # noqa: F841
+        mock_command_1 = mock.MagicMock(tanjun.abc.MessageCommand)
+        foo = None  # type: ignore  # noqa: F841
+        bar = object()  # type: ignore  # noqa: F841
+        mock_command_2 = mock.MagicMock(tanjun.abc.SlashCommand)
+        mock_add_command = mock.Mock()
+        _mock_global_command_1 = mock.MagicMock(tanjun.abc.SlashCommand)
+        mock_global_command_1 = _mock_global_command_1  # type: ignore  # noqa: F841
+
+        class StubComponent(tanjun.Component):
+            add_command = mock_add_command
+
+        component = StubComponent()
+
+        result = component.detect_commands(include_globals=True)
+
+        assert result is component
+        mock_add_command.assert_has_calls(
+            [
+                mock.call(mock_command_1),
+                mock.call(mock_command_2),
+                mock.call(_mock_global_command_1),
+                mock.call(globals()["mock_global_command_1"]),
+                mock.call(mock_global_command_2),
+            ]
+        )
+
+    def test_detect_commands_with_explicitly_passed_scope(self):
+        mock_command_1 = mock.MagicMock(tanjun.abc.ExecutableCommand)
+        mock_command_2 = mock.MagicMock(tanjun.abc.MessageCommand)
+        mock_command_3 = mock.MagicMock(tanjun.abc.SlashCommand)
+        mock_add_command = mock.Mock()
+        scope = {
+            "foo": "bar",
+            "a_command": mock_command_1,
+            "bar": None,
+            "other_command": mock_command_2,
+            "buz": object(),
+            "co": mock_command_3,
+        }
+
+        class StubComponent(tanjun.Component):
+            add_command = mock_add_command
+
+        component = StubComponent()
+
+        result = component.detect_commands(scope=scope)
+
+        assert result is component
+        mock_add_command.assert_has_calls(
+            [mock.call(mock_command_1), mock.call(mock_command_2), mock.call(mock_command_3)]
+        )
+
+    def test_detect_commands_when_both_include_globals_and_passed_scope(self):
+        component = tanjun.Component()
+        with pytest.raises(ValueError, match="Cannot specify include_globals as True when scope is passed"):
+            component.detect_commands(include_globals=True, scope={})  # type: ignore
+
+    def test_detect_commands_when_stack_inspection_not_supported(self):
+        component = tanjun.Component()
+
+        with mock.patch.object(inspect, "currentframe", return_value=None):
+            with pytest.raises(
+                RuntimeError,
+                match="Stackframe introspection is not supported in this runtime. Please explicitly pass `scope`.",
+            ):
+                component.detect_commands()
 
     def test_set_ephemeral_default(self):
         client = tanjun.Component().set_ephemeral_default(False)
