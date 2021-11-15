@@ -59,6 +59,7 @@ if typing.TYPE_CHECKING:
     import contextlib
     from collections import abc as collections
 
+    _InMemoryCooldownManagerT = typing.TypeVar("_InMemoryCooldownManagerT", bound="InMemoryCooldownManager")
     _LazyConstantT = typing.TypeVar("_LazyConstantT", bound="LazyConstant[typing.Any]")
 
 _T = typing.TypeVar("_T")
@@ -127,44 +128,266 @@ class CooldownResource(int, enum.Enum):
     """Cooldown resource types."""
 
     USER = 0
+    """A per-user cooldown bucket."""
+
     MEMBER = 1
+    """A per-guild member cooldown bucket.
+
+    .. note::
+        When executed in a DM this will be per-DM.
+    """
+
     CHANNEL = 2
+    """A per-channel cooldown bucket."""
+
     PARENT_CHANNEL = 3
+    """A per-parent channel cooldown bucket.
+
+    .. note::
+        For DM channels this will be per-DM, for guild channels with no parents
+        this'll be per-guild.
+    """
+
     CATEGORY = 4
+    """A per-category cooldown bucket.
+
+    .. note::
+        For DM channels this will be per-DM, for guild channels with no parent
+        category this'll be per-guild.
+    """
+
     HIGHEST_ROLE = 5
+    """A per-highest role cooldown bucket.
+
+    .. note::
+        When executed in a DM this will be per-DM, with this defaulting to
+        targetting the @everyone role if they have no real roles.
+    """
+
     GUILD = 6
+    """A per-guild cooldown bucket.
+
+    .. note::
+        When executed in a DM this will be per-DM.
+    """
 
 
 class _Cooldown:
-    __slots__ = ()
+    __slots__ = ("counter", "will_reset_after", "resource")
+
+    def __init__(self, resource: _BaseCooldownResource, /) -> None:
+        self.counter = 0
+        self.will_reset_after = -1.0
+        self.resource = resource
+
+    @property
+    def has_expired(self) -> bool:
+        return time.monotonic() >= self.will_reset_after
+
+    def increment(self) -> None:
+        if self.counter == 0:
+            self.will_reset_after = time.monotonic() + self.resource.reset_after
+
+        elif (current_time := time.monotonic()) > self.will_reset_after:
+            self.counter == 0
+            self.will_reset_after = current_time + self.resource.reset_after
+
+        self.counter += 1
+
+    def must_wait_until(self) -> typing.Optional[float]:
+        if self.counter >= self.resource.limit and (time_left := self.will_reset_after - time.monotonic()) > 0:
+            return time_left
 
 
-class _CooldownResource:
+class _BaseCooldownResource:
+    __slots__ = ("limit", "reset_after")
+
+    def __init__(self, limit: int, reset_after: typing.Union[int, float, datetime.timedelta]) -> None:
+        self.limit = limit
+        if isinstance(reset_after, datetime.timedelta):
+            self.reset_after = reset_after.total_seconds()
+        else:
+            self.reset_after = float(reset_after)
+
+    async def check(self, tx: tanjun_abc.Context, /) -> typing.Optional[float]:
+        raise NotImplementedError
+
+    async def increment(self, ctx: tanjun_abc.Context, /) -> None:
+        raise NotImplementedError
+
+    def copy(self) -> _BaseCooldownResource:
+        raise NotImplementedError
+
+
+class _CooldownBucket(_BaseCooldownResource):
     __slots__ = ("type", "mapping")
 
-    def __init__(self, type_: CooldownResource, /) -> None:
-        self.type = type_
+    def __init__(
+        self,
+        resource_type: CooldownResource,
+        limit: int,
+        reset_after: typing.Union[int, float, datetime.timedelta],
+    ) -> None:
+        super().__init__(limit, reset_after)
+        self.type = resource_type
         self.mapping: dict[hikari.Snowflake, _Cooldown] = {}
+
+    async def check(self, ctx: tanjun_abc.Context, /) -> typing.Optional[float]:
+        target = await self._get_target(ctx)
+        if not (cooldown := self.mapping.get(target)):
+            cooldown = self.mapping[target] = _Cooldown(self)
+
+        return cooldown.must_wait_until()
+
+    async def increment(self, ctx: tanjun_abc.Context, /) -> None:
+        target = await self._get_target(ctx)
+        if not (cooldown := self.mapping.get(target)):
+            cooldown = self.mapping[target] = _Cooldown(self)
+
+        cooldown.increment()
+
+    async def _get_target(self, ctx: tanjun_abc.Context, /) -> hikari.Snowflake:
+        if self.type is CooldownResource.USER:
+            return ctx.author.id
+
+        if self.type is CooldownResource.CHANNEL:
+            return ctx.channel_id
+
+        if self.type is CooldownResource.PARENT_CHANNEL:
+            if ctx.guild_id is None:
+                return ctx.channel_id
+
+            if channel := ctx.get_channel():
+                return channel.parent_id or channel.guild_id
+
+            channel = await ctx.fetch_channel()  # TODO: couldn't this lead to two requests per command? seems bad
+            assert isinstance(channel, hikari.TextableGuildChannel)
+            return channel.parent_id or channel.guild_id
+
+        if self.type is CooldownResource.CATEGORY:
+            if ctx.guild_id is None:
+                return ctx.channel_id
+
+            # This resource doesn't include threads so we can safely assume that the parent is a category
+            if channel := ctx.get_channel():
+                return channel.parent_id or channel.guild_id
+
+            # TODO: threads
+            channel = await ctx.fetch_channel()  # TODO: couldn't this lead to two requests per command? seems bad
+            assert isinstance(channel, hikari.TextableGuildChannel)
+            return channel.parent_id or channel.guild_id
+
+        if self.type is CooldownResource.HIGHEST_ROLE:
+            if not ctx.member:
+                return ctx.channel_id
+
+            if not ctx.member.role_ids:
+                return ctx.member.guild_id
+
+            # TODO: couldn't this lead to two requests per command? seems bad
+            roles = ctx.member.get_roles() or await ctx.member.fetch_roles()
+            return next(iter(sorted(roles, key=lambda r: r.position, reverse=True))).id
+
+        if self.type is CooldownResource.GUILD:
+            return ctx.guild_id or ctx.channel_id
+
+        raise RuntimeError(f"Unexpected type {self.type}")
+
+    def copy(self) -> _CooldownBucket:
+        return _CooldownBucket(resource_type=self.type, limit=self.limit, reset_after=self.reset_after)
+
+
+class _MemberCooldownResource(_BaseCooldownResource):
+    __slots__ = (
+        "dm_fallback",
+        "mapping",
+    )
+
+    def __init__(
+        self,
+        limit: int,
+        reset_after: typing.Union[int, float, datetime.timedelta],
+    ) -> None:
+        super().__init__(limit, reset_after)
+        self.dm_fallback: dict[hikari.Snowflake, _Cooldown]
+        self.mapping: dict[hikari.Snowflake, dict[hikari.Snowflake, _Cooldown]] = {}
+
+    async def check(self, ctx: tanjun_abc.Context, /) -> typing.Optional[float]:
+        if not ctx.guild_id:
+            cooldown = self.dm_fallback.get(ctx.author.id)
+            return cooldown.must_wait_until() if cooldown else None
+
+        guild_cooldowns = self.mapping.get(ctx.guild_id)
+        if guild_cooldowns and (cooldown := guild_cooldowns.get(ctx.author.id)):
+            return cooldown.must_wait_until()
+
+    async def increment(self, ctx: tanjun_abc.Context, /) -> None:
+        if not ctx.guild_id:
+            cooldown = self.dm_fallback.get(ctx.author.id)
+            if not cooldown:
+                cooldown = self.dm_fallback[ctx.author.id] = _Cooldown(self)
+
+            return cooldown.increment()
+
+        if guild_cooldowns := self.mapping.get(ctx.guild_id):
+            cooldown = guild_cooldowns.get(ctx.author.id)
+            if not cooldown:
+                cooldown = guild_cooldowns[ctx.author.id] = _Cooldown(self)
+
+        else:
+            cooldown = _Cooldown(self)
+            self.mapping[ctx.guild_id] = {ctx.author.id: cooldown}
+
+        cooldown.increment()
+
+    def copy(self) -> _MemberCooldownResource:
+        return _MemberCooldownResource(self.limit, self.reset_after)
 
 
 class InMemoryCooldownManager(AbstractCooldownManager):
     """In-memory standard implementation of `AbstractCooldownManager`."""
 
-    __slots__ = ("_routes",)
+    __slots__ = ("_buckets", "_default_bucket_template")
 
     def __init__(self) -> None:
-        self._routes: dict[str, _CooldownResource] = {"default": _CooldownResource(CooldownResource.USER)}
+        self._buckets: dict[str, _BaseCooldownResource] = {}
+        self._default_bucket_template: _BaseCooldownResource = _CooldownBucket(CooldownResource.USER, 5, 10)
 
-    async def check_cooldown(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> float:
-        if not (route := self._routes.get(bucket_id)):
-            _LOGGER.info("No route found for {bucket_id}, falling back to 'default' bucket.")
-            route = self._routes[bucket_id] = self._routes["default"]
+    def _get_bucket(self, bucket_id: str, /) -> _BaseCooldownResource:
+        if bucket := self._buckets.get(bucket_id):
+            return bucket
 
-        route
-        raise NotImplementedError
+        _LOGGER.info("No route found for {bucket_id}, falling back to 'default' bucket.")
+        bucket = self._buckets[bucket_id] = self._default_bucket_template.copy()
+        return bucket
 
-    async def increment_cooldown(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> None:
-        raise NotImplementedError
+    def check_cooldown(
+        self, bucket_id: str, ctx: tanjun_abc.Context, /
+    ) -> collections.Coroutine[typing.Any, typing.Any, typing.Optional[float]]:
+        return self._get_bucket(bucket_id).check(ctx)
+
+    def increment_cooldown(
+        self, bucket_id: str, ctx: tanjun_abc.Context, /
+    ) -> collections.Coroutine[typing.Any, typing.Any, None]:
+        return self._get_bucket(bucket_id).increment(ctx)
+
+    def set_bucket(
+        self: _InMemoryCooldownManagerT,
+        bucket_id: str,
+        resource_type: CooldownResource,
+        limit: int,
+        reset_after: typing.Union[int, float, datetime.timedelta],
+    ) -> _InMemoryCooldownManagerT:
+        if resource_type is CooldownResource.MEMBER:
+            bucket = _MemberCooldownResource(limit, reset_after)
+        else:
+            bucket = _CooldownBucket(resource_type, limit, reset_after)
+
+        self._buckets[bucket_id] = bucket
+        if bucket_id == "default":
+            self._default_bucket_template = bucket.copy()
+
+        return self
 
 
 class AbstractOwnerCheck(abc.ABC):
