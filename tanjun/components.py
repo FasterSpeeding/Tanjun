@@ -294,13 +294,15 @@ class Component(abc.Component):
         scope: typing.Optional[collections.Mapping[str, typing.Any]] = None,
     ) -> _ComponentT:
         """
-        Load commands from the calling scope.
+        Load top-level commands from the calling scope.
 
-        .. note::
-            This will detect commands from the calling scope unless `scope` is
-            passed but this isn't possible in a stack-less python
-            implementation; in stack-less environments the scope will have to
-            be explicitly passed as `scope`.
+        Notes
+        -----
+        * This will ignore commands which are owned by command groups.
+        * This will detect commands from the calling scope unless `scope` is
+          passed but this isn't possible in a stack-less python implementation;
+          in stack-less environments the scope will have to be explicitly
+          passed as `scope`.
 
         Other Parameters
         ----------------
@@ -351,8 +353,10 @@ class Component(abc.Component):
             "global and local" if include_globals else "local",
         )
         for value in values_iter:
-            if isinstance(value, abc.ExecutableCommand):
-                self.add_command(value)
+            if isinstance(value, abc.BaseSlashCommand) and not value.parent:
+                self.add_slash_command(value)
+            elif isinstance(value, abc.MessageCommand) and not value.parent:
+                self.add_message_command(value)
 
         return self
 

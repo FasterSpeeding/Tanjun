@@ -44,8 +44,12 @@ import pytest
 
 import tanjun
 
-mock_global_command_1 = mock.Mock(tanjun.abc.SlashCommand)
-mock_global_command_2 = mock.Mock(tanjun.abc.MessageCommand)
+mock_global_slash_command = mock.Mock(tanjun.abc.SlashCommand)
+mock_global_slash_command.parent = None
+mock_owned_global_slash_command = mock.Mock(tanjun.abc.SlashCommand)
+mock_global_message_command = mock.Mock(tanjun.abc.MessageCommand)
+mock_global_message_command.parent = None
+mock_owned_global_message_command = mock.Mock(tanjun.abc.MessageCommand)
 
 
 class TestComponent:
@@ -74,21 +78,28 @@ class TestComponent:
         # we ignore in this case as we're testing that detect_command can deal with
         # ignoring variable noise.
         baz = 1  # type: ignore  # noqa: F841
-        mock_command_1 = mock.MagicMock(tanjun.abc.MessageCommand)
+        mock_owned_slash_command = mock.Mock(tanjun.abc.SlashCommand)  # type: ignore  # noqa: F841
+        mock_message_command = mock.Mock(tanjun.abc.MessageCommand)
+        mock_message_command.parent = None
         foo = None  # type: ignore  # noqa: F841
         bar = object()  # type: ignore  # noqa: F841
-        mock_command_2 = mock.MagicMock(tanjun.abc.SlashCommand)
-        mock_add_command = mock.Mock()
+        mock_slash_command = mock.Mock(tanjun.abc.SlashCommand)
+        mock_slash_command.parent = None
+        mock_owned_message_command = mock.Mock(tanjun.abc.MessageCommand)  # type: ignore  # noqa: F841
+        mock_add_slash_command = mock.Mock()
+        mock_add_message_command = mock.Mock()
 
         class StubComponent(tanjun.Component):
-            add_command = mock_add_command
+            add_slash_command = mock_add_slash_command
+            add_message_command = mock_add_message_command
 
         component = StubComponent()
 
         result = component.detect_commands()
 
         assert result is component
-        mock_add_command.assert_has_calls([mock.call(mock_command_1), mock.call(mock_command_2)])
+        mock_add_message_command.assert_called_once_with(mock_message_command)
+        mock_add_slash_command.assert_called_once_with(mock_slash_command)
 
     def test_detect_commands_when_including_globals(self):
         # Some of the variables in this test have a type: ignore and noqa on them,
@@ -96,56 +107,84 @@ class TestComponent:
         # we ignore in this case as we're testing that detect_command can deal with
         # ignoring variable noise.
         baz = 1  # type: ignore  # noqa: F841
-        mock_command_1 = mock.MagicMock(tanjun.abc.MessageCommand)
+        mock_message_command = mock.Mock(tanjun.abc.MessageCommand)
+        mock_message_command.parent = None
         foo = None  # type: ignore  # noqa: F841
+        mock_owned_slash_command = mock.Mock(tanjun.abc.SlashCommand)  # type: ignore  # noqa: F841
         bar = object()  # type: ignore  # noqa: F841
-        mock_command_2 = mock.MagicMock(tanjun.abc.SlashCommand)
-        mock_add_command = mock.Mock()
-        _mock_global_command_1 = mock.MagicMock(tanjun.abc.SlashCommand)
-        mock_global_command_1 = _mock_global_command_1  # type: ignore  # noqa: F841
+        mock_slash_command = mock.Mock(tanjun.abc.SlashCommand)
+        mock_slash_command.parent = None
+        mock_add_slash_command = mock.Mock()
+        mock_add_message_command = mock.Mock()
+        mock_global_slash_command = mock.Mock(tanjun.abc.SlashCommand)
+        mock_global_slash_command.parent = None
+        mock_owned_message_command = mock.Mock(tanjun.abc.MessageCommand)  # type: ignore  # noqa: F841
+        mock_global_message_command = mock.Mock(tanjun.abc.MessageCommand)
+        mock_global_message_command.parent = None
 
         class StubComponent(tanjun.Component):
-            add_command = mock_add_command
+            add_slash_command = mock_add_slash_command
+            add_message_command = mock_add_message_command
 
         component = StubComponent()
 
         result = component.detect_commands(include_globals=True)
 
         assert result is component
-        mock_add_command.assert_has_calls(
+        mock_add_slash_command.assert_has_calls(
             [
-                mock.call(mock_command_1),
-                mock.call(mock_command_2),
-                mock.call(_mock_global_command_1),
-                mock.call(globals()["mock_global_command_1"]),
-                mock.call(mock_global_command_2),
+                mock.call(mock_slash_command),
+                mock.call(mock_global_slash_command),
+                mock.call(globals()["mock_global_slash_command"]),
+            ]
+        )
+        mock_add_message_command.assert_has_calls(
+            [
+                mock.call(mock_message_command),
+                mock.call(mock_global_message_command),
+                mock.call(globals()["mock_global_message_command"]),
             ]
         )
 
     def test_detect_commands_with_explicitly_passed_scope(self):
-        mock_command_1 = mock.MagicMock(tanjun.abc.ExecutableCommand)
-        mock_command_2 = mock.MagicMock(tanjun.abc.MessageCommand)
-        mock_command_3 = mock.MagicMock(tanjun.abc.SlashCommand)
-        mock_add_command = mock.Mock()
+        _mock_slash_command_1 = mock.Mock(tanjun.abc.SlashCommand)
+        _mock_slash_command_1.parent = None
+        _mock_slash_command_2 = mock.Mock(tanjun.abc.SlashCommand)
+        _mock_slash_command_2.parent = None
+        _mock_message_command_1 = mock.Mock(tanjun.abc.MessageCommand)
+        _mock_message_command_1.parent = None
+        _mock_message_command_2 = mock.Mock(tanjun.abc.MessageCommand)
+        _mock_message_command_2.parent = None
+        mock_ignored_slash_command = mock.Mock(tanjun.abc.SlashCommand)
+        mock_ignored_slash_command.parent = None
+        mock_ignored_message_command = mock.Mock(tanjun.abc.MessageCommand)
+        mock_ignored_message_command.parent = None
+        mock_add_slash_command = mock.Mock()
+        mock_add_message_command = mock.Mock()
         scope = {
             "foo": "bar",
-            "a_command": mock_command_1,
+            "a_command": _mock_slash_command_1,
             "bar": None,
-            "other_command": mock_command_2,
+            "other_command": _mock_message_command_1,
             "buz": object(),
-            "co": mock_command_3,
+            "a": _mock_message_command_2,
+            "e": _mock_slash_command_2,
+            "owned_slash_command": mock.Mock(tanjun.abc.SlashCommand),
+            "owned_message_command": mock.Mock(tanjun.abc.MessageCommand),
         }
 
         class StubComponent(tanjun.Component):
-            add_command = mock_add_command
+            add_slash_command = mock_add_slash_command
+            add_message_command = mock_add_message_command
 
         component = StubComponent()
 
         result = component.detect_commands(scope=scope)
 
         assert result is component
-        mock_add_command.assert_has_calls(
-            [mock.call(mock_command_1), mock.call(mock_command_2), mock.call(mock_command_3)]
+        mock_add_slash_command.assert_has_calls([mock.call(_mock_slash_command_1), mock.call(_mock_slash_command_2)])
+        mock_add_message_command.assert_has_calls(
+            [mock.call(_mock_message_command_1), mock.call(_mock_message_command_2)]
         )
 
     def test_detect_commands_when_both_include_globals_and_passed_scope(self):

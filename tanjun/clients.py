@@ -1053,7 +1053,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 )
 
         _LOGGER.info("Successfully declared %s (top-level) %s commands", len(responses), target_type)
-        _LOGGER.debug("declared %s command ids: %s", target_type, [response.id for response in responses])
+        if _LOGGER.isEnabledFor(logging.DEBUG):
+            _LOGGER.debug(
+                "declared %s command ids: %s", target_type, {response.name: response.id for response in responses}
+            )
+
         return responses
 
     def set_auto_defer_after(self: _ClientT, time: typing.Optional[float], /) -> _ClientT:
