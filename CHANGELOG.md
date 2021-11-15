@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   externally.
 - Dependency injection support for hook callbacks.
 - `voice` property to Context and Client.
+- `Component.detect_commands` for auto-loading commands from the current scope.
 - `delete_after` option to context response methods.
 - `expires_at` property to SlashContext.
 
@@ -36,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Added USE_EXTERNAL_STICKERS to DM permissions.
 - `Client.listeners` now returns a sequence of callbacks rather than descriptors.
+- `load_from_attributes` now defaults to `False` in `Component.__init__`.
 
 ### Fixed
 - Removed `cache_callback` from injecting.pyi.

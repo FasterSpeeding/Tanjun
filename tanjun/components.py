@@ -38,6 +38,8 @@ import asyncio
 import base64
 import copy
 import inspect
+import itertools
+import logging
 import random
 import typing
 from collections import abc as collections
@@ -55,6 +57,7 @@ if typing.TYPE_CHECKING:
 
 
 CommandT = typing.TypeVar("CommandT", bound="abc.ExecutableCommand[typing.Any]")
+_LOGGER = logging.getLogger("hikari.tanjun.components")
 # This errors on earlier 3.9 releases when not quotes cause dumb handling of the [CommandT] list
 WithCommandReturnSig = typing.Union[CommandT, "collections.Callable[[CommandT], CommandT]"]
 
@@ -114,6 +117,10 @@ def _with_command(
         return command
 
     return decorator
+
+
+def _filter_scope(scope: collections.Mapping[str, typing.Any]) -> collections.Iterator[typing.Any]:
+    return (value for key, value in scope.items() if not key.startswith("_"))
 
 
 # TODO: do we want to setup a custom equality and hash here to make it easier to unload components?
@@ -179,7 +186,7 @@ class Component(abc.Component):
         message_hooks: typing.Optional[abc.MessageHooks] = None,
         name: typing.Optional[str] = None,
         strict: bool = False,
-        load_from_attributes: bool = True,
+        load_from_attributes: bool = False,
     ) -> None:
         self._checks: list[checks_.InjectableCheck] = (
             [checks_.InjectableCheck(check) for check in dict.fromkeys(checks)] if checks else []
@@ -269,6 +276,87 @@ class Component(abc.Component):
             return self
 
         return copy.copy(self).copy(_new=False)
+
+    @typing.overload
+    def detect_commands(
+        self: _ComponentT, *, scope: typing.Optional[collections.Mapping[str, typing.Any]] = None
+    ) -> _ComponentT:
+        ...
+
+    @typing.overload
+    def detect_commands(self: _ComponentT, *, include_globals: bool = False) -> _ComponentT:
+        ...
+
+    def detect_commands(
+        self: _ComponentT,
+        *,
+        include_globals: bool = False,
+        scope: typing.Optional[collections.Mapping[str, typing.Any]] = None,
+    ) -> _ComponentT:
+        """
+        Load commands from the calling scope.
+
+        .. note::
+            This will detect commands from the calling scope unless `scope` is
+            passed but this isn't possible in a stack-less python
+            implementation; in stack-less environments the scope will have to
+            be explicitly passed as `scope`.
+
+        Other Parameters
+        ----------------
+        include_globals: bool
+            Whether to include global variables (along with local) while
+            detecting from the calling scope.
+
+            This defaults to `False`, cannot be `True` when `scope` is provided
+            and will only ever be needed when the local scope is different
+            from the global scope.
+        scope : typing.Optional[collections.Mapping[str, typing.Any]]
+            The scope to detect commands from.
+
+            This overrides the default usage of stackframe introspection.
+
+        Returns
+        -------
+        Self
+            The current component to allow for chaining.
+
+        Raises
+        ------
+        RuntimeError
+            If this is called in a python implementation which doesn't support
+            stack frame inspection when `scope` is not provided.
+        ValueError
+            If `scope` is provided when `include_globals` is True.
+        """
+        if scope is None:
+            if not (stack := inspect.currentframe()) or not stack.f_back:
+                raise RuntimeError(
+                    "Stackframe introspection is not supported in this runtime. Please explicitly pass `scope`."
+                )
+
+            values_iter = _filter_scope(stack.f_back.f_locals)
+            if include_globals:
+                values_iter = itertools.chain(values_iter, _filter_scope(stack.f_back.f_globals))
+
+        elif include_globals:
+            raise ValueError("Cannot specify include_globals as True when scope is passed")
+
+        else:
+            values_iter = _filter_scope(scope)
+
+        _LOGGER.info(
+            "Loading commands for %s component from %s parent scope(s)",
+            self.name,
+            "global and local" if include_globals else "local",
+        )
+        for value in values_iter:
+            if isinstance(value, abc.ExecutableCommand):
+                self.add_command(value)
+
+        return self
+
+    # def into_loader()
 
     def set_ephemeral_default(self: _ComponentT, state: typing.Optional[bool], /) -> _ComponentT:
         """Set whether slash contexts executed in this component should default to ephemeral responses.
