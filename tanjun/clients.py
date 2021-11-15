@@ -228,26 +228,6 @@ class ClientCallbackNames(str, enum.Enum):
     The first positional argument is the `tanjun.abc.Component` being removed.
     """
 
-    COMPONENT_CLOSED = "component_closed"
-    """Called when a component is closed.
-
-    .. warning::
-        Unlike other client callbacks, this one is dispatched by the component
-        to its inner-listeners.
-
-    No positional arguments are provided for this event.
-    """
-
-    COMPONENT_STARTED = "component_started"
-    """Called when a component is started.
-
-    .. warning::
-        Unlike other client callbacks, this one is dispatched by the component
-        to its inner-listeners.
-
-    No positional arguments are provided for this event.
-    """
-
     MESSAGE_COMMAND_NOT_FOUND = "message_command_not_found"
     """Called when a message command is not found.
 
@@ -1292,6 +1272,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
             self.set_type_dependency(type(component), lambda: component)
 
         if self._loop:
+            self._loop.create_task(component.open())
             self._loop.create_task(self.dispatch_client_callback(ClientCallbackNames.COMPONENT_ADDED, component))
 
         return self
@@ -1310,6 +1291,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         stored_component.unbind_client(self)
 
         if self._loop:
+            self._loop.create_task(component.close())
             self._loop.create_task(
                 self.dispatch_client_callback(ClientCallbackNames.COMPONENT_REMOVED, stored_component)
             )
@@ -1622,7 +1604,9 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         if deregister_listeners and self._server:
             self._server.set_listener(hikari.CommandInteraction, None)
 
-        self._is_alive = None
+        await asyncio.gather(*(component.close() for component in self._components.copy().values()))
+
+        self._loop = None
         await self.dispatch_client_callback(ClientCallbackNames.CLOSED)
         self._is_closing = False
 
@@ -1656,6 +1640,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                     self._prefixes.append(prefix)
 
             self._grab_mention_prefix = False
+
+        await asyncio.gather(*(component.open() for component in self._components.copy().values()))
 
         if register_listeners and self._events:
             if event_type := self._accepts.get_event_type():

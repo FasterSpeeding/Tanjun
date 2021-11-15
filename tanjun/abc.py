@@ -2721,6 +2721,25 @@ class Component(abc.ABC):
             execute with the current context.
         """
 
+    async def close(self) -> None:
+        """Close the component.
+
+        Raises
+        ------
+        RuntimeError
+            If the component isn't running.
+        """
+
+    async def open(self) -> None:
+        """Start the component.
+
+        Raises
+        ------
+        RuntimeError
+            If the component is already open.
+            If the component isn't bound to a client.
+        """
+
 
 class Client(abc.ABC):
     """Abstract interface of a Tanjun client.
