@@ -35,6 +35,8 @@ from __future__ import annotations
 __all__: list[str] = ["MessageContext", "ResponseTypeT", "SlashContext", "SlashOption"]
 
 import asyncio
+import datetime
+import logging
 import typing
 
 import hikari
@@ -44,7 +46,6 @@ from . import abc as tanjun_abc
 from . import injecting
 
 if typing.TYPE_CHECKING:
-    import datetime
     from collections import abc as collections
 
     from hikari import traits as hikari_traits
@@ -55,6 +56,12 @@ if typing.TYPE_CHECKING:
     _T = typing.TypeVar("_T")
 
 ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
+_INTERACTION_LIFETIME: typing.Final[datetime.timedelta] = datetime.timedelta(minutes=15)
+_LOGGER = logging.getLogger("hikari.tanjun.context")
+
+
+def _delete_after_to_float(delete_after: typing.Union[datetime.timedelta, float, int]) -> float:
+    return delete_after.total_seconds() if isinstance(delete_after, datetime.timedelta) else float(delete_after)
 
 
 class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
@@ -314,6 +321,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedNoneOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -329,10 +337,11 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        delete_after = _delete_after_to_float(delete_after) if delete_after is not None else None
         if self._initial_response_id is None:
             raise LookupError("Context has no initial response")
 
-        return await self.rest.edit_message(
+        message = await self.rest.edit_message(
             self._message.channel_id,
             self._initial_response_id,
             content=content,
@@ -347,11 +356,16 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
             user_mentions=user_mentions,
             role_mentions=role_mentions,
         )
+        if delete_after is not None:
+            asyncio.create_task(self._delete_after(delete_after, message))
+
+        return message
 
     async def edit_last_response(
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedNoneOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -367,10 +381,11 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        delete_after = _delete_after_to_float(delete_after) if delete_after is not None else None
         if self._last_response_id is None:
             raise LookupError("Context has no previous tracked response")
 
-        return await self.rest.edit_message(
+        message = await self.rest.edit_message(
             self._message.channel_id,
             self._last_response_id,
             content=content,
@@ -386,6 +401,11 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
             role_mentions=role_mentions,
         )
 
+        if delete_after is not None:
+            asyncio.create_task(self._delete_after(delete_after, message))
+
+        return message
+
     async def fetch_initial_response(self) -> hikari.Message:
         if self._initial_response_id is not None:
             return await self.client.rest.fetch_message(self._message.channel_id, self._initial_response_id)
@@ -398,11 +418,20 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
 
         raise LookupError("No responses found for this context")
 
+    @staticmethod
+    async def _delete_after(delete_after: float, message: hikari.Message) -> None:
+        await asyncio.sleep(delete_after)
+        try:
+            await message.delete()
+        except hikari.NotFoundError as exc:
+            _LOGGER.debug("Failed to delete response message after %.2f seconds", delete_after, exc_info=exc)
+
     async def respond(
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = True,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -421,6 +450,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        delete_after = _delete_after_to_float(delete_after) if delete_after is not None else None
         async with self._response_lock:
             message = await self._message.respond(
                 content=content,
@@ -441,6 +471,9 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
             self._last_response_id = message.id
             if self._initial_response_id is None:
                 self._initial_response_id = message.id
+
+            if delete_after is not None:
+                asyncio.create_task(self._delete_after(delete_after, message))
 
             return message
 
@@ -655,6 +688,10 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         return self._defaults_to_ephemeral
 
     @property
+    def expires_at(self) -> datetime.datetime:
+        return self.created_at + _INTERACTION_LIFETIME
+
+    @property
     def guild_id(self) -> typing.Optional[hikari.Snowflake]:
         return self._interaction.guild_id
 
@@ -770,10 +807,71 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
                     hikari.ResponseType.DEFERRED_MESSAGE_CREATE, flags=flags
                 )
 
+    def _validate_delete_after(self, delete_after: typing.Union[float, int, datetime.timedelta]) -> float:
+        delete_after = _delete_after_to_float(delete_after)
+        time_left = (
+            _INTERACTION_LIFETIME - (datetime.datetime.now(tz=datetime.timezone.utc) - self.created_at)
+        ).total_seconds()
+        if delete_after + 10 > time_left:
+            raise ValueError("This interaction will have expired before delete_after is reached")
+
+        return delete_after
+
+    async def _delete_followup_after(self, delete_after: float, message: hikari.Message) -> None:
+        await asyncio.sleep(delete_after)
+        try:
+            await self._interaction.delete_message(message)
+        except hikari.NotFoundError as exc:
+            _LOGGER.debug("Failed to delete response message after %.2f seconds", delete_after, exc_info=exc)
+
+    async def _create_followup(
+        self,
+        content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
+        *,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
+        attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
+        embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
+        embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        user_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool]
+        ] = hikari.UNDEFINED,
+        role_mentions: hikari.UndefinedOr[
+            typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
+        ] = hikari.UNDEFINED,
+        tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
+        flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
+    ) -> hikari.Message:
+        delete_after = self._validate_delete_after(delete_after) if delete_after is not None else None
+        message = await self._interaction.execute(
+            content=content,
+            attachment=attachment,
+            attachments=attachments,
+            component=component,
+            components=components,
+            embed=embed,
+            embeds=embeds,
+            flags=self._get_flags(flags),
+            tts=tts,
+            mentions_everyone=mentions_everyone,
+            user_mentions=user_mentions,
+            role_mentions=role_mentions,
+        )
+        self._last_response_id = message.id
+
+        if delete_after is not None:
+            asyncio.create_task(self._delete_followup_after(delete_after, message))
+
+        return message
+
     async def create_followup(
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -791,27 +889,34 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
     ) -> hikari.Message:
         async with self._response_lock:
-            message = await self._interaction.execute(
+            return await self._create_followup(
                 content=content,
+                delete_after=delete_after,
                 attachment=attachment,
                 attachments=attachments,
                 component=component,
                 components=components,
                 embed=embed,
                 embeds=embeds,
-                flags=self._get_flags(flags),
-                tts=tts,
                 mentions_everyone=mentions_everyone,
                 user_mentions=user_mentions,
                 role_mentions=role_mentions,
+                tts=tts,
+                flags=flags,
             )
-            self._last_response_id = message.id
-            return message
+
+    async def _delete_initial_response_after(self, delete_after: float) -> None:
+        await asyncio.sleep(delete_after)
+        try:
+            await self.delete_initial_response()
+        except hikari.NotFoundError as exc:
+            _LOGGER.debug("Failed to delete response message after %.2f seconds", delete_after, exc_info=exc)
 
     async def _create_initial_response(
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
@@ -827,6 +932,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
     ) -> None:
         flags = self._get_flags(flags)
+        delete_after = self._validate_delete_after(delete_after) if delete_after is not None else None
         if self._has_responded:
             raise RuntimeError("Initial response has already been created")
 
@@ -887,10 +993,14 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
 
             self._response_future.set_result(result)
 
+        if delete_after is not None:
+            asyncio.create_task(self._delete_initial_response_after(delete_after))
+
     async def create_initial_response(
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
@@ -907,6 +1017,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
     ) -> None:
         async with self._response_lock:
             await self._create_initial_response(
+                delete_after=delete_after,
                 content=content,
                 component=component,
                 components=components,
@@ -921,11 +1032,17 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
 
     async def delete_initial_response(self) -> None:
         await self._interaction.delete_initial_response()
+        # If they defer then delete the initial response then this should be treated as having
+        # an initial response to allow for followup responses.
+        self._has_responded = True
 
     async def delete_last_response(self) -> None:
         if self._last_response_id is None:
-            if self._has_responded:
+            if self._has_responded or self._has_been_deferred:
                 await self._interaction.delete_initial_response()
+                # If they defer then delete the initial response then this should be treated as having
+                # an initial response to allow for followup responses.
+                self._has_responded = True
                 return
 
             raise LookupError("Context has no last response")
@@ -936,6 +1053,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedNoneOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -951,6 +1069,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        delete_after = self._validate_delete_after(delete_after) if delete_after is not None else None
         result = await self._interaction.edit_initial_response(
             content=content,
             attachment=attachment,
@@ -965,12 +1084,17 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             role_mentions=role_mentions,
         )
         self._has_responded = True
+
+        if delete_after is not None:
+            asyncio.create_task(self._delete_initial_response_after(delete_after))
+
         return result
 
     async def edit_last_response(
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedNoneOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -987,7 +1111,8 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
         if self._last_response_id:
-            return await self._interaction.edit_message(
+            delete_after = self._validate_delete_after(delete_after) if delete_after is not None else None
+            message = await self._interaction.edit_message(
                 self._last_response_id,
                 content=content,
                 attachment=attachment,
@@ -1001,9 +1126,14 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
                 user_mentions=user_mentions,
                 role_mentions=role_mentions,
             )
+            if delete_after is not None:
+                asyncio.create_task(self._delete_followup_after(delete_after, message))
+
+            return message
 
         if self._has_responded or self._has_been_deferred:
             return await self.edit_initial_response(
+                delete_after=delete_after,
                 content=content,
                 attachment=attachment,
                 attachments=attachments,
@@ -1037,6 +1167,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[False] = False,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
@@ -1057,6 +1188,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[True],
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
@@ -1076,6 +1208,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = False,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
         components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
@@ -1090,7 +1223,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
     ) -> typing.Optional[hikari.Message]:
         async with self._response_lock:
             if self._has_responded:
-                message = await self._interaction.execute(
+                return await self._create_followup(
                     content,
                     component=component,
                     components=components,
@@ -1100,11 +1233,10 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
                     user_mentions=user_mentions,
                     role_mentions=role_mentions,
                 )
-                self._last_response_id = message.id
-                return message
 
             if self._has_been_deferred:
                 return await self.edit_initial_response(
+                    delete_after=delete_after,
                     content=content,
                     component=component,
                     components=components,
@@ -1116,6 +1248,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
                 )
 
             await self._create_initial_response(
+                delete_after=delete_after,
                 content=content,
                 component=component,
                 components=components,
