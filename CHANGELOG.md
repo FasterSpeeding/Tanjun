@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `Hooks` can now contain multiple callbacks per hook type.
+- `load_from_attributes` now defaults to `False` in `Component.__init__`.
 
 ### Fixed
 - `SlashContext.respond` trying to edit in the initial response instead of create a follow up
@@ -39,7 +40,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Added USE_EXTERNAL_STICKERS to DM permissions.
 - `Client.listeners` now returns a sequence of callbacks rather than descriptors.
-- `load_from_attributes` now defaults to `False` in `Component.__init__`.
 
 ### Fixed
 - Removed `cache_callback` from injecting.pyi.
