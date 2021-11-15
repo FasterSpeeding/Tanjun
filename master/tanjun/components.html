@@ -79,6 +79,9 @@
                                 <a class="function" href="#Component.copy">copy</a>
                         </li>
                         <li>
+                                <a class="function" href="#Component.detect_commands">detect_commands</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Component.set_ephemeral_default">set_ephemeral_default</a>
                         </li>
                         <li>
@@ -247,6 +250,8 @@
 <span class="kn">import</span> <span class="nn">base64</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">typing</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span> <span class="k">as</span> <span class="n">collections</span>
@@ -264,6 +269,7 @@
 
 
 <span class="n">CommandT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;CommandT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;abc.ExecutableCommand[typing.Any]&quot;</span><span class="p">)</span>
+<span class="n">_LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;hikari.tanjun.components&quot;</span><span class="p">)</span>
 <span class="c1"># This errors on earlier 3.9 releases when not quotes cause dumb handling of the [CommandT] list</span>
 <span class="n">WithCommandReturnSig</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">CommandT</span><span class="p">,</span> <span class="s2">&quot;collections.Callable[[CommandT], CommandT]&quot;</span><span class="p">]</span>
 
@@ -323,6 +329,10 @@
         <span class="k">return</span> <span class="n">command</span>
 
     <span class="k">return</span> <span class="n">decorator</span>
+
+
+<span class="k">def</span> <span class="nf">_filter_scope</span><span class="p">(</span><span class="n">scope</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">scope</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">))</span>
 
 
 <span class="c1"># TODO: do we want to setup a custom equality and hash here to make it easier to unload components?</span>
@@ -388,7 +398,7 @@
         <span class="n">message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">load_from_attributes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">load_from_attributes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">checks</span><span class="p">)]</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="p">[]</span>
@@ -478,6 +488,87 @@
             <span class="k">return</span> <span class="bp">self</span>
 
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="k">def</span> <span class="nf">detect_commands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">scope</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="k">def</span> <span class="nf">detect_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">include_globals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">detect_commands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">include_globals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">scope</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load commands from the calling scope.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This will detect commands from the calling scope unless `scope` is</span>
+<span class="sd">            passed but this isn&#39;t possible in a stack-less python</span>
+<span class="sd">            implementation; in stack-less environments the scope will have to</span>
+<span class="sd">            be explicitly passed as `scope`.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        include_globals: bool</span>
+<span class="sd">            Whether to include global variables (along with local) while</span>
+<span class="sd">            detecting from the calling scope.</span>
+
+<span class="sd">            This defaults to `False`, cannot be `True` when `scope` is provided</span>
+<span class="sd">            and will only ever be needed when the local scope is different</span>
+<span class="sd">            from the global scope.</span>
+<span class="sd">        scope : typing.Optional[collections.Mapping[str, typing.Any]]</span>
+<span class="sd">            The scope to detect commands from.</span>
+
+<span class="sd">            This overrides the default usage of stackframe introspection.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The current component to allow for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If this is called in a python implementation which doesn&#39;t support</span>
+<span class="sd">            stack frame inspection when `scope` is not provided.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If `scope` is provided when `include_globals` is True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">scope</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">stack</span> <span class="o">:=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">stack</span><span class="o">.</span><span class="n">f_back</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s2">&quot;Stackframe introspection is not supported in this runtime. Please explicitly pass `scope`.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="n">values_iter</span> <span class="o">=</span> <span class="n">_filter_scope</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_locals</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">include_globals</span><span class="p">:</span>
+                <span class="n">values_iter</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="n">values_iter</span><span class="p">,</span> <span class="n">_filter_scope</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_globals</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="n">include_globals</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot specify include_globals as True when scope is passed&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">values_iter</span> <span class="o">=</span> <span class="n">_filter_scope</span><span class="p">(</span><span class="n">scope</span><span class="p">)</span>
+
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Loading commands for </span><span class="si">%s</span><span class="s2"> component from </span><span class="si">%s</span><span class="s2"> parent scope(s)&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;global and local&quot;</span> <span class="k">if</span> <span class="n">include_globals</span> <span class="k">else</span> <span class="s2">&quot;local&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values_iter</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="c1"># def into_loader()</span>
 
     <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set whether slash contexts executed in this component should default to ephemeral responses.</span>
@@ -1009,7 +1100,7 @@
         <span class="n">message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">load_from_attributes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">load_from_attributes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">checks</span><span class="p">)]</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="p">[]</span>
@@ -1099,6 +1190,87 @@
             <span class="k">return</span> <span class="bp">self</span>
 
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_new</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="k">def</span> <span class="nf">detect_commands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">scope</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+    <span class="k">def</span> <span class="nf">detect_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">include_globals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">detect_commands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">include_globals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">scope</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load commands from the calling scope.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This will detect commands from the calling scope unless `scope` is</span>
+<span class="sd">            passed but this isn&#39;t possible in a stack-less python</span>
+<span class="sd">            implementation; in stack-less environments the scope will have to</span>
+<span class="sd">            be explicitly passed as `scope`.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        include_globals: bool</span>
+<span class="sd">            Whether to include global variables (along with local) while</span>
+<span class="sd">            detecting from the calling scope.</span>
+
+<span class="sd">            This defaults to `False`, cannot be `True` when `scope` is provided</span>
+<span class="sd">            and will only ever be needed when the local scope is different</span>
+<span class="sd">            from the global scope.</span>
+<span class="sd">        scope : typing.Optional[collections.Mapping[str, typing.Any]]</span>
+<span class="sd">            The scope to detect commands from.</span>
+
+<span class="sd">            This overrides the default usage of stackframe introspection.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The current component to allow for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If this is called in a python implementation which doesn&#39;t support</span>
+<span class="sd">            stack frame inspection when `scope` is not provided.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If `scope` is provided when `include_globals` is True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">scope</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">stack</span> <span class="o">:=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">stack</span><span class="o">.</span><span class="n">f_back</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s2">&quot;Stackframe introspection is not supported in this runtime. Please explicitly pass `scope`.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="n">values_iter</span> <span class="o">=</span> <span class="n">_filter_scope</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_locals</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">include_globals</span><span class="p">:</span>
+                <span class="n">values_iter</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="n">values_iter</span><span class="p">,</span> <span class="n">_filter_scope</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_globals</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="n">include_globals</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot specify include_globals as True when scope is passed&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">values_iter</span> <span class="o">=</span> <span class="n">_filter_scope</span><span class="p">(</span><span class="n">scope</span><span class="p">)</span>
+
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Loading commands for </span><span class="si">%s</span><span class="s2"> component from </span><span class="si">%s</span><span class="s2"> parent scope(s)&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;global and local&quot;</span> <span class="k">if</span> <span class="n">include_globals</span> <span class="k">else</span> <span class="s2">&quot;local&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values_iter</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="c1"># def into_loader()</span>
 
     <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set whether slash contexts executed in this component should default to ephemeral responses.</span>
@@ -1597,7 +1769,7 @@ spaces and will have to be unique to one command within the component.</p></li>
     message_hooks: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#MessageContext">tanjun.abc.MessageContext</a>]] = None,
     name: Optional[str] = None,
     strict: bool = False,
-    load_from_attributes: bool = True
+    load_from_attributes: bool = False
 )</span>
     </div>
 
@@ -1612,7 +1784,7 @@ spaces and will have to be unique to one command within the component.</p></li>
         <span class="n">message_hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">load_from_attributes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">load_from_attributes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="p">[</span><span class="n">checks_</span><span class="o">.</span><span class="n">InjectableCheck</span><span class="p">(</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">checks</span><span class="p">)]</span> <span class="k">if</span> <span class="n">checks</span> <span class="k">else</span> <span class="p">[]</span>
@@ -1812,6 +1984,134 @@ the component.</p>
         </details>
 
     
+
+                            </div>
+                            <div id="Component.detect_commands" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Component.detect_commands">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">detect_commands</span><span class="signature">(
+    self: ~_ComponentT,
+    *,
+    include_globals: bool = False,
+    scope: Optional[collections.abc.Mapping[str, Any]] = None
+) -&gt; ~_ComponentT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">detect_commands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">include_globals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">scope</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load commands from the calling scope.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This will detect commands from the calling scope unless `scope` is</span>
+<span class="sd">            passed but this isn&#39;t possible in a stack-less python</span>
+<span class="sd">            implementation; in stack-less environments the scope will have to</span>
+<span class="sd">            be explicitly passed as `scope`.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        include_globals: bool</span>
+<span class="sd">            Whether to include global variables (along with local) while</span>
+<span class="sd">            detecting from the calling scope.</span>
+
+<span class="sd">            This defaults to `False`, cannot be `True` when `scope` is provided</span>
+<span class="sd">            and will only ever be needed when the local scope is different</span>
+<span class="sd">            from the global scope.</span>
+<span class="sd">        scope : typing.Optional[collections.Mapping[str, typing.Any]]</span>
+<span class="sd">            The scope to detect commands from.</span>
+
+<span class="sd">            This overrides the default usage of stackframe introspection.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The current component to allow for chaining.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If this is called in a python implementation which doesn&#39;t support</span>
+<span class="sd">            stack frame inspection when `scope` is not provided.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If `scope` is provided when `include_globals` is True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">scope</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">stack</span> <span class="o">:=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">stack</span><span class="o">.</span><span class="n">f_back</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s2">&quot;Stackframe introspection is not supported in this runtime. Please explicitly pass `scope`.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="n">values_iter</span> <span class="o">=</span> <span class="n">_filter_scope</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_locals</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">include_globals</span><span class="p">:</span>
+                <span class="n">values_iter</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="n">values_iter</span><span class="p">,</span> <span class="n">_filter_scope</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_globals</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="n">include_globals</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot specify include_globals as True when scope is passed&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">values_iter</span> <span class="o">=</span> <span class="n">_filter_scope</span><span class="p">(</span><span class="n">scope</span><span class="p">)</span>
+
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Loading commands for </span><span class="si">%s</span><span class="s2"> component from </span><span class="si">%s</span><span class="s2"> parent scope(s)&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;global and local&quot;</span> <span class="k">if</span> <span class="n">include_globals</span> <span class="k">else</span> <span class="s2">&quot;local&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values_iter</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Load commands from the calling scope.</p>
+
+<p><em>Note:</em>
+This will detect commands from the calling scope unless <code>scope</code> is
+passed but this isn't possible in a stack-less python
+implementation; in stack-less environments the scope will have to
+be explicitly passed as <code>scope</code>.</p>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>include_globals</strong> (bool):
+Whether to include global variables (along with local) while
+detecting from the calling scope.</p>
+
+<p>This defaults to <code>False</code>, cannot be <code>True</code> when <code>scope</code> is provided
+and will only ever be needed when the local scope is different
+from the global scope.</p></li>
+<li><p><strong>scope</strong> (typing.Optional[collections.Mapping[str, typing.Any]]):
+The scope to detect commands from.</p>
+
+<p>This overrides the default usage of stackframe introspection.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The current component to allow for chaining.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>RuntimeError</strong>: If this is called in a python implementation which doesn't support
+stack frame inspection when <code>scope</code> is not provided.</li>
+<li><strong>ValueError</strong>: If <code>scope</code> is provided when <code>include_globals</code> is True.</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="Component.set_ephemeral_default" class="classattr">
