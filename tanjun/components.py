@@ -651,7 +651,7 @@ class Component(abc.Component):
         return decorator
 
     def add_on_close(self: _ComponentT, callback: OnCallbackSig, /) -> _ComponentT:
-        """Add a close callback to this client.
+        """Add a close callback to this component.
 
         .. note::
             Unlike the closing and closed client callbacks, this is only
@@ -675,7 +675,7 @@ class Component(abc.Component):
         return self
 
     def with_on_close(self, callback: OnCallbackSigT, /) -> OnCallbackSigT:
-        """Add a close callback to this client through a decorator call.
+        """Add a close callback to this component through a decorator call.
 
         .. note::
             Unlike the closing and closed client callbacks, this is only
@@ -699,7 +699,7 @@ class Component(abc.Component):
         return callback
 
     def add_on_open(self: _ComponentT, callback: OnCallbackSig, /) -> _ComponentT:
-        """Add a open callback to this client.
+        """Add a open callback to this component.
 
         .. note::
             Unlike the starting and started client callbacks, this is only
@@ -723,7 +723,7 @@ class Component(abc.Component):
         return self
 
     def with_on_open(self, callback: OnCallbackSigT, /) -> OnCallbackSigT:
-        """Add a open callback to this client through a decorator call.
+        """Add a open callback to this component through a decorator call.
 
         .. note::
             Unlike the starting and started client callbacks, this is only
