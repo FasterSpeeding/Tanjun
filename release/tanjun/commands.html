@@ -549,7 +549,7 @@
 
     <span class="k">def</span> <span class="nf">remove_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_PartialCommandT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_PartialCommandT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.ExecutableCommand&gt;&gt;.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;checks_.InjectableCheck&quot;</span><span class="p">,</span> <span class="n">check</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">with_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">:</span>
@@ -4573,7 +4573,7 @@ The command to add.</li>
 
     <span class="k">def</span> <span class="nf">remove_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_PartialCommandT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_PartialCommandT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.ExecutableCommand&gt;&gt;.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;checks_.InjectableCheck&quot;</span><span class="p">,</span> <span class="n">check</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">with_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSigT</span><span class="p">:</span>
@@ -4657,12 +4657,6 @@ The command to add.</li>
     </div>
 
             <div class="docstring"><p>Component that the command is registered with.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[Component]</strong>: The component that the command is registered with.</li>
-</ul>
 </div>
 
 
@@ -4674,12 +4668,6 @@ The command to add.</li>
     </div>
 
             <div class="docstring"><p>Hooks that are triggered when the command is executed.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>typing.Optional[Hooks[ContextT_co]]</strong>: The hooks that are triggered when the command is executed if set.</li>
-</ul>
 </div>
 
 
@@ -4789,7 +4777,7 @@ The hooks that are triggered when the command is executed.</li>
             <span class="def">def</span>
             <span class="name">add_check</span><span class="signature">(
     self: ~_PartialCommandT,
-    check: collections.abc.Callable,
+    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
     /
 ) -&gt; ~_PartialCommandT</span>:
     </div>
@@ -4831,7 +4819,7 @@ The check to add.</li>
             <span class="def">def</span>
             <span class="name">remove_check</span><span class="signature">(
     self: ~_PartialCommandT,
-    check: collections.abc.Callable,
+    check: collections.abc.Callable[..., typing.Union[bool, collections.abc.Awaitable[bool]]],
     /
 ) -&gt; ~_PartialCommandT</span>:
     </div>
@@ -4840,7 +4828,7 @@ The check to add.</li>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">remove_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_PartialCommandT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_PartialCommandT</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.ExecutableCommand&gt;&gt;.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;checks_.InjectableCheck&quot;</span><span class="p">,</span> <span class="n">check</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
@@ -8211,13 +8199,6 @@ being used.</p></li>
     </div>
 
             <div class="docstring"><p>Collection of the commands in this group.</p>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>commands</strong> (collections.abc.Collection[BaseSlashCommand]):
-The commands in this group.</li>
-</ul>
 </div>
 
 

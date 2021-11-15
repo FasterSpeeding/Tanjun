@@ -713,7 +713,7 @@ The user to check ownership for.</li>
         
             <span class="def">def</span>
             <span class="name">cache_callback</span><span class="signature">(
-    callback: collections.abc.Callable,
+    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
     /,
     *,
     expire_after: Optional[datetime.timedelta] = None
@@ -790,7 +790,7 @@ first call.</li>
         
             <span class="def">def</span>
             <span class="name">cached_inject</span><span class="signature">(
-    callback: collections.abc.Callable,
+    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
     /,
     *,
     expire_after: Optional[datetime.timedelta] = None
@@ -987,7 +987,10 @@ To easily resolve this type use <code><a href="#inject_lc">inject_lc</a></code>.
                                         <div class="attr function"><a class="headerlink" href="#LazyConstant.__init__">#&nbsp;&nbsp</a>
 
         
-            <span class="name">LazyConstant</span><span class="signature">(callback: collections.abc.Callable, /)</span>
+            <span class="name">LazyConstant</span><span class="signature">(
+    callback: collections.abc.Callable[..., typing.Union[~_T, collections.abc.Awaitable[~_T]]],
+    /
+)</span>
     </div>
 
                 <details>
@@ -1181,7 +1184,7 @@ and should be kept acquired until <code><a href="#LazyConstant.set_value">LazyCo
 
         
             <span class="def">def</span>
-            <span class="name">inject_lc</span><span class="signature">(type_: type, /) -&gt; ~_T</span>:
+            <span class="name">inject_lc</span><span class="signature">(type_: type[~_T], /) -&gt; ~_T</span>:
     </div>
 
                 <details>
@@ -1287,7 +1290,7 @@ The type of the constant to resolve.</li>
         
             <span class="def">def</span>
             <span class="name">make_lc_resolver</span><span class="signature">(
-    type_: type,
+    type_: type[~_T],
     /
 ) -&gt; collections.abc.Callable[..., collections.abc.Awaitable[~_T]]</span>:
     </div>
