@@ -35,6 +35,7 @@
 # This leads to too many false-positives around mocks.
 
 import asyncio
+import datetime
 import types
 import typing
 from unittest import mock
@@ -401,19 +402,20 @@ class TestMessageContext:
         mock_embed = mock.Mock()
         mock_embeds = [mock.Mock()]
 
-        await context.edit_initial_response(
-            "hi",
-            attachment=mock_attachment,
-            attachments=mock_attachments,
-            component=mock_component,
-            components=mock_components,
-            embed=mock_embed,
-            embeds=mock_embeds,
-            replace_attachments=True,
-            mentions_everyone=False,
-            user_mentions=[123, 321],
-            role_mentions=[321243],
-        )
+        with mock.patch.object(asyncio, "create_task") as create_task:
+            await context.edit_initial_response(
+                "hi",
+                attachment=mock_attachment,
+                attachments=mock_attachments,
+                component=mock_component,
+                components=mock_components,
+                embed=mock_embed,
+                embeds=mock_embeds,
+                replace_attachments=True,
+                mentions_everyone=False,
+                user_mentions=[123, 321],
+                role_mentions=[321243],
+            )
 
         mock_client.rest.edit_message.assert_awaited_once_with(
             context.message.channel_id,
@@ -430,6 +432,7 @@ class TestMessageContext:
             user_mentions=[123, 321],
             role_mentions=[321243],
         )
+        create_task.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_edit_initial_response_when_no_initial_response(
@@ -439,6 +442,26 @@ class TestMessageContext:
             await context.edit_initial_response("hi")
 
         mock_client.rest.edit_message.assert_not_called()
+
+    @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=123), 123, 123.0])
+    @pytest.mark.asyncio()
+    async def test_edit_initial_response_when_delete_after(
+        self,
+        delete_after: typing.Union[datetime.timedelta, float, int],
+        context: tanjun.MessageContext,
+        mock_client: mock.Mock,
+    ):
+        mock_delete_after = mock.Mock()
+        context = stub_class(tanjun.MessageContext, _delete_after=mock_delete_after)(
+            mock_client, mock.Mock(), "e", mock.AsyncMock()
+        )
+        context._initial_response_id = hikari.Snowflake(32123)
+
+        with mock.patch.object(asyncio, "create_task") as create_task:
+            await context.edit_initial_response("hi", delete_after=delete_after)
+
+        create_task.assert_called_once_with(mock_delete_after.return_value)
+        mock_delete_after.assert_called_once_with(123.0, mock_client.rest.edit_message.return_value)
 
     @pytest.mark.asyncio()
     async def test_edit_last_response(self, context: tanjun.MessageContext, mock_client: mock.Mock):
@@ -489,6 +512,26 @@ class TestMessageContext:
 
         mock_client.rest.edit_message.assert_not_called()
 
+    @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=654), 654, 654.0])
+    @pytest.mark.asyncio()
+    async def test_edit_last_response_when_delete_after(
+        self,
+        context: tanjun.MessageContext,
+        mock_client: mock.Mock,
+        delete_after: typing.Union[datetime.timedelta, int, float],
+    ):
+        mock_delete_after = mock.Mock()
+        context = stub_class(tanjun.MessageContext, _delete_after=mock_delete_after)(
+            mock_client, mock.Mock(), "e", mock.AsyncMock()
+        )
+        context._last_response_id = hikari.Snowflake(32123)
+
+        with mock.patch.object(asyncio, "create_task") as create_task:
+            await context.edit_last_response("hi", delete_after=delete_after)
+
+        create_task.assert_called_once_with(mock_delete_after.return_value)
+        mock_delete_after.assert_called_once_with(654.0, mock_client.rest.edit_message.return_value)
+
     @pytest.mark.asyncio()
     async def test_fetch_initial_response(self, context: tanjun.MessageContext, mock_client: mock.Mock):
         context._initial_response_id = hikari.Snowflake(32123)
@@ -535,23 +578,25 @@ class TestMessageContext:
         mock_embed = mock.Mock()
         mock_embeds = [mock.Mock()]
 
-        await context.respond(
-            "hi",
-            attachment=mock_attachment,
-            attachments=mock_attachments,
-            component=mock_component,
-            components=mock_components,
-            embed=mock_embed,
-            embeds=mock_embeds,
-            tts=True,
-            nonce="nonce",
-            reply=432123,
-            mentions_everyone=False,
-            mentions_reply=True,
-            user_mentions=[123, 321],
-            role_mentions=[555, 444],
-        )
+        with mock.patch.object(asyncio, "create_task") as create_task:
+            await context.respond(
+                "hi",
+                attachment=mock_attachment,
+                attachments=mock_attachments,
+                component=mock_component,
+                components=mock_components,
+                embed=mock_embed,
+                embeds=mock_embeds,
+                tts=True,
+                nonce="nonce",
+                reply=432123,
+                mentions_everyone=False,
+                mentions_reply=True,
+                user_mentions=[123, 321],
+                role_mentions=[555, 444],
+            )
 
+        create_task.assert_not_called()
         assert isinstance(context.message.respond, mock.Mock)
         context.message.respond.assert_awaited_once_with(
             content="hi",
@@ -579,6 +624,21 @@ class TestMessageContext:
         await context.respond("hi")
 
         context._initial_response_id == 32123
+
+    @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=123), 123, 123.0])
+    @pytest.mark.asyncio()
+    async def test_respond_when_delete_after(self, delete_after: typing.Union[int, float, datetime.timedelta]):
+        mock_delete_after = mock.Mock()
+        context = stub_class(tanjun.MessageContext, _delete_after=mock_delete_after)(
+            mock.Mock(), mock.Mock(), "e", mock.AsyncMock()
+        )
+
+        with mock.patch.object(asyncio, "create_task") as create_task:
+            await context.respond("hi", delete_after=delete_after)
+
+        assert isinstance(context.message.respond, mock.Mock)
+        mock_delete_after.assert_called_once_with(123.0, context.message.respond.return_value)
+        create_task.assert_called_once_with(mock_delete_after.return_value)
 
 
 class TestSlashOption:
@@ -972,6 +1032,17 @@ class TestSlashContext:
     def test_created_at_property(self, context: tanjun.SlashContext):
         assert context.created_at is context.interaction.created_at
 
+    def test_expires_at_property(self):
+        context = tanjun.SlashContext(
+            mock.Mock(),
+            mock.Mock(),
+            mock.Mock(
+                created_at=datetime.datetime(2021, 11, 15, 5, 42, 6, 445670, tzinfo=datetime.timezone.utc), options=None
+            ),
+        )
+
+        assert context.expires_at == datetime.datetime(2021, 11, 15, 5, 57, 6, 445670, tzinfo=datetime.timezone.utc)
+
     def test_guild_id_property(self, context: tanjun.SlashContext):
         assert context.guild_id is context.interaction.guild_id
 
@@ -1294,10 +1365,64 @@ class TestSlashContext:
     async def test_defer_doesnt_cancel_defer_when_in_deffer_task(self, context: tanjun.SlashContext):
         ...
 
+    @pytest.mark.asyncio()
+    async def test__delete_followup_after(self, context: tanjun.SlashContext):
+        mock_message = mock.Mock()
+
+        with mock.patch.object(asyncio, "sleep") as sleep:
+            await context._delete_followup_after(543, mock_message)
+
+            sleep.assert_called_once_with(543)
+
+        assert isinstance(context.interaction.delete_message, mock.AsyncMock)
+        context.interaction.delete_message.assert_awaited_once_with(mock_message)
+
+    @pytest.mark.asyncio()
+    async def test__delete_followup_after_handles_not_found_error(self, context: tanjun.SlashContext):
+        mock_message = mock.Mock()
+        assert isinstance(context.interaction.delete_message, mock.AsyncMock)
+        context.interaction.delete_message.side_effect = hikari.NotFoundError(url="", headers={}, raw_body=None)
+
+        with mock.patch.object(asyncio, "sleep") as sleep:
+            await context._delete_followup_after(543, mock_message)
+
+            sleep.assert_called_once_with(543)
+
+        context.interaction.delete_message.assert_awaited_once_with(mock_message)
+
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
     async def test_create_followup(self, context: tanjun.SlashContext):
         ...
+
+    @pytest.mark.asyncio()
+    async def test__delete_initial_response_after(self, context: tanjun.SlashContext):
+        mock_delete_initial_response = mock.AsyncMock()
+        context = stub_class(tanjun.SlashContext, delete_initial_response=mock_delete_initial_response)(
+            mock.Mock(), mock.Mock(), mock.Mock(options=None)
+        )
+
+        with mock.patch.object(asyncio, "sleep") as sleep:
+            await context._delete_initial_response_after(123)
+
+            sleep.assert_called_once_with(123)
+            mock_delete_initial_response.assert_awaited_once_with()
+
+    @pytest.mark.asyncio()
+    async def test__delete_initial_response_after_handles_not_found_error(self, context: tanjun.SlashContext):
+        mock_delete_initial_response = mock.AsyncMock(
+            side_effect=hikari.NotFoundError(url="", headers={}, raw_body=None)
+        )
+        assert isinstance(context.interaction.delete_message, mock.AsyncMock)
+        context = stub_class(tanjun.SlashContext, delete_initial_response=mock_delete_initial_response)(
+            mock.Mock(), mock.Mock(), mock.Mock(options=None)
+        )
+
+        with mock.patch.object(asyncio, "sleep") as sleep:
+            await context._delete_initial_response_after(123)
+
+            sleep.assert_called_once_with(123)
+            mock_delete_initial_response.assert_awaited_once_with()
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
@@ -1324,15 +1449,29 @@ class TestSlashContext:
     async def test_create_initial_response_when_deferred(self, context: tanjun.SlashContext):
         ...
 
+    @pytest.mark.skip(reason="not implemented")
+    @pytest.mark.asyncio()
+    async def test_create_initial_response_when_delete_after(self, context: tanjun.SlashContext):
+        ...
+
+    @pytest.mark.skip(reason="not implemented")
+    @pytest.mark.asyncio()
+    async def test_create_initial_response_when_delete_after_will_have_expired(self, context: tanjun.SlashContext):
+        ...
+
     @pytest.mark.asyncio()
     async def test_delete_initial_response(self, context: tanjun.SlashContext):
+        assert context.has_responded is False
+
         await context.delete_initial_response()
 
         assert isinstance(context.interaction.delete_initial_response, mock.AsyncMock)
         context.interaction.delete_initial_response.assert_awaited_once_with()
+        assert context.has_responded is True
 
     @pytest.mark.asyncio()
     async def test_edit_initial_response(self, context: tanjun.SlashContext):
+        assert context.has_responded is False
         mock_attachment = mock.Mock()
         mock_attachments = [mock.Mock()]
         mock_component = mock.Mock()
@@ -1340,19 +1479,20 @@ class TestSlashContext:
         mock_embed = mock.Mock()
         mock_embeds = [mock.Mock()]
 
-        await context.edit_initial_response(
-            "bye",
-            attachment=mock_attachment,
-            attachments=mock_attachments,
-            component=mock_component,
-            components=mock_components,
-            embed=mock_embed,
-            embeds=mock_embeds,
-            replace_attachments=False,
-            mentions_everyone=True,
-            user_mentions=[123],
-            role_mentions=[444],
-        )
+        with mock.patch.object(asyncio, "create_task") as create_task:
+            await context.edit_initial_response(
+                "bye",
+                attachment=mock_attachment,
+                attachments=mock_attachments,
+                component=mock_component,
+                components=mock_components,
+                embed=mock_embed,
+                embeds=mock_embeds,
+                replace_attachments=False,
+                mentions_everyone=True,
+                user_mentions=[123],
+                role_mentions=[444],
+            )
 
         assert isinstance(context.interaction.edit_initial_response, mock.AsyncMock)
         context.interaction.edit_initial_response.assert_awaited_once_with(
@@ -1368,10 +1508,82 @@ class TestSlashContext:
             user_mentions=[123],
             role_mentions=[444],
         )
+        create_task.assert_not_called()
+        assert context.has_responded is True
+
+    @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=545), 545, 545.0])
+    @pytest.mark.asyncio()
+    async def test_edit_initial_response_when_delete_after(
+        self,
+        context: tanjun.SlashContext,
+        mock_client: mock.Mock,
+        delete_after: typing.Union[datetime.timedelta, int, float],
+    ):
+        mock_delete_initial_response_after = mock.Mock()
+        mock_interaction = mock.AsyncMock(created_at=datetime.datetime.now(tz=datetime.timezone.utc))
+        context = stub_class(tanjun.SlashContext, _delete_initial_response_after=mock_delete_initial_response_after)(
+            mock_client, mock.Mock(), mock_interaction
+        )
+
+        with mock.patch.object(asyncio, "create_task") as create_task:
+            await context.edit_initial_response("bye", delete_after=delete_after)
+
+        mock_delete_initial_response_after.assert_called_once_with(545)
+        create_task.assert_called_once_with(mock_delete_initial_response_after.return_value)
+
+    @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=901), 901, 901.0])
+    @pytest.mark.asyncio()
+    async def test_edit_initial_response_when_delete_after_will_have_expired(
+        self,
+        context: tanjun.SlashContext,
+        mock_client: mock.Mock,
+        delete_after: typing.Union[datetime.timedelta, int, float],
+    ):
+        mock_delete_initial_response_after = mock.Mock()
+        mock_interaction = mock.AsyncMock(created_at=datetime.datetime.now(tz=datetime.timezone.utc))
+        context = stub_class(tanjun.SlashContext, _delete_initial_response_after=mock_delete_initial_response_after)(
+            mock_client, mock.Mock(), mock_interaction
+        )
+
+        with mock.patch.object(asyncio, "create_task") as create_task:
+            with pytest.raises(ValueError, match="This interaction will have expired before delete_after is reached"):
+                await context.edit_initial_response("bye", delete_after=delete_after)
+
+        mock_delete_initial_response_after.assert_not_called()
+        create_task.assert_not_called()
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_edit_last_response(self, context: tanjun.SlashContext):
+    async def test_edit_last_response_when_only_initial_response(self, context: tanjun.SlashContext):
+        ...
+
+    @pytest.mark.skip(reason="not implemented")
+    @pytest.mark.asyncio()
+    async def test_edit_last_response_when_initial_response_deferred(self, context: tanjun.SlashContext):
+        ...
+
+    @pytest.mark.skip(reason="not implemented")
+    @pytest.mark.asyncio()
+    async def test_edit_last_response_when_only_initial_response_or_deferred_and_delete_after(
+        self, context: tanjun.SlashContext
+    ):
+        ...
+
+    @pytest.mark.skip(reason="not implemented")
+    @pytest.mark.asyncio()
+    async def test_edit_last_response_when_only_initial_response_or_deferred_and_delete_after_will_have_expired(
+        self, context: tanjun.SlashContext
+    ):
+        ...
+
+    @pytest.mark.skip(reason="not implemented")
+    @pytest.mark.asyncio()
+    async def test_edit_last_response_when_multiple_responses(self, context: tanjun.SlashContext):
+        ...
+
+    @pytest.mark.skip(reason="not implemented")
+    @pytest.mark.asyncio()
+    async def test_edit_last_response_when_no_previous_response(self, context: tanjun.SlashContext):
         ...
 
     @pytest.mark.asyncio()

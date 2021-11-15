@@ -1038,8 +1038,11 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
 
     async def delete_last_response(self) -> None:
         if self._last_response_id is None:
-            if self._has_responded:
+            if self._has_responded or self._has_been_deferred:
                 await self._interaction.delete_initial_response()
+                # If they defer then delete the initial response then this should be treated as having
+                # an initial response to allow for followup responses.
+                self._has_responded = True
                 return
 
             raise LookupError("Context has no last response")
