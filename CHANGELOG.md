@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.1.4a1] - 2021-11-15
 ### Added
 - `injecting.SelfInjectingCallback` and `tanjun.as_self_injecting` to let make a callback self-injecting 
   by linking it to a client instance. This should make it easier to use Tanjun's dependency injection
@@ -315,7 +317,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.3a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.4a1...HEAD
+[2.1.4a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.3a1...v2.1.4a1
 [2.1.3a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.2a1...v2.1.3a1
 [2.1.2a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.1a1...v2.1.2a1
 [2.1.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.1.0a1...v2.1.1a1
