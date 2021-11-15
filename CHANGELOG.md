@@ -12,9 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dependency injection support for hook callbacks.
 - `voice` property to Context and Client.
 - `Component.detect_commands` for auto-loading commands from the current scope.
+- `delete_after` option to context response methods.
+- `expires_at` property to SlashContext.
 
 ### Changed
 - `Hooks` can now contain multiple callbacks per hook type.
+
+### Fixed
+- `SlashContext.respond` trying to edit in the initial response instead of create a follow up
+  if a deferred initial response was deleted.
 
 ### Removed
 - `injecting.BaseInjectableCallback` and other private extensions of this as these cases could
