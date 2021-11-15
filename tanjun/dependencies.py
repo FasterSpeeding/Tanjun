@@ -33,10 +33,14 @@
 from __future__ import annotations
 
 __all__: list[str] = [
+    "AbstractCooldownManager",
     "AbstractOwnerCheck",
     "cache_callback",
     "cached_inject",
+    "CooldownPreExecution",
+    "CooldownResource",
     "LazyConstant",
+    "InMemoryCooldownManager",
     "inject_lc",
     "make_lc_resolver",
     "OwnerCheck",
@@ -161,7 +165,7 @@ class CooldownResource(int, enum.Enum):
 
     .. note::
         When executed in a DM this will be per-DM, with this defaulting to
-        targetting the @everyone role if they have no real roles.
+        targeting the @everyone role if they have no real roles.
     """
 
     GUILD = 6
@@ -708,8 +712,10 @@ def set_standard_dependencies(client: injecting.InjectorClient, /) -> None:
         The injector client to set the standard dependencies on.
     """
     (
-        client.set_type_dependency(AbstractOwnerCheck, OwnerCheck()).set_type_dependency(
-            LazyConstant[hikari.OwnUser], LazyConstant(fetch_my_user)
+        (
+            client.set_type_dependency(AbstractOwnerCheck, OwnerCheck())
+            .set_type_dependency(LazyConstant[hikari.OwnUser], LazyConstant(fetch_my_user))
+            .set_type_dependency(AbstractCooldownManager, InMemoryCooldownManager())
         )
     )
 

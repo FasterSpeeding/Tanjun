@@ -35,6 +35,7 @@ from __future__ import annotations
 
 __all__: list[str] = [
     "CallbackReturnT",
+    "CooldownCheck",
     "CommandT",
     "OwnerCheck",
     "NsfwCheck",
@@ -44,6 +45,7 @@ __all__: list[str] = [
     "AuthorPermissionCheck",
     "OwnPermissionCheck",
     "with_check",
+    "with_cooldown_check",
     "with_dm_check",
     "with_guild_check",
     "with_nsfw_check",
