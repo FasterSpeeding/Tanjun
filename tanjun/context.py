@@ -1225,6 +1225,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             if self._has_responded:
                 return await self._create_followup(
                     content,
+                    delete_after=delete_after,
                     component=component,
                     components=components,
                     embed=embed,
