@@ -506,13 +506,15 @@
         <span class="n">scope</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load commands from the calling scope.</span>
+<span class="sd">        Load top-level commands from the calling scope.</span>
 
-<span class="sd">        .. note::</span>
-<span class="sd">            This will detect commands from the calling scope unless `scope` is</span>
-<span class="sd">            passed but this isn&#39;t possible in a stack-less python</span>
-<span class="sd">            implementation; in stack-less environments the scope will have to</span>
-<span class="sd">            be explicitly passed as `scope`.</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This will ignore commands which are owned by command groups.</span>
+<span class="sd">        * This will detect commands from the calling scope unless `scope` is</span>
+<span class="sd">          passed but this isn&#39;t possible in a stack-less python implementation;</span>
+<span class="sd">          in stack-less environments the scope will have to be explicitly</span>
+<span class="sd">          passed as `scope`.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
@@ -563,8 +565,10 @@
             <span class="s2">&quot;global and local&quot;</span> <span class="k">if</span> <span class="n">include_globals</span> <span class="k">else</span> <span class="s2">&quot;local&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values_iter</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_slash_command</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_message_command</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -1208,13 +1212,15 @@
         <span class="n">scope</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load commands from the calling scope.</span>
+<span class="sd">        Load top-level commands from the calling scope.</span>
 
-<span class="sd">        .. note::</span>
-<span class="sd">            This will detect commands from the calling scope unless `scope` is</span>
-<span class="sd">            passed but this isn&#39;t possible in a stack-less python</span>
-<span class="sd">            implementation; in stack-less environments the scope will have to</span>
-<span class="sd">            be explicitly passed as `scope`.</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This will ignore commands which are owned by command groups.</span>
+<span class="sd">        * This will detect commands from the calling scope unless `scope` is</span>
+<span class="sd">          passed but this isn&#39;t possible in a stack-less python implementation;</span>
+<span class="sd">          in stack-less environments the scope will have to be explicitly</span>
+<span class="sd">          passed as `scope`.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
@@ -1265,8 +1271,10 @@
             <span class="s2">&quot;global and local&quot;</span> <span class="k">if</span> <span class="n">include_globals</span> <span class="k">else</span> <span class="s2">&quot;local&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values_iter</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_slash_command</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_message_command</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 
@@ -2008,13 +2016,15 @@ the component.</p>
         <span class="n">scope</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load commands from the calling scope.</span>
+<span class="sd">        Load top-level commands from the calling scope.</span>
 
-<span class="sd">        .. note::</span>
-<span class="sd">            This will detect commands from the calling scope unless `scope` is</span>
-<span class="sd">            passed but this isn&#39;t possible in a stack-less python</span>
-<span class="sd">            implementation; in stack-less environments the scope will have to</span>
-<span class="sd">            be explicitly passed as `scope`.</span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * This will ignore commands which are owned by command groups.</span>
+<span class="sd">        * This will detect commands from the calling scope unless `scope` is</span>
+<span class="sd">          passed but this isn&#39;t possible in a stack-less python implementation;</span>
+<span class="sd">          in stack-less environments the scope will have to be explicitly</span>
+<span class="sd">          passed as `scope`.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
@@ -2065,21 +2075,27 @@ the component.</p>
             <span class="s2">&quot;global and local&quot;</span> <span class="k">if</span> <span class="n">include_globals</span> <span class="k">else</span> <span class="s2">&quot;local&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values_iter</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ExecutableCommand</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_slash_command</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_message_command</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
 
-            <div class="docstring"><p>Load commands from the calling scope.</p>
+            <div class="docstring"><p>Load top-level commands from the calling scope.</p>
 
-<p><em>Note:</em>
-This will detect commands from the calling scope unless <code>scope</code> is
-passed but this isn't possible in a stack-less python
-implementation; in stack-less environments the scope will have to
-be explicitly passed as <code>scope</code>.</p>
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>This will ignore commands which are owned by command groups.</li>
+<li>This will detect commands from the calling scope unless <code>scope</code> is
+passed but this isn't possible in a stack-less python implementation;
+in stack-less environments the scope will have to be explicitly
+passed as <code>scope</code>.</li>
+</ul>
 
 <h6 id="other-parameters">Other Parameters</h6>
 
