@@ -701,6 +701,7 @@ def with_cooldown(
         hooks_ = command.hooks
         if not hooks_:
             hooks_ = hooks.AnyHooks()
+            command.set_hooks(hooks_)
 
         hooks_.add_pre_execution(
             CooldownPreExecution(bucket_id, error_message=error_message, owners_exempt=owners_exempt)
