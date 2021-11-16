@@ -71,6 +71,7 @@ from collections import abc as collections
 import hikari
 
 if typing.TYPE_CHECKING:
+    import asyncio
     import datetime
 
     from hikari import traits as hikari_traits
@@ -2378,6 +2379,11 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
+    def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
+        """The asyncio loop this client is bound to if it has been opened."""
+
+    @property
+    @abc.abstractmethod
     def name(self) -> str:
         """Component's unique identifier.
 
@@ -2790,6 +2796,11 @@ class Client(abc.ABC):
     @abc.abstractmethod
     def is_alive(self) -> bool:
         """Whether this client is alive."""
+
+    @property
+    @abc.abstractmethod
+    def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
+        """The loop this client is bound to if it's alive."""
 
     @property  # TODO: switch over to a mapping of event to collection cause convenience
     @abc.abstractmethod

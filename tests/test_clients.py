@@ -155,7 +155,14 @@ class TestClient:
     def test_is_alive_property(self) -> None:
         client = tanjun.Client(mock.Mock())
 
-        assert client.is_alive is False  # TODO: also test when "alive"
+        assert client.is_alive is False
+
+    def test_loop_property(self) -> None:
+        mock_loop = mock.Mock()
+        client = tanjun.Client(mock.Mock())
+        client._loop = mock_loop
+
+        assert client.loop is mock_loop
 
     def test_message_hooks_property(self) -> None:
         mock_hooks = mock.Mock()
@@ -663,17 +670,41 @@ class TestClient:
 
         assert hikari.RoleEvent not in client.listeners
 
-    @pytest.mark.skip(reason="TODO")
     def test_remove_listener_when_alive(self):
-        ...
+        mock_callback = mock.Mock()
+        client = tanjun.Client(mock.Mock()).add_listener(hikari.RoleEvent, mock_callback)
+        client._loop = mock.Mock()
 
-    @pytest.mark.skip(reason="TODO")
+        client.remove_listener(hikari.RoleEvent, mock_callback)
+
+        assert hikari.RoleEvent not in client.listeners
+
     def test_remove_listener_when_alive_and_events(self):
-        ...
+        mock_events = mock.Mock()
+        mock_callback = mock.Mock()
 
-    @pytest.mark.skip(reason="TODO")
+        with mock.patch.object(tanjun.injecting, "SelfInjectingCallback") as self_injecting_callback:
+            client = tanjun.Client(mock.Mock(), events=mock_events, event_managed=False).add_listener(
+                hikari.RoleEvent, mock_callback
+            )
+            client._loop = mock.Mock()
+
+            client.remove_listener(hikari.RoleEvent, self_injecting_callback.return_value)
+
+        assert hikari.RoleEvent not in client.listeners
+        mock_events.unsubscribe.assert_called_once_with(hikari.RoleEvent, self_injecting_callback.return_value.__call__)
+
     def test_remove_listener_when_events(self):
-        ...
+        mock_events = mock.Mock()
+        mock_callback = mock.Mock()
+        client = tanjun.Client(mock.Mock(), events=mock_events, event_managed=False).add_listener(
+            hikari.RoleEvent, mock_callback
+        )
+
+        client.remove_listener(hikari.RoleEvent, mock_callback)
+
+        assert hikari.RoleEvent not in client.listeners
+        mock_events.unsubscribe.assert_not_called()
 
     def test_with_listener(self):
         add_listener_ = mock.Mock()

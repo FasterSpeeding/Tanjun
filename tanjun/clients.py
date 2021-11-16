@@ -819,6 +819,11 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self._loop is not None
 
     @property
+    def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        return self._loop
+
+    @property
     def message_hooks(self) -> typing.Optional[tanjun_abc.MessageHooks]:
         """Top level `tanjun.abc.MessageHooks` set for this client.
 
@@ -1375,7 +1380,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         self: _ClientT, event_type: type[hikari.Event], callback: tanjun_abc.ListenerCallbackSig, /
     ) -> _ClientT:
         # <<inherited docstring from tanjun.abc.Client>>.
-        injected = injecting.SelfInjectingCallback[None](self, callback)
+        injected: injecting.SelfInjectingCallback[None] = injecting.SelfInjectingCallback(self, callback)
         try:
             if callback in self._listeners[event_type]:
                 return self

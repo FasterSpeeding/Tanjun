@@ -253,6 +253,10 @@ class Component(abc.Component):
         return self._hooks
 
     @property
+    def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
+        return self._loop
+
+    @property
     def name(self) -> str:
         return self._name
 
