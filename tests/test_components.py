@@ -1124,7 +1124,22 @@ class TestComponent:
 
     @pytest.mark.asyncio()
     async def test_close(self):
-        ...
+        mock_callback_1 = mock.AsyncMock()
+        mock_callback_2 = mock.AsyncMock()
+        mock_ctx_1 = mock.Mock()
+        mock_ctx_2 = mock.Mock()
+        mock_client = mock.Mock(tanjun.injecting.InjectorClient)
+        component = tanjun.Component().bind_client(mock_client)
+        component._on_close = [mock_callback_1, mock_callback_2]
+
+        with mock.patch.object(
+            tanjun.injecting, "BasicInjectionContext", side_effect=[mock_ctx_1, mock_ctx_2]
+        ) as basic_injection_context:
+            await component.close()
+
+        basic_injection_context.assert_has_calls([mock.call(mock_client), mock.call(mock_client)])
+        mock_callback_1.resolve.assert_awaited_once_with(mock_ctx_1)
+        mock_callback_2.resolve.assert_awaited_once_with(mock_ctx_2)
 
     @pytest.mark.asyncio()
     async def test_close_when_not_active(self):
@@ -1135,7 +1150,16 @@ class TestComponent:
 
     @pytest.mark.asyncio()
     async def test_close_when_client_isnt_injection_client(self):
-        ...
+        mock_callback_1 = mock.AsyncMock()
+        mock_callback_2 = mock.AsyncMock()
+        mock_client = mock.Mock()
+        component = tanjun.Component().bind_client(mock_client)
+        component._on_close = [mock_callback_1, mock_callback_2]
+
+        await component.close()
+
+        mock_callback_1.resolve_without_injector.assert_awaited_once()
+        mock_callback_2.resolve_without_injector.assert_awaited_once()
 
     @pytest.mark.asyncio()
     async def test_open(self):

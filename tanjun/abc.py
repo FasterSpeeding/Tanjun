@@ -2797,15 +2797,15 @@ class Client(abc.ABC):
     def is_alive(self) -> bool:
         """Whether this client is alive."""
 
-    @property
-    @abc.abstractmethod
-    def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
-        """The loop this client is bound to if it's alive."""
-
     @property  # TODO: switch over to a mapping of event to collection cause convenience
     @abc.abstractmethod
     def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[ListenerCallbackSig]]:
         """Mapping of event types to the listeners registered in this client."""
+
+    @property
+    @abc.abstractmethod
+    def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
+        """The loop this client is bound to if it's alive."""
 
     @property
     @abc.abstractmethod
