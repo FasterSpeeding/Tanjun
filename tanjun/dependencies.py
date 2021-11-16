@@ -153,7 +153,7 @@ class CooldownResource(int, enum.Enum):
         category this'll be per-guild.
     """
 
-    HIGHEST_ROLE = 5
+    TOP_ROLE = 5
     """A per-highest role cooldown bucket.
 
     .. note::
@@ -168,6 +168,9 @@ class CooldownResource(int, enum.Enum):
         When executed in a DM this will be per-DM.
     """
 
+    GLOBAL = 7
+    """A global cooldown bucket."""
+
 
 class _Cooldown:
     __slots__ = ("counter", "will_reset_after", "resource")
@@ -177,7 +180,6 @@ class _Cooldown:
         self.will_reset_after = -1.0
         self.resource = resource
 
-    @property
     def has_expired(self) -> bool:
         return time.monotonic() >= self.will_reset_after
 
@@ -223,7 +225,7 @@ def _check_cooldown_mapping(
     resource: _BaseCooldownResource,
     mapping: dict[hikari.Snowflake, _Cooldown],
     target: hikari.Snowflake,
-    increment: bool = False,
+    increment: bool,
 ) -> typing.Optional[float]:
     cooldown = mapping.get(target)
     if increment:
@@ -231,7 +233,7 @@ def _check_cooldown_mapping(
             cooldown = mapping[target] = _Cooldown(resource)
 
         wait_until = cooldown.must_wait_until()
-        if not wait_until:
+        if wait_until is not None:
             cooldown.increment()
 
         return wait_until
@@ -253,8 +255,7 @@ class _CooldownBucket(_BaseCooldownResource):
         self.mapping: dict[hikari.Snowflake, _Cooldown] = {}
 
     async def check(self, ctx: tanjun_abc.Context, /, *, increment: bool = False) -> typing.Optional[float]:
-        target = await self._get_target(ctx)
-        return _check_cooldown_mapping(self, self.mapping, target, increment)
+        return _check_cooldown_mapping(self, self.mapping, await self._get_target(ctx), increment)
 
     async def increment(self, ctx: tanjun_abc.Context, /) -> None:
         target = await self._get_target(ctx)
@@ -294,7 +295,7 @@ class _CooldownBucket(_BaseCooldownResource):
             assert isinstance(channel, hikari.TextableGuildChannel)
             return channel.parent_id or channel.guild_id
 
-        if self.type is CooldownResource.HIGHEST_ROLE:
+        if self.type is CooldownResource.TOP_ROLE:
             if not ctx.member:
                 return ctx.channel_id
 
@@ -312,7 +313,7 @@ class _CooldownBucket(_BaseCooldownResource):
 
     def cleanup(self) -> None:
         for bucket_id, cooldown in self.mapping.copy().items():
-            if cooldown.has_expired:
+            if cooldown.has_expired():
                 del self.mapping[bucket_id]
 
     def copy(self) -> _CooldownBucket:
@@ -364,18 +365,46 @@ class _MemberCooldownResource(_BaseCooldownResource):
     def cleanup(self) -> None:
         for guild_id, mapping in self.mapping.copy().items():
             for bucket_id, cooldown in mapping.copy().items():
-                if cooldown.has_expired:
+                if cooldown.has_expired():
                     del mapping[bucket_id]
 
             if not mapping:
                 del self.mapping[guild_id]
 
         for bucket_id, cooldown in self.dm_fallback.copy().items():
-            if cooldown.has_expired:
+            if cooldown.has_expired():
                 del self.dm_fallback[bucket_id]
 
     def copy(self) -> _MemberCooldownResource:
         return _MemberCooldownResource(self.limit, self.reset_after)
+
+
+class _GlobalCooldownResource(_BaseCooldownResource):
+    __slots__ = ("_bucket",)
+
+    def __init__(
+        self,
+        limit: int,
+        reset_after: typing.Union[int, float, datetime.timedelta],
+    ) -> None:
+        super().__init__(limit, reset_after)
+        self._bucket = _Cooldown(self)
+
+    async def check(self, _: tanjun_abc.Context, /, *, increment: bool = False) -> typing.Optional[float]:
+        wait_for = self._bucket.must_wait_until()
+        if increment and wait_for is not None:
+            self._bucket.increment()
+
+        return wait_for
+
+    async def increment(self, _: tanjun_abc.Context, /) -> None:
+        self._bucket.increment()
+
+    def cleanup(self) -> None:
+        pass
+
+    def copy(self) -> _GlobalCooldownResource:
+        return _GlobalCooldownResource(self.limit, self.reset_after)
 
 
 class InMemoryCooldownManager(AbstractCooldownManager):
@@ -485,6 +514,10 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     ) -> _InMemoryCooldownManagerT:
         if resource_type is CooldownResource.MEMBER:
             bucket = _MemberCooldownResource(limit, reset_after)
+
+        elif resource_type is CooldownResource.GLOBAL:
+            bucket = _GlobalCooldownResource(limit, reset_after)
+
         else:
             bucket = _CooldownBucket(resource_type, limit, reset_after)
 
