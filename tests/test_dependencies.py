@@ -290,7 +290,7 @@ async def test_fetch_my_user_when_not_cache_bound_falls_back_to_rest():
 
 
 def test_set_standard_dependencies():
-    mock_client = mock.Mock()
+    mock_client = mock.Mock(tanjun.Client)
     mock_client.set_type_dependency.return_value = mock_client
     stack = contextlib.ExitStack()
     owner_check = stack.enter_context(mock.patch.object(tanjun.dependencies, "OwnerCheck"))
