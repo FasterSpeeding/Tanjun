@@ -192,7 +192,7 @@ class _Cooldown:
         if self.counter == 0:
             self.will_reset_after = time.monotonic() + self.resource.reset_after
 
-        elif (current_time := time.monotonic()) > self.will_reset_after:
+        elif (current_time := time.monotonic()) >= self.will_reset_after:
             self.counter == 0
             self.will_reset_after = current_time + self.resource.reset_after
 
@@ -213,10 +213,13 @@ class _BaseCooldownResource:
         else:
             self.reset_after = float(reset_after)
 
-    async def check(self, tx: tanjun_abc.Context, /) -> typing.Optional[float]:
+    async def check(self, ctx: tanjun_abc.Context, /) -> typing.Optional[float]:
         raise NotImplementedError
 
     async def increment(self, ctx: tanjun_abc.Context, /) -> None:
+        raise NotImplementedError
+
+    def cleanup(self) -> None:
         raise NotImplementedError
 
     def copy(self) -> _BaseCooldownResource:
@@ -297,15 +300,17 @@ class _CooldownBucket(_BaseCooldownResource):
 
         raise RuntimeError(f"Unexpected type {self.type}")
 
+    def cleanup(self) -> None:
+        for bucket_id, cooldown in self.mapping.copy().items():
+            if cooldown.has_expired:
+                del self.mapping[bucket_id]
+
     def copy(self) -> _CooldownBucket:
         return _CooldownBucket(resource_type=self.type, limit=self.limit, reset_after=self.reset_after)
 
 
 class _MemberCooldownResource(_BaseCooldownResource):
-    __slots__ = (
-        "dm_fallback",
-        "mapping",
-    )
+    __slots__ = ("dm_fallback", "mapping")
 
     def __init__(
         self,
@@ -344,6 +349,19 @@ class _MemberCooldownResource(_BaseCooldownResource):
 
         cooldown.increment()
 
+    def cleanup(self) -> None:
+        for guild_id, mapping in self.mapping.copy().items():
+            for bucket_id, cooldown in mapping.copy().items():
+                if cooldown.has_expired:
+                    del mapping[bucket_id]
+
+            if not mapping:
+                del self.mapping[guild_id]
+
+        for bucket_id, cooldown in self.dm_fallback.copy().items():
+            if cooldown.has_expired:
+                del self.dm_fallback[bucket_id]
+
     def copy(self) -> _MemberCooldownResource:
         return _MemberCooldownResource(self.limit, self.reset_after)
 
@@ -351,11 +369,12 @@ class _MemberCooldownResource(_BaseCooldownResource):
 class InMemoryCooldownManager(AbstractCooldownManager):
     """In-memory standard implementation of `AbstractCooldownManager`."""
 
-    __slots__ = ("_buckets", "_default_bucket_template")
+    __slots__ = ("_buckets", "_default_bucket_template", "_gc_loop")
 
     def __init__(self) -> None:
         self._buckets: dict[str, _BaseCooldownResource] = {}
         self._default_bucket_template: _BaseCooldownResource = _CooldownBucket(CooldownResource.USER, 5, 10)
+        self._gc_loop: typing.Optional[asyncio.Task[None]] = None
 
     def _get_bucket(self, bucket_id: str, /) -> _BaseCooldownResource:
         if bucket := self._buckets.get(bucket_id):
@@ -364,6 +383,49 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         _LOGGER.info("No route found for {bucket_id}, falling back to 'default' bucket.")
         bucket = self._buckets[bucket_id] = self._default_bucket_template.copy()
         return bucket
+
+    async def _gc(self) -> None:
+        while True:
+            await asyncio.sleep(10)
+            for bucket in self._buckets.values():
+                bucket.cleanup()
+
+    def _on_starting(
+        self,
+        client: tanjun_abc.Client = injecting.inject(type=tanjun_abc.Client),
+        injection_client: injecting.InjectorClient = injecting.inject(type=injecting.InjectorClient),
+    ) -> None:
+        # If this isn't registered as a type dependency then it was presumably
+        # replaced and shouldn't start
+        if (_ := injection_client.get_type_dependency(AbstractCooldownManager)) is self:
+            client.remove_client_callback(tanjun_abc.ClientCallbackNames.STARTING, self.open)
+            try:
+                client.remove_client_callback(tanjun_abc.ClientCallbackNames.CLOSING, self.close)
+            except (KeyError, ValueError):
+                pass
+
+        else:
+            self.open()
+
+    def add_to_client(self, client: injecting.InjectorClient, /) -> None:
+        """Add this cooldown manager to a tanjun client.
+
+        .. note::
+            This registers the manager as a type dependency and manages opening
+            and closing the manager based on the client's life cycle.
+
+        Parameters
+        ----------
+        client : tanjun.abc.Client
+            The client to add this cooldown manager to.
+        """
+        client.set_type_dependency(AbstractCooldownManager, self)
+        # TODO: the injection client should be upgraded to the abstract Client.
+        assert isinstance(client, tanjun_abc.Client)
+        client.add_client_callback(tanjun_abc.ClientCallbackNames.STARTING, self.open)
+        client.add_client_callback(tanjun_abc.ClientCallbackNames.CLOSING, self.close)
+        if client.loop:
+            self.open(_loop=client.loop)
 
     def check_cooldown(
         self, bucket_id: str, ctx: tanjun_abc.Context, /
@@ -374,6 +436,33 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         self, bucket_id: str, ctx: tanjun_abc.Context, /
     ) -> collections.Coroutine[typing.Any, typing.Any, None]:
         return self._get_bucket(bucket_id).increment(ctx)
+
+    def close(self) -> None:
+        """Stop the event manager.
+
+        Raises
+        ------
+        RuntimeError
+            If the event manager is not running.
+        """
+        if not self._gc_loop:
+            raise RuntimeError("Cooldown manager is not active")
+
+        self._gc_loop.cancel()
+        self._gc_loop = None
+
+    def open(self, *, _loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
+        """Start the event manager.
+
+        Raises
+        ------
+        RuntimeError
+            If the event manager is already running.
+        """
+        if self._gc_loop:
+            raise RuntimeError("Cooldown manager is already running")
+
+        self._gc_loop = (_loop or asyncio.get_event_loop()).create_task(self._gc())
 
     def set_bucket(
         self: _InMemoryCooldownManagerT,
@@ -711,11 +800,12 @@ def set_standard_dependencies(client: injecting.InjectorClient, /) -> None:
     client: tanjun.injecting.InjectorClient
         The injector client to set the standard dependencies on.
     """
+    InMemoryCooldownManager().add_to_client(client)
     (
         (
-            client.set_type_dependency(AbstractOwnerCheck, OwnerCheck())
-            .set_type_dependency(LazyConstant[hikari.OwnUser], LazyConstant(fetch_my_user))
-            .set_type_dependency(AbstractCooldownManager, InMemoryCooldownManager())
+            client.set_type_dependency(AbstractOwnerCheck, OwnerCheck()).set_type_dependency(
+                LazyConstant[hikari.OwnUser], LazyConstant(fetch_my_user)
+            )
         )
     )
 

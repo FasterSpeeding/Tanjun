@@ -109,6 +109,7 @@ __all__: list[str] = [
     "__version__",
     # abc.py
     "abc",
+    "ClientCallbackNames",
     # checks.py
     "checks",
     "with_check",
@@ -124,7 +125,6 @@ __all__: list[str] = [
     "as_loader",
     "as_unloader",
     "Client",
-    "ClientCallbackNames",
     "MessageAcceptsEnum",
     # commands.py
     "commands",
@@ -215,6 +215,7 @@ import typing
 
 from . import abc
 from . import utilities
+from .abc import ClientCallbackNames
 from .checks import *
 from .clients import *
 from .commands import *

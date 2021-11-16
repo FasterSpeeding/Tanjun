@@ -467,7 +467,9 @@ class Component(abc.Component):
         self.add_check(check)
         return check
 
-    def add_client_callback(self: _ComponentT, event_name: str, callback: abc.MetaEventSig, /) -> _ComponentT:
+    def add_client_callback(
+        self: _ComponentT, event_name: typing.Union[str, abc.ClientCallbackNames], callback: abc.MetaEventSig, /
+    ) -> _ComponentT:
         event_name = event_name.lower()
         try:
             if callback in self._client_callbacks[event_name]:
@@ -482,11 +484,15 @@ class Component(abc.Component):
 
         return self
 
-    def get_client_callbacks(self, event_name: str, /) -> collections.Collection[abc.MetaEventSig]:
+    def get_client_callbacks(
+        self, event_name: typing.Union[str, abc.ClientCallbackNames], /
+    ) -> collections.Collection[abc.MetaEventSig]:
         event_name = event_name.lower()
         return self._client_callbacks.get(event_name) or ()
 
-    def remove_client_callback(self, event_name: str, callback: abc.MetaEventSig, /) -> None:
+    def remove_client_callback(
+        self, event_name: typing.Union[str, abc.ClientCallbackNames], callback: abc.MetaEventSig, /
+    ) -> None:
         event_name = event_name.lower()
         self._client_callbacks[event_name].remove(callback)
         if not self._client_callbacks[event_name]:
@@ -495,7 +501,9 @@ class Component(abc.Component):
         if self._client:
             self._client.remove_client_callback(event_name, callback)
 
-    def with_client_callback(self, event_name: str, /) -> collections.Callable[[abc.MetaEventSigT], abc.MetaEventSigT]:
+    def with_client_callback(
+        self, event_name: typing.Union[str, abc.ClientCallbackNames], /
+    ) -> collections.Callable[[abc.MetaEventSigT], abc.MetaEventSigT]:
         def decorator(callback: abc.MetaEventSigT, /) -> abc.MetaEventSigT:
             self.add_client_callback(event_name, callback)
             return callback

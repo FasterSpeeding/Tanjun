@@ -38,6 +38,7 @@ __all__: list[str] = [
     "CheckSig",
     "CheckSigT",
     "Context",
+    "ClientCallbackNames",
     "Hooks",
     "MetaEventSig",
     "MetaEventSigT",
@@ -66,6 +67,7 @@ __all__: list[str] = [
 ]
 
 import abc
+import enum
 import typing
 from collections import abc as collections
 
@@ -2750,6 +2752,69 @@ class Component(abc.ABC):
         """
 
 
+class ClientCallbackNames(str, enum.Enum):
+    """Enum of the standard client callback names.
+
+    These should be dispatched by all `Client` implementations.
+    """
+
+    CLOSED = "closed"
+    """Called when the client has finished closing.
+
+    No positional arguments are provided for this event.
+    """
+
+    CLOSING = "closing"
+    """Called when the client is initially instructed to close.
+
+    No positional arguments are provided for this event.
+    """
+
+    COMPONENT_ADDED = "component_added"
+    """Called when a component is added to an active client.
+
+    .. warning::
+        This event isn't dispatched for components which were registered while
+        the client is inactive.
+
+    The first positional argument is the `tanjun.abc.Component` being added.
+    """
+
+    COMPONENT_REMOVED = "component_removed"
+    """Called when a component is added to an active client.
+
+    .. warning::
+        This event isn't dispatched for components which were removed while
+        the client is inactive.
+
+    The first positional argument is the `tanjun.abc.Component` being removed.
+    """
+
+    MESSAGE_COMMAND_NOT_FOUND = "message_command_not_found"
+    """Called when a message command is not found.
+
+    `tanjun.abc.MessageContext` is provided as the first positional argument.
+    """
+
+    SLASH_COMMAND_NOT_FOUND = "slash_command_not_found"
+    """Called when a slash command is not found.
+
+    `tanjun.abc.MessageContext` is provided as the first positional argument.
+    """
+
+    STARTED = "started"
+    """Called when the client has finished starting.
+
+    No positional arguments are provided for this event.
+    """
+
+    STARTING = "starting"
+    """Called when the client is initially instructed to start.
+
+    No positional arguments are provided for this event.
+    """
+
+
 class Client(abc.ABC):
     """Abstract interface of a Tanjun client.
 
@@ -3104,12 +3169,12 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_client_callback(self: _T, name: str, callback: MetaEventSig, /) -> _T:
+    def add_client_callback(self: _T, name: typing.Union[str, ClientCallbackNames], callback: MetaEventSig, /) -> _T:
         """Add a client callback.
 
         Parameters
         ----------
-        _name : str
+        name : typing.Union[str, ClientCallbackNames]
             The name this callback is being registered to.
 
             This is case-insensitive.
@@ -3127,12 +3192,38 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def get_client_callbacks(self, name: str, /) -> collections.Collection[MetaEventSig]:
+    async def dispatch_client_callback(
+        self, name: typing.Union[str, ClientCallbackNames], /, *args: typing.Any, **kwargs: typing.Any
+    ) -> None:
+        """Dispatch a client callback.
+
+        Parameters
+        ----------
+        name : typing.Union[str, ClientCallbackNames]
+            The name of the callback to dispatch.
+
+        Other Parameters
+        ----------------
+        *args : typing.Any
+            Positional arguments to pass to the callback(s).
+        **kwargs : typing.Any
+            Keyword arguments to pass to the callback(s).
+
+        Raises
+        ------
+        KeyError
+            If no callbacks are registered for the given name.
+        """
+
+    @abc.abstractmethod
+    def get_client_callbacks(
+        self, name: typing.Union[str, ClientCallbackNames], /
+    ) -> collections.Collection[MetaEventSig]:
         """Get a collection of the callbacks registered for a specific name.
 
         Parameters
         ----------
-        name : str
+        name : typing.Union[str, ClientCallbackNames]
             The name to get the callbacks registered for.
 
             This is case-insensitive.
@@ -3144,12 +3235,12 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_client_callback(self: _T, name: str, callback: MetaEventSig, /) -> _T:
+    def remove_client_callback(self: _T, name: typing.Union[str, ClientCallbackNames], callback: MetaEventSig, /) -> _T:
         """Remove a client callback.
 
         Parameters
         ----------
-        name : str
+        name : typing.Union[str, ClientCallbackNames]
             The name this callback is being registered to.
 
             This is case-insensitive.
@@ -3170,7 +3261,9 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def with_client_callback(self, name: str, /) -> collections.Callable[[MetaEventSigT], MetaEventSigT]:
+    def with_client_callback(
+        self, name: typing.Union[str, ClientCallbackNames], /
+    ) -> collections.Callable[[MetaEventSigT], MetaEventSigT]:
         """Add a client callback through a decorator call.
 
         Examples
@@ -3185,7 +3278,7 @@ class Client(abc.ABC):
 
         Parameters
         ----------
-        name : str
+        name : typing.Union[str, ClientCallbackNames]
             The name this callback is being registered to.
 
             This is case-insensitive.
