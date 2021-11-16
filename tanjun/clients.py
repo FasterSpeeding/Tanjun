@@ -511,7 +511,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     ) -> None:
         # InjectorClient.__init__
         super().__init__()
-        dependencies.set_standard_dependencies(self)
         # TODO: logging or something to indicate this is running statelessly rather than statefully.
         # TODO: warn if server and dispatch both None but don't error
 
@@ -604,6 +603,8 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
         if voice:
             self.set_type_dependency(hikari.api.VoiceComponent, voice).set_type_dependency(type(voice), voice)
+
+        dependencies.set_standard_dependencies(self)
 
     @classmethod
     def from_gateway_bot(
