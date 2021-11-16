@@ -211,6 +211,9 @@
                                 <a class="variable" href="#BaseSlashCommand.parent">parent</a>
                         </li>
                         <li>
+                                <a class="variable" href="#BaseSlashCommand.tracked_command">tracked_command</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#BaseSlashCommand.tracked_command_id">tracked_command_id</a>
                         </li>
                         <li>
@@ -583,7 +586,6 @@
     <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -628,12 +630,6 @@
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.Command]]</span>
-<span class="sd">        Object or ID of the command the group tracks.</span>
-
-<span class="sd">        This is useful when bulk updating the commands as if the ID isn&#39;t</span>
-<span class="sd">        specified then any previously set permissions may be lost (i.e. if the</span>
-<span class="sd">        command&#39;s name is changed).</span>
 <span class="sd">    default_permission : bool</span>
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
@@ -662,7 +658,6 @@
     <span class="k">return</span> <span class="n">SlashCommandGroup</span><span class="p">(</span>
         <span class="n">name</span><span class="p">,</span>
         <span class="n">description</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="o">=</span><span class="n">command_id</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="o">=</span><span class="n">default_permission</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
         <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
@@ -675,7 +670,6 @@
     <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -689,8 +683,8 @@
 <span class="sd">        or when `set_global_commands` is True</span>
 
 <span class="sd">    .. warning::</span>
-<span class="sd">        `command_id`, `default_permission` and `is_global` are ignored for commands</span>
-<span class="sd">        within slash command groups.</span>
+<span class="sd">        `default_permission` and `is_global` are ignored for commands within</span>
+<span class="sd">        slash command groups.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -713,12 +707,6 @@
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.Command]]</span>
-<span class="sd">        ID of the global command this should be tracking.</span>
-
-<span class="sd">        This is useful when bulk updating the commands as if the ID isn&#39;t</span>
-<span class="sd">        specified then any previously set permissions may be lost (i.e. if the</span>
-<span class="sd">        command&#39;s name is changed).</span>
 <span class="sd">    default_permission : bool</span>
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
@@ -755,12 +743,10 @@
         <span class="n">c</span><span class="p">,</span>
         <span class="n">name</span><span class="p">,</span>
         <span class="n">description</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="o">=</span><span class="n">command_id</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="o">=</span><span class="n">default_permission</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
         <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
         <span class="n">sort_options</span><span class="o">=</span><span class="n">sort_options</span><span class="p">,</span>
-        <span class="n">_stack</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
 
 
@@ -1173,7 +1159,7 @@
 
 
 <span class="k">class</span> <span class="nc">BaseSlashCommand</span><span class="p">(</span><span class="n">PartialCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_command_id&quot;</span><span class="p">,</span> <span class="s2">&quot;_defaults_to_ephemeral&quot;</span><span class="p">,</span> <span class="s2">&quot;_description&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_global&quot;</span><span class="p">,</span> <span class="s2">&quot;_name&quot;</span><span class="p">,</span> <span class="s2">&quot;_parent&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_defaults_to_ephemeral&quot;</span><span class="p">,</span> <span class="s2">&quot;_description&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_global&quot;</span><span class="p">,</span> <span class="s2">&quot;_name&quot;</span><span class="p">,</span> <span class="s2">&quot;_parent&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_command&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1181,7 +1167,6 @@
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1198,20 +1183,12 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">description</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The command description cannot be over 100 characters in length&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">command_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;Passing command_id to the command initialiser is deprecated as of v2.1.1a1. &quot;</span>
-                <span class="s2">&quot;Please pass the command IDs to Client.declare_global_commands or Client.declare_commands&quot;</span><span class="p">,</span>
-                <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
-                <span class="n">stacklevel</span><span class="o">=</span><span class="n">_stack</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command_id</span><span class="p">)</span> <span class="k">if</span> <span class="n">command_id</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">default_to_ephemeral</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_description</span> <span class="o">=</span> <span class="n">description</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_global</span> <span class="o">=</span> <span class="n">is_global</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
@@ -1239,17 +1216,17 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tracked_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_command</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">tracked_command_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_command</span><span class="o">.</span><span class="n">id</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_command</span> <span class="k">else</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">set_tracked_command</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">],</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_tracked_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the the global command this should be tracking.</span>
-
-<span class="sd">        .. deprecated:: v2.1.1a1</span>
-<span class="sd">            Passing a command ID instead of instance here is deprecated.</span>
-<span class="sd">            Please pass the command IDs to Client.declare_global_commands or Client.declare_commands instead.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1261,15 +1238,7 @@
 <span class="sd">        SelfT</span>
 <span class="sd">            This command instance for chaining.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">):</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;Passing a command ID instead of instance here is deprecated. &quot;</span>
-                <span class="s2">&quot;Please pass the command IDs to Client.declare_global_commands or Client.declare_commands instead.&quot;</span><span class="p">,</span>
-                <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
-                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_command</span> <span class="o">=</span> <span class="n">command</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
@@ -1333,7 +1302,6 @@
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -1345,7 +1313,6 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
             <span class="n">description</span><span class="p">,</span>
-            <span class="n">command_id</span><span class="o">=</span><span class="n">command_id</span><span class="p">,</span>
             <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
             <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
             <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
@@ -1364,9 +1331,6 @@
     <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">special_endpoints_api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
         <span class="n">builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_description</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_permission</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">:</span>
-            <span class="n">builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">)</span>
-
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">option_type</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">SUB_COMMAND_GROUP</span>
@@ -1506,31 +1470,24 @@
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">sort_options</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">_stack</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
             <span class="n">description</span><span class="p">,</span>
             <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
-            <span class="n">command_id</span><span class="o">=</span><span class="n">command_id</span><span class="p">,</span>
             <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
             <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
             <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-            <span class="n">_stack</span><span class="o">=</span><span class="n">_stack</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="n">default_permission</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_TrackedOption</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -2894,7 +2851,6 @@ enforces that command names are unique to a single command within the group.</p>
     description: str,
     /,
     *,
-    command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
     default_permission: bool = True,
     default_to_ephemeral: Optional[bool] = None,
     is_global: bool = True,
@@ -2909,7 +2865,6 @@ enforces that command names are unique to a single command within the group.</p>
     <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -2923,8 +2878,8 @@ enforces that command names are unique to a single command within the group.</p>
 <span class="sd">        or when `set_global_commands` is True</span>
 
 <span class="sd">    .. warning::</span>
-<span class="sd">        `command_id`, `default_permission` and `is_global` are ignored for commands</span>
-<span class="sd">        within slash command groups.</span>
+<span class="sd">        `default_permission` and `is_global` are ignored for commands within</span>
+<span class="sd">        slash command groups.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -2947,12 +2902,6 @@ enforces that command names are unique to a single command within the group.</p>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.Command]]</span>
-<span class="sd">        ID of the global command this should be tracking.</span>
-
-<span class="sd">        This is useful when bulk updating the commands as if the ID isn&#39;t</span>
-<span class="sd">        specified then any previously set permissions may be lost (i.e. if the</span>
-<span class="sd">        command&#39;s name is changed).</span>
 <span class="sd">    default_permission : bool</span>
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
@@ -2989,12 +2938,10 @@ enforces that command names are unique to a single command within the group.</p>
         <span class="n">c</span><span class="p">,</span>
         <span class="n">name</span><span class="p">,</span>
         <span class="n">description</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="o">=</span><span class="n">command_id</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="o">=</span><span class="n">default_permission</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
         <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
         <span class="n">sort_options</span><span class="o">=</span><span class="n">sort_options</span><span class="p">,</span>
-        <span class="n">_stack</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
 </pre></div>
 
@@ -3008,8 +2955,8 @@ the command should be bulk set by <code><a href="../tanjun.html#Client.set_globa
 or when <code>set_global_commands</code> is True</p>
 
 <p><em>Warning:</em>
-<code>command_id</code>, <code>default_permission</code> and <code>is_global</code> are ignored for commands
-within slash command groups.</p>
+<code>default_permission</code> and <code>is_global</code> are ignored for commands within
+slash command groups.</p>
 
 <h6 id="examples">Examples</h6>
 
@@ -3034,12 +2981,6 @@ This should be inclusively between 1-100 characters in length.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>command_id</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.Command]]):
-ID of the global command this should be tracking.</p>
-
-<p>This is useful when bulk updating the commands as if the ID isn't
-specified then any previously set permissions may be lost (i.e. if the
-command's name is changed).</p></li>
 <li><p><strong>default_permission</strong> (bool):
 Whether this command can be accessed without set permissions.</p>
 
@@ -3090,7 +3031,6 @@ ones.</p></li>
     description: str,
     /,
     *,
-    command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
     default_permission: bool = True,
     default_to_ephemeral: Optional[bool] = None,
     is_global: bool = True
@@ -3104,7 +3044,6 @@ ones.</p></li>
     <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -3149,12 +3088,6 @@ ones.</p></li>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
-<span class="sd">    command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.Command]]</span>
-<span class="sd">        Object or ID of the command the group tracks.</span>
-
-<span class="sd">        This is useful when bulk updating the commands as if the ID isn&#39;t</span>
-<span class="sd">        specified then any previously set permissions may be lost (i.e. if the</span>
-<span class="sd">        command&#39;s name is changed).</span>
 <span class="sd">    default_permission : bool</span>
 <span class="sd">        Whether this command can be accessed without set permissions.</span>
 
@@ -3183,7 +3116,6 @@ ones.</p></li>
     <span class="k">return</span> <span class="n">SlashCommandGroup</span><span class="p">(</span>
         <span class="n">name</span><span class="p">,</span>
         <span class="n">description</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="o">=</span><span class="n">command_id</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="o">=</span><span class="n">default_permission</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
         <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
@@ -3238,12 +3170,6 @@ The description of the command group.</li>
 <h6 id="other-parameters">Other Parameters</h6>
 
 <ul>
-<li><p><strong>command_id</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.Command]]):
-Object or ID of the command the group tracks.</p>
-
-<p>This is useful when bulk updating the commands as if the ID isn't
-specified then any previously set permissions may be lost (i.e. if the
-command's name is changed).</p></li>
 <li><p><strong>default_permission</strong> (bool):
 Whether this command can be accessed without set permissions.</p>
 
@@ -4969,7 +4895,7 @@ The check to remove.</li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">BaseSlashCommand</span><span class="p">(</span><span class="n">PartialCommand</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">],</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_command_id&quot;</span><span class="p">,</span> <span class="s2">&quot;_defaults_to_ephemeral&quot;</span><span class="p">,</span> <span class="s2">&quot;_description&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_global&quot;</span><span class="p">,</span> <span class="s2">&quot;_name&quot;</span><span class="p">,</span> <span class="s2">&quot;_parent&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_defaults_to_ephemeral&quot;</span><span class="p">,</span> <span class="s2">&quot;_description&quot;</span><span class="p">,</span> <span class="s2">&quot;_is_global&quot;</span><span class="p">,</span> <span class="s2">&quot;_name&quot;</span><span class="p">,</span> <span class="s2">&quot;_parent&quot;</span><span class="p">,</span> <span class="s2">&quot;_tracked_command&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -4977,7 +4903,6 @@ The check to remove.</li>
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4994,20 +4919,12 @@ The check to remove.</li>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">description</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The command description cannot be over 100 characters in length&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">command_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;Passing command_id to the command initialiser is deprecated as of v2.1.1a1. &quot;</span>
-                <span class="s2">&quot;Please pass the command IDs to Client.declare_global_commands or Client.declare_commands&quot;</span><span class="p">,</span>
-                <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
-                <span class="n">stacklevel</span><span class="o">=</span><span class="n">_stack</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command_id</span><span class="p">)</span> <span class="k">if</span> <span class="n">command_id</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_defaults_to_ephemeral</span> <span class="o">=</span> <span class="n">default_to_ephemeral</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_description</span> <span class="o">=</span> <span class="n">description</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_global</span> <span class="o">=</span> <span class="n">is_global</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashCommandGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_command</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">defaults_to_ephemeral</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
@@ -5035,17 +4952,17 @@ The check to remove.</li>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tracked_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_command</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">tracked_command_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_command</span><span class="o">.</span><span class="n">id</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_command</span> <span class="k">else</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">set_tracked_command</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">],</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">set_tracked_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the the global command this should be tracking.</span>
-
-<span class="sd">        .. deprecated:: v2.1.1a1</span>
-<span class="sd">            Passing a command ID instead of instance here is deprecated.</span>
-<span class="sd">            Please pass the command IDs to Client.declare_global_commands or Client.declare_commands instead.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -5057,15 +4974,7 @@ The check to remove.</li>
 <span class="sd">        SelfT</span>
 <span class="sd">            This command instance for chaining.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">):</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;Passing a command ID instead of instance here is deprecated. &quot;</span>
-                <span class="s2">&quot;Please pass the command IDs to Client.declare_global_commands or Client.declare_commands instead.&quot;</span><span class="p">,</span>
-                <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
-                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_command</span> <span class="o">=</span> <span class="n">command</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">set_ephemeral_default</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
@@ -5197,6 +5106,17 @@ is inherited regardless of what it's set as on the child command.</p>
 
 
                             </div>
+                            <div id="BaseSlashCommand.tracked_command" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#BaseSlashCommand.tracked_command">#&nbsp;&nbsp</a>
+
+        <span class="name">tracked_command</span><span class="annotation">: Optional[hikari.commands.Command]</span>
+    </div>
+
+            <div class="docstring"><p>Object of the actual command this object tracks if set.</p>
+</div>
+
+
+                            </div>
                             <div id="BaseSlashCommand.tracked_command_id" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#BaseSlashCommand.tracked_command_id">#&nbsp;&nbsp</a>
 
@@ -5204,8 +5124,6 @@ is inherited regardless of what it's set as on the child command.</p>
     </div>
 
             <div class="docstring"><p>ID of the actual command this object tracks if set.</p>
-
-<p>This will be used when this command is used in bulk declarations.</p>
 </div>
 
 
@@ -5217,21 +5135,15 @@ is inherited regardless of what it's set as on the child command.</p>
             <span class="def">def</span>
             <span class="name">set_tracked_command</span><span class="signature">(
     self: ~_BaseSlashCommandT,
-    command: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int],
+    command: hikari.commands.Command,
     /
 ) -&gt; ~_BaseSlashCommandT</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_tracked_command</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">],</span> <span class="o">/</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">set_tracked_command</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_BaseSlashCommandT</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseSlashCommandT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Set the the global command this should be tracking.</span>
-
-<span class="sd">        .. deprecated:: v2.1.1a1</span>
-<span class="sd">            Passing a command ID instead of instance here is deprecated.</span>
-<span class="sd">            Please pass the command IDs to Client.declare_global_commands or Client.declare_commands instead.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -5243,25 +5155,13 @@ is inherited regardless of what it's set as on the child command.</p>
 <span class="sd">        SelfT</span>
 <span class="sd">            This command instance for chaining.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">):</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;Passing a command ID instead of instance here is deprecated. &quot;</span>
-                <span class="s2">&quot;Please pass the command IDs to Client.declare_global_commands or Client.declare_commands instead.&quot;</span><span class="p">,</span>
-                <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
-                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_command</span> <span class="o">=</span> <span class="n">command</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 
         </details>
 
             <div class="docstring"><p>Set the the global command this should be tracking.</p>
-
-<p><em>Deprecated since version v2.1.1a1:</em>
-Passing a command ID instead of instance here is deprecated.
-Please pass the command IDs to Client.declare_global_commands or Client.declare_commands instead.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -5501,31 +5401,24 @@ default for contexts used by this command.</p>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">sort_options</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">_stack</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
             <span class="n">description</span><span class="p">,</span>
             <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
-            <span class="n">command_id</span><span class="o">=</span><span class="n">command_id</span><span class="p">,</span>
             <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
             <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
             <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-            <span class="n">_stack</span><span class="o">=</span><span class="n">_stack</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="n">default_permission</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_TrackedOption</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -6364,14 +6257,12 @@ default for contexts used by this command.</p>
     /,
     *,
     checks: Optional[collections.abc.Iterable[collections.abc.Callable[..., Union[bool, collections.abc.Awaitable[bool]]]]] = None,
-    command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
     default_permission: bool = True,
     default_to_ephemeral: Optional[bool] = None,
     is_global: bool = True,
     hooks: Optional[<a href="abc.html#Hooks">tanjun.abc.Hooks</a>[<a href="abc.html#SlashContext">tanjun.abc.SlashContext</a>]] = None,
     metadata: Optional[collections.abc.MutableMapping[Any, Any]] = None,
-    sort_options: bool = True,
-    _stack: int = 0
+    sort_options: bool = True
 )</span>
     </div>
 
@@ -6385,31 +6276,24 @@ default for contexts used by this command.</p>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">checks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">hooks</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashHooks</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metadata</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">sort_options</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">_stack</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
             <span class="n">description</span><span class="p">,</span>
             <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
-            <span class="n">command_id</span><span class="o">=</span><span class="n">command_id</span><span class="p">,</span>
             <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
             <span class="n">hooks</span><span class="o">=</span><span class="n">hooks</span><span class="p">,</span>
             <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
-            <span class="n">_stack</span><span class="o">=</span><span class="n">_stack</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">sort_options</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="n">default_permission</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_TrackedOption</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -7925,6 +7809,7 @@ being used.</p></li>
                 <dd id="SlashCommand.is_global" class="variable"><a href="#BaseSlashCommand.is_global">is_global</a></dd>
                 <dd id="SlashCommand.name" class="variable"><a href="#BaseSlashCommand.name">name</a></dd>
                 <dd id="SlashCommand.parent" class="variable"><a href="#BaseSlashCommand.parent">parent</a></dd>
+                <dd id="SlashCommand.tracked_command" class="variable"><a href="#BaseSlashCommand.tracked_command">tracked_command</a></dd>
                 <dd id="SlashCommand.tracked_command_id" class="variable"><a href="#BaseSlashCommand.tracked_command_id">tracked_command_id</a></dd>
                 <dd id="SlashCommand.set_tracked_command" class="function"><a href="#BaseSlashCommand.set_tracked_command">set_tracked_command</a></dd>
                 <dd id="SlashCommand.set_ephemeral_default" class="function"><a href="#BaseSlashCommand.set_ephemeral_default">set_ephemeral_default</a></dd>
@@ -7967,7 +7852,6 @@ being used.</p></li>
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -7979,7 +7863,6 @@ being used.</p></li>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
             <span class="n">description</span><span class="p">,</span>
-            <span class="n">command_id</span><span class="o">=</span><span class="n">command_id</span><span class="p">,</span>
             <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
             <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
             <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
@@ -7998,9 +7881,6 @@ being used.</p></li>
     <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">special_endpoints_api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
         <span class="n">builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_description</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_permission</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">:</span>
-            <span class="n">builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">)</span>
-
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">option_type</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">SUB_COMMAND_GROUP</span>
@@ -8144,7 +8024,6 @@ being used.</p></li>
     description: str,
     /,
     *,
-    command_id: Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int, NoneType] = None,
     default_to_ephemeral: Optional[bool] = None,
     default_permission: bool = True,
     is_global: bool = True,
@@ -8163,7 +8042,6 @@ being used.</p></li>
         <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">/</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_to_ephemeral</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">default_permission</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">is_global</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -8175,7 +8053,6 @@ being used.</p></li>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
             <span class="n">description</span><span class="p">,</span>
-            <span class="n">command_id</span><span class="o">=</span><span class="n">command_id</span><span class="p">,</span>
             <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="n">default_to_ephemeral</span><span class="p">,</span>
             <span class="n">is_global</span><span class="o">=</span><span class="n">is_global</span><span class="p">,</span>
             <span class="n">checks</span><span class="o">=</span><span class="n">checks</span><span class="p">,</span>
@@ -8216,9 +8093,6 @@ being used.</p></li>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">special_endpoints_api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">:</span>
         <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.BaseSlashCommand&gt;&gt;.</span>
         <span class="n">builder</span> <span class="o">=</span> <span class="n">_CommandBuilder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_description</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">set_default_permission</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_permission</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">:</span>
-            <span class="n">builder</span><span class="o">.</span><span class="n">set_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_command_id</span><span class="p">)</span>
-
         <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_commands</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">option_type</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">hikari</span><span class="o">.</span><span class="n">OptionType</span><span class="o">.</span><span class="n">SUB_COMMAND_GROUP</span>
@@ -8546,6 +8420,7 @@ Command to add to this group.</li>
                 <dd id="SlashCommandGroup.is_global" class="variable"><a href="#BaseSlashCommand.is_global">is_global</a></dd>
                 <dd id="SlashCommandGroup.name" class="variable"><a href="#BaseSlashCommand.name">name</a></dd>
                 <dd id="SlashCommandGroup.parent" class="variable"><a href="#BaseSlashCommand.parent">parent</a></dd>
+                <dd id="SlashCommandGroup.tracked_command" class="variable"><a href="#BaseSlashCommand.tracked_command">tracked_command</a></dd>
                 <dd id="SlashCommandGroup.tracked_command_id" class="variable"><a href="#BaseSlashCommand.tracked_command_id">tracked_command_id</a></dd>
                 <dd id="SlashCommandGroup.set_tracked_command" class="function"><a href="#BaseSlashCommand.set_tracked_command">set_tracked_command</a></dd>
                 <dd id="SlashCommandGroup.set_ephemeral_default" class="function"><a href="#BaseSlashCommand.set_ephemeral_default">set_ephemeral_default</a></dd>

@@ -370,6 +370,9 @@
                                 <a class="variable" href="#BaseSlashCommand.parent">parent</a>
                         </li>
                         <li>
+                                <a class="variable" href="#BaseSlashCommand.tracked_command">tracked_command</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#BaseSlashCommand.tracked_command_id">tracked_command_id</a>
                         </li>
                         <li>
@@ -2788,12 +2791,13 @@
         <span class="sd">&quot;&quot;&quot;Object of the group this command is in.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tracked_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Object of the actual command this object tracks if set.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">tracked_command_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;ID of the actual command this object tracks if set.</span>
-
-<span class="sd">        This will be used when this command is used in bulk declarations.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;ID of the actual command this object tracks if set.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">:</span>
@@ -9466,12 +9470,13 @@ nature, and will trigger this exception if they occur.</li>
         <span class="sd">&quot;&quot;&quot;Object of the group this command is in.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tracked_command</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Object of the actual command this object tracks if set.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">tracked_command_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;ID of the actual command this object tracks if set.</span>
-
-<span class="sd">        This will be used when this command is used in bulk declarations.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;ID of the actual command this object tracks if set.&quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">CommandBuilder</span><span class="p">:</span>
@@ -9587,6 +9592,17 @@ is inherited regardless of what it's set as on the child command.</p>
 
 
                             </div>
+                            <div id="BaseSlashCommand.tracked_command" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#BaseSlashCommand.tracked_command">#&nbsp;&nbsp</a>
+
+        <span class="name">tracked_command</span><span class="annotation">: Optional[hikari.commands.Command]</span>
+    </div>
+
+            <div class="docstring"><p>Object of the actual command this object tracks if set.</p>
+</div>
+
+
+                            </div>
                             <div id="BaseSlashCommand.tracked_command_id" class="classattr">
                                             <div class="attr variable"><a class="headerlink" href="#BaseSlashCommand.tracked_command_id">#&nbsp;&nbsp</a>
 
@@ -9594,8 +9610,6 @@ is inherited regardless of what it's set as on the child command.</p>
     </div>
 
             <div class="docstring"><p>ID of the actual command this object tracks if set.</p>
-
-<p>This will be used when this command is used in bulk declarations.</p>
 </div>
 
 
@@ -9827,6 +9841,7 @@ Object of the global command this tracks.</li>
                 <dd id="SlashCommand.is_global" class="variable"><a href="#BaseSlashCommand.is_global">is_global</a></dd>
                 <dd id="SlashCommand.name" class="variable"><a href="#BaseSlashCommand.name">name</a></dd>
                 <dd id="SlashCommand.parent" class="variable"><a href="#BaseSlashCommand.parent">parent</a></dd>
+                <dd id="SlashCommand.tracked_command" class="variable"><a href="#BaseSlashCommand.tracked_command">tracked_command</a></dd>
                 <dd id="SlashCommand.tracked_command_id" class="variable"><a href="#BaseSlashCommand.tracked_command_id">tracked_command_id</a></dd>
                 <dd id="SlashCommand.build" class="function"><a href="#BaseSlashCommand.build">build</a></dd>
                 <dd id="SlashCommand.check_context" class="function"><a href="#BaseSlashCommand.check_context">check_context</a></dd>
@@ -10109,6 +10124,7 @@ The command to add.</li>
                 <dd id="SlashCommandGroup.is_global" class="variable"><a href="#BaseSlashCommand.is_global">is_global</a></dd>
                 <dd id="SlashCommandGroup.name" class="variable"><a href="#BaseSlashCommand.name">name</a></dd>
                 <dd id="SlashCommandGroup.parent" class="variable"><a href="#BaseSlashCommand.parent">parent</a></dd>
+                <dd id="SlashCommandGroup.tracked_command" class="variable"><a href="#BaseSlashCommand.tracked_command">tracked_command</a></dd>
                 <dd id="SlashCommandGroup.tracked_command_id" class="variable"><a href="#BaseSlashCommand.tracked_command_id">tracked_command_id</a></dd>
                 <dd id="SlashCommandGroup.build" class="function"><a href="#BaseSlashCommand.build">build</a></dd>
                 <dd id="SlashCommandGroup.check_context" class="function"><a href="#BaseSlashCommand.check_context">check_context</a></dd>
