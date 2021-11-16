@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgraded `clear_slash_commands`, `declare_global_commands`, `declare_slash_command` and 
   `declare_slash_commands` to the Client abstract interface.
 - Client and Component are now bound to a specific event loop with said loop being exposed by a `loop` property.
+- `BaseSlashCommand.tracked_command`.
 
 ### Changed
 - Renamed `Client.clear_commands` to `Client.clear_slash_commands`.
