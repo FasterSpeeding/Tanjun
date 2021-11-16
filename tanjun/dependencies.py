@@ -121,88 +121,6 @@ class AbstractCooldownManager(abc.ABC):
         """
 
 
-class CooldownPreExecution:
-    """Pre-execution hook used to manage a command's cooldowns.
-
-    To avoid race-conditions this handles both erroring when the bucket is hit
-    instead and incrementing the bucket's use counter.
-
-    Parameters
-    ----------
-    bucket_id : str
-        The cooldown bucket's ID.
-
-    Other Parameters
-    ----------------
-    error_message : str
-        The error message to send in response as a command error if the check fails.
-
-        Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again".
-    """
-
-    __slots__ = ("_bucket_id", "_error_message")
-
-    def __init__(
-        self,
-        bucket_id: str,
-        /,
-        *,
-        error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again",
-    ) -> None:
-        self._bucket_id = bucket_id
-        self._error_message = error_message
-
-    async def __call__(
-        self,
-        ctx: tanjun_abc.Context,
-        cooldowns: AbstractCooldownManager = injecting.inject(type=AbstractCooldownManager),
-    ) -> None:
-        if wait_for := cooldowns.check_cooldown(self._bucket_id, ctx, increment=True):
-            raise errors.CommandError(self._error_message.format(cooldown=wait_for))
-
-
-def with_cooldown(
-    bucket_id: str,
-    /,
-    *,
-    error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again",
-) -> typing.Callable[[CommandT], CommandT]:
-    """Add a pre-execution hook used to manage a command's cooldown through a decorator call.
-
-    .. note::
-        The cooldown's bucket should be configured on the client's injected
-        cooldown manager impl with the standard manager being
-        `InMemoryCooldownManager`.
-
-    Parameters
-    ----------
-    bucket_id : str
-        The cooldown bucket's ID.
-
-    Other Parameters
-    ----------------
-    error_message : str
-        The error message to send in response as a command error if the check fails.
-
-        Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again".
-
-    Returns
-    -------
-    typing.Callable[[CommandT], CommandT]
-        A decorator that adds a `CooldownPreExecution` hook to the command.
-    """
-
-    def decorator(command: CommandT, /) -> CommandT:
-        hooks_ = command.hooks
-        if not hooks_:
-            hooks_ = hooks.AnyHooks()
-
-        hooks_.add_pre_execution(CooldownPreExecution(bucket_id, error_message=error_message))
-        return command
-
-    return decorator
-
-
 class CooldownResource(int, enum.Enum):
     """Cooldown resource types."""
 
@@ -689,6 +607,107 @@ class OwnerCheck(AbstractOwnerCheck):
 
         application = await self._value.acquire(client.rest.fetch_application)
         return user.id in application.team.members if application.team else user.id == application.owner.id
+
+
+class CooldownPreExecution:
+    """Pre-execution hook used to manage a command's cooldowns.
+
+    To avoid race-conditions this handles both erroring when the bucket is hit
+    instead and incrementing the bucket's use counter.
+
+    Parameters
+    ----------
+    bucket_id : str
+        The cooldown bucket's ID.
+
+    Other Parameters
+    ----------------
+    error_message : str
+        The error message to send in response as a command error if the check fails.
+
+        Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again".
+    owners_exempt : bool
+        Whether owners should be exempt from the cooldown.
+
+        Defaults to `True`.
+    """
+
+    __slots__ = ("_bucket_id", "_error_message", "_owners_exempt")
+
+    def __init__(
+        self,
+        bucket_id: str,
+        /,
+        *,
+        error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again",
+        owners_exempt: bool = True,
+    ) -> None:
+        self._bucket_id = bucket_id
+        self._error_message = error_message
+        self._owners_exempt = owners_exempt
+
+    async def __call__(
+        self,
+        ctx: tanjun_abc.Context,
+        cooldowns: AbstractCooldownManager = injecting.inject(type=AbstractCooldownManager),
+        # TODO: default to None for the owner check as this should only require
+        # the owner check dependency if owner_exempt is True.
+        owner_check: AbstractOwnerCheck = injecting.inject(type=AbstractOwnerCheck),
+    ) -> None:
+        if self._owners_exempt and await owner_check.check_ownership(ctx.client, ctx.author):
+            return
+
+        if wait_for := cooldowns.check_cooldown(self._bucket_id, ctx, increment=True):
+            raise errors.CommandError(self._error_message.format(cooldown=wait_for))
+
+
+def with_cooldown(
+    bucket_id: str,
+    /,
+    *,
+    error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again",
+    owners_exempt: bool = True,
+) -> typing.Callable[[CommandT], CommandT]:
+    """Add a pre-execution hook used to manage a command's cooldown through a decorator call.
+
+    .. note::
+        The cooldown's bucket should be configured on the client's injected
+        cooldown manager impl with the standard manager being
+        `InMemoryCooldownManager`.
+
+    Parameters
+    ----------
+    bucket_id : str
+        The cooldown bucket's ID.
+
+    Other Parameters
+    ----------------
+    error_message : str
+        The error message to send in response as a command error if the check fails.
+
+        Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again".
+    owners_exempt : bool
+        Whether owners should be exempt from the cooldown.
+
+        Defaults to `True`.
+
+    Returns
+    -------
+    typing.Callable[[CommandT], CommandT]
+        A decorator that adds a `CooldownPreExecution` hook to the command.
+    """
+
+    def decorator(command: CommandT, /) -> CommandT:
+        hooks_ = command.hooks
+        if not hooks_:
+            hooks_ = hooks.AnyHooks()
+
+        hooks_.add_pre_execution(
+            CooldownPreExecution(bucket_id, error_message=error_message, owners_exempt=owners_exempt)
+        )
+        return command
+
+    return decorator
 
 
 class LazyConstant(typing.Generic[_T]):
