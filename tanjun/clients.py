@@ -37,6 +37,7 @@ __all__: list[str] = [
     "as_unloader",
     "Client",
     "ClientCallbackNames",
+    "LoaderSig",
     "MessageAcceptsEnum",
     "PrefixGetterSig",
     "PrefixGetterSigT",
