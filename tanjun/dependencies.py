@@ -169,7 +169,7 @@ def with_cooldown(
     *,
     error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again",
 ) -> typing.Callable[[CommandT], CommandT]:
-    """Add a pre-execution cooldown used to manage a command's cooldown through a decorator call.
+    """Add a pre-execution hook used to manage a command's cooldown through a decorator call.
 
     .. note::
         The cooldown's bucket should be configured on the client's injected
@@ -191,7 +191,7 @@ def with_cooldown(
     Returns
     -------
     typing.Callable[[CommandT], CommandT]
-        A decorator that adds a pre-execution hook to the command.
+        A decorator that adds a `CooldownPreExecution` hook to the command.
     """
 
     def decorator(command: CommandT, /) -> CommandT:
