@@ -209,7 +209,6 @@ def slash_command_group(
     description: str,
     /,
     *,
-    command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
     default_permission: bool = True,
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
@@ -254,12 +253,6 @@ def slash_command_group(
 
     Other Parameters
     ----------------
-    command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.Command]]
-        Object or ID of the command the group tracks.
-
-        This is useful when bulk updating the commands as if the ID isn't
-        specified then any previously set permissions may be lost (i.e. if the
-        command's name is changed).
     default_permission : bool
         Whether this command can be accessed without set permissions.
 
@@ -288,7 +281,6 @@ def slash_command_group(
     return SlashCommandGroup(
         name,
         description,
-        command_id=command_id,
         default_permission=default_permission,
         default_to_ephemeral=default_to_ephemeral,
         is_global=is_global,
@@ -301,7 +293,6 @@ def as_slash_command(
     description: str,
     /,
     *,
-    command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
     default_permission: bool = True,
     default_to_ephemeral: typing.Optional[bool] = None,
     is_global: bool = True,
@@ -315,8 +306,8 @@ def as_slash_command(
         or when `set_global_commands` is True
 
     .. warning::
-        `command_id`, `default_permission` and `is_global` are ignored for commands
-        within slash command groups.
+        `default_permission` and `is_global` are ignored for commands within
+        slash command groups.
 
     Examples
     --------
@@ -339,12 +330,6 @@ def as_slash_command(
 
     Other Parameters
     ----------------
-    command_id : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.Command]]
-        ID of the global command this should be tracking.
-
-        This is useful when bulk updating the commands as if the ID isn't
-        specified then any previously set permissions may be lost (i.e. if the
-        command's name is changed).
     default_permission : bool
         Whether this command can be accessed without set permissions.
 
@@ -381,12 +366,10 @@ def as_slash_command(
         c,
         name,
         description,
-        command_id=command_id,
         default_permission=default_permission,
         default_to_ephemeral=default_to_ephemeral,
         is_global=is_global,
         sort_options=sort_options,
-        _stack=1,
     )
 
 
@@ -799,7 +782,7 @@ class _CommandBuilder(hikari.impl.CommandBuilder):
 
 
 class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
-    __slots__ = ("_command_id", "_defaults_to_ephemeral", "_description", "_is_global", "_name", "_parent")
+    __slots__ = ("_defaults_to_ephemeral", "_description", "_is_global", "_name", "_parent", "_tracked_command")
 
     def __init__(
         self,
@@ -807,7 +790,6 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         description: str,
         /,
         *,
-        command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
         is_global: bool = True,
         checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
@@ -824,20 +806,12 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         if len(description) > 100:
             raise ValueError("The command description cannot be over 100 characters in length")
 
-        if command_id is not None:
-            warnings.warn(
-                "Passing command_id to the command initialiser is deprecated as of v2.1.1a1. "
-                "Please pass the command IDs to Client.declare_global_commands or Client.declare_commands",
-                category=DeprecationWarning,
-                stacklevel=_stack + 3,
-            )
-
-        self._command_id = hikari.Snowflake(command_id) if command_id else None
         self._defaults_to_ephemeral = default_to_ephemeral
         self._description = description
         self._is_global = is_global
         self._name = name
         self._parent: typing.Optional[abc.SlashCommandGroup] = None
+        self._tracked_command: typing.Optional[hikari.Command] = None
 
     @property
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
@@ -865,17 +839,17 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         return self._parent
 
     @property
+    def tracked_command(self) -> typing.Optional[hikari.Command]:
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        return self._tracked_command
+
+    @property
     def tracked_command_id(self) -> typing.Optional[hikari.Snowflake]:
-        return self._command_id
+        # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
+        return self._tracked_command.id if self._tracked_command else None
 
-    def set_tracked_command(
-        self: _BaseSlashCommandT, command: hikari.SnowflakeishOr[hikari.Command], /
-    ) -> _BaseSlashCommandT:
+    def set_tracked_command(self: _BaseSlashCommandT, command: hikari.Command, /) -> _BaseSlashCommandT:
         """Set the the global command this should be tracking.
-
-        .. deprecated:: v2.1.1a1
-            Passing a command ID instead of instance here is deprecated.
-            Please pass the command IDs to Client.declare_global_commands or Client.declare_commands instead.
 
         Parameters
         ----------
@@ -887,15 +861,7 @@ class BaseSlashCommand(PartialCommand[abc.SlashContext], abc.BaseSlashCommand):
         SelfT
             This command instance for chaining.
         """
-        if not isinstance(command, hikari.Command):
-            warnings.warn(
-                "Passing a command ID instead of instance here is deprecated. "
-                "Please pass the command IDs to Client.declare_global_commands or Client.declare_commands instead.",
-                category=DeprecationWarning,
-                stacklevel=2,
-            )
-
-        self._command_id = hikari.Snowflake(command)
+        self._tracked_command = command
         return self
 
     def set_ephemeral_default(self: _BaseSlashCommandT, state: typing.Optional[bool], /) -> _BaseSlashCommandT:
@@ -959,7 +925,6 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         description: str,
         /,
         *,
-        command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
         default_to_ephemeral: typing.Optional[bool] = None,
         default_permission: bool = True,
         is_global: bool = True,
@@ -971,7 +936,6 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         super().__init__(
             name,
             description,
-            command_id=command_id,
             default_to_ephemeral=default_to_ephemeral,
             is_global=is_global,
             checks=checks,
@@ -990,9 +954,6 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
     def build(self) -> special_endpoints_api.CommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         builder = _CommandBuilder(self._name, self._description, False).set_default_permission(self._default_permission)
-        if self._command_id:
-            builder.set_id(self._command_id)
-
         for command in self._commands.values():
             option_type = (
                 hikari.OptionType.SUB_COMMAND_GROUP
@@ -1132,31 +1093,24 @@ class SlashCommand(BaseSlashCommand, abc.SlashCommand, typing.Generic[CommandCal
         /,
         *,
         checks: typing.Optional[collections.Iterable[abc.CheckSig]] = None,
-        command_id: typing.Optional[hikari.SnowflakeishOr[hikari.Command]] = None,
         default_permission: bool = True,
         default_to_ephemeral: typing.Optional[bool] = None,
         is_global: bool = True,
         hooks: typing.Optional[abc.SlashHooks] = None,
         metadata: typing.Optional[collections.MutableMapping[typing.Any, typing.Any]] = None,
         sort_options: bool = True,
-        _stack: int = 0,
     ) -> None:
         super().__init__(
             name,
             description,
             checks=checks,
-            command_id=command_id,
             default_to_ephemeral=default_to_ephemeral,
             hooks=hooks,
             is_global=is_global,
             metadata=metadata,
-            _stack=_stack,
         )
 
         self._builder = _CommandBuilder(name, description, sort_options).set_default_permission(default_permission)
-        if self._command_id:
-            self._builder = self._builder.set_id(self._command_id)
-
         self._callback = injecting.CallbackDescriptor(callback)
         self._client: typing.Optional[abc.Client] = None
         self._tracked_options: dict[str, _TrackedOption] = {}

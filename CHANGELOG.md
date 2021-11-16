@@ -10,9 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgraded `clear_slash_commands`, `declare_global_commands`, `declare_slash_command` and 
   `declare_slash_commands` to the Client abstract interface.
 - Client and Component are now bound to a specific event loop with said loop being exposed by a `loop` property.
+- `BaseSlashCommand.tracked_command`.
 
 ### Changed
 - Renamed `Client.clear_commands` to `Client.clear_slash_commands`.
+
+### Fixed
+- Don't include the "tracked command ID" in slash command group builders as this leads to mis-matching ID
+  errors while declaring.
+
+### Removed
+- BaseSlashCommand.tracked_command_id is no-longer used in command builders and cannot passed to
+  `as_slash_command`, `slash_command_group`, `SlashCommand.__init__` and `SlashCommandGroup.__init__`
+  as `command_id` anymore.
 
 ## [2.1.4a1] - 2021-11-15
 ### Added
