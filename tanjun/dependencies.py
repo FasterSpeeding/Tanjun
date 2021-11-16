@@ -657,7 +657,7 @@ class CooldownPreExecution:
         if self._owners_exempt and await owner_check.check_ownership(ctx.client, ctx.author):
             return
 
-        if wait_for := cooldowns.check_cooldown(self._bucket_id, ctx, increment=True):
+        if wait_for := await cooldowns.check_cooldown(self._bucket_id, ctx, increment=True):
             raise errors.CommandError(self._error_message.format(cooldown=wait_for))
 
 
