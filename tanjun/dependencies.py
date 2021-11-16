@@ -157,9 +157,7 @@ class CooldownPreExecution:
         ctx: tanjun_abc.Context,
         cooldowns: AbstractCooldownManager = injecting.inject(type=AbstractCooldownManager),
     ) -> None:
-        wait_for = cooldowns.check_cooldown(self._bucket_id, ctx, increment=True)
-
-        if wait_for:
+        if wait_for := cooldowns.check_cooldown(self._bucket_id, ctx, increment=True):
             raise errors.CommandError(self._error_message.format(cooldown=wait_for))
 
 

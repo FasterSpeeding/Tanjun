@@ -126,10 +126,10 @@ class _Check:
         self._error_message = error_message
         self._halt_execution = halt_execution
 
-    def _handle_result(self, result: bool, **kwargs: typing.Any) -> bool:
+    def _handle_result(self, result: bool) -> bool:
         if not result:
             if self._error_message:
-                raise errors.CommandError(self._error_message.format(**kwargs)) from None
+                raise errors.CommandError(self._error_message) from None
             if self._halt_execution:
                 raise errors.HaltExecution from None
 
