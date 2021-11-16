@@ -37,6 +37,7 @@ __all__: list[str] = [
     "AbstractOwnerCheck",
     "cache_callback",
     "cached_inject",
+    "CommandT",
     "CooldownPreExecution",
     "CooldownResource",
     "LazyConstant",
@@ -44,6 +45,7 @@ __all__: list[str] = [
     "inject_lc",
     "make_lc_resolver",
     "OwnerCheck",
+    "with_cooldown",
 ]
 
 import abc
@@ -57,6 +59,8 @@ import typing
 import hikari
 
 from . import abc as tanjun_abc
+from . import errors
+from . import hooks
 from . import injecting
 
 if typing.TYPE_CHECKING:
@@ -69,6 +73,9 @@ if typing.TYPE_CHECKING:
 _T = typing.TypeVar("_T")
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun")
 
+CommandT = typing.TypeVar("CommandT", bound="tanjun_abc.ExecutableCommand[typing.Any]")
+"""Type variable indicating either `BaseSlashCommand` or `MessageCommand`."""
+
 
 class AbstractCooldownManager(abc.ABC):
     """Interface used for managing command calldowns."""
@@ -76,7 +83,9 @@ class AbstractCooldownManager(abc.ABC):
     __slots__ = ()
 
     @abc.abstractmethod
-    async def check_cooldown(self, bucket_id: str, ctx: tanjun_abc.Context, /) -> typing.Optional[float]:
+    async def check_cooldown(
+        self, bucket_id: str, ctx: tanjun_abc.Context, /, *, increment: bool = False
+    ) -> typing.Optional[float]:
         """Check if a bucket is on cooldown for the provided context.
 
         Parameters
@@ -85,6 +94,12 @@ class AbstractCooldownManager(abc.ABC):
             The cooldown bucket to check.
         ctx : tanjun.abc.Context
             The context of the command.
+
+        Other Parameters
+        ----------------
+        increment : bool
+            Whether this cool should increment the bucket's use counter it
+            isn't depleted.
 
         Returns
         -------
@@ -107,25 +122,87 @@ class AbstractCooldownManager(abc.ABC):
 
 
 class CooldownPreExecution:
-    """Pre-execution hook used to increment the cooldown of a command.
+    """Pre-execution hook used to manage a command's cooldowns.
+
+    To avoid race-conditions this handles both erroring when the bucket is hit
+    instead and incrementing the bucket's use counter.
 
     Parameters
     ----------
     bucket_id : str
         The cooldown bucket's ID.
+
+    Other Parameters
+    ----------------
+    error_message : str
+        The error message to send in response as a command error if the check fails.
+
+        Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again".
     """
 
-    __slots__ = ("_bucket_id",)
+    __slots__ = ("_bucket_id", "_error_message")
 
-    def __init__(self, bucket_id: str, /) -> None:
+    def __init__(
+        self,
+        bucket_id: str,
+        /,
+        *,
+        error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again",
+    ) -> None:
         self._bucket_id = bucket_id
+        self._error_message = error_message
 
-    def __call__(
+    async def __call__(
         self,
         ctx: tanjun_abc.Context,
         cooldowns: AbstractCooldownManager = injecting.inject(type=AbstractCooldownManager),
-    ) -> typing.Awaitable[None]:
-        return cooldowns.increment_cooldown(self._bucket_id, ctx)
+    ) -> None:
+        wait_for = cooldowns.check_cooldown(self._bucket_id, ctx, increment=True)
+
+        if wait_for:
+            raise errors.CommandError(self._error_message.format(cooldown=wait_for))
+
+
+def with_cooldown(
+    bucket_id: str,
+    /,
+    *,
+    error_message: str = "Please wait {cooldown:0.2f} seconds before using this command again",
+) -> typing.Callable[[CommandT], CommandT]:
+    """Add a pre-execution cooldown used to manage a command's cooldown through a decorator call.
+
+    .. note::
+        The cooldown's bucket should be configured on the client's injected
+        cooldown manager impl with the standard manager being
+        `InMemoryCooldownManager`.
+
+    Parameters
+    ----------
+    bucket_id : str
+        The cooldown bucket's ID.
+
+    Other Parameters
+    ----------------
+    error_message : str
+        The error message to send in response as a command error if the check fails.
+
+        Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again".
+
+    Returns
+    -------
+    typing.Callable[[CommandT], CommandT]
+        A decorator that adds a pre-execution hook to the command.
+    """
+
+    def decorator(command: CommandT, /) -> CommandT:
+        hooks_ = command.hooks
+        if not hooks_:
+            hooks_ = hooks.AnyHooks()
+
+        hooks_.add_pre_execution(CooldownPreExecution(bucket_id, error_message=error_message))
+        return command
+
+    return decorator
 
 
 class CooldownResource(int, enum.Enum):
@@ -213,7 +290,7 @@ class _BaseCooldownResource:
         else:
             self.reset_after = float(reset_after)
 
-    async def check(self, ctx: tanjun_abc.Context, /) -> typing.Optional[float]:
+    async def check(self, ctx: tanjun_abc.Context, /, *, increment: bool = False) -> typing.Optional[float]:
         raise NotImplementedError
 
     async def increment(self, ctx: tanjun_abc.Context, /) -> None:
@@ -224,6 +301,26 @@ class _BaseCooldownResource:
 
     def copy(self) -> _BaseCooldownResource:
         raise NotImplementedError
+
+
+def _check_cooldown_mapping(
+    resource: _BaseCooldownResource,
+    mapping: dict[hikari.Snowflake, _Cooldown],
+    target: hikari.Snowflake,
+    increment: bool = False,
+) -> typing.Optional[float]:
+    cooldown = mapping.get(target)
+    if increment:
+        if not cooldown:
+            cooldown = mapping[target] = _Cooldown(resource)
+
+        wait_until = cooldown.must_wait_until()
+        if not wait_until:
+            cooldown.increment()
+
+        return wait_until
+
+    return cooldown.must_wait_until() if cooldown else None
 
 
 class _CooldownBucket(_BaseCooldownResource):
@@ -239,12 +336,9 @@ class _CooldownBucket(_BaseCooldownResource):
         self.type = resource_type
         self.mapping: dict[hikari.Snowflake, _Cooldown] = {}
 
-    async def check(self, ctx: tanjun_abc.Context, /) -> typing.Optional[float]:
+    async def check(self, ctx: tanjun_abc.Context, /, *, increment: bool = False) -> typing.Optional[float]:
         target = await self._get_target(ctx)
-        if not (cooldown := self.mapping.get(target)):
-            cooldown = self.mapping[target] = _Cooldown(self)
-
-        return cooldown.must_wait_until()
+        return _check_cooldown_mapping(self, self.mapping, target, increment)
 
     async def increment(self, ctx: tanjun_abc.Context, /) -> None:
         target = await self._get_target(ctx)
@@ -321,14 +415,16 @@ class _MemberCooldownResource(_BaseCooldownResource):
         self.dm_fallback: dict[hikari.Snowflake, _Cooldown]
         self.mapping: dict[hikari.Snowflake, dict[hikari.Snowflake, _Cooldown]] = {}
 
-    async def check(self, ctx: tanjun_abc.Context, /) -> typing.Optional[float]:
+    async def check(self, ctx: tanjun_abc.Context, /, *, increment: bool = False) -> typing.Optional[float]:
         if not ctx.guild_id:
-            cooldown = self.dm_fallback.get(ctx.author.id)
-            return cooldown.must_wait_until() if cooldown else None
+            return _check_cooldown_mapping(self, self.dm_fallback, ctx.author.id, increment)
 
-        guild_cooldowns = self.mapping.get(ctx.guild_id)
-        if guild_cooldowns and (cooldown := guild_cooldowns.get(ctx.author.id)):
-            return cooldown.must_wait_until()
+        mapping = self.mapping.get(ctx.guild_id)
+        if mapping is None and self.increment:
+            self.mapping[ctx.guild_id] = {}
+            mapping = self.mapping[ctx.guild_id]
+
+        return _check_cooldown_mapping(self, mapping, ctx.author.id, increment) if mapping else None
 
     async def increment(self, ctx: tanjun_abc.Context, /) -> None:
         if not ctx.guild_id:
@@ -428,9 +524,9 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             self.open(_loop=client.loop)
 
     def check_cooldown(
-        self, bucket_id: str, ctx: tanjun_abc.Context, /
+        self, bucket_id: str, ctx: tanjun_abc.Context, /, *, increment: bool = False
     ) -> collections.Coroutine[typing.Any, typing.Any, typing.Optional[float]]:
-        return self._get_bucket(bucket_id).check(ctx)
+        return self._get_bucket(bucket_id).check(ctx, increment=increment)
 
     def increment_cooldown(
         self, bucket_id: str, ctx: tanjun_abc.Context, /

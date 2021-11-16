@@ -3193,7 +3193,7 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     async def dispatch_client_callback(
-        self, name: typing.Union[str, ClientCallbackNames], /, *args: typing.Any, **kwargs: typing.Any
+        self, name: typing.Union[str, ClientCallbackNames], /, *args: typing.Any
     ) -> None:
         """Dispatch a client callback.
 
@@ -3206,8 +3206,6 @@ class Client(abc.ABC):
         ----------------
         *args : typing.Any
             Positional arguments to pass to the callback(s).
-        **kwargs : typing.Any
-            Keyword arguments to pass to the callback(s).
 
         Raises
         ------

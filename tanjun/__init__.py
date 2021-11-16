@@ -175,6 +175,7 @@ __all__: list[str] = [
     "cached_inject",
     "inject_lc",
     "LazyConstant",
+    "with_cooldown_hook",
     # errors.py
     "errors",
     "CommandError",

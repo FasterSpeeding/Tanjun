@@ -324,10 +324,9 @@ async def _wrap_client_callback(
     callback: injecting.CallbackDescriptor[None],
     ctx: injecting.AbstractInjectionContext,
     args: tuple[str, ...],
-    kwargs: dict[str, typing.Any],
 ) -> None:
     try:
-        await callback.resolve(ctx, *args, **kwargs)
+        await callback.resolve(ctx, *args)
 
     except Exception as exc:
         _LOGGER.error("Client callback raised exception", exc_info=exc)
@@ -1350,14 +1349,13 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self
 
     async def dispatch_client_callback(
-        self, name: typing.Union[str, tanjun_abc.ClientCallbackNames], /, *args: typing.Any, **kwargs: typing.Any
+        self, name: typing.Union[str, tanjun_abc.ClientCallbackNames], /, *args: typing.Any
     ) -> None:
         # <<inherited docstring from tanjun.abc.Client>>.
         name = name.casefold()
         if callbacks := self._client_callbacks.get(name):
             calls = (
-                _wrap_client_callback(callback, injecting.BasicInjectionContext(self), args, kwargs)
-                for callback in callbacks
+                _wrap_client_callback(callback, injecting.BasicInjectionContext(self), args) for callback in callbacks
             )
             await asyncio.gather(*calls)
 

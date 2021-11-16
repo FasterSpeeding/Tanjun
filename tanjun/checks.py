@@ -35,7 +35,6 @@ from __future__ import annotations
 
 __all__: list[str] = [
     "CallbackReturnT",
-    "CooldownCheck",
     "CommandT",
     "OwnerCheck",
     "NsfwCheck",
@@ -45,7 +44,6 @@ __all__: list[str] = [
     "AuthorPermissionCheck",
     "OwnPermissionCheck",
     "with_check",
-    "with_cooldown_check",
     "with_dm_check",
     "with_guild_check",
     "with_nsfw_check",
@@ -62,7 +60,6 @@ import hikari
 
 from . import dependencies
 from . import errors
-from . import hooks
 from . import injecting
 from . import utilities
 
@@ -137,61 +134,6 @@ class _Check:
                 raise errors.HaltExecution from None
 
         return result
-
-
-class CooldownCheck(_Check):
-    """Check used for command cooldowns.
-
-    Parameters
-    ----------
-    bucket_id : str
-        The bucket id to check for cooldowns.
-
-    Other Parameters
-    ----------------
-    error_message : typing.Optional[str]
-        The error message to send in response as a command error if the check fails.
-
-        Defaults to f"Please wait {cooldown:0.2f} seconds before using this command again"
-        and setting this to `None` will disable the error message allowing the
-        command search to continue.
-    halt_execution : bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
-        end the execution search when it fails instead of returning `False`.
-
-        Defaults to `False`.
-
-    Notes
-    -----
-        * error_message takes priority over halt_execution.
-        * `tanjun.dependencies.CooldownPreExecution` should also be added to the
-          relevant command, component or client's pre execution hooks to ensure
-          that command calls are counted towards the cooldown.
-    """
-
-    __slots__ = ("_bucket_id",)
-
-    def __init__(
-        self,
-        bucket_id: str,
-        error_message: typing.Optional[str] = "Please wait {cooldown:0.2f} seconds before using this command again",
-        halt_execution: bool = False,
-    ) -> None:
-        super().__init__(error_message, halt_execution)
-        self._bucket_id = bucket_id
-
-    @property
-    def bucket_id(self) -> str:
-        """Id of the bucket this cooldown targets."""
-        return self._bucket_id
-
-    async def __call__(
-        self,
-        ctx: tanjun_abc.Context,
-        cooldowns: dependencies.AbstractCooldownManager = injecting.inject(type=dependencies.AbstractCooldownManager),
-    ) -> bool:
-        result = await cooldowns.check_cooldown(self._bucket_id, ctx)
-        return self._handle_result(result is not None, bucket=self._bucket_id, cooldown=result)
 
 
 class OwnerCheck(_Check):
@@ -567,62 +509,6 @@ def with_sfw_check(
         The command this check was added to.
     """
     return _optional_kwargs(command, SfwCheck(halt_execution=halt_execution, error_message=error_message))
-
-
-def with_cooldown_check(
-    bucket_id: str,
-    /,
-    *,
-    error_message: typing.Optional[str] = "Please wait {cooldown:0.2f} seconds before using this command again",
-    halt_execution: bool = False,
-) -> collections.Callable[[CommandT], CommandT]:
-    """Add cooldown logic to a command through a decorator call.
-
-    .. note::
-        This adds `CooldownCheck` as a check and tanjun.dependencies.CooldownPreExecution`
-        as a pre-execution hook callback to enable cooldown checks.
-
-    Parameters
-    ----------
-    bucket_id : str
-        The bucket id to use for the cooldown check.
-
-    Other Parameters
-    ----------------
-    error_message : typing.Optional[str]
-        The error message to send in response as a command error if the check fails.
-
-        Defaults to "Please wait {cooldown:0.2f} seconds before using this command again" and
-        setting this to `None` will disable the error message allowing the command search to
-        continue.
-    halt_execution : bool
-        Whether this check should raise `tanjun.errors.HaltExecution` to
-        end the execution search when it fails instead of returning `False`.
-
-        Defaults to `False`.
-
-    Notes
-    -----
-    * error_message takes priority over halt_execution.
-    * For more information on how this is used with other parameters see
-      `CallbackReturnT`.
-
-    Returns
-    -------
-    CallbackReturnT[CommandT]
-        The command this check was added to.
-    """
-
-    def decorator(command: CommandT, /) -> CommandT:
-        hooks_ = command.hooks
-        if not hooks_:
-            hooks_ = hooks.AnyHooks()
-            command.set_hooks(hooks_)
-
-        hooks_.add_pre_execution(dependencies.CooldownPreExecution(bucket_id))
-        return command.add_check(CooldownCheck(bucket_id, error_message=error_message, halt_execution=halt_execution))
-
-    return decorator
 
 
 @typing.overload
