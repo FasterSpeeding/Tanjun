@@ -192,6 +192,15 @@
                                 <a class="variable" href="#Client.voice">voice</a>
                         </li>
                         <li>
+                                <a class="function" href="#Client.clear_slash_commands">clear_slash_commands</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.set_global_commands">set_global_commands</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.declare_global_commands">declare_global_commands</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Client.declare_slash_command">declare_slash_command</a>
                         </li>
                         <li>
@@ -220,15 +229,6 @@
                         </li>
                         <li>
                                 <a class="function" href="#Client.set_human_only">set_human_only</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Client.clear_commands">clear_commands</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Client.set_global_commands">set_global_commands</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Client.declare_global_commands">declare_global_commands</a>
                         </li>
                         <li>
                                 <a class="function" href="#Client.add_check">add_check</a>
@@ -4521,6 +4521,11 @@ enable slash (interaction) command execution:</p>
 <span class="sd">        This is used for executing message commands if set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">is_alive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Whether this client is alive.&quot;&quot;&quot;</span>
+
     <span class="nd">@property</span>  <span class="c1"># TODO: switch over to a mapping of event to collection cause convenience</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
@@ -4566,6 +4571,188 @@ enable slash (interaction) command execution:</p>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">voice</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">VoiceComponent</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Object of the Hikari voice component this client was initialised with.&quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_slash_commands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Clear the commands declared either globally or for a specific guild.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
+<span class="sd">            only allows for 2 requests per minute (with that ratelimit either</span>
+<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
+<span class="sd">            The application to clear commands for.</span>
+
+<span class="sd">            If left as `None` then this will be inferred from the authorization</span>
+<span class="sd">            being used by `Client.rest`.</span>
+<span class="sd">        guild : hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
+<span class="sd">            Object or ID of the guild to clear commands for.</span>
+
+<span class="sd">            If left as `None` global commands will be cleared.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_global_commands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Set the global application commands for a bot based on the loaded components.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            This will overwrite any previously set application commands and</span>
+<span class="sd">            only targets commands marked as global.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        * The endpoint this uses has a strict ratelimit which, as of writing,</span>
+<span class="sd">          only allows for 2 requests per minute (with that ratelimit either</span>
+<span class="sd">          being per-guild if targeting a specific guild otherwise globally).</span>
+<span class="sd">        * Setting a specific `guild` can be useful for testing/debug purposes</span>
+<span class="sd">          as slash commands may take up to an hour to propagate globally but</span>
+<span class="sd">          will immediately propagate when set on a specific guild.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">            If provided, a mapping of top level command names to IDs of the existing commands to update.</span>
+<span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
+<span class="sd">            Object or ID of the application to set the global commands for.</span>
+
+<span class="sd">            If left as `None` then this will be inferred from the authorization</span>
+<span class="sd">            being used by `Client.rest`.</span>
+<span class="sd">        guild : hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
+<span class="sd">            Object or ID of the guild to set the global commands to.</span>
+
+<span class="sd">            If left as `None` global commands will be set.</span>
+<span class="sd">        force : bool</span>
+<span class="sd">            Force this to declare the commands regardless of whether or not</span>
+<span class="sd">            they match the current state of the declared commands.</span>
+
+<span class="sd">            Defaults to `False`. This default behaviour helps avoid issues with the</span>
+<span class="sd">            2 request per minute (per-guild or globally) ratelimit and the other limit</span>
+<span class="sd">            of only 200 application command creates per day (per guild or globally).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Sequence[hikari..Command]</span>
+<span class="sd">            API representations of the set commands.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_slash_command</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">command</span><span class="p">:</span> <span class="n">BaseSlashCommand</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">command_id</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflakeish</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Declare a single slash command for a bot.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            Providing `command_id` when updating a command helps avoid any</span>
+<span class="sd">            permissions set for the command being lose (e.g. when changing the</span>
+<span class="sd">            command&#39;s name).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        command : BaseSlashCommand</span>
+<span class="sd">            The command to register.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
+<span class="sd">            The application to register the command with.</span>
+
+<span class="sd">            If left as `None` then this will be inferred from the authorization</span>
+<span class="sd">            being used by `Client.rest`.</span>
+<span class="sd">        command_id : typing.Optional[hikari.snowflakes.Snowflakeish]</span>
+<span class="sd">            ID of the command to update.</span>
+<span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
+<span class="sd">            Object or ID of the guild to register the command with.</span>
+
+<span class="sd">            If left as `None` then the command will be registered globally.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hikari.Command</span>
+<span class="sd">            API representation of the command that was registered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_slash_commands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">commands</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">BaseSlashCommand</span><span class="p">],</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Declare a collection of slash commands for a bot.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
+<span class="sd">            only allows for 2 requests per minute (with that ratelimit either</span>
+<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        commands : collections.abc.Iterable[BaseSlashCommand]</span>
+<span class="sd">            Iterable of the commands to register.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
+<span class="sd">            If provided, a mapping of top level command names to IDs of the existing commands to update.</span>
+
+<span class="sd">            While optional, this can be helpful when updating commands as</span>
+<span class="sd">            providing the current IDs will prevent changes such as renames from</span>
+<span class="sd">            leading to other state set for commands (e.g. permissions) from</span>
+<span class="sd">            being lost.</span>
+<span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
+<span class="sd">            The application to register the commands with.</span>
+
+<span class="sd">            If left as `None` then this will be inferred from the authorization</span>
+<span class="sd">            being used by `Client.rest`.</span>
+<span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
+<span class="sd">            Object or ID of the guild to register the commands with.</span>
+
+<span class="sd">            If left as `None` then the commands will be registered globally.</span>
+<span class="sd">        force : bool</span>
+<span class="sd">            Force this to declare the commands regardless of whether or not</span>
+<span class="sd">            they match the current state of the declared commands.</span>
+
+<span class="sd">            Defaults to `False`. This default behaviour helps avoid issues with the</span>
+<span class="sd">            2 request per minute (per-guild or globally) ratelimit and the other limit</span>
+<span class="sd">            of only 200 application command creates per day (per guild or globally).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        collections.abc.Sequence[hikari.Command]</span>
+<span class="sd">            API representations of the commands which were registered.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raises a value error for any of the following reasons:</span>
+<span class="sd">            * If conflicting command names are found (multiple commanbds have the same top-level name).</span>
+<span class="sd">            * If more than 100 top-level commands are passed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">add_component</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Component</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
@@ -7143,7 +7330,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_alive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Whether this client is alive.&quot;&quot;&quot;</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span>
 
     <span class="nd">@property</span>
@@ -7198,6 +7385,58 @@ a DM context (e.g. can't have any moderation permissions)</li>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_on_stopping_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">StoppingEvent</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_slash_commands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">application</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">application</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">()</span>
+
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">set_application_commands</span><span class="p">(</span><span class="n">application</span><span class="p">,</span> <span class="p">(),</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">set_global_commands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Alias of `Client.declare_global_commands`.</span>
+
+<span class="sd">        .. deprecated:: v2.1.1a1</span>
+<span class="sd">            Use `Client.declare_global_commands` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;The `Client.set_global_commands` method has been deprecated since v2.1.1a1. &quot;</span>
+            <span class="s2">&quot;Use `Client.declare_global_commands` instead.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_global_commands</span><span class="p">(</span><span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_global_commands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="n">commands</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">command</span>
+            <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+                <span class="n">component</span><span class="o">.</span><span class="n">slash_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">is_global</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span>
+            <span class="n">commands</span><span class="p">,</span> <span class="n">command_ids</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span>
+        <span class="p">)</span>
+
     <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_slash_command</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span>
@@ -7207,39 +7446,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Declare a single slash command for a bot.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        command : tanjun.abc.BaseSlashCommand</span>
-<span class="sd">            The command to register.</span>
-
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
-<span class="sd">            The application to register the command with.</span>
-
-<span class="sd">            If left as `None` then this will be inferred from the authorization</span>
-<span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        command_id : typing.Optional[hikari.snowflakes.Snowflakeish]</span>
-<span class="sd">            ID of the command to update.</span>
-<span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
-<span class="sd">            Object or ID of the guild to register the command with.</span>
-
-<span class="sd">            If left as `None` then the command will be registered globally.</span>
-
-<span class="sd">        Warnings</span>
-<span class="sd">        --------</span>
-<span class="sd">        * This ignores any ID that&#39;s been set on `tanjun.abc.BaseSlashCommand`.</span>
-<span class="sd">        * Providing `command_id` when updating a command helps avoid any</span>
-<span class="sd">          permissions set for the command being lose (e.g. when changing the</span>
-<span class="sd">          command&#39;s name).</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hikari.Command</span>
-<span class="sd">            API representation of the command that was registered.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">builder</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">command_id</span><span class="p">:</span>
             <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">edit_application_command</span><span class="p">(</span>
@@ -7275,56 +7482,7 @@ a DM context (e.g. can't have any moderation permissions)</li>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Declare a collection of slash commands for a bot.</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">            only allows for 2 requests per minute (with that ratelimit either</span>
-<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        commands : collections.abc.Iterable[tanjun.abc.BaseSlashCommand]</span>
-<span class="sd">            Iterable of the commands to register.</span>
-
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
-<span class="sd">            If provided, a mapping of top level command names to IDs of the existing commands to update.</span>
-
-<span class="sd">            While optional, this can be helpful when updating commands as</span>
-<span class="sd">            providing the current IDs will prevent changes such as renames from</span>
-<span class="sd">            leading to other state set for commands (e.g. permissions) from</span>
-<span class="sd">            being lost.</span>
-<span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
-<span class="sd">            The application to register the commands with.</span>
-
-<span class="sd">            If left as `None` then this will be inferred from the authorization</span>
-<span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
-<span class="sd">            Object or ID of the guild to register the commands with.</span>
-
-<span class="sd">            If left as `None` then the commands will be registered globally.</span>
-<span class="sd">        force : bool</span>
-<span class="sd">            Force this to declare the commands regardless of whether or not</span>
-<span class="sd">            they match the current state of the declared commands.</span>
-
-<span class="sd">            Defaults to `False`. This default behaviour helps avoid issues with the</span>
-<span class="sd">            2 request per minute (per-guild or globally) ratelimit and the other limit</span>
-<span class="sd">            of only 200 application command creates per day (per guild or globally).</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari.Command]</span>
-<span class="sd">            API representations of the commands which were registered.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            Raises a value error for any of the following reasons:</span>
-<span class="sd">            * If conflicting command names are found (multiple commanbds have the same top-level name).</span>
-<span class="sd">            * If more than 100 top-level commands are passed.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">command_ids</span> <span class="o">=</span> <span class="n">command_ids</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="n">names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">conflicts</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -7541,116 +7699,6 @@ a DM context (e.g. can't have any moderation permissions)</li>
                 <span class="k">pass</span>
 
         <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_commands</span><span class="p">(</span>  <span class="c1"># TODO: better name?</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Clear the commands declared either globally or for a specific guild.</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">            only allows for 2 requests per minute (with that ratelimit either</span>
-<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
-
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
-<span class="sd">            The application to clear commands for.</span>
-
-<span class="sd">            If left as `None` then this will be inferred from the authorization</span>
-<span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
-<span class="sd">            Object or ID of the guild to clear commands for.</span>
-
-<span class="sd">            If left as `None` global commands will be cleared.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">application</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">application</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">()</span>
-
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">set_application_commands</span><span class="p">(</span><span class="n">application</span><span class="p">,</span> <span class="p">(),</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">set_global_commands</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Alias of `Client.declare_global_commands`.</span>
-
-<span class="sd">        .. deprecated:: v2.1.1a1</span>
-<span class="sd">            Use `Client.declare_global_commands` instead.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;The `Client.set_global_commands` method has been deprecated since v2.1.1a1. &quot;</span>
-            <span class="s2">&quot;Use `Client.declare_global_commands` instead.&quot;</span><span class="p">,</span>
-            <span class="ne">DeprecationWarning</span><span class="p">,</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_global_commands</span><span class="p">(</span><span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_global_commands</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Set the global application commands for a bot based on the loaded components.</span>
-
-<span class="sd">        .. warning::</span>
-<span class="sd">            This will overwrite any previously set application commands and</span>
-<span class="sd">            only targets commands marked as global.</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        * The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">          only allows for 2 requests per minute (with that ratelimit either</span>
-<span class="sd">          being per-guild if targeting a specific guild otherwise globally).</span>
-<span class="sd">        * Setting a specific `guild` can be useful for testing/debug purposes</span>
-<span class="sd">          as slash commands may take up to an hour to propagate globally but</span>
-<span class="sd">          will immediately propagate when set on a specific guild.</span>
-
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
-<span class="sd">            If provided, a mapping of top level command names to IDs of the existing commands to update.</span>
-<span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
-<span class="sd">            Object or ID of the application to set the global commands for.</span>
-
-<span class="sd">            If left as `None` then this will be inferred from the authorization</span>
-<span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
-<span class="sd">            Object or ID of the guild to set the global commands to.</span>
-
-<span class="sd">            If left as `None` global commands will be set.</span>
-<span class="sd">        force : bool</span>
-<span class="sd">            Force this to declare the commands regardless of whether or not</span>
-<span class="sd">            they match the current state of the declared commands.</span>
-
-<span class="sd">            Defaults to `False`. This default behaviour helps avoid issues with the</span>
-<span class="sd">            2 request per minute (per-guild or globally) ratelimit and the other limit</span>
-<span class="sd">            of only 200 application command creates per day (per guild or globally).</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari..Command]</span>
-<span class="sd">            API representations of the set commands.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">commands</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">command</span>
-            <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
-                <span class="n">component</span><span class="o">.</span><span class="n">slash_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">is_global</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span>
-            <span class="n">commands</span><span class="p">,</span> <span class="n">command_ids</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span>
-        <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a generic check to this client.</span>
@@ -9195,7 +9243,7 @@ from the provided client using it's abstract methods.</li>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_alive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Whether this client is alive.&quot;&quot;&quot;</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_alive</span>
 
     <span class="nd">@property</span>
@@ -9250,6 +9298,58 @@ from the provided client using it's abstract methods.</li>
     <span class="k">async</span> <span class="k">def</span> <span class="nf">_on_stopping_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">StoppingEvent</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_slash_commands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">application</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">application</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">()</span>
+
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">set_application_commands</span><span class="p">(</span><span class="n">application</span><span class="p">,</span> <span class="p">(),</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">set_global_commands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Alias of `Client.declare_global_commands`.</span>
+
+<span class="sd">        .. deprecated:: v2.1.1a1</span>
+<span class="sd">            Use `Client.declare_global_commands` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;The `Client.set_global_commands` method has been deprecated since v2.1.1a1. &quot;</span>
+            <span class="s2">&quot;Use `Client.declare_global_commands` instead.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_global_commands</span><span class="p">(</span><span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_global_commands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="n">commands</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">command</span>
+            <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+                <span class="n">component</span><span class="o">.</span><span class="n">slash_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">is_global</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span>
+            <span class="n">commands</span><span class="p">,</span> <span class="n">command_ids</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span>
+        <span class="p">)</span>
+
     <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_slash_command</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">command</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">,</span>
@@ -9259,39 +9359,7 @@ from the provided client using it's abstract methods.</li>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Declare a single slash command for a bot.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        command : tanjun.abc.BaseSlashCommand</span>
-<span class="sd">            The command to register.</span>
-
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
-<span class="sd">            The application to register the command with.</span>
-
-<span class="sd">            If left as `None` then this will be inferred from the authorization</span>
-<span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        command_id : typing.Optional[hikari.snowflakes.Snowflakeish]</span>
-<span class="sd">            ID of the command to update.</span>
-<span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
-<span class="sd">            Object or ID of the guild to register the command with.</span>
-
-<span class="sd">            If left as `None` then the command will be registered globally.</span>
-
-<span class="sd">        Warnings</span>
-<span class="sd">        --------</span>
-<span class="sd">        * This ignores any ID that&#39;s been set on `tanjun.abc.BaseSlashCommand`.</span>
-<span class="sd">        * Providing `command_id` when updating a command helps avoid any</span>
-<span class="sd">          permissions set for the command being lose (e.g. when changing the</span>
-<span class="sd">          command&#39;s name).</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hikari.Command</span>
-<span class="sd">            API representation of the command that was registered.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">builder</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">command_id</span><span class="p">:</span>
             <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">edit_application_command</span><span class="p">(</span>
@@ -9327,56 +9395,7 @@ from the provided client using it's abstract methods.</li>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Declare a collection of slash commands for a bot.</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">            only allows for 2 requests per minute (with that ratelimit either</span>
-<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        commands : collections.abc.Iterable[tanjun.abc.BaseSlashCommand]</span>
-<span class="sd">            Iterable of the commands to register.</span>
-
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
-<span class="sd">            If provided, a mapping of top level command names to IDs of the existing commands to update.</span>
-
-<span class="sd">            While optional, this can be helpful when updating commands as</span>
-<span class="sd">            providing the current IDs will prevent changes such as renames from</span>
-<span class="sd">            leading to other state set for commands (e.g. permissions) from</span>
-<span class="sd">            being lost.</span>
-<span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
-<span class="sd">            The application to register the commands with.</span>
-
-<span class="sd">            If left as `None` then this will be inferred from the authorization</span>
-<span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
-<span class="sd">            Object or ID of the guild to register the commands with.</span>
-
-<span class="sd">            If left as `None` then the commands will be registered globally.</span>
-<span class="sd">        force : bool</span>
-<span class="sd">            Force this to declare the commands regardless of whether or not</span>
-<span class="sd">            they match the current state of the declared commands.</span>
-
-<span class="sd">            Defaults to `False`. This default behaviour helps avoid issues with the</span>
-<span class="sd">            2 request per minute (per-guild or globally) ratelimit and the other limit</span>
-<span class="sd">            of only 200 application command creates per day (per guild or globally).</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari.Command]</span>
-<span class="sd">            API representations of the commands which were registered.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            Raises a value error for any of the following reasons:</span>
-<span class="sd">            * If conflicting command names are found (multiple commanbds have the same top-level name).</span>
-<span class="sd">            * If more than 100 top-level commands are passed.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">command_ids</span> <span class="o">=</span> <span class="n">command_ids</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="n">names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">conflicts</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -9593,116 +9612,6 @@ from the provided client using it's abstract methods.</li>
                 <span class="k">pass</span>
 
         <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_commands</span><span class="p">(</span>  <span class="c1"># TODO: better name?</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Clear the commands declared either globally or for a specific guild.</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">            only allows for 2 requests per minute (with that ratelimit either</span>
-<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
-
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
-<span class="sd">            The application to clear commands for.</span>
-
-<span class="sd">            If left as `None` then this will be inferred from the authorization</span>
-<span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
-<span class="sd">            Object or ID of the guild to clear commands for.</span>
-
-<span class="sd">            If left as `None` global commands will be cleared.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">application</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">application</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">()</span>
-
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">set_application_commands</span><span class="p">(</span><span class="n">application</span><span class="p">,</span> <span class="p">(),</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">set_global_commands</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Alias of `Client.declare_global_commands`.</span>
-
-<span class="sd">        .. deprecated:: v2.1.1a1</span>
-<span class="sd">            Use `Client.declare_global_commands` instead.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;The `Client.set_global_commands` method has been deprecated since v2.1.1a1. &quot;</span>
-            <span class="s2">&quot;Use `Client.declare_global_commands` instead.&quot;</span><span class="p">,</span>
-            <span class="ne">DeprecationWarning</span><span class="p">,</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_global_commands</span><span class="p">(</span><span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_global_commands</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Set the global application commands for a bot based on the loaded components.</span>
-
-<span class="sd">        .. warning::</span>
-<span class="sd">            This will overwrite any previously set application commands and</span>
-<span class="sd">            only targets commands marked as global.</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        * The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">          only allows for 2 requests per minute (with that ratelimit either</span>
-<span class="sd">          being per-guild if targeting a specific guild otherwise globally).</span>
-<span class="sd">        * Setting a specific `guild` can be useful for testing/debug purposes</span>
-<span class="sd">          as slash commands may take up to an hour to propagate globally but</span>
-<span class="sd">          will immediately propagate when set on a specific guild.</span>
-
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
-<span class="sd">            If provided, a mapping of top level command names to IDs of the existing commands to update.</span>
-<span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
-<span class="sd">            Object or ID of the application to set the global commands for.</span>
-
-<span class="sd">            If left as `None` then this will be inferred from the authorization</span>
-<span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
-<span class="sd">            Object or ID of the guild to set the global commands to.</span>
-
-<span class="sd">            If left as `None` global commands will be set.</span>
-<span class="sd">        force : bool</span>
-<span class="sd">            Force this to declare the commands regardless of whether or not</span>
-<span class="sd">            they match the current state of the declared commands.</span>
-
-<span class="sd">            Defaults to `False`. This default behaviour helps avoid issues with the</span>
-<span class="sd">            2 request per minute (per-guild or globally) ratelimit and the other limit</span>
-<span class="sd">            of only 200 application command creates per day (per guild or globally).</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari..Command]</span>
-<span class="sd">            API representations of the set commands.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">commands</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">command</span>
-            <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
-                <span class="n">component</span><span class="o">.</span><span class="n">slash_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">is_global</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span>
-            <span class="n">commands</span><span class="p">,</span> <span class="n">command_ids</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span>
-        <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Add a generic check to this client.</span>
@@ -11433,6 +11342,196 @@ the client.</p>
 
 
                             </div>
+                            <div id="Client.clear_slash_commands" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.clear_slash_commands">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">clear_slash_commands</span><span class="signature">(
+    self,
+    *,
+    application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
+    guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED
+) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_slash_commands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="k">if</span> <span class="n">application</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">application</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">()</span>
+
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">set_application_commands</span><span class="p">(</span><span class="n">application</span><span class="p">,</span> <span class="p">(),</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Clear the commands declared either globally or for a specific guild.</p>
+
+<p><em>Note:</em>
+The endpoint this uses has a strict ratelimit which, as of writing,
+only allows for 2 requests per minute (with that ratelimit either
+being per-guild if targeting a specific guild otherwise globally).</p>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><p><strong>application</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]):
+The application to clear commands for.</p>
+
+<p>If left as <code>None</code> then this will be inferred from the authorization
+being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
+<li><p><strong>guild</strong> (hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]):
+Object or ID of the guild to clear commands for.</p>
+
+<p>If left as <code>None</code> global commands will be cleared.</p></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.set_global_commands" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.set_global_commands">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">set_global_commands</span><span class="signature">(
+    self,
+    *,
+    application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
+    guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED,
+    force: bool = False
+) -&gt; collections.abc.Sequence[hikari.commands.Command]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">set_global_commands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Alias of `Client.declare_global_commands`.</span>
+
+<span class="sd">        .. deprecated:: v2.1.1a1</span>
+<span class="sd">            Use `Client.declare_global_commands` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;The `Client.set_global_commands` method has been deprecated since v2.1.1a1. &quot;</span>
+            <span class="s2">&quot;Use `Client.declare_global_commands` instead.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_global_commands</span><span class="p">(</span><span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Alias of <code><a href="#Client.declare_global_commands">Client.declare_global_commands</a></code>.</p>
+
+<p><em>Deprecated since version v2.1.1a1:</em>
+Use <code><a href="#Client.declare_global_commands">Client.declare_global_commands</a></code> instead.</p>
+</div>
+
+
+                            </div>
+                            <div id="Client.declare_global_commands" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.declare_global_commands">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">declare_global_commands</span><span class="signature">(
+    self,
+    command_ids: Optional[collections.abc.Mapping[str, Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int]]] = None,
+    *,
+    application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
+    guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED,
+    force: bool = False
+) -&gt; collections.abc.Sequence[hikari.commands.Command]</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_global_commands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
+        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="n">commands</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">command</span>
+            <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+                <span class="n">component</span><span class="o">.</span><span class="n">slash_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">is_global</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span>
+            <span class="n">commands</span><span class="p">,</span> <span class="n">command_ids</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span>
+        <span class="p">)</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Set the global application commands for a bot based on the loaded components.</p>
+
+<p><em>Warning:</em>
+This will overwrite any previously set application commands and
+only targets commands marked as global.</p>
+
+<h6 id="notes">Notes</h6>
+
+<ul>
+<li>The endpoint this uses has a strict ratelimit which, as of writing,
+only allows for 2 requests per minute (with that ratelimit either
+being per-guild if targeting a specific guild otherwise globally).</li>
+<li>Setting a specific <code>guild</code> can be useful for testing/debug purposes
+as slash commands may take up to an hour to propagate globally but
+will immediately propagate when set on a specific guild.</li>
+</ul>
+
+<h6 id="other-parameters">Other Parameters</h6>
+
+<ul>
+<li><strong>command_ids</strong> (typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]):
+If provided, a mapping of top level command names to IDs of the existing commands to update.</li>
+<li><p><strong>application</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]):
+Object or ID of the application to set the global commands for.</p>
+
+<p>If left as <code>None</code> then this will be inferred from the authorization
+being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
+<li><p><strong>guild</strong> (hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]):
+Object or ID of the guild to set the global commands to.</p>
+
+<p>If left as <code>None</code> global commands will be set.</p></li>
+<li><p><strong>force</strong> (bool):
+Force this to declare the commands regardless of whether or not
+they match the current state of the declared commands.</p>
+
+<p>Defaults to <code>False</code>. This default behaviour helps avoid issues with the
+2 request per minute (per-guild or globally) ratelimit and the other limit
+of only 200 application command creates per day (per guild or globally).</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>collections.abc.Sequence[hikari..Command]</strong>: API representations of the set commands.</li>
+</ul>
+</div>
+
+
+                            </div>
                             <div id="Client.declare_slash_command" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Client.declare_slash_command">#&nbsp;&nbsp</a>
 
@@ -11460,39 +11559,7 @@ the client.</p>
         <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Declare a single slash command for a bot.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        command : tanjun.abc.BaseSlashCommand</span>
-<span class="sd">            The command to register.</span>
-
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
-<span class="sd">            The application to register the command with.</span>
-
-<span class="sd">            If left as `None` then this will be inferred from the authorization</span>
-<span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        command_id : typing.Optional[hikari.snowflakes.Snowflakeish]</span>
-<span class="sd">            ID of the command to update.</span>
-<span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
-<span class="sd">            Object or ID of the guild to register the command with.</span>
-
-<span class="sd">            If left as `None` then the command will be registered globally.</span>
-
-<span class="sd">        Warnings</span>
-<span class="sd">        --------</span>
-<span class="sd">        * This ignores any ID that&#39;s been set on `tanjun.abc.BaseSlashCommand`.</span>
-<span class="sd">        * Providing `command_id` when updating a command helps avoid any</span>
-<span class="sd">          permissions set for the command being lose (e.g. when changing the</span>
-<span class="sd">          command&#39;s name).</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        hikari.Command</span>
-<span class="sd">            API representation of the command that was registered.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">builder</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">command_id</span><span class="p">:</span>
             <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">edit_application_command</span><span class="p">(</span>
@@ -11523,10 +11590,15 @@ the client.</p>
 
             <div class="docstring"><p>Declare a single slash command for a bot.</p>
 
+<p><em>Warning:</em>
+Providing <code>command_id</code> when updating a command helps avoid any
+permissions set for the command being lose (e.g. when changing the
+command's name).</p>
+
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>command</strong> (<a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>):
+<li><strong>command</strong> (BaseSlashCommand):
 The command to register.</li>
 </ul>
 
@@ -11544,15 +11616,6 @@ ID of the command to update.</li>
 Object or ID of the guild to register the command with.</p>
 
 <p>If left as <code>None</code> then the command will be registered globally.</p></li>
-</ul>
-
-<h6 id="warnings">Warnings</h6>
-
-<ul>
-<li>This ignores any ID that's been set on <code><a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a></code>.</li>
-<li>Providing <code>command_id</code> when updating a command helps avoid any
-permissions set for the command being lose (e.g. when changing the
-command's name).</li>
 </ul>
 
 <h6 id="returns">Returns</h6>
@@ -11593,56 +11656,7 @@ command's name).</li>
         <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
         <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Declare a collection of slash commands for a bot.</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">            only allows for 2 requests per minute (with that ratelimit either</span>
-<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        commands : collections.abc.Iterable[tanjun.abc.BaseSlashCommand]</span>
-<span class="sd">            Iterable of the commands to register.</span>
-
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
-<span class="sd">            If provided, a mapping of top level command names to IDs of the existing commands to update.</span>
-
-<span class="sd">            While optional, this can be helpful when updating commands as</span>
-<span class="sd">            providing the current IDs will prevent changes such as renames from</span>
-<span class="sd">            leading to other state set for commands (e.g. permissions) from</span>
-<span class="sd">            being lost.</span>
-<span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
-<span class="sd">            The application to register the commands with.</span>
-
-<span class="sd">            If left as `None` then this will be inferred from the authorization</span>
-<span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
-<span class="sd">            Object or ID of the guild to register the commands with.</span>
-
-<span class="sd">            If left as `None` then the commands will be registered globally.</span>
-<span class="sd">        force : bool</span>
-<span class="sd">            Force this to declare the commands regardless of whether or not</span>
-<span class="sd">            they match the current state of the declared commands.</span>
-
-<span class="sd">            Defaults to `False`. This default behaviour helps avoid issues with the</span>
-<span class="sd">            2 request per minute (per-guild or globally) ratelimit and the other limit</span>
-<span class="sd">            of only 200 application command creates per day (per guild or globally).</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari.Command]</span>
-<span class="sd">            API representations of the commands which were registered.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            Raises a value error for any of the following reasons:</span>
-<span class="sd">            * If conflicting command names are found (multiple commanbds have the same top-level name).</span>
-<span class="sd">            * If more than 100 top-level commands are passed.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="n">command_ids</span> <span class="o">=</span> <span class="n">command_ids</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="n">names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">conflicts</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -11719,7 +11733,7 @@ being per-guild if targeting a specific guild otherwise globally).</p>
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>commands</strong> (collections.abc.Iterable[<a href="tanjun/abc.html#BaseSlashCommand">tanjun.abc.BaseSlashCommand</a>]):
+<li><strong>commands</strong> (collections.abc.Iterable[BaseSlashCommand]):
 Iterable of the commands to register.</li>
 </ul>
 
@@ -12183,254 +12197,6 @@ Whether or not message commands execution should be limited to "human" users.</p
 
 <p>Passing <code>True</code> here will prevent message commands from being executed
 based on webhook and bot messages.</p></li>
-</ul>
-</div>
-
-
-                            </div>
-                            <div id="Client.clear_commands" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Client.clear_commands">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">async def</span>
-            <span class="name">clear_commands</span><span class="signature">(
-    self,
-    *,
-    application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
-    guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED
-) -&gt; None</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">clear_commands</span><span class="p">(</span>  <span class="c1"># TODO: better name?</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Clear the commands declared either globally or for a specific guild.</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">            The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">            only allows for 2 requests per minute (with that ratelimit either</span>
-<span class="sd">            being per-guild if targeting a specific guild otherwise globally).</span>
-
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
-<span class="sd">            The application to clear commands for.</span>
-
-<span class="sd">            If left as `None` then this will be inferred from the authorization</span>
-<span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
-<span class="sd">            Object or ID of the guild to clear commands for.</span>
-
-<span class="sd">            If left as `None` global commands will be cleared.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">application</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">application</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cached_application_id</span> <span class="ow">or</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_rest_application_id</span><span class="p">()</span>
-
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rest</span><span class="o">.</span><span class="n">set_application_commands</span><span class="p">(</span><span class="n">application</span><span class="p">,</span> <span class="p">(),</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Clear the commands declared either globally or for a specific guild.</p>
-
-<p><em>Note:</em>
-The endpoint this uses has a strict ratelimit which, as of writing,
-only allows for 2 requests per minute (with that ratelimit either
-being per-guild if targeting a specific guild otherwise globally).</p>
-
-<h6 id="other-parameters">Other Parameters</h6>
-
-<ul>
-<li><p><strong>application</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]):
-The application to clear commands for.</p>
-
-<p>If left as <code>None</code> then this will be inferred from the authorization
-being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
-<li><p><strong>guild</strong> (hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]):
-Object or ID of the guild to clear commands for.</p>
-
-<p>If left as <code>None</code> global commands will be cleared.</p></li>
-</ul>
-</div>
-
-
-                            </div>
-                            <div id="Client.set_global_commands" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Client.set_global_commands">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">async def</span>
-            <span class="name">set_global_commands</span><span class="signature">(
-    self,
-    *,
-    application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
-    guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED,
-    force: bool = False
-) -&gt; collections.abc.Sequence[hikari.commands.Command]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">set_global_commands</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Alias of `Client.declare_global_commands`.</span>
-
-<span class="sd">        .. deprecated:: v2.1.1a1</span>
-<span class="sd">            Use `Client.declare_global_commands` instead.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;The `Client.set_global_commands` method has been deprecated since v2.1.1a1. &quot;</span>
-            <span class="s2">&quot;Use `Client.declare_global_commands` instead.&quot;</span><span class="p">,</span>
-            <span class="ne">DeprecationWarning</span><span class="p">,</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_global_commands</span><span class="p">(</span><span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Alias of <code><a href="#Client.declare_global_commands">Client.declare_global_commands</a></code>.</p>
-
-<p><em>Deprecated since version v2.1.1a1:</em>
-Use <code><a href="#Client.declare_global_commands">Client.declare_global_commands</a></code> instead.</p>
-</div>
-
-
-                            </div>
-                            <div id="Client.declare_global_commands" class="classattr">
-                                        <div class="attr function"><a class="headerlink" href="#Client.declare_global_commands">#&nbsp;&nbsp</a>
-
-        
-            <span class="def">async def</span>
-            <span class="name">declare_global_commands</span><span class="signature">(
-    self,
-    command_ids: Optional[collections.abc.Mapping[str, Union[hikari.commands.Command, hikari.snowflakes.Snowflake, int]]] = None,
-    *,
-    application: Union[hikari.guilds.PartialApplication, hikari.snowflakes.Snowflake, int, NoneType] = None,
-    guild: Union[hikari.guilds.PartialGuild, hikari.snowflakes.Snowflake, int, hikari.undefined.UndefinedType] = UNDEFINED,
-    force: bool = False
-) -&gt; collections.abc.Sequence[hikari.commands.Command]</span>:
-    </div>
-
-                <details>
-            <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_global_commands</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">command_ids</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">application</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialApplication</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">guild</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UndefinedOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">SnowflakeishOr</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">PartialGuild</span><span class="p">]]</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span>
-        <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Set the global application commands for a bot based on the loaded components.</span>
-
-<span class="sd">        .. warning::</span>
-<span class="sd">            This will overwrite any previously set application commands and</span>
-<span class="sd">            only targets commands marked as global.</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        * The endpoint this uses has a strict ratelimit which, as of writing,</span>
-<span class="sd">          only allows for 2 requests per minute (with that ratelimit either</span>
-<span class="sd">          being per-guild if targeting a specific guild otherwise globally).</span>
-<span class="sd">        * Setting a specific `guild` can be useful for testing/debug purposes</span>
-<span class="sd">          as slash commands may take up to an hour to propagate globally but</span>
-<span class="sd">          will immediately propagate when set on a specific guild.</span>
-
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]</span>
-<span class="sd">            If provided, a mapping of top level command names to IDs of the existing commands to update.</span>
-<span class="sd">        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]</span>
-<span class="sd">            Object or ID of the application to set the global commands for.</span>
-
-<span class="sd">            If left as `None` then this will be inferred from the authorization</span>
-<span class="sd">            being used by `Client.rest`.</span>
-<span class="sd">        guild : hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]</span>
-<span class="sd">            Object or ID of the guild to set the global commands to.</span>
-
-<span class="sd">            If left as `None` global commands will be set.</span>
-<span class="sd">        force : bool</span>
-<span class="sd">            Force this to declare the commands regardless of whether or not</span>
-<span class="sd">            they match the current state of the declared commands.</span>
-
-<span class="sd">            Defaults to `False`. This default behaviour helps avoid issues with the</span>
-<span class="sd">            2 request per minute (per-guild or globally) ratelimit and the other limit</span>
-<span class="sd">            of only 200 application command creates per day (per guild or globally).</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        collections.abc.Sequence[hikari..Command]</span>
-<span class="sd">            API representations of the set commands.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">commands</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">command</span>
-            <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
-                <span class="n">component</span><span class="o">.</span><span class="n">slash_commands</span> <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">is_global</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_slash_commands</span><span class="p">(</span>
-            <span class="n">commands</span><span class="p">,</span> <span class="n">command_ids</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">guild</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span>
-        <span class="p">)</span>
-</pre></div>
-
-        </details>
-
-            <div class="docstring"><p>Set the global application commands for a bot based on the loaded components.</p>
-
-<p><em>Warning:</em>
-This will overwrite any previously set application commands and
-only targets commands marked as global.</p>
-
-<h6 id="notes">Notes</h6>
-
-<ul>
-<li>The endpoint this uses has a strict ratelimit which, as of writing,
-only allows for 2 requests per minute (with that ratelimit either
-being per-guild if targeting a specific guild otherwise globally).</li>
-<li>Setting a specific <code>guild</code> can be useful for testing/debug purposes
-as slash commands may take up to an hour to propagate globally but
-will immediately propagate when set on a specific guild.</li>
-</ul>
-
-<h6 id="other-parameters">Other Parameters</h6>
-
-<ul>
-<li><strong>command_ids</strong> (typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]):
-If provided, a mapping of top level command names to IDs of the existing commands to update.</li>
-<li><p><strong>application</strong> (typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]):
-Object or ID of the application to set the global commands for.</p>
-
-<p>If left as <code>None</code> then this will be inferred from the authorization
-being used by <code><a href="#Client.rest">Client.rest</a></code>.</p></li>
-<li><p><strong>guild</strong> (hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]):
-Object or ID of the guild to set the global commands to.</p>
-
-<p>If left as <code>None</code> global commands will be set.</p></li>
-<li><p><strong>force</strong> (bool):
-Force this to declare the commands regardless of whether or not
-they match the current state of the declared commands.</p>
-
-<p>Defaults to <code>False</code>. This default behaviour helps avoid issues with the
-2 request per minute (per-guild or globally) ratelimit and the other limit
-of only 200 application command creates per day (per guild or globally).</p></li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<ul>
-<li><strong>collections.abc.Sequence[hikari..Command]</strong>: API representations of the set commands.</li>
 </ul>
 </div>
 
