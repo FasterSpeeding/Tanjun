@@ -71,6 +71,7 @@ from collections import abc as collections
 import hikari
 
 if typing.TYPE_CHECKING:
+    import asyncio
     import datetime
 
     from hikari import traits as hikari_traits
@@ -2378,6 +2379,11 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
+    def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
+        """The asyncio loop this client is bound to if it has been opened."""
+
+    @property
+    @abc.abstractmethod
     def name(self) -> str:
         """Component's unique identifier.
 
@@ -2721,6 +2727,25 @@ class Component(abc.ABC):
             execute with the current context.
         """
 
+    async def close(self) -> None:
+        """Close the component.
+
+        Raises
+        ------
+        RuntimeError
+            If the component isn't running.
+        """
+
+    async def open(self) -> None:
+        """Start the component.
+
+        Raises
+        ------
+        RuntimeError
+            If the component is already open.
+            If the component isn't bound to a client.
+        """
+
 
 class Client(abc.ABC):
     """Abstract interface of a Tanjun client.
@@ -2776,6 +2801,11 @@ class Client(abc.ABC):
     @abc.abstractmethod
     def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[ListenerCallbackSig]]:
         """Mapping of event types to the listeners registered in this client."""
+
+    @property
+    @abc.abstractmethod
+    def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
+        """The loop this client is bound to if it's alive."""
 
     @property
     @abc.abstractmethod

@@ -35,6 +35,8 @@
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 
+import asyncio
+import contextlib
 import inspect
 import types
 from unittest import mock
@@ -53,6 +55,13 @@ mock_owned_global_message_command = mock.Mock(tanjun.abc.MessageCommand)
 
 
 class TestComponent:
+    def test_loop_property(self):
+        mock_loop = mock.Mock()
+        component = tanjun.Component()
+        component._loop = mock_loop
+
+        assert component.loop is mock_loop
+
     def test_name_property(self):
         assert tanjun.Component(name="aye").name == "aye"
 
@@ -860,6 +869,52 @@ class TestComponent:
         assert result is mock_listener
         add_listener.assert_called_once_with(hikari.Event, mock_listener)
 
+    def test_add_on_close(self):
+        mock_callback = mock.Mock()
+        component = tanjun.Component()
+
+        result = component.add_on_close(mock_callback)
+
+        assert result is component
+        assert component._on_close[0].callback is mock_callback
+
+    def test_with_on_close(self):
+        mock_add_on_close = mock.Mock()
+        mock_callback = mock.Mock()
+
+        class StubComponent(tanjun.Component):
+            add_on_close = mock_add_on_close
+
+        component = StubComponent()
+
+        result = component.with_on_close(mock_callback)
+
+        assert result is mock_callback
+        mock_add_on_close.assert_called_once_with(mock_callback)
+
+    def test_add_on_open(self):
+        mock_callback = mock.Mock()
+        component = tanjun.Component()
+
+        result = component.add_on_open(mock_callback)
+
+        assert result is component
+        assert component._on_open[0].callback is mock_callback
+
+    def test_with_on_open(self):
+        mock_add_on_open = mock.Mock()
+        mock_callback = mock.Mock()
+
+        class StubComponent(tanjun.Component):
+            add_on_open = mock_add_on_open
+
+        component = StubComponent()
+
+        result = component.with_on_open(mock_callback)
+
+        assert result is mock_callback
+        mock_add_on_open.assert_called_once_with(mock_callback)
+
     def test_bind_client(self):
         mock_client = mock.Mock()
         mock_message_command = mock.Mock()
@@ -1068,3 +1123,102 @@ class TestComponent:
     @pytest.mark.skip(reason="TODO")
     def test__load_from_properties(self):
         ...  # Should test this based on todo
+
+    @pytest.mark.asyncio()
+    async def test_close(self):
+        mock_callback_1 = mock.AsyncMock()
+        mock_callback_2 = mock.AsyncMock()
+        mock_ctx_1 = mock.Mock()
+        mock_ctx_2 = mock.Mock()
+        mock_client = mock.Mock(tanjun.injecting.InjectorClient)
+        component = tanjun.Component().bind_client(mock_client)
+        component._loop = mock.Mock()
+        component._on_close = [mock_callback_1, mock_callback_2]
+
+        with mock.patch.object(
+            tanjun.injecting, "BasicInjectionContext", side_effect=[mock_ctx_1, mock_ctx_2]
+        ) as basic_injection_context:
+            await component.close()
+
+        basic_injection_context.assert_has_calls([mock.call(mock_client), mock.call(mock_client)])
+        mock_callback_1.resolve.assert_awaited_once_with(mock_ctx_1)
+        mock_callback_2.resolve.assert_awaited_once_with(mock_ctx_2)
+        assert component.loop is None
+
+    @pytest.mark.asyncio()
+    async def test_close_when_not_active(self):
+        component = tanjun.Component()
+
+        with pytest.raises(RuntimeError, match="Component isn't active"):
+            await component.close()
+
+    @pytest.mark.asyncio()
+    async def test_close_when_client_isnt_injection_client(self):
+        mock_callback_1 = mock.AsyncMock()
+        mock_callback_2 = mock.AsyncMock()
+        mock_client = mock.Mock()
+        component = tanjun.Component().bind_client(mock_client)
+        component._loop = mock.Mock()
+        component._on_close = [mock_callback_1, mock_callback_2]
+
+        await component.close()
+
+        mock_callback_1.resolve_without_injector.assert_awaited_once()
+        mock_callback_2.resolve_without_injector.assert_awaited_once()
+        assert component.loop is None
+
+    @pytest.mark.asyncio()
+    async def test_open(self):
+        mock_callback_1 = mock.AsyncMock()
+        mock_callback_2 = mock.AsyncMock()
+        mock_ctx_1 = mock.Mock()
+        mock_ctx_2 = mock.Mock()
+        mock_client = mock.Mock(tanjun.injecting.InjectorClient)
+        component = tanjun.Component().bind_client(mock_client)
+        component._on_open = [mock_callback_1, mock_callback_2]
+
+        stack = contextlib.ExitStack()
+        basic_injection_context = stack.enter_context(
+            mock.patch.object(tanjun.injecting, "BasicInjectionContext", side_effect=[mock_ctx_1, mock_ctx_2])
+        )
+        get_running_loop = stack.enter_context(mock.patch.object(asyncio, "get_running_loop"))
+
+        with stack:
+            await component.open()
+
+        get_running_loop.assert_called_once_with()
+        assert component.loop is get_running_loop.return_value
+        basic_injection_context.assert_has_calls([mock.call(mock_client), mock.call(mock_client)])
+        mock_callback_1.resolve.assert_awaited_once_with(mock_ctx_1)
+        mock_callback_2.resolve.assert_awaited_once_with(mock_ctx_2)
+
+    @pytest.mark.asyncio()
+    async def test_open_when_already_active(self):
+        component = tanjun.Component()
+        component._loop = mock.Mock()
+
+        with pytest.raises(RuntimeError, match="Component is already active"):
+            await component.open()
+
+    @pytest.mark.asyncio()
+    async def test_open_when_not_client_bound(self):
+        component = tanjun.Component()
+
+        with pytest.raises(RuntimeError, match="Client isn't bound yet"):
+            await component.open()
+
+    @pytest.mark.asyncio()
+    async def test_open_when_client_isnt_injection_client(self):
+        mock_callback_1 = mock.AsyncMock()
+        mock_callback_2 = mock.AsyncMock()
+        mock_client = mock.Mock()
+        component = tanjun.Component().bind_client(mock_client)
+        component._on_open = [mock_callback_1, mock_callback_2]
+
+        with mock.patch.object(asyncio, "get_running_loop") as get_running_loop:
+            await component.open()
+
+        get_running_loop.assert_called_once_with()
+        assert component.loop is get_running_loop.return_value
+        mock_callback_1.resolve_without_injector.assert_awaited_once()
+        mock_callback_2.resolve_without_injector.assert_awaited_once()

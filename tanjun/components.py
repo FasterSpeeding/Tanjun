@@ -32,7 +32,14 @@
 """Standard implementation of Tanjun's "components" used to manage separate features within a client."""
 from __future__ import annotations
 
-__all__: list[str] = ["CommandT", "Component", "LoadableProtocol", "WithCommandReturnSig"]
+__all__: list[str] = [
+    "CommandT",
+    "Component",
+    "LoadableProtocol",
+    "OnCallbackSig",
+    "OnCallbackSigT",
+    "WithCommandReturnSig",
+]
 
 import asyncio
 import base64
@@ -49,6 +56,7 @@ from hikari.events import base_events
 from . import abc
 from . import checks as checks_
 from . import errors
+from . import injecting
 from . import utilities
 
 if typing.TYPE_CHECKING:
@@ -60,6 +68,17 @@ CommandT = typing.TypeVar("CommandT", bound="abc.ExecutableCommand[typing.Any]")
 _LOGGER = logging.getLogger("hikari.tanjun.components")
 # This errors on earlier 3.9 releases when not quotes cause dumb handling of the [CommandT] list
 WithCommandReturnSig = typing.Union[CommandT, "collections.Callable[[CommandT], CommandT]"]
+
+OnCallbackSig = collections.Callable[..., abc.MaybeAwaitableT[None]]
+"""Type hint of a on_open or on_close component callback.
+
+These support dependency injection, should expect no positional arguments and
+should return `None`.
+"""
+
+
+OnCallbackSigT = typing.TypeVar("OnCallbackSigT", bound=OnCallbackSig)
+"""Generic version of `OnCallbackSig`."""
 
 
 @typing.runtime_checkable
@@ -168,11 +187,14 @@ class Component(abc.Component):
         "_hooks",
         "_is_strict",
         "_listeners",
+        "_loop",
         "_message_commands",
         "_message_hooks",
         "_metadata",
         "_name",
         "_names_to_commands",
+        "_on_close",
+        "_on_open",
         "_slash_commands",
         "_slash_hooks",
     )
@@ -197,11 +219,14 @@ class Component(abc.Component):
         self._hooks = hooks
         self._is_strict = strict
         self._listeners: dict[type[base_events.Event], list[abc.ListenerCallbackSig]] = {}
+        self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
         self._message_commands: list[abc.MessageCommand] = []
         self._message_hooks = message_hooks
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._name = name or base64.b64encode(random.randbytes(32)).decode()
         self._names_to_commands: dict[str, abc.MessageCommand] = {}
+        self._on_close: list[injecting.CallbackDescriptor[None]] = []
+        self._on_open: list[injecting.CallbackDescriptor[None]] = []
         self._slash_commands: dict[str, abc.BaseSlashCommand] = {}
         self._slash_hooks = slash_hooks
 
@@ -226,6 +251,10 @@ class Component(abc.Component):
     @property
     def hooks(self) -> typing.Optional[abc.AnyHooks]:
         return self._hooks
+
+    @property
+    def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
+        return self._loop
 
     @property
     def name(self) -> str:
@@ -625,6 +654,102 @@ class Component(abc.Component):
 
         return decorator
 
+    def add_on_close(self: _ComponentT, callback: OnCallbackSig, /) -> _ComponentT:
+        """Add a close callback to this component.
+
+        .. note::
+            Unlike the closing and closed client callbacks, this is only
+            called for the current component's lifetime and is guaranteed to be
+            called regardless of when the component was added to a client.
+
+        Parameters
+        ----------
+        callback : OnCallbackSig
+            The close callback to add to this component.
+
+            This should take no positional arguments, return `None` and may
+            take use injected dependencies.
+
+        Returns
+        -------
+        Self
+            The component object to enable call chaining.
+        """
+        self._on_close.append(injecting.CallbackDescriptor(callback))
+        return self
+
+    def with_on_close(self, callback: OnCallbackSigT, /) -> OnCallbackSigT:
+        """Add a close callback to this component through a decorator call.
+
+        .. note::
+            Unlike the closing and closed client callbacks, this is only
+            called for the current component's lifetime and is guaranteed to be
+            called regardless of when the component was added to a client.
+
+        Parameters
+        ----------
+        callback : OnCallbackSig
+            The close callback to add to this component.
+
+            This should take no positional arguments, return `None` and may
+            take use injected dependencies.
+
+        Returns
+        -------
+        OnCallbackSig
+            The added close callback.
+        """
+        self.add_on_close(callback)
+        return callback
+
+    def add_on_open(self: _ComponentT, callback: OnCallbackSig, /) -> _ComponentT:
+        """Add a open callback to this component.
+
+        .. note::
+            Unlike the starting and started client callbacks, this is only
+            called for the current component's lifetime and is guaranteed to be
+            called regardless of when the component was added to a client.
+
+        Parameters
+        ----------
+        callback : OnCallbackSig
+            The open callback to add to this component.
+
+            This should take no positional arguments, return `None` and may
+            take use injected dependencies.
+
+        Returns
+        -------
+        Self
+            The component object to enable call chaining.
+        """
+        self._on_open.append(injecting.CallbackDescriptor(callback))
+        return self
+
+    def with_on_open(self, callback: OnCallbackSigT, /) -> OnCallbackSigT:
+        """Add a open callback to this component through a decorator call.
+
+        .. note::
+            Unlike the starting and started client callbacks, this is only
+            called for the current component's lifetime and is guaranteed to be
+            called regardless of when the component was added to a client.
+
+        Parameters
+        ----------
+        callback : OnCallbackSig
+            The open callback to add to this component.
+
+            This should take no positional arguments, return `None` and may
+            take use injected dependencies.
+
+        Returns
+        -------
+        OnCallbackSig
+            The added open callback.
+        """
+        self.add_on_open(callback)
+        return callback
+
     def bind_client(self: _ComponentT, client: abc.Client, /) -> _ComponentT:
         if self._client:
             raise RuntimeError("Client already set")
@@ -804,3 +929,34 @@ class Component(abc.Component):
             if isinstance(member, LoadableProtocol):
                 if result := member.copy().load_into_component(self):
                     setattr(self, name, result)
+
+    async def close(self) -> None:
+        if not self._loop:
+            raise RuntimeError("Component isn't active")
+
+        assert self._client
+
+        self._loop = None
+        if isinstance(self._client, injecting.InjectorClient):
+            await asyncio.gather(
+                *(callback.resolve(injecting.BasicInjectionContext(self._client)) for callback in self._on_close)
+            )
+
+        else:
+            await asyncio.gather(*(callback.resolve_without_injector() for callback in self._on_close))
+
+    async def open(self) -> None:
+        if self._loop:
+            raise RuntimeError("Component is already active")
+
+        if not self._client:
+            raise RuntimeError("Client isn't bound yet")
+
+        self._loop = asyncio.get_running_loop()
+        if isinstance(self._client, injecting.InjectorClient):
+            await asyncio.gather(
+                *(callback.resolve(injecting.BasicInjectionContext(self._client)) for callback in self._on_open)
+            )
+
+        else:
+            await asyncio.gather(*(callback.resolve_without_injector() for callback in self._on_open))
