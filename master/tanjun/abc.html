@@ -505,6 +505,9 @@
                                 <a class="variable" href="#Component.defaults_to_ephemeral">defaults_to_ephemeral</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Component.loop">loop</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Component.name">name</a>
                         </li>
                         <li>
@@ -564,6 +567,12 @@
                         <li>
                                 <a class="function" href="#Component.execute_message">execute_message</a>
                         </li>
+                        <li>
+                                <a class="function" href="#Component.close">close</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Component.open">open</a>
+                        </li>
                 </ul>
 
             </li>
@@ -587,6 +596,9 @@
                         </li>
                         <li>
                                 <a class="variable" href="#Client.listeners">listeners</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Client.loop">loop</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Client.metadata">metadata</a>
@@ -763,6 +775,7 @@
 <span class="kn">import</span> <span class="nn">hikari</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">asyncio</span>
     <span class="kn">import</span> <span class="nn">datetime</span>
 
     <span class="kn">from</span> <span class="nn">hikari</span> <span class="kn">import</span> <span class="n">traits</span> <span class="k">as</span> <span class="n">hikari_traits</span>
@@ -3070,6 +3083,11 @@
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The asyncio loop this client is bound to if it has been opened.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Component&#39;s unique identifier.</span>
 
@@ -3413,6 +3431,25 @@
 <span class="sd">            execute with the current context.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Close the component.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the component isn&#39;t running.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Start the component.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the component is already open.</span>
+<span class="sd">            If the component isn&#39;t bound to a client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
 
 <span class="k">class</span> <span class="nc">Client</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Abstract interface of a Tanjun client.</span>
@@ -3468,6 +3505,11 @@
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Mapping of event types to the listeners registered in this client.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The loop this client is bound to if it&#39;s alive.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -11844,6 +11886,11 @@ user.</p>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The asyncio loop this client is bound to if it has been opened.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Component&#39;s unique identifier.</span>
 
@@ -12186,6 +12233,25 @@ user.</p>
 <span class="sd">            To indicate that the client should stop searching for commands to</span>
 <span class="sd">            execute with the current context.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Close the component.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the component isn&#39;t running.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Start the component.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the component is already open.</span>
+<span class="sd">            If the component isn&#39;t bound to a client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
@@ -12229,6 +12295,17 @@ methods which support it.</p>
 <li>This only effects slash command execution.</li>
 <li>If this is <code>None</code> then the default from the parent client is used.</li>
 </ul>
+</div>
+
+
+                            </div>
+                            <div id="Component.loop" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Component.loop">#&nbsp;&nbsp</a>
+
+        <span class="name">loop</span><span class="annotation">: Optional[asyncio.events.AbstractEventLoop]</span>
+    </div>
+
+            <div class="docstring"><p>The asyncio loop this client is bound to if it has been opened.</p>
 </div>
 
 
@@ -13166,6 +13243,74 @@ execute with the current context.</li>
 
 
                             </div>
+                            <div id="Component.close" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Component.close">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">close</span><span class="signature">(self) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Close the component.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the component isn&#39;t running.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Close the component.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>RuntimeError</strong>: If the component isn't running.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Component.open" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Component.open">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">open</span><span class="signature">(self) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Start the component.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the component is already open.</span>
+<span class="sd">            If the component isn&#39;t bound to a client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Start the component.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>RuntimeError</strong>: If the component is already open.
+If the component isn't bound to a client.</li>
+</ul>
+</div>
+
+
+                            </div>
                 </section>
                 <section id="Client">
                                 <div class="attr class">
@@ -13232,6 +13377,11 @@ execute with the current context.</li>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">listeners</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">ListenerCallbackSig</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Mapping of event types to the listeners registered in this client.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;The loop this client is bound to if it&#39;s alive.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -13859,6 +14009,17 @@ and <code><a href="#Component.defaults_to_ephemeral">Component.defaults_to_ephem
     </div>
 
             <div class="docstring"><p>Mapping of event types to the listeners registered in this client.</p>
+</div>
+
+
+                            </div>
+                            <div id="Client.loop" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Client.loop">#&nbsp;&nbsp</a>
+
+        <span class="name">loop</span><span class="annotation">: Optional[asyncio.events.AbstractEventLoop]</span>
+    </div>
+
+            <div class="docstring"><p>The loop this client is bound to if it's alive.</p>
 </div>
 
 

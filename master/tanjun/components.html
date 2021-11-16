@@ -52,6 +52,9 @@
                                 <a class="variable" href="#Component.hooks">hooks</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Component.loop">loop</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Component.name">name</a>
                         </li>
                         <li>
@@ -151,6 +154,18 @@
                                 <a class="function" href="#Component.with_listener">with_listener</a>
                         </li>
                         <li>
+                                <a class="function" href="#Component.add_on_close">add_on_close</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Component.with_on_close">with_on_close</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Component.add_on_open">add_on_open</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Component.with_on_open">with_on_open</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Component.bind_client">bind_client</a>
                         </li>
                         <li>
@@ -167,6 +182,12 @@
                         </li>
                         <li>
                                 <a class="function" href="#Component.execute_message">execute_message</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Component.close">close</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Component.open">open</a>
                         </li>
                 </ul>
 
@@ -185,6 +206,15 @@
                         </li>
                 </ul>
 
+            </li>
+            <li>
+                    <a class="class" href="#OnCallbackSig">OnCallbackSig</a>
+                            <ul class="memberlist">
+                </ul>
+
+            </li>
+            <li>
+                    <a class="variable" href="#OnCallbackSigT">OnCallbackSigT</a>
             </li>
             <li>
                     <a class="variable" href="#WithCommandReturnSig">WithCommandReturnSig</a>
@@ -244,7 +274,14 @@
 <span class="sd">&quot;&quot;&quot;Standard implementation of Tanjun&#39;s &quot;components&quot; used to manage separate features within a client.&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CommandT&quot;</span><span class="p">,</span> <span class="s2">&quot;Component&quot;</span><span class="p">,</span> <span class="s2">&quot;LoadableProtocol&quot;</span><span class="p">,</span> <span class="s2">&quot;WithCommandReturnSig&quot;</span><span class="p">]</span>
+<span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;CommandT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Component&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LoadableProtocol&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;OnCallbackSig&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;OnCallbackSigT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;WithCommandReturnSig&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 
 <span class="kn">import</span> <span class="nn">asyncio</span>
 <span class="kn">import</span> <span class="nn">base64</span>
@@ -261,6 +298,7 @@
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">abc</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">checks</span> <span class="k">as</span> <span class="n">checks_</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">errors</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">injecting</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utilities</span>
 
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -272,6 +310,17 @@
 <span class="n">_LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;hikari.tanjun.components&quot;</span><span class="p">)</span>
 <span class="c1"># This errors on earlier 3.9 releases when not quotes cause dumb handling of the [CommandT] list</span>
 <span class="n">WithCommandReturnSig</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">CommandT</span><span class="p">,</span> <span class="s2">&quot;collections.Callable[[CommandT], CommandT]&quot;</span><span class="p">]</span>
+
+<span class="n">OnCallbackSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MaybeAwaitableT</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span>
+<span class="sd">&quot;&quot;&quot;Type hint of a on_open or on_close component callback.</span>
+
+<span class="sd">These support dependency injection, should expect no positional arguments and</span>
+<span class="sd">should return `None`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="n">OnCallbackSigT</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;OnCallbackSigT&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">OnCallbackSig</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Generic version of `OnCallbackSig`.&quot;&quot;&quot;</span>
 
 
 <span class="nd">@typing</span><span class="o">.</span><span class="n">runtime_checkable</span>
@@ -380,11 +429,14 @@
         <span class="s2">&quot;_hooks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_is_strict&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_listeners&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_loop&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_message_commands&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_message_hooks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_metadata&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_name&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_names_to_commands&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_on_close&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_on_open&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_slash_commands&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_slash_hooks&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -409,11 +461,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">message_hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randbytes</span><span class="p">(</span><span class="mi">32</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">slash_hooks</span>
 
@@ -438,6 +493,10 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -837,6 +896,102 @@
 
         <span class="k">return</span> <span class="n">decorator</span>
 
+    <span class="k">def</span> <span class="nf">add_on_close</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OnCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a close callback to this component.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Unlike the closing and closed client callbacks, this is only</span>
+<span class="sd">            called for the current component&#39;s lifetime and is guaranteed to be</span>
+<span class="sd">            called regardless of when the component was added to a client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : OnCallbackSig</span>
+<span class="sd">            The close callback to add to this component.</span>
+
+<span class="sd">            This should take no positional arguments, return `None` and may</span>
+<span class="sd">            take use injected dependencies.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The component object to enable call chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">with_on_close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OnCallbackSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OnCallbackSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a close callback to this component through a decorator call.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Unlike the closing and closed client callbacks, this is only</span>
+<span class="sd">            called for the current component&#39;s lifetime and is guaranteed to be</span>
+<span class="sd">            called regardless of when the component was added to a client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : OnCallbackSig</span>
+<span class="sd">            The close callback to add to this component.</span>
+
+<span class="sd">            This should take no positional arguments, return `None` and may</span>
+<span class="sd">            take use injected dependencies.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        OnCallbackSig</span>
+<span class="sd">            The added close callback.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_on_close</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
+
+    <span class="k">def</span> <span class="nf">add_on_open</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OnCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a open callback to this component.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Unlike the starting and started client callbacks, this is only</span>
+<span class="sd">            called for the current component&#39;s lifetime and is guaranteed to be</span>
+<span class="sd">            called regardless of when the component was added to a client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : OnCallbackSig</span>
+<span class="sd">            The open callback to add to this component.</span>
+
+<span class="sd">            This should take no positional arguments, return `None` and may</span>
+<span class="sd">            take use injected dependencies.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The component object to enable call chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">with_on_open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OnCallbackSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OnCallbackSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a open callback to this component through a decorator call.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Unlike the starting and started client callbacks, this is only</span>
+<span class="sd">            called for the current component&#39;s lifetime and is guaranteed to be</span>
+<span class="sd">            called regardless of when the component was added to a client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : OnCallbackSig</span>
+<span class="sd">            The open callback to add to this component.</span>
+
+<span class="sd">            This should take no positional arguments, return `None` and may</span>
+<span class="sd">            take use injected dependencies.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        OnCallbackSig</span>
+<span class="sd">            The added open callback.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_on_open</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
+
     <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Client already set&quot;</span><span class="p">)</span>
@@ -1016,6 +1171,37 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">LoadableProtocol</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="n">member</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                     <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Component isn&#39;t active&quot;</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">):</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">()</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">))</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Component is already active&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Client isn&#39;t bound yet&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">):</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">()</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">))</span>
 </pre></div>
 
         </details>
@@ -1085,11 +1271,14 @@
         <span class="s2">&quot;_hooks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_is_strict&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_listeners&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_loop&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_message_commands&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_message_hooks&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_metadata&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_name&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_names_to_commands&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_on_close&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_on_open&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_slash_commands&quot;</span><span class="p">,</span>
         <span class="s2">&quot;_slash_hooks&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -1114,11 +1303,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">message_hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randbytes</span><span class="p">(</span><span class="mi">32</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">slash_hooks</span>
 
@@ -1143,6 +1335,10 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">AnyHooks</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1542,6 +1738,102 @@
 
         <span class="k">return</span> <span class="n">decorator</span>
 
+    <span class="k">def</span> <span class="nf">add_on_close</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OnCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a close callback to this component.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Unlike the closing and closed client callbacks, this is only</span>
+<span class="sd">            called for the current component&#39;s lifetime and is guaranteed to be</span>
+<span class="sd">            called regardless of when the component was added to a client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : OnCallbackSig</span>
+<span class="sd">            The close callback to add to this component.</span>
+
+<span class="sd">            This should take no positional arguments, return `None` and may</span>
+<span class="sd">            take use injected dependencies.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The component object to enable call chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">with_on_close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OnCallbackSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OnCallbackSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a close callback to this component through a decorator call.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Unlike the closing and closed client callbacks, this is only</span>
+<span class="sd">            called for the current component&#39;s lifetime and is guaranteed to be</span>
+<span class="sd">            called regardless of when the component was added to a client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : OnCallbackSig</span>
+<span class="sd">            The close callback to add to this component.</span>
+
+<span class="sd">            This should take no positional arguments, return `None` and may</span>
+<span class="sd">            take use injected dependencies.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        OnCallbackSig</span>
+<span class="sd">            The added close callback.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_on_close</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
+
+    <span class="k">def</span> <span class="nf">add_on_open</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OnCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a open callback to this component.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Unlike the starting and started client callbacks, this is only</span>
+<span class="sd">            called for the current component&#39;s lifetime and is guaranteed to be</span>
+<span class="sd">            called regardless of when the component was added to a client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : OnCallbackSig</span>
+<span class="sd">            The open callback to add to this component.</span>
+
+<span class="sd">            This should take no positional arguments, return `None` and may</span>
+<span class="sd">            take use injected dependencies.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The component object to enable call chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">with_on_open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OnCallbackSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OnCallbackSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a open callback to this component through a decorator call.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Unlike the starting and started client callbacks, this is only</span>
+<span class="sd">            called for the current component&#39;s lifetime and is guaranteed to be</span>
+<span class="sd">            called regardless of when the component was added to a client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : OnCallbackSig</span>
+<span class="sd">            The open callback to add to this component.</span>
+
+<span class="sd">            This should take no positional arguments, return `None` and may</span>
+<span class="sd">            take use injected dependencies.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        OnCallbackSig</span>
+<span class="sd">            The added open callback.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_on_open</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
+
     <span class="k">def</span> <span class="nf">bind_client</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Client already set&quot;</span><span class="p">)</span>
@@ -1721,6 +2013,37 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">LoadableProtocol</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">result</span> <span class="o">:=</span> <span class="n">member</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">load_into_component</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                     <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Component isn&#39;t active&quot;</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">):</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">()</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">))</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Component is already active&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Client isn&#39;t bound yet&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">):</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">()</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">))</span>
 </pre></div>
 
         </details>
@@ -1801,11 +2124,14 @@ spaces and will have to be unique to one command within the component.</p></li>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hooks</span> <span class="o">=</span> <span class="n">hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_strict</span> <span class="o">=</span> <span class="n">strict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_listeners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">base_events</span><span class="o">.</span><span class="n">Event</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">ListenerCallbackSig</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">AbstractEventLoop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_message_hooks</span> <span class="o">=</span> <span class="n">message_hooks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randbytes</span><span class="p">(</span><span class="mi">32</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_names_to_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">MessageCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_commands</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">BaseSlashCommand</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_slash_hooks</span> <span class="o">=</span> <span class="n">slash_hooks</span>
 
@@ -1869,6 +2195,17 @@ methods which support it.</p>
     </div>
 
     
+
+                            </div>
+                            <div id="Component.loop" class="classattr">
+                                            <div class="attr variable"><a class="headerlink" href="#Component.loop">#&nbsp;&nbsp</a>
+
+        <span class="name">loop</span><span class="annotation">: Optional[asyncio.events.AbstractEventLoop]</span>
+    </div>
+
+            <div class="docstring"><p>The asyncio loop this client is bound to if it has been opened.</p>
+</div>
+
 
                             </div>
                             <div id="Component.name" class="classattr">
@@ -3020,6 +3357,266 @@ The event to listen for.</li>
 
 
                             </div>
+                            <div id="Component.add_on_close" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Component.add_on_close">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">add_on_close</span><span class="signature">(
+    self: ~_ComponentT,
+    callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
+    /
+) -&gt; ~_ComponentT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_on_close</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OnCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a close callback to this component.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Unlike the closing and closed client callbacks, this is only</span>
+<span class="sd">            called for the current component&#39;s lifetime and is guaranteed to be</span>
+<span class="sd">            called regardless of when the component was added to a client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : OnCallbackSig</span>
+<span class="sd">            The close callback to add to this component.</span>
+
+<span class="sd">            This should take no positional arguments, return `None` and may</span>
+<span class="sd">            take use injected dependencies.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The component object to enable call chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a close callback to this component.</p>
+
+<p><em>Note:</em>
+Unlike the closing and closed client callbacks, this is only
+called for the current component's lifetime and is guaranteed to be
+called regardless of when the component was added to a client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (OnCallbackSig):
+The close callback to add to this component.</p>
+
+<p>This should take no positional arguments, return <code>None</code> and may
+take use injected dependencies.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The component object to enable call chaining.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Component.with_on_close" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Component.with_on_close">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">with_on_close</span><span class="signature">(self, callback: ~OnCallbackSigT, /) -&gt; ~OnCallbackSigT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_on_close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OnCallbackSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OnCallbackSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a close callback to this component through a decorator call.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Unlike the closing and closed client callbacks, this is only</span>
+<span class="sd">            called for the current component&#39;s lifetime and is guaranteed to be</span>
+<span class="sd">            called regardless of when the component was added to a client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : OnCallbackSig</span>
+<span class="sd">            The close callback to add to this component.</span>
+
+<span class="sd">            This should take no positional arguments, return `None` and may</span>
+<span class="sd">            take use injected dependencies.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        OnCallbackSig</span>
+<span class="sd">            The added close callback.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_on_close</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a close callback to this component through a decorator call.</p>
+
+<p><em>Note:</em>
+Unlike the closing and closed client callbacks, this is only
+called for the current component's lifetime and is guaranteed to be
+called regardless of when the component was added to a client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (OnCallbackSig):
+The close callback to add to this component.</p>
+
+<p>This should take no positional arguments, return <code>None</code> and may
+take use injected dependencies.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>OnCallbackSig</strong>: The added close callback.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Component.add_on_open" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Component.add_on_open">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">add_on_open</span><span class="signature">(
+    self: ~_ComponentT,
+    callback: collections.abc.Callable[..., typing.Optional[collections.abc.Awaitable[NoneType]]],
+    /
+) -&gt; ~_ComponentT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">add_on_open</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ComponentT</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OnCallbackSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ComponentT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a open callback to this component.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Unlike the starting and started client callbacks, this is only</span>
+<span class="sd">            called for the current component&#39;s lifetime and is guaranteed to be</span>
+<span class="sd">            called regardless of when the component was added to a client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : OnCallbackSig</span>
+<span class="sd">            The open callback to add to this component.</span>
+
+<span class="sd">            This should take no positional arguments, return `None` and may</span>
+<span class="sd">            take use injected dependencies.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            The component object to enable call chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">CallbackDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a open callback to this component.</p>
+
+<p><em>Note:</em>
+Unlike the starting and started client callbacks, this is only
+called for the current component's lifetime and is guaranteed to be
+called regardless of when the component was added to a client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (OnCallbackSig):
+The open callback to add to this component.</p>
+
+<p>This should take no positional arguments, return <code>None</code> and may
+take use injected dependencies.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: The component object to enable call chaining.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Component.with_on_open" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Component.with_on_open">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">with_on_open</span><span class="signature">(self, callback: ~OnCallbackSigT, /) -&gt; ~OnCallbackSigT</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">with_on_open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OnCallbackSigT</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OnCallbackSigT</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Add a open callback to this component through a decorator call.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Unlike the starting and started client callbacks, this is only</span>
+<span class="sd">            called for the current component&#39;s lifetime and is guaranteed to be</span>
+<span class="sd">            called regardless of when the component was added to a client.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        callback : OnCallbackSig</span>
+<span class="sd">            The open callback to add to this component.</span>
+
+<span class="sd">            This should take no positional arguments, return `None` and may</span>
+<span class="sd">            take use injected dependencies.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        OnCallbackSig</span>
+<span class="sd">            The added open callback.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_on_open</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Add a open callback to this component through a decorator call.</p>
+
+<p><em>Note:</em>
+Unlike the starting and started client callbacks, this is only
+called for the current component's lifetime and is guaranteed to be
+called regardless of when the component was added to a client.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>callback</strong> (OnCallbackSig):
+The open callback to add to this component.</p>
+
+<p>This should take no positional arguments, return <code>None</code> and may
+take use injected dependencies.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>OnCallbackSig</strong>: The added open callback.</li>
+</ul>
+</div>
+
+
+                            </div>
                             <div id="Component.bind_client" class="classattr">
                                         <div class="attr function"><a class="headerlink" href="#Component.bind_client">#&nbsp;&nbsp</a>
 
@@ -3352,6 +3949,86 @@ execute with the current context.</li>
 
 
                             </div>
+                            <div id="Component.close" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Component.close">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">close</span><span class="signature">(self) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Component isn&#39;t active&quot;</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">):</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">()</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Close the component.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>RuntimeError</strong>: If the component isn't running.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Component.open" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Component.open">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">async def</span>
+            <span class="name">open</span><span class="signature">(self) -&gt; None</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">async</span> <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Component is already active&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Client isn&#39;t bound yet&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">,</span> <span class="n">injecting</span><span class="o">.</span><span class="n">InjectorClient</span><span class="p">):</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">injecting</span><span class="o">.</span><span class="n">BasicInjectionContext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">))</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">resolve_without_injector</span><span class="p">()</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_open</span><span class="p">))</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Start the component.</p>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>RuntimeError</strong>: If the component is already open.
+If the component isn't bound to a client.</li>
+</ul>
+</div>
+
+
+                            </div>
                 </section>
                 <section id="LoadableProtocol">
                                 <div class="attr class">
@@ -3537,6 +4214,30 @@ If <code>None</code> is returned, the attribute will be left as-is.</li>
 
 
                             </div>
+                </section>
+                <section id="OnCallbackSig">
+                                <div class="attr class">
+        <a class="headerlink" href="#OnCallbackSig">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">OnCallbackSig</span>:
+    </div>
+
+        
+    
+
+                </section>
+                <section id="OnCallbackSigT">
+                                <div class="attr variable"><a class="headerlink" href="#OnCallbackSigT">#&nbsp;&nbsp</a>
+
+        <span class="name">OnCallbackSigT</span><span class="default_value"> = ~OnCallbackSigT</span>
+    </div>
+
+            <div class="docstring"><p>Generic version of <code><a href="#OnCallbackSig">OnCallbackSig</a></code>.</p>
+</div>
+
+
                 </section>
                 <section id="WithCommandReturnSig">
                                 <div class="attr variable"><a class="headerlink" href="#WithCommandReturnSig">#&nbsp;&nbsp</a>
