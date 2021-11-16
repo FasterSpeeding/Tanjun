@@ -815,7 +815,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
 
     @property
     def is_alive(self) -> bool:
-        """Whether this client is alive."""
+        # <<inherited docstring from tanjun.abc.Client>>.
         return self._is_alive
 
     @property

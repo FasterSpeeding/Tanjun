@@ -2767,6 +2767,11 @@ class Client(abc.ABC):
         This is used for executing message commands if set.
         """
 
+    @property
+    @abc.abstractmethod
+    def is_alive(self) -> bool:
+        """Whether this client is alive."""
+
     @property  # TODO: switch over to a mapping of event to collection cause convenience
     @abc.abstractmethod
     def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[ListenerCallbackSig]]:
