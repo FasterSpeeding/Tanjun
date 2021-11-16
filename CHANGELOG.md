@@ -14,6 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Renamed `Client.clear_commands` to `Client.clear_slash_commands`.
 
+### Fixed
+- Don't include the "tracked command ID" in slash command group builders as this leads to mis-matching ID
+  errors while declaring.
+
+### Removed
+- BaseSlashCommand.tracked_command_id is no-longer used in command builders and cannot passed to
+  `as_slash_command`, `slash_command_group`, `SlashCommand.__init__` and `SlashCommandGroup.__init__`
+  as `command_id` anymore.
+
 ## [2.1.4a1] - 2021-11-15
 ### Added
 - `injecting.SelfInjectingCallback` and `tanjun.as_self_injecting` to let users make a callback self-injecting 

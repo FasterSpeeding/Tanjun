@@ -2084,12 +2084,13 @@ class BaseSlashCommand(ExecutableCommand[SlashContext], abc.ABC):
         """Object of the group this command is in."""
 
     @property
+    def tracked_command(self) -> typing.Optional[hikari.Command]:
+        """Object of the actual command this object tracks if set."""
+
+    @property
     @abc.abstractmethod
     def tracked_command_id(self) -> typing.Optional[hikari.Snowflake]:
-        """ID of the actual command this object tracks if set.
-
-        This will be used when this command is used in bulk declarations.
-        """
+        """ID of the actual command this object tracks if set."""
 
     @abc.abstractmethod
     def build(self) -> hikari.api.CommandBuilder:
