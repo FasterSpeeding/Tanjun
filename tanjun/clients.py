@@ -870,6 +870,58 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     async def _on_stopping_event(self, _: hikari.StoppingEvent, /) -> None:
         await self.close()
 
+    async def clear_slash_commands(
+        self,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+    ) -> None:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        if application is None:
+            application = self._cached_application_id or await self.fetch_rest_application_id()
+
+        await self._rest.set_application_commands(application, (), guild=guild)
+
+    async def set_global_commands(
+        self,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+        force: bool = False,
+    ) -> collections.Sequence[hikari.Command]:
+        """Alias of `Client.declare_global_commands`.
+
+        .. deprecated:: v2.1.1a1
+            Use `Client.declare_global_commands` instead.
+        """
+        warnings.warn(
+            "The `Client.set_global_commands` method has been deprecated since v2.1.1a1. "
+            "Use `Client.declare_global_commands` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return await self.declare_global_commands(application=application, guild=guild, force=force)
+
+    async def declare_global_commands(
+        self,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+        force: bool = False,
+    ) -> collections.Sequence[hikari.Command]:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        commands = (
+            command
+            for command in itertools.chain.from_iterable(
+                component.slash_commands for component in self._components.values()
+            )
+            if command.is_global
+        )
+        return await self.declare_slash_commands(
+            commands, command_ids, application=application, guild=guild, force=force
+        )
+
     async def declare_slash_command(
         self,
         command: tanjun_abc.BaseSlashCommand,
@@ -879,39 +931,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> hikari.Command:
-        """Declare a single slash command for a bot.
-
-        Parameters
-        ----------
-        command : tanjun.abc.BaseSlashCommand
-            The command to register.
-
-        Other Parameters
-        ----------------
-        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
-            The application to register the command with.
-
-            If left as `None` then this will be inferred from the authorization
-            being used by `Client.rest`.
-        command_id : typing.Optional[hikari.snowflakes.Snowflakeish]
-            ID of the command to update.
-        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
-            Object or ID of the guild to register the command with.
-
-            If left as `None` then the command will be registered globally.
-
-        Warnings
-        --------
-        * This ignores any ID that's been set on `tanjun.abc.BaseSlashCommand`.
-        * Providing `command_id` when updating a command helps avoid any
-          permissions set for the command being lose (e.g. when changing the
-          command's name).
-
-        Returns
-        -------
-        hikari.Command
-            API representation of the command that was registered.
-        """
+        # <<inherited docstring from tanjun.abc.Client>>.
         builder = command.build()
         if command_id:
             response = await self._rest.edit_application_command(
@@ -947,56 +967,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
         force: bool = False,
     ) -> collections.Sequence[hikari.Command]:
-        """Declare a collection of slash commands for a bot.
-
-        .. note::
-            The endpoint this uses has a strict ratelimit which, as of writing,
-            only allows for 2 requests per minute (with that ratelimit either
-            being per-guild if targeting a specific guild otherwise globally).
-
-        Parameters
-        ----------
-        commands : collections.abc.Iterable[tanjun.abc.BaseSlashCommand]
-            Iterable of the commands to register.
-
-        Other Parameters
-        ----------------
-        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]
-            If provided, a mapping of top level command names to IDs of the existing commands to update.
-
-            While optional, this can be helpful when updating commands as
-            providing the current IDs will prevent changes such as renames from
-            leading to other state set for commands (e.g. permissions) from
-            being lost.
-        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
-            The application to register the commands with.
-
-            If left as `None` then this will be inferred from the authorization
-            being used by `Client.rest`.
-        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
-            Object or ID of the guild to register the commands with.
-
-            If left as `None` then the commands will be registered globally.
-        force : bool
-            Force this to declare the commands regardless of whether or not
-            they match the current state of the declared commands.
-
-            Defaults to `False`. This default behaviour helps avoid issues with the
-            2 request per minute (per-guild or globally) ratelimit and the other limit
-            of only 200 application command creates per day (per guild or globally).
-
-        Returns
-        -------
-        collections.abc.Sequence[hikari.Command]
-            API representations of the commands which were registered.
-
-        Raises
-        ------
-        ValueError
-            Raises a value error for any of the following reasons:
-            * If conflicting command names are found (multiple commanbds have the same top-level name).
-            * If more than 100 top-level commands are passed.
-        """
+        # <<inherited docstring from tanjun.abc.Client>>.
         command_ids = command_ids or {}
         names_to_commands: dict[str, tanjun_abc.BaseSlashCommand] = {}
         conflicts: set[str] = set()
@@ -1213,116 +1184,6 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
                 pass
 
         return self
-
-    async def clear_commands(  # TODO: better name?
-        self,
-        *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
-        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-    ) -> None:
-        """Clear the commands declared either globally or for a specific guild.
-
-        .. note::
-            The endpoint this uses has a strict ratelimit which, as of writing,
-            only allows for 2 requests per minute (with that ratelimit either
-            being per-guild if targeting a specific guild otherwise globally).
-
-        Other Parameters
-        ----------------
-        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
-            The application to clear commands for.
-
-            If left as `None` then this will be inferred from the authorization
-            being used by `Client.rest`.
-        guild : hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
-            Object or ID of the guild to clear commands for.
-
-            If left as `None` global commands will be cleared.
-        """
-        if application is None:
-            application = self._cached_application_id or await self.fetch_rest_application_id()
-
-        await self._rest.set_application_commands(application, (), guild=guild)
-
-    async def set_global_commands(
-        self,
-        *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
-        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-        force: bool = False,
-    ) -> collections.Sequence[hikari.Command]:
-        """Alias of `Client.declare_global_commands`.
-
-        .. deprecated:: v2.1.1a1
-            Use `Client.declare_global_commands` instead.
-        """
-        warnings.warn(
-            "The `Client.set_global_commands` method has been deprecated since v2.1.1a1. "
-            "Use `Client.declare_global_commands` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return await self.declare_global_commands(application=application, guild=guild, force=force)
-
-    async def declare_global_commands(
-        self,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
-        *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
-        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-        force: bool = False,
-    ) -> collections.Sequence[hikari.Command]:
-        """Set the global application commands for a bot based on the loaded components.
-
-        .. warning::
-            This will overwrite any previously set application commands and
-            only targets commands marked as global.
-
-        Notes
-        -----
-        * The endpoint this uses has a strict ratelimit which, as of writing,
-          only allows for 2 requests per minute (with that ratelimit either
-          being per-guild if targeting a specific guild otherwise globally).
-        * Setting a specific `guild` can be useful for testing/debug purposes
-          as slash commands may take up to an hour to propagate globally but
-          will immediately propagate when set on a specific guild.
-
-        Other Parameters
-        ----------------
-        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]
-            If provided, a mapping of top level command names to IDs of the existing commands to update.
-        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
-            Object or ID of the application to set the global commands for.
-
-            If left as `None` then this will be inferred from the authorization
-            being used by `Client.rest`.
-        guild : hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
-            Object or ID of the guild to set the global commands to.
-
-            If left as `None` global commands will be set.
-        force : bool
-            Force this to declare the commands regardless of whether or not
-            they match the current state of the declared commands.
-
-            Defaults to `False`. This default behaviour helps avoid issues with the
-            2 request per minute (per-guild or globally) ratelimit and the other limit
-            of only 200 application command creates per day (per guild or globally).
-
-        Returns
-        -------
-        collections.abc.Sequence[hikari..Command]
-            API representations of the set commands.
-        """
-        commands = (
-            command
-            for command in itertools.chain.from_iterable(
-                component.slash_commands for component in self._components.values()
-            )
-            if command.is_global
-        )
-        return await self.declare_slash_commands(
-            commands, command_ids, application=application, guild=guild, force=force
-        )
 
     def add_check(self: _ClientT, check: tanjun_abc.CheckSig, /) -> _ClientT:
         """Add a generic check to this client.

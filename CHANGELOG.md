@@ -6,7 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- `is_alive` attribute to `tanjun.abc.Client`.
+- Upgraded `is_alive` attribute to the Client abstract interface.
+- Upgraded `clear_slash_commands`, `declare_global_commands`, `declare_slash_command` and 
+  `declare_slash_commands` to the Client abstract interface.
+
+
+### Changed
+- Renamed `Client.clear_commands` to `Client.clear_slash_commands`.
+
 
 ## [2.1.4a1] - 2021-11-15
 ### Added

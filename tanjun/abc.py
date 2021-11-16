@@ -2819,6 +2819,188 @@ class Client(abc.ABC):
         """Object of the Hikari voice component this client was initialised with."""
 
     @abc.abstractmethod
+    async def clear_slash_commands(
+        self,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+    ) -> None:
+        """Clear the commands declared either globally or for a specific guild.
+
+        .. note::
+            The endpoint this uses has a strict ratelimit which, as of writing,
+            only allows for 2 requests per minute (with that ratelimit either
+            being per-guild if targeting a specific guild otherwise globally).
+
+        Other Parameters
+        ----------------
+        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
+            The application to clear commands for.
+
+            If left as `None` then this will be inferred from the authorization
+            being used by `Client.rest`.
+        guild : hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
+            Object or ID of the guild to clear commands for.
+
+            If left as `None` global commands will be cleared.
+        """
+
+    @abc.abstractmethod
+    async def declare_global_commands(
+        self,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+        force: bool = False,
+    ) -> collections.Sequence[hikari.Command]:
+        """Set the global application commands for a bot based on the loaded components.
+
+        .. warning::
+            This will overwrite any previously set application commands and
+            only targets commands marked as global.
+
+        Notes
+        -----
+        * The endpoint this uses has a strict ratelimit which, as of writing,
+          only allows for 2 requests per minute (with that ratelimit either
+          being per-guild if targeting a specific guild otherwise globally).
+        * Setting a specific `guild` can be useful for testing/debug purposes
+          as slash commands may take up to an hour to propagate globally but
+          will immediately propagate when set on a specific guild.
+
+        Other Parameters
+        ----------------
+        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]
+            If provided, a mapping of top level command names to IDs of the existing commands to update.
+        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
+            Object or ID of the application to set the global commands for.
+
+            If left as `None` then this will be inferred from the authorization
+            being used by `Client.rest`.
+        guild : hikari.UndefinedOr[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
+            Object or ID of the guild to set the global commands to.
+
+            If left as `None` global commands will be set.
+        force : bool
+            Force this to declare the commands regardless of whether or not
+            they match the current state of the declared commands.
+
+            Defaults to `False`. This default behaviour helps avoid issues with the
+            2 request per minute (per-guild or globally) ratelimit and the other limit
+            of only 200 application command creates per day (per guild or globally).
+
+        Returns
+        -------
+        collections.abc.Sequence[hikari..Command]
+            API representations of the set commands.
+        """
+
+    @abc.abstractmethod
+    async def declare_slash_command(
+        self,
+        command: BaseSlashCommand,
+        /,
+        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+    ) -> hikari.Command:
+        """Declare a single slash command for a bot.
+
+        .. warning::
+            Providing `command_id` when updating a command helps avoid any
+            permissions set for the command being lose (e.g. when changing the
+            command's name).
+
+        Parameters
+        ----------
+        command : BaseSlashCommand
+            The command to register.
+
+        Other Parameters
+        ----------------
+        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
+            The application to register the command with.
+
+            If left as `None` then this will be inferred from the authorization
+            being used by `Client.rest`.
+        command_id : typing.Optional[hikari.snowflakes.Snowflakeish]
+            ID of the command to update.
+        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
+            Object or ID of the guild to register the command with.
+
+            If left as `None` then the command will be registered globally.
+
+        Returns
+        -------
+        hikari.Command
+            API representation of the command that was registered.
+        """
+
+    @abc.abstractmethod
+    async def declare_slash_commands(
+        self,
+        commands: collections.Iterable[BaseSlashCommand],
+        /,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]] = None,
+        *,
+        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
+        force: bool = False,
+    ) -> collections.Sequence[hikari.Command]:
+        """Declare a collection of slash commands for a bot.
+
+        .. note::
+            The endpoint this uses has a strict ratelimit which, as of writing,
+            only allows for 2 requests per minute (with that ratelimit either
+            being per-guild if targeting a specific guild otherwise globally).
+
+        Parameters
+        ----------
+        commands : collections.abc.Iterable[BaseSlashCommand]
+            Iterable of the commands to register.
+
+        Other Parameters
+        ----------------
+        command_ids : typing.Optional[collections.abc.Mapping[str, hikari.SnowflakeishOr[hikari.Command]]]
+            If provided, a mapping of top level command names to IDs of the existing commands to update.
+
+            While optional, this can be helpful when updating commands as
+            providing the current IDs will prevent changes such as renames from
+            leading to other state set for commands (e.g. permissions) from
+            being lost.
+        application : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialApplication]]
+            The application to register the commands with.
+
+            If left as `None` then this will be inferred from the authorization
+            being used by `Client.rest`.
+        guild : typing.Optional[hikari.snowflakes.SnowflakeishOr[hikari.PartialGuild]]
+            Object or ID of the guild to register the commands with.
+
+            If left as `None` then the commands will be registered globally.
+        force : bool
+            Force this to declare the commands regardless of whether or not
+            they match the current state of the declared commands.
+
+            Defaults to `False`. This default behaviour helps avoid issues with the
+            2 request per minute (per-guild or globally) ratelimit and the other limit
+            of only 200 application command creates per day (per guild or globally).
+
+        Returns
+        -------
+        collections.abc.Sequence[hikari.Command]
+            API representations of the commands which were registered.
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+            * If conflicting command names are found (multiple commanbds have the same top-level name).
+            * If more than 100 top-level commands are passed.
+        """
+
+    @abc.abstractmethod
     def add_component(self: _T, component: Component, /) -> _T:
         """Add a component to this client.
 
