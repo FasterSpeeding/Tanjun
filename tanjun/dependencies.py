@@ -336,11 +336,11 @@ class _MemberCooldownResource(_BaseCooldownResource):
             return _check_cooldown_mapping(self, self.dm_fallback, ctx.author.id, increment)
 
         mapping = self.mapping.get(ctx.guild_id)
-        if mapping is None and self.increment:
+        if mapping is None and increment:
             self.mapping[ctx.guild_id] = {}
             mapping = self.mapping[ctx.guild_id]
 
-        return _check_cooldown_mapping(self, mapping, ctx.author.id, increment) if mapping else None
+        return _check_cooldown_mapping(self, mapping, ctx.author.id, increment) if mapping is not None else None
 
     async def increment(self, ctx: tanjun_abc.Context, /) -> None:
         if not ctx.guild_id:
