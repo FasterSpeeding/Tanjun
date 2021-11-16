@@ -35,6 +35,8 @@
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 
+import asyncio
+import contextlib
 import inspect
 import types
 from unittest import mock
@@ -1130,6 +1132,7 @@ class TestComponent:
         mock_ctx_2 = mock.Mock()
         mock_client = mock.Mock(tanjun.injecting.InjectorClient)
         component = tanjun.Component().bind_client(mock_client)
+        component._loop = mock.Mock()
         component._on_close = [mock_callback_1, mock_callback_2]
 
         with mock.patch.object(
@@ -1140,6 +1143,7 @@ class TestComponent:
         basic_injection_context.assert_has_calls([mock.call(mock_client), mock.call(mock_client)])
         mock_callback_1.resolve.assert_awaited_once_with(mock_ctx_1)
         mock_callback_2.resolve.assert_awaited_once_with(mock_ctx_2)
+        assert component.loop is None
 
     @pytest.mark.asyncio()
     async def test_close_when_not_active(self):
@@ -1154,12 +1158,14 @@ class TestComponent:
         mock_callback_2 = mock.AsyncMock()
         mock_client = mock.Mock()
         component = tanjun.Component().bind_client(mock_client)
+        component._loop = mock.Mock()
         component._on_close = [mock_callback_1, mock_callback_2]
 
         await component.close()
 
         mock_callback_1.resolve_without_injector.assert_awaited_once()
         mock_callback_2.resolve_without_injector.assert_awaited_once()
+        assert component.loop is None
 
     @pytest.mark.asyncio()
     async def test_open(self):
@@ -1171,11 +1177,17 @@ class TestComponent:
         component = tanjun.Component().bind_client(mock_client)
         component._on_open = [mock_callback_1, mock_callback_2]
 
-        with mock.patch.object(
-            tanjun.injecting, "BasicInjectionContext", side_effect=[mock_ctx_1, mock_ctx_2]
-        ) as basic_injection_context:
+        stack = contextlib.ExitStack()
+        basic_injection_context = stack.enter_context(
+            mock.patch.object(tanjun.injecting, "BasicInjectionContext", side_effect=[mock_ctx_1, mock_ctx_2])
+        )
+        get_running_loop = stack.enter_context(mock.patch.object(asyncio, "get_running_loop"))
+
+        with stack:
             await component.open()
 
+        get_running_loop.assert_called_once_with()
+        assert component.loop is get_running_loop.return_value
         basic_injection_context.assert_has_calls([mock.call(mock_client), mock.call(mock_client)])
         mock_callback_1.resolve.assert_awaited_once_with(mock_ctx_1)
         mock_callback_2.resolve.assert_awaited_once_with(mock_ctx_2)
@@ -1203,7 +1215,10 @@ class TestComponent:
         component = tanjun.Component().bind_client(mock_client)
         component._on_open = [mock_callback_1, mock_callback_2]
 
-        await component.open()
+        with mock.patch.object(asyncio, "get_running_loop") as get_running_loop:
+            await component.open()
 
+        get_running_loop.assert_called_once_with()
+        assert component.loop is get_running_loop.return_value
         mock_callback_1.resolve_without_injector.assert_awaited_once()
         mock_callback_2.resolve_without_injector.assert_awaited_once()
