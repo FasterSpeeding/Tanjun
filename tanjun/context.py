@@ -56,6 +56,7 @@ if typing.TYPE_CHECKING:
     _T = typing.TypeVar("_T")
 
 ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
+"""Union of the response types which are valid for application command interactions."""
 _INTERACTION_LIFETIME: typing.Final[datetime.timedelta] = datetime.timedelta(minutes=15)
 _LOGGER = logging.getLogger("hikari.tanjun.context")
 
@@ -89,34 +90,42 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
 
     @property
     def cache(self) -> typing.Optional[hikari.api.Cache]:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._client.cache
 
     @property
     def client(self) -> tanjun_abc.Client:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._client
 
     @property
     def component(self) -> typing.Optional[tanjun_abc.Component]:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._component
 
     @property
     def events(self) -> typing.Optional[hikari.api.EventManager]:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._client.events
 
     @property
     def server(self) -> typing.Optional[hikari.api.InteractionServer]:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._client.server
 
     @property
     def rest(self) -> hikari.api.RESTClient:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._client.rest
 
     @property
     def shards(self) -> typing.Optional[hikari_traits.ShardAware]:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._client.shards
 
     @property
     def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._client.voice
 
     def _assert_not_final(self) -> None:
@@ -124,10 +133,18 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
             raise TypeError("Cannot modify a finalised context")
 
     def finalise(self: _BaseContextT) -> _BaseContextT:
+        """Finalise the context, dis-allowing any further modifications.
+
+        Returns
+        -------
+        Self
+            The context itself to enable chained calls.
+        """
         self._final = True
         return self
 
     def set_component(self: _BaseContextT, component: typing.Optional[tanjun_abc.Component], /) -> _BaseContextT:
+        # <<inherited docstring from tanjun.abc.Context>>.
         self._assert_not_final()
         if component:
             self._set_type_special_case(tanjun_abc.Component, component)._set_type_special_case(
@@ -143,6 +160,7 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
         return self
 
     def get_channel(self) -> typing.Optional[hikari.TextableGuildChannel]:
+        # <<inherited docstring from tanjun.abc.Context>>.
         if self._client.cache:
             channel = self._client.cache.get_guild_channel(self.channel_id)
             assert isinstance(channel, hikari.TextableGuildChannel)
@@ -151,17 +169,20 @@ class BaseContext(injecting.BasicInjectionContext, tanjun_abc.Context):
         return None
 
     def get_guild(self) -> typing.Optional[hikari.Guild]:
+        # <<inherited docstring from tanjun.abc.Context>>.
         if self.guild_id is not None and self._client.cache:
             return self._client.cache.get_guild(self.guild_id)
 
         return None
 
     async def fetch_channel(self) -> hikari.TextableChannel:
+        # <<inherited docstring from tanjun.abc.Context>>.
         channel = await self._client.rest.fetch_channel(self.channel_id)
         assert isinstance(channel, hikari.TextableChannel)
         return channel
 
     async def fetch_guild(self) -> typing.Optional[hikari.Guild]:  # TODO: or raise?
+        # <<inherited docstring from tanjun.abc.Context>>.
         if self.guild_id is not None:
             return await self._client.rest.fetch_guild(self.guild_id)
 
@@ -213,54 +234,67 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
 
     @property
     def author(self) -> hikari.User:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._message.author
 
     @property
     def channel_id(self) -> hikari.Snowflake:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._message.channel_id
 
     @property
     def command(self) -> typing.Optional[tanjun_abc.MessageCommand]:
+        # <<inherited docstring from tanjun.abc.MessageContext>>.
         return self._command
 
     @property
     def content(self) -> str:
+        # <<inherited docstring from tanjun.abc.MessageContext>>.
         return self._content
 
     @property
     def created_at(self) -> datetime.datetime:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._message.created_at
 
     @property
     def guild_id(self) -> typing.Optional[hikari.Snowflake]:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._message.guild_id
 
     @property
     def has_responded(self) -> bool:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._initial_response_id is not None
 
     @property
     def is_human(self) -> bool:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return not self._message.author.is_bot and self._message.webhook_id is None
 
     @property
     def member(self) -> typing.Optional[hikari.Member]:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._message.member
 
     @property
     def message(self) -> hikari.Message:
+        # <<inherited docstring from tanjun.abc.MessageContext>>.
         return self._message
 
     @property
     def triggering_name(self) -> str:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._triggering_name
 
     @property
     def triggering_prefix(self) -> str:
+        # <<inherited docstring from tanjun.abc.MessageContext>>.
         return self._triggering_prefix
 
     @property
     def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
+        # <<inherited docstring from tanjun.abc.MessageContext>>.
         if not self._client.shards:
             return None
 
@@ -273,6 +307,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         return self._client.shards.shards[shard_id]
 
     def set_command(self: _MessageContextT, command: typing.Optional[tanjun_abc.MessageCommand], /) -> _MessageContextT:
+        # <<inherited docstring from tanjun.abc.MessageContext>>.
         self._assert_not_final()
         self._command = command
         if command:
@@ -291,27 +326,43 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         return self
 
     def set_content(self: _MessageContextT, content: str, /) -> _MessageContextT:
+        # <<inherited docstring from tanjun.abc.MessageContext>>.
         self._assert_not_final()
         self._content = content
         return self
 
     def set_triggering_name(self: _MessageContextT, name: str, /) -> _MessageContextT:
+        # <<inherited docstring from tanjun.abc.MessageContext>>.
         self._assert_not_final()
         self._triggering_name = name
         return self
 
     def set_triggering_prefix(self: _MessageContextT, triggering_prefix: str, /) -> _MessageContextT:
+        """Set the triggering prefix for this context.
+
+        Parameters
+        ----------
+        triggering_prefix : str
+            The triggering prefix to set.
+
+        Returns
+        -------
+        Self
+            This context to allow for chaining.
+        """
         self._assert_not_final()
         self._triggering_prefix = triggering_prefix
         return self
 
     async def delete_initial_response(self) -> None:
+        # <<inherited docstring from tanjun.abc.Context>>.
         if self._initial_response_id is None:
             raise LookupError("Context has no initial response")
 
         await self._client.rest.delete_message(self._message.channel_id, self._initial_response_id)
 
     async def delete_last_response(self) -> None:
+        # <<inherited docstring from tanjun.abc.Context>>.
         if self._last_response_id is None:
             raise LookupError("Context has no previous responses")
 
@@ -337,6 +388,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        # <<inherited docstring from tanjun.abc.Context>>.
         delete_after = _delete_after_to_float(delete_after) if delete_after is not None else None
         if self._initial_response_id is None:
             raise LookupError("Context has no initial response")
@@ -381,6 +433,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        # <<inherited docstring from tanjun.abc.Context>>.
         delete_after = _delete_after_to_float(delete_after) if delete_after is not None else None
         if self._last_response_id is None:
             raise LookupError("Context has no previous tracked response")
@@ -407,12 +460,14 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
         return message
 
     async def fetch_initial_response(self) -> hikari.Message:
+        # <<inherited docstring from tanjun.abc.Context>>.
         if self._initial_response_id is not None:
             return await self.client.rest.fetch_message(self._message.channel_id, self._initial_response_id)
 
         raise LookupError("No initial response found for this context")
 
     async def fetch_last_response(self) -> hikari.Message:
+        # <<inherited docstring from tanjun.abc.Context>>.
         if self._last_response_id is not None:
             return await self.client.rest.fetch_message(self._message.channel_id, self._last_response_id)
 
@@ -450,6 +505,7 @@ class MessageContext(BaseContext, tanjun_abc.MessageContext):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        # <<inherited docstring from tanjun.abc.Context>>.
         delete_after = _delete_after_to_float(delete_after) if delete_after is not None else None
         async with self._response_lock:
             message = await self._message.respond(
@@ -490,14 +546,17 @@ class SlashOption(tanjun_abc.SlashOption):
 
     @property
     def name(self) -> str:
+        # <<inherited docstring from tanjun.abc.SlashOption>>.
         return self._option.name
 
     @property
     def type(self) -> typing.Union[hikari.OptionType, int]:
+        # <<inherited docstring from tanjun.abc.SlashOption>>.
         return self._option.type
 
     @property
     def value(self) -> typing.Union[str, int, bool, float]:
+        # <<inherited docstring from tanjun.abc.SlashOption>>.
         # This is asserted in __init__
         assert self._option.value is not None
         return self._option.value
@@ -505,6 +564,7 @@ class SlashOption(tanjun_abc.SlashOption):
     def resolve_value(
         self,
     ) -> typing.Union[hikari.InteractionChannel, hikari.InteractionMember, hikari.Role, hikari.User]:
+        # <<inherited docstring from tanjun.abc.SlashOption>>.
         if self._option.type is hikari.OptionType.CHANNEL:
             return self.resolve_to_channel()
 
@@ -520,6 +580,7 @@ class SlashOption(tanjun_abc.SlashOption):
         raise TypeError(f"Option type {self._option.type} isn't resolvable")
 
     def resolve_to_channel(self) -> hikari.InteractionChannel:
+        # <<inherited docstring from tanjun.abc.SlashOption>>.
         # What does self.value being None mean?
         if self._option.type is hikari.OptionType.CHANNEL:
             assert self._interaction.resolved
@@ -536,6 +597,7 @@ class SlashOption(tanjun_abc.SlashOption):
         ...
 
     def resolve_to_member(self, *, default: _T = ...) -> typing.Union[hikari.InteractionMember, _T]:
+        # <<inherited docstring from tanjun.abc.SlashOption>>.
         # What does self.value being None mean?
         if self._option.type is hikari.OptionType.USER:
             assert self._interaction.resolved
@@ -562,6 +624,7 @@ class SlashOption(tanjun_abc.SlashOption):
         raise TypeError(f"Cannot resolve non-user option type {self._option.type} to a member")
 
     def resolve_to_mentionable(self) -> typing.Union[hikari.Role, hikari.User, hikari.Member]:
+        # <<inherited docstring from tanjun.abc.SlashOption>>.
         if self._option.type is hikari.OptionType.MENTIONABLE:
             target_id = hikari.Snowflake(self.value)
             assert self._interaction.resolved
@@ -579,6 +642,7 @@ class SlashOption(tanjun_abc.SlashOption):
         raise TypeError(f"Cannot resolve non-mentionable option type {self._option.type} to a mentionable entity.")
 
     def resolve_to_role(self) -> hikari.Role:
+        # <<inherited docstring from tanjun.abc.SlashOption>>.
         if self._option.type is hikari.OptionType.ROLE:
             assert self._interaction.resolved
             return self._interaction.resolved.roles[hikari.Snowflake(self.value)]
@@ -591,6 +655,7 @@ class SlashOption(tanjun_abc.SlashOption):
         raise TypeError(f"Cannot resolve non-role option type {self._option.type} to a role")
 
     def resolve_to_user(self) -> typing.Union[hikari.User, hikari.Member]:
+        # <<inherited docstring from tanjun.abc.SlashOption>>.
         if self._option.type is hikari.OptionType.USER:
             assert self._interaction.resolved
             user_id = hikari.Snowflake(self.value)
@@ -665,63 +730,78 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
 
     @property
     def author(self) -> hikari.User:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._interaction.user
 
     @property
     def channel_id(self) -> hikari.Snowflake:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._interaction.channel_id
 
     @property
     def client(self) -> tanjun_abc.Client:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._client
 
     @property
     def command(self) -> typing.Optional[tanjun_abc.BaseSlashCommand]:
+        # <<inherited docstring from tanjun.abc.SlashContext>>.
         return self._command
 
     @property
     def created_at(self) -> datetime.datetime:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._interaction.created_at
 
     @property
     def defaults_to_ephemeral(self) -> bool:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._defaults_to_ephemeral
 
     @property
     def expires_at(self) -> datetime.datetime:
+        # <<inherited docstring from tanjun.abc.SlashContext>>.
         return self.created_at + _INTERACTION_LIFETIME
 
     @property
     def guild_id(self) -> typing.Optional[hikari.Snowflake]:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._interaction.guild_id
 
     @property
     def has_been_deferred(self) -> bool:
+        # <<inherited docstring from tanjun.abc.SlashContext>>.
         return self._has_been_deferred
 
     @property
     def has_responded(self) -> bool:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._has_responded
 
     @property
     def is_human(self) -> typing.Literal[True]:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return True
 
     @property
     def member(self) -> typing.Optional[hikari.InteractionMember]:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return self._interaction.member
 
     @property
     def triggering_name(self) -> str:
+        # <<inherited docstring from tanjun.abc.Context>>.
         # TODO: account for command groups
         return self._interaction.command_name
 
     @property
     def interaction(self) -> hikari.CommandInteraction:
+        # <<inherited docstring from tanjun.abc.SlashContext>>.
         return self._interaction
 
     @property
     def options(self) -> collections.Mapping[str, tanjun_abc.SlashOption]:
+        # <<inherited docstring from tanjun.abc.SlashContext>>.
         return self._options.copy()
 
     async def _auto_defer(self, countdown: typing.Union[int, float], /) -> None:
@@ -729,6 +809,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         await self.defer()
 
     def cancel_defer(self) -> None:
+        """Cancel the auto-deferral if its active."""
         if self._defer_task:
             self._defer_task.cancel()
 
@@ -741,17 +822,43 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         return flags
 
     def get_response_future(self) -> asyncio.Future[ResponseTypeT]:
+        """Get the future which will be used to set the initial response.
+
+        .. note::
+            This will change the behaviour of this context to match the
+            REST server flow.
+
+        Returns
+        -------
+        asyncio.Future[ResponseTypeT]
+            The future which will be used to set the initial response.
+        """
         if not self._response_future:
             self._response_future = asyncio.get_running_loop().create_future()
 
         return self._response_future
 
     async def mark_not_found(self) -> None:
+        # <<inherited docstring from tanjun.abc.SlashContext>>.
+        # TODO: assert not finalised?
         if self._on_not_found and not self._marked_not_found:
             self._marked_not_found = True
             await self._on_not_found(self)
 
     def start_defer_timer(self: _SlashContextT, count_down: typing.Union[int, float], /) -> _SlashContextT:
+        """Start the auto-deferral timer.
+
+        Parameters
+        ----------
+        count_down : typing.Union[int, float]
+            The number of seconds to wait before automatically deferring the
+            interaction.
+
+        Returns
+        -------
+        Self
+            This context to allow for chaining.
+        """
         self._assert_not_final()
         if self._defer_task:
             raise RuntimeError("Defer timer already set")
@@ -760,6 +867,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         return self
 
     def set_command(self: _SlashContextT, command: typing.Optional[tanjun_abc.BaseSlashCommand], /) -> _SlashContextT:
+        # <<inherited docstring from tanjun.abc.SlashContext>>.
         self._assert_not_final()
         self._command = command
         if command:
@@ -779,13 +887,15 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         return self
 
     def set_ephemeral_default(self: _SlashContextT, state: bool, /) -> _SlashContextT:
-        self._assert_not_final()
+        # <<inherited docstring from tanjun.abc.SlashContext>>.
+        self._assert_not_final()  # TODO: document not final assertions.
         self._defaults_to_ephemeral = state
         return self
 
     async def defer(
         self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED
     ) -> None:
+        # <<inherited docstring from tanjun.abc.SlashContext>>.
         flags = self._get_flags(flags)
         in_defer_task = self._defer_task and self._defer_task is asyncio.current_task()
         if not in_defer_task:
@@ -888,6 +998,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        # <<inherited docstring from tanjun.abc.SlashContext>>.
         async with self._response_lock:
             return await self._create_followup(
                 content=content,
@@ -1015,6 +1126,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         flags: typing.Union[int, hikari.MessageFlag, hikari.UndefinedType] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
     ) -> None:
+        # <<inherited docstring from tanjun.abc.Context>>.
         async with self._response_lock:
             await self._create_initial_response(
                 delete_after=delete_after,
@@ -1031,12 +1143,14 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             )
 
     async def delete_initial_response(self) -> None:
+        # <<inherited docstring from tanjun.abc.Context>>.
         await self._interaction.delete_initial_response()
         # If they defer then delete the initial response then this should be treated as having
         # an initial response to allow for followup responses.
         self._has_responded = True
 
     async def delete_last_response(self) -> None:
+        # <<inherited docstring from tanjun.abc.Context>>.
         if self._last_response_id is None:
             if self._has_responded or self._has_been_deferred:
                 await self._interaction.delete_initial_response()
@@ -1069,6 +1183,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        # <<inherited docstring from tanjun.abc.Context>>.
         delete_after = self._validate_delete_after(delete_after) if delete_after is not None else None
         result = await self._interaction.edit_initial_response(
             content=content,
@@ -1110,6 +1225,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
+        # <<inherited docstring from tanjun.abc.Context>>.
         if self._last_response_id:
             delete_after = self._validate_delete_after(delete_after) if delete_after is not None else None
             message = await self._interaction.edit_message(
@@ -1150,9 +1266,11 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
         raise LookupError("Context has no previous responses")
 
     async def fetch_initial_response(self) -> hikari.Message:
+        # <<inherited docstring from tanjun.abc.Context>>.
         return await self._interaction.fetch_initial_response()
 
     async def fetch_last_response(self) -> hikari.Message:
+        # <<inherited docstring from tanjun.abc.Context>>.
         if self._last_response_id is not None:
             return await self._interaction.fetch_message(self._last_response_id)
 
@@ -1221,6 +1339,7 @@ class SlashContext(BaseContext, tanjun_abc.SlashContext):
             typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool]
         ] = hikari.UNDEFINED,
     ) -> typing.Optional[hikari.Message]:
+        # <<inherited docstring from tanjun.abc.Context>>.
         async with self._response_lock:
             if self._has_responded:
                 return await self._create_followup(

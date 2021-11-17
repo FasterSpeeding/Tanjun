@@ -1222,3 +1222,35 @@ class TestComponent:
         assert component.loop is get_running_loop.return_value
         mock_callback_1.resolve_without_injector.assert_awaited_once()
         mock_callback_2.resolve_without_injector.assert_awaited_once()
+
+    def test_make_loader_load(self):
+        component = tanjun.Component()
+        loader = component.make_loader(copy=False)
+        mock_client = mock.Mock()
+
+        result = loader.load(mock_client)
+
+        assert result is True
+        mock_client.add_component.assert_called_once_with(component)
+
+    def test_make_loader_load_when_copy(self):
+        mock_copy = mock.Mock()
+        mock_client = mock.Mock()
+
+        class StubComponent(tanjun.Component):
+            copy = mock_copy
+
+        loader = StubComponent().make_loader(copy=True)
+
+        loader.load(mock_client)
+        mock_copy.assert_called_once_with()
+        mock_client.add_component.assert_called_once_with(mock_copy.return_value)
+
+    def test_make_loader_unload(self):
+        mock_client = mock.Mock()
+        loader = tanjun.Component(name="trans catgirls").make_loader()
+
+        result = loader.unload(mock_client)
+
+        assert result is True
+        mock_client.remove_component_by_name.assert_called_once_with("trans catgirls")
