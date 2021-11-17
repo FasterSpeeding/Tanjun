@@ -307,6 +307,86 @@ class TestComponent:
 
         assert result is mock_check
 
+    def test_add_slash_check(self):
+        mock_check = mock.Mock()
+        component = tanjun.Component()
+
+        result = component.add_slash_check(mock_check)
+
+        assert result is component
+
+    def test_add_slash_check_when_already_present(self):
+        mock_check = mock.Mock()
+        component = tanjun.Component().add_slash_check(mock_check)
+
+        with mock.patch.object(tanjun.checks, "InjectableCheck") as InjectableCheck:
+            result = component.add_slash_check(mock_check)
+
+            InjectableCheck.assert_not_called()
+
+        assert list(component.slash_checks).count(mock_check) == 1
+        assert result is component
+
+    def test_remove_slash_check(self):
+        component = tanjun.Component().add_slash_check(mock.Mock())
+
+        result = component.remove_slash_check(next(iter(component.slash_checks)))
+
+        assert result is component
+        assert not component.slash_checks
+
+    def test_remove_slash_check_when_not_present(self):
+        with pytest.raises(ValueError, match=".+"):
+            tanjun.Component().remove_slash_check(mock.Mock())
+
+    def test_with_slash_check(self):
+        mock_check = mock.Mock()
+        component = tanjun.Component()
+
+        result = component.with_slash_check(mock_check)
+
+        assert result is mock_check
+
+    def test_add_message_check(self):
+        mock_check = mock.Mock()
+        component = tanjun.Component()
+
+        result = component.add_message_check(mock_check)
+
+        assert result is component
+
+    def test_add_message_check_when_already_present(self):
+        mock_check = mock.Mock()
+        component = tanjun.Component().add_message_check(mock_check)
+
+        with mock.patch.object(tanjun.checks, "InjectableCheck") as InjectableCheck:
+            result = component.add_message_check(mock_check)
+
+            InjectableCheck.assert_not_called()
+
+        assert list(component.message_checks).count(mock_check) == 1
+        assert result is component
+
+    def test_remove_message_check(self):
+        component = tanjun.Component().add_message_check(mock.Mock())
+
+        result = component.remove_message_check(next(iter(component.message_checks)))
+
+        assert result is component
+        assert not component.message_checks
+
+    def test_remove_message_check_when_not_present(self):
+        with pytest.raises(ValueError, match=".+"):
+            tanjun.Component().remove_message_check(mock.Mock())
+
+    def test_with_message_check(self):
+        mock_check = mock.Mock()
+        component = tanjun.Component()
+
+        result = component.with_message_check(mock_check)
+
+        assert result is mock_check
+
     def test_add_client_callback(self):
         mock_callback = mock.Mock()
         mock_other_callback = mock.Mock()
