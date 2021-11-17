@@ -439,7 +439,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         # If this isn't registered as a type dependency then it was presumably
         # replaced and shouldn't start
         if injection_client.get_type_dependency(AbstractCooldownManager) is not self:
-            client.remove_client_callback(tanjun_abc.ClientCallbackNames.STARTING, self.open)
+            client.remove_client_callback(tanjun_abc.ClientCallbackNames.STARTING, self._on_starting)
             try:
                 client.remove_client_callback(tanjun_abc.ClientCallbackNames.CLOSING, self.close)
             except (KeyError, ValueError):
