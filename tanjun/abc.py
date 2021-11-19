@@ -33,6 +33,7 @@
 from __future__ import annotations
 
 __all__: list[str] = [
+    "AbstractLoader",
     "BaseSlashCommandT",
     "CheckSig",
     "CheckSigT",
@@ -73,6 +74,7 @@ import hikari
 if typing.TYPE_CHECKING:
     import asyncio
     import datetime
+    import pathlib
 
     from hikari import traits as hikari_traits
 
@@ -3344,4 +3346,174 @@ class Client(abc.ABC):
         -------
         collections.abc.Iterator[BaseSlashCommand]
             Iterator of the matched slash command objects.
+        """
+
+    @abc.abstractmethod
+    def load_modules(self: _T, *modules: typing.Union[str, pathlib.Path], _log: bool = True) -> _T:
+        """Load entities into this client from modules based on present loaders.
+
+        .. note::
+            If an `__all__` is present in the target module then it will be
+            used to find loaders.
+
+        Examples
+        --------
+        For this to work the target module has to have at least one loader present.
+
+        ```py
+        @tanjun.as_loader
+        def load_module(client: tanjun.Client) -> None:
+            client.add_component(component.copy())
+        ```
+
+        or
+
+        ```py
+        loader = tanjun.Component("trans component").detect_commands().make_loader()
+        ```
+
+        Parameters
+        ----------
+        *modules : typing.Union[str, pathlib.Path]
+            Path(s) of the modules to load from.
+
+            When `str` this will be treated as a normal import path which is
+            absolute (`"foo.bar.baz"`). It's worth noting that absolute module
+            paths may be imported from the current location if the top level
+            module is a valid module file or module directory in the current
+            working directory.
+
+            When `pathlib.Path` the module will be imported directly from
+            the given path. In this mode any relative imports in the target
+            module will fail to resolve.
+
+        Returns
+        -------
+        Self
+            This client instance to enable chained calls.
+
+        Raises
+        ------
+        ValueError
+            If the module is already loaded.
+        RuntimeError
+            If no loaders are found in the module.
+        ModuleNotFoundError
+            If the module is not found.
+        """
+
+    def unload_modules(self: _T, *modules: typing.Union[str, pathlib.Path], _log: bool = True) -> _T:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        """Unload entities from this client based on unloaders in one or more modules.
+
+        .. note::
+            If an `__all__` is present in the target module then it will be
+            used to find unloaders.
+
+        Examples
+        --------
+        For this to work the module has to have at least one unloading enabled
+        `tanjun.abc.AbstractLoader` present.
+
+        ```py
+        @tanjun.as_unloader
+        def unload_component(client: tanjun.Client) -> None:
+            client.remove_component_by_name(component.name)
+        ```
+
+        or
+
+        ```py
+        # as_loader's returned AbstractLoader handles both loading and unloading.
+        loader = tanjun.Component("trans component").detect_commands().as_loader(unload_component)
+        ```
+
+        Parameters
+        ----------
+        *modules: typing.Union[str, pathlib.Path]
+            Path of one or more modules to unload.
+
+            These should be the same path(s) which were passed to `load_module`.
+
+        Returns
+        -------
+        Self
+            This client instance to enable chained calls.
+
+        Raises
+        ------
+        ValueError
+            If the module hasn't been loaded.
+        RuntimeError
+            If no unloaders are found in the module.
+        """
+
+    def reload_modules(self: _T, *modules: typing.Union[str, pathlib.Path]) -> _T:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        """Reload entities in this client based on the loaders in loaded module(s).
+
+        .. note::
+            If an `__all__` is present in the target module then it will be
+            used to find loaders and unloaders.
+
+        Examples
+        --------
+        For this to work the module has to have at least one AbstractLoader
+        which handles both loading and unloading present.
+
+        Parameters
+        ----------
+        *modules: typing.Union[str, pathlib.Path]
+            Paths of one or more module to unload.
+
+            These should be the same paths which were passed to `load_module`.
+
+        Returns
+        -------
+        Self
+            This client instance to enable chained calls.
+
+        Raises
+        ------
+        ValueError
+            If the module hasn't been loaded.
+        RuntimeError
+            If no unloaders are found in the current state of the module.
+            If no loaders are found in the new state of the module.
+        """
+
+
+class AbstractLoader(abc.ABC):
+    """Interface of logic used to load and unload components into a generic client."""
+
+    __slots__ = ()
+
+    @abc.abstractmethod
+    def load(self, client: Client, /) -> bool:
+        """Load logic into a client instance.
+
+        Parameters
+        ----------
+        client : Client
+            The client to load commands and listeners for.
+
+        Returns
+        -------
+        bool
+            Whether anything was loaded.
+        """
+
+    @abc.abstractmethod
+    def unload(self, client: Client, /) -> bool:
+        """Unload logic from a client instance.
+
+        Parameters
+        ----------
+        client : Client
+            The client to unload commands and listeners from.
+
+        Returns
+        -------
+        bool
+            Whether anything was unloaded.
         """

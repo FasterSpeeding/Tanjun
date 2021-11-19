@@ -37,7 +37,6 @@ __all__: list[str] = [
     "as_unloader",
     "Client",
     "ClientCallbackNames",
-    "LoaderSig",
     "MessageAcceptsEnum",
     "PrefixGetterSig",
     "PrefixGetterSigT",
@@ -106,14 +105,6 @@ if typing.TYPE_CHECKING:
             raise NotImplementedError
 
 
-LoaderSig = collections.Callable[["Client"], None]
-"""Type hint of the callback used to load resources into a Tanjun client.
-
-This should take one positional argument of type `Client` and return nothing.
-This will be expected to initiate and resources like components to the client
-through the use of it's protocol methods.
-"""
-
 PrefixGetterSig = collections.Callable[..., collections.Awaitable[collections.Iterable[str]]]
 """Type hint of a callable used to get the prefix(es) for a specific guild.
 
@@ -129,25 +120,84 @@ PrefixGetterSigT = typing.TypeVar("PrefixGetterSigT", bound="PrefixGetterSig")
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.clients")
 
 
-class _LoaderDescriptor:  # Slots mess with functools.update_wrapper
-    def __init__(self, callback: LoaderSig, /) -> None:
+class _LoaderDescriptor(tanjun_abc.AbstractLoader):  # Slots mess with functools.update_wrapper
+    def __init__(
+        self,
+        callback: typing.Union[collections.Callable[[Client], None], collections.Callable[[tanjun_abc.Client], None]],
+        standard_impl: bool,
+    ) -> None:
         self._callback = callback
+        self._must_be_std = standard_impl
         functools.update_wrapper(self, callback)
 
     def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
         self._callback(*args, **kwargs)
 
+    def load(self, client: tanjun_abc.Client, /) -> bool:
+        if self._must_be_std:
+            if not isinstance(client, Client):
+                raise ValueError("This loader requires instances of the standard Client implementation")
 
-class _UnloaderDescriptor:  # Slots mess with functools.update_wrapper
-    def __init__(self, callback: LoaderSig, /) -> None:
+            self._callback(client)
+
+        else:
+            typing.cast("collections.Callable[[tanjun_abc.Client], None]", self._callback)(client)
+
+        return True
+
+    def unload(self, _: tanjun_abc.Client, /) -> bool:
+        return False
+
+
+class _UnloaderDescriptor(tanjun_abc.AbstractLoader):  # Slots mess with functools.update_wrapper
+    def __init__(
+        self,
+        callback: typing.Union[collections.Callable[[Client], None], collections.Callable[[tanjun_abc.Client], None]],
+        standard_impl: bool,
+    ) -> None:
         self._callback = callback
+        self._must_be_std = standard_impl
         functools.update_wrapper(self, callback)
 
     def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
         self._callback(*args, **kwargs)
 
+    def load(self, _: tanjun_abc.Client, /) -> bool:
+        return False
 
-def as_loader(callback: LoaderSig, /) -> LoaderSig:
+    def unload(self, client: tanjun_abc.Client, /) -> bool:
+        if self._must_be_std:
+            if not isinstance(client, Client):
+                raise ValueError("This unloader requires instances of the standard Client implementation")
+
+            self._callback(client)
+
+        else:
+            typing.cast("collections.Callable[[tanjun_abc.Client], None]", self._callback)(client)
+
+        return True
+
+
+@typing.overload
+def as_loader(
+    callback: collections.Callable[[Client], None], /, *, standard_impl: typing.Literal[True] = True
+) -> collections.Callable[[Client], None]:
+    ...
+
+
+@typing.overload
+def as_loader(
+    callback: collections.Callable[[tanjun_abc.Client], None], /, *, standard_impl: typing.Literal[False]
+) -> collections.Callable[[tanjun_abc.Client], None]:
+    ...
+
+
+def as_loader(
+    callback: typing.Union[collections.Callable[[Client], None], collections.Callable[[tanjun_abc.Client], None]],
+    /,
+    *,
+    standard_impl: bool = True,
+) -> typing.Union[collections.Callable[[Client], None], collections.Callable[[tanjun_abc.Client], None]]:
     """Mark a callback as being used to load Tanjun components from a module.
 
     .. note::
@@ -155,21 +205,46 @@ def as_loader(callback: LoaderSig, /) -> LoaderSig:
 
     Parameters
     ----------
-    callback : LoaderSig
-        The callback used to load Tanjun components from a module. This
-        should take one argument of type `tanjun.Client`, return nothing
-        and will be expected to initiate and add utilities such as components
-        to the provided client using it's abstract methods.
+    callback : collections.abc.Callable[[tanjun.abc.Client], None]]
+        The callback used to load Tanjun components from a module.
+
+        This should take one argument of type `Client` (or `tanjun.abc.Client`
+        if `standard_impl` is `False`), return nothing and will be expected
+        to initiate and add utilities such as components to the provided client.
+    standard_impl : bool
+        Whether this loader should only allow instances of `Client` as opposed
+        to `tanjun.abc.Client`.
+
+        Defaults to `True`.
 
     Returns
     -------
-    LoaderSig
+    collections.abc.Callable[[tanjun.Client], None]]
         The decorated load callback.
     """
-    return _LoaderDescriptor(callback)
+    return _LoaderDescriptor(callback, standard_impl)
 
 
-def as_unloader(callback: LoaderSig, /) -> LoaderSig:
+@typing.overload
+def as_unloader(
+    callback: collections.Callable[[Client], None], /, *, standard_impl: typing.Literal[True] = True
+) -> collections.Callable[[Client], None]:
+    ...
+
+
+@typing.overload
+def as_unloader(
+    callback: collections.Callable[[tanjun_abc.Client], None], /, *, standard_impl: typing.Literal[False]
+) -> collections.Callable[[tanjun_abc.Client], None]:
+    ...
+
+
+def as_unloader(
+    callback: typing.Union[collections.Callable[[Client], None], collections.Callable[[tanjun_abc.Client], None]],
+    /,
+    *,
+    standard_impl: bool = True,
+) -> typing.Union[collections.Callable[[Client], None], collections.Callable[[tanjun_abc.Client], None]]:
     """Mark a callback as being used to unload a module's utilities from a client.
 
     .. note::
@@ -179,18 +254,24 @@ def as_unloader(callback: LoaderSig, /) -> LoaderSig:
 
     Parameters
     ----------
-    callback : LoaderSig
-        The callback used to unload Tanjun utilities from a module. This
-        should take one argument of type `tanjun.Client`, return nothing
-        and will be expected to remove utilities such as components
-        from the provided client using it's abstract methods.
+    callback : collections.abc.Callable[[tanjun.Client], None]]
+        The callback used to unload Tanjun components from a module.
+
+        This should take one argument of type `Client` (or `tanjun.abc.Client`
+        if `standard_impl` is `False`), return nothing and will be expected
+        to remove utilities such as components from the provided client.
+    standard_impl : bool
+        Whether this unloader should only allow instances of `Client` as
+        opposed to `tanjun.abc.Client`.
+
+        Defaults to `True`.
 
     Returns
     -------
-    LoaderSig
+    collections.abc.Callable[[tanjun.Client], None]]
         The decorated unload callback.
     """
-    return _UnloaderDescriptor(callback)
+    return _UnloaderDescriptor(callback, standard_impl)
 
 
 class ClientCallbackNames(str, enum.Enum):
@@ -1765,61 +1846,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     def _load_module(self, module: types.ModuleType, module_repr: str) -> None:
         found = False
         for member in self._iter_module_members(module, module_repr):
-            if isinstance(member, _LoaderDescriptor):
-                member(self)
+            if isinstance(member, tanjun_abc.AbstractLoader) and member.load(self):
                 found = True
 
         if not found:
-            raise RuntimeError(f"Didn't find any loader descriptors in {module_repr}")
+            raise RuntimeError(f"Didn't find any loaders in {module_repr}")
 
     def load_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path], _log: bool = True) -> _ClientT:
-        """Load entities into this client from modules based on loader descriptors.
-
-        .. note::
-            If an `__all__` is present in the target module then it will be
-            used to find loaders.
-
-        Examples
-        --------
-        For this to work the module has to have at least one `as_loader`
-        decorated top level function which takes one positional argument
-        of type `Client`.
-
-        ```py
-        @tanjun.as_loader
-        def load_module(client: tanjun.Client) -> None:
-            client.add_component(component.copy())
-        ```
-
-        Parameters
-        ----------
-        *modules : typing.Union[str, pathlib.Path]
-            Path(s) of the modules to load from.
-
-            When `str` this will be treated as a normal import path which is
-            absolute (`"foo.bar.baz"`). It's worth noting that absolute module
-            paths may be imported from the current location if the top level
-            module is a valid module file or module directory in the current
-            working directory.
-
-            When `pathlib.Path` the module will be imported directly from
-            the given path. In this mode any relative imports in the target
-            module will fail to resolve.
-
-        Returns
-        -------
-        Self
-            This client instance to enable chained calls.
-
-        Raises
-        ------
-        ValueError
-            If the module is already loaded.
-        RuntimeError
-            If no loader descriptors are found in the module.
-        ModuleNotFoundError
-            If the module is not found.
-        """
+        # <<inherited docstring from tanjun.abc.Client>>.
         for module_path in modules:
             if isinstance(module_path, str):
                 if module_path in self._modules:
@@ -1859,51 +1893,14 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     def _unload_module(self, module: types.ModuleType, module_repr: str) -> None:
         found = False
         for member in self._iter_module_members(module, module_repr):
-            if isinstance(member, _UnloaderDescriptor):
-                member(self)
+            if isinstance(member, tanjun_abc.AbstractLoader) and member.unload(self):
                 found = True
 
         if not found:
             raise RuntimeError(f"Didn't find any unloaders in {module_repr}")
 
     def unload_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path], _log: bool = True) -> _ClientT:
-        """Unload entities from this client based on unloader descriptors in one or more modules.
-
-        .. note::
-            If an `__all__` is present in the target module then it will be
-            used to find unloaders.
-
-        Examples
-        --------
-        For this to work the module has to have at least one `as_unloader`
-        decorated top level function which takes one positional argument
-        of type `Client`.
-
-        ```py
-        @tanjun.as_unloader
-        def unload_component(client: tanjun.Client) -> None:
-            client.remove_component_by_name(component.name)
-        ```
-
-        Parameters
-        ----------
-        *modules: typing.Union[str, pathlib.Path]
-            Path of one or more modules to unload.
-
-            These should be the same path(s) which were passed to `load_module`.
-
-        Returns
-        -------
-        Self
-            This client instance to enable chained calls.
-
-        Raises
-        ------
-        ValueError
-            If the module hasn't been loaded.
-        RuntimeError
-            If no unloader descriptors are found in the module.
-        """
+        # <<inherited docstring from tanjun.abc.Client>>.
         for module_path in modules:
             if isinstance(module_path, str):
                 module = self._modules.pop(module_path, None)
@@ -1923,38 +1920,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
         return self
 
     def reload_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
-        """Reload entities in this client based on the descriptors in loaded module(s).
-
-        .. note::
-            If an `__all__` is present in the target module then it will be
-            used to find descriptors.
-
-        Examples
-        --------
-        For this to work the module has to have at least one `as_loader` and
-        one `as_unloader` decorated top level function which each take one
-        positional argument of type `Client`.
-
-        Parameters
-        ----------
-        *modules: typing.Union[str, pathlib.Path]
-            Paths of one or more module to unload.
-
-            These should be the same paths which were passed to `load_module`.
-
-        Returns
-        -------
-        Self
-            This client instance to enable chained calls.
-
-        Raises
-        ------
-        ValueError
-            If the module hasn't been loaded.
-        RuntimeError
-            If no unloader descriptors are found in the current state of the module.
-            If no loader descriptors are found in the new state of the module.
-        """
+        # <<inherited docstring from tanjun.abc.Client>>.
         for module_path in modules:
             if isinstance(module_path, str):
                 module = self._modules.pop(module_path, None)

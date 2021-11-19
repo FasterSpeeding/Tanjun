@@ -142,6 +142,22 @@ def _filter_scope(scope: collections.Mapping[str, typing.Any]) -> collections.It
     return (value for key, value in scope.items() if not key.startswith("_"))
 
 
+class _ComponentManager(abc.AbstractLoader):
+    __slots__ = ("_component", "_copy")
+
+    def __init__(self, component: Component, copy: bool) -> None:
+        self._component = component
+        self._copy = copy
+
+    def load(self, client: abc.Client, /) -> bool:
+        client.add_component(self._component.copy() if self._copy else self._component)
+        return True
+
+    def unload(self, client: abc.Client, /) -> bool:
+        client.remove_component_by_name(self._component.name)
+        return True
+
+
 # TODO: do we want to setup a custom equality and hash here to make it easier to unload components?
 class Component(abc.Component):
     """Standard implementation of `tanjun.abc.Component`.
@@ -238,59 +254,73 @@ class Component(abc.Component):
 
     @property
     def checks(self) -> collections.Collection[abc.CheckSig]:
+        """Collection of the checks being run against every command execution in this component."""
         return tuple(check.callback for check in self._checks)
 
     @property
     def client(self) -> typing.Optional[abc.Client]:
+        # <<inherited docstring from tanjun.abc.Component>>.
         return self._client
 
     @property
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
+        # <<inherited docstring from tanjun.abc.Component>>.
         return self._defaults_to_ephemeral
 
     @property
     def hooks(self) -> typing.Optional[abc.AnyHooks]:
+        # <<inherited docstring from tanjun.abc.Component>>.
         return self._hooks
 
     @property
     def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
+        # <<inherited docstring from tanjun.abc.Component>>.
         return self._loop
 
     @property
     def name(self) -> str:
+        # <<inherited docstring from tanjun.abc.Component>>.
         return self._name
 
     @property
     def slash_commands(self) -> collections.Collection[abc.BaseSlashCommand]:
+        # <<inherited docstring from tanjun.abc.Component>>.
         return self._slash_commands.copy().values()
 
     @property
     def slash_hooks(self) -> typing.Optional[abc.SlashHooks]:
+        # <<inherited docstring from tanjun.abc.Component>>.
         return self._slash_hooks
 
     @property
     def message_commands(self) -> collections.Collection[abc.MessageCommand]:
+        # <<inherited docstring from tanjun.abc.Component>>.
         return self._message_commands.copy()
 
     @property
     def message_hooks(self) -> typing.Optional[abc.MessageHooks]:
+        # <<inherited docstring from tanjun.abc.Component>>.
         return self._message_hooks
 
     @property
     def needs_injector(self) -> bool:
+        """Whether any of the checks in this component require dependency injection."""
         return any(check.needs_injector for check in self._checks)
 
     @property
     def listeners(
         self,
     ) -> collections.Mapping[type[base_events.Event], collections.Collection[abc.ListenerCallbackSig]]:
+        # <<inherited docstring from tanjun.abc.Component>>.
         return utilities.CastedView(self._listeners, lambda x: x.copy())
 
     @property
     def metadata(self) -> dict[typing.Any, typing.Any]:
+        # <<inherited docstring from tanjun.abc.Component>>.
         return self._metadata
 
     def copy(self: _ComponentT, *, _new: bool = True) -> _ComponentT:
+        # <<inherited docstring from tanjun.abc.Component>>.
         if not _new:
             self._checks = [check.copy() for check in self._checks]
             self._slash_commands = {name: command.copy() for name, command in self._slash_commands.items()}
@@ -473,6 +503,18 @@ class Component(abc.Component):
         return decorator
 
     def add_command(self: _ComponentT, command: abc.ExecutableCommand[typing.Any], /) -> _ComponentT:
+        """Add a command to this component.
+
+        Parameters
+        ----------
+        command : tanjun.abc.ExecutableCommand[typing.Any]
+            The command to add.
+
+        Returns
+        -------
+        Self
+            The current component to allow for chaining.
+        """
         if isinstance(command, abc.MessageCommand):
             self.add_message_command(command)
 
@@ -487,6 +529,18 @@ class Component(abc.Component):
         return self
 
     def remove_command(self: _ComponentT, command: abc.ExecutableCommand[typing.Any], /) -> _ComponentT:
+        """Remove a command from this component.
+
+        Parameters
+        ----------
+        command : tanjun.abc.ExecutableCommand[typing.Any]
+            The command to remove.
+
+        Returns
+        -------
+        Self
+            This component to enable method chaining.
+        """
         if isinstance(command, abc.MessageCommand):
             self.remove_message_command(command)
 
@@ -511,9 +565,27 @@ class Component(abc.Component):
     def with_command(
         self, command: typing.Optional[CommandT] = None, /, *, copy: bool = False
     ) -> WithCommandReturnSig[CommandT]:
+        """Add a command to this component through a decorator call.
+
+        Parameters
+        ----------
+        command CommandT
+            The command to add to this component.
+
+        Other Parameters
+        ----------------
+        copy : bool
+            Whether to copy the command before adding it to this component.
+
+        Returns
+        -------
+        CommandT
+            The added command.
+        """
         return _with_command(self.add_command, command, copy=copy)
 
     def add_slash_command(self: _ComponentT, command: abc.BaseSlashCommand, /) -> _ComponentT:
+        # <<inherited docstring from tanjun.abc.Component>>.
         if self._slash_commands.get(command.name) == command:
             return self
 
@@ -526,6 +598,7 @@ class Component(abc.Component):
         return self
 
     def remove_slash_command(self: _ComponentT, command: abc.BaseSlashCommand, /) -> _ComponentT:
+        # <<inherited docstring from tanjun.abc.Component>>.
         try:
             del self._slash_commands[command.name.casefold()]
         except KeyError:
@@ -546,6 +619,7 @@ class Component(abc.Component):
     def with_slash_command(
         self, command: typing.Optional[abc.BaseSlashCommandT] = None, /, *, copy: bool = False
     ) -> WithCommandReturnSig[abc.BaseSlashCommandT]:
+        # <<inherited docstring from tanjun.abc.Component>>.
         return _with_command(self.add_slash_command, command, copy=copy)
 
     def add_message_command(self: _ComponentT, command: abc.MessageCommand, /) -> _ComponentT:
@@ -591,6 +665,7 @@ class Component(abc.Component):
         return self
 
     def remove_message_command(self: _ComponentT, command: abc.MessageCommand, /) -> _ComponentT:
+        # <<inherited docstring from tanjun.abc.Component>>.
         self._message_commands.remove(command)
 
         if self._is_strict:
@@ -613,11 +688,13 @@ class Component(abc.Component):
     def with_message_command(
         self, command: typing.Optional[abc.MessageCommandT] = None, /, *, copy: bool = False
     ) -> WithCommandReturnSig[abc.MessageCommandT]:
+        # <<inherited docstring from tanjun.abc.Component>>.
         return _with_command(self.add_message_command, command, copy=copy)
 
     def add_listener(
         self: _ComponentT, event: type[base_events.Event], listener: abc.ListenerCallbackSig, /
     ) -> _ComponentT:
+        # <<inherited docstring from tanjun.abc.Component>>.
         try:
             if listener in self._listeners[event]:
                 return self
@@ -635,6 +712,7 @@ class Component(abc.Component):
     def remove_listener(
         self: _ComponentT, event: type[base_events.Event], listener: abc.ListenerCallbackSig, /
     ) -> _ComponentT:
+        # <<inherited docstring from tanjun.abc.Component>>.
         self._listeners[event].remove(listener)
         if not self._listeners[event]:
             del self._listeners[event]
@@ -648,6 +726,7 @@ class Component(abc.Component):
     def with_listener(
         self, event_type: type[base_events.Event]
     ) -> collections.Callable[[abc.ListenerCallbackSigT], abc.ListenerCallbackSigT]:
+        # <<inherited docstring from tanjun.abc.Component>>.
         def decorator(callback: abc.ListenerCallbackSigT) -> abc.ListenerCallbackSigT:
             self.add_listener(event_type, callback)
             return callback
@@ -751,6 +830,7 @@ class Component(abc.Component):
         return callback
 
     def bind_client(self: _ComponentT, client: abc.Client, /) -> _ComponentT:
+        # <<inherited docstring from tanjun.abc.Component>>.
         if self._client:
             raise RuntimeError("Client already set")
 
@@ -772,6 +852,7 @@ class Component(abc.Component):
         return self
 
     def unbind_client(self, client: abc.Client, /) -> None:
+        # <<inherited docstring from tanjun.abc.Component>>.
         if not self._client or self._client != client:
             raise RuntimeError("Component isn't bound to this client")
 
@@ -824,6 +905,7 @@ class Component(abc.Component):
         ctx.set_component(None)
 
     def check_message_name(self, content: str, /) -> collections.Iterator[tuple[str, abc.MessageCommand]]:
+        # <<inherited docstring from tanjun.abc.Component>>.
         if self._is_strict:
             name = content.split(" ", 1)[0]
             if command := self._names_to_commands.get(name):
@@ -837,6 +919,7 @@ class Component(abc.Component):
                 continue
 
     def check_slash_name(self, name: str, /) -> collections.Iterator[abc.BaseSlashCommand]:
+        # <<inherited docstring from tanjun.abc.Component>>.
         if command := self._slash_commands.get(name):
             yield command
 
@@ -883,6 +966,7 @@ class Component(abc.Component):
         *,
         hooks: typing.Optional[collections.MutableSet[abc.SlashHooks]] = None,
     ) -> collections.Coroutine[typing.Any, typing.Any, typing.Optional[collections.Awaitable[None]]]:
+        # <<inherited docstring from tanjun.abc.Component>>.
         command = self._slash_commands.get(ctx.interaction.command_name)
         if command:
             if command.defaults_to_ephemeral is not None:
@@ -900,6 +984,7 @@ class Component(abc.Component):
         *,
         hooks: typing.Optional[collections.MutableSet[abc.MessageHooks]] = None,
     ) -> bool:
+        # <<inherited docstring from tanjun.abc.Component>>.
         async for name, command in self._check_message_context(ctx):
             ctx.set_triggering_name(name)
             ctx.set_content(ctx.content[len(name) :].lstrip())
@@ -931,6 +1016,7 @@ class Component(abc.Component):
                     setattr(self, name, result)
 
     async def close(self) -> None:
+        # <<inherited docstring from tanjun.abc.Component>>.
         if not self._loop:
             raise RuntimeError("Component isn't active")
 
@@ -946,6 +1032,7 @@ class Component(abc.Component):
             await asyncio.gather(*(callback.resolve_without_injector() for callback in self._on_close))
 
     async def open(self) -> None:
+        # <<inherited docstring from tanjun.abc.Component>>.
         if self._loop:
             raise RuntimeError("Component is already active")
 
@@ -960,3 +1047,24 @@ class Component(abc.Component):
 
         else:
             await asyncio.gather(*(callback.resolve_without_injector() for callback in self._on_open))
+
+    def make_loader(self, *, copy: bool = True) -> abc.AbstractLoader:
+        """Make a loader/unloader for this component.
+
+        This enables loading, unloading and reloading of this component into a
+        client by targeting the module using `tanjun.Client.load_modules`,
+        `tanjun.Client.unload_modules` and `tanjun.Client.reload_modules`.
+
+        Other Parameters
+        ----------------
+        copy: bool
+            Whether to copy the component before loading it into a client.
+
+            Defaults to `True`.
+
+        Returns
+        -------
+        tanjun.abc.AbstractLoader
+            The loader for this component.
+        """
+        return _ComponentManager(self, copy)
