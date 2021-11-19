@@ -292,12 +292,6 @@
 
             </li>
             <li>
-                    <a class="class" href="#LoaderSig">LoaderSig</a>
-                            <ul class="memberlist">
-                </ul>
-
-            </li>
-            <li>
                     <a class="class" href="#MessageAcceptsEnum">MessageAcceptsEnum</a>
                             <ul class="memberlist">
                         <li>
@@ -387,7 +381,6 @@
     <span class="s2">&quot;as_unloader&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Client&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ClientCallbackNames&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;LoaderSig&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MessageAcceptsEnum&quot;</span><span class="p">,</span>
     <span class="s2">&quot;PrefixGetterSig&quot;</span><span class="p">,</span>
     <span class="s2">&quot;PrefixGetterSigT&quot;</span><span class="p">,</span>
@@ -456,14 +449,6 @@
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 
-<span class="n">LoaderSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="s2">&quot;Client&quot;</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
-<span class="sd">&quot;&quot;&quot;Type hint of the callback used to load resources into a Tanjun client.</span>
-
-<span class="sd">This should take one positional argument of type `Client` and return nothing.</span>
-<span class="sd">This will be expected to initiate and resources like components to the client</span>
-<span class="sd">through the use of it&#39;s protocol methods.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
 <span class="n">PrefixGetterSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Awaitable</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span>
 <span class="sd">&quot;&quot;&quot;Type hint of a callable used to get the prefix(es) for a specific guild.</span>
 
@@ -479,25 +464,84 @@
 <span class="n">_LOGGER</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;hikari.tanjun.clients&quot;</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">_LoaderDescriptor</span><span class="p">:</span>  <span class="c1"># Slots mess with functools.update_wrapper</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">LoaderSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">_LoaderDescriptor</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AbstractLoader</span><span class="p">):</span>  <span class="c1"># Slots mess with functools.update_wrapper</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]],</span>
+        <span class="n">standard_impl</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">callback</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_must_be_std</span> <span class="o">=</span> <span class="n">standard_impl</span>
         <span class="n">functools</span><span class="o">.</span><span class="n">update_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_must_be_std</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">Client</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This loader requires instances of the standard Client implementation&quot;</span><span class="p">)</span>
 
-<span class="k">class</span> <span class="nc">_UnloaderDescriptor</span><span class="p">:</span>  <span class="c1"># Slots mess with functools.update_wrapper</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">LoaderSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;collections.Callable[[tanjun_abc.Client], None]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">)(</span><span class="n">client</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">unload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">class</span> <span class="nc">_UnloaderDescriptor</span><span class="p">(</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AbstractLoader</span><span class="p">):</span>  <span class="c1"># Slots mess with functools.update_wrapper</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]],</span>
+        <span class="n">standard_impl</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span> <span class="o">=</span> <span class="n">callback</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_must_be_std</span> <span class="o">=</span> <span class="n">standard_impl</span>
         <span class="n">functools</span><span class="o">.</span><span class="n">update_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
 
-<span class="k">def</span> <span class="nf">as_loader</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">LoaderSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoaderSig</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">unload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_must_be_std</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">Client</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This unloader requires instances of the standard Client implementation&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">typing</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;collections.Callable[[tanjun_abc.Client], None]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">)(</span><span class="n">client</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+<span class="k">def</span> <span class="nf">as_loader</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">standard_impl</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="o">...</span>
+
+
+<span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+<span class="k">def</span> <span class="nf">as_loader</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">standard_impl</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="o">...</span>
+
+
+<span class="k">def</span> <span class="nf">as_loader</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]],</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">standard_impl</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;Mark a callback as being used to load Tanjun components from a module.</span>
 
 <span class="sd">    .. note::</span>
@@ -505,21 +549,46 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    callback : LoaderSig</span>
-<span class="sd">        The callback used to load Tanjun components from a module. This</span>
-<span class="sd">        should take one argument of type `tanjun.Client`, return nothing</span>
-<span class="sd">        and will be expected to initiate and add utilities such as components</span>
-<span class="sd">        to the provided client using it&#39;s abstract methods.</span>
+<span class="sd">    callback : collections.abc.Callable[[tanjun.abc.Client], None]]</span>
+<span class="sd">        The callback used to load Tanjun components from a module.</span>
+
+<span class="sd">        This should take one argument of type `Client` (or `tanjun.abc.Client`</span>
+<span class="sd">        if `standard_impl` is `False`), return nothing and will be expected</span>
+<span class="sd">        to initiate and add utilities such as components to the provided client.</span>
+<span class="sd">    standard_impl : bool</span>
+<span class="sd">        Whether this loader should only allow instances of `Client` as opposed</span>
+<span class="sd">        to `tanjun.abc.Client`.</span>
+
+<span class="sd">        Defaults to `True`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    LoaderSig</span>
+<span class="sd">    collections.abc.Callable[[tanjun.Client], None]]</span>
 <span class="sd">        The decorated load callback.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_LoaderDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_LoaderDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">standard_impl</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">as_unloader</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">LoaderSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoaderSig</span><span class="p">:</span>
+<span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+<span class="k">def</span> <span class="nf">as_unloader</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">standard_impl</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="o">...</span>
+
+
+<span class="nd">@typing</span><span class="o">.</span><span class="n">overload</span>
+<span class="k">def</span> <span class="nf">as_unloader</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">standard_impl</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="o">...</span>
+
+
+<span class="k">def</span> <span class="nf">as_unloader</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]],</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">standard_impl</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;Mark a callback as being used to unload a module&#39;s utilities from a client.</span>
 
 <span class="sd">    .. note::</span>
@@ -529,18 +598,24 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    callback : LoaderSig</span>
-<span class="sd">        The callback used to unload Tanjun utilities from a module. This</span>
-<span class="sd">        should take one argument of type `tanjun.Client`, return nothing</span>
-<span class="sd">        and will be expected to remove utilities such as components</span>
-<span class="sd">        from the provided client using it&#39;s abstract methods.</span>
+<span class="sd">    callback : collections.abc.Callable[[tanjun.Client], None]]</span>
+<span class="sd">        The callback used to unload Tanjun components from a module.</span>
+
+<span class="sd">        This should take one argument of type `Client` (or `tanjun.abc.Client`</span>
+<span class="sd">        if `standard_impl` is `False`), return nothing and will be expected</span>
+<span class="sd">        to remove utilities such as components from the provided client.</span>
+<span class="sd">    standard_impl : bool</span>
+<span class="sd">        Whether this unloader should only allow instances of `Client` as</span>
+<span class="sd">        opposed to `tanjun.abc.Client`.</span>
+
+<span class="sd">        Defaults to `True`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    LoaderSig</span>
+<span class="sd">    collections.abc.Callable[[tanjun.Client], None]]</span>
 <span class="sd">        The decorated unload callback.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_UnloaderDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_UnloaderDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">standard_impl</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">ClientCallbackNames</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
@@ -2115,61 +2190,14 @@
     <span class="k">def</span> <span class="nf">_load_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_module_members</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">_LoaderDescriptor</span><span class="p">):</span>
-                <span class="n">member</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AbstractLoader</span><span class="p">)</span> <span class="ow">and</span> <span class="n">member</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Didn&#39;t find any loader descriptors in </span><span class="si">{</span><span class="n">module_repr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Didn&#39;t find any loaders in </span><span class="si">{</span><span class="n">module_repr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">load_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">_log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Load entities into this client from modules based on loader descriptors.</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">            If an `__all__` is present in the target module then it will be</span>
-<span class="sd">            used to find loaders.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        For this to work the module has to have at least one `as_loader`</span>
-<span class="sd">        decorated top level function which takes one positional argument</span>
-<span class="sd">        of type `Client`.</span>
-
-<span class="sd">        ```py</span>
-<span class="sd">        @tanjun.as_loader</span>
-<span class="sd">        def load_module(client: tanjun.Client) -&gt; None:</span>
-<span class="sd">            client.add_component(component.copy())</span>
-<span class="sd">        ```</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        *modules : typing.Union[str, pathlib.Path]</span>
-<span class="sd">            Path(s) of the modules to load from.</span>
-
-<span class="sd">            When `str` this will be treated as a normal import path which is</span>
-<span class="sd">            absolute (`&quot;foo.bar.baz&quot;`). It&#39;s worth noting that absolute module</span>
-<span class="sd">            paths may be imported from the current location if the top level</span>
-<span class="sd">            module is a valid module file or module directory in the current</span>
-<span class="sd">            working directory.</span>
-
-<span class="sd">            When `pathlib.Path` the module will be imported directly from</span>
-<span class="sd">            the given path. In this mode any relative imports in the target</span>
-<span class="sd">            module will fail to resolve.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Self</span>
-<span class="sd">            This client instance to enable chained calls.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If the module is already loaded.</span>
-<span class="sd">        RuntimeError</span>
-<span class="sd">            If no loader descriptors are found in the module.</span>
-<span class="sd">        ModuleNotFoundError</span>
-<span class="sd">            If the module is not found.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">:</span>
@@ -2209,51 +2237,14 @@
     <span class="k">def</span> <span class="nf">_unload_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_module_members</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">_UnloaderDescriptor</span><span class="p">):</span>
-                <span class="n">member</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AbstractLoader</span><span class="p">)</span> <span class="ow">and</span> <span class="n">member</span><span class="o">.</span><span class="n">unload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Didn&#39;t find any unloaders in </span><span class="si">{</span><span class="n">module_repr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">unload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">_log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Unload entities from this client based on unloader descriptors in one or more modules.</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">            If an `__all__` is present in the target module then it will be</span>
-<span class="sd">            used to find unloaders.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        For this to work the module has to have at least one `as_unloader`</span>
-<span class="sd">        decorated top level function which takes one positional argument</span>
-<span class="sd">        of type `Client`.</span>
-
-<span class="sd">        ```py</span>
-<span class="sd">        @tanjun.as_unloader</span>
-<span class="sd">        def unload_component(client: tanjun.Client) -&gt; None:</span>
-<span class="sd">            client.remove_component_by_name(component.name)</span>
-<span class="sd">        ```</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        *modules: typing.Union[str, pathlib.Path]</span>
-<span class="sd">            Path of one or more modules to unload.</span>
-
-<span class="sd">            These should be the same path(s) which were passed to `load_module`.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Self</span>
-<span class="sd">            This client instance to enable chained calls.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If the module hasn&#39;t been loaded.</span>
-<span class="sd">        RuntimeError</span>
-<span class="sd">            If no unloader descriptors are found in the module.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -2273,38 +2264,7 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">reload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Reload entities in this client based on the descriptors in loaded module(s).</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">            If an `__all__` is present in the target module then it will be</span>
-<span class="sd">            used to find descriptors.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        For this to work the module has to have at least one `as_loader` and</span>
-<span class="sd">        one `as_unloader` decorated top level function which each take one</span>
-<span class="sd">        positional argument of type `Client`.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        *modules: typing.Union[str, pathlib.Path]</span>
-<span class="sd">            Paths of one or more module to unload.</span>
-
-<span class="sd">            These should be the same paths which were passed to `load_module`.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Self</span>
-<span class="sd">            This client instance to enable chained calls.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If the module hasn&#39;t been loaded.</span>
-<span class="sd">        RuntimeError</span>
-<span class="sd">            If no unloader descriptors are found in the current state of the module.</span>
-<span class="sd">            If no loader descriptors are found in the new state of the module.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -2488,14 +2448,21 @@
         
             <span class="def">def</span>
             <span class="name">as_loader</span><span class="signature">(
-    callback: collections.abc.Callable[<a href="#Client">tanjun.clients.Client</a>, None],
-    /
-) -&gt; collections.abc.Callable[<a href="#Client">tanjun.clients.Client</a>, None]</span>:
+    callback: Union[collections.abc.Callable[[<a href="#Client">tanjun.clients.Client</a>], None], collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]],
+    /,
+    *,
+    standard_impl: bool = True
+) -&gt; Union[collections.abc.Callable[[<a href="#Client">tanjun.clients.Client</a>], None], collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_loader</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">LoaderSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoaderSig</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_loader</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]],</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">standard_impl</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;Mark a callback as being used to load Tanjun components from a module.</span>
 
 <span class="sd">    .. note::</span>
@@ -2503,18 +2470,24 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    callback : LoaderSig</span>
-<span class="sd">        The callback used to load Tanjun components from a module. This</span>
-<span class="sd">        should take one argument of type `tanjun.Client`, return nothing</span>
-<span class="sd">        and will be expected to initiate and add utilities such as components</span>
-<span class="sd">        to the provided client using it&#39;s abstract methods.</span>
+<span class="sd">    callback : collections.abc.Callable[[tanjun.abc.Client], None]]</span>
+<span class="sd">        The callback used to load Tanjun components from a module.</span>
+
+<span class="sd">        This should take one argument of type `Client` (or `tanjun.abc.Client`</span>
+<span class="sd">        if `standard_impl` is `False`), return nothing and will be expected</span>
+<span class="sd">        to initiate and add utilities such as components to the provided client.</span>
+<span class="sd">    standard_impl : bool</span>
+<span class="sd">        Whether this loader should only allow instances of `Client` as opposed</span>
+<span class="sd">        to `tanjun.abc.Client`.</span>
+
+<span class="sd">        Defaults to `True`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    LoaderSig</span>
+<span class="sd">    collections.abc.Callable[[tanjun.Client], None]]</span>
 <span class="sd">        The decorated load callback.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_LoaderDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_LoaderDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">standard_impl</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -2527,17 +2500,23 @@ This is only necessary if you wish to use <code><a href="../tanjun.html#Client.l
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>callback</strong> (LoaderSig):
-The callback used to load Tanjun components from a module. This
-should take one argument of type <code><a href="../tanjun.html#Client">tanjun.Client</a></code>, return nothing
-and will be expected to initiate and add utilities such as components
-to the provided client using it's abstract methods.</li>
+<li><p><strong>callback</strong> (collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]]):
+The callback used to load Tanjun components from a module.</p>
+
+<p>This should take one argument of type <code><a href="#Client">Client</a></code> (or <code><a href="abc.html#Client">tanjun.abc.Client</a></code>
+if <code>standard_impl</code> is <code>False</code>), return nothing and will be expected
+to initiate and add utilities such as components to the provided client.</p></li>
+<li><p><strong>standard_impl</strong> (bool):
+Whether this loader should only allow instances of <code><a href="#Client">Client</a></code> as opposed
+to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
+
+<p>Defaults to <code>True</code>.</p></li>
 </ul>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>LoaderSig</strong>: The decorated load callback.</li>
+<li><strong>collections.abc.Callable[[<a href="../tanjun.html#Client">tanjun.Client</a>], None]]</strong>: The decorated load callback.</li>
 </ul>
 </div>
 
@@ -2549,14 +2528,21 @@ to the provided client using it's abstract methods.</li>
         
             <span class="def">def</span>
             <span class="name">as_unloader</span><span class="signature">(
-    callback: collections.abc.Callable[<a href="#Client">tanjun.clients.Client</a>, None],
-    /
-) -&gt; collections.abc.Callable[<a href="#Client">tanjun.clients.Client</a>, None]</span>:
+    callback: Union[collections.abc.Callable[[<a href="#Client">tanjun.clients.Client</a>], None], collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]],
+    /,
+    *,
+    standard_impl: bool = True
+) -&gt; Union[collections.abc.Callable[[<a href="#Client">tanjun.clients.Client</a>], None], collections.abc.Callable[[<a href="abc.html#Client">tanjun.abc.Client</a>], None]]</span>:
     </div>
 
                 <details>
             <summary>View Source</summary>
-            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_unloader</span><span class="p">(</span><span class="n">callback</span><span class="p">:</span> <span class="n">LoaderSig</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoaderSig</span><span class="p">:</span>
+            <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_unloader</span><span class="p">(</span>
+    <span class="n">callback</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]],</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">standard_impl</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">tanjun_abc</span><span class="o">.</span><span class="n">Client</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;Mark a callback as being used to unload a module&#39;s utilities from a client.</span>
 
 <span class="sd">    .. note::</span>
@@ -2566,18 +2552,24 @@ to the provided client using it's abstract methods.</li>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    callback : LoaderSig</span>
-<span class="sd">        The callback used to unload Tanjun utilities from a module. This</span>
-<span class="sd">        should take one argument of type `tanjun.Client`, return nothing</span>
-<span class="sd">        and will be expected to remove utilities such as components</span>
-<span class="sd">        from the provided client using it&#39;s abstract methods.</span>
+<span class="sd">    callback : collections.abc.Callable[[tanjun.Client], None]]</span>
+<span class="sd">        The callback used to unload Tanjun components from a module.</span>
+
+<span class="sd">        This should take one argument of type `Client` (or `tanjun.abc.Client`</span>
+<span class="sd">        if `standard_impl` is `False`), return nothing and will be expected</span>
+<span class="sd">        to remove utilities such as components from the provided client.</span>
+<span class="sd">    standard_impl : bool</span>
+<span class="sd">        Whether this unloader should only allow instances of `Client` as</span>
+<span class="sd">        opposed to `tanjun.abc.Client`.</span>
+
+<span class="sd">        Defaults to `True`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    LoaderSig</span>
+<span class="sd">    collections.abc.Callable[[tanjun.Client], None]]</span>
 <span class="sd">        The decorated unload callback.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_UnloaderDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_UnloaderDescriptor</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">standard_impl</span><span class="p">)</span>
 </pre></div>
 
         </details>
@@ -2592,17 +2584,23 @@ to use the <code><a href="../tanjun.html#Client.unload_module">tanjun.Client.unl
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>callback</strong> (LoaderSig):
-The callback used to unload Tanjun utilities from a module. This
-should take one argument of type <code><a href="../tanjun.html#Client">tanjun.Client</a></code>, return nothing
-and will be expected to remove utilities such as components
-from the provided client using it's abstract methods.</li>
+<li><p><strong>callback</strong> (collections.abc.Callable[[<a href="../tanjun.html#Client">tanjun.Client</a>], None]]):
+The callback used to unload Tanjun components from a module.</p>
+
+<p>This should take one argument of type <code><a href="#Client">Client</a></code> (or <code><a href="abc.html#Client">tanjun.abc.Client</a></code>
+if <code>standard_impl</code> is <code>False</code>), return nothing and will be expected
+to remove utilities such as components from the provided client.</p></li>
+<li><p><strong>standard_impl</strong> (bool):
+Whether this unloader should only allow instances of <code><a href="#Client">Client</a></code> as
+opposed to <code><a href="abc.html#Client">tanjun.abc.Client</a></code>.</p>
+
+<p>Defaults to <code>True</code>.</p></li>
 </ul>
 
 <h6 id="returns">Returns</h6>
 
 <ul>
-<li><strong>LoaderSig</strong>: The decorated unload callback.</li>
+<li><strong>collections.abc.Callable[[<a href="../tanjun.html#Client">tanjun.Client</a>], None]]</strong>: The decorated unload callback.</li>
 </ul>
 </div>
 
@@ -4033,61 +4031,14 @@ from the provided client using it's abstract methods.</li>
     <span class="k">def</span> <span class="nf">_load_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_module_members</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">_LoaderDescriptor</span><span class="p">):</span>
-                <span class="n">member</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AbstractLoader</span><span class="p">)</span> <span class="ow">and</span> <span class="n">member</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Didn&#39;t find any loader descriptors in </span><span class="si">{</span><span class="n">module_repr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Didn&#39;t find any loaders in </span><span class="si">{</span><span class="n">module_repr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">load_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">_log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Load entities into this client from modules based on loader descriptors.</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">            If an `__all__` is present in the target module then it will be</span>
-<span class="sd">            used to find loaders.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        For this to work the module has to have at least one `as_loader`</span>
-<span class="sd">        decorated top level function which takes one positional argument</span>
-<span class="sd">        of type `Client`.</span>
-
-<span class="sd">        ```py</span>
-<span class="sd">        @tanjun.as_loader</span>
-<span class="sd">        def load_module(client: tanjun.Client) -&gt; None:</span>
-<span class="sd">            client.add_component(component.copy())</span>
-<span class="sd">        ```</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        *modules : typing.Union[str, pathlib.Path]</span>
-<span class="sd">            Path(s) of the modules to load from.</span>
-
-<span class="sd">            When `str` this will be treated as a normal import path which is</span>
-<span class="sd">            absolute (`&quot;foo.bar.baz&quot;`). It&#39;s worth noting that absolute module</span>
-<span class="sd">            paths may be imported from the current location if the top level</span>
-<span class="sd">            module is a valid module file or module directory in the current</span>
-<span class="sd">            working directory.</span>
-
-<span class="sd">            When `pathlib.Path` the module will be imported directly from</span>
-<span class="sd">            the given path. In this mode any relative imports in the target</span>
-<span class="sd">            module will fail to resolve.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Self</span>
-<span class="sd">            This client instance to enable chained calls.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If the module is already loaded.</span>
-<span class="sd">        RuntimeError</span>
-<span class="sd">            If no loader descriptors are found in the module.</span>
-<span class="sd">        ModuleNotFoundError</span>
-<span class="sd">            If the module is not found.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">:</span>
@@ -4127,51 +4078,14 @@ from the provided client using it's abstract methods.</li>
     <span class="k">def</span> <span class="nf">_unload_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">types</span><span class="o">.</span><span class="n">ModuleType</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_module_members</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_repr</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">_UnloaderDescriptor</span><span class="p">):</span>
-                <span class="n">member</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">tanjun_abc</span><span class="o">.</span><span class="n">AbstractLoader</span><span class="p">)</span> <span class="ow">and</span> <span class="n">member</span><span class="o">.</span><span class="n">unload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Didn&#39;t find any unloaders in </span><span class="si">{</span><span class="n">module_repr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">unload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">_log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Unload entities from this client based on unloader descriptors in one or more modules.</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">            If an `__all__` is present in the target module then it will be</span>
-<span class="sd">            used to find unloaders.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        For this to work the module has to have at least one `as_unloader`</span>
-<span class="sd">        decorated top level function which takes one positional argument</span>
-<span class="sd">        of type `Client`.</span>
-
-<span class="sd">        ```py</span>
-<span class="sd">        @tanjun.as_unloader</span>
-<span class="sd">        def unload_component(client: tanjun.Client) -&gt; None:</span>
-<span class="sd">            client.remove_component_by_name(component.name)</span>
-<span class="sd">        ```</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        *modules: typing.Union[str, pathlib.Path]</span>
-<span class="sd">            Path of one or more modules to unload.</span>
-
-<span class="sd">            These should be the same path(s) which were passed to `load_module`.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Self</span>
-<span class="sd">            This client instance to enable chained calls.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If the module hasn&#39;t been loaded.</span>
-<span class="sd">        RuntimeError</span>
-<span class="sd">            If no unloader descriptors are found in the module.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -4191,38 +4105,7 @@ from the provided client using it's abstract methods.</li>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">reload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Reload entities in this client based on the descriptors in loaded module(s).</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">            If an `__all__` is present in the target module then it will be</span>
-<span class="sd">            used to find descriptors.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        For this to work the module has to have at least one `as_loader` and</span>
-<span class="sd">        one `as_unloader` decorated top level function which each take one</span>
-<span class="sd">        positional argument of type `Client`.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        *modules: typing.Union[str, pathlib.Path]</span>
-<span class="sd">            Paths of one or more module to unload.</span>
-
-<span class="sd">            These should be the same paths which were passed to `load_module`.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Self</span>
-<span class="sd">            This client instance to enable chained calls.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If the module hasn&#39;t been loaded.</span>
-<span class="sd">        RuntimeError</span>
-<span class="sd">            If no unloader descriptors are found in the current state of the module.</span>
-<span class="sd">            If no loader descriptors are found in the new state of the module.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -7758,53 +7641,7 @@ client.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">load_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">_log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Load entities into this client from modules based on loader descriptors.</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">            If an `__all__` is present in the target module then it will be</span>
-<span class="sd">            used to find loaders.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        For this to work the module has to have at least one `as_loader`</span>
-<span class="sd">        decorated top level function which takes one positional argument</span>
-<span class="sd">        of type `Client`.</span>
-
-<span class="sd">        ```py</span>
-<span class="sd">        @tanjun.as_loader</span>
-<span class="sd">        def load_module(client: tanjun.Client) -&gt; None:</span>
-<span class="sd">            client.add_component(component.copy())</span>
-<span class="sd">        ```</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        *modules : typing.Union[str, pathlib.Path]</span>
-<span class="sd">            Path(s) of the modules to load from.</span>
-
-<span class="sd">            When `str` this will be treated as a normal import path which is</span>
-<span class="sd">            absolute (`&quot;foo.bar.baz&quot;`). It&#39;s worth noting that absolute module</span>
-<span class="sd">            paths may be imported from the current location if the top level</span>
-<span class="sd">            module is a valid module file or module directory in the current</span>
-<span class="sd">            working directory.</span>
-
-<span class="sd">            When `pathlib.Path` the module will be imported directly from</span>
-<span class="sd">            the given path. In this mode any relative imports in the target</span>
-<span class="sd">            module will fail to resolve.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Self</span>
-<span class="sd">            This client instance to enable chained calls.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If the module is already loaded.</span>
-<span class="sd">        RuntimeError</span>
-<span class="sd">            If no loader descriptors are found in the module.</span>
-<span class="sd">        ModuleNotFoundError</span>
-<span class="sd">            If the module is not found.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="p">:</span>
@@ -7844,7 +7681,7 @@ client.</p>
 
         </details>
 
-            <div class="docstring"><p>Load entities into this client from modules based on loader descriptors.</p>
+            <div class="docstring"><p>Load entities into this client from modules based on present loaders.</p>
 
 <p><em>Note:</em>
 If an <code>__all__</code> is present in the target module then it will be
@@ -7852,13 +7689,16 @@ used to find loaders.</p>
 
 <h6 id="examples">Examples</h6>
 
-<p>For this to work the module has to have at least one <code><a href="#as_loader">as_loader</a></code>
-decorated top level function which takes one positional argument
-of type <code><a href="#Client">Client</a></code>.</p>
+<p>For this to work the target module has to have at least one loader present.</p>
 
 <div class="codehilite"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_loader</span>
 <span class="k">def</span> <span class="nf">load_module</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">client</span><span class="o">.</span><span class="n">add_component</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+</code></pre></div>
+
+<p>or</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">loader</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="s2">&quot;trans component&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">detect_commands</span><span class="p">()</span><span class="o">.</span><span class="n">make_loader</span><span class="p">()</span>
 </code></pre></div>
 
 <h6 id="parameters">Parameters</h6>
@@ -7888,7 +7728,7 @@ module will fail to resolve.</p></li>
 
 <ul>
 <li><strong>ValueError</strong>: If the module is already loaded.</li>
-<li><strong>RuntimeError</strong>: If no loader descriptors are found in the module.</li>
+<li><strong>RuntimeError</strong>: If no loaders are found in the module.</li>
 <li><strong>ModuleNotFoundError</strong>: If the module is not found.</li>
 </ul>
 </div>
@@ -7910,43 +7750,7 @@ module will fail to resolve.</p></li>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">unload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">_log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Unload entities from this client based on unloader descriptors in one or more modules.</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">            If an `__all__` is present in the target module then it will be</span>
-<span class="sd">            used to find unloaders.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        For this to work the module has to have at least one `as_unloader`</span>
-<span class="sd">        decorated top level function which takes one positional argument</span>
-<span class="sd">        of type `Client`.</span>
-
-<span class="sd">        ```py</span>
-<span class="sd">        @tanjun.as_unloader</span>
-<span class="sd">        def unload_component(client: tanjun.Client) -&gt; None:</span>
-<span class="sd">            client.remove_component_by_name(component.name)</span>
-<span class="sd">        ```</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        *modules: typing.Union[str, pathlib.Path]</span>
-<span class="sd">            Path of one or more modules to unload.</span>
-
-<span class="sd">            These should be the same path(s) which were passed to `load_module`.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Self</span>
-<span class="sd">            This client instance to enable chained calls.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If the module hasn&#39;t been loaded.</span>
-<span class="sd">        RuntimeError</span>
-<span class="sd">            If no unloader descriptors are found in the module.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -7968,7 +7772,7 @@ module will fail to resolve.</p></li>
 
         </details>
 
-            <div class="docstring"><p>Unload entities from this client based on unloader descriptors in one or more modules.</p>
+            <div class="docstring"><p>Unload entities from this client based on unloaders in one or more modules.</p>
 
 <p><em>Note:</em>
 If an <code>__all__</code> is present in the target module then it will be
@@ -7976,13 +7780,18 @@ used to find unloaders.</p>
 
 <h6 id="examples">Examples</h6>
 
-<p>For this to work the module has to have at least one <code><a href="#as_unloader">as_unloader</a></code>
-decorated top level function which takes one positional argument
-of type <code><a href="#Client">Client</a></code>.</p>
+<p>For this to work the module has to have at least one unloading enabled
+<code><a href="abc.html#AbstractLoader">tanjun.abc.AbstractLoader</a></code> present.</p>
 
 <div class="codehilite"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_unloader</span>
 <span class="k">def</span> <span class="nf">unload_component</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">client</span><span class="o">.</span><span class="n">remove_component_by_name</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</code></pre></div>
+
+<p>or</p>
+
+<div class="codehilite"><pre><span></span><code><span class="c1"># as_loader&#39;s returned AbstractLoader handles both loading and unloading.</span>
+<span class="n">loader</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="s2">&quot;trans component&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">detect_commands</span><span class="p">()</span><span class="o">.</span><span class="n">as_loader</span><span class="p">(</span><span class="n">unload_component</span><span class="p">)</span>
 </code></pre></div>
 
 <h6 id="parameters">Parameters</h6>
@@ -8004,7 +7813,7 @@ Path of one or more modules to unload.</p>
 
 <ul>
 <li><strong>ValueError</strong>: If the module hasn't been loaded.</li>
-<li><strong>RuntimeError</strong>: If no unloader descriptors are found in the module.</li>
+<li><strong>RuntimeError</strong>: If no unloaders are found in the module.</li>
 </ul>
 </div>
 
@@ -8021,38 +7830,7 @@ Path of one or more modules to unload.</p>
                 <details>
             <summary>View Source</summary>
             <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">reload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_ClientT</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_ClientT</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Reload entities in this client based on the descriptors in loaded module(s).</span>
-
-<span class="sd">        .. note::</span>
-<span class="sd">            If an `__all__` is present in the target module then it will be</span>
-<span class="sd">            used to find descriptors.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        For this to work the module has to have at least one `as_loader` and</span>
-<span class="sd">        one `as_unloader` decorated top level function which each take one</span>
-<span class="sd">        positional argument of type `Client`.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        *modules: typing.Union[str, pathlib.Path]</span>
-<span class="sd">            Paths of one or more module to unload.</span>
-
-<span class="sd">            These should be the same paths which were passed to `load_module`.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Self</span>
-<span class="sd">            This client instance to enable chained calls.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If the module hasn&#39;t been loaded.</span>
-<span class="sd">        RuntimeError</span>
-<span class="sd">            If no unloader descriptors are found in the current state of the module.</span>
-<span class="sd">            If no loader descriptors are found in the new state of the module.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
         <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modules</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -8076,17 +7854,16 @@ Path of one or more modules to unload.</p>
 
         </details>
 
-            <div class="docstring"><p>Reload entities in this client based on the descriptors in loaded module(s).</p>
+            <div class="docstring"><p>Reload entities in this client based on the loaders in loaded module(s).</p>
 
 <p><em>Note:</em>
 If an <code>__all__</code> is present in the target module then it will be
-used to find descriptors.</p>
+used to find loaders and unloaders.</p>
 
 <h6 id="examples">Examples</h6>
 
-<p>For this to work the module has to have at least one <code><a href="#as_loader">as_loader</a></code> and
-one <code><a href="#as_unloader">as_unloader</a></code> decorated top level function which each take one
-positional argument of type <code><a href="#Client">Client</a></code>.</p>
+<p>For this to work the module has to have at least one AbstractLoader
+which handles both loading and unloading present.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -8107,8 +7884,8 @@ Paths of one or more module to unload.</p>
 
 <ul>
 <li><strong>ValueError</strong>: If the module hasn't been loaded.</li>
-<li><strong>RuntimeError</strong>: If no unloader descriptors are found in the current state of the module.
-If no loader descriptors are found in the new state of the module.</li>
+<li><strong>RuntimeError</strong>: If no unloaders are found in the current state of the module.
+If no loaders are found in the new state of the module.</li>
 </ul>
 </div>
 
@@ -8609,19 +8386,6 @@ the client is inactive.</p>
             </div>
                                 </dl>
                             </div>
-                </section>
-                <section id="LoaderSig">
-                                <div class="attr class">
-        <a class="headerlink" href="#LoaderSig">#&nbsp;&nbsp</a>
-
-        
-        <span class="def">class</span>
-        <span class="name">LoaderSig</span>:
-    </div>
-
-        
-    
-
                 </section>
                 <section id="MessageAcceptsEnum">
                                 <div class="attr class">

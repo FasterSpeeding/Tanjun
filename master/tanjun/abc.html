@@ -31,6 +31,18 @@
                     <h2>API Documentation</h2>
                         <ul class="memberlist">
             <li>
+                    <a class="class" href="#AbstractLoader">AbstractLoader</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#AbstractLoader.load">load</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractLoader.unload">unload</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="variable" href="#BaseSlashCommandT">BaseSlashCommandT</a>
             </li>
             <li>
@@ -681,6 +693,15 @@
                         <li>
                                 <a class="function" href="#Client.check_slash_name">check_slash_name</a>
                         </li>
+                        <li>
+                                <a class="function" href="#Client.load_modules">load_modules</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.unload_modules">unload_modules</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Client.reload_modules">reload_modules</a>
+                        </li>
                 </ul>
 
             </li>
@@ -740,6 +761,7 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="n">__all__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;AbstractLoader&quot;</span><span class="p">,</span>
     <span class="s2">&quot;BaseSlashCommandT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CheckSig&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CheckSigT&quot;</span><span class="p">,</span>
@@ -780,6 +802,7 @@
 <span class="k">if</span> <span class="n">typing</span><span class="o">.</span><span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">asyncio</span>
     <span class="kn">import</span> <span class="nn">datetime</span>
+    <span class="kn">import</span> <span class="nn">pathlib</span>
 
     <span class="kn">from</span> <span class="nn">hikari</span> <span class="kn">import</span> <span class="n">traits</span> <span class="k">as</span> <span class="n">hikari_traits</span>
 
@@ -4052,11 +4075,329 @@
 <span class="sd">        collections.abc.Iterator[BaseSlashCommand]</span>
 <span class="sd">            Iterator of the matched slash command objects.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">load_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">_log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Load entities into this client from modules based on present loaders.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            If an `__all__` is present in the target module then it will be</span>
+<span class="sd">            used to find loaders.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        For this to work the target module has to have at least one loader present.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        @tanjun.as_loader</span>
+<span class="sd">        def load_module(client: tanjun.Client) -&gt; None:</span>
+<span class="sd">            client.add_component(component.copy())</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        or</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        loader = tanjun.Component(&quot;trans component&quot;).detect_commands().make_loader()</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *modules : typing.Union[str, pathlib.Path]</span>
+<span class="sd">            Path(s) of the modules to load from.</span>
+
+<span class="sd">            When `str` this will be treated as a normal import path which is</span>
+<span class="sd">            absolute (`&quot;foo.bar.baz&quot;`). It&#39;s worth noting that absolute module</span>
+<span class="sd">            paths may be imported from the current location if the top level</span>
+<span class="sd">            module is a valid module file or module directory in the current</span>
+<span class="sd">            working directory.</span>
+
+<span class="sd">            When `pathlib.Path` the module will be imported directly from</span>
+<span class="sd">            the given path. In this mode any relative imports in the target</span>
+<span class="sd">            module will fail to resolve.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            This client instance to enable chained calls.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the module is already loaded.</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If no loaders are found in the module.</span>
+<span class="sd">        ModuleNotFoundError</span>
+<span class="sd">            If the module is not found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">unload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">_log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="sd">&quot;&quot;&quot;Unload entities from this client based on unloaders in one or more modules.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            If an `__all__` is present in the target module then it will be</span>
+<span class="sd">            used to find unloaders.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        For this to work the module has to have at least one unloading enabled</span>
+<span class="sd">        `tanjun.abc.AbstractLoader` present.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        @tanjun.as_unloader</span>
+<span class="sd">        def unload_component(client: tanjun.Client) -&gt; None:</span>
+<span class="sd">            client.remove_component_by_name(component.name)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        or</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        # as_loader&#39;s returned AbstractLoader handles both loading and unloading.</span>
+<span class="sd">        loader = tanjun.Component(&quot;trans component&quot;).detect_commands().as_loader(unload_component)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *modules: typing.Union[str, pathlib.Path]</span>
+<span class="sd">            Path of one or more modules to unload.</span>
+
+<span class="sd">            These should be the same path(s) which were passed to `load_module`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            This client instance to enable chained calls.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the module hasn&#39;t been loaded.</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If no unloaders are found in the module.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">reload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="sd">&quot;&quot;&quot;Reload entities in this client based on the loaders in loaded module(s).</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            If an `__all__` is present in the target module then it will be</span>
+<span class="sd">            used to find loaders and unloaders.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        For this to work the module has to have at least one AbstractLoader</span>
+<span class="sd">        which handles both loading and unloading present.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *modules: typing.Union[str, pathlib.Path]</span>
+<span class="sd">            Paths of one or more module to unload.</span>
+
+<span class="sd">            These should be the same paths which were passed to `load_module`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            This client instance to enable chained calls.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the module hasn&#39;t been loaded.</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If no unloaders are found in the current state of the module.</span>
+<span class="sd">            If no loaders are found in the new state of the module.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">AbstractLoader</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Interface of logic used to load and unload components into a generic client.&quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Load logic into a client instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : Client</span>
+<span class="sd">            The client to load commands and listeners for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether anything was loaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">unload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Unload logic from a client instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : Client</span>
+<span class="sd">            The client to unload commands and listeners from.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether anything was unloaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
 
             </section>
+                <section id="AbstractLoader">
+                                <div class="attr class">
+        <a class="headerlink" href="#AbstractLoader">#&nbsp;&nbsp</a>
+
+        
+        <span class="def">class</span>
+        <span class="name">AbstractLoader</span><wbr>(<span class="base">abc.ABC</span>):
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">AbstractLoader</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Interface of logic used to load and unload components into a generic client.&quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Load logic into a client instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : Client</span>
+<span class="sd">            The client to load commands and listeners for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether anything was loaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">unload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Unload logic from a client instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : Client</span>
+<span class="sd">            The client to unload commands and listeners from.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether anything was unloaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Interface of logic used to load and unload components into a generic client.</p>
+</div>
+
+
+                            <div id="AbstractLoader.load" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#AbstractLoader.load">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">load</span><span class="signature">(self, client: <a href="#Client">tanjun.abc.Client</a>, /) -&gt; bool</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Load logic into a client instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : Client</span>
+<span class="sd">            The client to load commands and listeners for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether anything was loaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Load logic into a client instance.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>client</strong> (Client):
+The client to load commands and listeners for.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether anything was loaded.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="AbstractLoader.unload" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#AbstractLoader.unload">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">unload</span><span class="signature">(self, client: <a href="#Client">tanjun.abc.Client</a>, /) -&gt; bool</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">unload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">Client</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Unload logic from a client instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        client : Client</span>
+<span class="sd">            The client to unload commands and listeners from.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Whether anything was unloaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Unload logic from a client instance.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><strong>client</strong> (Client):
+The client to unload commands and listeners from.</li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>bool</strong>: Whether anything was unloaded.</li>
+</ul>
+</div>
+
+
+                            </div>
+                </section>
                 <section id="BaseSlashCommandT">
                                 <div class="attr variable"><a class="headerlink" href="#BaseSlashCommandT">#&nbsp;&nbsp</a>
 
@@ -13936,6 +14277,140 @@ If the component isn't bound to a client.</li>
 <span class="sd">        collections.abc.Iterator[BaseSlashCommand]</span>
 <span class="sd">            Iterator of the matched slash command objects.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">load_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">_log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Load entities into this client from modules based on present loaders.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            If an `__all__` is present in the target module then it will be</span>
+<span class="sd">            used to find loaders.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        For this to work the target module has to have at least one loader present.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        @tanjun.as_loader</span>
+<span class="sd">        def load_module(client: tanjun.Client) -&gt; None:</span>
+<span class="sd">            client.add_component(component.copy())</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        or</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        loader = tanjun.Component(&quot;trans component&quot;).detect_commands().make_loader()</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *modules : typing.Union[str, pathlib.Path]</span>
+<span class="sd">            Path(s) of the modules to load from.</span>
+
+<span class="sd">            When `str` this will be treated as a normal import path which is</span>
+<span class="sd">            absolute (`&quot;foo.bar.baz&quot;`). It&#39;s worth noting that absolute module</span>
+<span class="sd">            paths may be imported from the current location if the top level</span>
+<span class="sd">            module is a valid module file or module directory in the current</span>
+<span class="sd">            working directory.</span>
+
+<span class="sd">            When `pathlib.Path` the module will be imported directly from</span>
+<span class="sd">            the given path. In this mode any relative imports in the target</span>
+<span class="sd">            module will fail to resolve.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            This client instance to enable chained calls.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the module is already loaded.</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If no loaders are found in the module.</span>
+<span class="sd">        ModuleNotFoundError</span>
+<span class="sd">            If the module is not found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">unload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">_log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="sd">&quot;&quot;&quot;Unload entities from this client based on unloaders in one or more modules.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            If an `__all__` is present in the target module then it will be</span>
+<span class="sd">            used to find unloaders.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        For this to work the module has to have at least one unloading enabled</span>
+<span class="sd">        `tanjun.abc.AbstractLoader` present.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        @tanjun.as_unloader</span>
+<span class="sd">        def unload_component(client: tanjun.Client) -&gt; None:</span>
+<span class="sd">            client.remove_component_by_name(component.name)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        or</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        # as_loader&#39;s returned AbstractLoader handles both loading and unloading.</span>
+<span class="sd">        loader = tanjun.Component(&quot;trans component&quot;).detect_commands().as_loader(unload_component)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *modules: typing.Union[str, pathlib.Path]</span>
+<span class="sd">            Path of one or more modules to unload.</span>
+
+<span class="sd">            These should be the same path(s) which were passed to `load_module`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            This client instance to enable chained calls.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the module hasn&#39;t been loaded.</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If no unloaders are found in the module.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">reload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="sd">&quot;&quot;&quot;Reload entities in this client based on the loaders in loaded module(s).</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            If an `__all__` is present in the target module then it will be</span>
+<span class="sd">            used to find loaders and unloaders.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        For this to work the module has to have at least one AbstractLoader</span>
+<span class="sd">        which handles both loading and unloading present.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *modules: typing.Union[str, pathlib.Path]</span>
+<span class="sd">            Paths of one or more module to unload.</span>
+
+<span class="sd">            These should be the same paths which were passed to `load_module`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            This client instance to enable chained calls.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the module hasn&#39;t been loaded.</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If no unloaders are found in the current state of the module.</span>
+<span class="sd">            If no loaders are found in the new state of the module.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 
         </details>
@@ -15491,6 +15966,326 @@ Name to check against.</li>
 
 <ul>
 <li><strong>collections.abc.Iterator[BaseSlashCommand]</strong>: Iterator of the matched slash command objects.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.load_modules" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.load_modules">#&nbsp;&nbsp</a>
+
+                <div class="decorator">@abc.abstractmethod</div>
+
+            <span class="def">def</span>
+            <span class="name">load_modules</span><span class="signature">(
+    self: ~_T,
+    *modules: Union[str, pathlib.Path],
+    _log: bool = True
+) -&gt; ~_T</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">load_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">_log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Load entities into this client from modules based on present loaders.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            If an `__all__` is present in the target module then it will be</span>
+<span class="sd">            used to find loaders.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        For this to work the target module has to have at least one loader present.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        @tanjun.as_loader</span>
+<span class="sd">        def load_module(client: tanjun.Client) -&gt; None:</span>
+<span class="sd">            client.add_component(component.copy())</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        or</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        loader = tanjun.Component(&quot;trans component&quot;).detect_commands().make_loader()</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *modules : typing.Union[str, pathlib.Path]</span>
+<span class="sd">            Path(s) of the modules to load from.</span>
+
+<span class="sd">            When `str` this will be treated as a normal import path which is</span>
+<span class="sd">            absolute (`&quot;foo.bar.baz&quot;`). It&#39;s worth noting that absolute module</span>
+<span class="sd">            paths may be imported from the current location if the top level</span>
+<span class="sd">            module is a valid module file or module directory in the current</span>
+<span class="sd">            working directory.</span>
+
+<span class="sd">            When `pathlib.Path` the module will be imported directly from</span>
+<span class="sd">            the given path. In this mode any relative imports in the target</span>
+<span class="sd">            module will fail to resolve.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            This client instance to enable chained calls.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the module is already loaded.</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If no loaders are found in the module.</span>
+<span class="sd">        ModuleNotFoundError</span>
+<span class="sd">            If the module is not found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Load entities into this client from modules based on present loaders.</p>
+
+<p><em>Note:</em>
+If an <code>__all__</code> is present in the target module then it will be
+used to find loaders.</p>
+
+<h6 id="examples">Examples</h6>
+
+<p>For this to work the target module has to have at least one loader present.</p>
+
+<div class="codehilite"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_loader</span>
+<span class="k">def</span> <span class="nf">load_module</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">add_component</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+</code></pre></div>
+
+<p>or</p>
+
+<div class="codehilite"><pre><span></span><code><span class="n">loader</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="s2">&quot;trans component&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">detect_commands</span><span class="p">()</span><span class="o">.</span><span class="n">make_loader</span><span class="p">()</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>*modules</strong> (typing.Union[str, pathlib.Path]):
+Path(s) of the modules to load from.</p>
+
+<p>When <code>str</code> this will be treated as a normal import path which is
+absolute (<code>"foo.bar.baz"</code>). It's worth noting that absolute module
+paths may be imported from the current location if the top level
+module is a valid module file or module directory in the current
+working directory.</p>
+
+<p>When <code>pathlib.Path</code> the module will be imported directly from
+the given path. In this mode any relative imports in the target
+module will fail to resolve.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: This client instance to enable chained calls.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the module is already loaded.</li>
+<li><strong>RuntimeError</strong>: If no loaders are found in the module.</li>
+<li><strong>ModuleNotFoundError</strong>: If the module is not found.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.unload_modules" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.unload_modules">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">unload_modules</span><span class="signature">(
+    self: ~_T,
+    *modules: Union[str, pathlib.Path],
+    _log: bool = True
+) -&gt; ~_T</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">unload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">],</span> <span class="n">_log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="sd">&quot;&quot;&quot;Unload entities from this client based on unloaders in one or more modules.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            If an `__all__` is present in the target module then it will be</span>
+<span class="sd">            used to find unloaders.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        For this to work the module has to have at least one unloading enabled</span>
+<span class="sd">        `tanjun.abc.AbstractLoader` present.</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        @tanjun.as_unloader</span>
+<span class="sd">        def unload_component(client: tanjun.Client) -&gt; None:</span>
+<span class="sd">            client.remove_component_by_name(component.name)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        or</span>
+
+<span class="sd">        ```py</span>
+<span class="sd">        # as_loader&#39;s returned AbstractLoader handles both loading and unloading.</span>
+<span class="sd">        loader = tanjun.Component(&quot;trans component&quot;).detect_commands().as_loader(unload_component)</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *modules: typing.Union[str, pathlib.Path]</span>
+<span class="sd">            Path of one or more modules to unload.</span>
+
+<span class="sd">            These should be the same path(s) which were passed to `load_module`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            This client instance to enable chained calls.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the module hasn&#39;t been loaded.</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If no unloaders are found in the module.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Unload entities from this client based on unloaders in one or more modules.</p>
+
+<p><em>Note:</em>
+If an <code>__all__</code> is present in the target module then it will be
+used to find unloaders.</p>
+
+<h6 id="examples">Examples</h6>
+
+<p>For this to work the module has to have at least one unloading enabled
+<code><a href="#AbstractLoader">tanjun.abc.AbstractLoader</a></code> present.</p>
+
+<div class="codehilite"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_unloader</span>
+<span class="k">def</span> <span class="nf">unload_component</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">remove_component_by_name</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</code></pre></div>
+
+<p>or</p>
+
+<div class="codehilite"><pre><span></span><code><span class="c1"># as_loader&#39;s returned AbstractLoader handles both loading and unloading.</span>
+<span class="n">loader</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="s2">&quot;trans component&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">detect_commands</span><span class="p">()</span><span class="o">.</span><span class="n">as_loader</span><span class="p">(</span><span class="n">unload_component</span><span class="p">)</span>
+</code></pre></div>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>*modules</strong> (typing.Union[str, pathlib.Path]):
+Path of one or more modules to unload.</p>
+
+<p>These should be the same path(s) which were passed to <code>load_module</code>.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: This client instance to enable chained calls.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the module hasn't been loaded.</li>
+<li><strong>RuntimeError</strong>: If no unloaders are found in the module.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Client.reload_modules" class="classattr">
+                                        <div class="attr function"><a class="headerlink" href="#Client.reload_modules">#&nbsp;&nbsp</a>
+
+        
+            <span class="def">def</span>
+            <span class="name">reload_modules</span><span class="signature">(self: ~_T, *modules: Union[str, pathlib.Path]) -&gt; ~_T</span>:
+    </div>
+
+                <details>
+            <summary>View Source</summary>
+            <div class="codehilite"><pre><span></span>    <span class="k">def</span> <span class="nf">reload_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="o">*</span><span class="n">modules</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="c1"># &lt;&lt;inherited docstring from tanjun.abc.Client&gt;&gt;.</span>
+        <span class="sd">&quot;&quot;&quot;Reload entities in this client based on the loaders in loaded module(s).</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            If an `__all__` is present in the target module then it will be</span>
+<span class="sd">            used to find loaders and unloaders.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        For this to work the module has to have at least one AbstractLoader</span>
+<span class="sd">        which handles both loading and unloading present.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *modules: typing.Union[str, pathlib.Path]</span>
+<span class="sd">            Paths of one or more module to unload.</span>
+
+<span class="sd">            These should be the same paths which were passed to `load_module`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Self</span>
+<span class="sd">            This client instance to enable chained calls.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the module hasn&#39;t been loaded.</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If no unloaders are found in the current state of the module.</span>
+<span class="sd">            If no loaders are found in the new state of the module.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+
+        </details>
+
+            <div class="docstring"><p>Reload entities in this client based on the loaders in loaded module(s).</p>
+
+<p><em>Note:</em>
+If an <code>__all__</code> is present in the target module then it will be
+used to find loaders and unloaders.</p>
+
+<h6 id="examples">Examples</h6>
+
+<p>For this to work the module has to have at least one AbstractLoader
+which handles both loading and unloading present.</p>
+
+<h6 id="parameters">Parameters</h6>
+
+<ul>
+<li><p><strong>*modules</strong> (typing.Union[str, pathlib.Path]):
+Paths of one or more module to unload.</p>
+
+<p>These should be the same paths which were passed to <code>load_module</code>.</p></li>
+</ul>
+
+<h6 id="returns">Returns</h6>
+
+<ul>
+<li><strong>Self</strong>: This client instance to enable chained calls.</li>
+</ul>
+
+<h6 id="raises">Raises</h6>
+
+<ul>
+<li><strong>ValueError</strong>: If the module hasn't been loaded.</li>
+<li><strong>RuntimeError</strong>: If no unloaders are found in the current state of the module.
+If no loaders are found in the new state of the module.</li>
 </ul>
 </div>
 
