@@ -3349,7 +3349,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def load_modules(self: _T, *modules: typing.Union[str, pathlib.Path], _log: bool = True) -> _T:
+    def load_modules(self: _T, *modules: typing.Union[str, pathlib.Path]) -> _T:
         """Load entities into this client from modules based on present loaders.
 
         .. note::
@@ -3402,7 +3402,7 @@ class Client(abc.ABC):
             If the module is not found.
         """
 
-    def unload_modules(self: _T, *modules: typing.Union[str, pathlib.Path], _log: bool = True) -> _T:
+    def unload_modules(self: _T, *modules: typing.Union[str, pathlib.Path]) -> _T:
         # <<inherited docstring from tanjun.abc.Client>>.
         """Unload entities from this client based on unloaders in one or more modules.
 
