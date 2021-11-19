@@ -39,7 +39,7 @@ __all__: list[str] = [
     "cached_inject",
     "CommandT",
     "CooldownPreExecution",
-    "CooldownResource",
+    "BucketResource",
     "LazyConstant",
     "InMemoryCooldownManager",
     "inject_lc",
@@ -121,8 +121,8 @@ class AbstractCooldownManager(abc.ABC):
         """
 
 
-class CooldownResource(int, enum.Enum):
-    """Cooldown resource types."""
+class BucketResource(int, enum.Enum):
+    """Resource target types used within command calldowns and concurrency limiters."""
 
     USER = 0
     """A per-user cooldown bucket."""
@@ -145,13 +145,13 @@ class CooldownResource(int, enum.Enum):
         this'll be per-guild.
     """
 
-    CATEGORY = 4
-    """A per-category cooldown bucket.
+    # CATEGORY = 4
+    # """A per-category cooldown bucket.
 
-    .. note::
-        For DM channels this will be per-DM, for guild channels with no parent
-        category this'll be per-guild.
-    """
+    # .. note::
+    #     For DM channels this will be per-DM, for guild channels with no parent
+    #     category this'll be per-guild.
+    # """
 
     TOP_ROLE = 5
     """A per-highest role cooldown bucket.
@@ -170,6 +170,54 @@ class CooldownResource(int, enum.Enum):
 
     GLOBAL = 7
     """A global cooldown bucket."""
+
+
+async def _get_ctx_target(ctx: tanjun_abc.Context, type_: BucketResource, /) -> hikari.Snowflake:
+    if type_ is BucketResource.USER:
+        return ctx.author.id
+
+    if type_ is BucketResource.CHANNEL:
+        return ctx.channel_id
+
+    if type_ is BucketResource.PARENT_CHANNEL:
+        if ctx.guild_id is None:
+            return ctx.channel_id
+
+        if channel := ctx.get_channel():
+            return channel.parent_id or channel.guild_id
+
+        channel = await ctx.fetch_channel()  # TODO: couldn't this lead to two requests per command? seems bad
+        assert isinstance(channel, hikari.TextableGuildChannel)
+        return channel.parent_id or channel.guild_id
+
+    # if type_ is BucketResource.CATEGORY:
+    #     if ctx.guild_id is None:
+    #         return ctx.channel_id
+
+    #     # This resource doesn't include threads so we can safely assume that the parent is a category
+    #     if channel := ctx.get_channel():
+    #         return channel.parent_id or channel.guild_id
+
+    #     # TODO: threads
+    #     channel = await ctx.fetch_channel()  # TODO: couldn't this lead to two requests per command? seems bad
+    #     assert isinstance(channel, hikari.TextableGuildChannel)
+    #     return channel.parent_id or channel.guild_id
+
+    if type_ is BucketResource.TOP_ROLE:
+        if not ctx.member:
+            return ctx.channel_id
+
+        if not ctx.member.role_ids:
+            return ctx.member.guild_id
+
+        # TODO: couldn't this lead to two requests per command? seems bad
+        roles = ctx.member.get_roles() or await ctx.member.fetch_roles()
+        return next(iter(sorted(roles, key=lambda r: r.position, reverse=True))).id
+
+    if type_ is BucketResource.GUILD:
+        return ctx.guild_id or ctx.channel_id
+
+    raise RuntimeError(f"Unexpected type {type_}")
 
 
 class _Cooldown:
@@ -246,7 +294,7 @@ class _CooldownBucket(_BaseCooldownResource):
 
     def __init__(
         self,
-        resource_type: CooldownResource,
+        resource_type: BucketResource,
         limit: int,
         reset_after: typing.Union[int, float, datetime.timedelta],
     ) -> None:
@@ -255,61 +303,14 @@ class _CooldownBucket(_BaseCooldownResource):
         self.mapping: dict[hikari.Snowflake, _Cooldown] = {}
 
     async def check(self, ctx: tanjun_abc.Context, /, *, increment: bool = False) -> typing.Optional[float]:
-        return _check_cooldown_mapping(self, self.mapping, await self._get_target(ctx), increment)
+        return _check_cooldown_mapping(self, self.mapping, await _get_ctx_target(ctx, self.type), increment)
 
     async def increment(self, ctx: tanjun_abc.Context, /) -> None:
-        target = await self._get_target(ctx)
+        target = await _get_ctx_target(ctx, self.type)
         if not (cooldown := self.mapping.get(target)):
             cooldown = self.mapping[target] = _Cooldown(self)
 
         cooldown.increment()
-
-    async def _get_target(self, ctx: tanjun_abc.Context, /) -> hikari.Snowflake:
-        if self.type is CooldownResource.USER:
-            return ctx.author.id
-
-        if self.type is CooldownResource.CHANNEL:
-            return ctx.channel_id
-
-        if self.type is CooldownResource.PARENT_CHANNEL:
-            if ctx.guild_id is None:
-                return ctx.channel_id
-
-            if channel := ctx.get_channel():
-                return channel.parent_id or channel.guild_id
-
-            channel = await ctx.fetch_channel()  # TODO: couldn't this lead to two requests per command? seems bad
-            assert isinstance(channel, hikari.TextableGuildChannel)
-            return channel.parent_id or channel.guild_id
-
-        if self.type is CooldownResource.CATEGORY:
-            if ctx.guild_id is None:
-                return ctx.channel_id
-
-            # This resource doesn't include threads so we can safely assume that the parent is a category
-            if channel := ctx.get_channel():
-                return channel.parent_id or channel.guild_id
-
-            # TODO: threads
-            channel = await ctx.fetch_channel()  # TODO: couldn't this lead to two requests per command? seems bad
-            assert isinstance(channel, hikari.TextableGuildChannel)
-            return channel.parent_id or channel.guild_id
-
-        if self.type is CooldownResource.TOP_ROLE:
-            if not ctx.member:
-                return ctx.channel_id
-
-            if not ctx.member.role_ids:
-                return ctx.member.guild_id
-
-            # TODO: couldn't this lead to two requests per command? seems bad
-            roles = ctx.member.get_roles() or await ctx.member.fetch_roles()
-            return next(iter(sorted(roles, key=lambda r: r.position, reverse=True))).id
-
-        if self.type is CooldownResource.GUILD:
-            return ctx.guild_id or ctx.channel_id
-
-        raise RuntimeError(f"Unexpected type {self.type}")
 
     def cleanup(self) -> None:
         for bucket_id, cooldown in self.mapping.copy().items():
@@ -408,13 +409,32 @@ class _GlobalCooldownResource(_BaseCooldownResource):
 
 
 class InMemoryCooldownManager(AbstractCooldownManager):
-    """In-memory standard implementation of `AbstractCooldownManager`."""
+    """In-memory standard implementation of `AbstractCooldownManager`.
+
+    Examples
+    --------
+    `InMemoryCooldownManager.set_bucket` may be used to set a cooldown for a
+    specific bucket:
+
+    ```py
+    (
+        InMemoryCooldownManager()
+        # Set the default bucket to a per-user 10 uses per-60 seconds cooldown.
+        .set_bucket("default", tanjun.BucketResource.USER, 10, 60)
+        # Set the "moderation" bucket to a per-guild 100 uses per-5 minutes cooldown.
+        .set_bucket("moderation", tanjun.BucketResource.GUILD, 100, datetime.timedelta(minutes=5))
+        .set_bucket()
+        # add_to_client will setup the cooldown manager (setting it as an
+        # injected dependency and registering callbacks to manage it).
+        .add_to_client(client)
+    )
+    """
 
     __slots__ = ("_buckets", "_default_bucket_template", "_gc_loop")
 
     def __init__(self) -> None:
         self._buckets: dict[str, _BaseCooldownResource] = {}
-        self._default_bucket_template: _BaseCooldownResource = _CooldownBucket(CooldownResource.USER, 5, 10)
+        self._default_bucket_template: _BaseCooldownResource = _CooldownBucket(BucketResource.USER, 2, 5)
         self._gc_loop: typing.Optional[asyncio.Task[None]] = None
 
     def _get_bucket(self, bucket_id: str, /) -> _BaseCooldownResource:
@@ -508,14 +528,36 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     def set_bucket(
         self: _InMemoryCooldownManagerT,
         bucket_id: str,
-        resource_type: CooldownResource,
+        resource_type: BucketResource,
         limit: int,
         reset_after: typing.Union[int, float, datetime.timedelta],
     ) -> _InMemoryCooldownManagerT:
-        if resource_type is CooldownResource.MEMBER:
+        """Set the cooldown for a specific bucket.
+
+        Parameters
+        ----------
+        bucket_id : str
+            The ID of the bucket to set the cooldown for.
+
+            ..  note::
+                "default" is a special bucket that is used when the bucket ID
+                isn't found.
+        resource_type : tanjun.BucketResource
+            The type of resource to use for the cooldown.
+        limit : int
+            The number of uses per cooldown period.
+        reset_after : int, float, datetime.timedelta
+            The cooldown period.
+
+        Returns
+        -------
+        Self
+            This cooldown manager to allow chaining.
+        """
+        if resource_type is BucketResource.MEMBER:
             bucket = _MemberCooldownResource(limit, reset_after)
 
-        elif resource_type is CooldownResource.GLOBAL:
+        elif resource_type is BucketResource.GLOBAL:
             bucket = _GlobalCooldownResource(limit, reset_after)
 
         else:
@@ -703,10 +745,10 @@ def with_cooldown(
 ) -> typing.Callable[[CommandT], CommandT]:
     """Add a pre-execution hook used to manage a command's cooldown through a decorator call.
 
-    .. note::
-        The cooldown's bucket should be configured on the client's injected
-        cooldown manager impl with the standard manager being
-        `InMemoryCooldownManager`.
+    .. warning::
+        Cooldowns will only work if there's a setup injected `AbstractCooldownManager`
+        dependency with `InMemoryCooldownManager` being usable as a standard in-memory
+        cooldown manager.
 
     Parameters
     ----------
@@ -947,7 +989,6 @@ def set_standard_dependencies(client: injecting.InjectorClient, /) -> None:
     client: tanjun.injecting.InjectorClient
         The injector client to set the standard dependencies on.
     """
-    InMemoryCooldownManager().add_to_client(client)
     (
         (
             client.set_type_dependency(AbstractOwnerCheck, OwnerCheck()).set_type_dependency(
