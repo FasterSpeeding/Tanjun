@@ -142,7 +142,7 @@ def _filter_scope(scope: collections.Mapping[str, typing.Any]) -> collections.It
     return (value for key, value in scope.items() if not key.startswith("_"))
 
 
-class _ComponentManager(abc.AbstractLoader):
+class _ComponentManager(abc.ClientLoader):
     __slots__ = ("_component", "_copy")
 
     def __init__(self, component: Component, copy: bool) -> None:
@@ -1048,7 +1048,7 @@ class Component(abc.Component):
         else:
             await asyncio.gather(*(callback.resolve_without_injector() for callback in self._on_open))
 
-    def make_loader(self, *, copy: bool = True) -> abc.AbstractLoader:
+    def make_loader(self, *, copy: bool = True) -> abc.ClientLoader:
         """Make a loader/unloader for this component.
 
         This enables loading, unloading and reloading of this component into a
@@ -1064,7 +1064,7 @@ class Component(abc.Component):
 
         Returns
         -------
-        tanjun.abc.AbstractLoader
+        tanjun.abc.ClientLoader
             The loader for this component.
         """
         return _ComponentManager(self, copy)

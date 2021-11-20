@@ -33,7 +33,7 @@
 from __future__ import annotations
 
 __all__: list[str] = [
-    "AbstractLoader",
+    "ClientLoader",
     "BaseSlashCommandT",
     "CheckSig",
     "CheckSigT",
@@ -3413,7 +3413,7 @@ class Client(abc.ABC):
         Examples
         --------
         For this to work the module has to have at least one unloading enabled
-        `tanjun.abc.AbstractLoader` present.
+        `tanjun.abc.ClientLoader` present.
 
         ```py
         @tanjun.as_unloader
@@ -3424,7 +3424,7 @@ class Client(abc.ABC):
         or
 
         ```py
-        # as_loader's returned AbstractLoader handles both loading and unloading.
+        # as_loader's returned ClientLoader handles both loading and unloading.
         loader = tanjun.Component("trans component").detect_commands().as_loader(unload_component)
         ```
 
@@ -3458,7 +3458,7 @@ class Client(abc.ABC):
 
         Examples
         --------
-        For this to work the module has to have at least one AbstractLoader
+        For this to work the module has to have at least one ClientLoader
         which handles both loading and unloading present.
 
         Parameters
@@ -3483,7 +3483,7 @@ class Client(abc.ABC):
         """
 
 
-class AbstractLoader(abc.ABC):
+class ClientLoader(abc.ABC):
     """Interface of logic used to load and unload components into a generic client."""
 
     __slots__ = ()

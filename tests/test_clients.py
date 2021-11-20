@@ -1302,7 +1302,7 @@ class TestClient:
             foo="ok",
             no=object(),
             __all__=None,
-            loader=mock.Mock(tanjun.abc.AbstractLoader, load=mock.Mock(return_value=False)),
+            loader=mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(return_value=False)),
         )
 
         with mock.patch.object(importlib, "import_module", return_value=mock_module) as import_module:
@@ -1315,16 +1315,16 @@ class TestClient:
 
     def test_load_modules_with_python_module_path_respects_all(self):
         client = tanjun.Client(mock.AsyncMock())
-        priv_loader = mock.Mock(tanjun.abc.AbstractLoader, load=mock.Mock(return_value=True))
+        priv_loader = mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(return_value=True))
 
         mock_module = mock.Mock(
             object=123,
             foo="ok",
-            loader=mock.Mock(tanjun.abc.AbstractLoader, load=mock.Mock(return_value=True)),
+            loader=mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(return_value=True)),
             no=object(),
-            other_loader=mock.Mock(tanjun.abc.AbstractLoader, load=mock.Mock(return_value=False)),
+            other_loader=mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(return_value=False)),
             _priv_loader=priv_loader,
-            another_loader=mock.Mock(tanjun.abc.AbstractLoader, load=mock.Mock(return_value=True)),
+            another_loader=mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(return_value=True)),
             __all__=["loader", "_priv_loader", "another_loader", "missing"],
         )
 
@@ -1340,14 +1340,14 @@ class TestClient:
 
     def test_load_modules_with_python_module_path(self):
         client = tanjun.Client(mock.AsyncMock())
-        priv_loader = mock.Mock(tanjun.abc.AbstractLoader, load=mock.Mock(return_value=True))
+        priv_loader = mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(return_value=True))
 
         mock_module = mock.Mock(
             object=123,
             foo="ok",
-            loader=mock.Mock(tanjun.abc.AbstractLoader, load=mock.Mock(return_value=False)),
+            loader=mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(return_value=False)),
             no=object(),
-            other_loader=mock.Mock(tanjun.abc.AbstractLoader, load=mock.Mock(return_value=True)),
+            other_loader=mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(return_value=True)),
             _priv_loader=priv_loader,
             __all__=None,
         )
@@ -1593,13 +1593,13 @@ class TestClient:
 
     def test_unload_modules_with_python_module_path(self):
         client = tanjun.Client(mock.AsyncMock())
-        priv_loader = mock.Mock(tanjun.abc.AbstractLoader, unload=mock.Mock(return_value=True))
+        priv_loader = mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=True))
 
         mock_module = mock.Mock(
             object=123,
             foo="ok",
-            other_loader=mock.Mock(tanjun.abc.AbstractLoader, unload=mock.Mock(return_value=True)),
-            loader=mock.Mock(tanjun.abc.AbstractLoader, unload=mock.Mock(return_value=False)),
+            other_loader=mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=True)),
+            loader=mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=False)),
             no=object(),
             _priv_loader=priv_loader,
             __all__=None,
@@ -1617,16 +1617,16 @@ class TestClient:
 
     def test_unload_modules_with_python_module_path_respects_all(self):
         client = tanjun.Client(mock.AsyncMock())
-        priv_loader = mock.Mock(tanjun.abc.AbstractLoader, unload=mock.Mock(return_value=True))
+        priv_loader = mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=True))
 
         mock_module = mock.Mock(
             object=123,
             foo="ok",
-            loader=mock.Mock(tanjun.abc.AbstractLoader, unload=mock.Mock(return_value=False)),
+            loader=mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=False)),
             no=object(),
-            other_loader=mock.Mock(tanjun.abc.AbstractLoader, unload=mock.Mock(return_value=True)),
+            other_loader=mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=True)),
             _priv_loader=priv_loader,
-            another_loader=mock.Mock(tanjun.abc.AbstractLoader, unload=mock.Mock(return_value=True)),
+            another_loader=mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=True)),
             __all__=["loader", "_priv_loader", "another_loader", "missing"],
         )
 
@@ -1650,12 +1650,12 @@ class TestClient:
 
     def test_unload_modules_with_python_module_path_when_no_unloaders_found_and_all(self):
         client = tanjun.Client(mock.AsyncMock())
-        other_loader = mock.Mock(tanjun.abc.AbstractLoader, unload=mock.Mock(return_value=True))
+        other_loader = mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=True))
 
         mock_module = mock.Mock(
             object=123,
             foo="ok",
-            loader=mock.Mock(tanjun.abc.AbstractLoader, unload=mock.Mock(return_value=False)),
+            loader=mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=False)),
             no=object(),
             other_loader=other_loader,
             __all__=["loader", "missing"],
@@ -1678,7 +1678,7 @@ class TestClient:
         mock_module = mock.Mock(
             object=123,
             foo="ok",
-            loader=mock.Mock(tanjun.abc.AbstractLoader, unload=mock.Mock(return_value=False)),
+            loader=mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=False)),
             no=object(),
         )
 
@@ -1691,20 +1691,20 @@ class TestClient:
             import_module.assert_called_once_with("okokok.nok")
 
     def test_reload_modules_with_python_module_path(self):
-        old_priv_loader = mock.Mock(tanjun.abc.AbstractLoader)
-        priv_loader = mock.Mock(tanjun.abc.AbstractLoader, unload=mock.Mock(return_value=False))
+        old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
+        priv_loader = mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=False))
         old_module = mock.Mock(
-            loader=mock.Mock(tanjun.abc.AbstractLoader, load=mock.Mock(unload=False)),
+            loader=mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(unload=False)),
             ok=123,
             naye=object(),
-            other_loader=mock.Mock(tanjun.abc.AbstractLoader),
+            other_loader=mock.Mock(tanjun.abc.ClientLoader),
             _priv_loader=old_priv_loader,
         )
         new_module = mock.Mock(
-            loader=mock.Mock(tanjun.abc.AbstractLoader, load=mock.Mock(return_value=False)),
+            loader=mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(return_value=False)),
             ok=123,
             naye=object(),
-            other_loader=mock.Mock(tanjun.abc.AbstractLoader),
+            other_loader=mock.Mock(tanjun.abc.ClientLoader),
             _priv_loader=priv_loader,
         )
         client = tanjun.Client(mock.AsyncMock())
@@ -1745,10 +1745,10 @@ class TestClient:
         priv_loader.unload.assert_not_called()
 
     def test_reload_modules_with_python_module_path_when_no_unloaders_found(self):
-        priv_loader = mock.Mock(tanjun.abc.AbstractLoader)
+        priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
             load=mock.Mock(
-                tanjun.abc.AbstractLoader, load=mock.Mock(return_value=True), unload=mock.Mock(return_value=False)
+                tanjun.abc.ClientLoader, load=mock.Mock(return_value=True), unload=mock.Mock(return_value=False)
             ),
             ok=123,
             naye=object(),
@@ -1769,13 +1769,13 @@ class TestClient:
         priv_loader.unload.assert_not_called()
 
     def test_reload_modules_with_python_module_path_when_no_loaders_found_in_new_module(self):
-        old_priv_loader = mock.Mock(tanjun.abc.AbstractLoader)
-        priv_loader = mock.Mock(tanjun.abc.AbstractLoader)
+        old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
+        priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
-            loader=mock.Mock(tanjun.abc.AbstractLoader),
+            loader=mock.Mock(tanjun.abc.ClientLoader),
             ok=123,
             naye=object(),
-            other_loader=mock.Mock(tanjun.abc.AbstractLoader),
+            other_loader=mock.Mock(tanjun.abc.ClientLoader),
             _priv_loader=old_priv_loader,
         )
         new_module = mock.Mock(
@@ -1813,21 +1813,21 @@ class TestClient:
         priv_loader.unload.assert_not_called()
 
     def test_reload_modules_with_python_module_path_when_all(self):
-        priv_loader = mock.Mock(tanjun.abc.AbstractLoader)
-        old_priv_loader = mock.Mock(tanjun.abc.AbstractLoader)
+        priv_loader = mock.Mock(tanjun.abc.ClientLoader)
+        old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
-            loader=mock.Mock(tanjun.abc.AbstractLoader),
-            other_loader=mock.Mock(tanjun.abc.AbstractLoader),
+            loader=mock.Mock(tanjun.abc.ClientLoader),
+            other_loader=mock.Mock(tanjun.abc.ClientLoader),
             ok=123,
             naye=object(),
             _priv_loader=old_priv_loader,
             __all__=["loader", "other_loader", "ok", "_priv_loader"],
         )
         new_module = mock.Mock(
-            loader=mock.Mock(tanjun.abc.AbstractLoader),
+            loader=mock.Mock(tanjun.abc.ClientLoader),
             ok=123,
             naye=object(),
-            other_loader=mock.Mock(tanjun.abc.AbstractLoader),
+            other_loader=mock.Mock(tanjun.abc.ClientLoader),
             _priv_loader=priv_loader,
             __all__=["loader", "_priv_loader"],
         )
@@ -1865,13 +1865,13 @@ class TestClient:
         priv_loader.unload.assert_not_called()
 
     def test_reload_modules_with_python_module_path_when_all_and_no_unloaders_found(self):
-        priv_loader = mock.Mock(tanjun.abc.AbstractLoader)
+        priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
-            loader=mock.Mock(tanjun.abc.AbstractLoader, unload=mock.Mock(return_value=False)),
+            loader=mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=False)),
             ok=123,
             naye=object(),
             _priv_loader=priv_loader,
-            other_loader=mock.Mock(tanjun.abc.AbstractLoader),
+            other_loader=mock.Mock(tanjun.abc.ClientLoader),
             __all__=["naye", "loader", "ok"],
         )
         client = tanjun.Client(mock.AsyncMock())
@@ -1890,13 +1890,13 @@ class TestClient:
         old_module.other_loader.unload.assert_not_called()
 
     def test_reload_modules_with_python_module_path_when_all_and_no_loaders_found_in_new_module(self):
-        old_priv_loader = mock.Mock(tanjun.abc.AbstractLoader)
-        priv_loader = mock.Mock(tanjun.abc.AbstractLoader)
+        old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
+        priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
-            loader=mock.Mock(tanjun.abc.AbstractLoader),
+            loader=mock.Mock(tanjun.abc.ClientLoader),
             ok=123,
             naye=object(),
-            other_loader=mock.Mock(tanjun.abc.AbstractLoader),
+            other_loader=mock.Mock(tanjun.abc.ClientLoader),
             _priv_loader=old_priv_loader,
             __all__=["loader", "ok", "naye"],
         )
@@ -1904,7 +1904,7 @@ class TestClient:
             ok=123,
             naye=object(),
             _priv_loader=priv_loader,
-            loader=mock.Mock(tanjun.abc.AbstractLoader),
+            loader=mock.Mock(tanjun.abc.ClientLoader),
             __all__=["ok", "naye"],
         )
         client = tanjun.Client(mock.AsyncMock())

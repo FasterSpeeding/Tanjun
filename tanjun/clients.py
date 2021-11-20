@@ -120,7 +120,7 @@ PrefixGetterSigT = typing.TypeVar("PrefixGetterSigT", bound="PrefixGetterSig")
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.clients")
 
 
-class _LoaderDescriptor(tanjun_abc.AbstractLoader):  # Slots mess with functools.update_wrapper
+class _LoaderDescriptor(tanjun_abc.ClientLoader):  # Slots mess with functools.update_wrapper
     def __init__(
         self,
         callback: typing.Union[collections.Callable[[Client], None], collections.Callable[[tanjun_abc.Client], None]],
@@ -149,7 +149,7 @@ class _LoaderDescriptor(tanjun_abc.AbstractLoader):  # Slots mess with functools
         return False
 
 
-class _UnloaderDescriptor(tanjun_abc.AbstractLoader):  # Slots mess with functools.update_wrapper
+class _UnloaderDescriptor(tanjun_abc.ClientLoader):  # Slots mess with functools.update_wrapper
     def __init__(
         self,
         callback: typing.Union[collections.Callable[[Client], None], collections.Callable[[tanjun_abc.Client], None]],
@@ -1846,7 +1846,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     def _load_module(self, module: types.ModuleType, module_repr: str) -> None:
         found = False
         for member in self._iter_module_members(module, module_repr):
-            if isinstance(member, tanjun_abc.AbstractLoader) and member.load(self):
+            if isinstance(member, tanjun_abc.ClientLoader) and member.load(self):
                 found = True
 
         if not found:
@@ -1893,7 +1893,7 @@ class Client(injecting.InjectorClient, tanjun_abc.Client):
     def _unload_module(self, module: types.ModuleType, module_repr: str) -> None:
         found = False
         for member in self._iter_module_members(module, module_repr):
-            if isinstance(member, tanjun_abc.AbstractLoader) and member.unload(self):
+            if isinstance(member, tanjun_abc.ClientLoader) and member.unload(self):
                 found = True
 
         if not found:
