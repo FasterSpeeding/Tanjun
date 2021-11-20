@@ -107,7 +107,7 @@ class _LoadableInjector(checks_.InjectableCheck):
         self.overwrite_callback(types.MethodType(self.callback, component))
 
 
-class PartialCommand(abc.ExecutableCommand[abc.ContextT]):
+class PartialCommand(abc.ExecutableCommand[abc.ContextT], components.ComponentLoader):
     """Base class for the standard ExecutableCommand implementations."""
 
     __slots__ = ("_checks", "_component", "_hooks", "_metadata")
@@ -1076,7 +1076,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.SlashCommandGroup):
         self: _SlashCommandGroupT, component: abc.Component, /
     ) -> typing.Optional[_SlashCommandGroupT]:
         for command in self._commands.values():
-            if isinstance(command, components.LoadableProtocol):
+            if isinstance(command, components.ComponentLoader):
                 command.load_into_component(component)
 
         return super().load_into_component(component)
@@ -2284,7 +2284,7 @@ class MessageCommandGroup(MessageCommand[CommandCallbackSigT], abc.MessageComman
     ) -> typing.Optional[_MessageCommandGroupT]:
         super().load_into_component(component)
         for command in self._commands:
-            if isinstance(command, components.LoadableProtocol):
+            if isinstance(command, components.ComponentLoader):
                 command.load_into_component(component)
 
         if not self._parent:
